@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, QDockWidget
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 
 from app.editor.map_view import MapView
+from app.editor.level_menu import LevelMenu
 
 class MainEditor(QMainWindow):
     def __init__(self):
@@ -17,12 +19,13 @@ class MainEditor(QMainWindow):
         self.create_menus()
         self.create_toolbar()
 
+        self.create_level_dock()
+
         self.map_view.update_view()
 
     # === Create Menu ===
     def create_actions(self):
         self.save_as_name = None
-        self.export_as_name = None
 
         self.new_act = QAction(QIcon('icons/file-plus.png'), "&New Project...", self, shortcut="Ctrl+N", triggered=self.new)
         self.open_act = QAction(QIcon('icons/folder.png'), "&Open Project...", self, shortcut="Ctrl+O", triggered=self.open)
@@ -63,6 +66,14 @@ class MainEditor(QMainWindow):
 
     def create_toolbar(self):
         pass
+
+    def create_level_dock(self):
+        self.level_dock = QDockWidget("Levels", self)
+        self.level_menu = LevelMenu(self)
+        self.level_dock.setAllowedAreas(Qt.LeftDockWidgetArea)
+        self.level_dock.setWidget(self.level_menu)
+        self.level_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.level_dock)
 
     def new(self):
         pass

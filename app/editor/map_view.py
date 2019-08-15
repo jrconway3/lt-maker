@@ -17,10 +17,22 @@ class MapView(QGraphicsView):
         self.pixmap = None
         self.screen_scale = 1
 
+    def set_current_map(self, tilemap):
+        self.current_map = tilemap
+        self.update_view()
+
+    def clear_scene(self):
+        self.scene.clear()
+
     def update_view(self):
-        pass
+        self.clear_scene()
+        self.show_map()
 
     def show_map(self):
+        if self.current_map:
+            self.scene.addPixmap(QPixmap(self.current_map.base_image))
+
+    def show_map_from_individual_sprites(self):
         if self.current_map:
             image = QImage(self.current_map.width * TILEWIDTH, 
                            self.current_map.height * TILEHEIGHT, 
@@ -28,7 +40,7 @@ class MapView(QGraphicsView):
 
             painter = QPainter()
             painter.begin(image)
-            for coord, tile_image in self.map_grid.get_images():
+            for coord, tile_image in self.current_map.get_tile_sprites():
                 painter.drawImage(coord[0] * TILEWIDTH, 
                                   coord[1] * TILEHEIGHT, tile_image)
             painter.end()
@@ -38,9 +50,9 @@ class MapView(QGraphicsView):
             self.scene.addPixmap(self.pixmap)
 
     def wheelEvent(self, event):
-        if event.delta() > 0 and self.screen_scale < 4:
+        if event.angleDelta() > 0 and self.screen_scale < 4:
             self.screen_scale += 1
             self.scale(2, 2)
-        elif event.delta() < 0 and self.screen_scale > 1:
+        elif event.angleDelta() < 0 and self.screen_scale > 1:
             self.screen_scale -= 1
             self.scale(0.5, 0.5)

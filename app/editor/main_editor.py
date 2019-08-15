@@ -23,6 +23,9 @@ class MainEditor(QMainWindow):
 
         self.map_view.update_view()
 
+    def set_current_level(self, level):
+        self.map_view.set_current_map(level.tilemap)
+
     # === Create Menu ===
     def create_actions(self):
         self.save_as_name = None

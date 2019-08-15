@@ -11,7 +11,7 @@ class CreateNewLevel(QUndoCommand):
         super().__init__("Creating level %s: %s" % (nid, title))
 
     def undo(self):
-        self.old_idx = self.level_menu.model.get_index(self.new_level)
+        self.old_idx = self.level_menu.model.get_index_from_item(self.new_level)
         self.level_menu.model.remove(self.old_idx, self.new_level)
 
     def redo(self):

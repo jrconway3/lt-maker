@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QDialog, QLabel
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QDialogButtonBox, QListView
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QColor
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
@@ -25,23 +25,20 @@ class LevelListModel(QStandardItemModel):
         self.level_list.remove(level)
         self.takeRow(idx)
 
-    def get_index(self, level):
+    def get_index_from_item(self, level):
         return self.level_list.index(level)
 
-    def get_level_from_index(self, model_index):
+    def get_item_from_qindex(self, model_index):
         row = model_index.row()
         if row >= 0:
             return self.level_list[row]
         else:
             return None
 
-    def get_nids(self):
-        return [level.nid for level in self.level_list]
-
 class LevelView(QListView):
     def currentChanged(self, current, previous):
         super().currentChanged(current, previous)
-        level = self.model().get_level_from_index(current)
+        level = self.model().get_item_from_qindex(current)
         if level:
             self.parentWidget().main_editor.set_current_level(level)
 
@@ -101,7 +98,7 @@ class NewLevelDialog(QDialog):
         self.warning_message.setText('No Level ID set.')
 
     def level_id_changed(self, text):
-        if text in self.level_menu.model.get_nids():
+        if text in [level.nid for level in DB.level_list]:
             accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
             accept_button.setEnabled(False)
             self.warning_message.setText('Level ID is already in use.')

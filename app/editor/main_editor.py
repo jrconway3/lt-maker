@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 
 from app.editor.map_view import MapView
 from app.editor.level_menu import LevelMenu
+from app.editor.database_editor import DatabaseEditor
 
 class MainEditor(QMainWindow):
     def __init__(self):
@@ -18,6 +19,7 @@ class MainEditor(QMainWindow):
         self.create_actions()
         self.create_menus()
         self.create_toolbar()
+        self.create_statusbar()
 
         self.create_level_dock()
 
@@ -34,8 +36,6 @@ class MainEditor(QMainWindow):
         self.open_act = QAction(QIcon('icons/folder.png'), "&Open Project...", self, shortcut="Ctrl+O", triggered=self.open)
         self.save_act = QAction(QIcon('icons/save.png'), "&Save Project", self, shortcut="Ctrl+S", triggered=self.save)
         self.save_as_act = QAction(QIcon('icons/save.png'), "Save Project As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
-        # self.export_act = QAction("&Export...", self, shortcut="Ctrl+E", triggered=self.export)
-        # self.export_as_act = QAction("Export to...", self, shortcut="Ctrl+Shift+E", triggered=self.export_as)
         self.quit_act = QAction(QIcon('icons/x.png'), "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
 
         self.undo_act = QAction(QIcon('icons/corner-up-left.png'), "Undo", self, shortcut="Ctrl+Z", triggered=self.undo)
@@ -43,6 +43,12 @@ class MainEditor(QMainWindow):
         self.redo_act.setShortcuts(["Ctrl+Y", "Ctrl+Shift+Z"])
 
         self.about_act = QAction("&About", self, triggered=self.about)
+
+        # Toolbar actions
+        self.modify_tilemap_act = QAction(QIcon('icons/map.png'), "Edit Map", self, triggered=self.edit_map)
+        self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, triggered=self.edit_database)
+        self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, triggered=self.edit_events)
+        self.test_play_act = QAction(QIcon('icons/play.png'), "Test Play", self, triggered=self.test_play)
 
     def create_menus(self):
         file_menu = QMenu("File", self)
@@ -68,7 +74,14 @@ class MainEditor(QMainWindow):
         self.menuBar().addMenu(help_menu)
 
     def create_toolbar(self):
-        pass
+        toolbar = self.addToolBar("Edit")
+        toolbar.addAction(self.modify_tilemap_act)
+        toolbar.addAction(self.modify_database_act)
+        toolbar.addAction(self.modify_events_act)
+        toolbar.addAction(self.test_play_act)
+
+    def create_statusbar(self):
+        self.status_bar = self.statusBar()
 
     def create_level_dock(self):
         self.level_dock = QDockWidget("Levels", self)
@@ -92,7 +105,7 @@ class MainEditor(QMainWindow):
 
     def maybe_save(self):
         if not self.undo_stack.isClean():
-            ret = QMessageBox.warning(self, "Map Editor", "The current map may have been modified.\n"
+            ret = QMessageBox.warning(self, "Main Editor", "The current map may have been modified.\n"
                                             "Do you want to save your changes?",
                                             QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
             if ret == QMessageBox.Save:
@@ -114,6 +127,19 @@ class MainEditor(QMainWindow):
     def redo(self):
         self.undo_stack.redo()
         self.map_view.update_view()
+
+    def edit_map(self):
+        pass
+
+    def edit_database(self):
+        dialog = DatabaseEditor(self)
+        dialog.exec_()
+
+    def edit_events(self):
+        pass
+
+    def test_play(self):
+        pass
 
     def about(self):
         QMessageBox.about(self, "About Lex Talionis Game Maker",

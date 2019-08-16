@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt
 
 from collections import OrderedDict
 
+from app.editor.terrain_menu import TerrainMenu
+
 class DatabaseEditor(QDialog):
     def __init__(self, parent):
         super().__init__(parent)
@@ -72,9 +74,6 @@ class ItemMenu(QWidget):
     pass
 
 class StatusMenu(QWidget):
-    pass
-
-class TerrainMenu(QWidget):
     pass
 
 class AIMenu(QWidget):

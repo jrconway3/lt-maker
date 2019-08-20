@@ -21,20 +21,17 @@ class McostDialog(QDialog):
         delegate = McostDelegate(self.view)
         self.view.setItemDelegate(delegate)
 
-        self.view.horizontalHeader().sectionDoubleClicked.connect(self.model.change_horiz_header)
-        self.view.verticalHeader().sectionDoubleClicked.connect(self.model.change_vert_header)
-
         layout = QGridLayout(self)
         layout.addWidget(self.view, 0, 0, 1, 2)
         self.setLayout(layout)
 
         column_header_view = ColumnHeaderView()
         self.view.setHorizontalHeader(column_header_view)
-        print(self.view.horizontalHeader())
-        print(self.view.verticalHeader())
 
-        for i in range(self.model.columnCount()):
-            self.view.setColumnWidth(i, 23)
+        self.view.horizontalHeader().sectionDoubleClicked.connect(self.model.change_horiz_header)
+        self.view.verticalHeader().sectionDoubleClicked.connect(self.model.change_vert_header)
+
+        self.view.resizeColumnsToContents()
 
         new_terrain_button = QPushButton("Add Terrain Type")
         new_terrain_button.clicked.connect(self.model.add_terrain_type)
@@ -51,8 +48,8 @@ class McostDialog(QDialog):
         self.buttonbox.rejected.connect(self.reject)
 
 class VerticalTextHeaderStyle(QProxyStyle):
-    def __init__(self, style, fontHeight):
-        super().__init__(style)
+    def __init__(self, fontHeight):
+        super().__init__()
         self.half_font_height = fontHeight / 2
 
     def drawControl(self, element, option, painter, parent=None):
@@ -72,30 +69,8 @@ class ColumnHeaderView(QHeaderView):
         self._metrics = QFontMetrics(self.font())
         self._descent = self._metrics.descent()
         self._margin = 10
-        custom_style = VerticalTextHeaderStyle(self.style(), self.font().pixelSize())
+        custom_style = VerticalTextHeaderStyle(self.font().pixelSize() + 1)
         self.setStyle(custom_style)
-
-    # def paintSection(self, painter, rect, index):
-    #     if not rect.isValid():
-    #         return
-    #     opt = QStyleOptionHeader()
-    #     opt.initFrom(self)
-    #     if self.isEnabled():
-    #         opt.state |= QStyle.State_Enabled
-    #     if self.window().isActiveWindow():
-    #         opt.state |= QStyle.State_Active
-    #     opt.rect = rect
-    #     opt.section = index
-    #     opt.text = None
-    #     opt.position = QStyleOptionHeader.Middle
-    #     data = self._get_data(index)
-    #     self.style().drawControl(QStyle.CE_HeaderSection, opt, painter)
-    #     self.style().drawControl(QStyle.CE_HeaderLabel, opt, painter)
-    #     painter.save()
-    #     painter.translate(rect.x(), rect.y())
-    #     painter.rotate(90)
-    #     painter.drawText(0, 0, data)
-    #     painter.restore()
 
     def sizeHint(self):
         return QSize(0, self._get_text_width() + 2 * self._margin)

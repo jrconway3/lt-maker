@@ -16,7 +16,7 @@ class McostDialog(QDialog):
 
         column_header_view = ColumnHeaderView()
         custom_style = VerticalTextHeaderStyle(self.style())
-        column_header_view.setStyle(custom_style)
+        # column_header_view.setStyle(custom_style)
         self.view.setHorizontalHeader(column_header_view)
 
 class VerticalTextHeaderStyle(QProxyStyle):

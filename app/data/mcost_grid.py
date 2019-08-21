@@ -45,3 +45,17 @@ class McostGrid(object):
         self.column_headers.append(name)
         for row in self.grid:
             row.append(self.default_value)
+
+    def get_terrain_types(self):
+        return self.row_headers
+
+    def serialize(self):
+        return (self.grid, self.row_headers, self.column_headers)
+
+    @classmethod
+    def deserialize(cls, data):
+        mcost_grid = cls()
+        mcost_grid.grid = data[0]
+        mcost_grid.row_headers = data[1]
+        mcost_grid.column_headers = data[2]
+        return mcost_grid

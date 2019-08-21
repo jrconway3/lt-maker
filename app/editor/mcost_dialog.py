@@ -90,50 +90,50 @@ class McostDelegate(QItemDelegate):
 class McostModel(QAbstractTableModel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.data = DB.mcost
+        self._data = DB.mcost
 
     def add_terrain_type(self):
-        new_row_name = utilities.get_next_name('New', self.data.row_headers)
-        self.data.add_row(new_row_name)
+        new_row_name = utilities.get_next_name('New', self._data.row_headers)
+        self._data.add_row(new_row_name)
         self.layoutChanged.emit()
 
     def add_movement_type(self):
-        new_col_name = utilities.get_next_name('New', self.data.column_headers)
-        self.data.add_column(new_col_name)
+        new_col_name = utilities.get_next_name('New', self._data.column_headers)
+        self._data.add_column(new_col_name)
         self.layoutChanged.emit()
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Vertical:  # Row
-            return self.data.row_headers[idx]
+            return self._data.row_headers[idx]
         elif orientation == Qt.Horizontal:  # Column
-            return self.data.column_headers[idx]
+            return self._data.column_headers[idx]
         return None
 
     def change_horiz_header(self, idx):
-        old_header = self.data.column_headers[idx]
+        old_header = self._data.column_headers[idx]
         new_header, ok = QInputDialog.getText(self.parent(), 'Change Movement Type', 'Header:', QLineEdit.Normal, old_header)
         if ok:
-            self.data.column_headers[idx] = new_header
+            self._data.column_headers[idx] = utilities.get_next_name(new_header, self._data.column_headers)
 
     def change_vert_header(self, idx):
-        old_header = self.data.row_headers[idx]
+        old_header = self._data.row_headers[idx]
         new_header, ok = QInputDialog.getText(self.parent(), 'Change Terrain Type', 'Header:', QLineEdit.Normal, old_header)
         if ok:
-            self.data.row_headers[idx] = new_header
+            self._data.row_headers[idx] = utilities.get_next_name(new_header, self._data.row_headers)
 
     def rowCount(self, parent=None):
-        return self.data.height()
+        return self._data.height()
 
     def columnCount(self, parent=None):
-        return self.data.width()
+        return self._data.width()
 
     def data(self, index, role):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            return self.data.get((index.column(), index.row()))
+            return self._data.get((index.column(), index.row()))
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignRight + Qt.AlignVCenter
         return None
@@ -141,7 +141,7 @@ class McostModel(QAbstractTableModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        self.data.set((index.column(), index.row()), value)
+        self._data.set((index.column(), index.row()), value)
         self.dataChanged.emit(index, index)
         return True
 

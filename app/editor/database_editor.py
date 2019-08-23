@@ -47,10 +47,16 @@ class DatabaseEditor(QDialog):
 
     def apply(self):
         print("Apply")
+        self.applied_data = self.current_tab.save()
 
     def accept(self):
         print("Ok")
         super().accept()
+
+    def reject(self):
+        print("Cancel")
+        self.current_tab.restore(self.applied_data)
+        super().reject()
 
     def undo(self):
         self.undo_stack.undo()

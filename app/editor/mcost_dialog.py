@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QTableView, QInputDialog, QHeaderView
-from PyQt5.QtWidgets import QGridLayout, QPushButton, QLineEdit, QItemDelegate
+from PyQt5.QtWidgets import QGridLayout, QPushButton, QLineEdit, QItemDelegate, QAction, QMenu
 from PyQt5.QtGui import QIntValidator, QFontMetrics
 from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
@@ -26,10 +26,11 @@ class McostDialog(QDialog):
         self.setLayout(layout)
 
         column_header_view = ColumnHeaderView()
+        row_header_view = RowHeaderView()
         self.view.setHorizontalHeader(column_header_view)
-
-        self.view.horizontalHeader().sectionDoubleClicked.connect(self.model.change_horiz_header)
-        self.view.verticalHeader().sectionDoubleClicked.connect(self.model.change_vert_header)
+        self.view.setVerticalHeader(row_header_view)
+        self.view.horizontalHeader().sectionDoubleClicked.connect(self.model.change_col_header)
+        self.view.verticalHeader().sectionDoubleClicked.connect(self.model.change_row_header)
 
         self.view.resizeColumnsToContents()
 
@@ -69,8 +70,15 @@ class ColumnHeaderView(QHeaderView):
         self._metrics = QFontMetrics(self.font())
         self._descent = self._metrics.descent()
         self._margin = 10
+        
         custom_style = VerticalTextHeaderStyle(self.font().pixelSize() + 1)
         self.setStyle(custom_style)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.customHeaderMenuRequested)
+
+        self.setSectionsClickable(True)
+        self.sectionClicked.connect(self.select_column)
 
     def sizeHint(self):
         return QSize(0, self._get_text_width() + 2 * self._margin)
@@ -81,6 +89,107 @@ class ColumnHeaderView(QHeaderView):
     def _get_data(self, index):
         return self.model().headerData(index, self.orientation())
 
+    def select_column(self, col_idx):
+        self.parent().selectColumn(col_idx)
+
+    def insert(self, idx):
+        print(idx)
+        self.parent().model().insert_col(idx)
+
+    def delete(self, idx):
+        self.parent().model().delete_col(idx)
+
+    def rename(self, idx):
+        self.parent().model().change_col_header(idx)
+
+    def cut(self, idx):
+        self.parent().model().copy_col(idx)
+        self.parent().model().mark_col(idx)
+
+    def copy(self, idx):
+        self.parent().model().copy_col(idx)
+
+    def paste(self, idx):
+        self.parent().model().paste_col(idx)
+        self.parent().model().delete_marked_col()
+
+    def customHeaderMenuRequested(self, pos):
+        col_idx = self.logicalIndexAt(pos)
+        self.parent().selectColumn(col_idx)
+
+        insert_action = QAction("Insert", self, triggered=lambda: self.insert(col_idx))
+        delete_action = QAction("Delete", self, triggered=lambda: self.delete(col_idx))
+        rename_action = QAction("Rename", self, triggered=lambda: self.rename(col_idx))
+        cut_action = QAction("Cut", self, shortcut="Ctrl+X", triggered=lambda: self.cut(col_idx))
+        copy_action = QAction("Copy", self, shortcut="Ctrl+C", triggered=lambda: self.copy(col_idx))
+        paste_action = QAction("Paste", self, shortcut="Ctrl+V", triggered=lambda: self.paste(col_idx))
+
+        menu = QMenu(self)
+        menu.addAction(cut_action)
+        menu.addAction(copy_action)
+        menu.addAction(paste_action)
+        menu.addSeparator()
+        menu.addAction(insert_action)
+        menu.addAction(delete_action)
+        menu.addAction(rename_action)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+class RowHeaderView(QHeaderView):
+    def __init__(self, parent=None):
+        super().__init__(Qt.Vertical, parent)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.customHeaderMenuRequested)
+
+        self.setSectionsClickable(True)
+        self.sectionClicked.connect(self.select_row)
+
+    def select_row(self, idx):
+        self.parent().selectRow(idx)
+
+    def insert(self, idx):
+        self.parent().model().insert_row(idx)
+
+    def delete(self, idx):
+        self.parent().model().delete_row(idx)
+
+    def rename(self, idx):
+        self.parent().model().change_row_header(idx)
+
+    def cut(self, idx):
+        self.parent().model().copy_row(idx)
+        self.parent().model().mark_row(idx)
+
+    def copy(self, idx):
+        self.parent().model().copy_row(idx)
+
+    def paste(self, idx):
+        self.parent().model().paste_row(idx)
+        self.parent().model().delete_marked_row()
+
+    def customHeaderMenuRequested(self, pos):
+        row_idx = self.logicalIndexAt(pos)
+        self.parent().selectRow(row_idx)
+
+        insert_action = QAction("Insert", self, triggered=lambda: self.insert(row_idx))
+        delete_action = QAction("Delete", self, triggered=lambda: self.delete(row_idx))
+        rename_action = QAction("Rename", self, triggered=lambda: self.rename(row_idx))
+        cut_action = QAction("Cut", self, shortcut="Ctrl+X", triggered=lambda: self.cut(row_idx))
+        copy_action = QAction("Copy", self, shortcut="Ctrl+C", triggered=lambda: self.copy(row_idx))
+        paste_action = QAction("Paste", self, shortcut="Ctrl+V", triggered=lambda: self.paste(row_idx))
+
+        menu = QMenu(self)
+        menu.addAction(cut_action)
+        menu.addAction(copy_action)
+        menu.addAction(paste_action)
+        menu.addSeparator()
+        menu.addAction(insert_action)
+        menu.addAction(delete_action)
+        menu.addAction(rename_action)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+        
 class McostDelegate(QItemDelegate):
     def createEditor(self, parent, option, index):
         editor = QLineEdit(parent)
@@ -91,6 +200,12 @@ class McostModel(QAbstractTableModel):
     def __init__(self, parent):
         super().__init__(parent)
         self._data = DB.mcost
+
+        # For cut, copy, and paste
+        self.copied_row = None
+        self.copied_col = None
+        self.marked_row = None
+        self.marked_col = None
 
     def add_terrain_type(self):
         new_row_name = utilities.get_next_name('New', self._data.row_headers)
@@ -111,17 +226,69 @@ class McostModel(QAbstractTableModel):
             return self._data.column_headers[idx]
         return None
 
-    def change_horiz_header(self, idx):
+    def insert_col(self, idx):
+        new_col_name = utilities.get_next_name('New', self._data.column_headers)
+        self._data.insert_column(new_col_name, idx)
+        self.layoutChanged.emit()
+
+    def insert_row(self, idx):
+        new_row_name = utilities.get_next_name('New', self._data.row_headers)
+        self._data.insert_row(new_row_name, idx)
+        self.layoutChanged.emit()        
+
+    def delete_col(self, idx):
+        self._data.delete_column(idx)
+        self.layoutChanged.emit()
+
+    def delete_row(self, idx):
+        self._data.delete_row(idx)
+        self.layoutChanged.emit()
+
+    def change_col_header(self, idx):
         old_header = self._data.column_headers[idx]
         new_header, ok = QInputDialog.getText(self.parent(), 'Change Movement Type', 'Header:', QLineEdit.Normal, old_header)
         if ok:
             self._data.column_headers[idx] = utilities.get_next_name(new_header, self._data.column_headers)
 
-    def change_vert_header(self, idx):
+    def change_row_header(self, idx):
         old_header = self._data.row_headers[idx]
         new_header, ok = QInputDialog.getText(self.parent(), 'Change Terrain Type', 'Header:', QLineEdit.Normal, old_header)
         if ok:
             self._data.row_headers[idx] = utilities.get_next_name(new_header, self._data.row_headers)
+
+    def copy_row(self, idx):
+        self.copied_row = self._data.get_row(idx)
+
+    def copy_col(self, idx):
+        self.copied_col = self._data.get_column(idx)
+
+    def paste_row(self, idx):
+        if self.copied_row:
+            self._data.set_row(idx, self.copied_row)
+        self.copied_row = None
+        # self.layoutChanged.emit()
+
+    def paste_col(self, idx):
+        if self.copied_col:
+            self._data.set_column(idx, self.copied_col)
+        self.copied_col = None
+        # self.layoutChanged.emit()
+
+    def mark_row(self, idx):
+        self.marked_row = idx
+
+    def mark_col(self, idx):
+        self.marked_col = idx
+
+    def delete_marked_row(self):
+        if self.marked_row:
+            self.delete_row(self.marked_row)
+        self.marked_row = None
+
+    def delete_marked_col(self):
+        if self.marked_col:
+            self.delete_col(self.marked_col)
+        self.marked_col = None
 
     def rowCount(self, parent=None):
         return self._data.height()

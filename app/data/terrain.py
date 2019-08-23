@@ -26,3 +26,16 @@ class TerrainManager(dict):
             mtype = terrain.find('mtype').text
             new_terrain = Terrain(nid, name, color, minimap, platform, mtype)
             self[nid] = new_terrain
+
+    def serialize(self):
+        return self
+
+    @classmethod
+    def deserialize(cls, data):
+        cls = data
+        return cls
+
+    def restore(self, data):
+        self.clear()
+        for k, v in data.items():
+            self[k] = v

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, QDialog, \
-    QFormLayout, QLineEdit, QDialogButtonBox, QLabel
+    QFormLayout, QLineEdit, QDialogButtonBox, QLabel, QColorDialog
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QAbstractListModel, QSize
 
@@ -24,6 +24,13 @@ class TerrainMenu(QWidget):
 
     def display(self, curr):
         self.right_frame.set_current(curr)
+
+    def save(self):
+        return (DB.terrain.serialize(), DB.mcost.serialize())
+
+    def restore(self, data):
+        DB.terrain.restore(data[0])
+        DB.mcost.restore(data[1])
 
 class Collection(QWidget):
     def __init__(self, parent):
@@ -61,7 +68,6 @@ class Collection(QWidget):
             self.model.dataChanged.emit()
             last_index = self.model.index(self.model.rowCount() - 1, 0)
             self.list_view.setCurrentIndex(last_index)
-            # self.list_view.setSelection(self.model.rowCount() - 1)
 
     def on_item_changed(self, curr, prev):
         new_terrain = list(DB.terrain.values())[curr.row()]
@@ -135,6 +141,38 @@ class NewTerrainDialog(QDialog):
         nid = self.nid.text()
         return title, nid
 
+class TerrainIcon(QPushButton):
+    def __init__(self, color, parent):
+        super().__init__(parent)
+        self._color = None
+        self.change_color(color)
+
+        self.setMinimumHeight(64)
+        self.setMaximumHeight(64)
+        self.setMinimumWidth(64)
+        self.setMaximumWidth(64)
+        self.resize(64, 64)
+        self.pressed.connect(self.onColorPicker)
+
+    def change_color(self, color):
+        if color != self._color:
+            self._color = color
+
+        if self._color:
+            self.setStyleSheet("background-color: %s;" % self._color)
+        else:
+            self.setStyleSheet("")
+
+    def color(self):
+        return self._color
+
+    def onColorPicker(self):
+        dlg = QColorDialog()
+        if self._color:
+            dlg.setCurrentColor(QColor(self._color))
+        if dlg.exec_():
+            self.change_color(dlg.currentColor().name())
+
 class TerrainProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
@@ -165,10 +203,8 @@ class TerrainProperties(QWidget):
         minimap_tiles = QImage(DB.minimap.minimap_tiles)
         sf = DB.minimap.scale_factor
         for text, sprite_coord in DB.minimap.get_minimap_types():
-            print(text)
-            print(sprite_coord)
             im = minimap_tiles.copy(sprite_coord[0]*sf, sprite_coord[1]*sf, sf, sf)
-            icon = QIcon(QPixmap.fromImage(im))
+            icon = QIcon(QPixmap.fromImage(im).scaled(QSize(16, 16), Qt.KeepAspectRatio))
             self.minimap_edit.addItem(icon, text)
         self.grid.addWidget(minimap_label, 2, 0)
         self.grid.addWidget(self.minimap_edit, 2, 1, 1, 2)
@@ -178,6 +214,7 @@ class TerrainProperties(QWidget):
         for text, sprite_name in DB.get_platform_types():
             icon = QIcon(SPRITES[sprite_name])
             self.platform_edit.addItem(icon, text)
+        self.platform_edit.setIconSize(QSize(87, 40))
         self.grid.addWidget(platform_label, 3, 0)
         self.grid.addWidget(self.platform_edit, 3, 1, 1, 2)
 
@@ -187,11 +224,7 @@ class TerrainProperties(QWidget):
         self.grid.addWidget(movement_label, 4, 0)
         self.grid.addWidget(self.movement_edit, 4, 1, 1, 2)
 
-        self.icon_edit = QLabel()
-        pixmap = QPixmap(64, 64)
-        pixmap.fill(QColor(0, 0, 0))
-        self.icon_edit.setPixmap(pixmap)
-        self.icon_edit.mousePressEvent = self.change_color
+        self.icon_edit = TerrainIcon(QColor(0, 0, 0).name(), self)
         self.grid.addWidget(self.icon_edit, 0, 0, 2, 1)
 
     def set_current(self, current):
@@ -203,9 +236,4 @@ class TerrainProperties(QWidget):
         self.movement_edit.setValue(current.mtype)
         # Icon
         color = current.color
-        pixmap = QPixmap(64, 64)
-        pixmap.fill(QColor(color[0], color[1], color[2]))
-        self.icon_edit.setPixmap(pixmap)
-
-    def change_color(self):
-        pass
+        self.icon_edit.change_color(QColor(color[0], color[1], color[2]).name())

@@ -1,48 +1,69 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, QDialog, \
     QFormLayout, QLineEdit, QDialogButtonBox, QLabel, QColorDialog
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
-from PyQt5.QtCore import Qt, QAbstractListModel, QSize
+from PyQt5.QtCore import Qt, QAbstractListModel, QSize, pyqtSignal
 
 from app.data.sprites import SPRITES
 from app.data.database import DB
 
 from app.editor.custom_gui import ComboBox
 
-class TerrainMenu(QWidget):
-    def __init__(self, parent):
+class TerrainMenu(QDialog):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.window = parent
+
+        self.setWindowTitle('Terrain Editor')
+
+        self.saved_data = self.save()
 
         self.grid = QGridLayout()
         self.setLayout(self.grid)
 
-        self.right_frame = TerrainProperties(self)
         self.left_frame = Collection(self)
+        self.right_frame = TerrainProperties(self)
+        self.left_frame.set_display(self.right_frame)
 
         self.grid.addWidget(self.left_frame, 0, 0)
         self.grid.addWidget(self.right_frame, 0, 1)
 
-    def display(self, curr):
-        self.right_frame.set_current(curr)
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Apply, Qt.Horizontal, self)
+        self.grid.addWidget(self.buttonbox, 1, 1)
+        self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
+        self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+
+    def update_list(self):
+        self.left_frame.update_list()
 
     def save(self):
-        return (DB.terrain.serialize(), DB.mcost.serialize())
+        return DB.terrain.serialize()
 
     def restore(self, data):
-        DB.terrain.restore(data[0])
-        DB.mcost.restore(data[1])
+        DB.terrain.restore(data)
+
+    def apply(self):
+        self.saved_data = self.save()
+
+    def accept(self):
+        super().accept()
+
+    def reject(self):
+        self.restore(self.saved_data)
+        super().reject()
 
 class Collection(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.window = parent
         self.database_editor = self.window.window
+        self.display = None  # Partner that displays additional information about this collection
 
         self.grid = QGridLayout()
         self.setLayout(self.grid)
 
         self.list_view = QListView(self)
-        self.list_view.setMinimumSize(128, 320)
+        # self.list_view.setMinimumSize(128, 240)
         self.list_view.uniformItemSizes = True
         self.list_view.currentChanged = self.on_item_changed
 
@@ -56,8 +77,8 @@ class Collection(QWidget):
         self.grid.addWidget(self.list_view, 0, 0)
         self.grid.addWidget(self.button, 1, 0)
 
-        first_index = self.model.index(0, 0)
-        self.list_view.setCurrentIndex(first_index)
+        # first_index = self.model.index(0, 0)
+        # self.list_view.setCurrentIndex(first_index)
 
     def create_new_terrain_type(self):
         dialog = NewTerrainDialog(self)
@@ -71,7 +92,16 @@ class Collection(QWidget):
 
     def on_item_changed(self, curr, prev):
         new_terrain = list(DB.terrain.values())[curr.row()]
-        self.window.display(new_terrain)
+        if self.display:
+            self.display.set_current(new_terrain)
+
+    def set_display(self, disp):
+        self.display = disp
+        first_index = self.model.index(0, 0)
+        self.list_view.setCurrentIndex(first_index)
+
+    def update_list(self):
+        self.model.dataChanged.emit(self.model.index(0, 0), self.model.index(self.model.rowCount(), 0))
 
 class TerrainDictModel(QAbstractListModel):
     def __init__(self, window=None):
@@ -142,6 +172,8 @@ class NewTerrainDialog(QDialog):
         return title, nid
 
 class TerrainIcon(QPushButton):
+    colorChanged = pyqtSignal(QColor)
+
     def __init__(self, color, parent):
         super().__init__(parent)
         self._color = None
@@ -157,6 +189,7 @@ class TerrainIcon(QPushButton):
     def change_color(self, color):
         if color != self._color:
             self._color = color
+            self.colorChanged.emit(QColor(color))
 
         if self._color:
             self.setStyleSheet("background-color: %s;" % self._color)
@@ -225,7 +258,11 @@ class TerrainProperties(QWidget):
         self.grid.addWidget(self.movement_edit, 4, 1, 1, 2)
 
         self.icon_edit = TerrainIcon(QColor(0, 0, 0).name(), self)
+        self.icon_edit.colorChanged.connect(self.on_color_change)
         self.grid.addWidget(self.icon_edit, 0, 0, 2, 1)
+
+    def on_color_change(self, color):
+        self.window.update_list()
 
     def set_current(self, current):
         self.current = current
@@ -237,3 +274,13 @@ class TerrainProperties(QWidget):
         # Icon
         color = current.color
         self.icon_edit.change_color(QColor(color[0], color[1], color[2]).name())
+
+# Testing
+# Run "python -m app.editor.terrain_menu" from main directory
+if __name__ == '__main__':
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    window = TerrainMenu()
+    window.show()
+    app.exec_()

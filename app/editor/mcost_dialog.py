@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QTableView, QInputDialog, QHeaderView
 from PyQt5.QtWidgets import QGridLayout, QPushButton, QLineEdit, QItemDelegate, QAction, QMenu
-from PyQt5.QtGui import QIntValidator, QFontMetrics
+from PyQt5.QtGui import QIntValidator, QFontMetrics, QBrush, QColor
 from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt, QSize
@@ -15,7 +15,7 @@ class McostDialog(QDialog):
         self.setWindowTitle('Terrain Movement Cost')
         self.setMinimumSize(640, 480)
 
-        self.model = McostModel(self)
+        self.model = GridModel(DB.mcost, self)
         self.view = QTableView()
         self.view.setModel(self.model)
         delegate = McostDelegate(self.view)
@@ -34,10 +34,10 @@ class McostDialog(QDialog):
 
         self.view.resizeColumnsToContents()
 
-        new_terrain_button = QPushButton("Add Terrain Type")
-        new_terrain_button.clicked.connect(self.model.add_terrain_type)
-        new_mtype_button = QPushButton("Add Movement Type")
-        new_mtype_button.clicked.connect(self.model.add_movement_type)
+        new_terrain_button = QPushButton("Add Terrain Type Row")
+        new_terrain_button.clicked.connect(self.model.add_new_row)
+        new_mtype_button = QPushButton("Add Movement Type Column")
+        new_mtype_button.clicked.connect(self.model.add_new_col)
         self.buttonbox = QDialogButtonBox(Qt.Horizontal, self)
         self.buttonbox.addButton(new_terrain_button, QDialogButtonBox.ActionRole)
         self.buttonbox.addButton(new_mtype_button, QDialogButtonBox.ActionRole)
@@ -196,10 +196,10 @@ class McostDelegate(QItemDelegate):
         editor.setValidator(QIntValidator(1, 99))
         return editor
 
-class McostModel(QAbstractTableModel):
-    def __init__(self, parent):
+class GridModel(QAbstractTableModel):
+    def __init__(self, data, parent):
         super().__init__(parent)
-        self._data = DB.mcost
+        self._data = data
 
         # For cut, copy, and paste
         self.copied_row = None
@@ -207,12 +207,12 @@ class McostModel(QAbstractTableModel):
         self.marked_row = None
         self.marked_col = None
 
-    def add_terrain_type(self):
+    def add_new_row(self):
         new_row_name = utilities.get_next_name('New', self._data.row_headers)
         self._data.add_row(new_row_name)
         self.layoutChanged.emit()
 
-    def add_movement_type(self):
+    def add_new_col(self):
         new_col_name = utilities.get_next_name('New', self._data.column_headers)
         self._data.add_column(new_col_name)
         self.layoutChanged.emit()
@@ -266,13 +266,11 @@ class McostModel(QAbstractTableModel):
         if self.copied_row:
             self._data.set_row(idx, self.copied_row)
         self.copied_row = None
-        # self.layoutChanged.emit()
 
     def paste_col(self, idx):
         if self.copied_col:
             self._data.set_column(idx, self.copied_col)
         self.copied_col = None
-        # self.layoutChanged.emit()
 
     def mark_row(self, idx):
         self.marked_row = idx
@@ -303,6 +301,13 @@ class McostModel(QAbstractTableModel):
             return self._data.get((index.column(), index.row()))
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignRight + Qt.AlignVCenter
+        elif role == Qt.ForegroundRole:
+            if index.row() == self.marked_row:
+                return QBrush(QColor("gray"))
+            elif index.column() == self.marked_col:
+                return QBrush(QColor("gray"))
+            else:
+                return QBrush()
         return None
 
     def setData(self, index, value, role):

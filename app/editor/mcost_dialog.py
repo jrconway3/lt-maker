@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QTableView, QInputDialog, QHeaderView
-from PyQt5.QtWidgets import QGridLayout, QPushButton, QLineEdit, QItemDelegate, QAction, QMenu
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QTableView, QInputDialog, QHeaderView, \
+    QGridLayout, QPushButton, QLineEdit, QItemDelegate, QAction, QMenu, QMessageBox
 from PyQt5.QtGui import QIntValidator, QFontMetrics, QBrush, QColor
 from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
@@ -14,6 +14,8 @@ class McostDialog(QDialog):
 
         self.setWindowTitle('Terrain Movement Cost')
         self.setMinimumSize(640, 480)
+
+        self.saved_data = self.save()
 
         self.model = GridModel(DB.mcost, self)
         self.view = QTableView()
@@ -47,6 +49,19 @@ class McostDialog(QDialog):
         layout.addWidget(self.buttonbox, 1, 1)
         self.buttonbox.accepted.connect(self.accept)
         self.buttonbox.rejected.connect(self.reject)
+
+    def save(self):
+        return DB.mcost.serialize()
+
+    def restore(self, data):
+        DB.mcost.restore(data)
+
+    def accept(self):
+        super().accept()
+
+    def reject(self):
+        self.restore(self.saved_data)
+        super().reject()
 
 class VerticalTextHeaderStyle(QProxyStyle):
     def __init__(self, fontHeight):
@@ -97,7 +112,10 @@ class ColumnHeaderView(QHeaderView):
         self.parent().model().insert_col(idx)
 
     def delete(self, idx):
-        self.parent().model().delete_col(idx)
+        if self.parent().model().columnCount() > 1:
+            self.parent().model().delete_col(idx)
+        else:
+            QMessageBox.critical(self.parent(), 'Error', 'Cannot delete when only one column left!')
 
     def rename(self, idx):
         self.parent().model().change_col_header(idx)
@@ -152,7 +170,10 @@ class RowHeaderView(QHeaderView):
         self.parent().model().insert_row(idx)
 
     def delete(self, idx):
-        self.parent().model().delete_row(idx)
+        if self.parent().model().rowCount() > 1:
+            self.parent().model().delete_row(idx)
+        else:
+            QMessageBox.critical(self.parent(), 'Error', 'Cannot delete when only one row left!')
 
     def rename(self, idx):
         self.parent().model().change_row_header(idx)

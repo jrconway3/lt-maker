@@ -1,98 +1,87 @@
-from PyQt5.QtWidgets import QTabWidget, QWidget, QDialogButtonBox, QDialog
-from PyQt5.QtWidgets import QGridLayout, QUndoStack
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QToolButton, QGridLayout, QAction
 
 from collections import OrderedDict
 
+from app.editor.custom_gui import EditDialog
 from app.editor.terrain_menu import TerrainMenu
 
-class DatabaseEditor(QDialog):
-    def __init__(self, parent):
+class DatabaseEditor(QWidget):
+    buttons_per_row = 4
+
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Database Editor")
 
         self.grid = QGridLayout(self)
         self.setLayout(self.grid)
-        self.setMinimumSize(640, 480)
+        # self.setMinimumSize(640, 480)
 
-        self.undo_stack = QUndoStack(self)
-
-        self.tab_widget = QTabWidget()
         self.create_tabs()
-        self.grid.addWidget(self.tab_widget, 0, 0)
-
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Apply, Qt.Horizontal, self)
-        self.grid.addWidget(self.buttonbox, 1, 0)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-        self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        self.create_buttons()
 
     def create_tabs(self):
-        self.tabs = OrderedDict()
-        self.tabs['unit'] = UnitMenu(self)
-        self.tabs['class'] = ClassMenu(self)
-        self.tabs['faction'] = FactionMenu(self)
-        self.tabs['weapon'] = WeaponMenu(self)
-        self.tabs['item'] = ItemMenu(self)
-        self.tabs['status'] = StatusMenu(self)
-        self.tabs['terrain'] = TerrainMenu(self)
-        self.tabs['ai'] = AIMenu(self)
-        self.tabs['support'] = SupportMenu(self)
-        self.tabs['overworld'] = OverworldMenu(self)
-        self.tabs['constants'] = ConstantsMenu(self)
-        self.tabs['config'] = ConfigMenu(self)
+        self.actions = OrderedDict()
+        self.actions['unit'] = QAction("Edit &Units", self, shortcut="U", triggered=lambda: UnitMenu.edit(self))
+        self.actions['class'] = QAction("Edit &Classes", self, shortcut="C", triggered=lambda: ClassMenu.edit(self))
+        self.actions['faction'] = QAction("Edit &Factions", self, shortcut="F", triggered=lambda: FactionMenu.edit(self))
+        self.actions['weapon'] = QAction("Edit &Weapon Types", self, shortcut="W", triggered=lambda: WeaponMenu.edit(self))
+        self.actions['item'] = QAction("Edit &Items", self, shortcut="I", triggered=lambda: ItemMenu.edit(self))
+        self.actions['status'] = QAction("Edit &Skills", self, shortcut="S", triggered=lambda: StatusMenu.edit(self))
+        self.actions['terrain'] = QAction("Edit &Terrain", self, shortcut="T", triggered=lambda: TerrainMenu.edit(self))
+        self.actions['ai'] = QAction("Edit &AI", self, shortcut="A", triggered=lambda: AIMenu.edit(self))
+        self.actions['support'] = QAction("Edit Su&pports", self, shortcut="P", triggered=lambda: SupportMenu.edit(self))
+        self.actions['overworld'] = QAction("Edit &Overworld", self, shortcut="O", triggered=lambda: OverworldMenu.edit(self))
+        self.actions['constants'] = QAction("Edit &Constants", self, shortcut="C", triggered=lambda: ConstantsMenu.edit(self))
+        self.actions['config'] = QAction("&Edit Configuration", self, shortcut="E", triggered=lambda: ConfigMenu.edit(self))
 
-        for name, tab in self.tabs.items():
-            self.tab_widget.addTab(tab, name.capitalize())
+    def create_buttons(self):
+        self.buttons = OrderedDict()
+        for idx, (action_name, action) in enumerate(self.actions.items()):
+            button = QToolButton(self)
+            self.buttons[action_name] = button
+            button.setDefaultAction(action)
+            button.setAutoRaise(True)
+            self.grid.addWidget(button, idx//self.buttons_per_row, idx%self.buttons_per_row)
 
-    def apply(self):
-        print("Apply")
-        self.applied_data = self.current_tab.save()
-
-    def accept(self):
-        print("Ok")
-        super().accept()
-
-    def reject(self):
-        print("Cancel")
-        self.current_tab.restore(self.applied_data)
-        super().reject()
-
-    def undo(self):
-        self.undo_stack.undo()
-
-    def redo(self):
-        self.undo_stack.redo()
-
-class UnitMenu(QWidget):
+class UnitMenu(EditDialog):
     pass
 
-class ClassMenu(QWidget):
+class ClassMenu(EditDialog):
     pass
 
-class FactionMenu(QWidget):
+class FactionMenu(EditDialog):
     pass
 
-class WeaponMenu(QWidget):
+class WeaponMenu(EditDialog):
     pass
 
-class ItemMenu(QWidget):
+class ItemMenu(EditDialog):
     pass
 
-class StatusMenu(QWidget):
+class StatusMenu(EditDialog):
     pass
 
-class AIMenu(QWidget):
+class AIMenu(EditDialog):
     pass
 
-class SupportMenu(QWidget):
+class SupportMenu(EditDialog):
     pass
 
-class OverworldMenu(QWidget):
+class OverworldMenu(EditDialog):
     pass
 
-class ConstantsMenu(QWidget):
+class ConstantsMenu(EditDialog):
     pass
 
-class ConfigMenu(QWidget):
+class ConfigMenu(EditDialog):
     pass
+
+# Testing
+# Run "python -m app.editor.database_editor" from main directory
+if __name__ == '__main__':
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    window = DatabaseEditor()
+    window.show()
+    app.exec_()

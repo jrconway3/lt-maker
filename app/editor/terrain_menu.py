@@ -1,17 +1,17 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, QDialog, \
     QFormLayout, QLineEdit, QDialogButtonBox, QLabel, QColorDialog, QHBoxLayout, \
-    QMessageBox
+    QMessageBox, QAction, QMenu
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QAbstractListModel, QSize, pyqtSignal
 
 from app.data.sprites import SPRITES
 from app.data.database import DB
 
-from app.editor.custom_gui import ComboBox
+from app.editor.custom_gui import ComboBox, EditDialog
 from app.editor.mcost_dialog import McostDialog
 import app.utilities as utilities
 
-class TerrainMenu(QDialog):
+class TerrainMenu(EditDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.window = parent
@@ -55,6 +55,34 @@ class TerrainMenu(QDialog):
         self.restore(self.saved_data)
         super().reject()
 
+class TerrainList(QListView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.customMenuRequested)
+
+    def customMenuRequested(self, pos):
+        idx = self.indexAt(pos).row()
+        # self.parent().model.selectRow(idx)
+
+        delete_action = QAction("Delete", self, triggered=lambda: self.delete(idx))
+        menu = QMenu(self)
+        menu.addAction(delete_action)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+    def delete(self, idx):
+        if self.parent().model.rowCount() > 1:
+            self.parent().model.delete(idx)
+        else:
+            QMessageBox.critical(self.parent(), 'Error', 'Cannot delete when only one terrain left!')
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if event.key() == Qt.Key_Delete:
+            self.delete(self.currentIndex().row())
+
 class Collection(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -65,7 +93,7 @@ class Collection(QWidget):
         self.grid = QGridLayout()
         self.setLayout(self.grid)
 
-        self.list_view = QListView(self)
+        self.list_view = TerrainList(self)
         # self.list_view.setMinimumSize(128, 240)
         self.list_view.uniformItemSizes = True
         self.list_view.currentChanged = self.on_item_changed
@@ -130,6 +158,14 @@ class TerrainDictModel(QAbstractListModel):
             pixmap.fill(QColor(color[0], color[1], color[2]))
             return QIcon(pixmap)
         return None
+
+    def delete(self, idx):
+        key = list(self._data.keys())[idx]
+        del self._data[key]
+        self.layoutChanged.emit()
+        new_terrain = list(self._data.values())[idx]
+        if self.parent().display:
+            self.parent().display.set_current(new_terrain)
 
 class NewTerrainDialog(QDialog):
     def __init__(self, parent):
@@ -282,10 +318,10 @@ class TerrainProperties(QWidget):
 
     def nid_done_editing(self):
         # Check validity of nid!
-        nids = [_.nid for _ in DB.terrain.values()]
-        if self.current.nid in nids:
+        other_nids = [terrain.nid for terrain in DB.terrain.values() if terrain is not self.current]
+        if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Terrain ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_int(self.current.nid, nids)
+            self.current.nid = utilities.get_next_int(self.current.nid, other_nids)
         my_key = None
         for key, value in DB.terrain.items():
             if value.nid == self.current.nid:

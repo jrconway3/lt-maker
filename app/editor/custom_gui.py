@@ -1,5 +1,11 @@
-from PyQt5.QtWidgets import QListWidget, QComboBox
+from PyQt5.QtWidgets import QListWidget, QComboBox, QDialog
 from PyQt5.QtCore import Qt
+
+class EditDialog(QDialog):
+    @classmethod
+    def edit(cls, parent):
+        dialog = cls(parent)
+        dialog.exec_()
 
 class SignalList(QListWidget):
     def __init__(self, parent=None, del_func=None):

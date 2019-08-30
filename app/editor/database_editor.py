@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QToolButton, QGridLayout, QAction
+from PyQt5.QtWidgets import QWidget, QDialog, QToolButton, QGridLayout, QAction
 
 from collections import OrderedDict
 
 from app.editor.custom_gui import EditDialog
 from app.editor.terrain_menu import TerrainMenu
 
-class DatabaseEditor(QWidget):
+class DatabaseEditor(QDialog):
     buttons_per_row = 4
 
     def __init__(self, parent=None):

@@ -2,6 +2,10 @@ from PyQt5.QtWidgets import QListWidget, QComboBox, QDialog
 from PyQt5.QtCore import Qt
 
 class EditDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        
     @classmethod
     def edit(cls, parent):
         dialog = cls(parent)

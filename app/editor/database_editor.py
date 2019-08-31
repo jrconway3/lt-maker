@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QDialog, QToolButton, QGridLayout, QAction
+from PyQt5.QtWidgets import QDialog, QToolButton, QGridLayout, QAction
+from PyQt5.QtCore import Qt
 
 from collections import OrderedDict
 
@@ -11,6 +12,7 @@ class DatabaseEditor(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Database Editor")
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.grid = QGridLayout(self)
         self.setLayout(self.grid)

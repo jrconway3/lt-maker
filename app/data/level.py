@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from app.data import tilemap
 
 class Level(object):
@@ -5,14 +7,12 @@ class Level(object):
         self.nid = nid
         self.title = title
         self.tilemap = tilemap.TileMap.default()
-        self.music = {'player_phase': None,
-                      'enemy_phase': None,
-                      'other_phase': None,
-                      'player_battle': None,
-                      'enemy_battle': None,
-                      'other_battle': None,
-                      'prep': None,
-                      'base': None}
+        self.music = OrderedDict()
+        music_keys = ['player_phase', 'enemy_phase', 'other_phase', \
+                      'player_battle', 'enemy_battle', 'other_battle', \
+                      'prep', 'base']
+        for key in music_keys:
+            self.music[key] = None
         self.market_flag = False
         self.objective = {'simple': '',
                           'win': '',

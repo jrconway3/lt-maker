@@ -30,16 +30,13 @@ class ComboBox(QComboBox):
             self.setCurrentIndex(i)
 
 class LineSearch(QWidget):
-    def __init__(self, parent, func=None):
+    def __init__(self, parent):
+        super().__init__(parent)
         layout = QHBoxLayout()
         self.line_edit = QLineEdit(self)
-        self.search_button = QPushButton(self)
-        layout.setHorizontalSpacing(0)
+        self.line_edit.setReadOnly(True)
+        self.search_button = QPushButton('...', self)
+        layout.setSpacing(0)
         layout.addWidget(self.line_edit)
         layout.addWidget(self.search_button)
         self.setLayout(layout)
-        if func:
-            self.search_button.clicked.connect(func)
-
-    def set_func(self, func):
-        self.search_button.clicked.connect(func)

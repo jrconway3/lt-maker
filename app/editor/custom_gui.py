@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QListWidget, QComboBox, QDialog
+from PyQt5.QtWidgets import QListWidget, QComboBox, QDialog, QWidget, QHBoxLayout, \
+    QLineEdit, QPushButton
 from PyQt5.QtCore import Qt
 
 class EditDialog(QDialog):
@@ -27,3 +28,18 @@ class ComboBox(QComboBox):
         i = self.findText(text)
         if i >= 0:
             self.setCurrentIndex(i)
+
+class LineSearch(QWidget):
+    def __init__(self, parent, func=None):
+        layout = QHBoxLayout()
+        self.line_edit = QLineEdit(self)
+        self.search_button = QPushButton(self)
+        layout.setHorizontalSpacing(0)
+        layout.addWidget(self.line_edit)
+        layout.addWidget(self.search_button)
+        self.setLayout(layout)
+        if func:
+            self.search_button.clicked.connect(func)
+
+    def set_func(self, func):
+        self.search_button.clicked.connect(func)

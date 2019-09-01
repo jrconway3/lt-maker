@@ -15,10 +15,7 @@ from app.data.database import DB
 from app.editor.map_view import MapView
 from app.editor.level_menu import LevelMenu
 from app.editor.database_editor import DatabaseEditor
-
-class PropertiesMenu(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
+from app.editor.property_menu import PropertiesMenu
 
 class TerrainPainterMenu(QWidget):
     def __init__(self, parent):
@@ -68,13 +65,17 @@ class MainEditor(QMainWindow):
         self.create_toolbar()
         self.create_statusbar()
 
+        self.current_level = None
+
         self.create_level_dock()
         self.create_edit_dock()
 
         self.map_view.update_view()
 
     def set_current_level(self, level):
+        self.current_level = level
         self.map_view.set_current_map(level.tilemap)
+        self.update_view()
 
     def update_view(self):
         self.map_view.update_view()
@@ -171,17 +172,12 @@ class MainEditor(QMainWindow):
         for title, dock in self.docks.items():
             dock.setAllowedAreas(Qt.RightDockWidgetArea)
             dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
-            self.addDockWidget(Qt.RightDockWidgetArea, dock)
+            dock.hide()
+            # self.addDockWidget(Qt.RightDockWidgetArea, dock)
 
         # Tabify dock widgets
-        self.tabifyDockWidget(self.docks['Properties'], self.docks['Terrain'])
-        self.tabifyDockWidget(self.docks['Terrain'], self.docks['Event Tiles'])
-        self.tabifyDockWidget(self.docks['Event Tiles'], self.docks['Units'])
-        self.tabifyDockWidget(self.docks['Units'], self.docks['Reinforcements'])
-        self.docks['Properties'].raise_()
-
-        for title, dock in self.docks.items():
-            dock.setEnabled(False)
+        # for title, dock in self.docks.items():
+            # dock.setEnabled(False)
 
         self.dock_visibility = {k: False for k in self.docks.keys()}
 
@@ -277,21 +273,33 @@ class MainEditor(QMainWindow):
         self.update_view()
 
     def edit_map(self):
-        self.toolbar.insertAction(self.modify_tilemap_act, self.back_to_main_act)
-        self.toolbar.removeAction(self.modify_tilemap_act)
-        
-        for title, dock in self.docks.items():
-            dock.setEnabled(True)
-        # self.removeDockWidget(self.level_dock)
-        self.level_dock.setEnabled(False)
+        if self.current_level:
+            self.toolbar.insertAction(self.modify_tilemap_act, self.back_to_main_act)
+            self.toolbar.removeAction(self.modify_tilemap_act)
+            
+            for title, dock in self.docks.items():
+                self.addDockWidget(Qt.RightDockWidgetArea, dock)
+                dock.show()
+
+            self.tabifyDockWidget(self.docks['Properties'], self.docks['Terrain'])
+            self.tabifyDockWidget(self.docks['Terrain'], self.docks['Event Tiles'])
+            self.tabifyDockWidget(self.docks['Event Tiles'], self.docks['Units'])
+            self.tabifyDockWidget(self.docks['Units'], self.docks['Reinforcements'])
+            self.docks['Properties'].raise_()
+
+            self.level_dock.hide()
+            self.removeDockWidget(self.level_dock)
 
     def edit_global(self):
         self.toolbar.insertAction(self.back_to_main_act, self.modify_tilemap_act)
         self.toolbar.removeAction(self.back_to_main_act)
 
         for title, dock in self.docks.items():
-            dock.setEnabled(False)
-        self.level_dock.setEnabled(True)
+            dock.hide()
+            self.removeDockWidget(dock)
+
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.level_dock)        
+        self.level_dock.show()
 
     def edit_database(self):
         dialog = DatabaseEditor(self)

@@ -69,7 +69,7 @@ class LevelMenu(QWidget):
         if result == QDialog.Accepted:
             new_level_command = dialog.get_command()
             self.main_editor.undo_stack.push(new_level_command)
-            self.main_editor.map_view.update_view()
+            self.main_editor.update_view()
 
 class NewLevelDialog(QDialog):
     def __init__(self, parent):

@@ -16,10 +16,7 @@ from app.editor.map_view import MapView
 from app.editor.level_menu import LevelMenu
 from app.editor.database_editor import DatabaseEditor
 from app.editor.property_menu import PropertiesMenu
-
-class TerrainPainterMenu(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
+from app.editor.terrain_painter_menu import TerrainPainterMenu
 
 class EventTileMenu(QWidget):
     def __init__(self, parent):
@@ -37,11 +34,15 @@ class Dock(QDockWidget):
     def __init__(self, title, parent):
         super().__init__(title, parent)
         self.main_editor = parent
-        self.visibilityChanged.connect(self.visible)
+        self.visibilityChanged.connect(self.on_visible)
 
-    def visible(self, visible):
+    def on_visibility_changed(self, state):
+        pass
+
+    def on_visible(self, visible):
         title = str(self.windowTitle())
         self.main_editor.dock_visibility[title] = visible
+        self.main_editor.docks[title].on_visibility_changed(visible)
         if visible:
             message = None
             if message:
@@ -69,6 +70,11 @@ class MainEditor(QMainWindow):
 
         self.create_level_dock()
         self.create_edit_dock()
+
+        if self.auto_open():
+            pass
+        else:
+            self.level_menu.create_initial_level()
 
         self.map_view.update_view()
 
@@ -203,6 +209,9 @@ class MainEditor(QMainWindow):
         if path and os.path.exists(path):
             self.current_save_loc = path
             self.load()
+            return True
+        else:
+            return False
 
     def load(self):
         if os.path.exists(self.current_save_loc):

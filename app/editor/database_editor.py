@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from collections import OrderedDict
 
 from app.editor.custom_gui import EditDialog
-from app.editor.terrain_menu import TerrainMenu
+from app.editor.terrain_database import TerrainDatabase
 
 class DatabaseEditor(QDialog):
     buttons_per_row = 4
@@ -23,18 +23,18 @@ class DatabaseEditor(QDialog):
 
     def create_tabs(self):
         self.actions = OrderedDict()
-        self.actions['unit'] = QAction("Edit &Units", self, shortcut="U", triggered=lambda: UnitMenu.edit(self))
-        self.actions['class'] = QAction("Edit &Classes", self, shortcut="C", triggered=lambda: ClassMenu.edit(self))
-        self.actions['faction'] = QAction("Edit &Factions", self, shortcut="F", triggered=lambda: FactionMenu.edit(self))
-        self.actions['weapon'] = QAction("Edit &Weapon Types", self, shortcut="W", triggered=lambda: WeaponMenu.edit(self))
-        self.actions['item'] = QAction("Edit &Items", self, shortcut="I", triggered=lambda: ItemMenu.edit(self))
-        self.actions['status'] = QAction("Edit &Skills", self, shortcut="S", triggered=lambda: StatusMenu.edit(self))
-        self.actions['terrain'] = QAction("Edit &Terrain", self, shortcut="T", triggered=lambda: TerrainMenu.edit(self))
-        self.actions['ai'] = QAction("Edit &AI", self, shortcut="A", triggered=lambda: AIMenu.edit(self))
-        self.actions['support'] = QAction("Edit Su&pports", self, shortcut="P", triggered=lambda: SupportMenu.edit(self))
-        self.actions['overworld'] = QAction("Edit &Overworld", self, shortcut="O", triggered=lambda: OverworldMenu.edit(self))
-        self.actions['constants'] = QAction("Edit &Constants", self, shortcut="C", triggered=lambda: ConstantsMenu.edit(self))
-        self.actions['config'] = QAction("&Edit Configuration", self, shortcut="E", triggered=lambda: ConfigMenu.edit(self))
+        self.actions['unit'] = QAction("Edit &Units", self, shortcut="U", triggered=lambda: UnitDatabase.edit(self))
+        self.actions['class'] = QAction("Edit &Classes", self, shortcut="C", triggered=lambda: ClassDatabase.edit(self))
+        self.actions['faction'] = QAction("Edit &Factions", self, shortcut="F", triggered=lambda: FactionDatabase.edit(self))
+        self.actions['weapon'] = QAction("Edit &Weapon Types", self, shortcut="W", triggered=lambda: WeaponDatabase.edit(self))
+        self.actions['item'] = QAction("Edit &Items", self, shortcut="I", triggered=lambda: ItemDatabase.edit(self))
+        self.actions['status'] = QAction("Edit &Skills", self, shortcut="S", triggered=lambda: StatusDatabase.edit(self))
+        self.actions['terrain'] = QAction("Edit &Terrain", self, shortcut="T", triggered=lambda: TerrainDatabase.edit(self))
+        self.actions['ai'] = QAction("Edit &AI", self, shortcut="A", triggered=lambda: AIDatabase.edit(self))
+        self.actions['support'] = QAction("Edit Su&pports", self, shortcut="P", triggered=lambda: SupportDatabase.edit(self))
+        self.actions['overworld'] = QAction("Edit &Overworld", self, shortcut="O", triggered=lambda: OverworldDatabase.edit(self))
+        self.actions['constants'] = QAction("Edit &Constants", self, shortcut="C", triggered=lambda: ConstantsDatabase.edit(self))
+        self.actions['config'] = QAction("&Edit Configuration", self, shortcut="E", triggered=lambda: ConfigDatabase.edit(self))
 
     def create_buttons(self):
         self.buttons = OrderedDict()
@@ -45,37 +45,37 @@ class DatabaseEditor(QDialog):
             button.setAutoRaise(True)
             self.grid.addWidget(button, idx//self.buttons_per_row, idx%self.buttons_per_row)
 
-class UnitMenu(EditDialog):
+class UnitDatabase(EditDialog):
     pass
 
-class ClassMenu(EditDialog):
+class ClassDatabase(EditDialog):
     pass
 
-class FactionMenu(EditDialog):
+class FactionDatabase(EditDialog):
     pass
 
-class WeaponMenu(EditDialog):
+class WeaponDatabase(EditDialog):
     pass
 
-class ItemMenu(EditDialog):
+class ItemDatabase(EditDialog):
     pass
 
-class StatusMenu(EditDialog):
+class StatusDatabase(EditDialog):
     pass
 
-class AIMenu(EditDialog):
+class AIDatabase(EditDialog):
     pass
 
-class SupportMenu(EditDialog):
+class SupportDatabase(EditDialog):
     pass
 
-class OverworldMenu(EditDialog):
+class OverworldDatabase(EditDialog):
     pass
 
-class ConstantsMenu(EditDialog):
+class ConstantsDatabase(EditDialog):
     pass
 
-class ConfigMenu(EditDialog):
+class ConfigDatabase(EditDialog):
     pass
 
 # Testing

@@ -52,6 +52,7 @@ class PropertiesMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.main_editor = parent
+        self.current_level = self.main_editor.current_level
 
         form = QFormLayout(self)
 
@@ -84,15 +85,16 @@ class PropertiesMenu(QWidget):
         self.loss_condition.editingFinished.connect(lambda: self.set_objective('loss'))
         form.addRow('Loss Condition:', self.loss_condition)
 
-    def get_current_level(self):
-        return self.main_editor.current_level
+    def on_visibility_changed(self, state):
+        if state:
+            self.current_level = self.main_editor.current_level
 
     def nid_changed(self, text):
-        self.get_current_level().nid = text
+        self.current_level.nid = text
         self.main_editor.update_view()
 
     def nid_done_editing(self):
-        current = self.get_current_level()
+        current = self.current_level
         other_nids = [level.nid for level in DB.level_list if level is not current]
         if current.nid in other_nids:
             QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % current.nid)
@@ -100,20 +102,20 @@ class PropertiesMenu(QWidget):
         self.main_editor.update_view()
 
     def name_changed(self, text):
-        self.get_current_level().name = text
+        self.current_level.name = text
         self.main_editor.update_view()
 
     def market_changed(self, state):
-        self.get_current_level().market_flag = state
+        self.current_level.market_flag = state
 
     def edit_music(self):
-        dlg = MusicDialog(self, self.get_current_level())
+        dlg = MusicDialog(self, self.current_level)
         dlg.exec_()
 
     def set_objective(self, key):
         if key == 'simple':
-            self.get_current_level().objective[key] = self.quick_display.text()
+            self.current_level.objective[key] = self.quick_display.text()
         elif key == 'win':
-            self.get_current_level().objective[key] = self.win_condition.text()
+            self.current_level.objective[key] = self.win_condition.text()
         elif key == 'loss':
-            self.get_current_level().objective[key] = self.loss_condition.text()
+            self.current_level.objective[key] = self.loss_condition.text()

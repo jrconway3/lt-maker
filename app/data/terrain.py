@@ -3,6 +3,8 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
+from app.data.data import data
+
 class Terrain(object):
     def __init__(self, nid, name, color, minimap, platform, mtype):
         self.nid = nid
@@ -14,7 +16,7 @@ class Terrain(object):
 
         self.mtype = mtype
 
-class TerrainManager(dict):
+class TerrainManager(data):
     def import_xml(self, xml_fn):
         terrain_data = ET.parse(xml_fn)
         for terrain in terrain_data.getroot().findall('terrain'):
@@ -25,17 +27,4 @@ class TerrainManager(dict):
             platform = terrain.find('platform').text
             mtype = terrain.find('mtype').text
             new_terrain = Terrain(nid, name, color, minimap, platform, mtype)
-            self[nid] = new_terrain
-
-    def serialize(self):
-        return self
-
-    @classmethod
-    def deserialize(cls, data):
-        cls = data
-        return cls
-
-    def restore(self, data):
-        self.clear()
-        for k, v in data.items():
-            self[k] = v
+            self.append(new_terrain)

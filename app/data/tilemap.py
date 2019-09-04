@@ -21,8 +21,30 @@ class TileMap(object):
     def populate_tiles(self, map_key):
         for x in range(self.width):
             for y in range(self.height):
-                terrain = DB.terrain.get(int(map_key[y][x]))
+                terrain = DB.terrain.get(map_key[y][x])
                 new_tile = Tile(terrain, (x, y), self)
+                self.tiles[(x, y)] = new_tile
+
+    def change_image(self, image_fn, width, height):
+        self.base_image = image_fn
+        self.width, self.height = width, height
+        # Preserve as much as possible about the old terrain information
+        old_tiles = self.tiles[:]
+        self.tiles.clear()
+        for x in range(self.width):
+            for y in range(self.height):
+                if (x, y) in old_tiles:
+                    self.tiles[(x, y)] = old_tiles[(x, y)]
+                else:
+                    default_terrain = DB.terrain.values()[0]
+                    new_tile = Tile(default_terrain, (x, y), self)
+                    self.tiles[(x, y)] = new_tile
+
+    def reset_terrain(self):
+        for x in range(self.width):
+            for y in range(self.height):
+                default_terrain = DB.terrain.values()[0]
+                new_tile = Tile(default_terrain, (x, y), self)
                 self.tiles[(x, y)] = new_tile
 
     @classmethod

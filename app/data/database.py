@@ -1,10 +1,10 @@
 import os
 
-from app.data import terrain, mcost_grid, minimap
+from app.data import terrain, mcost_grid, minimap, data
 
 class Database(object):
     def __init__(self):
-        self.level_list = []
+        self.levels = data.data()
         self.mcost = mcost_grid.McostGrid()
         self.terrain = terrain.TerrainManager()
         self.minimap = minimap.MinimapData()

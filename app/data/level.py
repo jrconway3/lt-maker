@@ -8,8 +8,8 @@ class Level(object):
         self.title = title
         self.tilemap = tilemap.TileMap.default()
         self.music = OrderedDict()
-        music_keys = ['player_phase', 'enemy_phase', 'other_phase', \
-                      'player_battle', 'enemy_battle', 'other_battle', \
+        music_keys = ['player_phase', 'enemy_phase', 'other_phase',
+                      'player_battle', 'enemy_battle', 'other_battle',
                       'prep', 'base']
         for key in music_keys:
             self.music[key] = None

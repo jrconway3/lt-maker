@@ -1,12 +1,14 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtGui import QImage, QPixmap, QPainter
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.data.database import DB
 
 class MapView(QGraphicsView):
     def __init__(self, window=None):
         super().__init__()
-        self.window = window
+        self.main_editor = window
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
 
@@ -17,6 +19,8 @@ class MapView(QGraphicsView):
         self.pixmap = None
         self.screen_scale = 1
 
+        self.working_image = None
+
     def set_current_map(self, tilemap):
         self.current_map = tilemap
         self.update_view()
@@ -26,11 +30,27 @@ class MapView(QGraphicsView):
 
     def update_view(self):
         self.clear_scene()
+        if self.current_map:
+            self.working_image = QPixmap(self.current_map.base_image)
+        else:
+            return
+        if self.main_editor.dock_visibility['Terrain']:
+            self.paint_terrain()
         self.show_map()
 
+    def paint_terrain(self):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for coord, tile in self.current_map.tiles.items():
+                color = DB.terrain[tile.terrain.nid].color
+                write_color = QColor(color[0], color[1], color[2])
+                write_color.setAlpha(self.main_editor.terrain_painter_menu.get_alpha())
+                painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
+            painter.end()
+
     def show_map(self):
-        if self.current_map:
-            self.scene.addPixmap(QPixmap(self.current_map.base_image))
+        self.scene.addPixmap(self.working_image)
 
     def show_map_from_individual_sprites(self):
         if self.current_map:
@@ -48,6 +68,30 @@ class MapView(QGraphicsView):
             self.clear_scene()
             self.pixmap = QPixmap.fromImage(image)
             self.scene.addPixmap(self.pixmap)
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pixmap = self.scene.itemAt(scene_pos, self.transform())
+        pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+
+        if pixmap and pos in self.current_map.tiles:
+            if self.main_editor.dock_visibility['Terrain']:
+                if event.button() == Qt.LeftButton:
+                    self.main_editor.terrain_painter_menu.paint_tile(pos)
+                elif event.button() == Qt.RightButton:
+                    current_nid = self.current_map.tiles[pos].terrain.nid
+                    self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pixmap = self.scene.itemAt(scene_pos, self.transform())
+
+        if pixmap:
+            pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+            message = str(pos[0]) + ', ' + str(pos[1])
+            self.main_editor.status_bar.showMessage(message)
 
     def wheelEvent(self, event):
         if event.angleDelta() > 0 and self.screen_scale < 4:

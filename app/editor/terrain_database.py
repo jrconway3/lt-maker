@@ -1,17 +1,17 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, QDialog, \
+from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QDialog, \
     QFormLayout, QLineEdit, QDialogButtonBox, QLabel, QColorDialog, QHBoxLayout, \
-    QMessageBox, QAction, QMenu
+    QMessageBox
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QAbstractListModel, QSize, pyqtSignal
 
 from app.data.sprites import SPRITES
 from app.data.database import DB
 
-from app.editor.custom_gui import ComboBox, EditDialog
+from app.editor.custom_gui import ComboBox, EditDialog, RightClickListView
 from app.editor.mcost_dialog import McostDialog
 import app.utilities as utilities
 
-class TerrainMenu(EditDialog):
+class TerrainDatabase(EditDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.window = parent
@@ -55,34 +55,6 @@ class TerrainMenu(EditDialog):
         self.restore(self.saved_data)
         super().reject()
 
-class TerrainList(QListView):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.customMenuRequested)
-
-    def customMenuRequested(self, pos):
-        idx = self.indexAt(pos).row()
-        # self.parent().model.selectRow(idx)
-
-        delete_action = QAction("Delete", self, triggered=lambda: self.delete(idx))
-        menu = QMenu(self)
-        menu.addAction(delete_action)
-
-        menu.popup(self.viewport().mapToGlobal(pos))
-
-    def delete(self, idx):
-        if self.parent().model.rowCount() > 1:
-            self.parent().model.delete(idx)
-        else:
-            QMessageBox.critical(self.parent(), 'Error', 'Cannot delete when only one terrain left!')
-
-    def keyPressEvent(self, event):
-        super().keyPressEvent(event)
-        if event.key() == Qt.Key_Delete:
-            self.delete(self.currentIndex().row())
-
 class Collection(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -93,12 +65,10 @@ class Collection(QWidget):
         self.grid = QGridLayout()
         self.setLayout(self.grid)
 
-        self.list_view = TerrainList(self)
-        # self.list_view.setMinimumSize(128, 240)
-        self.list_view.uniformItemSizes = True
+        self.list_view = RightClickListView('Cannot delete when only one terrain left!', self)
         self.list_view.currentChanged = self.on_item_changed
 
-        self.model = TerrainDictModel(self)
+        self.model = TerrainModel(self)
         self.list_view.setModel(self.model)
         self.list_view.setIconSize(QSize(32, 32))
 
@@ -118,11 +88,12 @@ class Collection(QWidget):
             nid, name = dialog.get_results()
             DB.terrain.add_new(nid, name)
             # self.model.dataChanged.emit()
-            self.model.dataChanged.emit(self.model.index(0, 0), self.model.index(self.model.rowCount(), 0))
-            last_index = self.model.index(self.model.rowCount() - 1, 0)
+            self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+            last_index = self.model.index(self.model.rowCount() - 1)
             self.list_view.setCurrentIndex(last_index)
 
     def on_item_changed(self, curr, prev):
+        super().currentChanged(curr, prev)
         new_terrain = list(DB.terrain.values())[curr.row()]
         if self.display:
             self.display.set_current(new_terrain)
@@ -133,10 +104,10 @@ class Collection(QWidget):
         self.list_view.setCurrentIndex(first_index)
 
     def update_list(self):
-        self.model.dataChanged.emit(self.model.index(0, 0), self.model.index(self.model.rowCount(), 0))
+        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
         # self.model.dataChanged.emit()
 
-class TerrainDictModel(QAbstractListModel):
+class TerrainModel(QAbstractListModel):
     def __init__(self, window=None):
         super().__init__(window)
         self._data = DB.terrain
@@ -374,6 +345,6 @@ if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    window = TerrainMenu()
+    window = TerrainDatabase()
     window.show()
     app.exec_()

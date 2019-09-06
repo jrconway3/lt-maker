@@ -2,5 +2,6 @@ ToDoList
 
 Get a map on the screen in both the editor and the game
 Get the editor to make a game
-Make sure the terrain belongs to a database
 Make sure the save and load works well
+
+Where to store Audio?

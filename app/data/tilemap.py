@@ -40,13 +40,6 @@ class TileMap(object):
                     new_tile = Tile(default_terrain, (x, y), self)
                     self.tiles[(x, y)] = new_tile
 
-    def reset_terrain(self):
-        for x in range(self.width):
-            for y in range(self.height):
-                default_terrain = DB.terrain.values()[0]
-                new_tile = Tile(default_terrain, (x, y), self)
-                self.tiles[(x, y)] = new_tile
-
     @classmethod
     def default(cls):
         return cls("./app/data/default_tilemap_image.png", "./app/data/default_tilemap_terrain.txt")

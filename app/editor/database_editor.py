@@ -9,7 +9,7 @@ from app.editor.terrain_database import TerrainDatabase
 class DatabaseEditor(QDialog):
     buttons_per_row = 4
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle("Database Editor")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)

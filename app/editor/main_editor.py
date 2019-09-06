@@ -6,9 +6,10 @@ except ImportError:
     import pickle
 
 from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, \
-    QDockWidget, QFileDialog, QWidget
+    QDockWidget, QFileDialog, QWidget, QLabel, QFrame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
+from PyQt5.QtMultimedia import QMediaPlayer
 
 from app.data.database import DB
 
@@ -52,14 +53,19 @@ class Dock(QDockWidget):
 class MainEditor(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Lex Talionis Game Maker -- rainlash')
+        self.window_title = 'LT Maker'
+        self.setWindowTitle(self.window_title)
         self.settings = QSettings("rainlash", "Lex Talionis")
         self.settings.setDefaultFormat(QSettings.IniFormat)
 
         self.map_view = MapView(self)
         self.setCentralWidget(self.map_view)
 
+        self.music_player = QMediaPlayer(self)
+        self.music_player.setVolume(50)
+
         self.undo_stack = QUndoStack(self)
+        self.undo_stack.cleanChanged.connect(self.on_clean_changed)
 
         self.create_actions()
         self.create_menus()
@@ -78,10 +84,28 @@ class MainEditor(QMainWindow):
 
         self.map_view.update_view()
 
+    def on_clean_changed(self, clean):
+        # Change Title
+        if clean:
+            pass
+        else:
+            if not self.window_title.startswith('*'):
+                self.window_title = '*' + self.window_title
+
+    def set_window_title(self, title):
+        if self.window_title.startswith('*'):
+            self.window_title = '*' + title + ' -- LT Maker'
+        else:
+            self.window_title = title + ' -- LT Maker'
+        self.setWindowTitle(self.window_title)
+
     def set_current_level(self, level):
         self.current_level = level
         self.map_view.set_current_map(level.tilemap)
         self.update_view()
+
+    def current_level_index(self):
+        return DB.level_list.index(self.current_level)
 
     def update_view(self):
         self.map_view.update_view()
@@ -139,6 +163,15 @@ class MainEditor(QMainWindow):
 
     def create_statusbar(self):
         self.status_bar = self.statusBar()
+        self.position_bar = QLabel("", self)
+        self.position_bar.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+        self.status_bar.addPermanentWidget(self.position_bar, 1)
+
+    def set_position_bar(self, pos):
+        if pos:
+            self.position_bar.setText("Position (%d, %d)" % (pos[0], pos[1]))
+        else:
+            self.position_bar.setText("")
 
     def create_level_dock(self):
         self.level_dock = QDockWidget("Levels", self)
@@ -190,6 +223,8 @@ class MainEditor(QMainWindow):
     def new(self):
         if self.maybe_save():
             DB.init_load()
+            self.undo_stack.setClean()
+            self.set_window_title('Untitled')
             self.update_view()
 
     def open(self):
@@ -220,6 +255,9 @@ class MainEditor(QMainWindow):
 
             DB.restore(data)
 
+            self.undo_stack.clear()
+            title = os.path.split(self.current_save_loc)[-1].split('.')[0]
+            self.set_window_title(title)
             self.status_bar.showMessage("Loaded project from %s" % self.current_save_loc)
             self.update_view()
 
@@ -250,7 +288,13 @@ class MainEditor(QMainWindow):
             # Remove the -1 here if you want to interrogate the pickled save
             pickle.dump(project, save_fp, -1)
 
+        title = os.path.split(self.current_save_loc)[-1].split('.')[0]
+        self.set_window_title(title)
+        # Remove asterisk on window title
+        if self.window_title.startswith('*'):
+            self.window_title = self.window_title[1:]
         self.status_bar.showMessage('Saved project to %s' % self.current_save_loc)
+        self.undo_stack.setClean()
 
     def save_as(self):
         self.save(True)
@@ -274,10 +318,12 @@ class MainEditor(QMainWindow):
             event.ignore()
 
     def undo(self):
+        self.status_bar.showMessage('Undo: %s' % self.undo_stack.undoText())
         self.undo_stack.undo()
         self.update_view()
 
     def redo(self):
+        self.status_bar.showMessage('Redo: %s' % self.undo_stack.redoText())
         self.undo_stack.redo()
         self.update_view()
 

@@ -7,6 +7,7 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
 from app.editor.terrain_database import TerrainDatabase, TerrainModel
+from app.editor import commands
 
 class TerrainPainterMenu(QWidget):
     def __init__(self, parent=None):
@@ -25,11 +26,6 @@ class TerrainPainterMenu(QWidget):
         self.alpha_slider.setValue(192)
         grid.addWidget(QLabel("Transparency"), 1, 0)
         grid.addWidget(self.alpha_slider, 1, 1)
-
-        self.num_check = QCheckBox(self)
-        self.num_check.clicked.connect(self.num_check_changed)
-        grid.addWidget(QLabel("Show IDs?"), 2, 0)
-        grid.addWidget(self.num_check, 2, 1)
 
         self.list_view = QListView(self)
         self.list_view.currentChanged = self.on_item_changed
@@ -65,18 +61,16 @@ class TerrainPainterMenu(QWidget):
                 QMessageBox.critical(self.main_editor, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
                 return
             else:
-                self.tilemap().change_image(image_file, im.width()//TILEWIDTH, im.height()//TILEHEIGHT)
-                self.main_editor.set_current_level(self.current_level)  # For reset
+                command = commands.ChangeTileMapImage(self.main_editor.current_level, image_file)
+                self.main_editor.undo_stack.push(command)
                 self.main_editor.update_view()
-
-    def num_check_changed(self, state):
-        self.main_editor.map_view.display_terrain_ids = state
 
     def on_item_changed(self, curr, prev):
         pass
 
     def reset_terrain(self):
-        self.tilemap().reset_terrain()
+        command = commands.ResetTerrain(self.main_editor.current_level)
+        self.main_editor.undo_stack.push(command)
         self.main_editor.update_view()
 
     def edit_terrain(self):
@@ -85,8 +79,10 @@ class TerrainPainterMenu(QWidget):
 
     def paint_tile(self, pos):
         current_terrain = DB.terrain.values()[self.list_view.currentIndex().row()]
-        self.tilemap().tiles[pos].terrain = current_terrain
-        self.main_editor.update_view()
+        command = commands.ChangeTileTerrain(self.main_editor.current_level, pos, current_terrain)
+        if command.makes_change():
+            self.main_editor.undo_stack.push(command)
+            self.main_editor.update_view()
 
     def set_current_nid(self, nid):
         idx = self.model.index(DB.terrain.index(nid))

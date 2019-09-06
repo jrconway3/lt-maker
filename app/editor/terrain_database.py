@@ -6,22 +6,18 @@ from PyQt5.QtCore import Qt, QAbstractListModel, QSize, pyqtSignal
 
 from app.data.sprites import SPRITES
 from app.data.database import DB
+from app.data.terrain import Terrain
 
 from app.editor.custom_gui import ComboBox, EditDialog, RightClickListView
 from app.editor.mcost_dialog import McostDialog
 import app.utilities as utilities
 
 class TerrainDatabase(EditDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, data, parent=None):
+        super().__init__(data, parent)
         self.window = parent
 
         self.setWindowTitle('Terrain Editor')
-
-        self.saved_data = self.save()
-
-        self.grid = QGridLayout()
-        self.setLayout(self.grid)
 
         self.left_frame = Collection(self)
         self.right_frame = TerrainProperties(self)
@@ -30,30 +26,8 @@ class TerrainDatabase(EditDialog):
         self.grid.addWidget(self.left_frame, 0, 0)
         self.grid.addWidget(self.right_frame, 0, 1)
 
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Apply, Qt.Horizontal, self)
-        self.grid.addWidget(self.buttonbox, 1, 1)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-        self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
-
     def update_list(self):
         self.left_frame.update_list()
-
-    def save(self):
-        return DB.terrain.serialize()
-
-    def restore(self, data):
-        DB.terrain.restore(data)
-
-    def apply(self):
-        self.saved_data = self.save()
-
-    def accept(self):
-        super().accept()
-
-    def reject(self):
-        self.restore(self.saved_data)
-        super().reject()
 
 class Collection(QWidget):
     def __init__(self, parent):
@@ -78,23 +52,20 @@ class Collection(QWidget):
         self.grid.addWidget(self.list_view, 0, 0)
         self.grid.addWidget(self.button, 1, 0)
 
-        # first_index = self.model.index(0, 0)
-        # self.list_view.setCurrentIndex(first_index)
-
     def create_new_terrain_type(self):
         dialog = NewTerrainDialog(self)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             nid, name = dialog.get_results()
-            DB.terrain.add_new(nid, name)
-            # self.model.dataChanged.emit()
+            new_terrain = Terrain(nid, name, (0, 0, 0), 'Grass', DB.get_platform_types()[0], DB.mcost.rows[0])
+            DB.terrain.append(new_terrain)
             self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
             last_index = self.model.index(self.model.rowCount() - 1)
             self.list_view.setCurrentIndex(last_index)
 
     def on_item_changed(self, curr, prev):
         super().currentChanged(curr, prev)
-        new_terrain = list(DB.terrain.values())[curr.row()]
+        new_terrain = DB.terrain.values()[curr.row()]
         if self.display:
             self.display.set_current(new_terrain)
 
@@ -105,7 +76,6 @@ class Collection(QWidget):
 
     def update_list(self):
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-        # self.model.dataChanged.emit()
 
 class TerrainModel(QAbstractListModel):
     def __init__(self, window=None):
@@ -131,10 +101,9 @@ class TerrainModel(QAbstractListModel):
         return None
 
     def delete(self, idx):
-        key = list(self._data.keys())[idx]
-        del self._data[key]
+        self._data.pop(idx)
         self.layoutChanged.emit()
-        new_terrain = list(self._data.values())[idx]
+        new_terrain = self._data.values()[max(idx, len(self._data) - 1)]
         if self.parent().display:
             self.parent().display.set_current(new_terrain)
 

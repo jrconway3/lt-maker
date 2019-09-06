@@ -5,12 +5,15 @@ from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
+from app.editor import commands
+
 class MapView(QGraphicsView):
     def __init__(self, window=None):
         super().__init__()
         self.main_editor = window
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
+        self.setMouseTracking(True)
 
         self.setMinimumSize(15*TILEWIDTH, 10*TILEHEIGHT)
         self.setStyleSheet("background-color:rgb(128, 128, 128);")
@@ -72,26 +75,41 @@ class MapView(QGraphicsView):
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
         scene_pos = self.mapToScene(event.pos())
-        pixmap = self.scene.itemAt(scene_pos, self.transform())
+        # pixmap = self.scene.itemAt(scene_pos, self.transform())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if pixmap and pos in self.current_map.tiles:
+        if pos in self.current_map.tiles:
             if self.main_editor.dock_visibility['Terrain']:
                 if event.button() == Qt.LeftButton:
                     self.main_editor.terrain_painter_menu.paint_tile(pos)
-                elif event.button() == Qt.RightButton:
-                    current_nid = self.current_map.tiles[pos].terrain.nid
-                    self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
         scene_pos = self.mapToScene(event.pos())
-        pixmap = self.scene.itemAt(scene_pos, self.transform())
+        # pixmap = self.scene.itemAt(scene_pos, self.transform())
+        pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if pixmap:
-            pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
-            message = str(pos[0]) + ', ' + str(pos[1])
-            self.main_editor.status_bar.showMessage(message)
+        if pos in self.current_map.tiles:
+            self.main_editor.set_position_bar(pos)
+            if (event.buttons() & Qt.LeftButton):
+                self.main_editor.terrain_painter_menu.paint_tile(pos)
+        else:
+            self.main_editor.set_position_bar(None)
+
+    def mouseReleaseEvent(self, event):
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+
+        if pos in self.current_map.tiles:
+            if event.button() == Qt.LeftButton:
+                # Force no merge when you've lifted up your pen...
+                last_index = self.window.undo_stack.count() - 1
+                last_command = self.window.undo_stack.command(last_index)
+                if isinstance(last_command, commands.ChangeTileTerrain):
+                    last_command.can_merge = False
+            elif event.button() == Qt.RightButton:
+                current_nid = self.current_map.tiles[pos].terrain.nid
+                self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
 
     def wheelEvent(self, event):
         if event.angleDelta() > 0 and self.screen_scale < 4:

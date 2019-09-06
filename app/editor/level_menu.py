@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QDialog, QLabel, \
-    QFormLayout, QLineEdit, QDialogButtonBox
-from PyQt5.QtGui import QStandardItem, QStandardItemModel
+    QFormLayout, QLineEdit, QDialogButtonBox, QAbstractListModel
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
@@ -9,39 +8,30 @@ from app.data.level import Level
 from app.editor import commands
 from app.editor.custom_gui import RightClickListView
 
-class LevelListModel(QStandardItemModel):
+class LevelModel(QAbstractListModel):
     def __init__(self, window=None):
         super().__init__(window)
-        self.level_list = DB.level_list
-        for level in self.level_list:
-            item = QStandardItem(level.nid + ' : ' + level.title)
-            self.appendRow(item)
+        self._data = DB.level_list
 
-    def insert(self, idx, level):
-        self.level_list.insert(idx, level)
-        item = QStandardItem(level.nid + ' : ' + level.title)
-        self.insertRow(idx, item)
-        return self.indexFromItem(item)
+    def rowCount(self, parent=None):
+        return len(self._data)
 
-    def remove(self, idx, level):
-        self.level_list.remove(level)
-        self.takeRow(idx)
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            level = self._data[index.row()]
+            text = level.nid + " : " + level.name
+            return text
+        return None 
 
     def delete(self, idx):
-        del self.level_list[idx]
-        self.takeRow(idx)
+        self.level_list.pop(idx)
+        self.layoutChanged.emit()
+        new_level = self._data[max(idx, len(self._data) - 1)]
+        self.parent().main_editor.set_current_level(new_level)
 
-    def get_index_from_item(self, level):
-        return self.level_list.index(level)
-
-    def get_item_from_qindex(self, model_index):
-        row = model_index.row()
-        if row >= 0:
-            return self.level_list[row]
-        else:
-            return None
-
-class LevelMenu(QWidget):
+class LevelDatabase(QWidget):
     def __init__(self, window=None):
         super().__init__(window)
         self.main_editor = window
@@ -53,19 +43,14 @@ class LevelMenu(QWidget):
         self.listview.setMinimumSize(128, 320)
         self.listview.currentChanged = self.on_level_changed
 
-        self.model = LevelListModel(self)
+        self.model = LevelModel(self)
         self.listview.setModel(self.model)
 
         self.button = QPushButton("Create New Level...")
-        self.button.clicked.connect(self.create_new_level_dialog)
+        self.button.clicked.connect(self.create_new_level)
 
         self.grid.addWidget(self.listview, 0, 0)
         self.grid.addWidget(self.button, 1, 0)
-
-    def on_level_changed(self, curr, prev):
-        level = self.model.get_item_from_qindex(curr)
-        if level:
-            self.main_editor.set_current_level(level)
 
     def create_new_level_dialog(self):
         dialog = NewLevelDialog(self)
@@ -73,11 +58,19 @@ class LevelMenu(QWidget):
         if result == QDialog.Accepted:
             new_level_command = dialog.get_command()
             self.main_editor.undo_stack.push(new_level_command)
+            self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+            last_index = self.model.index(self.model.rowCount() - 1)
+            self.list_view.setCurrentIndex(last_index)
             self.main_editor.update_view()
 
+    def on_level_changed(self, curr, prev):
+        super().currentChanged(curr, prev)
+        new_level = DB.level_list[curr.row()]
+        self.main_editor.set_current_level(new_level)
+
     def create_initial_level(self):
-        model_index = self.model.insert(0, Level('0', 'Prologue'))
-        self.listview.setCurrentIndex(model_index)
+        DB.level_list.append(Level('0', 'Prologue'))
+        self.listview.setCurrentIndex(0)
 
 class NewLevelDialog(QDialog):
     def __init__(self, parent):

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QGridLayout, QPushButton, QSlider, QLabel, QCheckBox, QListView, \
+from PyQt5.QtWidgets import QGridLayout, QPushButton, QSlider, QLabel, QListView, \
     QWidget, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt, QSize, QDir
 from PyQt5.QtGui import QPixmap
@@ -42,6 +42,9 @@ class TerrainPainterMenu(QWidget):
         self.edit_button.clicked.connect(self.edit_terrain)
         grid.addWidget(self.reset_button, 4, 0)
         grid.addWidget(self.edit_button, 4, 1)
+
+    def on_visibility_changed(self, state):
+        pass
 
     def tilemap(self):
         return self.main_editor.current_level.tilemap

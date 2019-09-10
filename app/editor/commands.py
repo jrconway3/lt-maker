@@ -7,9 +7,8 @@ from app.data.database import DB
 from app.data.level import Level
 
 class CreateNewLevel(QUndoCommand):
-    def __init__(self, title, nid, level_menu):
+    def __init__(self, title, nid):
         self.new_level = Level(nid, title)
-        self.old_idx = level_menu.model.rowCount()
         super().__init__("Creating level %s: %s" % (nid, title))
 
     def undo(self):
@@ -17,8 +16,6 @@ class CreateNewLevel(QUndoCommand):
 
     def redo(self):
         DB.level_list.append(self.new_level)
-        last_index = self.level_menu.model.index(self.level_menu.model.rowCount() - 1)
-        self.level_menu.listview.setCurrentIndex(last_index)
 
 class ChangeTileTerrain(QUndoCommand):
     def __init__(self, level, pos, new_terrain):

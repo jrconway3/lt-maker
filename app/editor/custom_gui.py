@@ -99,7 +99,7 @@ class RightClickListView(QListView):
 
     def delete(self, idx):
         if self.parent.model.rowCount() > 1:
-            self.parent.model.remove(idx)
+            self.parent.model.delete(idx)
         else:
             QMessageBox.critical(self.parent(), 'Error', self.last_to_delete_msg)
 

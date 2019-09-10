@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QDialog, QLabel, \
-    QFormLayout, QLineEdit, QDialogButtonBox, QAbstractListModel
-from PyQt5.QtCore import Qt
+    QFormLayout, QLineEdit, QDialogButtonBox
+from PyQt5.QtCore import Qt, QAbstractListModel
 
 from app.data.database import DB
 from app.data.level import Level
 
 from app.editor import commands
-from app.editor.custom_gui import RightClickListView
+from app.editor.custom_gui import RightClickListView, SimpleDialog
 
 class LevelModel(QAbstractListModel):
     def __init__(self, window=None):
@@ -21,12 +21,12 @@ class LevelModel(QAbstractListModel):
             return None
         if role == Qt.DisplayRole:
             level = self._data[index.row()]
-            text = level.nid + " : " + level.name
+            text = level.nid + " : " + level.title
             return text
         return None 
 
     def delete(self, idx):
-        self.level_list.pop(idx)
+        self._data.pop(idx)
         self.layoutChanged.emit()
         new_level = self._data[max(idx, len(self._data) - 1)]
         self.parent().main_editor.set_current_level(new_level)
@@ -39,20 +39,20 @@ class LevelDatabase(QWidget):
         self.grid = QGridLayout()
         self.setLayout(self.grid)
 
-        self.listview = RightClickListView('Must have at least one level in project!', self)
-        self.listview.setMinimumSize(128, 320)
-        self.listview.currentChanged = self.on_level_changed
+        self.list_view = RightClickListView('Must have at least one level in project!', self)
+        self.list_view.setMinimumSize(128, 320)
+        self.list_view.currentChanged = self.on_level_changed
 
         self.model = LevelModel(self)
-        self.listview.setModel(self.model)
+        self.list_view.setModel(self.model)
 
         self.button = QPushButton("Create New Level...")
         self.button.clicked.connect(self.create_new_level)
 
-        self.grid.addWidget(self.listview, 0, 0)
+        self.grid.addWidget(self.list_view, 0, 0)
         self.grid.addWidget(self.button, 1, 0)
 
-    def create_new_level_dialog(self):
+    def create_new_level(self):
         dialog = NewLevelDialog(self)
         result = dialog.exec_()
         if result == QDialog.Accepted:
@@ -64,15 +64,16 @@ class LevelDatabase(QWidget):
             self.main_editor.update_view()
 
     def on_level_changed(self, curr, prev):
-        super().currentChanged(curr, prev)
-        new_level = DB.level_list[curr.row()]
-        self.main_editor.set_current_level(new_level)
+        if DB.level_list:
+            new_level = DB.level_list[curr.row()]
+            self.main_editor.set_current_level(new_level)
 
     def create_initial_level(self):
         DB.level_list.append(Level('0', 'Prologue'))
-        self.listview.setCurrentIndex(0)
+        first_index = self.model.index(0)
+        self.list_view.setCurrentIndex(first_index)
 
-class NewLevelDialog(QDialog):
+class NewLevelDialog(SimpleDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.level_menu = parent
@@ -115,4 +116,4 @@ class NewLevelDialog(QDialog):
     def get_command(self):
         title = self.level_name.text()
         nid = self.level_id.text()
-        return commands.CreateNewLevel(title, nid, self.level_menu)
+        return commands.CreateNewLevel(title, nid)

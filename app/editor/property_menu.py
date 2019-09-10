@@ -77,13 +77,16 @@ class MusicDialog(SimpleDialog):
                 head, tail = os.path.split(value)
                 self.music_boxes[key].line_edit.setText(tail.split('.')[0])
 
+    def pause_music(self, music_key):
+        self.play_button[music_key].setIcon(QStyle.SP_MediaPlay)
+        self.play_state[music_key] = False
+        self.main_editor.music_player.pause()
+        self.properties.set_currently_playing(None)
+
     def play_clicked(self, music_key):
         # If currently playing
         if self.play_state[music_key]:
-            self.play_button[music_key].setIcon(QStyle.SP_MediaPlay)
-            self.play_state[music_key] = False
-            self.main_editor.music_player.pause()
-            self.properties.set_currently_playing(None)
+            self.pause_music(music_key)
         else:
             # If something else is already playing
             if self.properties.currently_playing:
@@ -113,13 +116,13 @@ class PropertiesMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.main_editor = parent
-        self.current_level = self.main_editor.current_level
+        self.current_level = None
 
         form = QFormLayout(self)
 
         self.level_name = QLineEdit(self)
         self.level_name.textChanged.connect(self.name_changed)
-        form.addRow('Level Name:', self.level_name)
+        form.addRow('Level Title:', self.level_name)
 
         self.level_nid = QLineEdit(self)
         self.level_nid.textChanged.connect(self.nid_changed)
@@ -150,9 +153,26 @@ class PropertiesMenu(QWidget):
         self.loss_condition.editingFinished.connect(lambda: self.set_objective('loss'))
         form.addRow('Loss Condition:', self.loss_condition)
 
+        if self.main_editor.current_level:
+            self.load(self.main_editor.current_level)
+
+    def load(self, current_level):
+        self.current_level = current_level
+
+        self.level_name.setText(current_level.title)
+        self.level_nid.setText(current_level.nid)
+        self.market_check.setChecked(current_level.market_flag)
+        self.quick_display.setText(current_level.objective['simple'])
+        self.win_condition.setText(current_level.objective['win'])
+        self.loss_condition.setText(current_level.objective['loss'])
+
+        self.currently_playing = None
+        self.main_editor.music_player.stop()
+
     def on_visibility_changed(self, state):
         if state:
-            self.current_level = self.main_editor.current_level
+            if self.main_editor.current_level is not self.current_level:
+                self.load(self.main_editor.current_level)
 
     def nid_changed(self, text):
         self.current_level.nid = text

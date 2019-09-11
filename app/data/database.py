@@ -12,10 +12,8 @@ class Database(object):
         self.init_load()
 
     def init_load(self):
-        self.level_list = []
         self.mcost.import_data('./app/data/default_mcost.txt')
         self.terrain.import_xml('./app/data/default_terrain.xml')
-        self.minimap = minimap.MinimapData()
 
     def get_platform_types(self):
         home = './sprites/platforms/'
@@ -24,14 +22,14 @@ class Database(object):
         return zip(names, sprites)
 
     def restore(self, data):
-        self.mcost = self.mcost.restore(data['mcost'])
-        self.terrain = self.terrain.restore(data['terrain'])
-        self.level_list = data['level_list']
+        self.mcost.restore(data['mcost'])
+        self.terrain.restore(data['terrain'])
+        self.levels.restore(data['levels'])
 
     def save(self):
         to_save = {'mcost': self.mcost.serialize(),
                    'terrain': self.terrain.serialize(),
-                   'level_list': self.level_list,
+                   'levels': self.levels.serialize(),
                    }
         return to_save
 

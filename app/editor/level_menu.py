@@ -8,29 +8,6 @@ from app.data.level import Level
 from app.editor import commands
 from app.editor.custom_gui import RightClickListView, SimpleDialog
 
-class LevelModel(QAbstractListModel):
-    def __init__(self, window=None):
-        super().__init__(window)
-        self._data = DB.level_list
-
-    def rowCount(self, parent=None):
-        return len(self._data)
-
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            level = self._data[index.row()]
-            text = level.nid + " : " + level.title
-            return text
-        return None 
-
-    def delete(self, idx):
-        self._data.pop(idx)
-        self.layoutChanged.emit()
-        new_level = self._data[max(idx, len(self._data) - 1)]
-        self.parent().main_editor.set_current_level(new_level)
-
 class LevelDatabase(QWidget):
     def __init__(self, window=None):
         super().__init__(window)
@@ -64,14 +41,42 @@ class LevelDatabase(QWidget):
             self.main_editor.update_view()
 
     def on_level_changed(self, curr, prev):
-        if DB.level_list:
-            new_level = DB.level_list[curr.row()]
+        if DB.levels:
+            new_level = DB.levels.values()[curr.row()]
             self.main_editor.set_current_level(new_level)
 
     def create_initial_level(self):
-        DB.level_list.append(Level('0', 'Prologue'))
+        DB.levels.append(Level('0', 'Prologue'))
+        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
         first_index = self.model.index(0)
         self.list_view.setCurrentIndex(first_index)
+
+    def update_view(self):
+        self.model.layoutChanged.emit()
+        # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+
+class LevelModel(QAbstractListModel):
+    def __init__(self, window=None):
+        super().__init__(window)
+        self._data = DB.levels
+
+    def rowCount(self, parent=None):
+        return len(self._data)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            level = self._data.values()[index.row()]
+            text = level.nid + " : " + level.title
+            return text
+        return None 
+
+    def delete(self, idx):
+        self._data.pop(idx)
+        self.layoutChanged.emit()
+        new_level = self._data.values()[max(idx, len(self._data) - 1)]
+        self.parent().main_editor.set_current_level(new_level)
 
 class NewLevelDialog(SimpleDialog):
     def __init__(self, parent):
@@ -100,7 +105,7 @@ class NewLevelDialog(SimpleDialog):
         self.warning_message.setText('No Level ID set.')
 
     def level_id_changed(self, text):
-        if text in [level.nid for level in DB.level_list]:
+        if text in [level.nid for level in DB.levels]:
             accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
             accept_button.setEnabled(False)
             self.warning_message.setText('Level ID is already in use.')

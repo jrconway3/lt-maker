@@ -80,6 +80,7 @@ class MainEditor(QMainWindow):
 
         self.current_level = None
 
+        self.global_mode = True
         self.create_level_dock()
         self.create_edit_dock()
 
@@ -111,9 +112,10 @@ class MainEditor(QMainWindow):
         self.update_view()
 
     def current_level_index(self):
-        return DB.level_list.index(self.current_level)
+        return DB.levels.index(self.current_level)
 
     def update_view(self):
+        self.level_menu.update_view()
         self.map_view.update_view()
 
     # === Create Menu ===
@@ -171,7 +173,8 @@ class MainEditor(QMainWindow):
         self.status_bar = self.statusBar()
         self.position_bar = QLabel("", self)
         self.position_bar.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        self.status_bar.addPermanentWidget(self.position_bar, 1)
+        self.position_bar.setMinimumWidth(60)
+        self.status_bar.addPermanentWidget(self.position_bar)
 
     def set_position_bar(self, pos):
         if pos:
@@ -180,6 +183,7 @@ class MainEditor(QMainWindow):
             self.position_bar.setText("")
 
     def create_level_dock(self):
+        print("Create Level Dock")
         self.level_dock = QDockWidget("Levels", self)
         self.level_menu = LevelDatabase(self)
         self.level_dock.setAllowedAreas(Qt.LeftDockWidgetArea)
@@ -228,6 +232,10 @@ class MainEditor(QMainWindow):
 
     def new(self):
         if self.maybe_save():
+            # Return to global
+            if not self.global_mode:
+                self.edit_global()
+
             DB.init_load()
             self.undo_stack.setClean()
             self.set_window_title('Untitled')
@@ -256,6 +264,9 @@ class MainEditor(QMainWindow):
 
     def load(self):
         if os.path.exists(self.current_save_loc):
+            if not self.global_mode:
+                self.edit_global()
+
             with open(self.current_save_loc, 'rb') as load_fp:
                 data = pickle.load(load_fp)
 
@@ -264,6 +275,7 @@ class MainEditor(QMainWindow):
             self.undo_stack.clear()
             title = os.path.split(self.current_save_loc)[-1].split('.')[0]
             self.set_window_title(title)
+            print("Loaded project from %s" % self.current_save_loc)
             self.status_bar.showMessage("Loaded project from %s" % self.current_save_loc)
             self.update_view()
 
@@ -289,6 +301,7 @@ class MainEditor(QMainWindow):
 
         # Actually gather information needed to save
         project = DB.save()
+        print(DB.levels.values()[0].market_flag)
 
         with open(self.current_save_loc, 'wb') as save_fp:
             # Remove the -1 here if you want to interrogate the pickled save
@@ -351,6 +364,8 @@ class MainEditor(QMainWindow):
             self.level_dock.hide()
             self.removeDockWidget(self.level_dock)
 
+            self.global_mode = False
+
     def edit_global(self):
         self.toolbar.insertAction(self.back_to_main_act, self.modify_tilemap_act)
         self.toolbar.removeAction(self.back_to_main_act)
@@ -361,6 +376,8 @@ class MainEditor(QMainWindow):
 
         self.addDockWidget(Qt.LeftDockWidgetArea, self.level_dock)        
         self.level_dock.show()
+
+        self.global_mode = True
 
     def edit_database(self):
         dialog = DatabaseEditor(self)

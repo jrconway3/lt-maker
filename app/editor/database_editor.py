@@ -30,11 +30,12 @@ class DatabaseEditor(QDialog):
         self.actions['item'] = QAction("Edit &Items", self, shortcut="I", triggered=lambda: ItemDatabase.edit(self))
         self.actions['status'] = QAction("Edit &Skills", self, shortcut="S", triggered=lambda: StatusDatabase.edit(self))
         self.actions['terrain'] = QAction("Edit &Terrain", self, shortcut="T", triggered=lambda: TerrainDatabase.edit(self))
+        # self.actions['stats'] = QAction("&Edit Stats", self, shortcut="Shift+S", triggered=lambda: StatDatabase.edit(self))
+        self.actions['equation'] = QAction("&Edit Equations", self, shortcut="E", triggered=lambda: EquationDatabase.edit(self))        
         self.actions['ai'] = QAction("Edit &AI", self, shortcut="A", triggered=lambda: AIDatabase.edit(self))
         self.actions['support'] = QAction("Edit Su&pports", self, shortcut="P", triggered=lambda: SupportDatabase.edit(self))
         self.actions['overworld'] = QAction("Edit &Overworld", self, shortcut="O", triggered=lambda: OverworldDatabase.edit(self))
         self.actions['constants'] = QAction("Edit &Constants", self, shortcut="C", triggered=lambda: ConstantsDatabase.edit(self))
-        self.actions['config'] = QAction("&Edit Configuration", self, shortcut="E", triggered=lambda: ConfigDatabase.edit(self))
 
     def create_buttons(self):
         self.buttons = OrderedDict()
@@ -64,6 +65,12 @@ class StatusDatabase(EditDialog):
     pass
 
 class AIDatabase(EditDialog):
+    pass
+
+class StatDatabase(EditDialog):
+    pass
+
+class EquationDatabase(EditDialog):
     pass
 
 class SupportDatabase(EditDialog):

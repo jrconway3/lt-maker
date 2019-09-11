@@ -77,4 +77,4 @@ class data(object):
         return self._dict[key]
 
     def __iter__(self):
-        return self._list
+        return iter(self._list)

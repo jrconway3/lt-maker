@@ -12,10 +12,10 @@ class CreateNewLevel(QUndoCommand):
         super().__init__("Creating level %s: %s" % (nid, title))
 
     def undo(self):
-        DB.level_list.remove(self.new_level)
+        DB.levels.remove(self.new_level)
 
     def redo(self):
-        DB.level_list.append(self.new_level)
+        DB.levels.append(self.new_level)
 
 class ChangeTileTerrain(QUndoCommand):
     def __init__(self, level, pos, new_terrain):

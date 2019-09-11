@@ -120,9 +120,9 @@ class PropertiesMenu(QWidget):
 
         form = QFormLayout(self)
 
-        self.level_name = QLineEdit(self)
-        self.level_name.textChanged.connect(self.name_changed)
-        form.addRow('Level Title:', self.level_name)
+        self.level_title = QLineEdit(self)
+        self.level_title.textChanged.connect(self.title_changed)
+        form.addRow('Level Title:', self.level_title)
 
         self.level_nid = QLineEdit(self)
         self.level_nid.textChanged.connect(self.nid_changed)
@@ -159,7 +159,7 @@ class PropertiesMenu(QWidget):
     def load(self, current_level):
         self.current_level = current_level
 
-        self.level_name.setText(current_level.title)
+        self.level_title.setText(current_level.title)
         self.level_nid.setText(current_level.nid)
         self.market_check.setChecked(current_level.market_flag)
         self.quick_display.setText(current_level.objective['simple'])
@@ -180,18 +180,18 @@ class PropertiesMenu(QWidget):
 
     def nid_done_editing(self):
         current = self.current_level
-        other_nids = [level.nid for level in DB.level_list if level is not current]
+        other_nids = [level.nid for level in DB.levels if level is not current]
         if current.nid in other_nids:
             QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % current.nid)
             current.nid = utilities.get_next_int(current.nid, other_nids)
         self.main_editor.update_view()
 
-    def name_changed(self, text):
-        self.current_level.name = text
+    def title_changed(self, text):
+        self.current_level.title = text
         self.main_editor.update_view()
 
     def market_changed(self, state):
-        self.current_level.market_flag = state
+        self.current_level.market_flag = bool(state)
 
     def edit_music(self):
         dlg = MusicDialog(self, self.current_level)

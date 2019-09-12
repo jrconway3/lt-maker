@@ -1,10 +1,11 @@
 import os
 
-from app.data import terrain, mcost_grid, minimap, data
+from app.data import stats, terrain, mcost_grid, minimap, data
 
 class Database(object):
     def __init__(self):
         self.levels = data.data()
+        self.stats = stats.StatData()
         self.mcost = mcost_grid.McostGrid()
         self.terrain = terrain.TerrainManager()
         self.minimap = minimap.MinimapData()
@@ -12,6 +13,7 @@ class Database(object):
         self.init_load()
 
     def init_load(self):
+        self.stats.import_xml('./app/data/default_stats.xml')
         self.mcost.import_data('./app/data/default_mcost.txt')
         self.terrain.import_xml('./app/data/default_terrain.xml')
 

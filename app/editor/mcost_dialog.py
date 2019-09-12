@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QTableView, QInputDialog, QHeaderView, \
+from PyQt5.QtWidgets import QDialogButtonBox, QTableView, QInputDialog, QHeaderView, \
     QGridLayout, QPushButton, QLineEdit, QItemDelegate, QAction, QMenu, QMessageBox
 from PyQt5.QtGui import QIntValidator, QFontMetrics, QBrush, QColor
 from PyQt5.QtWidgets import QStyle, QProxyStyle
@@ -8,7 +8,9 @@ from PyQt5.QtCore import Qt, QSize
 from app.data.database import DB
 import app.utilities as utilities
 
-class McostDialog(QDialog):
+from app.editor.custom_gui import SimpleDialog
+
+class McostDialog(SimpleDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 

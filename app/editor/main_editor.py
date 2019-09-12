@@ -173,7 +173,7 @@ class MainEditor(QMainWindow):
         self.status_bar = self.statusBar()
         self.position_bar = QLabel("", self)
         self.position_bar.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        self.position_bar.setMinimumWidth(60)
+        self.position_bar.setMinimumWidth(100)
         self.status_bar.addPermanentWidget(self.position_bar)
 
     def set_position_bar(self, pos):

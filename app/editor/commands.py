@@ -25,7 +25,7 @@ class ChangeTileTerrain(QUndoCommand):
         self.new_terrain = [new_terrain]
         super().__init__(
             "(%d, %d): Changed Terrain from %s to %s" % 
-            (pos[0], pos[1], self.old_terrain.nid, self.new_terrain.nid))
+            (pos[0], pos[1], self.old_terrain[0].nid, self.new_terrain[0].nid))
         self.can_merge = True
 
     def redo(self):

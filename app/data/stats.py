@@ -4,6 +4,7 @@ except ImportError:
     import xml.etree.ElementTree as ET
 
 from app.data.data import data
+from app import utilities
 
 class StatType(object):
     def __init__(self, nid, name, maximum, desc):
@@ -22,3 +23,8 @@ class StatData(data):
             desc = stat.find('desc').text
             new_stat = StatType(nid, name, maximum, desc)
             self.append(new_stat)
+
+    def add_new_default(self):
+        new_row_nid = utilities.get_next_name('STAT', [d.nid for d in self.values()])
+        new_stat = StatType(new_row_nid, "New Stat", 30, "")
+        self.append(new_stat)

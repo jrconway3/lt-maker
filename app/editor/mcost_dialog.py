@@ -6,7 +6,7 @@ from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt, QSize
 
 from app.data.database import DB
-import app.utilities as utilities
+from app import utilities
 
 from app.editor.custom_gui import SimpleDialog
 

@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QDialogButtonBox, QGridLayout, QTreeView, QItemDelegate, QSpinBox
+from PyQt5.QtWidgets import QDialogButtonBox, QGridLayout, QTreeView, QItemDelegate, QSpinBox, \
+    QAction, QMenu, QMessageBox, QPushButton
 from PyQt5.QtCore import QAbstractItemModel
 from PyQt5.QtCore import Qt, QModelIndex
 
@@ -16,17 +17,19 @@ class StatDialog(SimpleDialog):
 
         self.saved_data = self.save()
 
-        self.model = MultiAttrListModel(self._data, ("nid", "name", "maximum", "desc"), {"HP", "MOV"})
-        self.view = QTreeView()
+        self.model = MultiAttrListModel(self._data, ("nid", "name", "maximum", "desc"), {"HP", "MOV"}, self)
+        self.view = RightClickTreeView(self)
         self.view.setModel(self.model)
         delegate = IntDelegate(self.view)
-        # self.view.setItemDelegate(delegate)
+        self.view.setItemDelegate(delegate)
 
         layout = QGridLayout(self)
         layout.addWidget(self.view, 0, 0, 1, 2)
         self.setLayout(layout)
 
-        # self.view.resizeColumnsToContents()
+        self.add_button = QPushButton("Add Stat")
+        self.add_button.clicked.connect(self.model.add_new_row)
+        layout.addWidget(self.add_button, 1, 0, alignment=Qt.AlignLeft)
 
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         layout.addWidget(self.buttonbox, 1, 1)
@@ -46,6 +49,31 @@ class StatDialog(SimpleDialog):
         self.restore(self.saved_data)
         super().reject()
 
+class RightClickTreeView(QTreeView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.uniformItemSizes = True
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.customMenuRequested)
+
+    def customMenuRequested(self, pos):
+        index = self.indexAt(pos)
+
+        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index.row()))
+        menu = QMenu(self)
+        menu.addAction(delete_action)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+    def delete(self, idx):
+        self.parent().model.delete(idx)
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if event.key() == Qt.Key_Delete:
+            self.delete(self.currentIndex().row())
+
 class IntDelegate(QItemDelegate):
     def createEditor(self, parent, option, index):
         if index.column() == 2:
@@ -58,11 +86,25 @@ class IntDelegate(QItemDelegate):
 class MultiAttrListModel(QAbstractItemModel):
     def __init__(self, data, headers, locked=None, parent=None):
         super().__init__(parent)
+        self.window = parent
         self._data = data
         self._headers = headers
         self.locked = locked
         if not locked:
             self.locked = set()
+
+    def delete(self, idx):
+        if self._data.values()[idx].nid not in self.locked:
+            self._data.pop(idx)
+            self.layoutChanged.emit()
+        else:
+            QMessageBox.critical(self.window, 'Error', "Cannot delete this row!")
+
+    def add_new_row(self):
+        self._data.add_new_default()
+        self.layoutChanged.emit()
+        last_index = self.index(self.rowCount() - 1, 0)
+        self.window.view.setCurrentIndex(last_index)
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
@@ -72,7 +114,7 @@ class MultiAttrListModel(QAbstractItemModel):
         elif orientation == Qt.Horizontal:
             return self._headers[idx].capitalize()
 
-    def index(self, row, column, parent_index):
+    def index(self, row, column, parent_index=QModelIndex()):
         if self.hasIndex(row, column, parent_index):
             return self.createIndex(row, column)
         return QModelIndex()
@@ -110,7 +152,6 @@ class MultiAttrListModel(QAbstractItemModel):
         if self._data.values()[index.row()].nid not in self.locked or index.column() != 0:
             basic_flags |= Qt.ItemIsEditable
         return basic_flags
-
 
 # Testing
 # Run "python -m app.editor.stat_database" from main directory

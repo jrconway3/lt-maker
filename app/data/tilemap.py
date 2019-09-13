@@ -42,7 +42,7 @@ class TileMap(object):
 
     @classmethod
     def default(cls):
-        return cls("./app/data/default_tilemap_image.png", "./app/data/default_tilemap_terrain.txt")
+        return cls("./app/default_data/default_tilemap_image.png", "./app/defalt_data/default_tilemap_terrain.txt")
 
 class Tile(object):
     def __init__(self, terrain, position, parent):

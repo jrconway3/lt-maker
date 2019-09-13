@@ -1,90 +1,30 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QDialog, \
-    QFormLayout, QLineEdit, QDialogButtonBox, QLabel, QColorDialog, QHBoxLayout, \
+    QLineEdit, QLabel, QColorDialog, QHBoxLayout, \
     QMessageBox
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
-from PyQt5.QtCore import Qt, QAbstractListModel, QSize, pyqtSignal
+from PyQt5.QtCore import Qt, QSize, pyqtSignal
 
 from app.data.sprites import SPRITES
 from app.data.database import DB
-from app.data.terrain import Terrain
 
-from app.editor.custom_gui import ComboBox, EditDialog, RightClickListView
+from app.editor.custom_gui import ComboBox
+from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.mcost_dialog import McostDialog
-import app.utilities as utilities
+from app import utilities
 
-class TerrainDatabase(EditDialog):
-    def __init__(self, data, parent=None):
-        super().__init__(data, parent)
-        self.window = parent
+class TerrainDatabase(DatabaseDialog):
+    @classmethod
+    def edit(cls, parent):
+        data = DB.terrain
+        title = "Terrain Type"
+        right_frame = TerrainProperties
+        deletion_msg = 'Cannot delete when only one terrain left!'
+        creation_func = DB.create_new_terrain
+        collection_model = TerrainModel
+        dialog = cls(parent, data, title, right_frame, deletion_msg, creation_func, collection_model)
+        dialog.exec_()
 
-        self.setWindowTitle('Terrain Editor')
-
-        self.left_frame = Collection(self)
-        self.right_frame = TerrainProperties(self)
-        self.left_frame.set_display(self.right_frame)
-
-        self.grid.addWidget(self.left_frame, 0, 0)
-        self.grid.addWidget(self.right_frame, 0, 1)
-
-    def update_list(self):
-        self.left_frame.update_list()
-
-class Collection(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.window = parent
-        self.database_editor = self.window.window
-        self.display = None  # Partner that displays additional information about this collection
-
-        self.grid = QGridLayout()
-        self.setLayout(self.grid)
-
-        self.list_view = RightClickListView('Cannot delete when only one terrain left!', self)
-        self.list_view.currentChanged = self.on_item_changed
-
-        self.model = TerrainModel(self)
-        self.list_view.setModel(self.model)
-        self.list_view.setIconSize(QSize(32, 32))
-
-        self.button = QPushButton("Create New Terrain Type...")
-        self.button.clicked.connect(self.create_new_terrain_type)
-
-        self.grid.addWidget(self.list_view, 0, 0)
-        self.grid.addWidget(self.button, 1, 0)
-
-    def create_new_terrain_type(self):
-        dialog = NewTerrainDialog(self)
-        result = dialog.exec_()
-        if result == QDialog.Accepted:
-            nid, name = dialog.get_results()
-            new_terrain = Terrain(nid, name, (0, 0, 0), 'Grass', DB.get_platform_types()[0], DB.mcost.rows[0])
-            DB.terrain.append(new_terrain)
-            self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-            last_index = self.model.index(self.model.rowCount() - 1)
-            self.list_view.setCurrentIndex(last_index)
-
-    def on_item_changed(self, curr, prev):
-        super().currentChanged(curr, prev)
-        new_terrain = DB.terrain.values()[curr.row()]
-        if self.display:
-            self.display.set_current(new_terrain)
-
-    def set_display(self, disp):
-        self.display = disp
-        first_index = self.model.index(0, 0)
-        self.list_view.setCurrentIndex(first_index)
-
-    def update_list(self):
-        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-
-class TerrainModel(QAbstractListModel):
-    def __init__(self, window=None):
-        super().__init__(window)
-        self._data = DB.terrain
-
-    def rowCount(self, parent=None):
-        return len(self._data)
-
+class TerrainModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -99,58 +39,6 @@ class TerrainModel(QAbstractListModel):
             pixmap.fill(QColor(color[0], color[1], color[2]))
             return QIcon(pixmap)
         return None
-
-    def delete(self, idx):
-        self._data.pop(idx)
-        self.layoutChanged.emit()
-        new_terrain = self._data.values()[max(idx, len(self._data) - 1)]
-        if self.parent().display:
-            self.parent().display.set_current(new_terrain)
-
-class NewTerrainDialog(QDialog):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.menu = parent
-        self.setWindowTitle("Create New Terrain...")
-
-        self.form = QFormLayout(self)
-        self.name = QLineEdit(self)
-        self.nid = QLineEdit(self)
-        self.nid.textChanged.connect(self.nid_changed)
-        self.warning_message = QLabel('')
-        self.warning_message.setStyleSheet("QLabel { color : red; }")
-        self.form.addRow('Display Name: ', self.name)
-        self.form.addRow('Internal ID: ', self.nid)
-        self.form.addRow(self.warning_message)
-
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
-        self.form.addRow(self.buttonbox)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-
-        # No level id set
-        accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-        accept_button.setEnabled(False)
-        self.warning_message.setText('No Terrain ID set.')
-
-    def nid_changed(self, text):
-        if text in DB.terrain.keys():
-            accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-            accept_button.setEnabled(False)
-            self.warning_message.setText('Terrain ID is already in use.')
-        elif text:
-            accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-            accept_button.setEnabled(True)
-            self.warning_message.setText('')
-        else:
-            accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-            accept_button.setEnabled(False)
-            self.warning_message.setText('No Terrain ID set.')
-
-    def get_results(self):
-        title = self.name.text()
-        nid = self.nid.text()
-        return title, nid
 
 class TerrainIcon(QPushButton):
     colorChanged = pyqtSignal(QColor)
@@ -309,7 +197,7 @@ class TerrainProperties(QWidget):
         self.icon_edit.change_color(QColor(color[0], color[1], color[2]).name())
 
 # Testing
-# Run "python -m app.editor.terrain_menu" from main directory
+# Run "python -m app.editor.terrain_database" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication

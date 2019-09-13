@@ -57,3 +57,6 @@ class Database(object):
         self.weapons.append(new_weapon_rank)
 
 DB = Database()
+
+# Testing
+# Run "python -m app.data.database" from main directory

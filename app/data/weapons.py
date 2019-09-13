@@ -14,6 +14,10 @@ class WeaponRank(object):
         self.damage = damage
         self.crit = crit
 
+    @property
+    def nid(self):
+        return self.rank
+
 class RankData(data):
     def import_data(self, txt_fn):
         with open(txt_fn) as fp:

@@ -17,8 +17,9 @@ class SimpleDialog(QDialog):
 class EditDialog(SimpleDialog):
     def __init__(self, data, parent):
         super().__init__(parent)
-        self.main_editor = self.parent().parent()
-        self.main_editor.undo_stack.clear()
+        if self.parent():
+            self.main_editor = self.parent().parent()
+            self.main_editor.undo_stack.clear()
         self._data = data
         self.saved_data = self.save()
 

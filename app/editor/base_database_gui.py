@@ -13,7 +13,7 @@ class DatabaseDialog(EditDialog):
 
         self.setWindowTitle('%s Editor' % self.title)
 
-        self.left_frame = Collection(self, deletion_msg, creation_func, collection_model)
+        self.left_frame = Collection(deletion_msg, creation_func, collection_model, self)
         self.right_frame = right_frame(self)
         self.left_frame.set_display(self.right_frame)
 
@@ -22,6 +22,11 @@ class DatabaseDialog(EditDialog):
 
     def update_list(self):
         self.left_frame.update_list()
+
+    @classmethod
+    def edit(cls, parent=None):
+        dialog = cls.create(parent)
+        dialog.exec_()
 
 class Collection(QWidget):
     def __init__(self, deletion_msg, creation_func, collection_model, parent):
@@ -41,7 +46,7 @@ class Collection(QWidget):
         self.view = RightClickListView(deletion_msg, self)
         self.view.currentChanged = self.on_item_changed
 
-        self.model = collection_model(self)
+        self.model = collection_model(self._data, self)
         self.view.setModel(self.model)
 
         self.view.setIconSize(QSize(32, 32))
@@ -60,26 +65,26 @@ class Collection(QWidget):
             self.creation_func(nid, name)
             self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
             last_index = self.model.index(self.model.rowCount() - 1)
-            self.list_view.setCurrentIndex(last_index)
+            self.view.setCurrentIndex(last_index)
 
     def on_item_changed(self, curr, prev):
-        super().currentChanged(curr, prev)
-        new_terrain = self._data.values()[curr.row()]
+        new_data = self._data.values()[curr.row()]
         if self.display:
-            self.display.set_current(new_terrain)
+            self.display.set_current(new_data)
 
     def set_display(self, disp):
         self.display = disp
         first_index = self.model.index(0)
-        self.list_view.setCurrentIndex(first_index)
+        self.view.setCurrentIndex(first_index)
 
     def update_list(self):
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))                
 
 class CollectionModel(QAbstractListModel):
-    def __init__(self, data, window=None):
+    def __init__(self, data, window):
         super().__init__(window)
         self._data = data
+        self.window = window
 
     def rowCount(self, parent=None):
         return len(self._data)
@@ -91,13 +96,13 @@ class CollectionModel(QAbstractListModel):
         self._data.pop(idx)
         self.layoutChanged.emit()
         new_weapon = self._data.values()[max(idx, len(self._data) - 1)]
-        if self.parent().display:
-            self.parent().display.set_current(new_weapon)
+        if self.window.display:
+            self.window.display.set_current(new_weapon)
 
 class RightClickListView(QListView):
-    def __init__(self, msg='', parent=None):
+    def __init__(self, msg, parent):
         super().__init__(parent)
-        self.parent = parent
+        self.window = parent
         self.last_to_delete_msg = msg
 
         self.uniformItemSizes = True

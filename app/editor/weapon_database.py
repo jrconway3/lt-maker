@@ -11,15 +11,15 @@ from app import utilities
 
 class WeaponDatabase(DatabaseDialog):
     @classmethod
-    def edit(cls, parent):
+    def create(cls, parent=None):
         data = DB.weapons
         title = "Weapon Type"
         right_frame = WeaponProperties
         deletion_msg = "Cannot delete Default weapon type"
         creation_func = DB.create_new_weapon_type
         collection_model = WeaponModel
-        dialog = cls(parent, data, title, right_frame, deletion_msg, creation_func, collection_model)
-        dialog.exec_()
+        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        return dialog
 
 class WeaponModel(CollectionModel):
     def data(self, index, role):

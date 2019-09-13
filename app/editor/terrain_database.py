@@ -14,15 +14,15 @@ from app import utilities
 
 class TerrainDatabase(DatabaseDialog):
     @classmethod
-    def edit(cls, parent):
+    def create(cls, parent=None):
         data = DB.terrain
         title = "Terrain Type"
         right_frame = TerrainProperties
         deletion_msg = 'Cannot delete when only one terrain left!'
         creation_func = DB.create_new_terrain
         collection_model = TerrainModel
-        dialog = cls(parent, data, title, right_frame, deletion_msg, creation_func, collection_model)
-        dialog.exec_()
+        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        return dialog
 
 class TerrainModel(CollectionModel):
     def data(self, index, role):
@@ -202,6 +202,6 @@ if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    window = TerrainDatabase()
+    window = TerrainDatabase.create()
     window.show()
     app.exec_()

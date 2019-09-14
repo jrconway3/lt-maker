@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
+from app.editor.custom_gui import MultiAttrListModel, RightClickTreeView, IntDelegate
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import RankDialog
 from app import utilities
@@ -128,12 +129,45 @@ class WeaponProperties(QWidget):
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)
 
+class AdvantageWidget(QWidget):
+    def __init__(self, title, advantage, parent):
+        super().__init__(parent)
+        self.window = parent
+
+        self.current = advantage
+
+        attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attackspeed')
+        self.model = MultiAttrListModel(self.current, attrs, None, self)
+        self.view = RightClickTreeView(self)
+        self.view.setModel(self.model)
+        int_columns = (2, 3, 4, 5, 6, 7, 8)
+        delegate = AdvantageDelegate(self.view, int_columns)
+        self.view.setItemDelegate(delegate)
+
+        layout = QGridLayout(self)
+        layout.addWidget(self.view, 1, 0, 1, 2)
+        self.setLayout(layout)
+
+        label = QLabel(title)
+        layout.addWidget(label, 0, 0)
+
+        add_button = QPushButton("+")
+        add_button.clicked.connect(self.model.add_new_row)
+        layout.addWidget(add_button, 1, 0, alignment=Qt.AlignLeft)
+
+    def set_current(self, advantage):
+        self.current = advantage
+        self.model.set_new_data(self.current)
+
+class AdvantageDelegate(IntDelegate):
+    pass
+
 # Testing
 # Run "python -m app.editor.weapon_database" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    window = WeaponDatabase()
+    window = WeaponDatabase.create()
     window.show()
     app.exec_()

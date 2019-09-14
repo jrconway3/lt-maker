@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QDialog, \
     QLineEdit, QLabel, QColorDialog, QHBoxLayout, \
-    QMessageBox
+    QMessageBox, QFrame
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 

@@ -145,6 +145,10 @@ class MultiAttrListModel(QAbstractItemModel):
         if not locked:
             self.locked = set()
 
+    def set_new_data(self, data):
+        self._data = data
+        self.layoutChanged.emit()
+
     def delete(self, idx):
         if getattr(self._data.values()[idx], self._headers[0]) not in self.locked:
             self._data.pop(idx)
@@ -164,7 +168,7 @@ class MultiAttrListModel(QAbstractItemModel):
         if orientation == Qt.Vertical:
             return None
         elif orientation == Qt.Horizontal:
-            return self._headers[idx].capitalize()
+            return self._headers[idx].replace('_', ' ').capitalize()
 
     def index(self, row, column, parent_index=QModelIndex()):
         if self.hasIndex(row, column, parent_index):

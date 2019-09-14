@@ -25,7 +25,7 @@ class Database(object):
         home = './sprites/platforms/'
         names = list({fn.split('-')[0] for fn in os.listdir(home)})
         sprites = [n + '-Melee' for n in names]
-        return zip(names, sprites)
+        return list(zip(names, sprites))
 
     # === Serialization function ===
     def restore(self, data):
@@ -49,7 +49,7 @@ class Database(object):
 
     # === Creation functions ===
     def create_new_terrain(self, nid, name):
-        new_terrain = terrain.Terrain(nid, name, (0, 0, 0), 'Grass', self.get_platform_types()[0], self.mcost.rows[0])
+        new_terrain = terrain.Terrain(nid, name, (0, 0, 0), 'Grass', self.get_platform_types()[0][0], self.mcost.row_headers[0])
         self.terrain.append(new_terrain)
 
     def create_new_weapon_rank(self, nid, name):

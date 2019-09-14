@@ -58,7 +58,7 @@ class Collection(QWidget):
         grid.addWidget(self.button, 1, 0)
 
     def create_new(self):
-        dialog = CreateNewDialog(self, self.title)
+        dialog = CreateNewDialog(self.title, self)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             nid, name = dialog.get_results()
@@ -172,6 +172,6 @@ class CreateNewDialog(QDialog):
             self.warning_message.setText('No %s ID set.' % self.title)
 
     def get_results(self):
-        title = self.name.text()
+        name = self.name.text()
         nid = self.nid.text()
-        return title, nid
+        return nid, name

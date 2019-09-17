@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QCheckBox, QLineEdit, QPushButton, \
-    QMessageBox, QDialog
+    QMessageBox, QDialog, QFileDialog, QSpinBox
 from PyQt5.QtGui import QPixmap, QColor, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDir, pyqtSignal
 
 from app.data.database import DB
 
@@ -83,7 +83,7 @@ class WeaponProperties(QWidget):
 
         pixmap = QPixmap(64, 64)
         pixmap.fill(QColor(0, 0, 0))
-        self.icon_edit = WeaponIcon(pixmap, self)
+        self.icon_edit = ItemIcon(pixmap, self)
         grid.addWidget(self.icon_edit, 0, 0, 2, 2)
 
     def nid_changed(self, text):
@@ -128,6 +128,115 @@ class WeaponProperties(QWidget):
         self.magic_check.setChecked(current.magic)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)
+
+class PushableIcon(QPushButton):
+    sourceChanged = pyqtSignal(str)
+    coordsChanged = pyqtSignal(int, int)
+    width, height = 16, 16
+
+    def __init__(self, fn, x, y, parent):
+        super().__init__(parent)
+        self.window = parent
+        self._fn = fn
+        self.x, self.y = x, y
+        self.change_icon_source(fn)
+
+        self.setMinimumHeight(64)
+        self.setMaximumHeight(64)
+        self.setMinimumWidth(64)
+        self.setMaximumWidth(64)
+        self.resize(64, 64)
+        self.pressed.connect(self.onIconSourcePicker)
+
+    def render(self):
+        if self._fn:
+            big_pic = QPixmap(self._fn)
+            pic = big_pic.crop(self.x, self.y, self.width, self.height)
+            pic.resize(4, 4)
+            pic = QIcon(pic)
+            self.setIcon(pic)
+
+    def get_size(self):
+        im = QPixmap(self._fn)
+        return im.width() // self.width, im.height() // self.height
+
+    def change_icon_source(self, fn):
+        if fn != self._fn:
+            self._fn = fn
+            # Check bounds
+            max_width, max_height = self.get_size()
+            if max_width >= self.x:
+                self.x = max_width - 1  # Maiximize
+                self.coordsChanged.emit(self.x, self.y)
+            if max_height >= self.y:
+                self.y = max_height - 1  # Maximize
+                self.coordsChanged.emit(self.x, self.y)
+            self.sourceChanged.emit(fn)
+        self.render()
+
+    def change_icon_x(self, x):
+        if x != self.x:
+            self.x = x
+            self.coordsChanged.emit(self.x, self.y)
+        self.render()
+
+    def change_icon_y(self, y):
+        if y != self.y:
+            self.y = y
+            self.coordsChanged.emit(self.x, self.y)
+        self.render()
+
+    def onIconSourcePicker(self):
+        starting_path = QDir.currentPath()
+        fn, ok = QFileDialog.getOpenFileName(self, "Choose Sprite", starting_path,
+                                             "PNG Files (*.png);;All Files(*)")
+        if ok:
+            self.change_icon_source(fn)
+
+class ItemIcon(QWidget):
+    width, height = 16, 16
+
+    def __init__(self, source, parent):
+        super().__init__(parent)
+        self.window = parent
+
+        grid = QGridLayout()
+        self.setLayout(grid)
+
+        self._fn = source
+        self._x = 0
+        self._y = 0
+
+        self.icon = PushableIcon(self._fn, self._x, self._y, self)
+        grid.addWidget(self.icon, 0, 0, 1, 4)
+
+        x_label = QLabel("X:")
+        y_label = QLabel("Y:")
+        grid.addWidget(x_label, 1, 0)
+        grid.addWidget(y_label, 1, 2)
+
+        self.x_spinbox = QSpinBox()
+        self.y_spinbox = QSpinBox()
+        grid.addWidget(self.x_spinbox, 1, 1)
+        grid.addWidget(self.y_spinbox, 1, 3)
+
+        self.set_spinbox_range()
+        self.icon.sourceChanged.connect()
+
+    def x_changed(self, value):
+        self.icon.change_icon_x(value)
+
+    def y_changed(self, value):
+        self.icon.change_icon_y(value)
+
+    def on_source_changed(self, fn):
+        self._fn = fn
+        self.set_spinbox_range()
+
+    def set_spinbox_range(self):
+        max_width, max_height = self.icon.get_size()
+        self.x_spinbox.setRange(0, max_width)
+        self.y_spinbox.setRange(0, max_height)
 
 class AdvantageWidget(QWidget):
     def __init__(self, title, advantage, parent):

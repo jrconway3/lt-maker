@@ -7,7 +7,7 @@ class Database(object):
         self.levels = data.data()
         self.stats = stats.StatData()
         self.mcost = mcost_grid.McostGrid()
-        self.terrain = terrain.TerrainManager()
+        self.terrain = terrain.TerrainData()
         self.minimap = minimap.MinimapData()
         self.weapon_ranks = weapons.RankData()
         self.weapons = weapons.WeaponData()
@@ -52,9 +52,9 @@ class Database(object):
         new_terrain = terrain.Terrain(nid, name, (0, 0, 0), 'Grass', self.get_platform_types()[0][0], self.mcost.row_headers[0])
         self.terrain.append(new_terrain)
 
-    def create_new_weapon_rank(self, nid, name):
-        new_weapon_rank = weapons.WeaponRank(nid, name, False, [], [])
-        self.weapons.append(new_weapon_rank)
+    def create_new_weapon_type(self, nid, name):
+        new_weapon_type = weapons.WeaponType(nid, name, False, [], [])
+        self.weapons.append(new_weapon_type)
 
 DB = Database()
 

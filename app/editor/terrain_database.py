@@ -29,11 +29,11 @@ class TerrainModel(CollectionModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            terrain = list(self._data.values())[index.row()]
+            terrain = self._data[index.row()]
             text = terrain.nid + " : " + terrain.name
             return text
         elif role == Qt.DecorationRole:
-            terrain = list(self._data.values())[index.row()]
+            terrain = self._data[index.row()]
             color = terrain.color
             pixmap = QPixmap(64, 64)
             pixmap.fill(QColor(color[0], color[1], color[2]))
@@ -150,13 +150,7 @@ class TerrainProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Terrain ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_int(self.current.nid, other_nids)
-        my_key = None
-        for key, value in DB.terrain.items():
-            if value.nid == self.current.nid:
-                my_key = key
-                break
-        if my_key:
-            DB.terrain[self.current.nid] = DB.terrain.pop(my_key)
+        DB.terrain.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
     def name_changed(self, text):

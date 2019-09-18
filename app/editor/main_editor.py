@@ -301,7 +301,7 @@ class MainEditor(QMainWindow):
 
         # Actually gather information needed to save
         project = DB.save()
-        print(DB.levels.values()[0].market_flag)
+        print(DB.levels[0].market_flag)
 
         with open(self.current_save_loc, 'wb') as save_fp:
             # Remove the -1 here if you want to interrogate the pickled save

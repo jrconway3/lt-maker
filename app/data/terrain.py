@@ -16,7 +16,7 @@ class Terrain(object):
 
         self.mtype = mtype
 
-class TerrainManager(data):
+class TerrainData(data):
     def import_xml(self, xml_fn):
         terrain_data = ET.parse(xml_fn)
         for terrain in terrain_data.getroot().findall('terrain'):

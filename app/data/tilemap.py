@@ -36,7 +36,7 @@ class TileMap(object):
                 if (x, y) in old_tiles:
                     self.tiles[(x, y)] = old_tiles[(x, y)]
                 else:
-                    default_terrain = DB.terrain.values()[0]
+                    default_terrain = DB.terrain[0]
                     new_tile = Tile(default_terrain, (x, y), self)
                     self.tiles[(x, y)] = new_tile
 

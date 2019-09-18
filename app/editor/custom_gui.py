@@ -118,7 +118,7 @@ class MultiAttrListDialog(SimpleDialog):
         self.model = MultiAttrListModel(self._data, attrs, locked, self)
         self.view = RightClickTreeView(self)
         self.view.setModel(self.model)
-        int_columns = [i for i, attr in attrs if type(getattr(self._data.values()[0], attr)) == int]
+        int_columns = [i for i, attr in attrs if type(getattr(self._data[0], attr)) == int]
         delegate = IntDelegate(self.view, int_columns)
         self.view.setItemDelegate(delegate)
 
@@ -150,7 +150,7 @@ class MultiAttrListModel(QAbstractItemModel):
         self.layoutChanged.emit()
 
     def delete(self, idx):
-        if getattr(self._data.values()[idx], self._headers[0]) not in self.locked:
+        if getattr(self._data[idx], self._headers[0]) not in self.locked:
             self._data.pop(idx)
             self.layoutChanged.emit()
         else:
@@ -188,23 +188,23 @@ class MultiAttrListModel(QAbstractItemModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            data = self._data.values()[index.row()]
+            data = self._data[index.row()]
             return getattr(data, self._headers[index.column()])
         elif role == Qt.EditRole:
-            data = self._data.values()[index.row()]
+            data = self._data[index.row()]
             return getattr(data, self._headers[index.column()])
         return None
 
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        data = self._data.values()[index.row()]
+        data = self._data[index.row()]
         setattr(data, self._headers[index.column()], value)
         self.dataChanged.emit(index, index)
         return True
 
     def flags(self, index):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
-        if getattr(self._data.values()[index.row()], self._headers[0]) not in self.locked or index.column() != 0:
+        if getattr(self._data[index.row()], self._headers[0]) not in self.locked or index.column() != 0:
             basic_flags |= Qt.ItemIsEditable
         return basic_flags

@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QCheckBox, QLineEdit, QPushButton, \
-    QMessageBox, QDialog, QFileDialog, QSpinBox
+    QMessageBox, QDialog, QFileDialog, QSpinBox, QItemDelegate
 from PyQt5.QtGui import QPixmap, QColor, QIcon
-from PyQt5.QtCore import Qt, QDir, pyqtSignal
+from PyQt5.QtCore import Qt, QDir, pyqtSignal, QSize
 
 from app.data.database import DB
 
-from app.editor.custom_gui import MultiAttrListModel, RightClickTreeView, IntDelegate
+from app.editor.custom_gui import MultiAttrListModel, RightClickTreeView, ComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import RankDialog
 from app import utilities
@@ -27,14 +27,13 @@ class WeaponModel(CollectionModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            weapon = list(self._data.values())[index.row()]
+            weapon = self._data[index.row()]
             text = weapon.nid + " : " + weapon.name
             return text
         elif role == Qt.DecorationRole:
-            # TODO Update
-            weapon = list(self._data.values())[index.row()]
-            pixmap = QPixmap(64, 64)
-            pixmap.fill(QColor(0, 0, 0))
+            weapon = self._data[index.row()]
+            x, y = weapon.sprite_index
+            pixmap = QPixmap(weapon.sprite_fn).copy(x*16, y*16, 16, 16).scaled(64, 64)
             return QIcon(pixmap)
         return None
 
@@ -67,7 +66,7 @@ class WeaponProperties(QWidget):
 
         magic_label = QLabel("Magic:")
         self.magic_check = QCheckBox(self)
-        self.magic_check.stateChanged.connect(self.magic_check)
+        self.magic_check.stateChanged.connect(self.magic_changed)
         grid.addWidget(magic_label, 2, 2)
         grid.addWidget(self.magic_check, 2, 3)
 
@@ -75,16 +74,14 @@ class WeaponProperties(QWidget):
         self.rank_button.clicked.connect(self.edit_weapon_ranks)
         grid.addWidget(self.rank_button, 2, 4, 1, 2)
 
-        self.advantage = AdvantageWidget(None, "Advantage versus:")
+        self.advantage = AdvantageWidget([], "Advantage versus:", self)
         grid.addWidget(self.advantage, 3, 0, 1, 6)
 
-        self.disadvantage = AdvantageWidget(None, "Disadvantage versus:")
-        grid.addWidget(self.disadvantage, 3, 0, 1, 6)
+        self.disadvantage = AdvantageWidget([], "Disadvantage versus:", self)
+        grid.addWidget(self.disadvantage, 4, 0, 1, 6)
 
-        pixmap = QPixmap(64, 64)
-        pixmap.fill(QColor(0, 0, 0))
-        self.icon_edit = ItemIcon(pixmap, self)
-        grid.addWidget(self.icon_edit, 0, 0, 2, 2)
+        self.icon_edit = ItemIcon(None, self)
+        grid.addWidget(self.icon_edit, 0, 0, 3, 2)
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -96,20 +93,14 @@ class WeaponProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Weapon Type ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_int(self.current.nid, other_nids)
-        my_key = None
-        for key, value in self._data.items():
-            if value.nid == self.current.nid:
-                my_key = key
-                break
-        if my_key:
-            self._data[self.current.nid] = self._data.pop(my_key)
+        self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
     def name_changed(self, text):
         self.current.name = text
         self.window.update_list()
 
-    def magic_check(self, state):
+    def magic_changed(self, state):
         self.current.magic = bool(state)
 
     def edit_weapon_ranks(self):
@@ -128,6 +119,7 @@ class WeaponProperties(QWidget):
         self.magic_check.setChecked(current.magic)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)
+        self.icon_edit.set_current(current.sprite_fn, current.sprite_index)
 
 class PushableIcon(QPushButton):
     sourceChanged = pyqtSignal(str)
@@ -139,20 +131,21 @@ class PushableIcon(QPushButton):
         self.window = parent
         self._fn = fn
         self.x, self.y = x, y
-        self.change_icon_source(fn)
 
         self.setMinimumHeight(64)
         self.setMaximumHeight(64)
         self.setMinimumWidth(64)
         self.setMaximumWidth(64)
         self.resize(64, 64)
+        self.setStyleSheet("qproperty-iconSize: 64px;")
+        self.change_icon_source(fn)
         self.pressed.connect(self.onIconSourcePicker)
 
     def render(self):
         if self._fn:
             big_pic = QPixmap(self._fn)
-            pic = big_pic.crop(self.x, self.y, self.width, self.height)
-            pic.resize(4, 4)
+            pic = big_pic.copy(self.x*self.width, self.y*self.height, self.width, self.height)
+            pic = pic.scaled(64, 64)
             pic = QIcon(pic)
             self.setIcon(pic)
 
@@ -166,7 +159,7 @@ class PushableIcon(QPushButton):
             # Check bounds
             max_width, max_height = self.get_size()
             if max_width >= self.x:
-                self.x = max_width - 1  # Maiximize
+                self.x = max_width - 1  # Maximize
                 self.coordsChanged.emit(self.x, self.y)
             if max_height >= self.y:
                 self.y = max_height - 1  # Maximize
@@ -188,7 +181,7 @@ class PushableIcon(QPushButton):
 
     def onIconSourcePicker(self):
         starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose Sprite", starting_path,
+        fn, ok = QFileDialog.getOpenFileName(self, "Choose Sprite Sheet", starting_path,
                                              "PNG Files (*.png);;All Files(*)")
         if ok:
             self.change_icon_source(fn)
@@ -208,7 +201,7 @@ class ItemIcon(QWidget):
         self._y = 0
 
         self.icon = PushableIcon(self._fn, self._x, self._y, self)
-        grid.addWidget(self.icon, 0, 0, 1, 4)
+        grid.addWidget(self.icon, 0, 0, 1, 4, Qt.AlignCenter)
 
         x_label = QLabel("X:")
         y_label = QLabel("Y:")
@@ -221,12 +214,28 @@ class ItemIcon(QWidget):
         grid.addWidget(self.y_spinbox, 1, 3)
 
         self.set_spinbox_range()
-        self.icon.sourceChanged.connect()
+        self.icon.sourceChanged.connect(self.on_source_changed)
+        self.x_spinbox.valueChanged.connect(self.change_x)
+        self.y_spinbox.valueChanged.connect(self.change_y)
+        self.change_x(self._x)
+        self.change_y(self._y)
 
-    def x_changed(self, value):
+    def set_current(self, fn, sprite_index):
+        self._fn = fn
+        self.icon.change_icon_source(self._fn)
+        x, y = sprite_index
+        self.change_x(self._x)
+        self.change_y(self._y)
+        self.set_spinbox_range()
+
+    def change_x(self, value):
+        self._x = value
+        self.x_spinbox.setValue(self._x)
         self.icon.change_icon_x(value)
 
-    def y_changed(self, value):
+    def change_y(self, value):
+        self._y = value
+        self.y_spinbox.setValue(self._y)
         self.icon.change_icon_y(value)
 
     def on_source_changed(self, fn):
@@ -235,11 +244,11 @@ class ItemIcon(QWidget):
 
     def set_spinbox_range(self):
         max_width, max_height = self.icon.get_size()
-        self.x_spinbox.setRange(0, max_width)
-        self.y_spinbox.setRange(0, max_height)
+        self.x_spinbox.setRange(0, max_width - 1)
+        self.y_spinbox.setRange(0, max_height - 1)
 
 class AdvantageWidget(QWidget):
-    def __init__(self, title, advantage, parent):
+    def __init__(self, advantage, title, parent):
         super().__init__(parent)
         self.window = parent
 
@@ -249,9 +258,10 @@ class AdvantageWidget(QWidget):
         self.model = MultiAttrListModel(self.current, attrs, None, self)
         self.view = RightClickTreeView(self)
         self.view.setModel(self.model)
-        int_columns = (2, 3, 4, 5, 6, 7, 8)
-        delegate = AdvantageDelegate(self.view, int_columns)
+        delegate = AdvantageDelegate(self.view)
         self.view.setItemDelegate(delegate)
+        for col in range(9):
+            self.view.resizeColumnToContents(col)
 
         layout = QGridLayout(self)
         layout.addWidget(self.view, 1, 0, 1, 2)
@@ -261,15 +271,42 @@ class AdvantageWidget(QWidget):
         layout.addWidget(label, 0, 0)
 
         add_button = QPushButton("+")
+        add_button.setMaximumWidth(30)
         add_button.clicked.connect(self.model.add_new_row)
-        layout.addWidget(add_button, 1, 0, alignment=Qt.AlignLeft)
+        layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)
 
     def set_current(self, advantage):
         self.current = advantage
         self.model.set_new_data(self.current)
 
-class AdvantageDelegate(IntDelegate):
-    pass
+class AdvantageDelegate(QItemDelegate):
+    type_column = 0
+    rank_column = 1
+    int_columns = (2, 3, 4, 5, 6, 7, 8)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def createEditor(self, parent, option, index):
+        if index.column() in self.int_columns:
+            editor = QSpinBox(parent)
+            editor.setRange(-255, 255)
+            return editor
+        elif index.column() == self.rank_column:
+            editor = ComboBox(parent)
+            for rank in DB.weapon_ranks:
+                editor.addItem(rank.rank)
+            editor.addItem("All")
+            return editor
+        elif index.column() == self.type_column:
+            editor = ComboBox(parent)
+            for weapon_type in DB.weapons:
+                x, y = weapon_type.sprite_index
+                icon = QPixmap(weapon_type.sprite_fn).copy(x*16, y*16, 16, 16)
+                editor.addItem(QIcon(icon), weapon_type.nid)
+            return editor
+        else:
+            return super().createEditor(parent, option, index)
 
 # Testing
 # Run "python -m app.editor.weapon_database" from main directory

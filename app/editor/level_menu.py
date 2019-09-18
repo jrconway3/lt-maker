@@ -42,7 +42,7 @@ class LevelDatabase(QWidget):
 
     def on_level_changed(self, curr, prev):
         if DB.levels:
-            new_level = DB.levels.values()[curr.row()]
+            new_level = DB.levels[curr.row()]
             self.main_editor.set_current_level(new_level)
 
     def create_initial_level(self):
@@ -67,7 +67,7 @@ class LevelModel(QAbstractListModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            level = self._data.values()[index.row()]
+            level = self._data[index.row()]
             text = level.nid + " : " + level.title
             return text
         return None 
@@ -75,7 +75,7 @@ class LevelModel(QAbstractListModel):
     def delete(self, idx):
         self._data.pop(idx)
         self.layoutChanged.emit()
-        new_level = self._data.values()[max(idx, len(self._data) - 1)]
+        new_level = self._data[max(idx, len(self._data) - 1)]
         self.parent().main_editor.set_current_level(new_level)
 
 class NewLevelDialog(SimpleDialog):

@@ -39,7 +39,7 @@ class RankData(data):
         self.append(new_rank)
 
 class WeaponType(object):
-    def __init__(self, nid, name, magic, advantage, disadvantage, sprite_fn=None, sprite_index=None):
+    def __init__(self, nid, name, magic, advantage, disadvantage, sprite_fn=None, sprite_index=(0, 0)):
         self.nid = nid
         self.name = name
         self.magic = magic
@@ -60,12 +60,12 @@ class Advantage(object):
         self.avoid = effects[3]
         self.crit = effects[4]
         self.dodge = effects[5]
-        self.AS = effects[6]
+        self.attackspeed = effects[6]
 
 class WeaponData(data):
     def import_xml(self, xml_fn):
         weapon_data = ET.parse(xml_fn)
-        for weapon in weapon_data.getroot().findall('stat'):
+        for idx, weapon in enumerate(weapon_data.getroot().findall('weapon')):
             name = weapon.get('name')
             nid = weapon.find('id').text
             magic = bool(int(weapon.find('magic').text))
@@ -81,5 +81,7 @@ class WeaponData(data):
                 rank = adv.find('rank').text
                 effects = adv.find('effects').text.split(',')
                 disadvantage.append(Advantage(weapon_type, rank, effects))
-            new_weapon_type = WeaponType(nid, name, magic, advantage, disadvantage)
+            new_weapon_type = \
+                WeaponType(nid, name, magic, advantage, disadvantage, 
+                           'app/default_data/sprites/wexp_icons.png', (0, idx))
             self.append(new_weapon_type)

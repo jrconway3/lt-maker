@@ -1,6 +1,7 @@
 class data(object):
     """
     Only accepts data points that have nid attribute
+    Generally behaves as a list first and a dictionary second
     """
 
     def __init__(self, vals=None):
@@ -22,6 +23,14 @@ class data(object):
 
     def get(self, key, fallback=None):
         return self._dict.get(key, fallback)
+
+    def update_nid(self, val, nid):
+        for k, v in self.items():
+            if v == val:
+                del self._dict[v.nid]
+                val.nid = nid
+                self._dict[nid] = val
+                break
 
     def append(self, val):
         self._list.append(val)
@@ -68,13 +77,13 @@ class data(object):
 
     # Magic Methods
     def __repr__(self):
-        return self._list
+        return repr(self._list)
 
     def __len__(self):
         return len(self._list)
 
-    def __getitem__(self, key):
-        return self._dict[key]
+    def __getitem__(self, idx):
+        return self._list[idx]
 
     def __iter__(self):
         return iter(self._list)

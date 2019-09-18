@@ -184,6 +184,7 @@ class PropertiesMenu(QWidget):
         if current.nid in other_nids:
             QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % current.nid)
             current.nid = utilities.get_next_int(current.nid, other_nids)
+        DB.levels.update_nid(current, current.nid)
         self.main_editor.update_view()
 
     def title_changed(self, text):

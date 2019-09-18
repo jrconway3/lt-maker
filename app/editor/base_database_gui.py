@@ -68,9 +68,10 @@ class Collection(QWidget):
             self.view.setCurrentIndex(last_index)
 
     def on_item_changed(self, curr, prev):
-        new_data = self._data.values()[curr.row()]
-        if self.display:
-            self.display.set_current(new_data)
+        if self._data:
+            new_data = self._data[curr.row()]
+            if self.display:
+                self.display.set_current(new_data)
 
     def set_display(self, disp):
         self.display = disp
@@ -95,7 +96,7 @@ class CollectionModel(QAbstractListModel):
     def delete(self, idx):
         self._data.pop(idx)
         self.layoutChanged.emit()
-        new_weapon = self._data.values()[max(idx, len(self._data) - 1)]
+        new_weapon = self._data[max(idx, len(self._data) - 1)]
         if self.window.display:
             self.window.display.set_current(new_weapon)
 

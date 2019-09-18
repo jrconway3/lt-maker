@@ -65,7 +65,7 @@ class ResetTerrain(QUndoCommand):
 
     def redo(self):
         tilemap = self.level.tilemap
-        default_terrain = DB.terrain.values()[0]
+        default_terrain = DB.terrain[0]
         for x in range(tilemap.width):
             for y in range(tilemap.height):
                 tilemap.tiles[(x, y)].terrain = default_terrain

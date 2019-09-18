@@ -96,7 +96,7 @@ class CollectionModel(QAbstractListModel):
     def delete(self, idx):
         self._data.pop(idx)
         self.layoutChanged.emit()
-        new_weapon = self._data[max(idx, len(self._data) - 1)]
+        new_weapon = self._data[min(idx, len(self._data) - 1)]
         if self.window.display:
             self.window.display.set_current(new_weapon)
 
@@ -121,10 +121,10 @@ class RightClickListView(QListView):
         menu.popup(self.viewport().mapToGlobal(pos))
 
     def delete(self, idx):
-        if self.parent.model.rowCount() > 1:
-            self.parent.model.delete(idx)
+        if self.window.model.rowCount() > 1 and self.window._data[idx].nid != 'Default':
+            self.window.model.delete(idx)
         else:
-            QMessageBox.critical(self.parent(), 'Error', self.last_to_delete_msg)
+            QMessageBox.critical(self.window, 'Error', self.last_to_delete_msg)
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)

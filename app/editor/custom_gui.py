@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, 
 from PyQt5.QtCore import QAbstractItemModel
 from PyQt5.QtCore import Qt, QModelIndex
 
+from app.data.database import DB
+
 class SimpleDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -105,22 +107,25 @@ class IntDelegate(QItemDelegate):
         else:
             return super().createEditor(parent, option, index)
 
-class MultiAttrListDialog(SimpleDialog):
+class MultiAttrListDialog(QDialog):
     def __init__(self, data, title, attrs, locked=None, parent=None):
         super().__init__(parent)
         self.window = parent
         self._data = data
 
         self.setWindowTitle("%s Editor" % title)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.saved_data = self.save()
 
         self.model = MultiAttrListModel(self._data, attrs, locked, self)
         self.view = RightClickTreeView(self)
         self.view.setModel(self.model)
-        int_columns = [i for i, attr in attrs if type(getattr(self._data[0], attr)) == int]
+        int_columns = [i for i, attr in enumerate(attrs) if type(getattr(self._data[0], attr)) == int]
         delegate = IntDelegate(self.view, int_columns)
         self.view.setItemDelegate(delegate)
+        for col in range(len(attrs)):
+            self.view.resizeColumnToContents(col)
 
         layout = QGridLayout(self)
         layout.addWidget(self.view, 0, 0, 1, 2)
@@ -134,6 +139,19 @@ class MultiAttrListDialog(SimpleDialog):
         layout.addWidget(self.buttonbox, 1, 1)
         self.buttonbox.accepted.connect(self.accept)
         self.buttonbox.rejected.connect(self.reject)
+
+    def save(self):
+        return self._data.serialize()
+
+    def restore(self, data):
+        self._data.restore(data)
+
+    def accept(self):
+        super().accept()
+
+    def reject(self):
+        self.restore(self.saved_data)
+        super().reject()
 
 class MultiAttrListModel(QAbstractItemModel):
     def __init__(self, data, headers, locked=None, parent=None):
@@ -157,7 +175,7 @@ class MultiAttrListModel(QAbstractItemModel):
             QMessageBox.critical(self.window, 'Error', "Cannot delete this row!")
 
     def add_new_row(self):
-        self._data.add_new_default()
+        self._data.add_new_default(DB)
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1, 0)
         self.window.view.setCurrentIndex(last_index)

@@ -18,6 +18,10 @@ class WeaponRank(object):
     def nid(self):
         return self.rank
 
+    def __repr__(self):
+        return "Weapon Rank %s: %d -- (%d, %d, %d)" % \
+            (self.rank, self.requirement, self.accuracy, self.damage, self.crit)
+
 class RankData(data):
     def import_data(self, txt_fn):
         with open(txt_fn) as fp:
@@ -33,7 +37,7 @@ class RankData(data):
                 new_rank = WeaponRank(rank, requirement, accuracy, damage, crit)
                 self.append(new_rank)
 
-    def add_new_default(self):
+    def add_new_default(self, db):
         new_name = utilities.get_next_name('RANK', [d.rank for d in self.values()])
         new_rank = WeaponRank(new_name, 1)
         self.append(new_rank)
@@ -62,6 +66,18 @@ class Advantage(object):
         self.dodge = effects[5]
         self.attackspeed = effects[6]
 
+    @property
+    def effects(self):
+        return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attackspeed)
+
+class AdvantageList(list):
+    def add_new_default(self, db):
+        if len(self):
+            new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
+        else:
+            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
+        self.append(new_advantage)
+
 class WeaponData(data):
     def import_xml(self, xml_fn):
         weapon_data = ET.parse(xml_fn)
@@ -69,13 +85,13 @@ class WeaponData(data):
             name = weapon.get('name')
             nid = weapon.find('id').text
             magic = bool(int(weapon.find('magic').text))
-            advantage = []
+            advantage = AdvantageList()
             for adv in weapon.findall('advantage'):
                 weapon_type = adv.get('type')
                 rank = adv.find('rank').text
                 effects = adv.find('effects').text.split(',')
                 advantage.append(Advantage(weapon_type, rank, effects))
-            disadvantage = []
+            disadvantage = AdvantageList()
             for adv in weapon.findall('disadvantage'):
                 weapon_type = adv.get('type')
                 rank = adv.find('rank').text

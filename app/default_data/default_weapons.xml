@@ -104,4 +104,9 @@
             <effects>-1,0,-15,0,0,0,0</effects>
         </disadvantage>
     </weapon>
+
+    <weapon name="Consumable">
+        <id>Default</id>
+        <magic>0</magic>
+    </weapon>
 </weapon_data>

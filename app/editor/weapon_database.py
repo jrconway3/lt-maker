@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QCheckBox, QLineEdit, QPushButton, \
     QMessageBox, QDialog, QFileDialog, QSpinBox, QItemDelegate
-from PyQt5.QtGui import QPixmap, QColor, QIcon
-from PyQt5.QtCore import Qt, QDir, pyqtSignal, QSize
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import Qt, QDir, pyqtSignal
 
 from app.data.database import DB
+from app.data.weapons import AdvantageList
 
 from app.editor.custom_gui import MultiAttrListModel, RightClickTreeView, ComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
@@ -71,13 +72,14 @@ class WeaponProperties(QWidget):
         grid.addWidget(self.magic_check, 2, 3)
 
         self.rank_button = QPushButton("Edit Weapon Ranks...")
+        self.rank_button = QPushButton("Edit Weapon Ranks...")
         self.rank_button.clicked.connect(self.edit_weapon_ranks)
         grid.addWidget(self.rank_button, 2, 4, 1, 2)
 
-        self.advantage = AdvantageWidget([], "Advantage versus:", self)
+        self.advantage = AdvantageWidget(AdvantageList(), "Advantage versus:", self)
         grid.addWidget(self.advantage, 3, 0, 1, 6)
 
-        self.disadvantage = AdvantageWidget([], "Disadvantage versus:", self)
+        self.disadvantage = AdvantageWidget(AdvantageList(), "Disadvantage versus:", self)
         grid.addWidget(self.disadvantage, 4, 0, 1, 6)
 
         self.icon_edit = ItemIcon(None, self)
@@ -224,22 +226,31 @@ class ItemIcon(QWidget):
         self._fn = fn
         self.icon.change_icon_source(self._fn)
         x, y = sprite_index
-        self.change_x(self._x)
-        self.change_y(self._y)
+        self.change_x(x)
+        self.change_y(y)
         self.set_spinbox_range()
 
     def change_x(self, value):
         self._x = value
         self.x_spinbox.setValue(self._x)
         self.icon.change_icon_x(value)
+        if self.window.current:
+            self.window.current.sprite_index = (self._x, self._y)
+            self.window.window.update_list()
 
     def change_y(self, value):
         self._y = value
         self.y_spinbox.setValue(self._y)
         self.icon.change_icon_y(value)
+        if self.window.current:
+            self.window.current.sprite_index = (self._x, self._y)
+            self.window.window.update_list()
 
     def on_source_changed(self, fn):
         self._fn = fn
+        if self.window.current:
+            self.window.current.sprite_fn = self._fn
+            self.window.window.update_list()
         self.set_spinbox_range()
 
     def set_spinbox_range(self):

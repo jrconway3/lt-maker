@@ -24,7 +24,7 @@ class StatData(data):
             new_stat = StatType(nid, name, maximum, desc)
             self.append(new_stat)
 
-    def add_new_default(self):
+    def add_new_default(self, db):
         new_row_nid = utilities.get_next_name('STAT', self.keys())
         new_stat = StatType(new_row_nid, "New Stat", 30, "")
         self.append(new_stat)

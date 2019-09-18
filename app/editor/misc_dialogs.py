@@ -5,12 +5,12 @@ from app.editor.custom_gui import MultiAttrListDialog
 class StatDialog(MultiAttrListDialog):
     @classmethod
     def create(cls):
-        cls(DB.stats, "Stat", ("nid", "name", "maximum", "desc"), {"HP", "MOV"})
+        return cls(DB.stats, "Stat", ("nid", "name", "maximum", "desc"), {"HP", "MOV"})
 
 class RankDialog(MultiAttrListDialog):
     @classmethod
     def create(cls):
-        cls(DB.weapon_ranks, "Weapon Rank", ("rank", "requirement", "accuracy", "damage", "crit"))
+        return cls(DB.weapon_ranks, "Weapon Rank", ("rank", "requirement", "accuracy", "damage", "crit"))
 
 # Testing
 # Run "python -m app.editor.misc_dialogs" from main directory

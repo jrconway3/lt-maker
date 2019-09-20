@@ -1,6 +1,6 @@
 import os
 
-from app.data import stats, weapons, terrain, mcost_grid, minimap, data
+from app.data import stats, weapons, factions, terrain, mcost_grid, minimap, data
 
 class Database(object):
     def __init__(self):
@@ -11,6 +11,7 @@ class Database(object):
         self.minimap = minimap.MinimapData()
         self.weapon_ranks = weapons.RankData()
         self.weapons = weapons.WeaponData()
+        self.factions = factions.FactionData()
 
         self.init_load()
 
@@ -20,6 +21,7 @@ class Database(object):
         self.terrain.import_xml('./app/default_data/default_terrain.xml')
         self.weapon_ranks.import_data('./app/default_data/default_weapon_ranks.txt')
         self.weapons.import_xml('./app/default_data/default_weapons.xml')
+        self.factions.import_xml('./app/default_data/default_factions.xml')
 
     def get_platform_types(self):
         home = './sprites/platforms/'
@@ -55,6 +57,10 @@ class Database(object):
     def create_new_weapon_type(self, nid, name):
         new_weapon_type = weapons.WeaponType(nid, name, False, [], [])
         self.weapons.append(new_weapon_type)
+
+    def create_new_faction(self, nid, name):
+        new_faction_type = factions.Faction(nid, name, "")
+        self.factions.append(new_faction_type)
 
 DB = Database()
 

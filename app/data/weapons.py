@@ -43,15 +43,15 @@ class RankData(data):
         self.append(new_rank)
 
 class WeaponType(object):
-    def __init__(self, nid, name, magic, advantage, disadvantage, sprite_fn=None, sprite_index=(0, 0)):
+    def __init__(self, nid, name, magic, advantage, disadvantage, icon_fn=None, icon_index=(0, 0)):
         self.nid = nid
         self.name = name
         self.magic = magic
         self.advantage = advantage
         self.disadvantage = disadvantage
 
-        self.sprite_fn = sprite_fn
-        self.sprite_index = sprite_index
+        self.icon_fn = icon_fn
+        self.icon_index = icon_index
 
 class Advantage(object):
     def __init__(self, weapon_type, weapon_rank, effects):
@@ -99,5 +99,5 @@ class WeaponData(data):
                 disadvantage.append(Advantage(weapon_type, rank, effects))
             new_weapon_type = \
                 WeaponType(nid, name, magic, advantage, disadvantage, 
-                           'app/default_data/sprites/wexp_icons.png', (0, idx))
+                           'sprites/wexp_icons.png', (0, idx))
             self.append(new_weapon_type)

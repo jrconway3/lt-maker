@@ -81,8 +81,8 @@ class TerrainProperties(QWidget):
         self.window = parent
         self.database_editor = self.window.window
 
-        self.grid = QGridLayout()
-        self.setLayout(self.grid)
+        grid = QGridLayout()
+        self.setLayout(grid)
 
         self.current = current
 
@@ -91,15 +91,15 @@ class TerrainProperties(QWidget):
         self.nid_edit.setMaxLength(12)
         self.nid_edit.textChanged.connect(self.nid_changed)
         self.nid_edit.editingFinished.connect(self.nid_done_editing)
-        self.grid.addWidget(nid_label, 0, 1)
-        self.grid.addWidget(self.nid_edit, 0, 2)
+        grid.addWidget(nid_label, 0, 1)
+        grid.addWidget(self.nid_edit, 0, 2)
 
         name_label = QLabel('Display Name: ')
         self.name_edit = QLineEdit(self)
         self.name_edit.setMaxLength(12)
         self.name_edit.textChanged.connect(self.name_changed)
-        self.grid.addWidget(name_label, 1, 1)
-        self.grid.addWidget(self.name_edit, 1, 2)
+        grid.addWidget(name_label, 1, 1)
+        grid.addWidget(self.name_edit, 1, 2)
 
         minimap_label = QLabel('Minimap Type: ')
         self.minimap_edit = ComboBox(self)
@@ -110,8 +110,8 @@ class TerrainProperties(QWidget):
             icon = QIcon(QPixmap.fromImage(im).scaled(QSize(16, 16), Qt.KeepAspectRatio))
             self.minimap_edit.addItem(icon, text)
         self.minimap_edit.currentIndexChanged.connect(self.minimap_changed)
-        self.grid.addWidget(minimap_label, 2, 0)
-        self.grid.addWidget(self.minimap_edit, 2, 1, 1, 2)
+        grid.addWidget(minimap_label, 2, 0)
+        grid.addWidget(self.minimap_edit, 2, 1, 1, 2)
 
         platform_label = QLabel('Combat Platform Type: ')
         self.platform_edit = ComboBox(self)
@@ -120,8 +120,8 @@ class TerrainProperties(QWidget):
             self.platform_edit.addItem(icon, text)
         self.platform_edit.setIconSize(QSize(87, 40))
         self.platform_edit.currentIndexChanged.connect(self.platform_changed)
-        self.grid.addWidget(platform_label, 3, 0)
-        self.grid.addWidget(self.platform_edit, 3, 1, 1, 2)
+        grid.addWidget(platform_label, 3, 0)
+        grid.addWidget(self.platform_edit, 3, 1, 1, 2)
 
         movement_box = QHBoxLayout()
         movement_label = QLabel('Movement Type: ')
@@ -131,14 +131,14 @@ class TerrainProperties(QWidget):
         self.movement_info = QPushButton('...')
         self.movement_info.setMaximumWidth(40)
         self.movement_info.clicked.connect(self.access_movement_grid)
-        self.grid.addWidget(movement_label, 4, 0)
+        grid.addWidget(movement_label, 4, 0)
         movement_box.addWidget(self.movement_edit)
         movement_box.addWidget(self.movement_info)
-        self.grid.addLayout(movement_box, 4, 1, 1, 2)
+        grid.addLayout(movement_box, 4, 1, 1, 2)
 
         self.icon_edit = TerrainIcon(QColor(0, 0, 0).name(), self)
         self.icon_edit.colorChanged.connect(self.on_color_change)
-        self.grid.addWidget(self.icon_edit, 0, 0, 2, 1)
+        grid.addWidget(self.icon_edit, 0, 0, 2, 1)
 
     def nid_changed(self, text):
         self.current.nid = text

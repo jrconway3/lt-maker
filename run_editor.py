@@ -5,6 +5,7 @@ from PyQt5.QtGui import QIcon
 
 from app.editor.main_editor import MainEditor
 
+# test
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon('main_icon.ico'))

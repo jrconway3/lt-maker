@@ -12,7 +12,7 @@ class FactionDatabase(DatabaseDialog):
     @classmethod
     def create(cls, parent=None):
         data = DB.factions
-        title = 'Faction'
+        title: str = 'Faction'
         right_frame = FactionProperties
         deletion_msg = "Cannot delete when only faction left!"
         creation_func = DB.create_new_faction

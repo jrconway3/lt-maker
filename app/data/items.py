@@ -4,11 +4,15 @@ except ImportError:
     import xml.etree.ElementTree as ET
 
 from app.data.data import data
+import app.data.weapons as weapons
+import app.data.item_components as IC
+
+from app import utilities
 
 class Item(object):
     next_uid = 100
 
-    def __init__(self, nid, name, desc, range_, value, icon_fn=None, icon_index=(0, 0), components=None):
+    def __init__(self, nid, name, desc, min_range, max_range, value, icon_fn=None, icon_index=(0, 0), components=None):
         self.uid = Item.next_uid
         Item.next_uid += 1
 
@@ -17,7 +21,8 @@ class Item(object):
 
         self.owner_nid = None
         self.desc = desc
-        self.range = self.parse_range_str(range_)
+        self.min_range = min_range
+        self.max_range = max_range
         self.value = int(value)
 
         self.icon_fn = icon_fn
@@ -30,10 +35,6 @@ class Item(object):
         if self.droppable == self.locked == True:
             print("%s can't be both droppable and locked to a unit!" % self.nid)
             self.droppable = False
-
-    # TODO
-    def parse_range_str(self, range_):
-        return range_
 
     # If the attribute is not found
     def __getattr__(self, attr):
@@ -60,5 +61,52 @@ class Item(object):
         return "Item: %s" % self.nid
 
 class ItemData(data):
+    @staticmethod
+    def parse_component(item, c):
+        if isinstance(c.attr, bool):
+            c.value = True
+        elif isinstance(c.attr, int):
+            c.value = int(item.find(c.nid).text)
+        elif isinstance(c.attr, weapons.WeaponRank):
+            c.value = weapons.RankData.get(item.find(c.nid).text)
+        elif isinstance(c.attr, weapons.WeaponType):
+            c.value = weapons.WeaponData.get(item.find(c.nid).text)
+        return c
+
     def import_xml(self, xml_fn):
         item_data = ET.parse(xml_fn)
+        for item in item_data.getroot().findall('item'):
+            name = item.get('name')
+            nid = item.find('id').text
+            desc = item.find('desc').text
+            range_ = item.find('range').text
+            value = int(item.find('value').text)
+
+            icon_fn = item.find('icon_fn').text
+            icon_index = item.find('icon_index').text
+
+            if '-' in range_:
+                min_range, max_range = range_.split('-')
+            else:
+                min_range = max_range = range_
+
+            if ',' in icon_index:
+                icon_index = tuple(utilities.intify(icon_index))
+            else:
+                icon_index = (0, int(icon_index))
+
+            components = item.find('components').text or ''
+            components = components.split(',')
+            my_components = {}
+            for component in components:
+                c = IC.get_component(component)  # Needs to get copy
+                if isinstance(c.attr, tuple):
+                    pass
+                else:
+                    my_components[c.nid] = ItemData.parse_component(item, c)
+
+            new_item = \
+                Item(nid, name, desc, min_range, max_range, value, 
+                     'sprites/item_icons/%s.png' % icon_fn, icon_index,
+                     my_components)
+            self.append(new_item)

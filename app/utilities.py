@@ -19,3 +19,7 @@ def get_next_int(name, names):
             if test_name not in names:
                 return test_name
             counter += 1
+
+def intify(s: str):
+    vals = s.split(',')
+    return [int(i) for i in vals]

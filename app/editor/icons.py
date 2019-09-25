@@ -96,6 +96,8 @@ class ItemIcon16(QWidget):
 
         self.x_spinbox = QSpinBox()
         self.y_spinbox = QSpinBox()
+        self.x_spinbox.setMaximumWidth(100)
+        self.y_spinbox.setMaximumWidth(100)
         grid.addWidget(self.x_spinbox, 1, 1)
         grid.addWidget(self.y_spinbox, 1, 3)
 

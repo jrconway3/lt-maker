@@ -1,6 +1,6 @@
 from app.data.sprites import SPRITES
 
-class MinimapData(object):
+class MinimapCatalog(object):
     # Constants
     minimap_tiles = SPRITES['Minimap_Tiles']
     minimap_units = SPRITES['Minimap_Sprites']

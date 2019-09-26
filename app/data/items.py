@@ -60,7 +60,7 @@ class Item(object):
     def __repr__(self):
         return "Item: %s" % self.nid
 
-class ItemData(data):
+class ItemCatalog(data):
     @staticmethod
     def parse_component(item, c):
         if isinstance(c.attr, bool):
@@ -103,7 +103,7 @@ class ItemData(data):
                 if isinstance(c.attr, tuple):
                     pass
                 else:
-                    my_components[c.nid] = ItemData.parse_component(item, c)
+                    my_components[c.nid] = ItemCatalog.parse_component(item, c)
 
             new_item = \
                 Item(nid, name, desc, min_range, max_range, value, 

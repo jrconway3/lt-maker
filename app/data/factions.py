@@ -13,7 +13,7 @@ class Faction(object):
         self.icon_fn = icon_fn
         self.icon_index = icon_index
 
-class FactionData(data):
+class FactionCatalog(data):
     def import_xml(self, xml_fn):
         faction_data = ET.parse(xml_fn)
         for faction in faction_data.getroot().findall('faction'):

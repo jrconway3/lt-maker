@@ -22,7 +22,7 @@ class WeaponRank(object):
         return "Weapon Rank %s: %d -- (%d, %d, %d)" % \
             (self.rank, self.requirement, self.accuracy, self.damage, self.crit)
 
-class RankData(data):
+class RankCatalog(data):
     def import_data(self, txt_fn):
         with open(txt_fn) as fp:
             lines = [line.strip() for line in fp.readlines() if not line.strip().startswith('#')]
@@ -78,7 +78,7 @@ class AdvantageList(list):
             new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
         self.append(new_advantage)
 
-class WeaponData(data):
+class WeaponCatalog(data):
     def import_xml(self, xml_fn):
         weapon_data = ET.parse(xml_fn)
         for idx, weapon in enumerate(weapon_data.getroot().findall('weapon')):

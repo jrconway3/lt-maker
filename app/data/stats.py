@@ -13,7 +13,7 @@ class StatType(object):
         self.maximum = maximum
         self.desc = desc
 
-class StatData(data):
+class StatCatalog(data):
     def import_xml(self, xml_fn):
         stat_data = ET.parse(xml_fn)
         for stat in stat_data.getroot().findall('stat'):

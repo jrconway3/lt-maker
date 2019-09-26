@@ -5,13 +5,13 @@ from app.data import stats, weapons, factions, terrain, mcost_grid, minimap, dat
 class Database(object):
     def __init__(self):
         self.levels = data.data()
-        self.stats = stats.StatData()
+        self.stats = stats.StatCatalog()
         self.mcost = mcost_grid.McostGrid()
-        self.terrain = terrain.TerrainData()
-        self.minimap = minimap.MinimapData()
-        self.weapon_ranks = weapons.RankData()
-        self.weapons = weapons.WeaponData()
-        self.factions = factions.FactionData()
+        self.terrain = terrain.TerrainCatalog()
+        self.minimap = minimap.MinimapCatalog()
+        self.weapon_ranks = weapons.RankCatalog()
+        self.weapons = weapons.WeaponCatalog()
+        self.factions = factions.FactionCatalog()
 
         self.init_load()
 

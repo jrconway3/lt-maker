@@ -73,7 +73,6 @@ class WeaponProperties(QWidget):
         grid.addWidget(self.magic_check, 2, 3)
 
         self.rank_button = QPushButton("Edit Weapon Ranks...")
-        self.rank_button = QPushButton("Edit Weapon Ranks...")
         self.rank_button.clicked.connect(self.edit_weapon_ranks)
         grid.addWidget(self.rank_button, 2, 4, 1, 2)
 

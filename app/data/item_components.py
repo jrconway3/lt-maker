@@ -1,9 +1,6 @@
 from enum import Enum
-from collections import namedtuple
 
 from app.data.weapons import WeaponRank, WeaponType
-
-from app.data.database import database as DB
 
 # Custom Types
 class SpellAffect(Enum):
@@ -28,20 +25,30 @@ def requires_spell_or_weapon(other_components):
 def requires_usable(self, other_components):
     return 'usable' in other_components
 
-item_component = namedtuple('ItemComponent', 
-                            ['nid', 'name', 'attr', 'value', 'requires'],
-                            defaults=[None, '', bool, True, no_requirement])
+class item_component(object):
+    def __init__(self, nid=None, name='', attr=bool, value=True, requires=no_requirement):
+        self.nid = nid
+        self.name = name
+        self.attr = attr
+        self.value = value
+        self.requires = requires
+
+    def __getstate__(self):
+        return self.nid, self.value
+
+    def __setstate__(self, state):
+        self.nid, self.value = state
 
 item_components = {
-    'weapon': item_component('weapon', 'Weapon', WeaponType, DB.weapons[0],
+    'weapon': item_component('weapon', 'Weapon', WeaponType, None,
                              lambda x: 'spell' not in x),
     'spell': item_component('spell', 'Spell', (WeaponType, SpellAffect, SpellTarget),
-                            (DB.weapons[0], SpellAffect.Neutral, SpellTarget.Unit),
+                            (None, SpellAffect.Neutral, SpellTarget.Unit),
                             lambda x: 'weapon' not in x),
     'usable': item_component('usable', 'Usable'),
     'might': item_component('might', 'Might', int, 0, requires_spell_or_weapon),
     'hit': item_component('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),
-    'level': item_component('level', 'Weapon Level Required', WeaponRank, DB.weapon_ranks[0], requires_spell_or_weapon),
+    'level': item_component('level', 'Weapon Level Required', WeaponRank, None, requires_spell_or_weapon),
     'uses': item_component('uses', 'Total Uses', int, 30),
     'c_uses': item_component('c_uses', 'Uses per Chapter', int, 8),
     'weight': item_component('weight', 'Weight', int, 0, requires_spell_or_weapon),

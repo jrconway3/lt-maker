@@ -1,6 +1,7 @@
 import os
 
-from app.data import stats, weapons, factions, terrain, mcost_grid, minimap, data
+from app.data import data
+from app.data import stats, weapons, factions, terrain, mcost_grid, minimap, items 
 
 class Database(object):
     def __init__(self):
@@ -12,6 +13,7 @@ class Database(object):
         self.weapon_ranks = weapons.RankCatalog()
         self.weapons = weapons.WeaponCatalog()
         self.factions = factions.FactionCatalog()
+        self.items = items.ItemCatalog()
 
         self.init_load()
 
@@ -22,6 +24,7 @@ class Database(object):
         self.weapon_ranks.import_data('./app/default_data/default_weapon_ranks.txt')
         self.weapons.import_xml('./app/default_data/default_weapons.xml')
         self.factions.import_xml('./app/default_data/default_factions.xml')
+        self.items.import_xml('./app/default_data/default_items.xml')
 
     def get_platform_types(self):
         home = './sprites/platforms/'
@@ -36,6 +39,8 @@ class Database(object):
         self.terrain.restore(data['terrain'])
         self.weapon_ranks.restore(data['weapon_ranks'])
         self.weapons.restore(data['weapons'])
+        self.factions.restore(data['factions'])
+        self.items.restore(data['items'])
 
         self.levels.restore(data['levels'])
 
@@ -45,6 +50,8 @@ class Database(object):
                    'terrain': self.terrain.serialize(),
                    'weapon_ranks': self.weapon_ranks.serialize(),
                    'weapons': self.weapons.serialize(),
+                   'factions': self.factions.serialize(),
+                   'items': self.items.serialize(),
                    'levels': self.levels.serialize(),
                    }
         return to_save
@@ -61,6 +68,10 @@ class Database(object):
     def create_new_faction(self, nid, name):
         new_faction_type = factions.Faction(nid, name, "")
         self.factions.append(new_faction_type)
+
+    def create_new_item(self, nid, name):
+        new_item = items.Item(nid, name, "", 1, 1, 0)
+        self.items.append(new_item)
 
 DB = Database()
 

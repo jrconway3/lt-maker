@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialogButtonBox, QTableView, QInputDialog, QHeaderView, \
-    QGridLayout, QPushButton, QLineEdit, QItemDelegate, QAction, QMenu, QMessageBox
+    QGridLayout, QPushButton, QLineEdit, QStyledItemDelegate, QAction, QMenu, QMessageBox
 from PyQt5.QtGui import QIntValidator, QFontMetrics, QBrush, QColor
 from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
@@ -213,7 +213,7 @@ class RowHeaderView(QHeaderView):
 
         menu.popup(self.viewport().mapToGlobal(pos))
         
-class McostDelegate(QItemDelegate):
+class McostDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         editor = QLineEdit(parent)
         editor.setValidator(QIntValidator(1, 99))

@@ -26,10 +26,11 @@ class PushableIcon16(QPushButton):
     def render(self):
         if self._fn:
             big_pic = QPixmap(self._fn)
-            pic = big_pic.copy(self.x*self.width, self.y*self.height, self.width, self.height)
-            pic = pic.scaled(64, 64)
-            pic = QIcon(pic)
-            self.setIcon(pic)
+            if big_pic.width() > 0 and big_pic.height() > 0:
+                pic = big_pic.copy(self.x*self.width, self.y*self.height, self.width, self.height)
+                pic = pic.scaled(64, 64)
+                pic = QIcon(pic)
+                self.setIcon(pic)
 
     def get_size(self):
         im = QPixmap(self._fn)

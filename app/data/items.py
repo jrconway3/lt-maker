@@ -60,17 +60,23 @@ class Item(object):
     def __repr__(self):
         return "Item: %s" % self.nid
 
+    def serialize(self):
+        serial_dict = {}
+        serial_dict['uid'] = self.uid
+        serial_dict['nid'] = self.nid
+        return serial_dict
+
 class ItemCatalog(data):
     @staticmethod
     def parse_component(item, c):
-        if isinstance(c.attr, bool):
+        if c.attr == bool:
             c.value = True
-        elif isinstance(c.attr, int):
+        elif c.attr == int:
             c.value = int(item.find(c.nid).text)
-        elif isinstance(c.attr, weapons.WeaponRank):
-            c.value = weapons.RankData.get(item.find(c.nid).text)
-        elif isinstance(c.attr, weapons.WeaponType):
-            c.value = weapons.WeaponData.get(item.find(c.nid).text)
+        elif c.attr == weapons.WeaponRank:
+            c.value = item.find(c.nid).text
+        elif c.attr == weapons.WeaponType:
+            c.value = item.find(c.nid).text
         return c
 
     def import_xml(self, xml_fn):
@@ -83,7 +89,7 @@ class ItemCatalog(data):
             value = int(item.find('value').text)
 
             icon_fn = item.find('icon_fn').text
-            icon_index = item.find('icon_index').text
+            icon_index = item.find('icon_id').text
 
             if '-' in range_:
                 min_range, max_range = range_.split('-')

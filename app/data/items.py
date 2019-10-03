@@ -28,7 +28,7 @@ class Item(object):
         self.icon_fn = icon_fn
         self.icon_index = icon_index
 
-        self.components = components or {}
+        self.components = components or data()
         for component_key, component_value in self.components.items():
             self.__dict__[component_key] = component_value
 
@@ -103,13 +103,13 @@ class ItemCatalog(data):
 
             components = item.find('components').text or ''
             components = components.split(',')
-            my_components = {}
-            for component in components:
-                c = IC.get_component(component)  # Needs to get copy
+            my_components = data()
+            for c_nid in components:
+                c = IC.get_component(c_nid)  # Needs to get copy
                 if isinstance(c.attr, tuple):
                     pass
                 else:
-                    my_components[c.nid] = ItemCatalog.parse_component(item, c)
+                    my_components.append(ItemCatalog.parse_component(item, c))
 
             new_item = \
                 Item(nid, name, desc, min_range, max_range, value, 

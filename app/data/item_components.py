@@ -1,5 +1,6 @@
 from enum import Enum
 
+from app.data.data import data
 from app.data.weapons import WeaponRank, WeaponType
 
 # Custom Types
@@ -22,7 +23,7 @@ def no_requirement(other_components):
 def requires_spell_or_weapon(other_components):
     return 'weapon' in other_components or 'spell' in other_components
 
-def requires_usable(self, other_components):
+def requires_usable(other_components):
     return 'usable' in other_components
 
 class item_component(object):
@@ -39,23 +40,30 @@ class item_component(object):
     def __setstate__(self, state):
         self.nid, self.value = state
 
-item_components = {
-    'weapon': item_component('weapon', 'Weapon', WeaponType, None,
+    @classmethod
+    def copy(cls, other):
+        return cls(other.nid, other.name, other.attr, other.value, other.requires)
+
+item_components = data([
+    item_component('weapon', 'Weapon', WeaponType, None,
                              lambda x: 'spell' not in x),
-    'spell': item_component('spell', 'Spell', (WeaponType, SpellAffect, SpellTarget),
+    item_component('spell', 'Spell', (WeaponType, SpellAffect, SpellTarget),
                             (None, SpellAffect.Neutral, SpellTarget.Unit),
                             lambda x: 'weapon' not in x),
-    'usable': item_component('usable', 'Usable'),
-    'might': item_component('might', 'Might', int, 0, requires_spell_or_weapon),
-    'hit': item_component('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),
-    'level': item_component('level', 'Weapon Level Required', WeaponRank, None, requires_spell_or_weapon),
-    'uses': item_component('uses', 'Total Uses', int, 30),
-    'c_uses': item_component('c_uses', 'Uses per Chapter', int, 8),
-    'weight': item_component('weight', 'Weight', int, 0, requires_spell_or_weapon),
-    'crit': item_component('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
-    'heal_on_hit': item_component('heal_on_hit', 'Heal on Hit', int, 0, requires_spell_or_weapon),
-    'heal_on_use': item_component('heal_on_use', 'Heal on Use', int, 10, requires_usable)
-}
+    item_component('usable', 'Usable'),
+    item_component('might', 'Might', int, 0, requires_spell_or_weapon),
+    item_component('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),
+    item_component('level', 'Weapon Level Required', WeaponRank, None, requires_spell_or_weapon),
+    item_component('weight', 'Weight', int, 0, requires_spell_or_weapon),
+    item_component('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
+
+    item_component('uses', 'Total Uses', int, 30),
+    item_component('c_uses', 'Uses per Chapter', int, 8),
+    
+    item_component('heal_on_hit', 'Heal on Hit', int, 0, requires_spell_or_weapon),
+    item_component('heal_on_use', 'Heal on Use', int, 10, requires_usable)
+])
 
 def get_component(nid):
-    return item_components[nid]
+    base = item_components.get(nid)
+    return item_component.copy(base)

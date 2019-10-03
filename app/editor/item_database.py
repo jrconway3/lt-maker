@@ -1,12 +1,14 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QToolButton, \
-    QMessageBox, QSpinBox, QHBoxLayout, QListWidget, QListWidgetItem, QPushButton
+    QMessageBox, QSpinBox, QHBoxLayout, QListWidget, QListWidgetItem, QPushButton, \
+    QDialog, QTreeView, QDialogButtonBox, QVBoxLayout, QSizePolicy
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
 
 from app.data.database import DB
 from app.data.weapons import WeaponType, WeaponRank
+import app.data.item_components as IC
 
 from app.editor.custom_gui import ComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
@@ -100,6 +102,9 @@ class BoolItemComponent(QWidget):
         self.window = parent
 
         hbox = QHBoxLayout()
+        # hbox.setMargin(0)
+        hbox.setContentsMargins(0, 0, 0, 0)
+        # hbox.setSpacing(0)
         self.setLayout(hbox)
 
         name_label = QLabel(self._data.name)
@@ -109,6 +114,7 @@ class BoolItemComponent(QWidget):
 
         x_button = QToolButton(self)
         x_button.setIcon(QIcon("icons/x.png"))
+        x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
         x_button.clicked.connect(partial(self.window.remove_component, self))
         hbox.addWidget(x_button, Qt.AlignRight)
 
@@ -272,7 +278,7 @@ class ItemProperties(QWidget):
     def remove_component(self, component_widget):
         data = component_widget._data
         self.component_list.remove_component(component_widget)
-        del self.current.components[data.nid]
+        self.current.components.delete(data)
 
     def set_current(self, current):
         self.current = current
@@ -288,7 +294,101 @@ class ItemProperties(QWidget):
             self.add_component_widget(component)
 
     def search_components(self):
-        pass
+        dlg = ComponentDialog(IC.item_components, "Item Components", self)
+        result = dlg.exec_()
+        if result == QDialog.Accepted:
+            checked = dlg.get_checked()
+            for nid in checked:
+                c = IC.get_component(nid)
+                self.add_component(c)
+        else:
+            pass
+
+class ComponentDialog(QDialog):
+    def __init__(self, data, title, parent=None):
+        super().__init__(parent)
+
+        self.window = parent
+        self._data = data
+        self.current_components = self.window.current.components
+
+        self.setWindowTitle(title)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+
+        self.model = ComponentModel(data, self.current_components, self)
+
+        self.view = QTreeView()
+        self.view.setModel(self.model)
+        self.view.header().hide()
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.view)
+
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        layout.addWidget(self.buttonbox)
+        self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
+
+    def get_checked(self):
+        return self.model.checked
+
+class ComponentModel(QAbstractItemModel):
+    def __init__(self, data, already_present, parent=None):
+        super().__init__(parent)
+        self.window = parent
+        self._data = data
+        self.already_present = already_present
+        self.checked = set()
+    
+    def headerData(self, idx, orientation, role=Qt.DisplayRole):
+        return None
+
+    def index(self, row, column, parent_index=QModelIndex()):
+        if self.hasIndex(row, column, parent_index):
+            return self.createIndex(row, column)
+        return QModelIndex()
+
+    def parent(self, index):
+        return QModelIndex()
+
+    def rowCount(self, parent=None):
+        return len(self._data)
+
+    def columnCount(self, parent=None):
+        return 1
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        data = self._data[index.row()]
+        if role == Qt.DisplayRole:
+            return data.name
+        elif role == Qt.CheckStateRole:
+            value = Qt.Checked if data.nid in self.checked else Qt.Unchecked
+            return value
+        return None
+
+    def setData(self, index, value, role):
+        if not index.isValid():
+            return False
+        if role == Qt.CheckStateRole:
+            data = self._data[index.row()]
+            if value == Qt.Checked:
+                self.checked.add(data.nid)
+            else:
+                self.checked.discard(data.nid)
+            self.dataChanged.emit(index, index)
+        return True
+
+    def flags(self, index):
+        basic_flags = Qt.ItemNeverHasChildren
+        data = self._data[index.row()]
+        if data.nid in self.already_present:
+            pass
+        elif data.requires(set(self.already_present.keys()) | self.checked):
+            basic_flags |= Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            basic_flags |= Qt.ItemIsUserCheckable
+        return basic_flags
 
 # Testing
 # Run "python -m app.editor.item_database" from main directory

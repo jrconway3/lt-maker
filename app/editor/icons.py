@@ -19,7 +19,7 @@ class PushableIcon16(QPushButton):
         self.setMinimumWidth(64)
         self.setMaximumWidth(64)
         self.resize(64, 64)
-        self.setStyleSheet("qproperty-iconSize: 64px;")
+        self.setStyleSheet("QPushButton {qproperty-iconSize: 64px;}")
         self.change_icon_source(fn)
         self.pressed.connect(self.onIconSourcePicker)
 
@@ -31,6 +31,8 @@ class PushableIcon16(QPushButton):
                 pic = pic.scaled(64, 64)
                 pic = QIcon(pic)
                 self.setIcon(pic)
+        else:
+            self.setIcon(QIcon())
 
     def get_size(self):
         im = QPixmap(self._fn)
@@ -41,11 +43,11 @@ class PushableIcon16(QPushButton):
             self._fn = fn
             # Check bounds
             max_width, max_height = self.get_size()
-            if max_width >= self.x:
-                self.x = max_width - 1  # Maximize
+            if max_width <= self.x:
+                self.x = max(0, max_width - 1)  # Maximize
                 self.coordsChanged.emit(self.x, self.y)
-            if max_height >= self.y:
-                self.y = max_height - 1  # Maximize
+            if max_height <= self.y:
+                self.y = max(0, max_height - 1)  # Maximize
                 self.coordsChanged.emit(self.x, self.y)
             self.sourceChanged.emit(fn)
         self.render()

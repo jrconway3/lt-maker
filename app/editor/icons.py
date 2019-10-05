@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QPushButton, \
-    QFileDialog, QSpinBox
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFormLayout, QPushButton, \
+    QFileDialog, QSpinBox, QSizePolicy
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, QDir, pyqtSignal
 
@@ -82,27 +82,28 @@ class ItemIcon16(QWidget):
         super().__init__(parent)
         self.window = parent
 
-        grid = QGridLayout()
-        self.setLayout(grid)
+        hbox = QHBoxLayout()
+        self.setLayout(hbox)
+        hbox.setContentsMargins(0, 0, 0, 0)
 
         self._fn = source
         self._x = 0
         self._y = 0
 
         self.icon = self.child_icon(self._fn, self._x, self._y, self)
-        grid.addWidget(self.icon, 0, 0, 1, 4, Qt.AlignCenter)
+        hbox.addWidget(self.icon, Qt.AlignCenter)
 
-        x_label = QLabel("X:")
-        y_label = QLabel("Y:")
-        grid.addWidget(x_label, 1, 0)
-        grid.addWidget(y_label, 1, 2)
+        form_layout = QFormLayout()
+        form_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+        form_layout.setFormAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignVCenter)
 
         self.x_spinbox = QSpinBox()
         self.y_spinbox = QSpinBox()
-        self.x_spinbox.setMaximumWidth(100)
-        self.y_spinbox.setMaximumWidth(100)
-        grid.addWidget(self.x_spinbox, 1, 1)
-        grid.addWidget(self.y_spinbox, 1, 3)
+        self.x_spinbox.setMinimumWidth(40)
+        self.y_spinbox.setMinimumWidth(40)
+        form_layout.addRow("X", self.x_spinbox)
+        form_layout.addRow("Y", self.y_spinbox)
+        hbox.addLayout(form_layout)
 
         self.set_spinbox_range()
         self.icon.sourceChanged.connect(self.on_source_changed)

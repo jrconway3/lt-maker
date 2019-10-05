@@ -51,7 +51,7 @@ class Collection(QWidget):
 
         self.view.setIconSize(QSize(32, 32))
 
-        self.button = QPushButton("Create New %s..." % self.title)
+        self.button = QPushButton("Create %s" % self.title)
         self.button.clicked.connect(self.create_new)
 
         grid.addWidget(self.view, 0, 0)

@@ -1,9 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QMessageBox
+from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
+    QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
+from app.editor.custom_gui import PropertyBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.icons import ItemIcon32
 from app import utilities
@@ -14,7 +16,7 @@ class FactionDatabase(DatabaseDialog):
         data = DB.factions
         title: str = 'Faction'
         right_frame = FactionProperties
-        deletion_msg = "Cannot delete when only faction left!"
+        deletion_msg = "Cannot delete when only one faction left!"
         creation_func = DB.create_new_faction
         collection_model = FactionModel
         dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
@@ -26,12 +28,12 @@ class FactionModel(CollectionModel):
             return None
         if role == Qt.DisplayRole:
             faction = self._data[index.row()]
-            text = faction.nid + " : " + faction.name
+            text = faction.nid
             return text
         elif role == Qt.DecorationRole:
             faction = self._data[index.row()]
             x, y = faction.icon_index
-            pixmap = QPixmap(faction.icon_fn).copy(x*32, y*32, 32, 32).scaled(64, 64)
+            pixmap = QPixmap(faction.icon_fn).copy(x*32, y*32, 32, 32)
             return QIcon(pixmap)
         return None
 
@@ -39,36 +41,42 @@ class FactionProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
+        self._data = self.window._data
         self.database_editor = self.window.window
 
-        grid = QGridLayout()
-        self.setLayout(grid)
+        self.setStyleSheet("font: 10pt;")
 
         self.current = current
 
-        nid_label = QLabel('Unique ID: ')
-        self.nid_edit = QLineEdit(self)
-        self.nid_edit.setMaxLength(12)
-        self.nid_edit.textChanged.connect(self.nid_changed)
-        self.nid_edit.editingFinished.connect(self.nid_done_editing)
-        grid.addWidget(nid_label, 0, 2)
-        grid.addWidget(self.nid_edit, 0, 3)
-
-        name_label = QLabel('Display Name: ')
-        self.name_edit = QLineEdit(self)
-        self.name_edit.setMaxLength(12)
-        self.name_edit.textChanged.connect(self.name_changed)
-        grid.addWidget(name_label, 1, 2)
-        grid.addWidget(self.name_edit, 1, 3)
-
-        desc_label = QLabel("Description: ")
-        self.desc_edit = QLineEdit(self)
-        self.desc_edit.textChanged.connect(self.desc_changed)
-        grid.addWidget(desc_label, 2, 0)
-        grid.addWidget(self.desc_edit, 2, 1, 1, 3)
+        top_section = QHBoxLayout()
 
         self.icon_edit = ItemIcon32(None, self)
-        grid.addWidget(self.icon_edit, 0, 0, 2, 2)
+        top_section.addWidget(self.icon_edit)
+
+        horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
+        top_section.addSpacerItem(horiz_spacer)
+
+        name_section = QVBoxLayout()
+
+        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
+        self.nid_box.edit.textChanged.connect(self.nid_changed)
+        self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
+        name_section.addWidget(self.nid_box)
+
+        self.name_box = PropertyBox("Display Name", QLineEdit, self)
+        self.name_box.edit.setMaxLength(13)
+        self.name_box.edit.textChanged.connect(self.name_changed)
+        name_section.addWidget(self.name_box)
+
+        top_section.addLayout(name_section)
+
+        self.desc_box = PropertyBox("Description", QLineEdit, self)
+        self.desc_box.edit.textChanged.connect(self.desc_changed)
+
+        total_section = QVBoxLayout()
+        self.setLayout(total_section)
+        total_section.addLayout(top_section)
+        total_section.addWidget(self.desc_box)
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -92,9 +100,9 @@ class FactionProperties(QWidget):
 
     def set_current(self, current):
         self.current = current
-        self.nid_edit.setText(current.nid)
-        self.name_edit.setText(current.name)
-        self.desc_edit.setText(current.desc)
+        self.nid_box.edit.setText(current.nid)
+        self.name_box.edit.setText(current.name)
+        self.desc_box.edit.setText(current.desc)
         self.icon_edit.set_current(current.icon_fn, current.icon_index)
 
 # Testing

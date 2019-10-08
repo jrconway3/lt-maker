@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QCheckBox, QLineEdit, QPushButton, \
-    QMessageBox, QDialog, QSpinBox, QItemDelegate
+    QMessageBox, QDialog, QSpinBox, QItemDelegate, QVBoxLayout, QHBoxLayout, \
+    QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 from app.data.weapons import AdvantageList
 
-from app.editor.custom_gui import MultiAttrListModel, RightClickTreeView, ComboBox
+from app.editor.custom_gui import MultiAttrListModel, RightClickTreeView, ComboBox, PropertyBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import RankDialog
 from app.editor.icons import ItemIcon16
@@ -46,44 +47,61 @@ class WeaponProperties(QWidget):
         self._data = self.window._data
         self.database_editor = self.window.window
 
-        grid = QGridLayout()
-        self.setLayout(grid)
+        self.setStyleSheet("font: 10pt;")
 
         self.current = current
 
-        nid_label = QLabel('Unique ID: ')
-        self.nid_edit = QLineEdit(self)
-        self.nid_edit.setMaxLength(12)
-        self.nid_edit.textChanged.connect(self.nid_changed)
-        self.nid_edit.editingFinished.connect(self.nid_done_editing)
-        grid.addWidget(nid_label, 0, 2, 1, 2)
-        grid.addWidget(self.nid_edit, 0, 4, 1, 2)
+        top_section = QHBoxLayout()
 
-        name_label = QLabel('Display Name: ')
-        self.name_edit = QLineEdit(self)
-        self.name_edit.setMaxLength(12)
-        self.name_edit.textChanged.connect(self.name_changed)
-        grid.addWidget(name_label, 1, 2, 1, 2)
-        grid.addWidget(self.name_edit, 1, 4, 1, 2)
+        self.icon_edit = ItemIcon16(None, self)
+        top_section.addWidget(self.icon_edit)
 
-        magic_label = QLabel("Magic:")
-        self.magic_check = QCheckBox(self)
-        self.magic_check.stateChanged.connect(self.magic_changed)
-        grid.addWidget(magic_label, 2, 2)
-        grid.addWidget(self.magic_check, 2, 3)
+        horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
+        top_section.addSpacerItem(horiz_spacer)
+
+        name_section = QVBoxLayout()
+
+        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
+        self.nid_box.edit.textChanged.connect(self.nid_changed)
+        self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
+        name_section.addWidget(self.nid_box)
+
+        self.name_box = PropertyBox("Display Name", QLineEdit, self)
+        self.name_box.edit.setMaxLength(13)
+        self.name_box.edit.textChanged.connect(self.name_changed)
+        name_section.addWidget(self.name_box)
+
+        top_section.addLayout(name_section)
+
+        main_section = QHBoxLayout()
+
+        magic_section = QHBoxLayout()
+        magic_label = QLabel("Magic")
+        magic_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.magic_box = QCheckBox(self)
+        self.magic_box.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.magic_box.stateChanged.connect(self.magic_changed)
+        magic_section.addWidget(self.magic_box)
+        magic_section.addWidget(magic_label)
+        magic_section.setAlignment(magic_label, Qt.AlignLeft)
+        main_section.addLayout(magic_section)
+
+        horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
+        main_section.addSpacerItem(horiz_spacer)
 
         self.rank_button = QPushButton("Edit Weapon Ranks...")
         self.rank_button.clicked.connect(self.edit_weapon_ranks)
-        grid.addWidget(self.rank_button, 2, 4, 1, 2)
+        main_section.addWidget(self.rank_button)
 
-        self.advantage = AdvantageWidget(AdvantageList(), "Advantage versus:", self)
-        grid.addWidget(self.advantage, 3, 0, 1, 6)
+        self.advantage = AdvantageWidget(AdvantageList(), "Advantage versus", self)
+        self.disadvantage = AdvantageWidget(AdvantageList(), "Disadvantage versus", self)
 
-        self.disadvantage = AdvantageWidget(AdvantageList(), "Disadvantage versus:", self)
-        grid.addWidget(self.disadvantage, 4, 0, 1, 6)
-
-        self.icon_edit = ItemIcon16(None, self)
-        grid.addWidget(self.icon_edit, 0, 0, 3, 2)
+        total_section = QVBoxLayout()
+        self.setLayout(total_section)
+        total_section.addLayout(top_section)
+        total_section.addLayout(main_section)
+        total_section.addWidget(self.advantage)
+        total_section.addWidget(self.disadvantage)
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -118,9 +136,9 @@ class WeaponProperties(QWidget):
 
     def set_current(self, current):
         self.current = current
-        self.nid_edit.setText(current.nid)
-        self.name_edit.setText(current.name)
-        self.magic_check.setChecked(current.magic)
+        self.nid_box.edit.setText(current.nid)
+        self.name_box.edit.setText(current.name)
+        self.magic_box.setChecked(current.magic)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)
         self.icon_edit.set_current(current.icon_fn, current.icon_index)
@@ -142,10 +160,13 @@ class AdvantageWidget(QWidget):
             self.view.resizeColumnToContents(col)
 
         layout = QGridLayout(self)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.view, 1, 0, 1, 2)
         self.setLayout(layout)
 
         label = QLabel(title)
+        label.setAlignment(Qt.AlignBottom)
         layout.addWidget(label, 0, 0)
 
         add_button = QPushButton("+")

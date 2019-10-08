@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QDialog, QFormLayout, \
-    QLineEdit, QDialogButtonBox, QLabel, QListView, QAction, QMenu, QMessageBox
+from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, \
+    QListView, QAction, QMenu, QMessageBox
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtCore import QAbstractListModel
 
 from app.editor.custom_gui import EditDialog
+from app import utilities
 
 class DatabaseDialog(EditDialog):
     def __init__(self, data, title, right_frame, deletion_msg, creation_func, collection_model, parent):
@@ -58,14 +59,12 @@ class Collection(QWidget):
         grid.addWidget(self.button, 1, 0)
 
     def create_new(self):
-        dialog = CreateNewDialog(self.title, self)
-        result = dialog.exec_()
-        if result == QDialog.Accepted:
-            nid, name = dialog.get_results()
-            self.creation_func(nid, name)
-            self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-            last_index = self.model.index(self.model.rowCount() - 1)
-            self.view.setCurrentIndex(last_index)
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        self.creation_func(nid, name)
+        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+        last_index = self.model.index(self.model.rowCount() - 1)
+        self.view.setCurrentIndex(last_index)
 
     def on_item_changed(self, curr, prev):
         if self._data:
@@ -130,49 +129,3 @@ class RightClickListView(QListView):
         super().keyPressEvent(event)
         if event.key() == Qt.Key_Delete:
             self.delete(self.currentIndex().row())
-
-class CreateNewDialog(QDialog):
-    def __init__(self, title, parent):
-        super().__init__(parent)
-        self.title = title
-        self.menu = parent
-        self.setWindowTitle("Create New %s..." % self.title)
-
-        self.form = QFormLayout(self)
-        self.name = QLineEdit(self)
-        self.nid = QLineEdit(self)
-        self.nid.textChanged.connect(self.nid_changed)
-        self.warning_message = QLabel('')
-        self.warning_message.setStyleSheet("QLabel { color : red; }")
-        self.form.addRow('Display Name: ', self.name)
-        self.form.addRow('Internal ID: ', self.nid)
-        self.form.addRow(self.warning_message)
-
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
-        self.form.addRow(self.buttonbox)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-
-        # No level id set
-        accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-        accept_button.setEnabled(False)
-        self.warning_message.setText('No %s ID set.' % self.title)
-
-    def nid_changed(self, text):
-        if text in self.menu._data.keys():
-            accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-            accept_button.setEnabled(False)
-            self.warning_message.setText('%s ID is already in use.' % self.title)
-        elif text:
-            accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-            accept_button.setEnabled(True)
-            self.warning_message.setText('')
-        else:
-            accept_button = self.buttonbox.button(QDialogButtonBox.Ok)
-            accept_button.setEnabled(False)
-            self.warning_message.setText('No %s ID set.' % self.title)
-
-    def get_results(self):
-        name = self.name.text()
-        nid = self.nid.text()
-        return nid, name

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFormLayout, QPushButton, \
-    QFileDialog, QSpinBox, QSizePolicy
+    QFileDialog, QSpinBox
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, QDir, pyqtSignal
 

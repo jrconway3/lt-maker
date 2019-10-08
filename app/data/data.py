@@ -30,9 +30,9 @@ class data(object):
         return self._dict.get(key, fallback)
 
     def update_nid(self, val, nid):
-        for k, v in self.items():
+        for k, v in self._dict.items():
             if v == val:
-                del self._dict[v.nid]
+                del self._dict[k]
                 val.nid = nid
                 self._dict[nid] = val
                 break

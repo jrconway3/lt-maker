@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
-    QLineEdit, QPushButton, QAction, QMenu, QMessageBox, \
-    QDialogButtonBox, QGridLayout, QTreeView, QItemDelegate
+    QLineEdit, QPushButton, QAction, QMenu, QMessageBox, QSizePolicy, QFrame, \
+    QDialogButtonBox, QGridLayout, QTreeView, QItemDelegate, QLabel, QVBoxLayout
 from PyQt5.QtCore import QAbstractItemModel
 from PyQt5.QtCore import Qt, QModelIndex
 
@@ -50,6 +50,13 @@ class EditDialog(SimpleDialog):
         self.restore(self.saved_data)
         super().reject()
 
+class QHLine(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setFrameShape(QFrame.HLine)
+        self.setFrameShadow(QFrame.Sunken)
+        self.setLineWidth(3)
+
 class ComboBox(QComboBox):
     def setValue(self, text):
         i = self.findText(text)
@@ -68,6 +75,32 @@ class LineSearch(QWidget):
         layout.addWidget(self.line_edit)
         layout.addWidget(self.search_button)
         self.setLayout(layout)
+
+class PropertyBox(QWidget):
+    def __init__(self, label, widget, parent=None):
+        super().__init__(parent)
+
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.label = QLabel(label, self)
+        self.label.setAlignment(Qt.AlignBottom)
+        self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.edit = widget(self)
+        self.edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.bottom_section = QHBoxLayout()
+        self.bottom_section.addWidget(self.edit)
+
+        layout.addWidget(self.label)
+        layout.addLayout(self.bottom_section)
+
+    def add_button(self, button):
+        self.button = button
+        self.bottom_section.addWidget(self.button)
 
 class RightClickTreeView(QTreeView):
     def __init__(self, parent=None):

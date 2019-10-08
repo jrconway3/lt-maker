@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, \
-    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QFrame
+    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 import app.data.item_components as IC
 
+from app.editor.custom_gui import PropertyBox, QHLine
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.icons import ItemIcon16
 from app.editor import component_database
@@ -43,33 +44,6 @@ class ItemModel(CollectionModel):
                 return None
         return None
 
-class PropertyBox(QWidget):
-    def __init__(self, label, widget, parent=None):
-        super().__init__(parent)
-
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        self.label = QLabel(label, self)
-        self.label.setAlignment(Qt.AlignBottom)
-        self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        self.edit = widget(self)
-        self.edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-
-        layout.addWidget(self.label)
-        layout.addWidget(self.edit)
-
-class QHLine(QFrame):
-    def __init__(self):
-        super().__init__()
-        self.setFrameShape(QFrame.HLine)
-        self.setFrameShadow(QFrame.Sunken)
-        self.setLineWidth(3)
-
 class ItemProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
@@ -79,7 +53,7 @@ class ItemProperties(QWidget):
 
         self.setStyleSheet("font: 10pt;")
 
-        self.current = None
+        self.current = current
 
         top_section = QHBoxLayout()
 

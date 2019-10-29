@@ -1,14 +1,15 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, \
-    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem
+    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.editor.custom_gui import PropertyBox, QHLine
+from app.editor.custom_gui import PropertyBox, QHLine, ComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16
 from app.editor import component_database
 from app import utilities
@@ -88,13 +89,29 @@ class ItemProperties(QWidget):
         self.value_box.edit.valueChanged.connect(self.value_changed)
         main_section.addWidget(self.value_box, 1, 0)
 
-        self.min_range_box = PropertyBox("Minimum Range", QLineEdit, self)
-        self.min_range_box.edit.textChanged.connect(self.min_range_changed)
+        self.min_range_box = PropertyBox("Minimum Range", ComboBox, self)
+        self.min_range_box.edit.setEditable(True)
+        self.min_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
+        self.min_range_box.edit.addItems(DB.equations.keys())
+        # self.min_range_box.edit.currentTextChanged.connect(self.min_range_changed)
+        self.min_range_box.edit.lineEdit().editingFinished.connect(self.check_min_range)
         main_section.addWidget(self.min_range_box, 1, 1)
 
-        self.max_range_box = PropertyBox("Maximum Range", QLineEdit, self)
-        self.max_range_box.edit.textChanged.connect(self.max_range_changed)
+        self.min_range_box.add_button(QPushButton('...'))
+        self.min_range_box.button.setMaximumWidth(40)
+        self.min_range_box.button.clicked.connect(self.access_equations)
+
+        self.max_range_box = PropertyBox("Maximum Range", ComboBox, self)
+        self.max_range_box.edit.setEditable(True)
+        self.max_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
+        self.max_range_box.edit.addItems(DB.equations.keys())
+        # self.max_range_box.edit.currentTextChanged.connect(self.max_range_changed)
+        self.max_range_box.edit.lineEdit().editingFinished.connect(self.check_max_range)
         main_section.addWidget(self.max_range_box, 1, 2)
+
+        self.max_range_box.add_button(QPushButton('...'))
+        self.max_range_box.button.setMaximumWidth(40)
+        self.max_range_box.button.clicked.connect(self.access_equations)
 
         component_section = QGridLayout()
         component_label = QLabel("Components")
@@ -112,7 +129,8 @@ class ItemProperties(QWidget):
         self.setLayout(total_section)
         total_section.addLayout(top_section)
         total_section.addLayout(main_section)
-        total_section.addWidget(QHLine())
+        h_line = QHLine()
+        total_section.addWidget(h_line)
         total_section.addLayout(component_section)
 
     def nid_changed(self, text):
@@ -138,14 +156,40 @@ class ItemProperties(QWidget):
     def desc_changed(self, text):
         self.current.desc = text
 
+    def check_min_range(self):
+        min_val = self.min_range_box.edit.currentText()
+        self.current.min_range = min_val
+        max_val = self.max_range_box.edit.currentText()
+        # Max range can't be lower than min range
+        if utilities.is_int(min_val) and utilities.is_int(max_val):
+            if min_val > max_val:
+                self.max_range_box.edit.setEditText(str(min_val))
+
+    def check_max_range(self):
+        max_val = self.max_range_box.edit.currentText()
+        self.current.max_range = max_val
+        min_val = self.min_range_box.edit.currentText()
+        # Min range can't be higher than max range
+        if utilities.is_int(min_val) and utilities.is_int(max_val):
+            if max_val < min_val:
+                self.min_range_box.edit.setEditText(str(max_val))
+
     def min_range_changed(self, val):
         self.current.min_range = val
-        # Max range can't be lower than min range
-        # self.max_range_box.edit.setMinimum(val)
 
     def max_range_changed(self, val):
         self.current.max_range = val
-        # self.min_range_box.edit.setMaximum(val)
+
+    def access_equations(self):
+        dlg = EquationDialog.create()
+        result = dlg.exec_()
+        if result == QDialog.Accepted:
+            self.min_range_box.edit.clear()
+            self.min_range_box.edit.addItems(DB.equations.keys())
+            self.max_range_box.edit.clear()
+            self.max_range_box.edit.addItems(DB.equations.keys())
+        else:
+            pass
 
     def add_component(self, component):
         self.add_component_widget(component)
@@ -166,8 +210,14 @@ class ItemProperties(QWidget):
         self.name_box.edit.setText(current.name)
         self.value_box.edit.setValue(current.value)
         self.desc_box.edit.setText(current.desc)
-        self.min_range_box.edit.setText(current.min_range)
-        self.max_range_box.edit.setText(current.max_range)
+        if utilities.is_int(current.min_range):
+            self.min_range_box.edit.setEditText(current.min_range)
+        else:
+            self.min_range_box.edit.setValue(current.min_range)
+        if utilities.is_int(current.max_range):
+            self.max_range_box.edit.setEditText(current.max_range)
+        else:
+            self.max_range_box.edit.setValue(current.max_range)
         self.icon_edit.set_current(current.icon_fn, current.icon_index)
         self.component_list.clear()
         for component in current.components.values():
@@ -184,6 +234,8 @@ class ItemProperties(QWidget):
         else:
             pass
 
+# Testing
+# Run "python -m app.editor.item_database" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication

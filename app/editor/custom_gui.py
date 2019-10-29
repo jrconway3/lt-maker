@@ -54,8 +54,8 @@ class QHLine(QFrame):
     def __init__(self):
         super().__init__()
         self.setFrameShape(QFrame.HLine)
-        self.setFrameShadow(QFrame.Sunken)
-        self.setLineWidth(3)
+        self.setFrameShadow(QFrame.Plain)
+        self.setLineWidth(1)
 
 class ComboBox(QComboBox):
     def setValue(self, text):

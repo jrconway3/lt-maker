@@ -1,12 +1,13 @@
 import os
 
 from app.data import data
-from app.data import stats, weapons, factions, terrain, mcost_grid, minimap, items 
+from app.data import stats, equations, weapons, factions, terrain, mcost_grid, minimap, items 
 
 class Database(object):
     def __init__(self):
         self.levels = data.data()
         self.stats = stats.StatCatalog()
+        self.equations = equations.EquationCatalog()
         self.mcost = mcost_grid.McostGrid()
         self.terrain = terrain.TerrainCatalog()
         self.minimap = minimap.MinimapCatalog()
@@ -19,6 +20,7 @@ class Database(object):
 
     def init_load(self):
         self.stats.import_xml('./app/default_data/default_stats.xml')
+        self.equations.import_data('./app/default_data/default_equations.txt')
         self.mcost.import_data('./app/default_data/default_mcost.txt')
         self.terrain.import_xml('./app/default_data/default_terrain.xml')
         self.weapon_ranks.import_data('./app/default_data/default_weapon_ranks.txt')
@@ -35,6 +37,7 @@ class Database(object):
     # === Serialization function ===
     def restore(self, data):
         self.stats.restore(data['stats'])
+        self.equations.restore(data['equations'])
         self.mcost.restore(data['mcost'])
         self.terrain.restore(data['terrain'])
         self.weapon_ranks.restore(data['weapon_ranks'])
@@ -46,6 +49,7 @@ class Database(object):
 
     def save(self):
         to_save = {'stats': self.stats.serialize(),
+                   'equations': self.equations.serialize(),
                    'mcost': self.mcost.serialize(),
                    'terrain': self.terrain.serialize(),
                    'weapon_ranks': self.weapon_ranks.serialize(),

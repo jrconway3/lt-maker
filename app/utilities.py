@@ -23,3 +23,10 @@ def get_next_int(name, names):
 def intify(s: str):
     vals = s.split(',')
     return [int(i) for i in vals]
+
+def is_int(s: str):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False

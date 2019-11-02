@@ -74,6 +74,9 @@ class PushableIcon16(QPushButton):
 class PushableIcon32(PushableIcon16):
     width, height = 32, 32
 
+class PushableIcon80(PushableIcon16):
+    width, height = 80, 72
+
 class ItemIcon16(QWidget):
     width, height = 16, 16
     child_icon = PushableIcon16
@@ -151,3 +154,7 @@ class ItemIcon16(QWidget):
 class ItemIcon32(ItemIcon16):
     width, height = 32, 32
     child_icon = PushableIcon32
+
+class ItemIcon80(ItemIcon16):
+    width, height = 80, 72
+    child_icon = PushableIcon80

@@ -15,6 +15,7 @@ class Database(object):
         self.weapons = weapons.WeaponCatalog()
         self.factions = factions.FactionCatalog()
         self.items = items.ItemCatalog()
+        self.classes = klass.ClassCatalog()
 
         self.init_load()
 
@@ -27,6 +28,7 @@ class Database(object):
         self.weapons.import_xml('./app/default_data/default_weapons.xml')
         self.factions.import_xml('./app/default_data/default_factions.xml')
         self.items.import_xml('./app/default_data/default_items.xml')
+        self.classes.import_xml('./app/default_data/default_classes.xml')
 
     def get_platform_types(self):
         home = './sprites/platforms/'
@@ -44,6 +46,7 @@ class Database(object):
         self.weapons.restore(data['weapons'])
         self.factions.restore(data['factions'])
         self.items.restore(data['items'])
+        self.classes.restore(data['classes'])
 
         self.levels.restore(data['levels'])
 
@@ -56,6 +59,7 @@ class Database(object):
                    'weapons': self.weapons.serialize(),
                    'factions': self.factions.serialize(),
                    'items': self.items.serialize(),
+                   'classes': self.classes.serialize(),
                    'levels': self.levels.serialize(),
                    }
         return to_save
@@ -76,6 +80,9 @@ class Database(object):
     def create_new_item(self, nid, name):
         new_item = items.Item(nid, name, "", 1, 1, 0)
         self.items.append(new_item)
+
+    def create_new_class(self, nid, name):
+        pass
 
 DB = Database()
 

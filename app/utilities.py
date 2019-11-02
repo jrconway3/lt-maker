@@ -20,11 +20,19 @@ def get_next_int(name, names):
                 return test_name
             counter += 1
 
-def intify(s: str):
+def intify(s: str) -> list:
     vals = s.split(',')
     return [int(i) for i in vals]
 
-def is_int(s: str):
+def skill_parser(s: str) -> list:
+    if s is not None:
+        each_skill = s.split(';')
+        split_line = [tuple([int(_) for _ in skill.split(',')]) for skill in each_skill]
+        return split_line
+    else:
+        return []
+
+def is_int(s: str) -> bool:
     try:
         int(s)
         return True

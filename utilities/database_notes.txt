@@ -150,7 +150,7 @@ Supplies Weapons?
 Basic Weapons -- Weapons
 Minimum Wager
 Maximum Wager
-Arean Level Range
+Arena Level Range
 
 Equations:
 AS = SPD - max(0, WEIGHT - CON)

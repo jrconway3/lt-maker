@@ -3,6 +3,8 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
+from collections import OrderedDict
+
 from app.data.data import data
 from app import utilities
 
@@ -12,6 +14,16 @@ class StatType(object):
         self.name = name
         self.maximum = maximum
         self.desc = desc
+
+class StatList(OrderedDict):
+    def __init__(self, data, stat_types):
+        for i in range(len(stat_types)):
+            key = stat_types[i].nid
+            self[key] = data[i]
+
+    def fix(self, stat_types):
+        # TODO create method to fix this
+        pass
 
 class StatCatalog(data):
     def import_xml(self, xml_fn):

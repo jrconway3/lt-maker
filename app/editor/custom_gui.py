@@ -186,7 +186,34 @@ class MultiAttrListDialog(QDialog):
         self.restore(self.saved_data)
         super().reject()
 
-class MultiAttrListModel(QAbstractItemModel):
+class VirtualListModel(QAbstractItemModel):
+    def index(self, row, column, parent_index=QModelIndex()):
+        if self.hasIndex(row, column, parent_index):
+            return self.createIndex(row, column)
+        return QModelIndex()
+
+    def parent(self, index):
+        return QModelIndex()
+
+    def rowCount(self, parent=None):
+        return len(self._data)
+
+    def columnCount(self, parent=None):
+        return len(self._headers)
+
+    def headerData(self, idx, orientation, role=Qt.DisplayRole):
+        pass
+
+    def data(self, index, role):
+        pass
+
+    def setData(self, index, value, role):
+        pass
+
+    def flags(self, index):
+        pass
+
+class MultiAttrListModel(VirtualListModel):
     def __init__(self, data, headers, locked=None, parent=None):
         super().__init__(parent)
         self.window = parent
@@ -220,20 +247,6 @@ class MultiAttrListModel(QAbstractItemModel):
             return None
         elif orientation == Qt.Horizontal:
             return self._headers[idx].replace('_', ' ').capitalize()
-
-    def index(self, row, column, parent_index=QModelIndex()):
-        if self.hasIndex(row, column, parent_index):
-            return self.createIndex(row, column)
-        return QModelIndex()
-
-    def parent(self, index):
-        return QModelIndex()
-
-    def rowCount(self, parent=None):
-        return len(self._data)
-
-    def columnCount(self, parent=None):
-        return len(self._headers)
 
     def data(self, index, role):
         if not index.isValid():

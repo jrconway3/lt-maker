@@ -13,6 +13,7 @@ class DatabaseDialog(EditDialog):
         self.title = title
 
         self.setWindowTitle('%s Editor' % self.title)
+        self.setStyleSheet("font: 10pt;")
 
         self.left_frame = Collection(deletion_msg, creation_func, collection_model, self)
         self.right_frame = right_frame(self)

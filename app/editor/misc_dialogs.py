@@ -2,6 +2,11 @@ from app.data.database import DB
 
 from app.editor.custom_gui import MultiAttrListDialog
 
+class TagDialog(MultiAttrListDialog):
+    @classmethod
+    def create(cls):
+        return cls(DB.tags, "Tag", ("nid"))
+
 class StatDialog(MultiAttrListDialog):
     @classmethod
     def create(cls):

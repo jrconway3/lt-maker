@@ -1,0 +1,44 @@
+<class_info>
+<!-- Generic Classes -->
+    <class id="Citizen">
+        <short_name>Citizen</short_name>
+        <long_name>Citizen</long_name>
+        <tier>0</tier>
+        <max_level>10</max_level>
+        <!-- Swords, Lances, Axes, Bows, Staves, Light, Anima, Dark -->
+        <wexp_gain>0,0,0,0,0,0,0,0</wexp_gain>
+        <promotes_from></promotes_from>
+        <turns_into></turns_into>
+        <!-- Light Foot,  Armors, Heavy Cav, Light Cav, Regular, Mages -->
+        <movement_group>0</movement_group>
+        <tags></tags>
+        <skills></skills>
+        <!-- HP, Str, Mag, Skl, Spd, Lck, Def, Res, Con -->
+        <growths>65,0,0,0,0,0,0,0</growths>
+        <bases>10,0,0,0,0,0,0,0,5,5</bases>
+        <max>60,20,20,20,20,30,20,20,20,15</max>
+        <desc>An ordinary commoner.</desc>
+    </class>
+
+    <!-- Normal Classes -->
+    <!-- Myrmidon -> Swordmaster -->
+    <class id="Myrmidon">
+        <short_name>Myrm.</short_name>
+        <long_name>Myrmidon</long_name>
+        <tier>1</tier>
+        <max_level>20</max_level>
+        <!-- Swords, Lances, Axes, Bows, Staves, Light, Anima, Dark -->
+        <wexp_gain>D,0,0,0,0,0,0,0</wexp_gain>
+        <promotes_from></promotes_from>
+        <turns_into>Swordmaster,Assassin</turns_into>
+        <!-- Light Foot, Armors, Heavy Cav, Light Cav, Regular, Mages -->
+        <movement_group>0</movement_group>
+        <tags>Sword</tags>
+        <skills></skills>
+        <!-- HP, Str, Mag, Skl, Spd, Lck, Def, Res, Con -->
+        <growths>70,35,17,40,40,30,15,20</growths>
+        <bases>16,4,2,9,10,0,2,1,8,5</bases>
+        <max>60,20,20,20,20,30,20,20,20,15</max>
+        <desc>Swordfighters with superior speed and skill.</desc>
+    </class>
+</class_info>

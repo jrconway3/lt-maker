@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QComboBox, QLineEdit, QListWidget, QListWidgetItem, \
     QCheckBox
 from PyQt5.QtGui import QCursor
-from PyQt5.QtCore import Qt
 
 """
 Converted to PyQt from https://github.com/ThisIsClark/Qt-MultiSelectComboBox

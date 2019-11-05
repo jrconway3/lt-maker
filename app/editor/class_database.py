@@ -1,13 +1,15 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
-    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, \
+    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, \
     QVBoxLayout, QSizePolicy, QSpacerItem, QTreeView
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox, ComboBox, IntDelegate, MultiAttrListModel
+from app.editor.custom_gui import PropertyBox, ComboBox, IntDelegate, VirtualListModel
+from app.editor.multi_select_combo_box import MultiSelectComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.misc_dialogs import TagDialog, StatDialog
 from app.editor.icons import ItemIcon80
 from app import utilities
 
@@ -24,13 +26,16 @@ class ClassDatabase(DatabaseDialog):
         return dialog
 
 class ClassStatWidget(QWidget):
-    def __init__(self, data, parent=None):
+    def __init__(self, klass, parent=None):
         super().__init__(parent)
         self.window = parent
-        self._data = data
+        self._klass = klass
 
-        column_titles = [''] + DB.stats.keys()
-        self.model = MultiAttrListModel(self._data, column_titles, column_titles, self)
+        column_titles = DB.stats.keys()
+        row_titles = ['Generic Bases', 'Generic Growths', 'Promotion Gains', 'Growth Bonuses', 'Stat Maximums']
+        row_values = [klass.bases, klass.growths, klass.promotion, klass.growth_bonus, klass.max_stats]
+
+        self.model = StatModel(column_titles, row_titles, row_values, self)
         self.view = QTreeView(self)
         self.view.setModel(self.model)
         delegate = IntDelegate(self.view, range(len(column_titles)))
@@ -41,6 +46,63 @@ class ClassStatWidget(QWidget):
         layout = QHBoxLayout(self)
         layout.addWidget(self.view)
         self.setLayout(layout)
+
+    def set_new_klass(self, klass):
+        self._klass = klass
+        row_values = [klass.bases, klass.growths, klass.promotion, klass.growth_bonus, klass.max_stats]
+        self.model.set_new_data(row_values)
+
+    def update_stats(self):
+        column_titles = DB.stats.keys()
+        self.model.update_column_header(column_titles)
+        self.set_new_klass(self._klass)
+
+class StatModel(VirtualListModel):
+    def __init__(self, columns, rows, data, parent=None):
+        super().__init__(parent)
+        self.window = parent
+        self._columns = self._headers = columns
+        self._rows = rows
+        self._data = data  # Must be StatList
+
+    def set_new_data(self, row_values):
+        self._data = row_values
+        self.layoutChanged.emit()
+
+    def update_column_header(self, columns):
+        self._columns = self._headers = columns
+
+    def headerData(self, idx, orientation, role=Qt.DisplayRole):
+        if role != Qt.DisplayRole:
+            return None
+        if orientation == Qt.Vertical:
+            return self._rows[idx]
+        elif orientation == Qt.Horizontal:
+            return self._columns[idx]
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            row = self._data[index.row()]
+            key = self._columns[index.column()]
+            return row[key]
+        elif role == Qt.EditRole:
+            row = self._data[index.row()]
+            key = self._columns[index.column()]
+            return row[key]
+
+    def setData(self, index, value, role):
+        if not index.isValid():
+            return False
+        row = self._data[index.row()]
+        row[index.column()] = value
+        self.dataChanged.emit(index, index)
+        return True
+
+    def flags(self, index):
+        basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren | Qt.ItemIsEditable
+        return basic_flags
 
 class ClassModel(CollectionModel):
     def data(self, index, role):
@@ -67,7 +129,7 @@ class ClassProperties(QWidget):
         self._data = self.window._data
         self.database_editor = self.window.window
 
-        self.setStyleSheet("fond: 10pt;")
+        self.setStyleSheet("font: 10pt;")
 
         self.current = current
 
@@ -110,23 +172,23 @@ class ClassProperties(QWidget):
         main_section.addWidget(self.tier_box, 1, 0, 1, 2)
 
         self.promotes_from_box = PropertyBox("Promotes From", ComboBox, self)
-        self.promotes_from_box.addItems(["None"] + DB.classes.keys())
+        self.promotes_from_box.edit.addItems(["None"] + DB.classes.keys())
         self.promotes_from_box.edit.currentIndexChanged.connect(self.promotes_from_changed)
         main_section.addWidget(self.promotes_from_box, 1, 3, 1, 2)
 
         self.max_level_box = PropertyBox("Max Level", QSpinBox, self)
-        self.max_level_box.setRange(1, 255)
+        self.max_level_box.edit.setRange(1, 255)
         self.max_level_box.edit.valueChanged.connect(self.max_level_changed)
         main_section.addWidget(self.max_level_box, 1, 5, 1, 2)
 
-        self.turns_into_box = PropertyBox("Turns Into", MultiComboBox, self)
-        self.turns_into_box.addItems(DB.classes.keys())
-        self.turns_into_box.edit.currentChanged.connect(self.turns_into_changed)
+        self.turns_into_box = PropertyBox("Turns Into", MultiSelectComboBox, self)
+        self.turns_into_box.edit.addItems(DB.classes.keys())
+        self.turns_into_box.edit.activated.connect(self.turns_into_changed)
         main_section.addWidget(self.turns_into_box, 2, 0, 1, 3)
 
-        self.tag_box = PropertyBox("Tags", MultiComboBox, self)
-        self.tag_box.addItems(DB.tags)
-        self.tag_box.edit.currentChanged.connect(self.tags_changed)
+        self.tag_box = PropertyBox("Tags", MultiSelectComboBox, self)
+        self.tag_box.edit.addItems(DB.tags)
+        self.tag_box.edit.activated.connect(self.tags_changed)
         main_section.addWidget(self.tag_box, 2, 4, 1, 3)
 
         self.tag_box.add_button(QPushButton('...'))
@@ -206,16 +268,42 @@ class ClassProperties(QWidget):
         self.current.max_level = val
 
     def turns_into_changed(self):
-        self.current.turns_into = self.turns_into_box.edit.currentSelections()
+        self.current.turns_into = self.turns_into_box.edit.currentText()
 
     def tags_changed(self):
-        self.current.tags = self.tag_box.edit.currentSelections()
+        self.current.tags = self.tag_box.edit.currentText()
 
     def exp_mult_changed(self):
         self.current.exp_mult = float(self.exp_mult_box.edit.currentText())
 
     def opp_exp_mult_changed(self):
         self.current.opponent_exp_mult = float(self.opp_exp_mult_box.edit.currentText)
+
+    def access_tags(self):
+        dlg = TagDialog()
+        result = dlg.exec_()
+        if result == QDialog.Accepted:
+            # Fix all tags -- remove tags that no longer exist
+            for klass in self.window._data:
+                print(klass.nid, klass.tags)
+                # Intersection with the types
+                klass.tags &= DB.tags
+        else:
+            pass
+
+    def access_stats(self):
+        dlg = StatDialog.create()
+        result = dlg.exec_()
+        if result == QDialog.Accepted:
+            # Fix all klasses
+            for klass in self.window._data:
+                print(klass.nid)
+                rows = [klass.bases, klass.growths, klass.promotion, klass.growth_bonus, klass.max_stats]
+                for stat_list in rows:
+                    stat_list.fix(DB.stats)
+            self.update_stats()
+        else:
+            pass
 
     def set_current(self, current):
         self.current = current
@@ -229,8 +317,12 @@ class ClassProperties(QWidget):
             self.promotes_from_box.edit.setValue(current.promotes_from)
         else:
             self.promotes_from_box.edit.setValue("None")
-        self.turns_into_box.edit.setValue(current.turns_into)
-        self.tag_box.edit.setValue(current.tags)
+        self.turns_into_box.edit.clear()
+        self.turns_into_box.edit.addItems(current.turns_into)
+        self.tag_box.edit.clear()
+        self.tag_box.edit.addItems(current.tags)
+
+        self.class_stat_widget.set_new_klass(current)
 
         self.exp_mult_box.edit.setText(self.current.exp_mult)
         self.opp_exp_mult_box.edit.setText(self.current.opponent_exp_mult)

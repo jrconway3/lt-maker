@@ -15,7 +15,7 @@ class Database(object):
         self.weapons = weapons.WeaponCatalog()
         self.factions = factions.FactionCatalog()
         self.items = items.ItemCatalog()
-        self.tags = set()
+        self.tags = []
         self.classes = klass.ClassCatalog()
 
         self.init_load()
@@ -29,8 +29,8 @@ class Database(object):
         self.weapons.import_xml('./app/default_data/default_weapons.xml')
         self.factions.import_xml('./app/default_data/default_factions.xml')
         self.items.import_xml('./app/default_data/default_items.xml')
-        self.tags = set(['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon'])
-        self.classes.import_xml('./app/default_data/default_classes.xml', self.weapon_ranks)
+        self.tags = ['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon']
+        self.classes.import_xml('./app/default_data/default_classes.xml', self.stats, self.weapon_ranks)
 
     def get_platform_types(self):
         home = './sprites/platforms/'
@@ -62,7 +62,7 @@ class Database(object):
                    'weapons': self.weapons.serialize(),
                    'factions': self.factions.serialize(),
                    'items': self.items.serialize(),
-                   'tags': self.tags,  # Just a set
+                   'tags': self.tags,  # Just a list
                    'classes': self.classes.serialize(),
                    'levels': self.levels.serialize(),
                    }
@@ -92,7 +92,7 @@ class Database(object):
         promotion = [0] * num_stats
         max_stats = [30] * num_stats
         wexp_gain = [0] * len(self.weapon_ranks)
-        new_class = klass.Klass(nid, name, name, '', 1, 0, None, [], set(), 20, 
+        new_class = klass.Klass(nid, name, name, '', 1, 0, None, [], [], 20, 
                                 bases, growths, promotion, max_stats, [], wexp_gain)
         return new_class
 

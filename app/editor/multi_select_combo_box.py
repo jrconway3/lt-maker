@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QComboBox, QLineEdit, QListWidget, QListWidgetItem, \
     QCheckBox
 from PyQt5.QtGui import QCursor
+from PyQt5.QtCore import pyqtSignal
 
 """
 Converted to PyQt from https://github.com/ThisIsClark/Qt-MultiSelectComboBox
@@ -8,6 +9,8 @@ Converted to PyQt from https://github.com/ThisIsClark/Qt-MultiSelectComboBox
 
 class MultiSelectComboBox(QComboBox):
     search_bar_index = 0
+
+    updated = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -58,6 +61,7 @@ class MultiSelectComboBox(QComboBox):
             self.line_edit.setText(', '.join(selected_data))
         else:
             self.line_edit.clear()
+        self.updated.emit()
 
     def addItem(self, text, user_data=None):
         # user_data is unused
@@ -122,7 +126,7 @@ class MultiSelectComboBox(QComboBox):
         for i in range(1, count):
             check_box = self.list_widget.itemWidget(self.list_widget.item(i))
             check_box_string = check_box.text()
-            if texts.contains(check_box_string):
+            if check_box_string in texts:
                 check_box.setChecked(True)
 
     def ResetSelection(self):

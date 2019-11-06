@@ -43,6 +43,9 @@ class Klass(object):
         self.icon_fn = icon_fn
         self.icon_index = icon_index
 
+    def get_stat_lists(self):
+        return [self.bases, self.growths, self.promotion, self.growth_bonus, self.max_stats]
+
 class ClassCatalog(data):
     def import_xml(self, xml_fn, stat_types, weapon_ranks):
         class_data = ET.parse(xml_fn)
@@ -54,8 +57,8 @@ class ClassCatalog(data):
             promotes_from = klass.find('promotes_from').text if klass.find('promotes_from').text is not None else None
             turns_into = klass.find('turns_into').text if klass.find('turns_into').text is not None else []
             movement_group = klass.find('movement_group').text
-            max_level = klass.find('max_level').text
-            tags = set(klass.find('tags').text.split(',')) if klass.find('tags').text is not None else set()
+            max_level = int(klass.find('max_level').text)
+            tags = klass.find('tags').text.split(',') if klass.find('tags').text is not None else []
             desc = klass.find('desc').text
 
             bases = stats.StatList(utilities.intify(klass.find('bases').text), stat_types)

@@ -52,8 +52,6 @@ class ItemProperties(QWidget):
         self._data = self.window._data
         self.database_editor = self.window.window
 
-        self.setStyleSheet("font: 10pt;")
-
         self.current = current
 
         top_section = QHBoxLayout()

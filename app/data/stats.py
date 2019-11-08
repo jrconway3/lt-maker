@@ -51,6 +51,9 @@ class StatList(OrderedDict):
         del self[old_key]
         self[new_key] = old_value
 
+    def new_key(self, key):
+        self[key] = 0
+
 class StatCatalog(data):
     def import_xml(self, xml_fn):
         stat_data = ET.parse(xml_fn)

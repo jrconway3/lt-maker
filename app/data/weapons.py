@@ -3,6 +3,8 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
+from collections import OrderedDict
+
 from app.data.data import data
 from app import utilities
 
@@ -52,6 +54,29 @@ class WeaponType(object):
 
         self.icon_fn = icon_fn
         self.icon_index = icon_index
+
+class WexpGain(object):
+    def __init__(self, usable: bool, weapon_type: WeaponType, wexp_gain: int):
+        self.usable = usable
+        self.weapon_type = weapon_type
+        self.wexp_gain = wexp_gain
+
+class WexpGainList(OrderedDict):
+    def __init__(self, data, weapon_types):
+        for i in range(len(weapon_types)):
+            key = weapon_types[i].nid
+            self[key] = WexpGain(bool(data[i]), key, data[i])
+
+    def remove_key(self, key):
+        del self[key]
+
+    def change_key(self, old_key, new_key):
+        old_value = self[old_key]
+        del self[old_key]
+        self[new_key] = old_value
+
+    def new_key(self, key):
+        self[key] = WexpGain(False, key, 0)
 
 class Advantage(object):
     def __init__(self, weapon_type, weapon_rank, effects):

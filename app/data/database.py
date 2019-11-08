@@ -30,7 +30,7 @@ class Database(object):
         self.factions.import_xml('./app/default_data/default_factions.xml')
         self.items.import_xml('./app/default_data/default_items.xml')
         self.tags = ['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon']
-        self.classes.import_xml('./app/default_data/default_classes.xml', self.stats, self.weapon_ranks)
+        self.classes.import_xml('./app/default_data/default_classes.xml', self.stats, self.weapons, self.weapon_ranks)
 
     def get_platform_types(self):
         home = './sprites/platforms/'

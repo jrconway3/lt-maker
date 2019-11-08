@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QCheckBox, QLineEdit, QPushButton, \
+from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QPushButton, \
     QMessageBox, QDialog, QSpinBox, QItemDelegate, QVBoxLayout, QHBoxLayout, \
     QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QPixmap, QIcon
@@ -7,9 +7,10 @@ from PyQt5.QtCore import Qt
 from app.data.database import DB
 from app.data.weapons import AdvantageList
 
-from app.editor.custom_gui import MultiAttrListModel, RightClickTreeView, ComboBox, PropertyBox
+from app.editor.custom_gui import ComboBox, PropertyBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import RankDialog
+from app.editor.sub_list_widget import SubListWidget
 from app.editor.icons import ItemIcon16
 from app import utilities
 
@@ -46,8 +47,6 @@ class WeaponProperties(QWidget):
         self.window = parent
         self._data = self.window._data
         self.database_editor = self.window.window
-
-        self.setStyleSheet("font: 10pt;")
 
         self.current = current
 
@@ -93,8 +92,9 @@ class WeaponProperties(QWidget):
         self.rank_button.clicked.connect(self.edit_weapon_ranks)
         main_section.addWidget(self.rank_button)
 
-        self.advantage = AdvantageWidget(AdvantageList(), "Advantage versus", self)
-        self.disadvantage = AdvantageWidget(AdvantageList(), "Disadvantage versus", self)
+        attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attackspeed')
+        self.advantage = SubListWidget(AdvantageList(), "Advantage versus", attrs, AdvantageDelegate, self)
+        self.disadvantage = SubListWidget(AdvantageList(), "Disadvantage versus", attrs, AdvantageDelegate, self)
 
         total_section = QVBoxLayout()
         self.setLayout(total_section)
@@ -143,48 +143,10 @@ class WeaponProperties(QWidget):
         self.disadvantage.set_current(current.disadvantage)
         self.icon_edit.set_current(current.icon_fn, current.icon_index)
 
-class AdvantageWidget(QWidget):
-    def __init__(self, advantage, title, parent):
-        super().__init__(parent)
-        self.window = parent
-
-        self.current = advantage
-
-        attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attackspeed')
-        self.model = MultiAttrListModel(self.current, attrs, None, self)
-        self.view = RightClickTreeView(self)
-        self.view.setModel(self.model)
-        delegate = AdvantageDelegate(self.view)
-        self.view.setItemDelegate(delegate)
-        for col in range(9):
-            self.view.resizeColumnToContents(col)
-
-        layout = QGridLayout(self)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.view, 1, 0, 1, 2)
-        self.setLayout(layout)
-
-        label = QLabel(title)
-        label.setAlignment(Qt.AlignBottom)
-        layout.addWidget(label, 0, 0)
-
-        add_button = QPushButton("+")
-        add_button.setMaximumWidth(30)
-        add_button.clicked.connect(self.model.add_new_row)
-        layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)
-
-    def set_current(self, advantage):
-        self.current = advantage
-        self.model.set_new_data(self.current)
-
 class AdvantageDelegate(QItemDelegate):
     type_column = 0
     rank_column = 1
     int_columns = (2, 3, 4, 5, 6, 7, 8)
-
-    def __init__(self, parent):
-        super().__init__(parent)
 
     def createEditor(self, parent, option, index):
         if index.column() in self.int_columns:

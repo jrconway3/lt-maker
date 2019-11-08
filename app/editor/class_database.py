@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
-    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QTreeView, QDoubleSpinBox
+    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QItemDelegate, \
+    QVBoxLayout, QSizePolicy, QSpacerItem, QTreeView, QDoubleSpinBox, QCheckBox
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
@@ -11,6 +11,7 @@ from app.editor.custom_gui import PropertyBox, ComboBox, QHLine, IntDelegate, Vi
 from app.editor.multi_select_combo_box import MultiSelectComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import TagDialog, StatDialog
+from app.editor.sub_list_widget import SubListWidget, BasicListWidget
 from app.editor.icons import ItemIcon80
 from app import utilities
 
@@ -110,6 +111,22 @@ class StatModel(VirtualListModel):
     def flags(self, index):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren | Qt.ItemIsEditable
         return basic_flags
+
+class WexpGainDelegate(QItemDelegate):
+    bool_column = 0
+    weapon_type_column = 1
+    int_column = 2
+
+    def createEditor(self, parent, option, index):
+        if index.column() == self.int_column:
+            editor = QSpinBox(parent)
+            editor.setRange(0, 999)
+            return editor
+        elif index.column() == self.bool_column:
+            editor = QCheckBox(parent)
+            return editor
+        else:
+            return super().createEditor(parent, option, index)
 
 class ClassModel(CollectionModel):
     def data(self, index, role):
@@ -221,7 +238,15 @@ class ClassProperties(QWidget):
 
         weapon_section = QHBoxLayout()
 
+        attrs = ("usable", "weapon_type", "wexp_gain")
+        self.wexp_gain_widget = BasicListWidget(self.current.wexp_gain, "Weapon Exp.", attrs, WexpGainDelegate, self)
+        weapon_section.addWidget(self.wexp_gain_widget)
+
         skill_section = QHBoxLayout()
+
+        attrs = ("level", "skill_nid")
+        self.class_skill_widget = SubListWidget(self.current.skills, "Class Skills", attrs, LearnedSkillDelegate, self)
+        skill_section.addWidget(self.class_skill_widget)
 
         exp_section = QHBoxLayout()
 
@@ -242,16 +267,22 @@ class ClassProperties(QWidget):
         exp_section.addWidget(self.opp_exp_mult_box)
 
         total_section = QVBoxLayout()
-        self.setLayout(total_section)
         total_section.addLayout(top_section)
         total_section.addLayout(main_section)
         total_section.addLayout(tag_section)
-        h_line = QHLine()
-        total_section.addWidget(h_line)
+        total_section.addWidget(QHLine())
         total_section.addLayout(stat_section)
-        total_section.addLayout(weapon_section)
-        total_section.addLayout(skill_section)
         total_section.addLayout(exp_section)
+
+        right_section = QVBoxLayout()
+        right_section.addLayout(weapon_section)
+        right_section.addWidget(QHLine())
+        right_section.addLayout(skill_section)
+
+        final_section = QHBoxLayout()
+        self.setLayout(final_section)
+        final_section.addLayout(total_section)
+        final_section.addLayout(right_section)
 
     def nid_changed(self, text):
         self.current.nid = text

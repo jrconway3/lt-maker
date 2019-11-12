@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, \
-    QListView, QAction, QMenu, QMessageBox
+    QListView, QAction, QMenu, QMessageBox, QSizePolicy
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtCore import QAbstractListModel
 
@@ -52,6 +52,8 @@ class Collection(QWidget):
         self.view.setModel(self.model)
 
         self.view.setIconSize(QSize(32, 32))
+
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
 
         self.button = QPushButton("Create %s" % self.title)
         self.button.clicked.connect(self.create_new)

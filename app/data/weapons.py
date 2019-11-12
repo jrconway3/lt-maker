@@ -3,11 +3,10 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-from collections import OrderedDict
-
 from app.data.data import data
 from app import utilities
 
+# === WEAPON RANK ===
 class WeaponRank(object):
     def __init__(self, rank, requirement, accuracy=0, damage=0, crit=0):
         self.rank = rank
@@ -21,7 +20,7 @@ class WeaponRank(object):
         return self.rank
 
     def __repr__(self):
-        return "Weapon Rank %s: %d -- (%d, %d, %d)" % \
+        return "WeaponRank %s: %d -- (%d, %d, %d)" % \
             (self.rank, self.requirement, self.accuracy, self.damage, self.crit)
 
 class RankCatalog(data):
@@ -44,6 +43,7 @@ class RankCatalog(data):
         new_rank = WeaponRank(new_name, 1)
         self.append(new_rank)
 
+# === WEAPON TYPE ===
 class WeaponType(object):
     def __init__(self, nid, name, magic, advantage, disadvantage, icon_fn=None, icon_index=(0, 0)):
         self.nid = nid
@@ -55,53 +55,8 @@ class WeaponType(object):
         self.icon_fn = icon_fn
         self.icon_index = icon_index
 
-class WexpGain(object):
-    def __init__(self, usable: bool, weapon_type: WeaponType, wexp_gain: int):
-        self.usable = usable
-        self.weapon_type = weapon_type
-        self.wexp_gain = wexp_gain
-
-class WexpGainList(OrderedDict):
-    def __init__(self, data, weapon_types):
-        for i in range(len(weapon_types)):
-            key = weapon_types[i].nid
-            self[key] = WexpGain(bool(data[i]), key, data[i])
-
-    def remove_key(self, key):
-        del self[key]
-
-    def change_key(self, old_key, new_key):
-        old_value = self[old_key]
-        del self[old_key]
-        self[new_key] = old_value
-
-    def new_key(self, key):
-        self[key] = WexpGain(False, key, 0)
-
-class Advantage(object):
-    def __init__(self, weapon_type, weapon_rank, effects):
-        self.weapon_type = weapon_type
-        self.weapon_rank = weapon_rank
-
-        self.damage = effects[0]
-        self.resist = effects[1]
-        self.accuracy = effects[2]
-        self.avoid = effects[3]
-        self.crit = effects[4]
-        self.dodge = effects[5]
-        self.attackspeed = effects[6]
-
-    @property
-    def effects(self):
-        return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attackspeed)
-
-class AdvantageList(list):
-    def add_new_default(self, db):
-        if len(self):
-            new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
-        else:
-            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
-        self.append(new_advantage)
+    def __repr__(self):
+        return ("WeaponType %s" % self.nid)
 
 class WeaponCatalog(data):
     def import_xml(self, xml_fn):
@@ -126,3 +81,49 @@ class WeaponCatalog(data):
                 WeaponType(nid, name, magic, advantage, disadvantage, 
                            'sprites/wexp_icons.png', (0, idx))
             self.append(new_weapon_type)
+
+# === WEAPON EXPERIENCE GAINED ===
+class WexpGain(object):
+    def __init__(self, usable: bool, weapon_type: WeaponType, wexp_gain: int):
+        self.usable = usable
+        self.weapon_type = self.nid = weapon_type
+        self.wexp_gain = wexp_gain
+
+class WexpGainList(data):
+    def __init__(self, data, weapon_types):
+        vals = []
+        for i in range(len(weapon_types)):
+            if i < len(data):
+                vals.append(WexpGain(bool(data[i]), weapon_types[i].nid, data[i]))
+            else:
+                vals.append(WexpGain(False, weapon_types[i].nid, 0))
+        super().__init__(vals)
+
+    def new_key(self, key):
+        self[key] = WexpGain(False, key, 0)
+
+# === WEAPON ADVANTAGE AND DISADVANTAGE ===
+class Advantage(object):
+    def __init__(self, weapon_type, weapon_rank, effects):
+        self.weapon_type = weapon_type
+        self.weapon_rank = weapon_rank
+
+        self.damage = effects[0]
+        self.resist = effects[1]
+        self.accuracy = effects[2]
+        self.avoid = effects[3]
+        self.crit = effects[4]
+        self.dodge = effects[5]
+        self.attackspeed = effects[6]
+
+    @property
+    def effects(self):
+        return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attackspeed)
+
+class AdvantageList(list):
+    def add_new_default(self, db):
+        if len(self):
+            new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
+        else:
+            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
+        self.append(new_advantage)

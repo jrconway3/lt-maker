@@ -59,6 +59,13 @@ class QHLine(QFrame):
         self.setFrameShadow(QFrame.Plain)
         self.setLineWidth(1)
 
+class QVLine(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setFrameShape(QFrame.VLine)
+        self.setFrameShadow(QFrame.Plain)
+        self.setLineWidth(1)
+
 class ComboBox(QComboBox):
     def setValue(self, text):
         i = self.findText(text)
@@ -189,7 +196,7 @@ class SingleListDialog(QDialog):
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.saved_data = self.save()
-        self.actions = []
+        self._actions = []
 
     def placement(self, title):
         layout = QGridLayout(self)
@@ -241,7 +248,7 @@ class MultiAttrListDialog(SingleListDialog):
         self._data.restore(data)
 
     def accept(self):
-        for action in self.actions:
+        for action in self._actions:
             kind = action[0]
             if kind == 'Delete':
                 self.on_delete(action[1])
@@ -292,13 +299,13 @@ class SingleListModel(VirtualListModel):
         self._headers = [title]
 
     def delete(self, idx):
-        self.window.actions.append(('Delete', self._data[idx]))
+        self.window._actions.append(('Delete', self._data[idx]))
         self._data.pop(idx)
         self.layoutChanged.emit()
 
     def add_new_row(self):
         new_row = utilities.get_next_name("New %s" % self.title, self._data)
-        self.window.actions.append(('Append', new_row))
+        self.window._actions.append(('Append', new_row))
         self._data.append(new_row)
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1, 0)
@@ -322,7 +329,7 @@ class SingleListModel(VirtualListModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        self.window.actions.append(('Change', self._data[index.row()], value))
+        self.window._actions.append(('Change', self._data[index.row()], value))
         self._data[index.row()] = value
         self.dataChanged.emit(index, index)
         return True
@@ -340,10 +347,11 @@ class MultiAttrListModel(VirtualListModel):
         self.locked = locked
         if not locked:
             self.locked = set()
+        self.checked_columns = set()
 
     def delete(self, idx):
         if getattr(self._data[idx], self._headers[0]) not in self.locked:
-            self.window.actions.append(('Delete', self._data[idx]))
+            self.window._actions.append(('Delete', self._data[idx]))
             self._data.pop(idx)
             self.layoutChanged.emit()
         else:
@@ -351,7 +359,7 @@ class MultiAttrListModel(VirtualListModel):
 
     def add_new_row(self):
         new = self._data.add_new_default(DB)
-        self.window.actions.append(('Append', new))
+        self.window._actions.append(('Append', new))
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1, 0)
         self.window.view.setCurrentIndex(last_index)
@@ -367,7 +375,15 @@ class MultiAttrListModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.DisplayRole or role == Qt.EditRole:
+        if index.column() in self.checked_columns:
+            if role == Qt.CheckStateRole:
+                data = self._data[index.row()]
+                attr = self._headers[index.column()]
+                val = getattr(data, attr)
+                return Qt.Checked if bool(val) else Qt.Unchecked
+            else:
+                return None
+        elif role == Qt.DisplayRole or role == Qt.EditRole:
             data = self._data[index.row()]
             attr = self._headers[index.column()]
             return getattr(data, attr)
@@ -380,7 +396,7 @@ class MultiAttrListModel(VirtualListModel):
         attr = self._headers[index.column()]
         current_value = getattr(data, attr)
         setattr(data, attr, value)
-        self.window.actions.append(('Change', data, attr, current_value, value))
+        self.window._actions.append(('Change', data, attr, current_value, value))
         self.dataChanged.emit(index, index)
         return True
 
@@ -388,4 +404,6 @@ class MultiAttrListModel(VirtualListModel):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
         if getattr(self._data[index.row()], self._headers[0]) not in self.locked or index.column() != 0:
             basic_flags |= Qt.ItemIsEditable
+        if index.column() in self.checked_columns:
+            basic_flags |= Qt.ItemIsUserCheckable
         return basic_flags

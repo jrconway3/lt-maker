@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QPushButton, \
-    QMessageBox, QDialog, QSpinBox, QItemDelegate, QVBoxLayout, QHBoxLayout, \
-    QSpacerItem, QSizePolicy
+    QMessageBox, QDialog, QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, \
+    QSpacerItem, QSizePolicy, QItemDelegate
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
@@ -10,7 +10,7 @@ from app.data.weapons import AdvantageList
 from app.editor.custom_gui import ComboBox, PropertyBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import RankDialog
-from app.editor.sub_list_widget import SubListWidget
+from app.editor.sub_list_widget import AppendListWidget
 from app.editor.icons import ItemIcon16
 from app import utilities
 
@@ -93,8 +93,8 @@ class WeaponProperties(QWidget):
         main_section.addWidget(self.rank_button)
 
         attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attackspeed')
-        self.advantage = SubListWidget(AdvantageList(), "Advantage versus", attrs, AdvantageDelegate, self)
-        self.disadvantage = SubListWidget(AdvantageList(), "Disadvantage versus", attrs, AdvantageDelegate, self)
+        self.advantage = AppendListWidget(AdvantageList(), "Advantage versus", attrs, AdvantageDelegate, self)
+        self.disadvantage = AppendListWidget(AdvantageList(), "Disadvantage versus", attrs, AdvantageDelegate, self)
 
         total_section = QVBoxLayout()
         self.setLayout(total_section)
@@ -143,7 +143,7 @@ class WeaponProperties(QWidget):
         self.disadvantage.set_current(current.disadvantage)
         self.icon_edit.set_current(current.icon_fn, current.icon_index)
 
-class AdvantageDelegate(QItemDelegate):
+class AdvantageDelegate(QStyledItemDelegate):
     type_column = 0
     rank_column = 1
     int_columns = (2, 3, 4, 5, 6, 7, 8)
@@ -168,6 +168,19 @@ class AdvantageDelegate(QItemDelegate):
             return editor
         else:
             return super().createEditor(parent, option, index)
+
+class WexpGainDelegate(QItemDelegate):
+    bool_column = 0
+    weapon_type_column = 1
+    int_column = 2
+
+    def createEditor(self, parent, option, index):
+        if index.column() == self.int_column:
+            editor = QSpinBox(parent)
+            editor.setRange(0, 999)
+            return editor
+        else:
+            return None
 
 # Testing
 # Run "python -m app.editor.weapon_database" from main directory

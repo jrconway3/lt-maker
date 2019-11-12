@@ -37,6 +37,12 @@ class data(object):
                 self._dict[nid] = val
                 break
 
+    def change_key(self, old_key, new_key):
+        old_value = self._dict[old_key]
+        del self._dict[old_key]
+        old_value.nid = new_key
+        self._dict[new_key] = old_value
+
     def append(self, val):
         self._list.append(val)
         self._dict[val.nid] = val
@@ -46,6 +52,11 @@ class data(object):
         if val.nid in self._dict:
             self._list.remove(val)
             del self._dict[val.nid]
+
+    def remove_key(self, key):
+        val = self._dict[key]
+        self._list.remove(val)
+        del self._dict[key]
 
     def pop(self, idx=None):
         if idx is None:

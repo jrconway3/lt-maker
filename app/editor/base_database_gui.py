@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, \
-    QListView, QAction, QMenu, QMessageBox, QSizePolicy
+    QListView, QAction, QMenu, QMessageBox, QSizePolicy, QSplitter
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtCore import QAbstractListModel
 
@@ -19,8 +19,13 @@ class DatabaseDialog(EditDialog):
         self.right_frame = right_frame(self)
         self.left_frame.set_display(self.right_frame)
 
-        self.grid.addWidget(self.left_frame, 0, 0)
-        self.grid.addWidget(self.right_frame, 0, 1)
+        self.splitter = QSplitter(self)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.addWidget(self.left_frame)
+        self.splitter.addWidget(self.right_frame)
+        self.splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
+
+        self.grid.addWidget(self.splitter, 0, 0, 1, 2)
 
     def update_list(self):
         self.left_frame.update_list()

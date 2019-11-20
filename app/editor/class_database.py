@@ -1,19 +1,19 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
-    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QTreeView, QTableView, QDoubleSpinBox
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
+    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
+    QVBoxLayout, QSizePolicy, QSpacerItem, QDoubleSpinBox
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
-from app.data.stats import StatList
 from app.data.weapons import WexpGainList
 from app.data.skills import LearnedSkillList
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox, ComboBox, QHLine, QVLine, IntDelegate, VirtualListModel
+from app.editor.custom_gui import PropertyBox, ComboBox, QHLine
 from app.editor.multi_select_combo_box import MultiSelectComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import TagDialog, StatDialog
-from app.editor.sub_list_widget import AppendListWidget, BasicListWidget
+from app.editor.sub_list_widget import AppendMultiListWidget, BasicMultiListWidget
+from app.editor.stat_widget import ClassStatWidget
 from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.icons import ItemIcon80
@@ -30,106 +30,6 @@ class ClassDatabase(DatabaseDialog):
         collection_model = ClassModel
         dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
         return dialog
-
-class ClassStatWidget(QWidget):
-    def __init__(self, klass, title, parent=None):
-        super().__init__(parent)
-        self.window = parent
-        self._klass = klass
-
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        column_titles = DB.stats.keys()
-        row_titles = ['Generic Bases', 'Generic Growths', 'Promotion Gains', 'Growth Bonuses', 'Stat Maximums']
-        if klass:
-            row_values = klass.get_stat_lists()
-        else:
-            row_values = [StatList([], DB.stats)] * 5
-
-        self.model = StatModel(column_titles, row_titles, row_values, self)
-        self.view = QTableView(self)
-        self.view.setModel(self.model)
-        delegate = IntDelegate(self.view, range(len(column_titles)))
-        self.view.setItemDelegate(delegate)
-        for col in range(len(column_titles)):
-            self.view.resizeColumnToContents(col)
-
-        layout = QGridLayout(self)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.view, 1, 0, 1, 2)
-        self.setLayout(layout)
-
-        label = QLabel(title)
-        label.setAlignment(Qt.AlignBottom)
-        layout.addWidget(label, 0, 0)
-
-        self.button = QPushButton("...")
-        self.button.setMaximumWidth(40)
-        layout.addWidget(self.button, 0, 1, alignment=Qt.AlignRight)
-
-    def set_new_klass(self, klass):
-        self._klass = klass
-        row_values = klass.get_stat_lists()
-        self.model.set_new_data(row_values)
-        for col in range(len(row_values[0])):
-            self.view.resizeColumnToContents(col)
-
-    def update_stats(self):
-        column_titles = DB.stats.keys()
-        self.model.update_column_header(column_titles)
-        self.set_new_klass(self._klass)
-
-class StatModel(VirtualListModel):
-    def __init__(self, columns, rows, data, parent=None):
-        super().__init__(parent)
-        self.window = parent
-        self._columns = self._headers = columns
-        self._rows = rows
-        self._data: list = data  # Must be list of StatLists
-
-    def set_new_data(self, stat_lists: list):
-        self._data: list = stat_lists
-        self.layoutChanged.emit()
-
-    def update_column_header(self, columns):
-        self._columns = self._headers = columns
-
-    def headerData(self, idx, orientation, role=Qt.DisplayRole):
-        if role != Qt.DisplayRole:
-            return None
-        with open('wow.txt', 'a') as fp:
-            fp.write(str(idx) + ' ' + str(orientation) + '\n')
-        if orientation == Qt.Vertical:
-            val = self._rows[idx]
-            return val
-        elif orientation == Qt.Horizontal:
-            return self._columns[idx]
-
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            row = self._data[index.row()]  # A StatList
-            key = self._columns[index.column()]
-            val = row.get(key).value
-            return val
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignRight + Qt.AlignVCenter
-
-    def setData(self, index, value, role):
-        if not index.isValid():
-            return False
-        row = self._data[index.row()]  # A StatList
-        key = self._columns[index.column()]  # A stat key
-        stat = row.get(key)
-        stat.value = value
-        self.dataChanged.emit(index, index)
-        return True
-
-    def flags(self, index):
-        basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren | Qt.ItemIsEditable
-        return basic_flags
 
 class ClassModel(CollectionModel):
     def data(self, index, role):
@@ -189,7 +89,12 @@ class ClassProperties(QWidget):
 
         self.desc_box = PropertyBox("Description", QLineEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
-        main_section.addWidget(self.desc_box, 0, 0, 1, 4)
+        main_section.addWidget(self.desc_box, 0, 0, 1, 3)
+
+        self.movement_box = PropertyBox("Movement Type", ComboBox, self)
+        self.movement_box.edit.addItems(DB.mcost.get_movement_types())
+        self.movement_box.edit.currentIndexChanged.connect(self.movement_changed)
+        main_section.addWidget(self.movement_box, 0, 3)
 
         self.tier_box = PropertyBox("Tier", QSpinBox, self)
         self.tier_box.edit.setRange(0, 5)
@@ -235,14 +140,14 @@ class ClassProperties(QWidget):
         weapon_section = QHBoxLayout()
 
         attrs = ("usable", "weapon_type", "wexp_gain")
-        self.wexp_gain_widget = BasicListWidget(WexpGainList([], DB.weapons), "Weapon Exp.", attrs, WexpGainDelegate, self)
+        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList([], DB.weapons), "Weapon Exp.", attrs, WexpGainDelegate, self)
         self.wexp_gain_widget.model.checked_columns = {0}  # Add checked column
         weapon_section.addWidget(self.wexp_gain_widget)
 
         skill_section = QHBoxLayout()
 
         attrs = ("level", "skill_nid")
-        self.class_skill_widget = AppendListWidget(LearnedSkillList(), "Class Skills", attrs, LearnedSkillDelegate, self)
+        self.class_skill_widget = AppendMultiListWidget(LearnedSkillList(), "Class Skills", attrs, LearnedSkillDelegate, self)
         skill_section.addWidget(self.class_skill_widget)
 
         exp_section = QHBoxLayout()
@@ -270,17 +175,31 @@ class ClassProperties(QWidget):
         total_section.addWidget(QHLine())
         total_section.addLayout(stat_section)
         total_section.addLayout(exp_section)
+        total_widget = QWidget()
+        total_widget.setLayout(total_section)
 
         right_section = QVBoxLayout()
         right_section.addLayout(weapon_section)
         right_section.addWidget(QHLine())
         right_section.addLayout(skill_section)
+        right_widget = QWidget()
+        right_widget.setLayout(right_section)
+
+        self.splitter = QSplitter(self)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.addWidget(total_widget)
+        self.splitter.addWidget(right_widget)
+        self.splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
 
         final_section = QHBoxLayout()
         self.setLayout(final_section)
-        final_section.addLayout(total_section)
-        final_section.addWidget(QVLine())
-        final_section.addLayout(right_section)
+        final_section.addWidget(self.splitter)
+
+        # final_section = QHBoxLayout()
+        # self.setLayout(final_section)
+        # final_section.addLayout(total_section)
+        # final_section.addWidget(QVLine())
+        # final_section.addLayout(right_section)
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -313,6 +232,9 @@ class ClassProperties(QWidget):
             self.current.promotes_from = None
         else:
             self.current.promotes_from = p
+
+    def movement_changed(self, index):
+        self.movement_group = self.movement_box.edit.currentText()
 
     def max_level_changed(self, val):
         self.current.max_level = val
@@ -352,9 +274,10 @@ class ClassProperties(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.short_name_box.edit.setText(current.short_name)
         self.long_name_box.edit.setText(current.long_name)
-        self.desc_box.edit.setText(current.desc)
+        self.desc_changedbox.edit.setText(current.desc)
         self.tier_box.edit.setValue(current.tier)
         self.max_level_box.edit.setValue(current.max_level)
+        self.movement_box.edit.setValue(current.movement_group)
         if current.promotes_from:
             self.promotes_from_box.edit.setValue(current.promotes_from)
         else:
@@ -364,10 +287,13 @@ class ClassProperties(QWidget):
         self.tag_box.edit.ResetSelection()
         self.tag_box.edit.setCurrentTexts(current.tags)
 
-        self.class_stat_widget.set_new_klass(current)
+        self.class_stat_widget.set_new_obj(current)
 
         self.exp_mult_box.edit.setValue(self.current.exp_mult)
         self.opp_exp_mult_box.edit.setValue(self.current.opponent_exp_mult)
+
+        self.class_skill_widget.set_current(self.current.skills)
+        self.wexp_gain_widget.set_current(self.current.wexp_gain)
 
 # Testing
 # Run "python -m app.editor.class_database" from main directory

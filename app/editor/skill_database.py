@@ -15,7 +15,7 @@ class LearnedSkillDelegate(QItemDelegate):
             editor = ComboBox(parent)
             editor.addItem("None")
             # for status_effect in DB.status_effects:
-                # editor.addItem(status_effect.nid)
+                # editor.addItem((status_effect.icon, status_effect.nid))
             return editor
         else:
             return super().createEditor(parent, option, index)

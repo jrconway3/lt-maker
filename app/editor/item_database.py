@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
-    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, \
+    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QItemDelegate, \
     QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
@@ -36,13 +36,16 @@ class ItemModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             item = self._data[index.row()]
-            x, y = item.icon_index
-            pixmap = QPixmap(item.icon_fn).copy(x*16, y*16, 16, 16)
-            if pixmap.width() > 0 and pixmap.height() > 0:
-                pixmap = pixmap.scaled(32, 32)
-                return QIcon(pixmap)
-            else:
-                return None
+            return get_item_icon(item, 32)
+        return None
+
+def get_item_icon(item, scale=16):
+    x, y = item.icon_index
+    pixmap = QPixmap(item.icon_fn).copy(x*16, y*16, 16, 16)
+    if pixmap.width() > 0 and pixmap.height() > 0:
+        pixmap = pixmap.scaled(scale, scale)
+        return QIcon(pixmap)
+    else:
         return None
 
 class ItemProperties(QWidget):
@@ -231,6 +234,13 @@ class ItemProperties(QWidget):
                 self.add_component(c)
         else:
             pass
+
+class ItemDelegate(QItemDelegate):
+    def createEditor(self, parent, option, index):
+        editor = ComboBox(parent)
+        for item in DB.items:
+            editor.addItem((get_item_icon(item, 16), item.item.nid))
+        return editor
 
 # Testing
 # Run "python -m app.editor.item_database" from main directory

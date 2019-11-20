@@ -1,7 +1,8 @@
 import os
 
 from app.data import data
-from app.data import stats, equations, weapons, factions, terrain, mcost_grid, minimap, items, klass 
+from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
+    minimap, items, klass, units
 
 class Database(object):
     def __init__(self):
@@ -17,6 +18,7 @@ class Database(object):
         self.items = items.ItemCatalog()
         self.tags = []
         self.classes = klass.ClassCatalog()
+        self.units = units.UnitCatalog()
 
         self.init_load()
 
@@ -31,6 +33,7 @@ class Database(object):
         self.items.import_xml('./app/default_data/default_items.xml')
         self.tags = ['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon']
         self.classes.import_xml('./app/default_data/default_classes.xml', self.stats, self.weapons, self.weapon_ranks)
+        self.units.import_xml('./app/default_data/default_units.xml', self.stats, self.weapons, self.weapon_ranks, self.items)
 
     def get_platform_types(self):
         home = './sprites/platforms/'
@@ -50,6 +53,7 @@ class Database(object):
         self.items.restore(data['items'])
         self.tags = data['tags']
         self.classes.restore(data['classes'])
+        self.units.restore(data['units'])
 
         self.levels.restore(data['levels'])
 
@@ -64,6 +68,7 @@ class Database(object):
                    'items': self.items.serialize(),
                    'tags': self.tags,  # Just a list
                    'classes': self.classes.serialize(),
+                   'units': self.units.serialize(),
                    'levels': self.levels.serialize(),
                    }
         return to_save
@@ -87,7 +92,7 @@ class Database(object):
 
     def create_new_class(self, nid, name):
         num_stats = len(self.stats)
-        bases = [10] + [0] * (num_stats - 1)
+        bases = [10] + [0] * (num_stats - 2) + [5]
         growths = [0] * num_stats
         promotion = [0] * num_stats
         max_stats = [30] * num_stats
@@ -95,6 +100,14 @@ class Database(object):
         new_class = klass.Klass(nid, name, name, '', 1, 0, None, [], [], 20, 
                                 bases, growths, promotion, max_stats, [], wexp_gain)
         return new_class
+
+    def create_new_unit(self, nid, name):
+        num_stats = len(self.stats)
+        bases = [10] + [0] * (num_stats - 2) + [5]
+        growths = [0] * num_stats
+        wexp_gain = [0] * len(self.weapon_ranks)
+        new_unit = units.Unit(nid, name, '', 0, 1, 'Citizen', [], bases, growths, [], [], wexp_gain)
+        return new_unit
 
 DB = Database()
 

@@ -9,8 +9,7 @@
         <wexp_gain>0,0,0,0,0,0,0,0</wexp_gain>
         <promotes_from></promotes_from>
         <turns_into></turns_into>
-        <!-- Light Foot,  Armors, Heavy Cav, Light Cav, Regular, Mages -->
-        <movement_group>0</movement_group>
+        <movement_group>Light Foot</movement_group>
         <tags></tags>
         <skills></skills>
         <!-- HP, Str, Mag, Skl, Spd, Lck, Def, Res, Con -->
@@ -31,8 +30,7 @@
         <wexp_gain>D,0,0,0,0,0,0,0</wexp_gain>
         <promotes_from></promotes_from>
         <turns_into>Swordmaster,Assassin</turns_into>
-        <!-- Light Foot, Armors, Heavy Cav, Light Cav, Regular, Mages -->
-        <movement_group>0</movement_group>
+        <movement_group>Light Foot</movement_group>
         <tags>Sword</tags>
         <skills></skills>
         <!-- HP, Str, Mag, Skl, Spd, Lck, Def, Res, Con -->

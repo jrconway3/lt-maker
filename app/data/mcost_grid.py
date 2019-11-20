@@ -80,6 +80,9 @@ class McostGrid(object):
     def get_terrain_types(self):
         return self.row_headers
 
+    def get_movement_types(self):
+        return self.column_headers
+
     def serialize(self):
         return (self.grid, self.row_headers, self.column_headers)
 

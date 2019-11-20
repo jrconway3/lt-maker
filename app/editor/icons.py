@@ -158,3 +158,43 @@ class ItemIcon32(ItemIcon16):
 class ItemIcon80(ItemIcon16):
     width, height = 80, 72
     child_icon = PushableIcon80
+
+class UnitPortrait(QPushButton):
+    width, height = 128, 112
+
+    def __init__(self, fn, x, y, parent):
+        super().__init__(parent)
+        self.window = parent
+        self._fn = fn
+
+        self.setMinimumHeight(112)
+        self.setMaximumHeight(112)
+        self.setMinimumWidth(128)
+        self.setMaximumWidth(128)
+        self.resize(128, 112)
+        self.setStyleSheet("QPushButton {qproperty-iconWidth: 128px; qproperty-iconHeight: 112px}")
+        self.change_icon_source(fn)
+        self.pressed.connect(self.onIconSourcePicker)
+
+    def render(self):
+        if self._fn:
+            big_pic = QPixmap(self._fn)
+            if big_pic.width() > 0 and big_pic.height() > 0:
+                pic = big_pic.copy(0, 0, self.width, self.height)
+                pic = QIcon(pic)
+                self.setIcon(pic)
+        else:
+            self.setIcon(QIcon())
+
+    def change_icon_source(self, fn):
+        if fn != self._fn:
+            self._fn = fn
+            self.sourceChanged.emit(fn)
+        self.render()
+
+    def onIconSourcePicker(self):
+        starting_path = QDir.currentPath()
+        fn, ok = QFileDialog.getOpenFileName(self, "Choose Unit's Portrait", starting_path,
+                                             "PNG Files (*.png);;All Files(*)")
+        if ok:
+            self.change_icon_source(fn)

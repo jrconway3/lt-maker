@@ -61,7 +61,7 @@ class ClassStatWidget(QWidget):
 
 class UnitStatWidget(ClassStatWidget):
     def __init__(self, obj, title, parent=None):
-        super().__init__(parent)
+        QWidget.__init__(self, parent)
         self.window = parent
         self._unit = obj
 
@@ -94,8 +94,6 @@ class StatModel(VirtualListModel):
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
             return None
-        with open('wow.txt', 'a') as fp:
-            fp.write(str(idx) + ' ' + str(orientation) + '\n')
         if orientation == Qt.Vertical:
             val = self._rows[idx]
             return val

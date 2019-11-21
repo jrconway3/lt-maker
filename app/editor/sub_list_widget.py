@@ -6,7 +6,7 @@ from app.editor.custom_gui import SingleListModel, MultiAttrListModel, RightClic
 class BasicSingleListWidget(QWidget):
     def __init__(self, data, title, dlgate, parent=None):
         super().__init__(parent)
-        self.initiate(self, data, parent)
+        self.initiate(data, parent)
 
         self.model = SingleListModel(self.current, title, self)
         self.view = QTreeView(self)
@@ -15,14 +15,14 @@ class BasicSingleListWidget(QWidget):
         self.view.setItemDelegate(delegate)
         self.view.resizeColumnToContents(0)
 
-        self.placement(data, title, dlgate, parent)
+        self.placement(data, title)
 
     def initiate(self, data, parent):
         self.window = parent
         self.current = data
         self._actions = []
 
-    def placement(self, data, title, dlgate, parent, model, view):
+    def placement(self, data, title):
         self.layout = QGridLayout(self)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -39,8 +39,8 @@ class BasicSingleListWidget(QWidget):
 
 class BasicMultiListWidget(BasicSingleListWidget):
     def __init__(self, data, title, attrs, dlgate, parent=None):
-        super().__init__(parent)
-        self.initiate(self, data, parent)
+        QWidget.__init__(self, parent)
+        self.initiate(data, parent)
 
         self.model = MultiAttrListModel(self.current, attrs, self)
         self.view = QTreeView(self)
@@ -50,12 +50,12 @@ class BasicMultiListWidget(BasicSingleListWidget):
         for col in range(len(attrs)):
             self.view.resizeColumnToContents(col)
 
-        self.placement(data, title, dlgate, parent)
+        self.placement(data, title)
 
 class AppendMultiListWidget(BasicSingleListWidget):
     def __init__(self, data, title, attrs, dlgate, parent=None):
-        super().__init__(parent)
-        self.initiate(self, data, parent)
+        QWidget.__init__(self, parent)
+        self.initiate(data, parent)
 
         self.model = MultiAttrListModel(self.current, attrs, self)
         self.view = RightClickTreeView(self)
@@ -65,7 +65,7 @@ class AppendMultiListWidget(BasicSingleListWidget):
         for col in range(len(attrs)):
             self.view.resizeColumnToContents(col)
 
-        self.placement(data, title, dlgate, parent)
+        self.placement(data, title)
 
         add_button = QPushButton("+")
         add_button.setMaximumWidth(30)

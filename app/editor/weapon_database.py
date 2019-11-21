@@ -10,7 +10,7 @@ from app.data.weapons import AdvantageList
 from app.editor.custom_gui import ComboBox, PropertyBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import RankDialog
-from app.editor.sub_list_widget import AppendListWidget
+from app.editor.sub_list_widget import AppendMultiListWidget
 from app.editor.icons import ItemIcon16
 from app import utilities
 
@@ -93,8 +93,8 @@ class WeaponProperties(QWidget):
         main_section.addWidget(self.rank_button)
 
         attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attackspeed')
-        self.advantage = AppendListWidget(AdvantageList(), "Advantage versus", attrs, AdvantageDelegate, self)
-        self.disadvantage = AppendListWidget(AdvantageList(), "Disadvantage versus", attrs, AdvantageDelegate, self)
+        self.advantage = AppendMultiListWidget(AdvantageList(), "Advantage versus", attrs, AdvantageDelegate, self)
+        self.disadvantage = AppendMultiListWidget(AdvantageList(), "Disadvantage versus", attrs, AdvantageDelegate, self)
 
         total_section = QVBoxLayout()
         self.setLayout(total_section)

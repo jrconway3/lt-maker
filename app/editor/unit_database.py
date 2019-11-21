@@ -33,13 +33,19 @@ class UnitDatabase(DatabaseDialog):
         return dialog
 
 class WexpModel(VirtualListModel):
-    def __init__(self, columns, rows, data, parent=None):
+    def __init__(self, columns, data, parent=None):
         super().__init__(parent)
         self.window = parent
         self._columns = self._headers = columns
         self._data: WexpGainList = data
 
-    def set_new_datA(self, wexp_gain_list: WexpGainList):
+    def rowCount(self, parent=None):
+        return 1
+
+    def columnCount(self, parent=None):
+        return len(self._headers)
+
+    def set_new_data(self, wexp_gain_list: WexpGainList):
         self._data: WexpGainList = wexp_gain_list
         self.layoutChanged.emit()
 
@@ -77,16 +83,16 @@ class WexpModel(VirtualListModel):
 
 class HorizSingleListWidget(BasicSingleListWidget):
     def __init__(self, data, title, dlgate, parent=None):
-        super().__init__(parent)
-        self.initiate(self, data, parent)
+        QWidget.__init__(self, parent)
+        self.initiate(data, parent)
 
-        self.model = WexpModel(self.current, title, self)
+        self.model = WexpModel(DB.weapons.keys(), data, self)
         self.view = QTableView(self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)
         self.view.setItemDelegate(delegate)
 
-        self.placement(data, title, dlgate, parent)
+        self.placement(data, title)
 
 class UnitModel(CollectionModel):
     def data(self, index, role):
@@ -99,7 +105,7 @@ class UnitModel(CollectionModel):
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
             # Get chibi image
-            pixmap = QPixmap(unit.icon_fn).copy(96, 16, 32, 32)
+            pixmap = QPixmap(unit.portrait_fn).copy(96, 16, 32, 32)
             if pixmap.width() > 0 and pixmap.height > 0:
                 return QIcon(pixmap)
             else:
@@ -119,6 +125,8 @@ class GenderGroup(QWidget):
 
         layout = QHBoxLayout()
         self.setLayout(layout)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.male)
         layout.addWidget(self.female)
 
@@ -210,7 +218,7 @@ class UnitProperties(QWidget):
 
         weapon_section = QHBoxLayout()
         attrs = ("weapon_type", "wexp_gain")
-        self.wexp_gain_widget = HorizSingleListWidget(WexpGainList([], DB.weapons), "Starting Weapon Exp.", attrs, WexpGainDelegate, self)
+        self.wexp_gain_widget = HorizSingleListWidget(WexpGainList([], DB.weapons), "Starting Weapon Exp.", WexpGainDelegate, self)
         weapon_section.addWidget(self.wexp_gain_widget)
 
         item_section = QHBoxLayout()

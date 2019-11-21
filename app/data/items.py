@@ -119,6 +119,8 @@ class ItemCatalog(data):
 
     def get_instance(self, nid):
         item = self._dict.get(nid)
+        if not item:
+            return None
         new_item = Item(item.nid, item.name, item.desc, item.min_range, item.max_range,
                         item.value, item.icon_fn, item.icon_index, item.components)
         return new_item

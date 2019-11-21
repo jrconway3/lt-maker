@@ -162,7 +162,7 @@ class ItemIcon80(ItemIcon16):
 class UnitPortrait(QPushButton):
     width, height = 128, 112
 
-    def __init__(self, fn, x, y, parent):
+    def __init__(self, fn, parent):
         super().__init__(parent)
         self.window = parent
         self._fn = fn
@@ -172,7 +172,7 @@ class UnitPortrait(QPushButton):
         self.setMinimumWidth(128)
         self.setMaximumWidth(128)
         self.resize(128, 112)
-        self.setStyleSheet("QPushButton {qproperty-iconWidth: 128px; qproperty-iconHeight: 112px}")
+        self.setStyleSheet("QPushButton {qproperty-iconSize: 128px 112px;}")
         self.change_icon_source(fn)
         self.pressed.connect(self.onIconSourcePicker)
 

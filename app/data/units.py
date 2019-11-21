@@ -43,18 +43,21 @@ class UnitCatalog(data):
     def import_xml(self, xml_fn, stat_types, weapon_types, weapon_ranks, item_catalog):
         unit_data = ET.parse(xml_fn)
         for unit in unit_data.getroot().findall('unit'):
-            nid = unit.get('id')
-            name = unit.find('name').text
+            nid = unit.find('id').text
+            name = unit.get('name')
             desc = unit.find('desc').text
             gender = int(unit.find('gender').text)
             level = int(unit.find('level').text)
             klass = unit.find('class').text
-            tags = klass.find('tags').text.split(',') if klass.find('tags').text is not None else []
+            if unit.find('tags').text is not None:
+                tags = unit.find('tags').text.split(',')
+            else:
+                tags = []
 
             bases = stats.StatList(utilities.intify(unit.find('bases').text), stat_types)
             growths = stats.StatList(utilities.intify(unit.find('growths').text), stat_types)
 
-            skills = utilities.skill_parser(klass.find('skills').text)
+            skills = utilities.skill_parser(unit.find('skills').text)
             learned_skills = LearnedSkillList()
             for skill in skills:
                 learned_skills.append(LearnedSkill(skill[0], skill[1]))
@@ -65,7 +68,8 @@ class UnitCatalog(data):
                     wexp_gain[index] = weapon_ranks[wexp].requirement
             wexp_gain = weapons.WexpGainList(wexp_gain, weapon_types)
 
-            items = [item_catalog.get_instance(i) for i in unit.find('items').text.split(',')]
+            items = [item_catalog.get_instance(i) for i in unit.find('inventory').text.split(',')]
+            items = [i for i in items if i]
 
             new_unit = Unit(nid, name, desc, gender, level, klass, tags,
                             bases, growths, items, skills, wexp_gain)

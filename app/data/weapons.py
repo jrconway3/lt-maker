@@ -94,7 +94,8 @@ class WexpGainList(data):
         vals = []
         for i in range(len(weapon_types)):
             if i < len(data):
-                vals.append(WexpGain(bool(data[i]), weapon_types[i].nid, data[i]))
+                d = int(data[i])
+                vals.append(WexpGain(bool(d), weapon_types[i].nid, d))
             else:
                 vals.append(WexpGain(False, weapon_types[i].nid, 0))
         super().__init__(vals)

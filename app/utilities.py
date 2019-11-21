@@ -27,7 +27,7 @@ def intify(s: str) -> list:
 def skill_parser(s: str) -> list:
     if s is not None:
         each_skill = s.split(';')
-        split_line = [tuple([int(_) for _ in skill.split(',')]) for skill in each_skill]
+        split_line = [(int(s_l[0]), s_l[1]) for s_l in each_skill]
         return split_line
     else:
         return []

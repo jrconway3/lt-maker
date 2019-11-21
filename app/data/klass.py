@@ -76,8 +76,9 @@ class ClassCatalog(data):
 
             wexp_gain = klass.find('wexp_gain').text.split(',')
             for index, wexp in enumerate(wexp_gain[:]):
-                if wexp in weapon_ranks:
-                    wexp_gain[index] = weapon_ranks[wexp].requirement
+                if wexp in weapon_ranks.keys():
+                    wexp_gain[index] = weapon_ranks.get(wexp).requirement
+            wexp_gain = [int(i) for i in wexp_gain]
             wexp_gain = weapons.WexpGainList(wexp_gain, weapon_types)
 
             new_klass = Klass(nid, short_name, long_name, desc, tier, movement_group, 

@@ -1,13 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
-    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QItemDelegate, \
-    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox
+    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, \
+    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox, QStyledItemDelegate
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.editor.custom_gui import PropertyBox, QHLine, ComboBox
+from app.editor.custom_gui import PropertyBox, QHLine, ComboBox, RightClickListView, SingleListModel
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16
@@ -235,12 +235,103 @@ class ItemProperties(QWidget):
         else:
             pass
 
-class ItemDelegate(QItemDelegate):
+class ItemList(QListWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.window = parent
+        self.index_list = []
+        self.combo_box_list = []
+
+    def add_item(self, item):
+        new_box = QListWidgetItem()
+        combo_box = ComboBox(self)
+        for i in DB.items:
+            combo_box.addItem(get_item_icon(i, 16), i.nid)
+        combo_box.setValue(item.nid)
+        self.addItem(new_box)
+        self.setItemWidget(new_box, combo_box)
+        self.index_list.append(item.nid)
+        self.combo_box_list.append(combo_box)
+        return item
+
+    def remove_item(self, item):
+        if item.nid in self.index_list:
+            idx = self.index_list.index(item.nid)
+            self.index_list.remove(item.nid)
+            self.combo_box_list.pop(idx)
+            return self.takeItem(idx)
+        return None
+
+    def clear(self):
+        super().clear()
+        self.index_list.clear()
+        self.combo_box_list.clear()
+
+class ItemListDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         editor = ComboBox(parent)
         for item in DB.items:
-            editor.addItem((get_item_icon(item, 16), item.item.nid))
+            editor.addItem(get_item_icon(item, 16), item.nid)
         return editor
+
+    def setEditorData(self, editor, index):
+        currentText = index.data(Qt.EditRole)
+        editor.setValue(currentText)
+        editor.showPopup()
+
+    def setModelData(self, editor, model, index):
+        current_nid = editor.currentText()
+        current_item = DB.items.get(current_nid)
+        model.setData(index, current_item, Qt.EditRole)
+
+class ItemListWidget(QWidget):
+    def __init__(self, title, parent=None):
+        super().__init__(parent)
+        self.window = parent
+        self._actions = []
+        self.model = ItemListModel([], 'Item', self)
+        self.view = RightClickListView(self)
+        self.view.setModel(self.model)
+        delegate = ItemListDelegate(self.view)
+        self.view.setItemDelegate(delegate)
+
+        self.layout = QGridLayout(self)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.view, 1, 0, 1, 2)
+        self.setLayout(self.layout)
+
+        label = QLabel(title)
+        label.setAlignment(Qt.AlignBottom)
+        self.layout.addWidget(label, 0, 0)
+
+        add_button = QPushButton("+")
+        add_button.setMaximumWidth(30)
+        add_button.clicked.connect(self.model.add_new_row)
+        self.layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)
+
+    def set_current(self, items):
+        self.model.set_new_data(items)
+
+class ItemListModel(SingleListModel):
+    def add_new_row(self):
+        new_row = DB.items[0]
+        self.window._actions.append(('Append', new_row))
+        self._data.append(new_row)
+        self.layoutChanged.emit()
+        last_index = self.index(self.rowCount() - 1, 0)
+        self.window.view.setCurrentIndex(last_index)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            item = self._data[index.row()]
+            return item.nid
+        elif role == Qt.DecorationRole:
+            item = self._data[index.row()]
+            return get_item_icon(item, 16)
+        return None
 
 # Testing
 # Run "python -m app.editor.item_database" from main directory

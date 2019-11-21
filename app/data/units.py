@@ -64,8 +64,9 @@ class UnitCatalog(data):
 
             wexp_gain = unit.find('wexp').text.split(',')
             for index, wexp in enumerate(wexp_gain[:]):
-                if wexp in weapon_ranks:
-                    wexp_gain[index] = weapon_ranks[wexp].requirement
+                if wexp in weapon_ranks.keys():
+                    wexp_gain[index] = weapon_ranks.get(wexp).requirement
+            wexp_gain = [int(i) for i in wexp_gain]
             wexp_gain = weapons.WexpGainList(wexp_gain, weapon_types)
 
             items = [item_catalog.get_instance(i) for i in unit.find('inventory').text.split(',')]

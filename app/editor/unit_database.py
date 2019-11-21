@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QTableView, QRadioButton
+    QVBoxLayout, QSizePolicy, QSpacerItem, QTableView, QRadioButton, QStyledItemDelegate
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 
@@ -14,9 +14,8 @@ from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import TagDialog, StatDialog
 from app.editor.sub_list_widget import BasicSingleListWidget, AppendMultiListWidget
 from app.editor.stat_widget import UnitStatWidget
-from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
-from app.editor.item_database import ItemDelegate
+from app.editor.item_database import ItemListWidget
 from app.editor.icons import UnitPortrait
 from app import utilities
 
@@ -53,12 +52,15 @@ class WexpModel(VirtualListModel):
         self._columns = self._headers = columns
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
-        if role != Qt.DisplayRole:
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            # return self._columns[idx].nid
             return None
-        if orientation == Qt.Vertical:
-            return None
-        elif orientation == Qt.Horizontal:
-            return self._columns[idx]
+        elif role == Qt.DecorationRole and orientation == Qt.Horizontal:
+            weapon = self._columns[idx]
+            x, y = weapon.icon_index
+            pixmap = QPixmap(weapon.icon_fn).copy(x*16, y*16, 16, 16)
+            return QIcon(pixmap)
+        return None
 
     def data(self, index, role):
         if not index.isValid():
@@ -81,16 +83,18 @@ class WexpModel(VirtualListModel):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren | Qt.ItemIsEditable
         return basic_flags
 
-class HorizSingleListWidget(BasicSingleListWidget):
+class HorizWeaponListWidget(BasicSingleListWidget):
     def __init__(self, data, title, dlgate, parent=None):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
 
-        self.model = WexpModel(DB.weapons.keys(), data, self)
+        self.model = WexpModel(DB.weapons, data, self)
         self.view = QTableView(self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)
         self.view.setItemDelegate(delegate)
+        for col in range(len(DB.weapons)):
+            self.view.resizeColumnToContents(col)
 
         self.placement(data, title)
 
@@ -189,7 +193,7 @@ class UnitProperties(QWidget):
         self.class_box = PropertyBox("Class", ComboBox, self)
         self.class_box.edit.addItems(DB.classes.keys())
         self.class_box.edit.currentIndexChanged.connect(self.class_changed)
-        main_section.addWidget(self.class_box, 1, 1, 1, 2)
+        main_section.addWidget(self.class_box, 1, 1)
 
         tag_section = QHBoxLayout()
 
@@ -203,7 +207,7 @@ class UnitProperties(QWidget):
         self.tag_box.button.setMaximumWidth(40)
         self.tag_box.button.clicked.connect(self.access_tags)
 
-        main_section.addLayout(tag_section, 1, 3)
+        main_section.addLayout(tag_section, 1, 3, 1, 2)
 
         stat_section = QGridLayout()
 
@@ -218,11 +222,11 @@ class UnitProperties(QWidget):
 
         weapon_section = QHBoxLayout()
         attrs = ("weapon_type", "wexp_gain")
-        self.wexp_gain_widget = HorizSingleListWidget(WexpGainList([], DB.weapons), "Starting Weapon Exp.", WexpGainDelegate, self)
+        self.wexp_gain_widget = HorizWeaponListWidget(WexpGainList([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
         weapon_section.addWidget(self.wexp_gain_widget)
 
         item_section = QHBoxLayout()
-        self.item_widget = BasicSingleListWidget([], "Starting Items", ItemDelegate, self)
+        self.item_widget = ItemListWidget("Starting Items", self)
         item_section.addWidget(self.item_widget)
 
         total_section = QVBoxLayout()
@@ -281,6 +285,7 @@ class UnitProperties(QWidget):
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()
+        self.level_box.edit.setMaximum(DB.classes.get(self.current.klass).max_level)
 
     def tags_changed(self):
         self.current.tags = self.tag_box.edit.currentText()

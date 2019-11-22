@@ -2,7 +2,7 @@ import os
 
 from app.data import data
 from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
-    minimap, items, klass, units
+    minimap, items, klass, units, ai
 
 class Database(object):
     def __init__(self):
@@ -19,6 +19,7 @@ class Database(object):
         self.tags = []
         self.classes = klass.ClassCatalog()
         self.units = units.UnitCatalog()
+        self.ai = ai.AICatalog()
 
         self.init_load()
 
@@ -34,6 +35,7 @@ class Database(object):
         self.tags = ['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon']
         self.classes.import_xml('./app/default_data/default_classes.xml', self.stats, self.weapons, self.weapon_ranks)
         self.units.import_xml('./app/default_data/default_units.xml', self.stats, self.weapons, self.weapon_ranks, self.items)
+        self.ai.import_data('./app/default_data/default_ai.txt')
 
     def get_platform_types(self):
         home = './sprites/platforms/'
@@ -54,6 +56,7 @@ class Database(object):
         self.tags = data['tags']
         self.classes.restore(data['classes'])
         self.units.restore(data['units'])
+        self.ai.restore(data['ai'])
 
         self.levels.restore(data['levels'])
 
@@ -69,6 +72,7 @@ class Database(object):
                    'tags': self.tags,  # Just a list
                    'classes': self.classes.serialize(),
                    'units': self.units.serialize(),
+                   'ai': self.ai.serialize(),
                    'levels': self.levels.serialize(),
                    }
         return to_save

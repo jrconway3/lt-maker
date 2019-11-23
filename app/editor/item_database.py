@@ -142,7 +142,7 @@ class ItemProperties(QWidget):
         # Check validity of nid!
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
-            QMessageBox.warning(self.window, 'Warning', 'Weapon Type ID %s already in use' % self.current.nid)
+            QMessageBox.warning(self.window, 'Warning', 'Item Type ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()

@@ -113,6 +113,10 @@ class Database(object):
         new_unit = units.Unit(nid, name, '', 0, 1, 'Citizen', [], bases, growths, [], [], wexp_gain)
         return new_unit
 
+    def create_new_ai(self, nid, name=None):
+        new_ai = ai.AIPreset(nid, 20)
+        return new_ai
+
 DB = Database()
 
 # Testing

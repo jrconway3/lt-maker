@@ -18,14 +18,17 @@
 #    - Any other integer: Look up to integer range away
 # Priority:
 #    Higher priority units move first
-# AI NID - Actions - Targets1 - Targets2 - View_Range - Priority
-None                    0 0 0 0 20
-Attack                  3 2 0 -2 20
-Pursue                  3 2 0 -3 20
-Defend                  3 2 0 -1 20
-Guard                   3 2 0 0 20
-Unlock                  21 8 2 -3 30
-PursueVillage           19 8 2 -3 20
-FollowBoss              3 18 0 -2 15
-Berserk                 3 3 0 -3 0
-AttackTile              11 6 0 -2 20
+# AI NID - Priority - Action,Target,View_Range - Action,Target,View_Range - ...
+None                    20 None,None,0
+Attack                  20 Attack,Enemy,-3
+Pursue                  20 Attack,Enemy,-4
+Defend                  20 Attack,Enemy,-2 Move_to,Position:Starting,-4
+Guard                   20 Attack,Enemy,-1
+AttackTile              20 Attack,Enemy,-2 Attack,Tile,-4                  
+PursueVillage           20 Attack,Enemy,-2 Interact,Event:Destructible,-4
+FollowBoss              15 Attack,Enemy,-2 Move_to,Unit:Tag:Boss,-4
+FollowWagon             15 Attack,Enemy,-2 Move_to,Unit:Class:Wagon,-4
+Berserk                 10 Attack,Unit,-4
+Heal                    15 Attack,Ally,-3 Move_away_from,Enemy,-3
+Thief                   12 Steal,Enemy,-2 Interact,Event:Locked,-4 Interact,Event:Hidden_Escape,-4
+Seize                   20 Interact,Event:Enemy_Seize,-2 Attack,Enemy,-2 Interact,Event:Enemy_Seize,-4

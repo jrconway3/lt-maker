@@ -1,13 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, \
     QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox, QStyledItemDelegate
-from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.editor.custom_gui import PropertyBox, QHLine, ComboBox, RightClickListView, SingleListModel
+from app.editor.custom_gui import get_icon, PropertyBox, QHLine, ComboBox, RightClickListView, SingleListModel
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16
@@ -36,16 +35,7 @@ class ItemModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             item = self._data[index.row()]
-            return get_item_icon(item, 32)
-        return None
-
-def get_item_icon(item, scale=16):
-    x, y = item.icon_index
-    pixmap = QPixmap(item.icon_fn).copy(x*16, y*16, 16, 16)
-    if pixmap.width() > 0 and pixmap.height() > 0:
-        pixmap = pixmap.scaled(scale, scale)
-        return QIcon(pixmap)
-    else:
+            return get_icon(item, scale_to=2)
         return None
 
 class ItemProperties(QWidget):
@@ -246,7 +236,7 @@ class ItemList(QListWidget):
         new_box = QListWidgetItem()
         combo_box = ComboBox(self)
         for i in DB.items:
-            combo_box.addItem(get_item_icon(i, 16), i.nid)
+            combo_box.addItem(get_icon(i), i.nid)
         combo_box.setValue(item.nid)
         self.addItem(new_box)
         self.setItemWidget(new_box, combo_box)
@@ -271,7 +261,7 @@ class ItemListDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         editor = ComboBox(parent)
         for item in DB.items:
-            editor.addItem(get_item_icon(item, 16), item.nid)
+            editor.addItem(get_icon(item), item.nid)
         return editor
 
     def setEditorData(self, editor, index):
@@ -330,7 +320,7 @@ class ItemListModel(SingleListModel):
             return item.nid
         elif role == Qt.DecorationRole:
             item = self._data[index.row()]
-            return get_item_icon(item, 16)
+            return get_icon(item)
         return None
 
 # Testing

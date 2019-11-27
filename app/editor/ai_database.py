@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, \
-    QMessageBox, QSpinBox, QHBoxLayout, QGroupBox, \
-    QVBoxLayout, QComboBox
+    QMessageBox, QSpinBox, QHBoxLayout, QGroupBox, QRadioButton, \
+    QVBoxLayout, QComboBox, QStackedWidget
 from PyQt5.QtCore import Qt
 
 import app.data.ai as ai
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox, ComboBox
+from app.editor.custom_gui import get_icon, PropertyBox, ComboBox
 from app.editor.base_database_gui import DatabaseDialog, CollectionModel
 from app import utilities
 
@@ -32,6 +32,147 @@ class AIModel(CollectionModel):
             return text
         return None
 
+class NullSpecification(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.window = parent
+
+        self.layout = QHBoxLayout()
+
+        self.setLayout(self.layout)
+
+    def set_current(self, target_spec):
+        pass
+
+class UnitSpecification(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.window = parent
+
+        self.layout = QHBoxLayout()
+        self.box1 = ComboBox(self)
+        for spec in ai.unit_spec:
+            self.box1.addItem(spec)
+        self.box1.currentIndexChanged.connect(self.unit_spec_changed)
+
+        self.box2 = ComboBox(self)
+        self.box2.currentIndexChanged.connect(self.sub_spec_changed)
+
+        self.layout.addWidget(self.box1)
+        self.layout.addWidget(self.box2)
+
+        self.setLayout(self.layout)
+
+    def unit_spec_changed(self, index):
+        unit_spec = self.box1.currentText()
+        self.box2.setEnabled(True)
+        self.box2.clear()
+        if unit_spec == "Class":
+            for klass in DB.classes:
+                icon = get_icon(klass, (80, 72))
+                if icon:
+                    self.box2.addItem(icon, klass.nid)
+                else:
+                    self.box2.addItem(klass.nid)
+        elif unit_spec == "Tag":
+            self.box2.addItems(DB.tags)
+        elif unit_spec == "ID":
+            self.box2.addItems(DB.units.keys())
+        elif unit_spec == "Name":
+            self.box2.addItems([unit.name for unit in DB.units])
+        elif unit_spec == "Faction":
+            for faction in DB.factions:
+                icon = get_icon(faction, (32, 32))
+                if icon:
+                    self.box2.addItem(icon, faction.nid)
+                else:
+                    self.box2.addItem(icon, faction.nid)
+        else:
+            self.box2.setEnabled(False)
+
+    def sub_spec_changed(self, index):
+        unit_spec = self.box1.currentText()
+        sub_spec = self.box2.currentText()
+        self.window.current.target_spec = (unit_spec, sub_spec)
+
+    def set_current(self, target_spec):
+        self.box1.setValue(target_spec[0])
+        self.box2.setValue(target_spec[1])
+
+class EventSpecification(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.window = parent
+
+        self.layout = QHBoxLayout()
+        self.box = ComboBox(self)
+        for spec in ai.event_types:
+            self.box.addItem(spec)
+        self.box.currentIndexChanged.connect(self.spec_changed)
+
+        self.layout.addWidget(self.box)
+        self.setLayout(self.layout)
+
+    def spec_changed(self, index):
+        event = self.box.currentText()
+        self.window.current.target_spec = event
+
+    def set_current(self, target_spec):
+        self.box.setValue(target_spec)
+
+class PositionSpecification(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.window = parent
+
+        self.layout = QVBoxLayout()
+        self.starting = QRadioButton("Starting", self)
+        self.starting.toggled.connect(self.starting_toggled)
+        self.custom = QRadioButton("Custom", self)
+
+        bottom = QHBoxLayout()
+        bottom.addWidget(self.custom)
+        self.x_spinbox = QSpinBox()
+        self.y_spinbox = QSpinBox()
+        self.x_spinbox.setMinimumWidth(40)
+        self.y_spinbox.setMinimumWidth(40)
+        self.x_spinbox.setRange(0, 255)
+        self.y_spinbox.setRange(0, 255)
+        self.x_spinbox.setEnabled(False)
+        self.y_spinbox.setEnabled(False)
+        self.x_spinbox.valueChanged.connect(self.change_spinbox)
+        self.y_spinbox.valueChanged.connect(self.change_spinbox)
+        bottom.addWidget(self.x_spinbox)
+        bottom.addWidget(self.y_spinbox)
+
+        self.layout.addWidget(self.starting)
+        self.layout.addLayout(bottom)
+
+        self.setLayout(self.layout)
+
+    def starting_toggled(self, checked):
+        if checked:
+            self.x_spinbox.setEnabled(False)
+            self.y_spinbox.setEnabled(False)
+            self.window.current.target_spec = "Starting"
+        else:
+            self.x_spinbox.setEnabled(True)
+            self.y_spinbox.setEnabled(True)
+            x, y = self.x_spinbox.value(), self.y_spinbox.value()
+            self.window.current.target_spec = (x, y)
+
+    def change_spinbox(self, value):
+        x, y = self.x_spinbox.value(), self.y_spinbox.value()
+        self.window.current.target_spec = (x, y)
+
+    def set_current(self, target_spec):
+        if target_spec == "Starting":
+            self.starting.setChecked(True)
+        else:
+            self.starting.setChecked(False)
+            self.x_spinbox.setValue(target_spec[0])
+            self.y_spinbox.setValue(target_spec[1])
+
 class BehaviourBox(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -43,13 +184,27 @@ class BehaviourBox(QGroupBox):
 
         self.action = ComboBox(self)
         for action in ai.AI_ActionTypes:
-            self.action.addItem(action)
+            self.action.addItem(action.replace('_', ' '))
         self.action.currentIndexChanged.connect(self.action_changed)
 
         self.target = ComboBox(self)
         for target in ai.AI_TargetTypes:
             self.target.addItem(target)
         self.target.currentIndexChanged.connect(self.target_changed)
+
+        self.target_spec = QStackedWidget(self)
+        for target in ai.AI_TargetTypes:
+            if target == "None":
+                target_spec = NullSpecification(self)
+            elif target in ("Unit", "Ally", "Enemy"):
+                target_spec = UnitSpecification(self)
+            elif target == "Position":
+                target_spec = PositionSpecification(self)
+            elif target == "Tile":
+                target_spec = NullSpecification(self)
+            elif target == "Event":
+                target_spec = EventSpecification(self)
+            self.target_spec.addWidget(target_spec)
 
         self.view_range = ComboBox(self)
         self.view_range.setEditable(True)
@@ -62,6 +217,7 @@ class BehaviourBox(QGroupBox):
 
         self.layout.addWidget(self.action)
         self.layout.addWidget(self.target)
+        self.layout.addWidget(self.target_spec)
         self.layout.addWidget(QLabel(" within "))
         self.layout.addWidget(self.view_range)
         self.setLayout(self.layout)
@@ -71,7 +227,11 @@ class BehaviourBox(QGroupBox):
         self.current.action = action
 
     def target_changed(self, index):
-        target = self.target.currentText()
+        target = self.target.currentText().replace(' ', '_')
+        self.current.target = target
+        # Swap the specification
+        idx = ai.AI_TargetTypes.index(self.current.target)
+        self.target_spec.setCurrentIndex(idx)
 
     def check_view_range(self):
         cur_val = self.view_range.currentText()
@@ -82,6 +242,15 @@ class BehaviourBox(QGroupBox):
 
     def set_current(self, behaviour):
         self.current = behaviour
+        self.action.setValue(behaviour.action)
+        self.target.setValue(behaviour.target)
+        target_spec = self.target_spec.currentWidget()
+        target_spec.set_current(behaviour.target_spec)
+        if behaviour.view_range < 0:
+            correct_index = -behaviour.view_range - 1
+            self.view_range.setCurrentIndex(correct_index)
+        else:
+            self.view_range.setEditText(str(behaviour.view_range))
 
 class AIProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -107,9 +276,10 @@ class AIProperties(QWidget):
 
         main_section = QVBoxLayout()
 
-        self.behaviour1 = BehaviourBox()
-        self.behaviour2 = BehaviourBox()
-        self.behaviour3 = BehaviourBox()
+        self.behaviour1 = PropertyBox("Behaviour 1", BehaviourBox, self)
+        self.behaviour2 = PropertyBox("Behaviour 2", BehaviourBox, self)
+        self.behaviour3 = PropertyBox("Behaviour 3", BehaviourBox, self)
+        self.behaviour_boxes = [self.behaviour1, self.behaviour2, self.behaviour3]
 
         main_section.addWidget(self.behaviour1)
         main_section.addWidget(self.behaviour2)
@@ -140,12 +310,8 @@ class AIProperties(QWidget):
         self.current = current
         self.nid_box.edit.setText(current.nid)
         self.priority_box.edit.setValue(current.priority)
-        if len(current.behaviours) > 0:
-            self.behaviour1.set_current(current.behaviours[0])
-        if len(current.behaviours) > 1:
-            self.behaviour2.set_current(current.behaviours[1])
-        if len(current.behaviours) > 2:
-            self.behaviour3.set_current(current.behaviours[2])
+        for idx, behaviour in enumerate(current.behaviours):
+            self.behaviour_boxes[idx].edit.set_current(behaviour)
 
 # Testing
 # Run "python -m app.editor.ai_database" from main directory

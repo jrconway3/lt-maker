@@ -3,13 +3,14 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, \
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtCore import QAbstractListModel
 
-from app.editor.custom_gui import EditDialog
 from app import utilities
 
-class DatabaseDialog(EditDialog):
+class DatabaseTab(QWidget):
     def __init__(self, data, title, right_frame, deletion_msg, creation_func, collection_model, parent):
         super().__init__(data, parent)
         self.window = parent
+        self._data = data
+        self.saved_data = self.save()
         self.title = title
 
         self.setWindowTitle('%s Editor' % self.title)
@@ -30,10 +31,27 @@ class DatabaseDialog(EditDialog):
     def update_list(self):
         self.left_frame.update_list()
 
+    def reset(self):
+        """
+        Whenever the tab is changed, make sure to update the tab display
+        Makes sure that current is what is being displayed
+        """
+        if self.right_frame.current:
+            self.right_frame.set_current(self.right_frame.current)
+
     @classmethod
     def edit(cls, parent=None):
         dialog = cls.create(parent)
         dialog.exec_()
+
+    def save(self):
+        return self._data.serialize()
+
+    def restore(self, data):
+        self._data.restore(data)
+
+    def apply(self):
+        self.saved_data = self.save()
 
 class Collection(QWidget):
     def __init__(self, deletion_msg, creation_func, collection_model, parent):

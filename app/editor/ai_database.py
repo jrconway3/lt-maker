@@ -7,10 +7,10 @@ import app.data.ai as ai
 from app.data.database import DB
 
 from app.editor.custom_gui import get_icon, PropertyBox, ComboBox
-from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app import utilities
 
-class AIDatabase(DatabaseDialog):
+class AIDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = DB.ai

@@ -8,11 +8,11 @@ from app.data.sprites import SPRITES
 from app.data.database import DB
 
 from app.editor.custom_gui import ComboBox, PropertyBox
-from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.mcost_dialog import McostDialog
 from app import utilities
 
-class TerrainDatabase(DatabaseDialog):
+class TerrainDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = DB.terrain

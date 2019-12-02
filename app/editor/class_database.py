@@ -10,7 +10,7 @@ from app.data.database import DB
 
 from app.editor.custom_gui import PropertyBox, ComboBox, QHLine
 from app.editor.multi_select_combo_box import MultiSelectComboBox
-from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import TagDialog, StatDialog
 from app.editor.sub_list_widget import AppendMultiListWidget, BasicMultiListWidget
 from app.editor.stat_widget import ClassStatWidget
@@ -19,7 +19,7 @@ from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.icons import ItemIcon80
 from app import utilities
 
-class ClassDatabase(DatabaseDialog):
+class ClassDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = DB.classes

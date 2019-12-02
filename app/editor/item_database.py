@@ -7,13 +7,13 @@ from app.data.database import DB
 import app.data.item_components as IC
 
 from app.editor.custom_gui import get_icon, PropertyBox, QHLine, ComboBox, RightClickListView, SingleListModel
-from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16
 from app.editor import component_database
 from app import utilities
 
-class ItemDatabase(DatabaseDialog):
+class ItemDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = DB.items

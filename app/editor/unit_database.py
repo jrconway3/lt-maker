@@ -10,7 +10,7 @@ from app.data.database import DB
 
 from app.editor.custom_gui import PropertyBox, ComboBox, QHLine, VirtualListModel
 from app.editor.multi_select_combo_box import MultiSelectComboBox
-from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import TagDialog, StatDialog
 from app.editor.sub_list_widget import BasicSingleListWidget, AppendMultiListWidget
 from app.editor.stat_widget import UnitStatWidget
@@ -19,7 +19,7 @@ from app.editor.item_database import ItemListWidget
 from app.editor.icons import UnitPortrait
 from app import utilities
 
-class UnitDatabase(DatabaseDialog):
+class UnitDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = DB.units

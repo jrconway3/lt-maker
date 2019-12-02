@@ -8,13 +8,13 @@ from app.data.database import DB
 from app.data.weapons import AdvantageList
 
 from app.editor.custom_gui import ComboBox, PropertyBox
-from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import RankDialog
 from app.editor.sub_list_widget import AppendMultiListWidget
 from app.editor.icons import ItemIcon16
 from app import utilities
 
-class WeaponDatabase(DatabaseDialog):
+class WeaponDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = DB.weapons

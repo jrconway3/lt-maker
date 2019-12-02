@@ -6,11 +6,11 @@ from PyQt5.QtCore import Qt
 from app.data.database import DB
 
 from app.editor.custom_gui import PropertyBox
-from app.editor.base_database_gui import DatabaseDialog, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icons import ItemIcon32
 from app import utilities
 
-class FactionDatabase(DatabaseDialog):
+class FactionDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = DB.factions

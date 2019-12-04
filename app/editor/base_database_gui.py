@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, \
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
     QListView, QAction, QMenu, QMessageBox, QSizePolicy, QSplitter
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtCore import QAbstractListModel
@@ -7,7 +7,7 @@ from app import utilities
 
 class DatabaseTab(QWidget):
     def __init__(self, data, title, right_frame, deletion_msg, creation_func, collection_model, parent):
-        super().__init__(data, parent)
+        super().__init__(parent)
         self.window = parent
         self._data = data
         self.saved_data = self.save()
@@ -26,7 +26,10 @@ class DatabaseTab(QWidget):
         self.splitter.addWidget(self.right_frame)
         self.splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
 
-        self.grid.addWidget(self.splitter, 0, 0, 1, 2)
+        self.layout = QHBoxLayout(self)
+        self.setLayout(self.layout)
+
+        self.layout.addWidget(self.splitter)
 
     def update_list(self):
         self.left_frame.update_list()

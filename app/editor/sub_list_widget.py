@@ -61,7 +61,7 @@ class BasicMultiListWidget(BasicSingleListWidget):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
 
-        self.model = MultiAttrListModel(self.current, attrs, self)
+        self.model = MultiAttrListModel(self.current, attrs, parent=self)
         self.view = QTreeView(self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)

@@ -355,6 +355,10 @@ class MultiAttrListModel(VirtualListModel):
         self.window = parent
         self._data = data
         self._headers = headers
+        print(type(self._headers))
+        import sys
+        sys.stdout.flush()
+        assert (isinstance(self._headers, list) or isinstance(self._headers, tuple))
         self.locked = locked
         if not locked:
             self.locked = set()

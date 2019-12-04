@@ -1,92 +1,73 @@
-from PyQt5.QtWidgets import QDialog, QToolButton, QGridLayout, QAction
+from PyQt5.QtWidgets import QDialog, QGridLayout, QTabWidget, QDialogButtonBox
 from PyQt5.QtCore import Qt
 
 from collections import OrderedDict
 
-from app.editor.custom_gui import EditDialog
+from app.editor.unit_database import UnitDatabase
+from app.editor.class_database import ClassDatabase
+from app.editor.faction_database import FactionDatabase
+from app.editor.weapon_database import WeaponDatabase
+from app.editor.item_database import ItemDatabase
 from app.editor.terrain_database import TerrainDatabase
+from app.editor.ai_database import AIDatabase
 
 class DatabaseEditor(QDialog):
-    buttons_per_row = 4
-
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Database Editor")
+        self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.grid = QGridLayout(self)
         self.setLayout(self.grid)
-        # self.setMinimumSize(640, 480)
 
-        self.create_tabs()
-        self.create_buttons()
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Apply, Qt.Horizontal, self)
+        self.grid.addWidget(self.buttonbox, 1, 1)
+        self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
+        self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.mass_apply)
 
-    def create_tabs(self):
-        self.actions = OrderedDict()
-        self.actions['unit'] = QAction("Edit &Units", self, shortcut="U", triggered=lambda: UnitDatabase.edit(self))
-        self.actions['class'] = QAction("Edit &Classes", self, shortcut="C", triggered=lambda: ClassDatabase.edit(self))
-        self.actions['faction'] = QAction("Edit &Factions", self, shortcut="F", triggered=lambda: FactionDatabase.edit(self))
-        self.actions['weapon'] = QAction("Edit &Weapon Types", self, shortcut="W", triggered=lambda: WeaponDatabase.edit(self))
-        self.actions['item'] = QAction("Edit &Items", self, shortcut="I", triggered=lambda: ItemDatabase.edit(self))
-        self.actions['status'] = QAction("Edit &Skills", self, shortcut="S", triggered=lambda: StatusDatabase.edit(self))
-        self.actions['terrain'] = QAction("Edit &Terrain", self, shortcut="T", triggered=lambda: TerrainDatabase.edit(self))
-        # self.actions['stats'] = QAction("&Edit Stats", self, shortcut="Shift+S", triggered=lambda: StatDatabase.edit(self))
-        self.actions['equation'] = QAction("&Edit Equations", self, shortcut="E", triggered=lambda: EquationDatabase.edit(self))        
-        self.actions['ai'] = QAction("Edit &AI", self, shortcut="A", triggered=lambda: AIDatabase.edit(self))
-        self.actions['support'] = QAction("Edit Su&pports", self, shortcut="P", triggered=lambda: SupportDatabase.edit(self))
-        self.actions['overworld'] = QAction("Edit &Overworld", self, shortcut="O", triggered=lambda: OverworldDatabase.edit(self))
-        self.actions['constants'] = QAction("Edit &Constants", self, shortcut="C", triggered=lambda: ConstantsDatabase.edit(self))
+        self.tab_bar = QTabWidget(self)
+        self.grid.addWidget(self.tab_bar, 0, 0, 1, 2)
 
-    def create_buttons(self):
-        self.buttons = OrderedDict()
-        for idx, (action_name, action) in enumerate(self.actions.items()):
-            button = QToolButton(self)
-            self.buttons[action_name] = button
-            button.setDefaultAction(action)
-            button.setAutoRaise(True)
-            self.grid.addWidget(button, idx//self.buttons_per_row, idx%self.buttons_per_row)
+        self.create_sub_widgets()
+        for name, tab in self.tabs.items():
+            self.tab_bar.addTab(tab, name)
 
-class UnitDatabase(EditDialog):
-    pass
+    def create_sub_widgets(self):
+        self.tabs = OrderedDict()
+        self.tabs['Units'] = UnitDatabase.create()
+        self.tabs['Classes'] = ClassDatabase.create()
+        self.tabs['Factions'] = FactionDatabase.create()
+        self.tabs['Weapons'] = WeaponDatabase.create()
+        self.tabs['Items'] = ItemDatabase.create()
+        self.tabs['Terrain'] = TerrainDatabase.create()
+        self.tabs['AI'] = AIDatabase.create()
 
-class ClassDatabase(EditDialog):
-    pass
+    def on_tab_changed(self, index):
+        new_tab = self.tab_bar.currentWidget()
+        self.current_tab = new_tab
+        self.current_tab.update_list()
+        self.current_tab.reset()
 
-class FactionDatabase(EditDialog):
-    pass
+    def mass_restore(self):
+        for tab in self.tabs.values():
+            tab.restore(tab.saved_data)
 
-class WeaponDatabase(EditDialog):
-    pass
+    def mass_apply(self):
+        # Maybe?
+        for tab in self.tabs.values():
+            tab.apply()
 
-class ItemDatabase(EditDialog):
-    pass
+    def accept(self):
+        super().accept()
 
-class StatusDatabase(EditDialog):
-    pass
-
-class AIDatabase(EditDialog):
-    pass
-
-class StatDatabase(EditDialog):
-    pass
-
-class EquationDatabase(EditDialog):
-    pass
-
-class SupportDatabase(EditDialog):
-    pass
-
-class OverworldDatabase(EditDialog):
-    pass
-
-class ConstantsDatabase(EditDialog):
-    pass
-
-class ConfigDatabase(EditDialog):
-    pass
+    def reject(self):
+        self.mass_restore()
+        super().reject()
 
 # Testing
-# Run "python -m app.editor.database_editor" from main directory
+# Run "python -m app.editor.database_editor_2" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication

@@ -274,7 +274,7 @@ class ClassProperties(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.short_name_box.edit.setText(current.short_name)
         self.long_name_box.edit.setText(current.long_name)
-        self.desc_changedbox.edit.setText(current.desc)
+        self.desc_box.edit.setText(current.desc)
         self.tier_box.edit.setValue(current.tier)
         self.max_level_box.edit.setValue(current.max_level)
         self.movement_box.edit.setValue(current.movement_group)

@@ -16,11 +16,20 @@ class AIDatabase(DatabaseTab):
         data = DB.ai
         title = "AI"
         right_frame = AIProperties
-        deletion_msg = "Cannot delete 'None' AI"
-        creation_func = DB.create_new_ai
+
+        def deletion_func(view, idx):
+            return view.window._data[idx].nid != "None"
+        
+        deletion_criteria = (deletion_func, "Cannot delete 'None' AI")
         collection_model = AIModel
-        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        DB.create_new_ai(nid, name)
+        self.after_new()
 
 class AIModel(CollectionModel):
     def data(self, index, role):

@@ -148,7 +148,7 @@ class RightClickTreeView(QTreeView):
             self.delete(self.currentIndex().row())
 
 class RightClickListView(QListView):
-    def __init__(self, deletion_criteria, parent=None):
+    def __init__(self, deletion_criteria=None, parent=None):
         super().__init__(parent)
         self.window = parent
 

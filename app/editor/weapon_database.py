@@ -20,11 +20,20 @@ class WeaponDatabase(DatabaseTab):
         data = DB.weapons
         title = "Weapon Type"
         right_frame = WeaponProperties
-        deletion_msg = "Cannot delete Default weapon type"
-        creation_func = DB.create_new_weapon_type
+
+        def deletion_func(view, idx):
+            return view.window._data[idx].nid != "Default"
+
+        deletion_criteria = (deletion_func, "Cannot delete Default weapon type!")
         collection_model = WeaponModel
-        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        DB.create_new_weapon_type(nid, name)
+        self.after_new()
 
 class WeaponModel(CollectionModel):
     def data(self, index, role):

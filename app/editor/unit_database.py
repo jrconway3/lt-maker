@@ -25,11 +25,16 @@ class UnitDatabase(DatabaseTab):
         data = DB.units
         title = "Unit"
         right_frame = UnitProperties
-        deletion_msg = ''
-        creation_func = DB.create_new_unit
+        deletion_criteria = None
         collection_model = UnitModel
-        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        DB.create_new_unit(nid, name)
+        self.after_new()
 
 class WexpModel(VirtualListModel):
     def __init__(self, columns, data, parent=None):

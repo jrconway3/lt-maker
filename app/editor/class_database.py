@@ -25,11 +25,20 @@ class ClassDatabase(DatabaseTab):
         data = DB.classes
         title = "Class"
         right_frame = ClassProperties
-        deletion_msg = "Cannot delete Citizen Class!"
-        creation_func = DB.create_new_class
+
+        def deletion_func(view, idx):
+            return view.window._data[idx].nid != "Citizen"
+
+        deletion_criteria = (deletion_func, "Cannot delete Citizen Class!")
         collection_model = ClassModel
-        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        DB.create_new_class(nid, name)
+        self.after_new()
 
 class ClassModel(CollectionModel):
     def data(self, index, role):

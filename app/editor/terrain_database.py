@@ -20,7 +20,7 @@ class TerrainDatabase(DatabaseTab):
         right_frame = TerrainProperties
 
         def deletion_func(view, idx):
-            return view.model.count() > 1
+            return view.model().rowCount() > 1 
 
         deletion_criteria = (deletion_func, 'Cannot delete when only one terrain left!')
         collection_model = TerrainModel

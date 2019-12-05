@@ -16,11 +16,20 @@ class FactionDatabase(DatabaseTab):
         data = DB.factions
         title: str = 'Faction'
         right_frame = FactionProperties
-        deletion_msg = "Cannot delete when only one faction left!"
-        creation_func = DB.create_new_faction
+
+        def deletion_func(view, idx):
+            return view.model().rowCount() > 1 
+
+        deletion_criteria = (deletion_func, "Cannot delete when only one faction left!")
         collection_model = FactionModel
-        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        DB.create_new_faction(nid, name)
+        self.after_new()
 
 class FactionModel(CollectionModel):
     def data(self, index, role):

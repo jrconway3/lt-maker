@@ -19,11 +19,16 @@ class ItemDatabase(DatabaseTab):
         data = DB.items
         title = "Item"
         right_frame = ItemProperties
-        deletion_msg = ""
-        creation_func = DB.create_new_item
+        deletion_criteria = None
         collection_model = ItemModel
-        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        DB.create_new_item(nid, name)
+        self.after_new()
 
 class ItemModel(CollectionModel):
     def data(self, index, role):
@@ -75,7 +80,7 @@ class ItemProperties(QWidget):
         self.desc_box.edit.textChanged.connect(self.desc_changed)
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
-        self.value_box = PropertyBox("Value", QSpinBox, self)
+        self.value_box = PropertyBox("Value per use", QSpinBox, self)
         self.value_box.edit.setMaximum(1000000)
         self.value_box.edit.valueChanged.connect(self.value_changed)
         main_section.addWidget(self.value_box, 1, 0)
@@ -280,7 +285,7 @@ class ItemListWidget(QWidget):
         self.window = parent
         self._actions = []
         self.model = ItemListModel([], 'Item', self)
-        self.view = RightClickListView(self)
+        self.view = RightClickListView(parent=self)
         self.view.setModel(self.model)
         delegate = ItemListDelegate(self.view)
         self.view.setItemDelegate(delegate)

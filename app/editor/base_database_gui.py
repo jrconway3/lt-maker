@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
-    QListView, QAction, QMenu, QMessageBox, QSizePolicy, QSplitter
-from PyQt5.QtCore import Qt, QSize
+    QSizePolicy, QSplitter
+from PyQt5.QtCore import QSize
 from PyQt5.QtCore import QAbstractListModel
 
-from app import utilities
+from app.editor.custom_gui import RightClickListView
 
 class DatabaseTab(QWidget):
-    def __init__(self, data, title, right_frame, deletion_msg, creation_func, collection_model, parent):
+    def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent, 
+                 button_text="Create %s"):
         super().__init__(parent)
         self.window = parent
         self._data = data
@@ -16,7 +17,7 @@ class DatabaseTab(QWidget):
         self.setWindowTitle('%s Editor' % self.title)
         self.setStyleSheet("font: 10pt;")
 
-        self.left_frame = Collection(deletion_msg, creation_func, collection_model, self)
+        self.left_frame = Collection(deletion_criteria, collection_model, self, button_text=button_text)
         self.right_frame = right_frame(self)
         self.left_frame.set_display(self.right_frame)
 
@@ -42,6 +43,16 @@ class DatabaseTab(QWidget):
         if self.right_frame.current:
             self.right_frame.set_current(self.right_frame.current)
 
+    def create_new(self):
+        raise NotImplementedError
+
+    def after_new(self):
+        model = self.left_frame.model
+        view = self.left_frame.view
+        model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
+        last_index = model.index(model.rowCount() - 1)
+        view.setCurrentIndex(last_index)
+
     @classmethod
     def edit(cls, parent=None):
         dialog = cls.create(parent)
@@ -57,21 +68,21 @@ class DatabaseTab(QWidget):
         self.saved_data = self.save()
 
 class Collection(QWidget):
-    def __init__(self, deletion_msg, creation_func, collection_model, parent):
+    def __init__(self, deletion_criteria, collection_model, parent,
+                 button_text="Create %s"):
         super().__init__(parent)
         self.window = parent
         self.database_editor = self.window.window
 
         self._data = self.window._data
         self.title = self.window.title
-        self.creation_func = creation_func
         
         self.display = None
 
         grid = QGridLayout()
         self.setLayout(grid)
 
-        self.view = RightClickListView(deletion_msg, self)
+        self.view = RightClickListView(deletion_criteria, self)
         self.view.currentChanged = self.on_item_changed
 
         self.model = collection_model(self._data, self)
@@ -81,19 +92,11 @@ class Collection(QWidget):
 
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
 
-        self.button = QPushButton("Create %s" % self.title)
-        self.button.clicked.connect(self.create_new)
+        self.button = QPushButton(button_text % self.title)
+        self.button.clicked.connect(self.window.create_new)
 
         grid.addWidget(self.view, 0, 0)
         grid.addWidget(self.button, 1, 0)
-
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        self.creation_func(nid, name)
-        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-        last_index = self.model.index(self.model.rowCount() - 1)
-        self.view.setCurrentIndex(last_index)
 
     def on_item_changed(self, curr, prev):
         if self._data:
@@ -124,37 +127,6 @@ class CollectionModel(QAbstractListModel):
     def delete(self, idx):
         self._data.pop(idx)
         self.layoutChanged.emit()
-        new_weapon = self._data[min(idx, len(self._data) - 1)]
+        new_item = self._data[min(idx, len(self._data) - 1)]
         if self.window.display:
-            self.window.display.set_current(new_weapon)
-
-class RightClickListView(QListView):
-    def __init__(self, msg, parent):
-        super().__init__(parent)
-        self.window = parent
-        self.last_to_delete_msg = msg
-
-        self.uniformItemSizes = True
-
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.customMenuRequested)
-
-    def customMenuRequested(self, pos):
-        idx = self.indexAt(pos).row()
-
-        delete_action = QAction("Delete", self, triggered=lambda: self.delete(idx))
-        menu = QMenu(self)
-        menu.addAction(delete_action)
-
-        menu.popup(self.viewport().mapToGlobal(pos))
-
-    def delete(self, idx):
-        if self.window.model.rowCount() > 1 and self.window._data[idx].nid != 'Default':
-            self.window.model.delete(idx)
-        else:
-            QMessageBox.critical(self.window, 'Error', self.last_to_delete_msg)
-
-    def keyPressEvent(self, event):
-        super().keyPressEvent(event)
-        if event.key() == Qt.Key_Delete:
-            self.delete(self.currentIndex().row())
+            self.window.display.set_current(new_item)

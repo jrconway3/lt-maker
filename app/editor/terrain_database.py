@@ -18,11 +18,20 @@ class TerrainDatabase(DatabaseTab):
         data = DB.terrain
         title = "Terrain"
         right_frame = TerrainProperties
-        deletion_msg = 'Cannot delete when only one terrain left!'
-        creation_func = DB.create_new_terrain
+
+        def deletion_func(view, idx):
+            return view.model.count() > 1
+
+        deletion_criteria = (deletion_func, 'Cannot delete when only one terrain left!')
         collection_model = TerrainModel
-        dialog = cls(data, title, right_frame, deletion_msg, creation_func, collection_model, parent)
+        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New " + self.title, nids)
+        DB.create_new_terrain(nid, name)
+        self.after_new()
 
 class TerrainModel(CollectionModel):
     def data(self, index, role):
@@ -145,6 +154,7 @@ class TerrainProperties(QWidget):
         self.setLayout(total_section)
         total_section.addLayout(top_section)
         total_section.addLayout(main_section)
+        total_section.setAlignment(Qt.AlignTop)
 
     def nid_changed(self, text):
         self.current.nid = text

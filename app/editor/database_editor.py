@@ -34,6 +34,8 @@ class DatabaseEditor(QDialog):
         for name, tab in self.tabs.items():
             self.tab_bar.addTab(tab, name)
 
+        self.tab_bar.currentChanged.connect(self.on_tab_changed)
+
     def create_sub_widgets(self):
         self.tabs = OrderedDict()
         self.tabs['Units'] = UnitDatabase.create()
@@ -67,7 +69,7 @@ class DatabaseEditor(QDialog):
         super().reject()
 
 # Testing
-# Run "python -m app.editor.database_editor_2" from main directory
+# Run "python -m app.editor.database_editor" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication

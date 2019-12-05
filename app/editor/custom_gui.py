@@ -148,8 +148,14 @@ class RightClickTreeView(QTreeView):
             self.delete(self.currentIndex().row())
 
 class RightClickListView(QListView):
-    def __init__(self, parent=None):
+    def __init__(self, deletion_criteria, parent=None):
         super().__init__(parent)
+        self.window = parent
+
+        if deletion_criteria:
+            self.deletion_func, self.deletion_msg = deletion_criteria
+        else:
+            self.deletion_func, self.deletion_msg = None, ''
         self.uniformItemSizes = True
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -165,7 +171,10 @@ class RightClickListView(QListView):
         menu.popup(self.viewport().mapToGlobal(pos))
 
     def delete(self, idx):
-        self.parent().model.delete(idx)
+        if self.deletion_func and self.deletion_func(self, idx):
+            self.window.model.delete(idx)
+        else:
+            QMessageBox.critical(self.window, 'Error', self.deletion_msg)
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)

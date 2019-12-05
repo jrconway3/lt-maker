@@ -78,6 +78,8 @@ class FactionProperties(QWidget):
         total_section.addLayout(top_section)
         total_section.addWidget(self.desc_box)
 
+        total_section.setAlignment(Qt.AlignTop)
+
     def nid_changed(self, text):
         self.current.nid = text
         self.window.update_list()

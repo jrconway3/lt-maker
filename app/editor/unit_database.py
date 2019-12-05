@@ -321,7 +321,7 @@ class UnitProperties(QWidget):
 
         self.unit_stat_widget.set_new_obj(current)
 
-        self.personal_skill_widget.set_current(self.current.skills)
+        self.personal_skill_widget.set_current(self.current.learned_skills)
         self.wexp_gain_widget.set_current(self.current.wexp_gain)
         self.item_widget.set_current(self.current.items)
 

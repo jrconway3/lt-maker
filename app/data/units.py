@@ -8,11 +8,11 @@ from app.data import stats, weapons
 from app.data.skills import LearnedSkill, LearnedSkillList
 from app import utilities
 
-class Unit(object):
+class UnitPrefab(object):
     def __init__(self, nid: str, name: str, desc: str, gender: int,
                  level: int, klass: str, tags, 
                  bases: stats.StatList, growths: stats.StatList, items: list,
-                 skills: LearnedSkillList, wexp_gain: weapons.WexpGainList,
+                 learned_skills: LearnedSkillList, wexp_gain: weapons.WexpGainList,
                  portrait_fn=None):
 
         self.nid = nid
@@ -31,7 +31,8 @@ class Unit(object):
         self.growths = growths
 
         self.items = items
-        self.skills = skills
+        self.learned_skills = learned_skills
+
         self.wexp_gain = wexp_gain
 
         self.portrait_fn = portrait_fn
@@ -72,6 +73,6 @@ class UnitCatalog(data):
             items = [item_catalog.get_instance(i) for i in unit.find('inventory').text.split(',')]
             items = [i for i in items if i]
 
-            new_unit = Unit(nid, name, desc, gender, level, klass, tags,
-                            bases, growths, items, skills, wexp_gain)
+            new_unit = UnitPrefab(nid, name, desc, gender, level, klass, tags,
+                            bases, growths, items, learned_skills, wexp_gain)
             self.append(new_unit)

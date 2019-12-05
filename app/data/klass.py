@@ -84,5 +84,5 @@ class ClassCatalog(data):
             new_klass = Klass(nid, short_name, long_name, desc, tier, movement_group, 
                               promotes_from, turns_into, tags, max_level,
                               bases, growths, promotion, max_stats,
-                              skills, wexp_gain, growth_bonus)
+                              learned_skills, wexp_gain, growth_bonus)
             self.append(new_klass)

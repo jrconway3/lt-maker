@@ -59,11 +59,6 @@ class ResourceEditor(QDialog):
     def reject(self):
         super().reject()
 
-class Icon(object):
-    def __init__(self, nid, pixmap):
-        self.nid = nid
-        self.pixmap = pixmap
-
 class IconDisplay(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
@@ -83,8 +78,8 @@ class IconDisplay(DatabaseTab):
         if ok:
             nid = os.path.split(fn)[-1]
             pix = QPixmap(fn)
-            icon = Icon(nid, pix)
-            self._data.append(icon)
+            RESOURCES.create_new_icon(nid, pix)
+            # self._data.append(icon)
             self.after_new()
 
 class IconModel(CollectionModel):
@@ -143,6 +138,10 @@ class IconProperties(QWidget):
         self.window = parent
         self._data = self.window._data
         self.resource_editor = self.window.window
+
+        # Populate resources
+        for resource in self._data:
+            resource.pixmap = QPixmap(resource.full_path)
 
         self.current = current
 

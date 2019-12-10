@@ -1,8 +1,8 @@
-import os
-
 from app.data import data
 from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
     minimap, items, klass, units, ai
+
+from app.data.resources import RESOURCES
 
 class Database(object):
     def __init__(self):
@@ -38,8 +38,8 @@ class Database(object):
         self.ai.import_data('./app/default_data/default_ai.txt')
 
     def get_platform_types(self):
-        home = './sprites/platforms/'
-        names = list({fn.split('-')[0] for fn in os.listdir(home)})
+        p = RESOURCES.platforms
+        names = list({fn.split('-')[0] for fn in p.keys()})
         sprites = [n + '-Melee' for n in names]
         return list(zip(names, sprites))
 

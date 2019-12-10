@@ -1,10 +1,10 @@
-from app.data.sprites import SPRITES
+from app.data.resources import RESOURCES
 
 class MinimapCatalog(object):
     # Constants
-    minimap_tiles = SPRITES['Minimap_Tiles']
-    minimap_units = SPRITES['Minimap_Sprites']
-    minimap_cursor = SPRITES['Minimap_Cursor']
+    minimap_tiles = RESOURCES.misc['Minimap_Tiles']
+    minimap_units = RESOURCES.misc['Minimap_Sprites']
+    minimap_cursor = RESOURCES.misc['Minimap_Cursor']
 
     single_map = {'Grass': (1, 0),
                   'House': (2, 0),

@@ -8,6 +8,9 @@ from app.data.database import DB
 from app.editor import commands
 
 class MapView(QGraphicsView):
+    min_scale = 1
+    max_scale = 4
+    
     def __init__(self, window=None):
         super().__init__()
         self.main_editor = window
@@ -112,9 +115,9 @@ class MapView(QGraphicsView):
                 self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
 
     def wheelEvent(self, event):
-        if event.angleDelta().y() > 0 and self.screen_scale < 4:
+        if event.angleDelta().y() > 0 and self.screen_scale < self.max_scale:
             self.screen_scale += 1
             self.scale(2, 2)
-        elif event.angleDelta().y() < 0 and self.screen_scale > 1:
+        elif event.angleDelta().y() < 0 and self.screen_scale > self.min_scale:
             self.screen_scale -= 1
             self.scale(0.5, 0.5)

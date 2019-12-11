@@ -43,7 +43,7 @@ class AppendSingleListWidget(BasicSingleListWidget):
         self.initiate(data, parent)
 
         self.model = SingleListModel(self.current, title, self)
-        self.view = RightClickTreeView(self)
+        self.view = RightClickTreeView(parent=self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)
         self.view.setItemDelegate(delegate)
@@ -77,7 +77,7 @@ class AppendMultiListWidget(BasicSingleListWidget):
         self.initiate(data, parent)
 
         self.model = MultiAttrListModel(self.current, attrs, parent=self)
-        self.view = RightClickTreeView(self)
+        self.view = RightClickTreeView(parent=self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)
         self.view.setItemDelegate(delegate)

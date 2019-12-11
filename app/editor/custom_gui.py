@@ -123,8 +123,14 @@ class PropertyBox(QWidget):
         self.bottom_section.addWidget(self.button)
 
 class RightClickTreeView(QTreeView):
-    def __init__(self, parent=None):
+    def __init__(self, deletion_criteria=None, parent=None):
         super().__init__(parent)
+        self.window = parent
+
+        if deletion_criteria:
+            self.deletion_func, self.deletion_msg = deletion_criteria
+        else:
+            self.deletion_func, self.deletion_msg = None, ''
         self.uniformItemSizes = True
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -140,7 +146,10 @@ class RightClickTreeView(QTreeView):
         menu.popup(self.viewport().mapToGlobal(pos))
 
     def delete(self, idx):
-        self.parent().model.delete(idx)
+        if not self.deletion_func or self.deletion_func(self, idx):
+            self.window.model.delete(idx)
+        else:
+            QMessageBox.critical(self.window, 'Error', self.deletion_msg)
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
@@ -251,7 +260,7 @@ class MultiAttrListDialog(SingleListDialog):
         self.initiate(data, title, parent)
 
         self.model = MultiAttrListModel(self._data, attrs, locked, self)
-        self.view = RightClickTreeView(self)
+        self.view = RightClickTreeView(parent=self)
         self.view.setModel(self.model)
         int_columns = [i for i, attr in enumerate(attrs) if type(getattr(self._data[0], attr)) == int]
         delegate = IntDelegate(self.view, int_columns)

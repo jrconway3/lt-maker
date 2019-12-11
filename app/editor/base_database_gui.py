@@ -7,7 +7,7 @@ from app.editor.custom_gui import RightClickListView
 
 class DatabaseTab(QWidget):
     def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent, 
-                 button_text="Create %s"):
+                 button_text="Create %s", view_type=RightClickListView):
         super().__init__(parent)
         self.window = parent
         self._data = data
@@ -17,7 +17,7 @@ class DatabaseTab(QWidget):
         self.setWindowTitle('%s Editor' % self.title)
         self.setStyleSheet("font: 10pt;")
 
-        self.left_frame = Collection(deletion_criteria, collection_model, self, button_text=button_text)
+        self.left_frame = Collection(deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
         self.right_frame = right_frame(self)
         self.left_frame.set_display(self.right_frame)
 
@@ -69,7 +69,7 @@ class DatabaseTab(QWidget):
 
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,
-                 button_text="Create %s"):
+                 button_text="Create %s", view_type=RightClickListView):
         super().__init__(parent)
         self.window = parent
         self.database_editor = self.window.window
@@ -82,7 +82,7 @@ class Collection(QWidget):
         grid = QGridLayout()
         self.setLayout(grid)
 
-        self.view = RightClickListView(deletion_criteria, self)
+        self.view = view_type(deletion_criteria, self)
         self.view.currentChanged = self.on_item_changed
 
         self.model = collection_model(self._data, self)
@@ -100,7 +100,7 @@ class Collection(QWidget):
 
     def on_item_changed(self, curr, prev):
         if self._data:
-            new_data = self._data[curr.row()]
+            new_data = curr.internalPointer()  # Internal pointer is way too powerful
             if self.display:
                 self.display.set_current(new_data)
 

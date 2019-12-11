@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QSpacerItem, QPushButton, QDialog, \
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 
-from app.data.sprites import SPRITES
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.custom_gui import ComboBox, PropertyBox
@@ -131,7 +131,7 @@ class TerrainProperties(QWidget):
 
         self.platform_box = PropertyBox("Combat Platform Type", ComboBox, self)
         for text, sprite_name in DB.get_platform_types():
-            icon = QIcon(SPRITES[sprite_name])
+            icon = QIcon(RESOURCES.platforms[sprite_name])
             self.platform_box.edit.addItem(icon, text)
         self.platform_box.edit.setIconSize(QSize(87, 40))
         self.platform_box.edit.currentIndexChanged.connect(self.platform_changed)

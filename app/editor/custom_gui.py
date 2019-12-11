@@ -139,15 +139,15 @@ class RightClickTreeView(QTreeView):
     def customMenuRequested(self, pos):
         index = self.indexAt(pos)
 
-        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index.row()))
+        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
         menu = QMenu(self)
         menu.addAction(delete_action)
 
         menu.popup(self.viewport().mapToGlobal(pos))
 
-    def delete(self, idx):
-        if not self.deletion_func or self.deletion_func(self, idx):
-            self.window.model.delete(idx)
+    def delete(self, index):
+        if not self.deletion_func or self.deletion_func(self, index):
+            self.window.model.delete(index)
         else:
             QMessageBox.critical(self.window, 'Error', self.deletion_msg)
 

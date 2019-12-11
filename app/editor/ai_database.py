@@ -41,6 +41,7 @@ class AIModel(CollectionModel):
             return text
         return None
 
+# Target Specifications
 class NullSpecification(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -105,8 +106,12 @@ class UnitSpecification(QWidget):
         self.window.current.target_spec = (unit_spec, sub_spec)
 
     def set_current(self, target_spec):
-        self.box1.setValue(target_spec[0])
-        self.box2.setValue(target_spec[1])
+        if target_spec:
+            self.box1.setValue(target_spec[0])
+            self.box2.setValue(target_spec[1])
+        else:
+            self.box1.setValue("All")
+            self.box2.setEnabled(False)
 
 class EventSpecification(QWidget):
     def __init__(self, parent=None):

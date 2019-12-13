@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, QDir, pyqtSignal, QTimer
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 
 import os
+import time, random
 
 from app.data.resources import RESOURCES
 
@@ -108,6 +109,9 @@ class SpinBoxXY(QWidget):
 class PortraitProperties(QWidget):
     width, height = 128, 112
 
+    halfblink = (96, 48, 32, 16)
+    fullblink = (96, 64, 32, 16)
+
     openmouth = (0, 96, 32, 16)
     halfmouth = (32, 96, 32, 16)
     closemouth = (64, 96, 32, 16)
@@ -130,6 +134,12 @@ class PortraitProperties(QWidget):
 
         self.smile_on = False
         self.talk_on = False
+        # For talking
+        self.talk_state = 0
+        self.last_talk_update = 0
+        self.next_talk_update = 0
+        # For blinking
+        self.blink_update = 0
 
         # === Timing ===
         self.main_timer = QTimer()
@@ -154,6 +164,7 @@ class PortraitProperties(QWidget):
         self.talk_button.clicked.connect(self.talk_button_clicked)
         self.blink_button = QPushButton(self)
         self.blink_button.setText("Blink")
+        self.blink_button.clicked.connect(self.blink_button_clicked)
         left_section.addWidget(self.smile_button)
         left_section.addWidget(self.talk_button)
         left_section.addWidget(self.blink_button)
@@ -205,22 +216,82 @@ class PortraitProperties(QWidget):
     def tick(self):
         self.draw_portrait()
 
+    def update_talk(self):
+        current_time = time.time()*1000
+        # update mouth
+        if self.talk_on and current_time - self.last_talk_update > self.next_talk_update:
+            self.last_talk_update = current_time
+            chance = random.randint(1, 10)
+            if self.talk_state == 0:
+                # 10% chance to skip to state 2    
+                if chance == 1:
+                    self.talk_state = 2
+                    self.next_talk_update = random.randint(70, 160)
+                else:
+                    self.talk_state = 1
+                    self.next_talk_update = random.randint(30, 50)
+            elif self.talk_state == 1:
+                # 10% chance to go back to state 0
+                if chance == 1:
+                    self.talk_state = 0
+                    self.next_talk_update = random.randint(50, 100)
+                else:
+                    self.talk_state = 2
+                    self.next_talk_update = random.randint(70, 160)
+            elif self.talk_state == 2:
+                # 10% chance to skip back to state 0
+                # 10% chance to go back to state 1
+                chance = random.randint(1, 10)
+                if chance == 1:
+                    self.talk_state = 0
+                    self.next_talk_update = random.randint(50, 100)
+                elif chance == 2:
+                    self.talk_state = 1
+                    self.next_talk_update = random.randint(30, 50)
+                else:
+                    self.talk_state = 3
+                    self.next_talk_update = random.randint(30, 50)
+            elif self.talk_state == 3:
+                self.talk_state = 0
+                self.next_talk_update = random.randint(50, 100)
+        if not self.talk_on:
+            self.talk_state = 0
+
     def draw_portrait(self):
+        self.update_talk()
         portrait = self.current.pixmap.copy(0, 0, 96, 80).toImage()
+        # For smile image
         if self.smile_on:
-            if self.talk_on:
-                mouth_image = self.current.pixmap.copy(*self.opensmile)
-            else:
+            if self.talk_state == 0:
                 mouth_image = self.current.pixmap.copy(*self.closesmile)
+            elif self.talk_state == 1 or self.talk_state == 3:
+                mouth_image = self.current.pixmap.copy(*self.halfsmile)
+            elif self.talk_state == 2:
+                mouth_image = self.current.pixmap.copy(*self.opensmile)
         else:
-            if self.talk_on:
-                mouth_image = self.current.pixmap.copy(*self.openmouth)
-            else:
+            if self.talk_state == 0:
                 mouth_image = self.current.pixmap.copy(*self.closemouth)
+            elif self.talk_state == 1 or self.talk_state == 3:
+                mouth_image = self.current.pixmap.copy(*self.halfmouth)
+            elif self.talk_state == 2:
+                mouth_image = self.current.pixmap.copy(*self.openmouth)
         mouth_image = mouth_image.toImage()
+        # For blink image
+        time_passed = time.time()*1000 - self.blink_update
+        if time_passed < 40:
+            blink_image = self.current.pixmap.copy(*self.halfblink)
+        elif time_passed < 80:
+            blink_image = self.current.pixmap.copy(*self.fullblink)
+        elif time_passed < 40:
+            blink_image = self.current.pixmap.copy(*self.halfblink)
+        else:
+            blink_image = None
         # Draw image
         painter = QPainter()
         painter.begin(portrait)
+        if blink_image:
+            blink_image = blink_image.toImage()
+            painter.drawImage(self.current.blinking_offset[0], self.current.blinking_offset[1], blink_image)
         painter.drawImage(self.current.smiling_offset[0], self.current.smiling_offset[1], mouth_image)
         painter.end()
         self.portrait_view.set_image(QPixmap.fromImage(portrait))
@@ -237,3 +308,6 @@ class PortraitProperties(QWidget):
 
     def smile_button_clicked(self, checked):
         self.smile_on = checked
+
+    def blink_button_clicked(self):
+        self.blink_update = time.time()*1000

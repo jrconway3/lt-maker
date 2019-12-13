@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
-    QSpinBox, QLabel, QVBoxLayout, QGridLayout
+    QSpinBox, QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, \
+    QSplitter
 from PyQt5.QtCore import Qt, QDir, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 
@@ -62,6 +63,7 @@ class SpinBoxXY(QWidget):
         hbox = QHBoxLayout()
         self.setLayout(hbox)
         hbox.setContentsMargins(0, 0, 0, 0)
+        hbox.setSpacing(1)
 
         self._x = 0
         self._y = 0
@@ -70,9 +72,11 @@ class SpinBoxXY(QWidget):
         self.y_spinbox = QSpinBox()
         self.x_spinbox.setMinimumWidth(40)
         self.y_spinbox.setMinimumWidth(40)
-        hbox.addWidget(QLabel("X:"))
+        x_label = QLabel("X:")
+        y_label = QLabel("Y:")
+        hbox.addWidget(x_label)
         hbox.addWidget(self.x_spinbox)
-        hbox.addWidget(QLabel("Y:"))
+        hbox.addWidget(y_label)
         hbox.addWidget(self.y_spinbox)
         self.x_spinbox.setRange(0, 128 - 16)
         self.y_spinbox.setRange(0, 112 - 16)
@@ -80,6 +84,12 @@ class SpinBoxXY(QWidget):
         self.y_spinbox.setSingleStep(8)
         self.x_spinbox.valueChanged.connect(self.change_x)
         self.y_spinbox.valueChanged.connect(self.change_y)
+        self.x_spinbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.y_spinbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        x_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        y_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setFixedWidth(140)
+        # hbox.setAlignment(Qt.AlignLeft)
 
     def set_current(self, x, y):
         self.change_x(x)
@@ -114,7 +124,19 @@ class PortraitProperties(QWidget):
         left_section = QGridLayout()
 
         self.portrait_view = IconView(self)
-        left_section.addWidget(self.portrait_view, 0, 0)
+        left_section.addWidget(self.portrait_view, 0, 0, 1, 3)
+
+        self.smile_button = QPushButton(self)
+        self.smile_button.setText("Smile")
+        self.smile_button.setCheckable(True)
+        self.talk_button = QPushButton(self)
+        self.talk_button.setText("Talk")
+        self.talk_button.setCheckable(True)
+        self.blink_button = QPushButton(self)
+        self.blink_button.setText("Blink")
+        left_section.addWidget(self.smile_button)
+        left_section.addWidget(self.talk_button)
+        left_section.addWidget(self.blink_button)
 
         right_section = QVBoxLayout()
         self.blinking_offset = PropertyBox("Blinking Offset", SpinBoxXY, self)
@@ -123,16 +145,33 @@ class PortraitProperties(QWidget):
         self.smiling_offset.edit.coordsChanged.connect(self.smiling_changed)
         right_section.addWidget(self.blinking_offset)
         right_section.addWidget(self.smiling_offset)
+        right_section.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-        top_section.addLayout(left_section)
-        top_section.addLayout(right_section)
+        left_frame = QFrame(self)
+        left_frame.setLayout(left_section)
+        right_frame = QFrame(self)
+        right_frame.setLayout(right_section)
+
+        # top_section.addLayout(left_section)
+        # top_section.addLayout(right_section)
+
+        top_splitter = QSplitter(self)
+        top_splitter.setChildrenCollapsible(False)
+        top_splitter.addWidget(left_frame)
+        top_splitter.addWidget(right_frame)
 
         self.raw_view = PropertyBox("Raw Sprite", IconView, self)
+        self.raw_view.edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        final_section = QVBoxLayout()
+        final_splitter = QSplitter(self)
+        final_splitter.setOrientation(Qt.Vertical)
+        final_splitter.setChildrenCollapsible(False)
+        final_splitter.addWidget(top_splitter)
+        final_splitter.addWidget(self.raw_view)
+
+        final_section = QHBoxLayout()
         self.setLayout(final_section)
-        final_section.addLayout(top_section)
-        final_section.addWidget(self.raw_view)
+        final_section.addWidget(final_splitter)
 
     def set_current(self, current):
         self.current = current

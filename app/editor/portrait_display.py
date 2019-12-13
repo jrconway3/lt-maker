@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
     QSpinBox, QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, \
     QSplitter
-from PyQt5.QtCore import Qt, QDir, pyqtSignal
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import Qt, QDir, pyqtSignal, QTimer
+from PyQt5.QtGui import QPixmap, QIcon, QPainter
 
 import os
 
@@ -108,6 +108,14 @@ class SpinBoxXY(QWidget):
 class PortraitProperties(QWidget):
     width, height = 128, 112
 
+    openmouth = (0, 96, 32, 16)
+    halfmouth = (32, 96, 32, 16)
+    closemouth = (64, 96, 32, 16)
+
+    opensmile = (0, 80, 32, 16)
+    halfsmile = (32, 80, 32, 16)
+    closesmile = (64, 80, 32, 16)
+
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
@@ -120,7 +128,17 @@ class PortraitProperties(QWidget):
 
         self.current = current
 
-        top_section = QHBoxLayout()
+        self.smile_on = False
+        self.talk_on = False
+
+        # === Timing ===
+        self.main_timer = QTimer()
+        self.main_timer.timeout.connect(self.tick)
+        fps = 30
+        timer_speed = int(1000/float(fps))
+        self.main_timer.setInterval(timer_speed)
+        self.main_timer.start()
+
         left_section = QGridLayout()
 
         self.portrait_view = IconView(self)
@@ -129,9 +147,11 @@ class PortraitProperties(QWidget):
         self.smile_button = QPushButton(self)
         self.smile_button.setText("Smile")
         self.smile_button.setCheckable(True)
+        self.smile_button.clicked.connect(self.smile_button_clicked)
         self.talk_button = QPushButton(self)
         self.talk_button.setText("Talk")
         self.talk_button.setCheckable(True)
+        self.talk_button.clicked.connect(self.talk_button_clicked)
         self.blink_button = QPushButton(self)
         self.blink_button.setText("Blink")
         left_section.addWidget(self.smile_button)
@@ -151,9 +171,6 @@ class PortraitProperties(QWidget):
         left_frame.setLayout(left_section)
         right_frame = QFrame(self)
         right_frame.setLayout(right_section)
-
-        # top_section.addLayout(left_section)
-        # top_section.addLayout(right_section)
 
         top_splitter = QSplitter(self)
         top_splitter.setChildrenCollapsible(False)
@@ -178,17 +195,45 @@ class PortraitProperties(QWidget):
         self.raw_view.edit.set_image(self.current.pixmap)
         self.raw_view.edit.show_image()
 
-        portrait = self.current.pixmap.copy(0, 0, 96, 80)
-        self.portrait_view.set_image(portrait)
-        self.portrait_view.show_image()
-
         bo = self.current.blinking_offset
         so = self.current.smiling_offset
         self.blinking_offset.edit.set_current(bo[0], bo[1])
         self.smiling_offset.edit.set_current(so[0], so[1])
 
+        self.draw_portrait()
+
+    def tick(self):
+        self.draw_portrait()
+
+    def draw_portrait(self):
+        portrait = self.current.pixmap.copy(0, 0, 96, 80).toImage()
+        if self.smile_on:
+            if self.talk_on:
+                mouth_image = self.current.pixmap.copy(*self.opensmile)
+            else:
+                mouth_image = self.current.pixmap.copy(*self.closesmile)
+        else:
+            if self.talk_on:
+                mouth_image = self.current.pixmap.copy(*self.openmouth)
+            else:
+                mouth_image = self.current.pixmap.copy(*self.closemouth)
+        mouth_image = mouth_image.toImage()
+        # Draw image
+        painter = QPainter()
+        painter.begin(portrait)
+        painter.drawImage(self.current.smiling_offset[0], self.current.smiling_offset[1], mouth_image)
+        painter.end()
+        self.portrait_view.set_image(QPixmap.fromImage(portrait))
+        self.portrait_view.show_image()
+
     def blinking_changed(self, x, y):
-        pass
+        self.current.blinking_offset = [x, y]
 
     def smiling_changed(self, x, y):
-        pass
+        self.current.smiling_offset = [x, y]
+
+    def talk_button_clicked(self, checked):
+        self.talk_on = checked
+
+    def smile_button_clicked(self, checked):
+        self.smile_on = checked

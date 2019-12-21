@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, 
     QDialogButtonBox, QGridLayout, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QAbstractItemModel
-from PyQt5.QtCore import Qt, QModelIndex
+from PyQt5.QtCore import Qt, QModelIndex, QTimer
 
 from app.data.database import DB
 
@@ -18,6 +18,13 @@ def get_icon(item, scale=(16, 16), scale_to=1):
         return QIcon(pixmap)
     else:
         return None
+
+def give_timer(obj, fps=30):
+    obj.main_timer = QTimer()
+    obj.main_timer.timeout.connect(obj.tick)
+    timer_speed = int(1000/float(fps))
+    obj.main_timer.setInterval(timer_speed)
+    obj.main_timer.start()
 
 class SimpleDialog(QDialog):
     def __init__(self, parent=None):

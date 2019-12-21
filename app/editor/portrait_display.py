@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
     QSpinBox, QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, \
     QSplitter
-from PyQt5.QtCore import Qt, QDir, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, QDir, pyqtSignal 
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 
 import os
@@ -9,7 +9,7 @@ import time, random
 
 from app.data.resources import RESOURCES
 
-from app.editor.custom_gui import PropertyBox
+from app.editor.custom_gui import PropertyBox, give_timer
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icon_database import IconView
 
@@ -121,7 +121,7 @@ class PortraitProperties(QWidget):
     closesmile = (64, 80, 32, 16)
 
     def __init__(self, parent, current=None):
-        super().__init__(parent)
+        QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window._data
         self.resource_editor = self.window.window
@@ -142,12 +142,7 @@ class PortraitProperties(QWidget):
         self.blink_update = 0
 
         # === Timing ===
-        self.main_timer = QTimer()
-        self.main_timer.timeout.connect(self.tick)
-        fps = 30
-        timer_speed = int(1000/float(fps))
-        self.main_timer.setInterval(timer_speed)
-        self.main_timer.start()
+        give_timer(self)
 
         left_section = QGridLayout()
 
@@ -278,11 +273,11 @@ class PortraitProperties(QWidget):
         mouth_image = mouth_image.toImage()
         # For blink image
         time_passed = time.time()*1000 - self.blink_update
-        if time_passed < 40:
+        if time_passed < 60:
             blink_image = self.current.pixmap.copy(*self.halfblink)
-        elif time_passed < 80:
+        elif time_passed < 120:
             blink_image = self.current.pixmap.copy(*self.fullblink)
-        elif time_passed < 40:
+        elif time_passed < 180:
             blink_image = self.current.pixmap.copy(*self.halfblink)
         else:
             blink_image = None

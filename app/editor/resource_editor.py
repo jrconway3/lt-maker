@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from app.editor.icon_database import Icon16Display, Icon32Display, Icon80Display
 from app.editor.portrait_display import PortraitDisplay
+from app.editor.map_sprite_display import MapSpriteDisplay
 
 class ResourceEditor(QDialog):
     def __init__(self, parent=None):
@@ -38,7 +39,7 @@ class ResourceEditor(QDialog):
         self.tabs['Icons 80x72'] = Icon80Display.create()
         self.tabs['Portraits'] = PortraitDisplay.create()
         # self.tabs['Panoramas'] = PanoramaDisplay.create()
-        # self.tabs['Map Sprites'] = MapSpriteDisplay.create()
+        self.tabs['Map Sprites'] = MapSpriteDisplay.create()
         # self.tabs['Combat Animations'] = AnimationDisplay.create()
         # self.tabs['Combat Effects'] = CombatEffectDisplay.create()
         # self.tabs['Map Effects'] = MapEffectDisplay.create()

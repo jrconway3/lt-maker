@@ -36,6 +36,7 @@ class Resources(object):
         self.populate_database(self.icons80, 'icons/icons_80x72', '.png', ImageResource)
         self.populate_database(self.portraits, 'portraits', '.png', Portrait)
         self.set_up_portrait_coords('portraits/portrait_coords.xml')
+        self.populate_map_sprites('map_sprites')
 
         self.platforms = self.get_sprites(self.main_folder, 'platforms')
         self.misc = self.get_sprites(self.main_folder, 'misc')
@@ -61,6 +62,15 @@ class Resources(object):
             if offsets:
                 portrait.blinking_offset = portrait_dict[portrait.nid]['blink']
                 portrait.smiling_offset = portrait_dict[portrait.nid]['mouth']
+
+    def populate_map_sprites(self, folder):
+        for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
+            for name in files:
+                if name.endswith('-stand.png'):
+                    stand_full_path = os.path.join(root, name)
+                    move_full_path = os.path.join(root, name[:-10] + '-move.png')
+                    new_map_sprite = MapSprite(name[:-10], stand_full_path, move_full_path)
+                    self.map_sprites.append(new_map_sprite)
 
     def get_sprites(self, home, sub):
         s = {}
@@ -105,6 +115,14 @@ class Resources(object):
         self.portraits.append(new_portrait)
         return new_portrait
 
+    def create_new_map_sprite(self, nid, standing_pixmap, moving_pixmap):
+        nid = nid[:-4]
+        standing_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-stand.png')
+        moving_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-move.png')
+        new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap)
+        self.map_sprites.append(new_map_sprite)
+        return new_map_sprite
+
 class ImageResource(object):
     def __init__(self, nid, full_path=None, pixmap=None):
         self.nid = nid
@@ -128,5 +146,13 @@ class Portrait(object):
 
         self.blinking_offset = [0, 0]
         self.smiling_offset = [0, 0]
+
+class MapSprite(object):
+    def __init__(self, nid, stand_full_path=None, move_full_path=None, standing_pixmap=None, moving_pixmap=None):
+        self.nid = nid
+        self.standing_full_path = stand_full_path
+        self.moving_full_path = move_full_path
+        self.standing_pixmap = standing_pixmap
+        self.moving_pixmap = moving_pixmap
 
 RESOURCES = Resources()

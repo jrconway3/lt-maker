@@ -1,3 +1,5 @@
+import re
+
 def get_next_name(name, names):
     if name not in names:
         return name
@@ -19,6 +21,12 @@ def get_next_int(name, names):
             if test_name not in names:
                 return test_name
             counter += 1
+
+def find_last_number(s: str):
+    last_number = re.findall(r'\d+$', s)
+    if last_number:
+        return int(last_number[-1])
+    return None
 
 def intify(s: str) -> list:
     vals = s.split(',')

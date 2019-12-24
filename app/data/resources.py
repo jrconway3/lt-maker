@@ -1,4 +1,4 @@
-import os
+import os, glob
 
 try:
     import xml.etree.cElementTree as ET
@@ -6,6 +6,7 @@ except ImportError:
     import xml.etree.ElementTree as ET
 
 from app.data import data
+import app.utilities as utilities
 
 class Resources(object):
     def __init__(self):
@@ -37,6 +38,7 @@ class Resources(object):
         self.populate_database(self.portraits, 'portraits', '.png', Portrait)
         self.set_up_portrait_coords('portraits/portrait_coords.xml')
         self.populate_map_sprites('map_sprites')
+        self.populate_panoramas('panoramas')
 
         self.platforms = self.get_sprites(self.main_folder, 'platforms')
         self.misc = self.get_sprites(self.main_folder, 'misc')
@@ -71,6 +73,24 @@ class Resources(object):
                     move_full_path = os.path.join(root, name[:-10] + '-move.png')
                     new_map_sprite = MapSprite(name[:-10], stand_full_path, move_full_path)
                     self.map_sprites.append(new_map_sprite)
+
+    def populate_panoramas(self, folder):
+        for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
+            for name in files:
+                if name.endswith('.png'):
+                    nid = name[:-4]
+                    last_number = utilities.find_last_number(nid)
+                    if last_number == 0:
+                        movie_prefix = name[:-5]
+                        ims = glob.glob(os.path.join(root, movie_prefix + '*' + '.png'))
+                        ims = sorted(ims, key=lambda x: utilities.find_last_number(x[:-4]))
+                    elif last_number is None:
+                        movie_prefix = nid
+                        ims = [os.path.join(root, name)]
+                    else:
+                        continue
+                    new_panorama = Panorama(movie_prefix, ims)
+                    self.panoramas.append(new_panorama)
 
     def get_sprites(self, home, sub):
         s = {}
@@ -123,6 +143,11 @@ class Resources(object):
         self.map_sprites.append(new_map_sprite)
         return new_map_sprite
 
+    def create_new_panorama(self, nid, pixmaps, full_paths):
+        new_panorama = Panorama(nid, full_paths, pixmaps)
+        self.panoramas.append(new_panorama)
+        return new_panorama
+
 class ImageResource(object):
     def __init__(self, nid, full_path=None, pixmap=None):
         self.nid = nid
@@ -154,5 +179,21 @@ class MapSprite(object):
         self.moving_full_path = move_full_path
         self.standing_pixmap = standing_pixmap
         self.moving_pixmap = moving_pixmap
+
+class Panorama(object):
+    def __init__(self, nid, paths=None, pixmaps=None):
+        self.nid = nid
+        self.paths = paths or []
+        print(self.paths)
+        self.pixmaps = pixmaps or []
+        self.idx = 0
+
+    def get_frame(self):
+        if self.pixmaps:
+            return self.pixmaps[self.idx]
+
+    def increment_frame(self):
+        if self.pixmaps:
+            self.idx = (self.idx + 1) % len(self.pixmaps)  # Wrap around
 
 RESOURCES = Resources()

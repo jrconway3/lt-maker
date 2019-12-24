@@ -3,9 +3,10 @@ from PyQt5.QtCore import Qt
 
 from collections import OrderedDict
 
-from app.editor.icon_database import Icon16Display, Icon32Display, Icon80Display
+from app.editor.icon_display import Icon16Display, Icon32Display, Icon80Display
 from app.editor.portrait_display import PortraitDisplay
 from app.editor.map_sprite_display import MapSpriteDisplay
+from app.editor.panorama_display import PanoramaDisplay
 
 class ResourceEditor(QDialog):
     def __init__(self, parent=None):
@@ -38,7 +39,7 @@ class ResourceEditor(QDialog):
         self.tabs['Icons 32x32'] = Icon32Display.create()
         self.tabs['Icons 80x72'] = Icon80Display.create()
         self.tabs['Portraits'] = PortraitDisplay.create()
-        # self.tabs['Panoramas'] = PanoramaDisplay.create()
+        self.tabs['Panoramas'] = PanoramaDisplay.create()
         self.tabs['Map Sprites'] = MapSpriteDisplay.create()
         # self.tabs['Combat Animations'] = AnimationDisplay.create()
         # self.tabs['Combat Effects'] = CombatEffectDisplay.create()

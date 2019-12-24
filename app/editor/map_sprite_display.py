@@ -9,7 +9,8 @@ from app.data.resources import RESOURCES
 
 from app.editor.custom_gui import PropertyBox, give_timer
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
-from app.editor.icon_database import IconView
+from app.editor.icon_display import IconView
+import app.editor.utilities as editor_utilities
 
 import app.counters as counters
 
@@ -76,8 +77,16 @@ class MapSpriteModel(CollectionModel):
             # Get passive counter from right frame
             right_frame = self.window.display
             num = right_frame.passive_counter.count
-            one_frame = pixmap.copy(num*48, 0, 64, 48)
-            return QIcon(one_frame)
+            if index == self.window.view.currentIndex():
+                one_frame = pixmap.copy(num*64, 96, 64, 48)
+            else:
+                one_frame = pixmap.copy(num*64, 0, 64, 48)
+            if one_frame:
+                image = one_frame.toImage()
+                one_frame = editor_utilities.convert_colorkey(image)
+                pixmap = QPixmap.fromImage(one_frame)
+                pixmap = pixmap.copy(16, 16, 32, 32)
+                return QIcon(pixmap)
         return None
 
 class MapSpriteProperties(QWidget):
@@ -179,6 +188,7 @@ class MapSpriteProperties(QWidget):
         current_time = int(round(time.time() * 1000))
         self.passive_counter.update(current_time)
         self.active_counter.update(current_time)
+        self.window.update_list()
         self.draw_frame()
 
     def draw_frame(self):

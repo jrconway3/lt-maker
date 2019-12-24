@@ -2,13 +2,15 @@ from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 
-import os, glob
+import glob
 
 from app.data.resources import RESOURCES
 
 from app.editor.custom_gui import give_timer
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icon_display import IconView
+
+import app.utilities as utilities
 
 class PanoramaDisplay(DatabaseTab):
     @classmethod
@@ -27,16 +29,19 @@ class PanoramaDisplay(DatabaseTab):
         fn, ok = QFileDialog.getOpenFileName(self, "Add Background")
         if ok:
             if fn.endswith('.png'):
-                local_name = os.path.split(fn)[-1]
-                if local_name[-4].endswith('0'):
-                    movie_prefix = local_name[-5]
-                    # Get all images in directory
+                nid = fn[:-4]
+                last_number = utilities.find_last_number(nid)
+                if last_number == 0:
+                    movie_prefix = fn[:-5]
                     ims = glob.glob(movie_prefix + '*' + '.png')
-                else:
-                    movie_prefix = local_name[-4]
-                    ims = [local_name]
+                    ims = sorted(ims, key=lambda x: utilities.find_last_number(x[:-4]))
+                    full_path = movie_prefix + '.png'
+                elif last_number is None:
+                    movie_prefix = nid
+                    ims = [fn]
+                    full_path = fn
                 pixs = [QPixmap(i) for i in ims]
-                RESOURCES.create_new_panorama(movie_prefix, pixs, ims)
+                RESOURCES.create_new_panorama(movie_prefix, pixs, full_path)
                 self.after_new()
 
 class PanoramaModel(CollectionModel):
@@ -64,7 +69,7 @@ class PanoramaProperties(QWidget):
 
         # Populate resources
         for resource in self._data:
-            for path in resource.paths:
+            for path in resource.get_all_paths():
                 resource.pixmaps.append(QPixmap(path))
 
         self.current = current

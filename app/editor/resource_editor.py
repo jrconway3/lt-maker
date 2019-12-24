@@ -8,6 +8,8 @@ from app.editor.portrait_display import PortraitDisplay
 from app.editor.map_sprite_display import MapSpriteDisplay
 from app.editor.panorama_display import PanoramaDisplay
 
+from app.data.resources import RESOURCES
+
 class ResourceEditor(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -54,9 +56,11 @@ class ResourceEditor(QDialog):
         self.current_tab.reset()
 
     def accept(self):
+        RESOURCES.serialize()
         super().accept()
 
     def reject(self):
+        RESOURCES.reload()
         super().reject()
 
 # Testing

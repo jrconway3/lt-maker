@@ -1,4 +1,4 @@
-import os, glob
+import os, glob, shutil
 
 try:
     import xml.etree.cElementTree as ET
@@ -82,14 +82,15 @@ class Resources(object):
                     last_number = utilities.find_last_number(nid)
                     if last_number == 0:
                         movie_prefix = name[:-5]
-                        ims = glob.glob(os.path.join(root, movie_prefix + '*' + '.png'))
-                        ims = sorted(ims, key=lambda x: utilities.find_last_number(x[:-4]))
+                        full_path = os.path.join(root, movie_prefix + '.png')
+                        num_frames = len(glob.glob(os.path.join(root, movie_prefix + '*' + '.png')))
                     elif last_number is None:
                         movie_prefix = nid
-                        ims = [os.path.join(root, name)]
+                        full_path = os.path.join(root, name)
+                        num_frames = 1
                     else:
                         continue
-                    new_panorama = Panorama(movie_prefix, ims)
+                    new_panorama = Panorama(movie_prefix, full_path, num_frames=num_frames)
                     self.panoramas.append(new_panorama)
 
     def get_sprites(self, home, sub):
@@ -101,11 +102,90 @@ class Resources(object):
                     s[name[:-4]] = full_name
         return s
 
-    def restore(self, data):
+    def load(self):
         pass
 
-    def save(self):
-        pass
+    def reload(self):
+        self.load()
+
+    def serialize(self, proj_dir='./default'):
+        print("Starting Serialization...")
+
+        def move_image(image, parent_dir):
+            image_parent_dir = os.path.split(image.full_path)[0]
+            if os.path.abspath(image_parent_dir) != os.path.abspath(parent_dir):
+                new_full_path = os.path.join(parent_dir, image.nid + '.png')
+                shutil.copy(image.full_path, new_full_path)
+                image.set_full_path(new_full_path)
+
+        def save_icons(icons_dir, new_icon_dirname, database):
+            subicons_dir = os.path.join(icons_dir, new_icon_dirname)
+            if not os.path.exists(subicons_dir):
+                os.mkdir(subicons_dir)
+            for icon in self.icons16:
+                move_image(icon, subicons_dir)
+
+        # Make the directory to save this resource pack in
+        if not os.path.exists(proj_dir):
+            os.mkdir(proj_dir)
+        resource_dir = os.path.join(proj_dir, 'resources')
+        if not os.path.exists(resource_dir):
+            os.mkdir(resource_dir)
+        # Save Icons
+        icons_dir = os.path.join(resource_dir, 'icons')
+        if not os.path.exists(icons_dir):
+            os.mkdir(icons_dir)
+        # Save Icons16
+        save_icons(icons_dir, 'icons_16x16', self.icons16)
+        # Save Icons32
+        save_icons(icons_dir, 'icons_32x32', self.icons32)
+        # Save Icons80
+        save_icons(icons_dir, 'icons_80x72', self.icons80)
+        # Save Portraits
+        portraits_dir = os.path.join(resource_dir, 'portraits')
+        if not os.path.exists(portraits_dir):
+            os.mkdir(portraits_dir)
+        # Also write the portrait coords to the correct file
+        root = ET.Element('portrait_info')
+        for portrait in self.portraits:
+            move_image(portrait, portraits_dir)
+
+            elem = ET.SubElement(root, 'portrait', {'name': portrait.nid})
+            mouth = ET.SubElement(elem, 'mouth')
+            mouth.text = ','.join([str(s) for s in portrait.smiling_offset])
+            blink = ET.SubElement(elem, 'blink')
+            blink.text = ','.join([str(s) for s in portrait.blinking_offset])
+
+        tree = ET.ElementTree(root)
+        tree.write(os.path.join(portraits_dir, 'portrait_coords.xml'))
+        # Save Panoramas
+        panoramas_dir = os.path.join(resource_dir, 'panoramas')
+        if not os.path.exists(panoramas_dir):
+            os.mkdir(panoramas_dir)
+        for panorama in self.panoramas:
+            panorama_parent_dir = os.path.split(panorama.full_path)[0]
+            if os.path.abspath(panorama_parent_dir) != os.path.abspath(panoramas_dir):
+                new_full_path = os.path.join(panoramas_dir, panorama.nid)
+                for idx, path in enumerate(panorama.get_all_paths()):
+                    shutil.copy(path, new_full_path + str(idx) + '.png')
+                panorama.set_full_path(new_full_path)
+        # Save Map Sprites
+        map_sprites_dir = os.path.join(resource_dir, 'map_sprites')
+        if not os.path.exists(map_sprites_dir):
+            os.mkdir(map_sprites_dir)
+        for map_sprite in self.map_sprites:
+            # Standing sprite
+            standing_parent_dir = os.path.split(map_sprite.standing_full_path)[0]
+            if os.path.abspath(standing_parent_dir) != os.path.abspath(map_sprites_dir):
+                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid)
+                shutil.copy(map_sprite.standing_full_path, new_full_path + '-stand.png')
+            # Moving sprite
+            moving_parent_dir = os.path.split(map_sprite.moving_full_path)[0]
+            if os.path.abspath(moving_parent_dir) != os.path.abspath(map_sprites_dir):
+                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid)
+                shutil.copy(map_sprite.moving_full_path, new_full_path + '-move.png')
+                map_sprite.set_full_path(new_full_path)
+        print('Done Serializing!')
 
     def create_new_16x16_icon(self, nid, pixmap):
         full_path = os.path.join(self.main_folder, 'icons/icons_16x16', nid)
@@ -143,8 +223,8 @@ class Resources(object):
         self.map_sprites.append(new_map_sprite)
         return new_map_sprite
 
-    def create_new_panorama(self, nid, pixmaps, full_paths):
-        new_panorama = Panorama(nid, full_paths, pixmaps)
+    def create_new_panorama(self, nid, pixmaps, full_path):
+        new_panorama = Panorama(nid, full_path, pixmaps)
         self.panoramas.append(new_panorama)
         return new_panorama
 
@@ -156,6 +236,9 @@ class ImageResource(object):
 
         self.sub_images = []
         self.parent_image = None
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
 
     def unhook(self):
         if self.parent_image:
@@ -172,6 +255,9 @@ class Portrait(object):
         self.blinking_offset = [0, 0]
         self.smiling_offset = [0, 0]
 
+    def set_full_path(self, full_path):
+        self.full_path = full_path
+
 class MapSprite(object):
     def __init__(self, nid, stand_full_path=None, move_full_path=None, standing_pixmap=None, moving_pixmap=None):
         self.nid = nid
@@ -180,13 +266,31 @@ class MapSprite(object):
         self.standing_pixmap = standing_pixmap
         self.moving_pixmap = moving_pixmap
 
+    def set_full_path(self, full_path):
+        full_path = full_path[:-4]  # Remove png ending
+        self.standing_full_path = full_path + '-stand.png'
+        self.moving_full_path = full_path + '-move.png'
+
 class Panorama(object):
-    def __init__(self, nid, paths=None, pixmaps=None):
+    def __init__(self, nid, full_path=None, pixmaps=None, num_frames=0):
         self.nid = nid
-        self.paths = paths or []
-        print(self.paths)
+        self.full_path = full_path  # Ignores numbers at the end
+        self.num_frames = num_frames or len(pixmaps)
         self.pixmaps = pixmaps or []
         self.idx = 0
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
+
+    def get_all_paths(self):
+        paths = []
+        if self.num_frames == 1:
+            paths.append(self.full_path)
+        else:
+            for idx in range(self.num_frames):
+                path = self.full_path[:-4] + str(idx) + '.png'
+                paths.append(path)
+        return paths
 
     def get_frame(self):
         if self.pixmaps:

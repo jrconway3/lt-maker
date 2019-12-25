@@ -13,17 +13,7 @@ class Resources(object):
         self.main_folder = 'resources'
 
         # Modifiable Resources
-        self.icons16 = data.data()
-        self.icons32 = data.data()
-        self.icons80 = data.data()
-        self.portraits = data.data()
-        self.panoramas = data.data()
-        self.map_sprites = data.data()
-        self.combat_anims = data.data()
-        self.combat_effects = data.data()
-        self.map_effects = data.data()
-        self.music = data.data()
-        self.sfx = data.data()
+        self.clear()
 
         # Standardized, Locked resources
         self.platforms = {}
@@ -32,14 +22,10 @@ class Resources(object):
         self.init_load()
 
     def init_load(self):
-        self.populate_database(self.icons16, 'icons/icons_16x16', '.png', ImageResource)
-        self.populate_database(self.icons32, 'icons/icons_32x32', '.png', ImageResource)
-        self.populate_database(self.icons80, 'icons/icons_80x72', '.png', ImageResource)
-        self.populate_database(self.portraits, 'portraits', '.png', Portrait)
-        self.set_up_portrait_coords('portraits/portrait_coords.xml')
-        self.populate_map_sprites('map_sprites')
-        self.populate_panoramas('panoramas')
+        # Grab project resources
+        self.load()
 
+        # Standard locked resources
         self.platforms = self.get_sprites(self.main_folder, 'platforms')
         self.misc = self.get_sprites(self.main_folder, 'misc')
 
@@ -102,10 +88,30 @@ class Resources(object):
                     s[name[:-4]] = full_name
         return s
 
-    def load(self):
-        pass
+    def clear(self):
+        self.icons16 = data.data()
+        self.icons32 = data.data()
+        self.icons80 = data.data()
+        self.portraits = data.data()
+        self.panoramas = data.data()
+        self.map_sprites = data.data()
+        self.combat_anims = data.data()
+        self.combat_effects = data.data()
+        self.map_effects = data.data()
+        self.music = data.data()
+        self.sfx = data.data()
+
+    def load(self, proj_dir='./default'):
+        self.populate_database(self.icons16, 'icons/icons_16x16', '.png', ImageResource)
+        self.populate_database(self.icons32, 'icons/icons_32x32', '.png', ImageResource)
+        self.populate_database(self.icons80, 'icons/icons_80x72', '.png', ImageResource)
+        self.populate_database(self.portraits, 'portraits', '.png', Portrait)
+        self.set_up_portrait_coords('portraits/portrait_coords.xml')
+        self.populate_map_sprites('map_sprites')
+        self.populate_panoramas('panoramas')
 
     def reload(self):
+        self.clear()
         self.load()
 
     def serialize(self, proj_dir='./default'):

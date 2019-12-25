@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
+from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, \
     QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter, QButtonGroup
 from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
@@ -119,7 +119,9 @@ class MapSpriteProperties(QWidget):
         self.frame_view = IconView(self)
         left_section.addWidget(self.frame_view)
 
-        right_section = QGridLayout()
+        right_section = QVBoxLayout()
+
+        button_section = QGridLayout()
         self.up_arrow = QPushButton(self)
         self.left_arrow = QPushButton(self)
         self.right_arrow = QPushButton(self)
@@ -132,14 +134,36 @@ class MapSpriteProperties(QWidget):
         positions = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 1)]
         text = ["^", "<-", "->", "v", "O"]
         for idx, button in enumerate(self.buttons):
-            right_section.addWidget(button, *positions[idx])
+            button_section.addWidget(button, *positions[idx])
             button.setCheckable(True)
             button.setText(text[idx])
             button.setMaximumWidth(40)
             # button.clicked.connect(self.a_button_clicked)
             self.button_group.addButton(button)
             self.button_group.setId(button, idx)
-        right_section.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        button_section.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+        color_section = QHBoxLayout()
+        self.current_color = 0
+        self.player_button = QPushButton(self)
+        self.enemy_button = QPushButton(self)
+        self.other_button = QPushButton(self)
+        self.enemy2_button = QPushButton(self)
+        self.button_group = QButtonGroup(self)
+        self.button_group.buttonPressed.connect(self.color_clicked)
+        self.colors = [self.player_button, self.enemy_button, self.other_button, self.enemy2_button]
+        text = ["Player", "Enemy", "Other", "Enemy 2"]
+        for idx, button in enumerate(self.colors):
+            color_section.addWidget(button)
+            button.setCheckable(True)
+            button.setText(text[idx])
+            self.button_group.addButton(button)
+            self.button_group.setId(button, idx)
+        self.player_button.setChecked(True)
+        color_section.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
+        right_section.addLayout(button_section)
+        right_section.addLayout(color_section)
 
         left_frame = QFrame(self)
         left_frame.setLayout(left_section)
@@ -170,7 +194,7 @@ class MapSpriteProperties(QWidget):
         base_image = QImage(self.standing_width + self.moving_width, 
                             max(self.standing_height, self.moving_height),
                             QImage.Format_ARGB32)
-        base_image.fill(QColor(0, 0, 0, 255))
+        base_image.fill(QColor(0, 0, 0, 0))
         painter = QPainter()
         painter.begin(base_image)
         if self.current.standing_pixmap:
@@ -210,6 +234,17 @@ class MapSpriteProperties(QWidget):
         else:
             num = self.passive_counter.count
             frame = self.current.standing_pixmap.copy(num*64, 0, 64, 48)
+        frame = frame.toImage()
+        frame = editor_utilities.convert_colorkey(frame)
+        if self.current_color == 0:
+            pass
+        elif self.current_color == 1:
+            frame = editor_utilities.color_convert(frame, editor_utilities.enemy_colors)
+        elif self.current_color == 2:
+            frame = editor_utilities.color_convert(frame, editor_utilities.other_colors)
+        elif self.current_color == 3:
+            frame = editor_utilities.color_convert(frame, editor_utilities.enemy2_colors)
+        frame = QPixmap.fromImage(frame)
         self.frame_view.set_image(frame)
         self.frame_view.show_image()
 
@@ -222,4 +257,8 @@ class MapSpriteProperties(QWidget):
         for button in self.buttons:
             button.setChecked(False)
         spec_button.setChecked(checked)
+        self.draw_frame()
+
+    def color_clicked(self, spec_button):
+        self.current_color = self.colors.index(spec_button)
         self.draw_frame()

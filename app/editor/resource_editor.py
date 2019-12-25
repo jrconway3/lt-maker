@@ -11,7 +11,7 @@ from app.editor.panorama_display import PanoramaDisplay
 from app.data.resources import RESOURCES
 
 class ResourceEditor(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, one_tab_only=None):
         super().__init__(parent)
         self.setWindowTitle("Resource Editor")
         self.setStyleSheet("font: 10pt;")
@@ -33,6 +33,13 @@ class ResourceEditor(QDialog):
         for name, tab in self.tabs.items():
             self.tab_bar.addTab(tab, name)
 
+        # Handle if only one tab is allowed
+        if one_tab_only:
+            for name, tab in self.tabs.items():
+                if name != one_tab_only:
+                    tab.setEnabled(False)
+
+        self.current_tab = self.tab_bar.currentWidget()
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
     def create_sub_widgets(self):
@@ -62,6 +69,17 @@ class ResourceEditor(QDialog):
     def reject(self):
         RESOURCES.reload()
         super().reject()
+
+    @staticmethod
+    def get(parent, tab_name):
+        dialog = ResourceEditor(parent, tab_name)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            current_tab = dialog.current_tab
+            selected_res = current_tab.right_frame.current
+            return selected_res, True
+        else:
+            return None, False
 
 # Testing
 # Run "python -m app.editor.resource_editor" from main directory

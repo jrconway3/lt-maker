@@ -45,14 +45,14 @@ class RankCatalog(data):
 
 # === WEAPON TYPE ===
 class WeaponType(object):
-    def __init__(self, nid, name, magic, advantage, disadvantage, icon_fn=None, icon_index=(0, 0)):
+    def __init__(self, nid, name, magic, advantage, disadvantage, icon_nid=None, icon_index=(0, 0)):
         self.nid = nid
         self.name = name
         self.magic = magic
         self.advantage = advantage
         self.disadvantage = disadvantage
 
-        self.icon_fn = icon_fn
+        self.icon_nid = icon_nid
         self.icon_index = icon_index
 
     def __repr__(self):
@@ -79,7 +79,7 @@ class WeaponCatalog(data):
                 disadvantage.append(Advantage(weapon_type, rank, effects))
             new_weapon_type = \
                 WeaponType(nid, name, magic, advantage, disadvantage, 
-                           'sprites/wexp_icons.png', (0, idx))
+                           'wexp_icons', (0, idx))
             self.append(new_weapon_type)
 
 # === WEAPON EXPERIENCE GAINED ===

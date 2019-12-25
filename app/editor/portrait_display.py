@@ -39,6 +39,9 @@ class PortraitDisplay(DatabaseTab):
                 else:
                     QMessageBox.critical(self, "Error", "Image is not correct size (128x112 px)")
 
+    def save(self):
+        return None
+
 class PortraitModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():

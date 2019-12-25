@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QPushButton, 
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
+from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.data.weapons import AdvantageList
 
@@ -35,6 +36,12 @@ class WeaponDatabase(DatabaseTab):
         DB.create_new_weapon_type(nid, name)
         self.after_new()
 
+def get_pixmap(weapon):
+    res = RESOURCES.icons16.get(weapon.icon_nid)
+    if not res.pixmap:
+        res.pixmap = QPixmap(res.full_path)
+    return res.pixmap
+
 class WeaponModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -46,7 +53,8 @@ class WeaponModel(CollectionModel):
         elif role == Qt.DecorationRole:
             weapon = self._data[index.row()]
             x, y = weapon.icon_index
-            pixmap = QPixmap(weapon.icon_fn).copy(x*16, y*16, 16, 16).scaled(64, 64)
+            pixmap = get_pixmap(weapon)
+            pixmap = pixmap.copy(x*16, y*16, 16, 16).scaled(64, 64)
             return QIcon(pixmap)
         return None
 
@@ -61,7 +69,7 @@ class WeaponProperties(QWidget):
 
         top_section = QHBoxLayout()
 
-        self.icon_edit = ItemIcon16(None, self)
+        self.icon_edit = ItemIcon16(self)
         top_section.addWidget(self.icon_edit)
 
         horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -150,7 +158,7 @@ class WeaponProperties(QWidget):
         self.magic_box.setChecked(current.magic)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)
-        self.icon_edit.set_current(current.icon_fn, current.icon_index)
+        self.icon_edit.set_current(current.icon_nid, current.icon_index)
 
 class AdvantageDelegate(QStyledItemDelegate):
     type_column = 0
@@ -172,8 +180,9 @@ class AdvantageDelegate(QStyledItemDelegate):
             editor = ComboBox(parent)
             for weapon_type in DB.weapons:
                 x, y = weapon_type.icon_index
-                icon = QPixmap(weapon_type.icon_fn).copy(x*16, y*16, 16, 16)
-                editor.addItem(QIcon(icon), weapon_type.nid)
+                pixmap = get_pixmap(weapon_type)
+                pixmap = pixmap.copy(x*16, y*16, 16, 16)
+                editor.addItem(QIcon(pixmap), weapon_type.nid)
             return editor
         else:
             return super().createEditor(parent, option, index)

@@ -44,6 +44,9 @@ class PanoramaDisplay(DatabaseTab):
                 RESOURCES.create_new_panorama(movie_prefix, pixs, full_path)
                 self.after_new()
 
+    def save(self):
+        return None
+
 class PanoramaModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():

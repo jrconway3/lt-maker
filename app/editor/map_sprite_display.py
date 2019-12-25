@@ -63,6 +63,9 @@ class MapSpriteDisplay(DatabaseTab):
         RESOURCES.create_new_map_sprite(local_name, standing_pix, moving_pix)
         self.after_new()
 
+    def save(self):
+        return None
+
 class MapSpriteModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():

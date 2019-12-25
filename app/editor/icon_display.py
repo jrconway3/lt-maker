@@ -35,6 +35,11 @@ class Icon16Display(DatabaseTab):
                 self.creation_func(local_name, pix)
                 self.after_new()
 
+    def save(self):
+        # No need to save icons -- resource editor does the job of serializing
+        # them to the filesystem
+        return None
+
 class Icon32Display(Icon16Display):
     creation_func = RESOURCES.create_new_32x32_icon
     @classmethod
@@ -198,8 +203,9 @@ class Icon16Properties(QWidget):
             for x in range(width//self.width):
                 for y in range(height//self.height):
                     region = sheet.copy(x*self.width, y*self.height, self.width, self.height)
-                    new_nid = resource.nid + str(x) + '_' + str(y)
+                    new_nid = resource.nid + " " + str(x) + ',' + str(y)
                     new_image = ImageResource(new_nid, resource.full_path, region)
+                    new_image.icon_index = (x, y)
                     resource.sub_images.append(new_image)
                     new_image.parent_image = resource
 

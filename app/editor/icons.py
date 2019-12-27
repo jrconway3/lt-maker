@@ -7,7 +7,6 @@ from app.data.resources import RESOURCES
 
 from app.editor.resource_editor import ResourceEditor
 
-
 class PushableIcon16(QPushButton):
     sourceChanged = pyqtSignal(str, int, int)
     width, height = 16, 16

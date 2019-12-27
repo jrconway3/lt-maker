@@ -12,7 +12,7 @@ from app import utilities
 class Item(object):
     next_uid = 100
 
-    def __init__(self, nid, name, desc, min_range, max_range, value, icon_fn=None, icon_index=(0, 0), components=None):
+    def __init__(self, nid, name, desc, min_range, max_range, value, icon_nid=None, icon_index=(0, 0), components=None):
         self.uid = Item.next_uid
         Item.next_uid += 1
 
@@ -25,7 +25,7 @@ class Item(object):
         self.max_range = max_range
         self.value = int(value)
 
-        self.icon_fn = icon_fn
+        self.icon_nid = icon_nid
         self.icon_index = icon_index
 
         self.components = components or data()
@@ -88,7 +88,7 @@ class ItemCatalog(data):
             range_ = item.find('range').text
             value = int(item.find('value').text)
 
-            icon_fn = item.find('icon_fn').text
+            icon_nid = item.find('icon_fn').text
             icon_index = item.find('icon_id').text
 
             if '-' in range_:
@@ -113,8 +113,7 @@ class ItemCatalog(data):
 
             new_item = \
                 Item(nid, name, desc, min_range, max_range, value, 
-                     'sprites/item_icons/%s.png' % icon_fn, icon_index,
-                     my_components)
+                     icon_nid, icon_index, my_components)
             self.append(new_item)
 
     def get_instance(self, nid):

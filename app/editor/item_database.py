@@ -2,11 +2,13 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, \
     QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox, QStyledItemDelegate
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QIcon
 
+from app.data.resources import RESOURCES
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.editor.custom_gui import get_icon, PropertyBox, QHLine, ComboBox, RightClickListView, SingleListModel
+from app.editor.custom_gui import PropertyBox, QHLine, ComboBox, RightClickListView, SingleListModel
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16
@@ -30,6 +32,16 @@ class ItemDatabase(DatabaseTab):
         DB.create_new_item(nid, name)
         self.after_new()
 
+def get_pixmap(item):
+    x, y = item.icon_index
+    res = RESOURCES.icons16.get(item.icon_nid)
+    if not res:
+        return None
+    if not res.pixmap:
+        res.pixmap = QPixmap(res.full_path)
+    pixmap = res.pixmap.copy(x*16, y*16, 16, 16)
+    return pixmap
+
 class ItemModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -40,7 +52,10 @@ class ItemModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             item = self._data[index.row()]
-            return get_icon(item, scale_to=2)
+            pix = get_pixmap(item)
+            if pix:
+                pix = pix.scaled(32, 32)
+                return QIcon(pix)
         return None
 
 class ItemProperties(QWidget):
@@ -54,7 +69,7 @@ class ItemProperties(QWidget):
 
         top_section = QHBoxLayout()
 
-        self.icon_edit = ItemIcon16(None, self)
+        self.icon_edit = ItemIcon16(self)
         top_section.addWidget(self.icon_edit)
 
         horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -130,6 +145,9 @@ class ItemProperties(QWidget):
         total_section.addLayout(component_section)
 
     def nid_changed(self, text):
+        # Also change name if they are identical
+        if self.current.name == self.current.nid:
+            self.name_box.edit.setText(text)
         self.current.nid = text
         self.window.update_list()
 
@@ -214,7 +232,7 @@ class ItemProperties(QWidget):
             self.max_range_box.edit.setEditText(current.max_range)
         else:
             self.max_range_box.edit.setValue(current.max_range)
-        self.icon_edit.set_current(current.icon_fn, current.icon_index)
+        self.icon_edit.set_current(current.icon_nid, current.icon_index)
         self.component_list.clear()
         for component in current.components.values():
             self.add_component_widget(component)
@@ -241,7 +259,9 @@ class ItemList(QListWidget):
         new_box = QListWidgetItem()
         combo_box = ComboBox(self)
         for i in DB.items:
-            combo_box.addItem(get_icon(i), i.nid)
+            pix = get_pixmap(i)
+            icon = QIcon(pix) if pix else None
+            combo_box.addItem(icon, i.nid)
         combo_box.setValue(item.nid)
         self.addItem(new_box)
         self.setItemWidget(new_box, combo_box)
@@ -266,7 +286,9 @@ class ItemListDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         editor = ComboBox(parent)
         for item in DB.items:
-            editor.addItem(get_icon(item), item.nid)
+            pix = get_pixmap(item)
+            icon = QIcon(pix) if pix else None
+            editor.addItem(icon, item.nid)
         return editor
 
     def setEditorData(self, editor, index):
@@ -325,7 +347,9 @@ class ItemListModel(SingleListModel):
             return item.nid
         elif role == Qt.DecorationRole:
             item = self._data[index.row()]
-            return get_icon(item)
+            pixmap = get_pixmap(item)
+            if pixmap:
+                return QIcon(pixmap)
         return None
 
 # Testing

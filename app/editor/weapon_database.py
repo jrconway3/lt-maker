@@ -37,10 +37,14 @@ class WeaponDatabase(DatabaseTab):
         self.after_new()
 
 def get_pixmap(weapon):
+    x, y = weapon.icon_index
     res = RESOURCES.icons16.get(weapon.icon_nid)
+    if not res:
+        return None
     if not res.pixmap:
         res.pixmap = QPixmap(res.full_path)
-    return res.pixmap
+    pixmap = res.pixmap.copy(x*16, y*16, 16, 16)
+    return pixmap
 
 class WeaponModel(CollectionModel):
     def data(self, index, role):
@@ -52,10 +56,10 @@ class WeaponModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             weapon = self._data[index.row()]
-            x, y = weapon.icon_index
             pixmap = get_pixmap(weapon)
-            pixmap = pixmap.copy(x*16, y*16, 16, 16).scaled(64, 64)
-            return QIcon(pixmap)
+            if pixmap:
+                pixmap = pixmap.scaled(64, 64)
+                return QIcon(pixmap)
         return None
 
 class WeaponProperties(QWidget):
@@ -121,6 +125,9 @@ class WeaponProperties(QWidget):
         total_section.addWidget(self.disadvantage)
 
     def nid_changed(self, text):
+        # Also change name if they are identical
+        if self.current.name == self.current.nid:
+            self.name_box.edit.setText(text)
         self.current.nid = text
         self.window.update_list()
 
@@ -181,8 +188,8 @@ class AdvantageDelegate(QStyledItemDelegate):
             for weapon_type in DB.weapons:
                 x, y = weapon_type.icon_index
                 pixmap = get_pixmap(weapon_type)
-                pixmap = pixmap.copy(x*16, y*16, 16, 16)
-                editor.addItem(QIcon(pixmap), weapon_type.nid)
+                icon = QIcon(pixmap) if pixmap else None
+                editor.addItem(icon, weapon_type.nid)
             return editor
         else:
             return super().createEditor(parent, option, index)

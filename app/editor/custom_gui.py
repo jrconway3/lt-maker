@@ -1,23 +1,12 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
     QLineEdit, QPushButton, QAction, QMenu, QMessageBox, QSizePolicy, QFrame, \
     QDialogButtonBox, QGridLayout, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
-from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QAbstractItemModel
 from PyQt5.QtCore import Qt, QModelIndex, QTimer
 
 from app.data.database import DB
 
 from app import utilities
-
-def get_icon(item, scale=(16, 16), scale_to=1):
-    scale_x, scale_y = scale
-    x, y = item.icon_index
-    pixmap = QPixmap(item.icon_fn).copy(x*scale_x, y*scale_y, scale_x, scale_y)
-    if pixmap.width() > 0 and pixmap.height() > 0:
-        pixmap = pixmap.scaled(scale_to*scale_x, scale_to*scale_y)
-        return QIcon(pixmap)
-    else:
-        return None
 
 def give_timer(obj, fps=30):
     obj.main_timer = QTimer()

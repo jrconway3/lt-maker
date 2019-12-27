@@ -35,9 +35,9 @@ class ResourceEditor(QDialog):
 
         # Handle if only one tab is allowed
         if one_tab_only:
-            for name, tab in self.tabs.items():
+            for idx, name in enumerate(self.tabs.keys()):
                 if name != one_tab_only:
-                    tab.setEnabled(False)
+                    self.tab_bar.setTabEnabled(idx, False)
 
         self.current_tab = self.tab_bar.currentWidget()
         self.tab_bar.currentChanged.connect(self.on_tab_changed)

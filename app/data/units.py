@@ -13,7 +13,7 @@ class UnitPrefab(object):
                  level: int, klass: str, tags, 
                  bases: stats.StatList, growths: stats.StatList, items: list,
                  learned_skills: LearnedSkillList, wexp_gain: weapons.WexpGainList,
-                 portrait_fn=None):
+                 portrait_nid=None):
 
         self.nid = nid
         self.name = name
@@ -35,7 +35,7 @@ class UnitPrefab(object):
 
         self.wexp_gain = wexp_gain
 
-        self.portrait_fn = portrait_fn
+        self.portrait_nid = portrait_nid
 
     def get_stat_lists(self):
         return [self.bases, self.growths]

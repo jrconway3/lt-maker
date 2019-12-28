@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 
 from app.data.weapons import WexpGainList
 from app.data.skills import LearnedSkillList
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.custom_gui import PropertyBox, ComboBox, QHLine, VirtualListModel
@@ -16,6 +17,7 @@ from app.editor.sub_list_widget import BasicSingleListWidget, AppendMultiListWid
 from app.editor.stat_widget import UnitStatWidget
 from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.item_database import ItemListWidget
+import app.editor.weapon_database as weapon_database
 from app.editor.icons import UnitPortrait
 from app import utilities
 
@@ -62,9 +64,9 @@ class WexpModel(VirtualListModel):
             return None
         elif role == Qt.DecorationRole and orientation == Qt.Horizontal:
             weapon = self._columns[idx]
-            x, y = weapon.icon_index
-            pixmap = QPixmap(weapon.icon_fn).copy(x*16, y*16, 16, 16)
-            return QIcon(pixmap)
+            pixmap = weapon_database.get_pixmap(weapon)
+            if pixmap:
+                return QIcon(pixmap)
         return None
 
     def data(self, index, role):
@@ -103,6 +105,15 @@ class HorizWeaponListWidget(BasicSingleListWidget):
 
         self.placement(data, title)
 
+def get_chibi(unit):
+    res = RESOURCES.portraits.get(unit.portrait_nid)
+    if not res:
+        return None
+    if not res.pixmap:
+        res.pixmap = QPixmap(res.full_path)
+    pixmap = res.pixmap.copy(96, 16, 32, 32)
+    return pixmap
+
 class UnitModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -114,8 +125,8 @@ class UnitModel(CollectionModel):
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
             # Get chibi image
-            pixmap = QPixmap(unit.portrait_fn).copy(96, 16, 32, 32)
-            if pixmap.width() > 0 and pixmap.height > 0:
+            pixmap = get_chibi(unit)
+            if pixmap:
                 return QIcon(pixmap)
             else:
                 return None
@@ -159,7 +170,7 @@ class UnitProperties(QWidget):
 
         top_section = QHBoxLayout()
 
-        self.icon_edit = UnitPortrait(None, self)
+        self.icon_edit = UnitPortrait(self)
         top_section.addWidget(self.icon_edit)
 
         horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -261,6 +272,9 @@ class UnitProperties(QWidget):
         final_section.addWidget(self.splitter)
 
     def nid_changed(self, text):
+        # Also change name if they are identical
+        if self.current.name == self.current.nid:
+            self.name_box.edit.setText(text)
         self.current.nid = text
         self.window.update_list()
 
@@ -329,6 +343,8 @@ class UnitProperties(QWidget):
         self.personal_skill_widget.set_current(self.current.learned_skills)
         self.wexp_gain_widget.set_current(self.current.wexp_gain)
         self.item_widget.set_current(self.current.items)
+
+        self.icon_edit.set_current(current.portrait_nid)
 
 # Testing
 # Run "python -m app.editor.unit_database" from main directory

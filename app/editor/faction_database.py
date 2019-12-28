@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxL
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.custom_gui import PropertyBox
@@ -31,6 +32,16 @@ class FactionDatabase(DatabaseTab):
         DB.create_new_faction(nid, name)
         self.after_new()
 
+def get_pixmap(faction):
+    x, y = faction.icon_index
+    res = RESOURCES.icons32.get(faction.icon_nid)
+    if not res:
+        return None
+    if not res.pixmap:
+        res.pixmap = QPixmap(res.full_path)
+    pixmap = res.pixmap.copy(x*32, y*32, 32, 32)
+    return pixmap
+
 class FactionModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -41,9 +52,9 @@ class FactionModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             faction = self._data[index.row()]
-            x, y = faction.icon_index
-            pixmap = QPixmap(faction.icon_fn).copy(x*32, y*32, 32, 32)
-            return QIcon(pixmap)
+            pixmap = get_pixmap(faction)
+            if pixmap:
+                return QIcon(pixmap)
         return None
 
 class FactionProperties(QWidget):
@@ -59,7 +70,7 @@ class FactionProperties(QWidget):
 
         top_section = QHBoxLayout()
 
-        self.icon_edit = ItemIcon32(None, self)
+        self.icon_edit = ItemIcon32(self)
         top_section.addWidget(self.icon_edit)
 
         horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -90,6 +101,9 @@ class FactionProperties(QWidget):
         total_section.setAlignment(Qt.AlignTop)
 
     def nid_changed(self, text):
+        # Also change name if they are identical
+        if self.current.name == self.current.nid:
+            self.name_box.edit.setText(text)
         self.current.nid = text
         self.window.update_list()
 
@@ -114,7 +128,7 @@ class FactionProperties(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
         self.desc_box.edit.setText(current.desc)
-        self.icon_edit.set_current(current.icon_fn, current.icon_index)
+        self.icon_edit.set_current(current.icon_nid, current.icon_index)
 
 # Testing
 # Run "python -m app.editor.faction_database" from main directory

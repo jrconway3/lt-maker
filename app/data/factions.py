@@ -6,11 +6,11 @@ except ImportError:
 from app.data.data import data
 
 class Faction(object):
-    def __init__(self, nid, name, desc, icon_fn=None, icon_index=(0, 0)):
+    def __init__(self, nid, name, desc, icon_nid=None, icon_index=(0, 0)):
         self.nid = nid
         self.name = name
         self.desc = desc
-        self.icon_fn = icon_fn
+        self.icon_nid = icon_nid
         self.icon_index = icon_index
 
 class FactionCatalog(data):
@@ -21,5 +21,5 @@ class FactionCatalog(data):
             nid = faction.find('id').text
             icon = faction.find('icon').text
             desc = faction.find('desc').text
-            new_faction = Faction(nid, name, desc, 'sprites/faction_icons/%sEmblem.png' % icon)
+            new_faction = Faction(nid, name, desc, '%sEmblem' % icon)
             self.append(new_faction)

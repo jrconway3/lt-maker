@@ -58,7 +58,6 @@ class WeaponModel(CollectionModel):
             weapon = self._data[index.row()]
             pixmap = get_pixmap(weapon)
             if pixmap:
-                pixmap = pixmap.scaled(64, 64)
                 return QIcon(pixmap)
         return None
 

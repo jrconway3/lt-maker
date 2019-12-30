@@ -1,8 +1,14 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QTabWidget, QDialogButtonBox
 from PyQt5.QtCore import Qt
 
+import time
+
 from collections import OrderedDict
 
+import app.data.constants as constants
+import app.counters as counters
+
+from app.editor.custom_gui import give_timer
 from app.editor.unit_database import UnitDatabase
 from app.editor.class_database import ClassDatabase
 from app.editor.faction_database import FactionDatabase
@@ -27,8 +33,15 @@ class DatabaseEditor(QDialog):
         self.buttonbox.rejected.connect(self.reject)
         self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.mass_apply)
 
+        # Timing Section
+        give_timer(self, constants.FPS)
+        framerate = constants.FRAMERATE
+        self.passive_counter = counters.generic3counter(int(32*framerate), int(4*framerate))
+        self.active_counter = counters.generic3counter(int(13*framerate), int(6*framerate))
+
         self.tab_bar = QTabWidget(self)
         self.grid.addWidget(self.tab_bar, 0, 0, 1, 2)
+        self.current_tab = None
 
         self.create_sub_widgets()
         for name, tab in self.tabs.items():
@@ -36,15 +49,22 @@ class DatabaseEditor(QDialog):
 
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
+    def tick(self):
+        current_time = int(round(time.time() * 1000))
+        self.passive_counter.update(current_time)
+        self.active_counter.update(current_time)
+        if self.current_tab:
+            self.current_tab.tick()
+
     def create_sub_widgets(self):
         self.tabs = OrderedDict()
-        self.tabs['Units'] = UnitDatabase.create()
-        self.tabs['Classes'] = ClassDatabase.create()
-        self.tabs['Factions'] = FactionDatabase.create()
-        self.tabs['Weapons'] = WeaponDatabase.create()
-        self.tabs['Items'] = ItemDatabase.create()
-        self.tabs['Terrain'] = TerrainDatabase.create()
-        self.tabs['AI'] = AIDatabase.create()
+        self.tabs['Units'] = UnitDatabase.create(self)
+        self.tabs['Classes'] = ClassDatabase.create(self)
+        self.tabs['Factions'] = FactionDatabase.create(self)
+        self.tabs['Weapons'] = WeaponDatabase.create(self)
+        self.tabs['Items'] = ItemDatabase.create(self)
+        self.tabs['Terrain'] = TerrainDatabase.create(self)
+        self.tabs['AI'] = AIDatabase.create(self)
 
     def on_tab_changed(self, index):
         new_tab = self.tab_bar.currentWidget()

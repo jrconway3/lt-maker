@@ -35,6 +35,9 @@ class DatabaseTab(QWidget):
     def update_list(self):
         self.left_frame.update_list()
 
+    def tick(self):
+        pass
+
     def reset(self):
         """
         Whenever the tab is changed, make sure to update the tab display

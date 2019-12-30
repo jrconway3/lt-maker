@@ -12,6 +12,7 @@ from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icon_display import IconView
 import app.editor.utilities as editor_utilities
 
+import app.data.constants as constants
 import app.counters as counters
 
 class MapSpriteDisplay(DatabaseTab):
@@ -66,6 +67,18 @@ class MapSpriteDisplay(DatabaseTab):
     def save(self):
         return None
 
+def get_basic_icon(pixmap, num, current=False):
+    if current:
+        one_frame = pixmap.copy(num*64, 96, 64, 48)
+    else:
+        one_frame = pixmap.copy(num*64, 0, 64, 48)
+    if one_frame:
+        image = one_frame.toImage()
+        one_frame = editor_utilities.convert_colorkey(image)
+        pixmap = QPixmap.fromImage(one_frame)
+        pixmap = pixmap.copy(16, 16, 32, 32)
+        return pixmap
+
 class MapSpriteModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -80,15 +93,8 @@ class MapSpriteModel(CollectionModel):
             # Get passive counter from right frame
             right_frame = self.window.display
             num = right_frame.passive_counter.count
-            if index == self.window.view.currentIndex():
-                one_frame = pixmap.copy(num*64, 96, 64, 48)
-            else:
-                one_frame = pixmap.copy(num*64, 0, 64, 48)
-            if one_frame:
-                image = one_frame.toImage()
-                one_frame = editor_utilities.convert_colorkey(image)
-                pixmap = QPixmap.fromImage(one_frame)
-                pixmap = pixmap.copy(16, 16, 32, 32)
+            pixmap = get_basic_icon(pixmap, num, index == self.window.view.currentIndex())
+            if pixmap:
                 return QIcon(pixmap)
         return None
 
@@ -111,8 +117,8 @@ class MapSpriteProperties(QWidget):
 
         self.current = current
 
-        framerate = 1000//60
-        give_timer(self, 60)
+        framerate = constants.FRAMERATE
+        give_timer(self, constants.FPS)
 
         self.passive_counter = counters.generic3counter(int(32*framerate), int(4*framerate))
         self.active_counter = counters.generic3counter(int(13*framerate), int(6*framerate))

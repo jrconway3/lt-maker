@@ -14,7 +14,7 @@ class Klass(object):
                  promotes_from, turns_into, tags, max_level: int,
                  bases: stats.StatList, growths: stats.StatList, promotion: stats.StatList, max_stats: stats.StatList,
                  skills: LearnedSkillList, wexp_gain: weapons.WexpGainList, growth_bonus: stats.StatList, 
-                 icon_fn=None, icon_index=(0, 0)):
+                 icon_nid=None, icon_index=(0, 0), map_sprite_nid=None):
         self.nid = nid
         self.short_name = short_name
         self.long_name = long_name
@@ -42,8 +42,9 @@ class Klass(object):
         self.exp_mult = 1
         self.opponent_exp_mult = 1
 
-        self.icon_fn = icon_fn
+        self.icon_nid = icon_nid
         self.icon_index = icon_index
+        self.map_sprite_nid = map_sprite_nid
 
     def get_stat_lists(self):
         return [self.bases, self.growths, self.promotion, self.growth_bonus, self.max_stats]

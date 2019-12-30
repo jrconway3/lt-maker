@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
     QVBoxLayout, QSizePolicy, QSpacerItem, QDoubleSpinBox
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
 from app.data.weapons import WexpGainList
 from app.data.skills import LearnedSkillList
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.custom_gui import PropertyBox, ComboBox, QHLine
@@ -16,7 +17,9 @@ from app.editor.sub_list_widget import AppendMultiListWidget, BasicMultiListWidg
 from app.editor.stat_widget import ClassStatWidget
 from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
+import app.editor.map_sprite_display as map_sprite_display
 from app.editor.icons import ItemIcon80
+from app.editor.resource_editor import ResourceEditor
 from app import utilities
 
 class ClassDatabase(DatabaseTab):
@@ -40,6 +43,19 @@ class ClassDatabase(DatabaseTab):
         DB.create_new_class(nid, name)
         self.after_new()
 
+    def tick(self):
+        self.update_list()
+
+def get_map_sprite_icon(klass, num=0, current=False):
+    res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+    if not res:
+        return None
+    if not res.standing_pixmap:
+        res.standing_pixmap = res.standing_full_path
+    pixmap = res.standing_pixmap
+    pixmap = map_sprite_display.get_basic_icon(pixmap, num, current)
+    return pixmap
+
 class ClassModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -50,9 +66,9 @@ class ClassModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             klass = self._data[index.row()]
-            x, y = klass.icon_index
-            pixmap = QPixmap(klass.icon_fn).copy(x*80, y*72, 80, 72)
-            if pixmap.width() > 0 and pixmap.height > 0:
+            num = self.window.database_editor.passive_counter.count
+            pixmap = get_map_sprite_icon(klass, num, index == self.window.view.currentIndex())
+            if pixmap:
                 return QIcon(pixmap)
             else:
                 return None
@@ -69,7 +85,7 @@ class ClassProperties(QWidget):
 
         top_section = QHBoxLayout()
 
-        self.icon_edit = ItemIcon80(None, self)
+        self.icon_edit = ItemIcon80(self)
         top_section.addWidget(self.icon_edit)
 
         horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -177,6 +193,9 @@ class ClassProperties(QWidget):
         self.opp_exp_mult_box.edit.valueChanged.connect(self.opp_exp_mult_changed)
         exp_section.addWidget(self.opp_exp_mult_box)
 
+        self.map_sprite_box = QPushButton("Choose Map Sprite...")
+        self.map_sprite_box.clicked.connect(self.select_map_sprite)
+
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)
         total_section.addLayout(main_section)
@@ -191,6 +210,7 @@ class ClassProperties(QWidget):
         right_section.addLayout(weapon_section)
         right_section.addWidget(QHLine())
         right_section.addLayout(skill_section)
+        right_section.addWidget(self.map_sprite_box)
         right_widget = QWidget()
         right_widget.setLayout(right_section)
 
@@ -278,6 +298,13 @@ class ClassProperties(QWidget):
         else:
             pass
 
+    def select_map_sprite(self):
+        res, ok = ResourceEditor.get(self, "Map Sprites")
+        if ok:
+            nid = res.nid
+            self.current.map_sprite_nid = nid
+            self.window.update_list()
+
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
@@ -298,11 +325,13 @@ class ClassProperties(QWidget):
 
         self.class_stat_widget.set_new_obj(current)
 
-        self.exp_mult_box.edit.setValue(self.current.exp_mult)
-        self.opp_exp_mult_box.edit.setValue(self.current.opponent_exp_mult)
+        self.exp_mult_box.edit.setValue(current.exp_mult)
+        self.opp_exp_mult_box.edit.setValue(current.opponent_exp_mult)
 
-        self.class_skill_widget.set_current(self.current.skills)
-        self.wexp_gain_widget.set_current(self.current.wexp_gain)
+        self.class_skill_widget.set_current(current.skills)
+        self.wexp_gain_widget.set_current(current.wexp_gain)
+
+        self.icon_edit.set_current(current.icon_nid, current.icon_index)
 
 # Testing
 # Run "python -m app.editor.class_database" from main directory

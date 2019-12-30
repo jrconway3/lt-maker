@@ -9,6 +9,7 @@ from app.editor.resource_editor import ResourceEditor
 class PushableIcon16(QPushButton):
     sourceChanged = pyqtSignal(str, int, int)
     width, height = 16, 16
+    display_width = 64
     database = RESOURCES.icons16
 
     def __init__(self, parent):
@@ -17,12 +18,12 @@ class PushableIcon16(QPushButton):
         self._nid = None
         self.x, self.y = 0, 0
 
-        self.setMinimumHeight(64)
-        self.setMaximumHeight(64)
-        self.setMinimumWidth(64)
-        self.setMaximumWidth(64)
-        self.resize(64, 64)
-        self.setStyleSheet("QPushButton {qproperty-iconSize: 64px;}")
+        self.setMinimumHeight(self.display_width)
+        self.setMaximumHeight(self.display_width)
+        self.setMinimumWidth(self.display_width)
+        self.setMaximumWidth(self.display_width)
+        self.resize(self.display_width, self.display_width)
+        self.setStyleSheet("QPushButton {qproperty-iconSize: %dpx;}" % (self.display_width))
         self.pressed.connect(self.onIconSourcePicker)
 
     def render(self):
@@ -60,6 +61,7 @@ class PushableIcon32(PushableIcon16):
 
 class PushableIcon80(PushableIcon16):
     width, height = 80, 72
+    display_width = 80
     database = RESOURCES.icons80
 
 class ItemIcon16(QWidget):
@@ -114,6 +116,8 @@ class UnitPortrait(QPushButton):
         self.setStyleSheet("QPushButton {qproperty-iconSize: %dpx %dpx;}" % (self.width, self.height))
         self.pressed.connect(self.onIconSourcePicker)
 
+        self.sourceChanged.connect(self.on_icon_changed)
+
     def render(self):
         if self._nid:
             res = self.database.get(self._nid)
@@ -135,6 +139,11 @@ class UnitPortrait(QPushButton):
 
     def set_current(self, nid):
         self.change_icon(nid)
+
+    def on_icon_changed(self, nid):
+        if self.window.current:
+            self.window.current.portrait_nid = nid
+            self.window.window.update_list()
 
     def onIconSourcePicker(self):
         res, ok = ResourceEditor.get(self, "Portraits")

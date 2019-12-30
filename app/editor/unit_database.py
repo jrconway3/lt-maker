@@ -223,7 +223,7 @@ class UnitProperties(QWidget):
         self.tag_box.button.setMaximumWidth(40)
         self.tag_box.button.clicked.connect(self.access_tags)
 
-        main_section.addLayout(tag_section, 1, 3, 1, 2)
+        main_section.addLayout(tag_section, 1, 2, 1, 2)
 
         stat_section = QGridLayout()
 
@@ -340,9 +340,9 @@ class UnitProperties(QWidget):
 
         self.unit_stat_widget.set_new_obj(current)
 
-        self.personal_skill_widget.set_current(self.current.learned_skills)
-        self.wexp_gain_widget.set_current(self.current.wexp_gain)
-        self.item_widget.set_current(self.current.items)
+        self.personal_skill_widget.set_current(current.learned_skills)
+        self.wexp_gain_widget.set_current(current.wexp_gain)
+        self.item_widget.set_current(current.items)
 
         self.icon_edit.set_current(current.portrait_nid)
 

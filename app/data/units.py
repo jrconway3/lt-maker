@@ -74,5 +74,5 @@ class UnitCatalog(data):
             items = [i for i in items if i]
 
             new_unit = UnitPrefab(nid, name, desc, gender, level, klass, tags,
-                            bases, growths, items, learned_skills, wexp_gain)
+                            bases, growths, items, learned_skills, wexp_gain, nid)
             self.append(new_unit)

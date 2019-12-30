@@ -13,6 +13,7 @@ from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16
 from app.editor import component_database
+import app.editor.utilities as editor_utilities
 from app import utilities
 
 class ItemDatabase(DatabaseTab):
@@ -40,6 +41,7 @@ def get_pixmap(item):
     if not res.pixmap:
         res.pixmap = QPixmap(res.full_path)
     pixmap = res.pixmap.copy(x*16, y*16, 16, 16)
+    pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
 class ItemModel(CollectionModel):

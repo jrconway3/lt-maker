@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from app.data.resources import RESOURCES
 
 from app.editor.resource_editor import ResourceEditor
+import app.editor.utilities as editor_utilities
 
 class PushableIcon16(QPushButton):
     sourceChanged = pyqtSignal(str, int, int)
@@ -33,7 +34,8 @@ class PushableIcon16(QPushButton):
                 res.pixmap = QPixmap(res.full_path)
             if res.pixmap.width() > 0 and res.pixmap.height() > 0:
                 pic = res.pixmap.copy(self.x*self.width, self.y*self.height, self.width, self.height)
-                pic = pic.scaled(64, 64)
+                pic = QPixmap.fromImage(editor_utilities.convert_colorkey(pic.toImage()))
+                pic = pic.scaled(self.display_width, self.display_width)
                 pic = QIcon(pic)
                 self.setIcon(pic)
         else:
@@ -127,7 +129,8 @@ class UnitPortrait(QPushButton):
             if not res.pixmap:
                 res.pixmap = QPixmap(res.full_path)
             pixmap = res.pixmap.copy(0, 0, self.width, self.height)
-            pic = QIcon(pixmap)
+            pic = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
+            pic = QIcon(pic)
             self.setIcon(pic)
         else:
             self.setIcon(QIcon())

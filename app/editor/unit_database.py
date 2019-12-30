@@ -19,6 +19,7 @@ from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.item_database import ItemListWidget
 import app.editor.weapon_database as weapon_database
 from app.editor.icons import UnitPortrait
+import app.editor.utilities as editor_utilities
 from app import utilities
 
 class UnitDatabase(DatabaseTab):
@@ -112,6 +113,7 @@ def get_chibi(unit):
     if not res.pixmap:
         res.pixmap = QPixmap(res.full_path)
     pixmap = res.pixmap.copy(96, 16, 32, 32)
+    pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
 class UnitModel(CollectionModel):

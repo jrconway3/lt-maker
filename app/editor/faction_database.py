@@ -9,6 +9,7 @@ from app.data.database import DB
 from app.editor.custom_gui import PropertyBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icons import ItemIcon32
+import app.editor.utilities as editor_utilities
 from app import utilities
 
 class FactionDatabase(DatabaseTab):
@@ -40,6 +41,7 @@ def get_pixmap(faction):
     if not res.pixmap:
         res.pixmap = QPixmap(res.full_path)
     pixmap = res.pixmap.copy(x*32, y*32, 32, 32)
+    pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
 class FactionModel(CollectionModel):

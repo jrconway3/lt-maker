@@ -14,6 +14,7 @@ from app.editor.misc_dialogs import RankDialog
 from app.editor.sub_list_widget import AppendMultiListWidget
 from app.editor.icons import ItemIcon16
 from app import utilities
+import app.editor.utilities as editor_utilities
 
 class WeaponDatabase(DatabaseTab):
     @classmethod
@@ -44,6 +45,7 @@ def get_pixmap(weapon):
     if not res.pixmap:
         res.pixmap = QPixmap(res.full_path)
     pixmap = res.pixmap.copy(x*16, y*16, 16, 16)
+    pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
 class WeaponModel(CollectionModel):

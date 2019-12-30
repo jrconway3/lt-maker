@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, \
-    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox, QStyledItemDelegate
+    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 
@@ -8,7 +8,7 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.editor.custom_gui import PropertyBox, QHLine, ComboBox, RightClickListView, SingleListModel
+from app.editor.custom_gui import PropertyBox, QHLine, ComboBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16
@@ -284,40 +284,22 @@ class ItemList(QListWidget):
         self.index_list.clear()
         self.combo_box_list.clear()
 
-class ItemListDelegate(QStyledItemDelegate):
-    def createEditor(self, parent, option, index):
-        editor = ComboBox(parent)
-        for item in DB.items:
-            pix = get_pixmap(item)
-            icon = QIcon(pix) if pix else None
-            editor.addItem(icon, item.nid)
-        return editor
-
-    def setEditorData(self, editor, index):
-        currentText = index.data(Qt.EditRole)
-        editor.setValue(currentText)
-        editor.showPopup()
-
-    def setModelData(self, editor, model, index):
-        current_nid = editor.currentText()
-        current_item = DB.items.get(current_nid)
-        model.setData(index, current_item, Qt.EditRole)
+    def set_current(self, items):
+        self.clear()
+        for i in items:
+            self.add_item(i)
 
 class ItemListWidget(QWidget):
     def __init__(self, title, parent=None):
         super().__init__(parent)
         self.window = parent
-        self._actions = []
-        self.model = ItemListModel([], 'Item', self)
-        self.view = RightClickListView(parent=self)
-        self.view.setModel(self.model)
-        delegate = ItemListDelegate(self.view)
-        self.view.setItemDelegate(delegate)
+        
+        self.item_list = ItemList(self)
 
         self.layout = QGridLayout(self)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.view, 1, 0, 1, 2)
+        self.layout.addWidget(self.item_list, 1, 0, 1, 2)
         self.setLayout(self.layout)
 
         label = QLabel(title)
@@ -326,33 +308,15 @@ class ItemListWidget(QWidget):
 
         add_button = QPushButton("+")
         add_button.setMaximumWidth(30)
-        add_button.clicked.connect(self.model.add_new_row)
+        add_button.clicked.connect(self.add_new_item)
         self.layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)
 
     def set_current(self, items):
-        self.model.set_new_data(items)
+        self.item_list.set_current(items)
 
-class ItemListModel(SingleListModel):
-    def add_new_row(self):
-        new_row = DB.items[0]
-        self.window._actions.append(('Append', new_row))
-        self._data.append(new_row)
-        self.layoutChanged.emit()
-        last_index = self.index(self.rowCount() - 1, 0)
-        self.window.view.setCurrentIndex(last_index)
-
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            item = self._data[index.row()]
-            return item.nid
-        elif role == Qt.DecorationRole:
-            item = self._data[index.row()]
-            pixmap = get_pixmap(item)
-            if pixmap:
-                return QIcon(pixmap)
-        return None
+    def add_new_item(self):
+        new_item = DB.items[0]
+        self.item_list.add_item(new_item)
 
 # Testing
 # Run "python -m app.editor.item_database" from main directory

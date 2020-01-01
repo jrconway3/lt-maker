@@ -1,3 +1,10 @@
+import os
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 from app.data import data
 from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
     minimap, items, klass, units, ai
@@ -21,7 +28,9 @@ class Database(object):
         self.units = units.UnitCatalog()
         self.ai = ai.AICatalog()
 
-        self.init_load()
+        # self.init_load()
+
+        self.deserialize()
 
     def init_load(self):
         self.stats.import_xml('./app/default_data/default_stats.xml')
@@ -43,7 +52,7 @@ class Database(object):
         sprites = [n + '-Melee' for n in names]
         return list(zip(names, sprites))
 
-    # === Serialization function ===
+    # === Saving and loading important data functions ===
     def restore(self, data):
         self.stats.restore(data['stats'])
         self.equations.restore(data['equations'])
@@ -61,19 +70,19 @@ class Database(object):
         self.levels.restore(data['levels'])
 
     def save(self):
-        to_save = {'stats': self.stats.serialize(),
-                   'equations': self.equations.serialize(),
-                   'mcost': self.mcost.serialize(),
-                   'terrain': self.terrain.serialize(),
-                   'weapon_ranks': self.weapon_ranks.serialize(),
-                   'weapons': self.weapons.serialize(),
-                   'factions': self.factions.serialize(),
-                   'items': self.items.serialize(),
+        to_save = {'stats': self.stats.save(),
+                   'equations': self.equations.save(),
+                   'mcost': self.mcost.save(),
+                   'terrain': self.terrain.save(),
+                   'weapon_ranks': self.weapon_ranks.save(),
+                   'weapons': self.weapons.save(),
+                   'factions': self.factions.save(),
+                   'items': self.items.save(),
                    'tags': self.tags,  # Just a list
-                   'classes': self.classes.serialize(),
-                   'units': self.units.serialize(),
-                   'ai': self.ai.serialize(),
-                   'levels': self.levels.serialize(),
+                   'classes': self.classes.save(),
+                   'units': self.units.save(),
+                   'ai': self.ai.save(),
+                   'levels': self.levels.save(),
                    }
         return to_save
 
@@ -116,6 +125,29 @@ class Database(object):
     def create_new_ai(self, nid, name=None):
         new_ai = ai.AIPreset(nid, 20)
         return new_ai
+
+    def serialize(self, proj_dir='./default', title="default"):
+        save_loc = os.path.join(proj_dir, title + ".ltdata")
+        print("Serializing data as %s..." % save_loc)
+
+        to_save = self.save()
+
+        with open(save_loc, 'wb') as serialize_file:
+            # Remove the -1 here if you want to interrogate the pickled save file
+            # pickle.dump(to_save, serialize_file, -1)
+            pickle.dump(to_save, serialize_file)
+
+        print("Done serializing!")
+
+    def deserialize(self, proj_dir='./default', title="default"):
+        save_loc = os.path.join(proj_dir, title + ".ltdata")
+        print("Deserializing data as %s..." % save_loc)
+
+        with open(save_loc, 'rb') as load_file:
+            save_obj = pickle.load(load_file)
+
+        self.restore(save_obj)
+        print("Done deserializing!")
 
 DB = Database()
 

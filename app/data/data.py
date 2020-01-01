@@ -79,13 +79,8 @@ class data(object):
         raise ValueError
 
     # Saving functions
-    def serialize(self):
+    def save(self):
         return pickle.dumps(self._list)  # Needs to save off a copy!
-
-    @classmethod
-    def deserialize(cls, pickled_data):
-        vals = pickle.loads(pickled_data)
-        return cls(vals)
 
     def restore(self, pickled_data):
         vals = pickle.loads(pickled_data)

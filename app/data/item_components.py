@@ -44,6 +44,9 @@ class item_component(object):
     def copy(cls, other):
         return cls(other.nid, other.name, other.attr, other.value, other.requires)
 
+    def serialize(self):
+        return (self.nid, self.value)
+
 item_components = data([
     item_component('weapon', 'Weapon', WeaponType, None,
                              lambda x: 'spell' not in x),
@@ -67,3 +70,10 @@ item_components = data([
 def get_component(nid):
     base = item_components.get(nid)
     return item_component.copy(base)
+
+def deserialize_component(dat):
+    nid, value = dat
+    base = item_components.get(nid)
+    copy = item_component.copy(base)
+    copy.value = value
+    return copy

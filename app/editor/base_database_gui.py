@@ -62,7 +62,7 @@ class DatabaseTab(QWidget):
         dialog.exec_()
 
     def save(self):
-        return self._data.serialize()
+        return self._data.save()
 
     def restore(self, data):
         self._data.restore(data)

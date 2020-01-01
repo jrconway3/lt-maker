@@ -3,6 +3,11 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 from app.data.data import data
 import app.data.weapons as weapons
 import app.data.item_components as IC
@@ -66,6 +71,31 @@ class Item(object):
         serial_dict['nid'] = self.nid
         return serial_dict
 
+    def serialize_prefab(self):
+        serial_dict = {'nid': self.nid,
+                       'name': self.name,
+                       'desc': self.desc,
+                       'value': self.value,
+                       'min_range': self.min_range,
+                       'max_range': self.max_range,
+                       'icon_nid': self.icon_nid,
+                       'icon_index': self.icon_index,
+                       'components': [c.serialize() for c in self.components]
+                       }
+        return serial_dict
+
+    @classmethod
+    def deserialize_prefab(cls, dat):
+        item_components = data()
+        components = [IC.deserialize_component(val) for val in dat['components']]
+        for component in components:
+            item_components.append(component)
+        i = cls(dat['nid'], dat['name'], dat['desc'],
+                dat['min_range'], dat['max_range'],
+                dat['value'], dat['icon_nid'], dat['icon_index'],
+                item_components)
+        return i
+
 class ItemCatalog(data):
     @staticmethod
     def parse_component(item, c):
@@ -123,3 +153,13 @@ class ItemCatalog(data):
         new_item = Item(item.nid, item.name, item.desc, item.min_range, item.max_range,
                         item.value, item.icon_fn, item.icon_index, item.components)
         return new_item
+
+    def save(self):
+        return pickle.dumps([i.serialize_prefab() for i in self._list])
+
+    def restore(self, pickled_data):
+        vals = pickle.loads(pickled_data)
+        self.clear()
+        for val in vals:
+            item = Item.deserialize_prefab(val)
+            self.append(item)

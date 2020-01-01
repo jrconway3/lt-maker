@@ -8,6 +8,8 @@ from collections import OrderedDict
 import app.data.constants as constants
 import app.counters as counters
 
+from app.data.database import DB
+
 from app.editor.custom_gui import give_timer
 from app.editor.unit_database import UnitDatabase
 from app.editor.class_database import ClassDatabase
@@ -77,15 +79,16 @@ class DatabaseEditor(QDialog):
             tab.restore(tab.saved_data)
 
     def mass_apply(self):
-        # Maybe?
         for tab in self.tabs.values():
             tab.apply()
 
     def accept(self):
+        DB.serialize()
         super().accept()
 
     def reject(self):
         self.mass_restore()
+        DB.serialize()
         super().reject()
 
 # Testing

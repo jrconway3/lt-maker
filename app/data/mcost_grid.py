@@ -83,7 +83,7 @@ class McostGrid(object):
     def get_movement_types(self):
         return self.column_headers
 
-    def serialize(self):
+    def save(self):
         return (self.grid, self.row_headers, self.column_headers)
 
     @classmethod

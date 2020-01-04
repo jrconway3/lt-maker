@@ -29,8 +29,7 @@ class Database(object):
         self.ai = ai.AICatalog()
 
         # self.init_load()
-
-        self.deserialize()
+        # self.deserialize()
 
     def init_load(self):
         self.stats.import_xml('./app/default_data/default_stats.xml')

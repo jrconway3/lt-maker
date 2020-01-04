@@ -11,11 +11,13 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtMultimedia import QMediaPlayer
 
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.map_view import MapView
 from app.editor.level_menu import LevelDatabase
 from app.editor.database_editor import DatabaseEditor
+from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 
@@ -84,6 +86,8 @@ class MainEditor(QMainWindow):
         self.create_level_dock()
         self.create_edit_dock()
 
+        DB.deserialize()
+
         if self.auto_open():
             pass
         else:
@@ -135,11 +139,13 @@ class MainEditor(QMainWindow):
         self.about_act = QAction("&About", self, triggered=self.about)
 
         # Toolbar actions
-        self.modify_tilemap_act = QAction(QIcon('icons/map.png'), "Edit Map", self, triggered=self.edit_map)
+        self.modify_level_act = QAction(QIcon('icons/map.png'), "Edit Level", self, triggered=self.edit_level)
         self.back_to_main_act = QAction(QIcon('icons/back.png'), "Back", self, triggered=self.edit_global)
         self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, triggered=self.edit_database)
         self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, triggered=self.edit_events)
         self.test_play_act = QAction(QIcon('icons/play.png'), "Test Play", self, triggered=self.test_play)
+
+        self.modify_resources_act = QAction("Edit Resources...", self, triggered=self.edit_resources)
 
     def create_menus(self):
         file_menu = QMenu("File", self)
@@ -164,7 +170,7 @@ class MainEditor(QMainWindow):
 
     def create_toolbar(self):
         self.toolbar = self.addToolBar("Edit")
-        self.toolbar.addAction(self.modify_tilemap_act)
+        self.toolbar.addAction(self.modify_level_act)
         self.toolbar.addAction(self.modify_database_act)
         self.toolbar.addAction(self.modify_events_act)
         self.toolbar.addAction(self.test_play_act)
@@ -198,6 +204,10 @@ class MainEditor(QMainWindow):
         self.properties_menu = PropertiesMenu(self)
         self.docks['Properties'].setWidget(self.properties_menu)
 
+        # self.docks['Tiles'] = Dock("Tiles", self)
+        # self.tiles_menu = TileMenu(self)
+        # self.docks['Tiles'].setWidget(self.tiles_menu)
+
         self.docks['Terrain'] = Dock("Terrain", self)
         self.terrain_painter_menu = TerrainPainterMenu(self)
         self.docks['Terrain'].setWidget(self.terrain_painter_menu)
@@ -214,9 +224,9 @@ class MainEditor(QMainWindow):
         self.units_menu = UnitsMenu(self)
         self.docks['Units'].setWidget(self.units_menu)
 
-        self.docks['Reinforcements'] = Dock("Reinforcements", self)
-        self.reinforcement_groups_menu = ReinforcementGroupsMenu(self)
-        self.docks['Reinforcements'].setWidget(self.reinforcement_groups_menu)
+        # self.docks['Reinforcements'] = Dock("Reinforcements", self)
+        # self.reinforcement_groups_menu = ReinforcementGroupsMenu(self)
+        # self.docks['Reinforcements'].setWidget(self.reinforcement_groups_menu)
 
         for title, dock in self.docks.items():
             dock.setAllowedAreas(Qt.RightDockWidgetArea)
@@ -236,7 +246,7 @@ class MainEditor(QMainWindow):
             if not self.global_mode:
                 self.edit_global()
 
-            DB.init_load()
+            DB.deserialize()
             self.undo_stack.setClean()
             self.set_window_title('Untitled')
             self.update_view()
@@ -267,14 +277,15 @@ class MainEditor(QMainWindow):
             if not self.global_mode:
                 self.edit_global()
 
+            title = os.path.split(self.current_save_loc)[-1].split('.')[0]
+            self.set_window_title(title)
+
             with open(self.current_save_loc, 'rb') as load_fp:
                 data = pickle.load(load_fp)
-
+            DB.deserialize("./" + title, title)
             DB.restore(data)
 
             self.undo_stack.clear()
-            title = os.path.split(self.current_save_loc)[-1].split('.')[0]
-            self.set_window_title(title)
             print("Loaded project from %s" % self.current_save_loc)
             self.status_bar.showMessage("Loaded project from %s" % self.current_save_loc)
             self.update_view()
@@ -299,19 +310,21 @@ class MainEditor(QMainWindow):
                 else:
                     return False
 
-        # Actually gather information needed to save
-        project = DB.save()
-        print(DB.levels[0].market_flag)
-
-        with open(self.current_save_loc, 'wb') as save_fp:
-            # Remove the -1 here if you want to interrogate the pickled save
-            pickle.dump(project, save_fp, -1)
-
+        # Set title
         title = os.path.split(self.current_save_loc)[-1].split('.')[0]
         self.set_window_title(title)
         # Remove asterisk on window title
         if self.window_title.startswith('*'):
             self.window_title = self.window_title[1:]
+
+        # Make directory for saving if it doesn't already exist
+        if not os.path.isdir(title):
+            os.mkdir(title)
+
+        # Actually save project
+        RESOURCES.serialize("./" + title)
+        DB.serialize("./" + title, title)
+        
         self.status_bar.showMessage('Saved project to %s' % self.current_save_loc)
         self.undo_stack.setClean()
 
@@ -346,10 +359,10 @@ class MainEditor(QMainWindow):
         self.undo_stack.redo()
         self.update_view()
 
-    def edit_map(self):
+    def edit_level(self):
         if self.current_level:
-            self.toolbar.insertAction(self.modify_tilemap_act, self.back_to_main_act)
-            self.toolbar.removeAction(self.modify_tilemap_act)
+            self.toolbar.insertAction(self.modify_level_act, self.back_to_main_act)
+            self.toolbar.removeAction(self.modify_level_act)
             
             for title, dock in self.docks.items():
                 self.addDockWidget(Qt.RightDockWidgetArea, dock)
@@ -358,7 +371,7 @@ class MainEditor(QMainWindow):
             self.tabifyDockWidget(self.docks['Properties'], self.docks['Terrain'])
             self.tabifyDockWidget(self.docks['Terrain'], self.docks['Event Tiles'])
             self.tabifyDockWidget(self.docks['Event Tiles'], self.docks['Units'])
-            self.tabifyDockWidget(self.docks['Units'], self.docks['Reinforcements'])
+            # self.tabifyDockWidget(self.docks['Units'], self.docks['Reinforcements'])
             self.docks['Properties'].raise_()
 
             self.level_dock.hide()
@@ -367,7 +380,7 @@ class MainEditor(QMainWindow):
             self.global_mode = False
 
     def edit_global(self):
-        self.toolbar.insertAction(self.back_to_main_act, self.modify_tilemap_act)
+        self.toolbar.insertAction(self.back_to_main_act, self.modify_level_act)
         self.toolbar.removeAction(self.back_to_main_act)
 
         for title, dock in self.docks.items():
@@ -383,6 +396,10 @@ class MainEditor(QMainWindow):
         dialog = DatabaseEditor(self)
         dialog.exec_()
 
+    def edit_resources(self):
+        dialog = ResourceEditor(self)
+        dialog.exec_()
+
     def edit_events(self):
         pass
 
@@ -395,4 +412,14 @@ class MainEditor(QMainWindow):
             "<p>Check out https://gitlab.com/rainlash/lex-talionis/wikis/home "
             "for more information and helpful tutorials.</p>"
             "<p>This program has been freely distributed under the MIT License.</p>"
-            "<p>Copyright 2014-2019 rainlash.</p>")
+            "<p>Copyright 2014-2020 rainlash.</p>")
+
+# Testing
+# Run "python -m app.editor.main_editor" from main directory
+if __name__ == '__main__':
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    window = MainEditor()
+    window.show()
+    app.exec_()

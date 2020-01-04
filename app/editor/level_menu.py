@@ -16,7 +16,11 @@ class LevelDatabase(QWidget):
         self.grid = QGridLayout()
         self.setLayout(self.grid)
 
-        self.list_view = RightClickListView('Must have at least one level in project!', self)
+        def deletion_func(view, idx):
+            return len(DB.levels) > 1
+
+        deletion_criteria = (deletion_func, 'Must have at least one level in project!')
+        self.list_view = RightClickListView(deletion_criteria, self)
         self.list_view.setMinimumSize(128, 320)
         self.list_view.currentChanged = self.on_level_changed
 
@@ -75,7 +79,7 @@ class LevelModel(QAbstractListModel):
     def delete(self, idx):
         self._data.pop(idx)
         self.layoutChanged.emit()
-        new_level = self._data[max(idx, len(self._data) - 1)]
+        new_level = self._data[min(idx, len(self._data) - 1)]
         self.parent().main_editor.set_current_level(new_level)
 
 class NewLevelDialog(SimpleDialog):

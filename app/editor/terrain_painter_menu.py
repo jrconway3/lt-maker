@@ -30,7 +30,7 @@ class TerrainPainterMenu(QWidget):
         self.list_view = QListView(self)
         self.list_view.currentChanged = self.on_item_changed
 
-        self.model = TerrainModel(self)
+        self.model = TerrainModel(DB.terrain, self)
         self.list_view.setModel(self.model)
         self.list_view.setIconSize(QSize(32, 32))
 

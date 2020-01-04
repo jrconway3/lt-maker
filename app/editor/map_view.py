@@ -106,8 +106,8 @@ class MapView(QGraphicsView):
         if pos in self.current_map.tiles:
             if event.button() == Qt.LeftButton:
                 # Force no merge when you've lifted up your pen...
-                last_index = self.window.undo_stack.count() - 1
-                last_command = self.window.undo_stack.command(last_index)
+                last_index = self.main_editor.undo_stack.count() - 1
+                last_command = self.main_editor.undo_stack.command(last_index)
                 if isinstance(last_command, commands.ChangeTileTerrain):
                     last_command.can_merge = False
             elif event.button() == Qt.RightButton:

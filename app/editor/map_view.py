@@ -56,7 +56,8 @@ class MapView(QGraphicsView):
             painter.end()
 
     def show_map(self):
-        self.scene.addPixmap(self.working_image)
+        if self.working_image:
+            self.scene.addPixmap(self.working_image)
 
     def show_map_from_individual_sprites(self):
         if self.current_map:
@@ -81,7 +82,7 @@ class MapView(QGraphicsView):
         # pixmap = self.scene.itemAt(scene_pos, self.transform())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if pos in self.current_map.tiles:
+        if self.current_map and pos in self.current_map.tiles:
             if self.main_editor.dock_visibility['Terrain']:
                 if event.button() == Qt.LeftButton:
                     self.main_editor.terrain_painter_menu.paint_tile(pos)
@@ -92,7 +93,7 @@ class MapView(QGraphicsView):
         # pixmap = self.scene.itemAt(scene_pos, self.transform())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if pos in self.current_map.tiles:
+        if self.current_map and pos in self.current_map.tiles:
             self.main_editor.set_position_bar(pos)
             if (event.buttons() & Qt.LeftButton):
                 self.main_editor.terrain_painter_menu.paint_tile(pos)
@@ -103,7 +104,7 @@ class MapView(QGraphicsView):
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if pos in self.current_map.tiles:
+        if self.current_map and pos in self.current_map.tiles:
             if event.button() == Qt.LeftButton:
                 # Force no merge when you've lifted up your pen...
                 last_index = self.main_editor.undo_stack.count() - 1

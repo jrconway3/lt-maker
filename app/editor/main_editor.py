@@ -1,10 +1,5 @@
 import os
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, \
     QDockWidget, QFileDialog, QWidget, QLabel, QFrame
 from PyQt5.QtGui import QIcon
@@ -86,11 +81,12 @@ class MainEditor(QMainWindow):
         self.create_level_dock()
         self.create_edit_dock()
 
+        # Actually load data
         DB.deserialize()
 
         if self.auto_open():
             pass
-        else:
+        elif len(DB.levels) == 0:
             self.level_menu.create_initial_level()
 
         self.map_view.update_view()
@@ -264,6 +260,7 @@ class MainEditor(QMainWindow):
 
     def auto_open(self):
         path = self.settings.value("starting_path", None)
+        print("Auto Open: %s" % path)
 
         if path and os.path.exists(path):
             self.current_save_loc = path
@@ -280,10 +277,8 @@ class MainEditor(QMainWindow):
             title = os.path.split(self.current_save_loc)[-1].split('.')[0]
             self.set_window_title(title)
 
-            with open(self.current_save_loc, 'rb') as load_fp:
-                data = pickle.load(load_fp)
-            DB.deserialize("./" + title, title)
-            DB.restore(data)
+            RESOURCES.load(self.current_save_loc)
+            DB.deserialize(self.current_save_loc, title)
 
             self.undo_stack.clear()
             print("Loaded project from %s" % self.current_save_loc)
@@ -296,7 +291,7 @@ class MainEditor(QMainWindow):
             fn, ok = QFileDialog.getSaveFileName(self, "Save Project", starting_path, 
                                                  "LT Project Files (*.ltproj);;All Files (*)")
             if ok:
-                self.current_save_loc = fn
+                self.current_save_loc = fn.split('.')[0]
             else:
                 return False
             new = True
@@ -311,7 +306,8 @@ class MainEditor(QMainWindow):
                     return False
 
         # Set title
-        title = os.path.split(self.current_save_loc)[-1].split('.')[0]
+        # title = os.path.split(self.current_save_loc)[-1].split('.')[0]
+        title = os.path.split(self.current_save_loc)[-1]
         self.set_window_title(title)
         # Remove asterisk on window title
         if self.window_title.startswith('*'):
@@ -333,7 +329,7 @@ class MainEditor(QMainWindow):
 
     def maybe_save(self):
         if not self.undo_stack.isClean():
-            ret = QMessageBox.warning(self, "Main Editor", "The current map may have been modified.\n"
+            ret = QMessageBox.warning(self, "Main Editor", "The current project may have been modified.\n"
                                             "Do you want to save your changes?",
                                             QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
             if ret == QMessageBox.Save:
@@ -344,6 +340,7 @@ class MainEditor(QMainWindow):
 
     def closeEvent(self, event):
         if self.maybe_save():
+            print("Setting starting path %s" % self.current_save_loc)
             self.settings.setValue("starting_path", self.current_save_loc)
             event.accept()
         else:

@@ -7,7 +7,7 @@ from app.data.database import DB
 from app.data.level import Level
 
 class CreateNewLevel(QUndoCommand):
-    def __init__(self, title, nid):
+    def __init__(self, nid, title):
         self.new_level = Level(nid, title)
         super().__init__("Creating level %s: %s" % (nid, title))
 

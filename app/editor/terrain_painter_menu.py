@@ -6,7 +6,8 @@ from PyQt5.QtGui import QPixmap
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
-from app.editor.terrain_database import TerrainDatabase, TerrainModel
+from app.editor.database_editor import DatabaseEditor
+from app.editor.terrain_database import TerrainModel
 from app.editor import commands
 
 class TerrainPainterMenu(QWidget):
@@ -26,6 +27,7 @@ class TerrainPainterMenu(QWidget):
         self.alpha_slider.setValue(192)
         grid.addWidget(QLabel("Transparency"), 1, 0)
         grid.addWidget(self.alpha_slider, 1, 1)
+        self.alpha_slider.valueChanged.connect(self.main_editor.update_view)
 
         self.list_view = QListView(self)
         self.list_view.currentChanged = self.on_item_changed
@@ -77,7 +79,8 @@ class TerrainPainterMenu(QWidget):
         self.main_editor.update_view()
 
     def edit_terrain(self):
-        TerrainDatabase.edit(self)
+        dialog = DatabaseEditor(self, "Terrain")
+        dialog.exec_()
         self.main_editor.update_view()
 
     def paint_tile(self, pos):

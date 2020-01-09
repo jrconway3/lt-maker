@@ -29,7 +29,7 @@ class TileMap(object):
         self.base_image = image_fn
         self.width, self.height = width, height
         # Preserve as much as possible about the old terrain information
-        old_tiles = self.tiles[:]
+        old_tiles = self.tiles.copy()
         self.tiles.clear()
         for x in range(self.width):
             for y in range(self.height):

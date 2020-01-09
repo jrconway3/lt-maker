@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout
+from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 
-import glob
+import os, glob
 
 from app.data.resources import RESOURCES
 
@@ -29,7 +29,7 @@ class PanoramaDisplay(DatabaseTab):
         fn, ok = QFileDialog.getOpenFileName(self, "Add Background")
         if ok:
             if fn.endswith('.png'):
-                nid = fn[:-4]
+                nid = os.path.split(fn)[-1][:-4]
                 last_number = utilities.find_last_number(nid)
                 if last_number == 0:
                     movie_prefix = fn[:-5]
@@ -43,6 +43,8 @@ class PanoramaDisplay(DatabaseTab):
                 pixs = [QPixmap(i) for i in ims]
                 RESOURCES.create_new_panorama(movie_prefix, pixs, full_path)
                 self.after_new()
+            else:
+                QMessageBox.critical(self.window, "File Type Error!", "Background must be PNG format!")
 
     def save(self):
         return None

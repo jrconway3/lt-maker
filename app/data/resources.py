@@ -10,7 +10,7 @@ import app.utilities as utilities
 
 class Resources(object):
     def __init__(self):
-        self.main_folder = 'resources'
+        self.main_folder = None
 
         # Modifiable Resources
         self.clear()
@@ -26,8 +26,8 @@ class Resources(object):
         self.load()
 
         # Standard locked resources
-        self.platforms = self.get_sprites(self.main_folder, 'platforms')
-        self.misc = self.get_sprites(self.main_folder, 'misc')
+        self.platforms = self.get_sprites("resources", 'platforms')
+        self.misc = self.get_sprites("resources", 'misc')
 
     def populate_database(self, d, folder, ftype, obj):
         for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
@@ -35,6 +35,8 @@ class Resources(object):
                 if name.endswith(ftype):
                     full_path = os.path.join(root, name)
                     if ftype == '.png':
+                        new_resource = obj(name[:-4], full_path)
+                    elif ftype == '.ogg':
                         new_resource = obj(name[:-4], full_path)
                     d.append(new_resource)
 
@@ -102,6 +104,7 @@ class Resources(object):
         self.sfx = data.data()
 
     def load(self, proj_dir='./default'):
+        self.main_folder = os.path.join(proj_dir, 'resources')
         self.populate_database(self.icons16, 'icons/icons_16x16', '.png', ImageResource)
         self.populate_database(self.icons32, 'icons/icons_32x32', '.png', ImageResource)
         self.populate_database(self.icons80, 'icons/icons_80x72', '.png', ImageResource)
@@ -109,6 +112,7 @@ class Resources(object):
         self.set_up_portrait_coords('portraits/portrait_coords.xml')
         self.populate_map_sprites('map_sprites')
         self.populate_panoramas('panoramas')
+        self.populate_database(self.music, 'music', '.ogg', Song)
 
     def reload(self):
         self.clear()
@@ -172,8 +176,12 @@ class Resources(object):
             panorama_parent_dir = os.path.split(panorama.full_path)[0]
             if os.path.abspath(panorama_parent_dir) != os.path.abspath(panoramas_dir):
                 new_full_path = os.path.join(panoramas_dir, panorama.nid)
-                for idx, path in enumerate(panorama.get_all_paths()):
-                    shutil.copy(path, new_full_path + str(idx) + '.png')
+                paths = panorama.get_all_paths()
+                if len(paths) > 1:
+                    for idx, path in enumerate(paths):
+                        shutil.copy(path, new_full_path + str(idx) + '.png')
+                else:
+                    shutil.copy(paths[0], new_full_path + '.png')
                 panorama.set_full_path(new_full_path)
         # Save Map Sprites
         map_sprites_dir = os.path.join(resource_dir, 'map_sprites')
@@ -191,6 +199,16 @@ class Resources(object):
                 new_full_path = os.path.join(map_sprites_dir, map_sprite.nid)
                 shutil.copy(map_sprite.moving_full_path, new_full_path + '-move.png')
                 map_sprite.set_full_path(new_full_path)
+        # Save Music
+        music_dir = os.path.join(resource_dir, 'music')
+        if not os.path.exists(music_dir):
+            os.mkdir(music_dir)
+        for music in self.music:
+            music_parent_dir = os.path.split(music.full_path)[0]
+            if os.path.abspath(music_parent_dir) != os.path.abspath(music_dir):
+                new_full_path = os.path.join(music_dir, music.nid + '.ogg')
+                shutil.copy(music.full_path, new_full_path)
+                music.set_full_path(new_full_path)
         print('Done Serializing!')
 
     def create_new_16x16_icon(self, nid, pixmap):
@@ -233,6 +251,11 @@ class Resources(object):
         new_panorama = Panorama(nid, full_path, pixmaps)
         self.panoramas.append(new_panorama)
         return new_panorama
+
+    def create_new_music(self, nid, full_path):
+        new_music = Song(nid, full_path)
+        self.music.append(new_music)
+        return new_music
 
 class ImageResource(object):
     def __init__(self, nid, full_path=None, pixmap=None):
@@ -306,5 +329,13 @@ class Panorama(object):
     def increment_frame(self):
         if self.pixmaps:
             self.idx = (self.idx + 1) % len(self.pixmaps)  # Wrap around
+
+class Song(object):
+    def __init__(self, nid, full_path=None):
+        self.nid = nid
+        self.full_path = full_path
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
 
 RESOURCES = Resources()

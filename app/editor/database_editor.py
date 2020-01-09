@@ -20,8 +20,9 @@ from app.editor.terrain_database import TerrainDatabase
 from app.editor.ai_database import AIDatabase
 
 class DatabaseEditor(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, starting_tab=None):
         super().__init__(parent)
+        self.window = parent
         self.setWindowTitle("Database Editor")
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
@@ -50,6 +51,9 @@ class DatabaseEditor(QDialog):
             self.tab_bar.addTab(tab, name)
 
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
+
+        if starting_tab and starting_tab in self.tabs:
+            self.tab_bar.setCurrentWidget(self.tabs[starting_tab])
 
     def tick(self):
         current_time = int(round(time.time() * 1000))

@@ -44,8 +44,11 @@ class data(object):
         self._dict[new_key] = old_value
 
     def append(self, val):
-        self._list.append(val)
-        self._dict[val.nid] = val
+        if val.nid not in self._dict:
+            self._list.append(val)
+            self._dict[val.nid] = val
+        # else:
+        #     raise KeyError("%s already present in data" % val.nid)
 
     def delete(self, val):
         # Fails silently

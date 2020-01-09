@@ -118,6 +118,22 @@ class PropertyBox(QWidget):
         self.button = button
         self.bottom_section.addWidget(self.button)
 
+class PropertyCheckBox(QWidget):
+    def __init__(self, label, widget, parent=None):
+        super().__init__(parent)
+
+        layout = QHBoxLayout()
+        self.setLayout(layout)
+
+        self.label = QLabel(label, self)
+        self.label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.edit = widget(self)
+        self.edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        layout.addWidget(self.edit)
+        layout.addWidget(self.label)
+        layout.setAlignment(self.label, Qt.AlignLeft)
+
 class RightClickTreeView(QTreeView):
     def __init__(self, deletion_criteria=None, parent=None):
         super().__init__(parent)

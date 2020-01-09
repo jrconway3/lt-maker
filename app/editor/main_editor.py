@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox
     QDockWidget, QFileDialog, QWidget, QLabel, QFrame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtMultimedia import QMediaPlayer
 
 from app.data.resources import RESOURCES
 from app.data.database import DB
@@ -15,6 +14,8 @@ from app.editor.database_editor import DatabaseEditor
 from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
 from app.editor.terrain_painter_menu import TerrainPainterMenu
+
+from app.pygame_audio import PygameAudioPlayer
 
 class EventTileMenu(QWidget):
     def __init__(self, parent):
@@ -64,8 +65,8 @@ class MainEditor(QMainWindow):
         self.map_view = MapView(self)
         self.setCentralWidget(self.map_view)
 
-        self.music_player = QMediaPlayer(self)
-        self.music_player.setVolume(50)
+        self.music_player = PygameAudioPlayer()
+        self.music_player.setVolume(.5)
 
         self.undo_stack = QUndoStack(self)
         self.undo_stack.cleanChanged.connect(self.on_clean_changed)
@@ -154,8 +155,10 @@ class MainEditor(QMainWindow):
         file_menu.addAction(self.quit_act)
 
         edit_menu = QMenu("Edit", self)
-        edit_menu.addAction(self.undo_act)
-        edit_menu.addAction(self.redo_act)
+        # Current removing undo and redo capabilities
+        # edit_menu.addAction(self.undo_act)
+        # edit_menu.addAction(self.redo_act)
+        edit_menu.addAction(self.modify_resources_act)
 
         help_menu = QMenu("Help", self)
         help_menu.addAction(self.about_act)

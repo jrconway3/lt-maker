@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QPushButton, \
+from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QPushButton, \
     QMessageBox, QDialog, QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, \
     QSpacerItem, QSizePolicy, QItemDelegate
 from PyQt5.QtGui import QPixmap, QIcon
@@ -8,7 +8,7 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.data.weapons import AdvantageList
 
-from app.editor.custom_gui import ComboBox, PropertyBox
+from app.editor.custom_gui import ComboBox, PropertyBox, PropertyCheckBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import RankDialog
 from app.editor.sub_list_widget import AppendMultiListWidget
@@ -96,16 +96,9 @@ class WeaponProperties(QWidget):
 
         main_section = QHBoxLayout()
 
-        magic_section = QHBoxLayout()
-        magic_label = QLabel("Magic")
-        magic_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.magic_box = QCheckBox(self)
-        self.magic_box.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.magic_box.stateChanged.connect(self.magic_changed)
-        magic_section.addWidget(self.magic_box)
-        magic_section.addWidget(magic_label)
-        magic_section.setAlignment(magic_label, Qt.AlignLeft)
-        main_section.addLayout(magic_section)
+        self.magic_box = PropertyCheckBox("Magic", QCheckBox, self)
+        self.magic_box.edit.stateChanged.connect(self.magic_changed)
+        main_section.addWidget(self.magic_box)
 
         horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
         main_section.addSpacerItem(horiz_spacer)

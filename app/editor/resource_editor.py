@@ -7,12 +7,14 @@ from app.editor.icon_display import Icon16Display, Icon32Display, Icon80Display
 from app.editor.portrait_display import PortraitDisplay
 from app.editor.map_sprite_display import MapSpriteDisplay
 from app.editor.panorama_display import PanoramaDisplay
+from app.editor.music_display import MusicDisplay
 
 from app.data.resources import RESOURCES
 
 class ResourceEditor(QDialog):
     def __init__(self, parent=None, one_tab_only=None):
         super().__init__(parent)
+        self.window = parent
         self.setWindowTitle("Resource Editor")
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
@@ -44,16 +46,16 @@ class ResourceEditor(QDialog):
 
     def create_sub_widgets(self):
         self.tabs = OrderedDict()
-        self.tabs['Icons 16x16'] = Icon16Display.create()
-        self.tabs['Icons 32x32'] = Icon32Display.create()
-        self.tabs['Icons 80x72'] = Icon80Display.create()
-        self.tabs['Portraits'] = PortraitDisplay.create()
-        self.tabs['Panoramas'] = PanoramaDisplay.create()
-        self.tabs['Map Sprites'] = MapSpriteDisplay.create()
+        self.tabs['Icons 16x16'] = Icon16Display.create(self)
+        self.tabs['Icons 32x32'] = Icon32Display.create(self)
+        self.tabs['Icons 80x72'] = Icon80Display.create(self)
+        self.tabs['Portraits'] = PortraitDisplay.create(self)
+        self.tabs['Panoramas'] = PanoramaDisplay.create(self)
+        self.tabs['Map Sprites'] = MapSpriteDisplay.create(self)
         # self.tabs['Combat Animations'] = AnimationDisplay.create()
         # self.tabs['Combat Effects'] = CombatEffectDisplay.create()
         # self.tabs['Map Effects'] = MapEffectDisplay.create()
-        # self.tabs['Music'] = MusicDisplay.create()
+        self.tabs['Music'] = MusicDisplay.create(self)
         # self.tabs['SFX'] = SFXDisplay.create()
 
     def on_tab_changed(self, index):

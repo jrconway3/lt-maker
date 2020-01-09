@@ -1,15 +1,15 @@
 import os
 from functools import partial
 
-from PyQt5.QtWidgets import QFormLayout, QFileDialog, QLineEdit, \
+from PyQt5.QtWidgets import QVBoxLayout, QFileDialog, QLineEdit, \
     QWidget, QCheckBox, QPushButton, QMessageBox, QGridLayout, QLabel, \
     QToolButton, QStyle
 from PyQt5.QtMultimedia import QMediaPlaylist
-from PyQt5.QtCore import QDir, QUrl
+from PyQt5.QtCore import Qt, QDir, QUrl
 
 from app.data.database import DB
 
-from app.editor.custom_gui import SimpleDialog, LineSearch
+from app.editor.custom_gui import SimpleDialog, LineSearch, PropertyBox, PropertyCheckBox
 import app.utilities as utilities
 
 class MusicDialog(SimpleDialog):
@@ -56,7 +56,7 @@ class MusicDialog(SimpleDialog):
 
             self.music_boxes[key] = box
 
-        self.load(self.level.music)
+        self.set_current(self.level.music)
 
     def find_music(self, music_key):
         print(music_key)
@@ -71,7 +71,7 @@ class MusicDialog(SimpleDialog):
             self.music_boxes[music_key].line_edit.setText(tail.split('.')[0])
             self.level.music[music_key] = music_file
 
-    def load(self, music_dict):
+    def set_current(self, music_dict):
         for key, value in music_dict.items():
             if value:
                 head, tail = os.path.split(value)
@@ -116,91 +116,93 @@ class PropertiesMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.main_editor = parent
-        self.current_level = None
+        self.current = None
 
-        form = QFormLayout(self)
+        self.setStyleSheet("font: 10pt;")
 
-        self.level_title = QLineEdit(self)
-        self.level_title.textChanged.connect(self.title_changed)
-        form.addRow('Level Title:', self.level_title)
+        form = QVBoxLayout(self)
+        form.setAlignment(Qt.AlignTop)
 
-        self.level_nid = QLineEdit(self)
-        self.level_nid.textChanged.connect(self.nid_changed)
-        self.level_nid.editingFinished.connect(self.nid_done_editing)
-        form.addRow('Level ID:', self.level_nid)
+        self.nid_box = PropertyBox("Level ID", QLineEdit, self)
+        self.nid_box.edit.textChanged.connect(self.nid_changed)
+        self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
+        form.addWidget(self.nid_box)
 
-        self.market_check = QCheckBox(self)
-        self.market_check.stateChanged.connect(self.market_changed)
-        form.addRow('Market Available?', self.market_check)
+        self.title_box = PropertyBox("Level Title", QLineEdit, self)
+        self.title_box.edit.textChanged.connect(self.title_changed)
+        form.addWidget(self.title_box)
 
-        self.music_button = QPushButton('Edit Music...', self)
+        self.market_box = PropertyCheckBox("Market Available?", QCheckBox, self)
+        self.market_box.edit.stateChanged.connect(self.market_changed)
+        form.addWidget(self.market_box)
+
+        self.music_button = QPushButton("Edit Level's Music...", self)
         self.music_button.clicked.connect(self.edit_music)
-        form.addRow('Level Music:', self.music_button)
+        form.addWidget(self.music_button)
 
         self.currently_playing = None
         self.currently_playing_label = QLabel("")
-        form.addRow(self.currently_playing_label)
+        form.addWidget(self.currently_playing_label)
 
-        self.quick_display = QLineEdit(self)
-        self.quick_display.editingFinished.connect(lambda: self.set_objective('simple'))
-        form.addRow('Objective Display:', self.quick_display)
+        self.quick_display = PropertyBox("Objective Display", QLineEdit, self)
+        self.quick_display.edit.editingFinished.connect(lambda: self.set_objective('simple'))
+        form.addWidget(self.quick_display)
 
-        self.win_condition = QLineEdit(self)
-        self.win_condition.editingFinished.connect(lambda: self.set_objective('win'))
-        form.addRow('Win Condition:', self.win_condition)
+        self.win_condition = PropertyBox("Win Condition", QLineEdit, self)
+        self.win_condition.edit.editingFinished.connect(lambda: self.set_objective('win'))
+        form.addWidget(self.win_condition)
 
-        self.loss_condition = QLineEdit(self)
-        self.loss_condition.editingFinished.connect(lambda: self.set_objective('loss'))
-        form.addRow('Loss Condition:', self.loss_condition)
+        self.loss_condition = PropertyBox("Loss Condition", QLineEdit, self)
+        self.loss_condition.edit.editingFinished.connect(lambda: self.set_objective('loss'))
+        form.addWidget(self.loss_condition)
 
         if self.main_editor.current_level:
-            self.load(self.main_editor.current_level)
+            self.set_current(self.main_editor.current_level)
 
-    def load(self, current_level):
-        self.current_level = current_level
+    def set_current(self, current):
+        self.current = current
 
-        self.level_title.setText(current_level.title)
-        self.level_nid.setText(current_level.nid)
-        self.market_check.setChecked(current_level.market_flag)
-        self.quick_display.setText(current_level.objective['simple'])
-        self.win_condition.setText(current_level.objective['win'])
-        self.loss_condition.setText(current_level.objective['loss'])
+        self.title_box.edit.setText(current.title)
+        self.nid_box.edit.setText(current.nid)
+        self.market_box.edit.setChecked(current.market_flag)
+        self.quick_display.edit.setText(current.objective['simple'])
+        self.win_condition.edit.setText(current.objective['win'])
+        self.loss_condition.edit.setText(current.objective['loss'])
 
         self.currently_playing = None
         self.main_editor.music_player.stop()
 
     def on_visibility_changed(self, state):
         if state:
-            if self.main_editor.current_level is not self.current_level:
-                self.load(self.main_editor.current_level)
+            if self.main_editor.current_level is not self.current:
+                self.set_current(self.main_editor.current_level)
 
     def nid_changed(self, text):
-        self.current_level.nid = text
+        self.current.nid = text
         self.main_editor.update_view()
 
     def nid_done_editing(self):
-        current = self.current_level
-        other_nids = [level.nid for level in DB.levels if level is not current]
-        if current.nid in other_nids:
-            QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % current.nid)
-            current.nid = utilities.get_next_int(current.nid, other_nids)
-        DB.levels.update_nid(current, current.nid)
+        other_nids = [level.nid for level in DB.levels if level is not self.current]
+        if self.current.nid in other_nids:
+            QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % self.current.nid)
+            self.current.nid = utilities.get_next_int(self.current.nid, other_nids)
+        DB.levels.update_nid(self.current, self.current.nid)
         self.main_editor.update_view()
 
     def title_changed(self, text):
-        self.current_level.title = text
+        self.current.title = text
         self.main_editor.update_view()
 
     def market_changed(self, state):
-        self.current_level.market_flag = bool(state)
+        self.current.market_flag = bool(state)
 
     def edit_music(self):
-        dlg = MusicDialog(self, self.current_level)
+        dlg = MusicDialog(self, self.current)
         dlg.exec_()
 
     def set_currently_playing(self, music_key):
         if music_key:
-            music_path = self.current_level.music[music_key]
+            music_path = self.current.music[music_key]
             head, tail = os.path.split(music_path)
             self.currently_playing_label.setText("Currently Playing %s" % tail)
         else:
@@ -208,8 +210,8 @@ class PropertiesMenu(QWidget):
 
     def set_objective(self, key):
         if key == 'simple':
-            self.current_level.objective[key] = self.quick_display.text()
+            self.current.objective[key] = self.quick_display.edit.text()
         elif key == 'win':
-            self.current_level.objective[key] = self.win_condition.text()
+            self.current.objective[key] = self.win_condition.edit.text()
         elif key == 'loss':
-            self.current_level.objective[key] = self.loss_condition.text()
+            self.current.objective[key] = self.loss_condition.edit.text()

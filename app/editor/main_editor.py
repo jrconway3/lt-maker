@@ -15,8 +15,6 @@ from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 
-from app.pygame_audio import PygameAudioPlayer
-
 class EventTileMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -64,9 +62,6 @@ class MainEditor(QMainWindow):
 
         self.map_view = MapView(self)
         self.setCentralWidget(self.map_view)
-
-        self.music_player = PygameAudioPlayer()
-        self.music_player.setVolume(.5)
 
         self.undo_stack = QUndoStack(self)
         self.undo_stack.cleanChanged.connect(self.on_clean_changed)

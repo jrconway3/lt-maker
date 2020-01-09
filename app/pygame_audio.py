@@ -15,6 +15,7 @@ class PygameAudioPlayer(object):
         pygame.mixer.init()
         pygame.mixer.music.set_volume(self.volume)
         self.display = pygame.display.set_mode((1, 1))
+        self.initiated = True
 
     def play(self, fn):
         """
@@ -46,9 +47,10 @@ class PygameAudioPlayer(object):
         self.duration = 0
 
     def quit(self):
-        pygame.mixer.music.stop()
-        pygame.mixer.quit()
-        pygame.quit()
+        if self.initiated:
+            pygame.mixer.music.stop()
+            pygame.mixer.quit()
+            pygame.quit()
 
     def setVolume(self, vol):
         self.volume = vol

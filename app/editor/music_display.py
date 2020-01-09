@@ -88,6 +88,9 @@ class MusicProperties(QWidget):
         self.time_slider.sliderPressed.connect(self.slider_pressed)
         self.time_slider.sliderReleased.connect(self.slider_released)
 
+        self.time_label = QLabel("00:00 / 00:00")
+        self.duration = 0
+
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignTop)
         hbox_layout = QHBoxLayout()
@@ -102,23 +105,41 @@ class MusicProperties(QWidget):
         title_label.setStyleSheet("font-weight: bold")
         layout.addWidget(title_label)
         layout.addLayout(hbox_layout)
-        layout.addWidget(self.time_slider)
+
+        time_layout = QHBoxLayout()
+        time_layout.setAlignment(Qt.AlignTop)
+
+        time_layout.addWidget(self.time_slider)
+        time_layout.addWidget(self.time_label)
+
+        layout.addLayout(time_layout)
 
     def tick(self):
         if self.currently_playing:
-            val = self.main_editor.music_player.get_position()
-            val %= self.main_editor.music_player.duration
+            val = self.resource_editor.music_player.get_position()
+            self.duration = self.resource_editor.music_player.duration
+            val %= self.duration
             self.time_slider.setValue(val)
+            minutes = int(val / 1000 / 60)
+            seconds = int(val / 1000 % 60)
+            thru_song = "%02d:%02d" % (minutes, seconds)
+            minutes = int(self.duration / 1000 / 60)
+            seconds = int(self.duration / 1000 % 60)
+            song_length = "%02d:%02d" % (minutes, seconds)
+            self.time_label.setText(thru_song + " / " + song_length)
+        else:
+            self.time_slider.setValue(0)
+            self.time_label.setText("00:00 / 00:00")
 
     def set_current(self, current):
         self.current = current
 
     def slider_pressed(self):
-        self.main_editor.music_player.pause()
+        self.resource_editor.music_player.pause()
 
     def slider_released(self):
-        self.main_editor.music_player.set_position(self.time_slider.value())
-        self.main_editor.music_player.unpause()
+        self.resource_editor.music_player.set_position(self.time_slider.value())
+        self.resource_editor.music_player.unpause()
 
     def play_clicked(self):
         if self.currently_playing:
@@ -140,10 +161,10 @@ class MusicProperties(QWidget):
         print(music_resource.full_path)
         fn = music_resource.full_path
 
-        new_song = self.main_editor.music_player.play(fn)
+        new_song = self.resource_editor.music_player.play(fn)
 
         if new_song:
-            self.time_slider.setRange(0, self.main_editor.music_player.duration)
+            self.time_slider.setRange(0, self.resource_editor.music_player.duration)
             print(self.time_slider.maximum())
             self.time_slider.setValue(0)
         
@@ -152,9 +173,9 @@ class MusicProperties(QWidget):
 
     def pause_music(self):
         self.currently_playing = None
-        self.main_editor.music_player.pause()
+        self.resource_editor.music_player.pause()
         
     def stop_music(self):
         self.currently_playing = None
         self.currently_playing_label.setText(self.default_text)
-        self.main_editor.music_player.stop()
+        self.resource_editor.music_player.stop()

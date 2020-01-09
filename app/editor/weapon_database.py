@@ -156,7 +156,7 @@ class WeaponProperties(QWidget):
         self.current = current
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
-        self.magic_box.setChecked(current.magic)
+        self.magic_box.edit.setChecked(current.magic)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)
         self.icon_edit.set_current(current.icon_nid, current.icon_index)

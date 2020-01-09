@@ -11,6 +11,8 @@ from app.editor.music_display import MusicDisplay
 
 from app.data.resources import RESOURCES
 
+from app.pygame_audio import PygameAudioPlayer
+
 class ResourceEditor(QDialog):
     def __init__(self, parent=None, one_tab_only=None):
         super().__init__(parent)
@@ -21,6 +23,9 @@ class ResourceEditor(QDialog):
 
         self.grid = QGridLayout(self)
         self.setLayout(self.grid)
+
+        self.music_player = PygameAudioPlayer()
+        self.music_player.setVolume(.5)
 
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         self.grid.addWidget(self.buttonbox, 1, 1)
@@ -66,10 +71,12 @@ class ResourceEditor(QDialog):
 
     def accept(self):
         RESOURCES.serialize()
+        self.music_player.quit()
         super().accept()
 
     def reject(self):
         RESOURCES.reload()
+        self.music_player.quit()
         super().reject()
 
     @staticmethod

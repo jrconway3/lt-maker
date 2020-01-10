@@ -5,15 +5,14 @@ try:
 except ImportError:
     import pickle
 
-from app.data import data
 from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
-    minimap, items, klass, units, ai
+    minimap, items, klass, units, ai, levels
 
 from app.data.resources import RESOURCES
 
 class Database(object):
     def __init__(self):
-        self.levels = data.data()
+        self.levels = levels.LevelCatalog()
         self.stats = stats.StatCatalog()
         self.equations = equations.EquationCatalog()
         self.mcost = mcost_grid.McostGrid()

@@ -48,6 +48,7 @@ class PygameAudioPlayer(object):
 
     def quit(self):
         if self.initiated:
+            self.initiated = False
             pygame.mixer.music.stop()
             pygame.mixer.quit()
             pygame.quit()
@@ -56,7 +57,7 @@ class PygameAudioPlayer(object):
         self.volume = vol
 
     def get_position(self):
-        if self.current:
+        if self.initiated and self.current:
             return self.current_position + pygame.mixer.music.get_pos()
         else:
             return 0

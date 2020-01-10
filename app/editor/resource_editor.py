@@ -81,7 +81,7 @@ class ResourceEditor(QDialog):
 
     @staticmethod
     def get(parent, tab_name):
-        dialog = ResourceEditor(parent, tab_name)
+        dialog = ResourceEditor(parent, one_tab_only=tab_name)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             current_tab = dialog.current_tab

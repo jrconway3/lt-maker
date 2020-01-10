@@ -1,4 +1,3 @@
-import os
 from functools import partial
 
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, \
@@ -46,7 +45,6 @@ class MusicDialog(SimpleDialog):
         res, ok = ResourceEditor.get(self, "Music")
         if ok:
             nid = res.nid
-            print(key, nid)
             self.current.music[key] = nid
             self.boxes[key].edit.setText(nid)
 

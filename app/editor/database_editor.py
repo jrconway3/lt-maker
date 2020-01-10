@@ -20,7 +20,7 @@ from app.editor.terrain_database import TerrainDatabase
 from app.editor.ai_database import AIDatabase
 
 class DatabaseEditor(QDialog):
-    def __init__(self, parent=None, starting_tab=None):
+    def __init__(self, parent=None, starting_tab=None, one_tab_only=None):
         super().__init__(parent)
         self.window = parent
         self.setWindowTitle("Database Editor")
@@ -44,12 +44,18 @@ class DatabaseEditor(QDialog):
 
         self.tab_bar = QTabWidget(self)
         self.grid.addWidget(self.tab_bar, 0, 0, 1, 2)
-        self.current_tab = None
 
         self.create_sub_widgets()
         for name, tab in self.tabs.items():
             self.tab_bar.addTab(tab, name)
 
+        # Handle if only one tab is allowed
+        if one_tab_only:
+            for idx, name in enumerate(self.tabs.keys()):
+                if name != one_tab_only:
+                    self.tab_bar.setTabEnabled(idx, False)
+
+        self.current_tab = self.tab_bar.currentWidget()
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
         if starting_tab and starting_tab in self.tabs:
@@ -94,6 +100,17 @@ class DatabaseEditor(QDialog):
         self.mass_restore()
         DB.serialize()
         super().reject()
+
+    @staticmethod
+    def get(parent, tab_name):
+        dialog = DatabaseEditor(parent, one_tab_only=tab_name)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            current_tab = dialog.current_tab
+            selected_res = current_tab.right_frame.current
+            return selected_res, True
+        else:
+            return None, False
 
 # Testing
 # Run "python -m app.editor.database_editor" from main directory

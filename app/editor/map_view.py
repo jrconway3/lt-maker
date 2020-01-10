@@ -27,6 +27,10 @@ class MapView(QGraphicsView):
 
         self.working_image = None
 
+    def center_on_pos(self, pos):
+        self.centerOn(pos[0]*TILEWIDTH, pos[1]*TILEHEIGHT)
+        self.update_view()
+
     def set_current_map(self, tilemap):
         self.current_map = tilemap
         self.update_view()
@@ -86,6 +90,26 @@ class MapView(QGraphicsView):
             if self.main_editor.dock_visibility['Terrain']:
                 if event.button() == Qt.LeftButton:
                     self.main_editor.terrain_painter_menu.paint_tile(pos)
+            elif self.main_editor.dock_visibility['Units']:
+                if event.button() == Qt.LeftButton:
+                    current_unit = self.window.units_menu.get_current()
+                    if current_unit:
+                        under_unit = self.main_editor.current_level.check_position(pos)
+                        if under_unit:
+                            print("Removing Unit")
+                            under_unit.position = None
+                        if current_unit.position:
+                            print("Move Unit")
+                            current_unit.position = pos
+                        else:
+                            print("Place Unit")
+                            current_unit.position = pos
+                        self.update_view()
+                elif event.button() == Qt.RightButton:
+                    under_unit = self.main_editor.current_level.check_position(pos)
+                    if under_unit:
+                        idx = self.main_editor.current_level.units.index(under_unit)
+                        self.window.units_menu.select(idx)
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)

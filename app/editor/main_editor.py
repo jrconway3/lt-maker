@@ -102,6 +102,9 @@ class MainEditor(QMainWindow):
             self.window_title = title + ' -- LT Maker'
         self.setWindowTitle(self.window_title)
 
+    def get_current_level(self):
+        return self.current_level
+
     def set_current_level(self, level):
         self.current_level = level
         self.map_view.set_current_map(level.tilemap)

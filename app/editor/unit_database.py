@@ -294,15 +294,15 @@ class UnitProperties(QWidget):
 
     def gender_changed(self, male):
         if male:
-            self.gender = 0
+            self.current.gender = 0
         else:
-            self.gender = 5
+            self.current.gender = 5
 
     def desc_changed(self, text):
         self.current.desc = text
 
     def level_changed(self, val):
-        self.current.max_level = val
+        self.current.level = val
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()

@@ -25,6 +25,15 @@ class SimpleDialog(QDialog):
         dialog = cls(parent)
         dialog.exec_()
 
+class Dialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
+
 class EditDialog(SimpleDialog):
     def __init__(self, data, parent):
         super().__init__(parent)

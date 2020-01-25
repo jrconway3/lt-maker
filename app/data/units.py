@@ -3,15 +3,15 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-from app.data.data import data
+from app.data.data import data, serial_obj
 from app.data import stats, weapons
 from app.data.skills import LearnedSkill, LearnedSkillList
 from app import utilities
 
-class UnitPrefab(object):
+class UnitPrefab(serial_obj):
     def __init__(self, nid: str, name: str, desc: str, gender: int,
                  level: int, klass: str, tags, 
-                 bases: stats.StatList, growths: stats.StatList, items: list,
+                 bases: stats.StatList, growths: stats.StatList, starting_items: list,
                  learned_skills: LearnedSkillList, wexp_gain: weapons.WexpGainList,
                  portrait_nid=None):
 
@@ -30,7 +30,7 @@ class UnitPrefab(object):
         self.bases = bases
         self.growths = growths
 
-        self.items = items
+        self.starting_items = starting_items  # List of nids
         self.learned_skills = learned_skills
 
         self.wexp_gain = wexp_gain
@@ -70,9 +70,9 @@ class UnitCatalog(data):
             wexp_gain = [int(i) for i in wexp_gain]
             wexp_gain = weapons.WexpGainList(wexp_gain, weapon_types)
 
-            items = [item_catalog.get_instance(i) for i in unit.find('inventory').text.split(',')]
-            items = [i for i in items if i]
+            starting_items = unit.find('inventory').text.split(',')  # List of nids
+            # items = [i for i in items if i]
 
             new_unit = UnitPrefab(nid, name, desc, gender, level, klass, tags,
-                            bases, growths, items, learned_skills, wexp_gain, nid)
+                            bases, growths, starting_items, learned_skills, wexp_gain, nid)
             self.append(new_unit)

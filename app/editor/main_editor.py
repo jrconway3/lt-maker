@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, \
-    QDockWidget, QFileDialog, QWidget, QLabel, QFrame
+    QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
 
@@ -14,15 +14,9 @@ from app.editor.database_editor import DatabaseEditor
 from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
 from app.editor.terrain_painter_menu import TerrainPainterMenu
+from app.editor.unit_painter_menu import UnitPainterMenu
 
 class EventTileMenu(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
-
-    def on_visibility_changed(self, state):
-        pass
-
-class UnitsMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -59,6 +53,12 @@ class MainEditor(QMainWindow):
         self.setWindowTitle(self.window_title)
         self.settings = QSettings("rainlash", "Lex Talionis")
         self.settings.setDefaultFormat(QSettings.IniFormat)
+        desktop = QDesktopWidget()
+        main_screen_size = desktop.availableGeometry(desktop.primaryScreen())
+
+        # Use setFixedSize to make it permanent and unchangeable
+        self.default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
+        self.resize(*self.default_size)
 
         self.map_view = MapView(self)
         self.setCentralWidget(self.map_view)
@@ -78,7 +78,8 @@ class MainEditor(QMainWindow):
         self.create_edit_dock()
 
         # Actually load data
-        DB.deserialize()
+        # DB.deserialize()
+        # DB.init_load()
 
         if self.auto_open():
             pass
@@ -108,6 +109,7 @@ class MainEditor(QMainWindow):
     def set_current_level(self, level):
         self.current_level = level
         self.map_view.set_current_map(level.tilemap)
+        self.unit_painter_menu.set_current_level(level)
         self.update_view()
 
     def current_level_index(self):
@@ -218,8 +220,8 @@ class MainEditor(QMainWindow):
         self.docks['Event Tiles'].setWidget(self.event_tile_menu)
 
         self.docks['Units'] = Dock("Units", self)
-        self.units_menu = UnitsMenu(self)
-        self.docks['Units'].setWidget(self.units_menu)
+        self.unit_painter_menu = UnitPainterMenu(self)
+        self.docks['Units'].setWidget(self.unit_painter_menu)
 
         # self.docks['Reinforcements'] = Dock("Reinforcements", self)
         # self.reinforcement_groups_menu = ReinforcementGroupsMenu(self)
@@ -364,12 +366,16 @@ class MainEditor(QMainWindow):
             
             for title, dock in self.docks.items():
                 self.addDockWidget(Qt.RightDockWidgetArea, dock)
-                dock.show()
 
+            # Order is REALLY IMPORTANT. Must tabify before show.
             self.tabifyDockWidget(self.docks['Properties'], self.docks['Terrain'])
             self.tabifyDockWidget(self.docks['Terrain'], self.docks['Event Tiles'])
             self.tabifyDockWidget(self.docks['Event Tiles'], self.docks['Units'])
             # self.tabifyDockWidget(self.docks['Units'], self.docks['Reinforcements'])
+
+            for title, dock in self.docks.items():
+                dock.show()
+            
             self.docks['Properties'].raise_()
 
             self.level_dock.hide()

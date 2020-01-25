@@ -135,3 +135,6 @@ class CollectionModel(QAbstractListModel):
         new_item = self._data[min(idx, len(self._data) - 1)]
         if self.window.display:
             self.window.display.set_current(new_item)
+
+    def update(self):
+        self.dataChanged.emit(self.index(0), self.index(self.rowCount()))

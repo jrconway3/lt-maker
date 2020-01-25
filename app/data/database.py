@@ -52,6 +52,7 @@ class Database(object):
 
     # === Saving and loading important data functions ===
     def restore(self, data):
+        # print(data['stats'])
         self.stats.restore(data['stats'])
         self.equations.restore(data['equations'])
         self.mcost.restore(data['mcost'])

@@ -23,7 +23,7 @@ class Resources(object):
 
     def init_load(self):
         # Grab project resources
-        self.load()
+        # self.load()
 
         # Standard locked resources
         self.platforms = self.get_sprites("resources", 'platforms')

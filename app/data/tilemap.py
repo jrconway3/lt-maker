@@ -1,5 +1,3 @@
-from app.data.database import DB
-
 class TileMap(object):
     def __init__(self, image_fn, terrain_fn):
         map_key, self.width, self.height = self.build_map_key(terrain_fn)
@@ -19,6 +17,7 @@ class TileMap(object):
         return lines, width, height
 
     def populate_tiles(self, map_key):
+        from app.data.database import DB
         for x in range(self.width):
             for y in range(self.height):
                 terrain = DB.terrain.get(map_key[y][x])
@@ -26,6 +25,7 @@ class TileMap(object):
                 self.tiles[(x, y)] = new_tile
 
     def change_image(self, image_fn, width, height):
+        from app.data.database import DB
         self.base_image = image_fn
         self.width, self.height = width, height
         # Preserve as much as possible about the old terrain information

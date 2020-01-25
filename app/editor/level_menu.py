@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton
 from PyQt5.QtCore import Qt, QAbstractListModel
 
 from app.data.database import DB
-from app.data.level import Level
+from app.data.levels import Level
 
 from app.editor import commands
 from app.editor.custom_gui import RightClickListView

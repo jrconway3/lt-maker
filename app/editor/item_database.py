@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, \
     QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 
 from app.data.resources import RESOURCES
@@ -251,25 +251,28 @@ class ItemProperties(QWidget):
             pass
 
 class ItemList(QListWidget):
+    item_changed = pyqtSignal()
+
     def __init__(self, parent):
         super().__init__(parent)
         self.window = parent
         self.index_list = []
         self.combo_box_list = []
 
-    def add_item(self, item):
+    def add_item(self, item_nid):
         new_box = QListWidgetItem()
         combo_box = ComboBox(self)
         for i in DB.items:
             pix = get_pixmap(i)
             icon = QIcon(pix) if pix else None
             combo_box.addItem(icon, i.nid)
-        combo_box.setValue(item.nid)
+        combo_box.setValue(item_nid)
+        combo_box.valueChanged.connect(self.on_item_change)
         self.addItem(new_box)
         self.setItemWidget(new_box, combo_box)
-        self.index_list.append(item.nid)
+        self.index_list.append(item_nid)
         self.combo_box_list.append(combo_box)
-        return item
+        return item_nid
 
     def remove_item(self, item):
         if item.nid in self.index_list:
@@ -289,12 +292,18 @@ class ItemList(QListWidget):
         for i in items:
             self.add_item(i)
 
+    def on_item_change(self):
+        self.item_changed.emit()
+
 class ItemListWidget(QWidget):
+    items_updated = pyqtSignal()
+
     def __init__(self, title, parent=None):
         super().__init__(parent)
         self.window = parent
         
         self.item_list = ItemList(self)
+        self.item_list.item_changed.connect(self.activate)
 
         self.layout = QGridLayout(self)
         self.layout.setSpacing(0)
@@ -317,6 +326,14 @@ class ItemListWidget(QWidget):
     def add_new_item(self):
         new_item = DB.items[0]
         self.item_list.add_item(new_item)
+        self.activate()
+
+    def activate(self):
+        self.items_updated.emit()
+
+    def get_items(self):
+        return self.item_list.index_list
+
 
 # Testing
 # Run "python -m app.editor.item_database" from main directory

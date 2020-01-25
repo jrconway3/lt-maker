@@ -231,20 +231,26 @@ class UnitProperties(QWidget):
 
         self.unit_stat_widget = UnitStatWidget(self.current, "Stats", self)
         self.unit_stat_widget.button.clicked.connect(self.access_stats)
+        # Changing of stats done automatically by using model view framework within
         stat_section.addWidget(self.unit_stat_widget, 1, 0, 1, 2)
 
         skill_section = QHBoxLayout()
         attrs = ("level", "skill_nid")
         self.personal_skill_widget = AppendMultiListWidget(LearnedSkillList(), "Personal Skills", attrs, LearnedSkillDelegate, self)
+        # Changing of Personal skills done automatically also
+        # self.personal_skill_widget.activated.connect(self.learned_skills_changed)
         skill_section.addWidget(self.personal_skill_widget)
 
         weapon_section = QHBoxLayout()
         attrs = ("weapon_type", "wexp_gain")
         self.wexp_gain_widget = HorizWeaponListWidget(WexpGainList([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
+        # Changing of Weapon Gain done automatically
+        self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
         weapon_section.addWidget(self.wexp_gain_widget)
 
         item_section = QHBoxLayout()
         self.item_widget = ItemListWidget("Starting Items", self)
+        self.item_widget.items_updated.connect(self.items_changed)
         item_section.addWidget(self.item_widget)
 
         total_section = QVBoxLayout()
@@ -311,6 +317,15 @@ class UnitProperties(QWidget):
     def tags_changed(self):
         self.current.tags = self.tag_box.edit.currentText()
 
+    def learned_skills_changed(self):
+        pass
+
+    def wexp_gain_changed(self):
+        pass
+
+    def items_changed(self):
+        self.current.starting_items = self.item_widget.get_items()
+
     def access_tags(self):
         dlg = TagDialog.create()
         result = dlg.exec_()
@@ -344,7 +359,7 @@ class UnitProperties(QWidget):
 
         self.personal_skill_widget.set_current(current.learned_skills)
         self.wexp_gain_widget.set_current(current.wexp_gain)
-        self.item_widget.set_current(current.items)
+        self.item_widget.set_current(current.starting_items)
 
         self.icon_edit.set_current(current.portrait_nid)
 

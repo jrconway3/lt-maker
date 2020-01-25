@@ -1,8 +1,3 @@
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 class data(object):
     """
     Only accepts data points that have nid attribute
@@ -83,10 +78,9 @@ class data(object):
 
     # Saving functions
     def save(self):
-        return pickle.dumps(self._list)  # Needs to save off a copy!
+        return self._list  # Needs to save off a copy!
 
-    def restore(self, pickled_data):
-        vals = pickle.loads(pickled_data)
+    def restore(self, vals):
         self.clear()
         for val in vals:
             self.append(val)
@@ -103,3 +97,33 @@ class data(object):
 
     def __iter__(self):
         return iter(self._list)
+
+class serial_obj(object):
+    def serialize(self):
+        s_dict = {}
+        for attr in self.__dict__.items():
+            name, value = attr
+            value = self.serialize_attr(name, value)
+            s_dict[name] = value
+        return s_dict
+
+    def serialize_attr(self, name, value):
+        if isinstance(value, data):
+            value = value.save()
+        else:  # int, str, float, list, dict
+            value = value
+        return value
+
+    @classmethod
+    def deserialize(cls, s_dict):
+        self = cls.__new__(cls)
+        for name, value in s_dict.items():
+            setattr(self, name, self.deserialize_attr(name, value))
+        return self
+
+    def deserialize_attr(self, name,value):
+        if isinstance(value, data):
+            value = value.restore()
+        else:
+            value = value
+        return value

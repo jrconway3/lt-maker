@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPixmap
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 
 from app.data.database import DB
-from app.data.level import Level
+from app.data.levels import Level
 
 class CreateNewLevel(QUndoCommand):
     def __init__(self, nid, title):

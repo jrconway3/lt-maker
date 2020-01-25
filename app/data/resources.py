@@ -132,7 +132,7 @@ class Resources(object):
             subicons_dir = os.path.join(icons_dir, new_icon_dirname)
             if not os.path.exists(subicons_dir):
                 os.mkdir(subicons_dir)
-            for icon in self.icons16:
+            for icon in database:
                 move_image(icon, subicons_dir)
 
         # Make the directory to save this resource pack in

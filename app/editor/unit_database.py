@@ -9,7 +9,7 @@ from app.data.skills import LearnedSkillList
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox, ComboBox, QHLine, VirtualListModel
+from app.editor.custom_gui import PropertyBox, QHLine, VirtualListModel
 from app.editor.multi_select_combo_box import MultiSelectComboBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import TagDialog, StatDialog
@@ -165,6 +165,7 @@ class UnitProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
+        self.view = self.window.left_frame.view
         self._data = self.window._data
         self.database_editor = self.window.window
 
@@ -208,8 +209,8 @@ class UnitProperties(QWidget):
         self.level_box.edit.valueChanged.connect(self.level_changed)
         main_section.addWidget(self.level_box, 1, 0)
 
-        self.class_box = PropertyBox("Class", ComboBox, self)
-        self.class_box.edit.addItems(DB.classes.keys())
+        from app.editor.custom_widgets import ClassBox
+        self.class_box = ClassBox(self)
         self.class_box.edit.currentIndexChanged.connect(self.class_changed)
         main_section.addWidget(self.class_box, 1, 1)
 
@@ -245,7 +246,7 @@ class UnitProperties(QWidget):
         attrs = ("weapon_type", "wexp_gain")
         self.wexp_gain_widget = HorizWeaponListWidget(WexpGainList([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
         # Changing of Weapon Gain done automatically
-        self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
+        # self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
         weapon_section.addWidget(self.wexp_gain_widget)
 
         item_section = QHBoxLayout()
@@ -317,11 +318,11 @@ class UnitProperties(QWidget):
     def tags_changed(self):
         self.current.tags = self.tag_box.edit.currentText()
 
-    def learned_skills_changed(self):
-        pass
+    # def learned_skills_changed(self):
+    #     pass
 
-    def wexp_gain_changed(self):
-        pass
+    # def wexp_gain_changed(self):
+    #     pass
 
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()

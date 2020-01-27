@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtCore import QSize
 
 # Custom Widgets
 from app.data.database import DB
@@ -13,6 +14,7 @@ class UnitBox(PropertyBox):
         super().__init__("Unit", ComboBox, parent)
         self.model = UnitModel(DB.units, parent)
         self.edit.setModel(self.model)
+        self.edit.setIconSize(QSize(32, 32))
         if button:
             b = QPushButton('...')
             b.setMaximumWidth(40)

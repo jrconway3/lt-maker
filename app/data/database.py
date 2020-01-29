@@ -13,6 +13,7 @@ from app.data.resources import RESOURCES
 class Database(object):
     def __init__(self):
         self.levels = levels.LevelCatalog()
+        self.teams = ["player", "enemy", "other", "enemy2"]
         self.stats = stats.StatCatalog()
         self.equations = equations.EquationCatalog()
         self.mcost = mcost_grid.McostGrid()

@@ -267,7 +267,7 @@ class ItemList(QListWidget):
             icon = QIcon(pix) if pix else None
             combo_box.addItem(icon, i.nid)
         combo_box.setValue(item_nid)
-        combo_box.valueChanged.connect(self.on_item_change)
+        combo_box.currentIndexChanged.connect(self.on_item_change)
         self.addItem(new_box)
         self.setItemWidget(new_box, combo_box)
         self.index_list.append(item_nid)
@@ -292,7 +292,7 @@ class ItemList(QListWidget):
         for i in items:
             self.add_item(i)
 
-    def on_item_change(self):
+    def on_item_change(self, index):
         self.item_changed.emit()
 
 class ItemListWidget(QWidget):

@@ -136,13 +136,13 @@ class MainEditor(QMainWindow):
         self.about_act = QAction("&About", self, triggered=self.about)
 
         # Toolbar actions
-        self.modify_level_act = QAction(QIcon('icons/map.png'), "Edit Level", self, triggered=self.edit_level)
-        self.back_to_main_act = QAction(QIcon('icons/back.png'), "Back", self, triggered=self.edit_global)
-        self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, triggered=self.edit_database)
-        self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, triggered=self.edit_events)
-        self.test_play_act = QAction(QIcon('icons/play.png'), "Test Play", self, triggered=self.test_play)
+        self.modify_level_act = QAction(QIcon('icons/map.png'), "Edit Level", self, shortcut="E", triggered=self.edit_level)
+        self.back_to_main_act = QAction(QIcon('icons/back.png'), "Back", self, shortcut="E", triggered=self.edit_global)
+        self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, shortcut="D", triggered=self.edit_database)
+        self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
+        self.test_play_act = QAction(QIcon('icons/play.png'), "Test Play", self, shortcut="T", triggered=self.test_play)
 
-        self.modify_resources_act = QAction("Edit Resources...", self, triggered=self.edit_resources)
+        self.modify_resources_act = QAction("Edit Resources...", self, shortcut="R", triggered=self.edit_resources)
 
     def create_menus(self):
         file_menu = QMenu("File", self)

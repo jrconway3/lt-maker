@@ -66,11 +66,11 @@ class UnitPainterMenu(QWidget):
         # idx = int(idx)
         if self._data:
             unit = self._data[curr.row()]
-            if unit.position:
-                self.map_view.center_on_pos(unit.position)
+            if unit.starting_position:
+                self.map_view.center_on_pos(unit.starting_position)
 
     def create_generic(self):
-        created_unit, ok = GenericUnitDialog.get_unit()
+        created_unit, ok = GenericUnitDialog.get_unit(self)
         if ok:
             self.last_touched_generic = created_unit
             self._data.append(created_unit)
@@ -82,7 +82,7 @@ class UnitPainterMenu(QWidget):
 
     def load_unit(self):
         # unit, ok = DatabaseEditor.get(self, "Units")
-        unit, ok = LoadUnitDialog.get_unit()
+        unit, ok = LoadUnitDialog.get_unit(self)
         if ok:
             self._data.append(unit)
             # Select the unit
@@ -166,8 +166,8 @@ class LoadUnitDialog(Dialog):
 
     def set_current(self, unit):
         self.current = unit
-        self.current.team = self.team_box.edit.text()
-        self.current.ai = self.ai_box.edit.text()
+        self.current.team = self.team_box.edit.currentText()
+        self.current.ai = self.ai_box.edit.currentText()
 
     @classmethod
     def get_unit(cls, parent):

@@ -26,6 +26,8 @@ class UnitPrefab(serial_obj):
 
         self.tags = tags
 
+        self.starting_position = None
+
         # Stat stuff
         self.bases = bases
         self.growths = growths

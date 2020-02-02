@@ -3,18 +3,20 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-from app.data.data import data
+from dataclasses import dataclass
 
-class Terrain(object):
-    def __init__(self, nid, name, color, minimap, platform, mtype):
-        self.nid = nid
-        self.name = name
+from app.data.data import data, Prefab
 
-        self.color = color
-        self.minimap = minimap
-        self.platform = platform
+@dataclass
+class Terrain(Prefab):
+    nid: str = None
+    name: str = None
 
-        self.mtype = mtype
+    color: tuple = (0, 0, 0)
+    minimap: str = None
+    platform: str = None
+
+    mtype: str = None
 
 class TerrainCatalog(data):
     def import_xml(self, xml_fn):

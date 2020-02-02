@@ -3,17 +3,19 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-from app.data.data import data
+from dataclasses import dataclass
+
+from app.data.data import data, Prefab
 from app import utilities
 
 # === WEAPON RANK ===
-class WeaponRank(object):
-    def __init__(self, rank, requirement, accuracy=0, damage=0, crit=0):
-        self.rank = rank
-        self.requirement = requirement
-        self.accuracy = accuracy
-        self.damage = damage
-        self.crit = crit
+@dataclass
+class WeaponRank(Prefab):
+    rank: str = None
+    requirement: int = 1
+    accuracy: int = 0
+    damage: int = 0
+    crit: int = 0
 
     @property
     def nid(self):
@@ -43,17 +45,43 @@ class RankCatalog(data):
         new_rank = WeaponRank(new_name, 1)
         self.append(new_rank)
 
-# === WEAPON TYPE ===
-class WeaponType(object):
-    def __init__(self, nid, name, magic, advantage, disadvantage, icon_nid=None, icon_index=(0, 0)):
-        self.nid = nid
-        self.name = name
-        self.magic = magic
-        self.advantage = advantage
-        self.disadvantage = disadvantage
+# === WEAPON ADVANTAGE AND DISADVANTAGE ===
+class Advantage(Prefab):
+    def __init__(self, weapon_type, weapon_rank, effects):
+        self.weapon_type = weapon_type
+        self.weapon_rank = weapon_rank
 
-        self.icon_nid = icon_nid
-        self.icon_index = icon_index
+        self.damage = effects[0]
+        self.resist = effects[1]
+        self.accuracy = effects[2]
+        self.avoid = effects[3]
+        self.crit = effects[4]
+        self.dodge = effects[5]
+        self.attackspeed = effects[6]
+
+    @property
+    def effects(self):
+        return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attackspeed)
+
+class AdvantageList(list):
+    def add_new_default(self, db):
+        if len(self):
+            new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
+        else:
+            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
+        self.append(new_advantage)
+
+# === WEAPON TYPE ===
+@dataclass
+class WeaponType(Prefab):
+    nid: str = None
+    name: str = None
+    magic: bool = False
+    advantage: AdvantageList = None
+    disadvantage: AdvantageList = None
+
+    icon_nid: str = None
+    icon_index: tuple = (0, 0)
 
     def __repr__(self):
         return ("WeaponType %s" % self.nid)
@@ -83,7 +111,7 @@ class WeaponCatalog(data):
             self.append(new_weapon_type)
 
 # === WEAPON EXPERIENCE GAINED ===
-class WexpGain(object):
+class WexpGain(Prefab):
     def __init__(self, usable: bool, weapon_type: WeaponType, wexp_gain: int):
         self.usable = usable
         self.weapon_type = self.nid = weapon_type
@@ -102,29 +130,3 @@ class WexpGainList(data):
 
     def new_key(self, key):
         self[key] = WexpGain(False, key, 0)
-
-# === WEAPON ADVANTAGE AND DISADVANTAGE ===
-class Advantage(object):
-    def __init__(self, weapon_type, weapon_rank, effects):
-        self.weapon_type = weapon_type
-        self.weapon_rank = weapon_rank
-
-        self.damage = effects[0]
-        self.resist = effects[1]
-        self.accuracy = effects[2]
-        self.avoid = effects[3]
-        self.crit = effects[4]
-        self.dodge = effects[5]
-        self.attackspeed = effects[6]
-
-    @property
-    def effects(self):
-        return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attackspeed)
-
-class AdvantageList(list):
-    def add_new_default(self, db):
-        if len(self):
-            new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
-        else:
-            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
-        self.append(new_advantage)

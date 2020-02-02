@@ -98,7 +98,7 @@ class data(object):
     def __iter__(self):
         return iter(self._list)
 
-class serial_obj(object):
+class Prefab(object):
     def serialize(self):
         s_dict = {}
         for attr in self.__dict__.items():
@@ -116,14 +116,22 @@ class serial_obj(object):
 
     @classmethod
     def deserialize(cls, s_dict):
-        self = cls.__new__(cls)
-        for name, value in s_dict.items():
-            setattr(self, name, self.deserialize_attr(name, value))
+        self = cls.default()
+        print(cls)
+        print(s_dict)
+        print(self.__dict__.items())
+        for attr_name, attr_value in self.__dict__.items():
+            value = self.deserialize_attr(attr_name, s_dict.get(attr_name))
+            setattr(self, attr_name, value)
         return self
 
-    def deserialize_attr(self, name,value):
+    def deserialize_attr(self, name, value):
         if isinstance(value, data):
             value = value.restore()
         else:
             value = value
         return value
+
+    @classmethod
+    def default(cls):
+        return cls()

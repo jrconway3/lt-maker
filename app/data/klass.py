@@ -3,48 +3,40 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-from app.data.data import data
+from app.data.data import data, Prefab
 from app.data import stats, weapons
 from app.data.skills import LearnedSkill, LearnedSkillList
 from app import utilities
 
-class Klass(object):
-    def __init__(self, nid: str, short_name: str, long_name: str,
-                 desc: str, tier: int, movement_group: str, 
-                 promotes_from, turns_into, tags, max_level: int,
-                 bases: stats.StatList, growths: stats.StatList, promotion: stats.StatList, max_stats: stats.StatList,
-                 skills: LearnedSkillList, wexp_gain: weapons.WexpGainList, growth_bonus: stats.StatList, 
-                 icon_nid=None, icon_index=(0, 0), map_sprite_nid=None):
-        self.nid = nid
-        self.short_name = short_name
-        self.long_name = long_name
+class Klass(Prefab):
+    nid: str = None
+    short_name: str = None
+    long_name: str = None
 
-        self.desc = desc
-        self.tier = tier
-        self.movement_group = movement_group
+    desc: str = ""
+    tier: int = 1
+    movement_group: str = None
 
-        self.promotes_from = promotes_from
-        self.turns_into = turns_into
+    promotes_from: str = None
+    turns_into: list = None
+    tags: list = None
+    max_level: int = 20
 
-        self.tags = tags
+    bases: stats.StatList = None
+    growths: stats.StatList = None
+    growth_bonus: stats.StatList = None
+    promotion: stats.StatList = None
+    max_stats: stats.StatList = None
 
-        # Stat stuff
-        self.bases = bases
-        self.growths = growths
-        self.growth_bonus = growth_bonus
-        self.promotion = promotion
-        self.max_stats = max_stats
+    learned_skills: LearnedSkillList = None
+    wexp_gain: weapons.WexpGainList = None
 
-        self.skills = skills
-        self.wexp_gain = wexp_gain
+    icon_nid: str = None
+    icon_index: tuple = (0, 0)
+    map_sprite_nid: str = None
 
-        self.max_level = max_level
-        self.exp_mult = 1
-        self.opponent_exp_mult = 1
-
-        self.icon_nid = icon_nid
-        self.icon_index = icon_index
-        self.map_sprite_nid = map_sprite_nid
+    exp_mult: float = 1.
+    opponent_exp_mult: float = 1.
 
     def get_stat_lists(self):
         return [self.bases, self.growths, self.promotion, self.growth_bonus, self.max_stats]

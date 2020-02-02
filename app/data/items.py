@@ -3,11 +3,6 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 from app.data.data import data
 import app.data.weapons as weapons
 import app.data.item_components as IC
@@ -155,10 +150,9 @@ class ItemCatalog(data):
         return new_item
 
     def save(self):
-        return pickle.dumps([i.serialize_prefab() for i in self._list])
+        return [i.serialize_prefab() for i in self._list]
 
-    def restore(self, pickled_data):
-        vals = pickle.loads(pickled_data)
+    def restore(self, vals):
         self.clear()
         for val in vals:
             item = Item.deserialize_prefab(val)

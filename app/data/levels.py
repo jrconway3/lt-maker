@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from app.data.data import data, serial_obj
+from app.data.data import data, Prefab
 from app.data import tilemap
 from app.data.units import UnitPrefab
 
-class Level(serial_obj):
+class Level(Prefab):
     def __init__(self, nid, title):
         self.nid = nid
         self.title = title
@@ -45,6 +45,10 @@ class Level(serial_obj):
         else:
             value = super().deserialize_attr(name, value)
         return value
+
+    @classmethod
+    def default(cls):
+        return cls('0', 'Prologue')
 
 class LevelCatalog(data):
     def save(self):

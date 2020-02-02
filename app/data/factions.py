@@ -3,15 +3,18 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
+from dataclasses import dataclass
+
 from app.data.data import data
 
+@dataclass
 class Faction(object):
-    def __init__(self, nid, name, desc, icon_nid=None, icon_index=(0, 0)):
-        self.nid = nid
-        self.name = name
-        self.desc = desc
-        self.icon_nid = icon_nid
-        self.icon_index = icon_index
+    nid: str = None
+    name: str = None
+    desc: str = ""
+
+    icon_nid: str = None
+    icon_index: tuple = (0, 0)
 
 class FactionCatalog(data):
     def import_xml(self, xml_fn):

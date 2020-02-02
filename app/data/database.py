@@ -5,6 +5,8 @@ try:
 except ImportError:
     import pickle
 
+import json
+
 from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
     minimap, items, klass, units, ai, levels
 
@@ -147,10 +149,11 @@ class Database(object):
 
         to_save = self.save()
 
-        with open(save_loc, 'wb') as serialize_file:
+        with open(save_loc, 'w') as serialize_file:
             # Remove the -1 here if you want to interrogate the pickled save file
             # pickle.dump(to_save, serialize_file, -1)
-            pickle.dump(to_save, serialize_file)
+            # pickle.dump(to_save, serialize_file)
+            json.dump(to_save, serialize_file)
 
         print("Done serializing!")
 

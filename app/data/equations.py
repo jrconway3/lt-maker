@@ -1,10 +1,12 @@
-from app.data.data import data
+from dataclasses import dataclass
+
+from app.data.data import data, Prefab
 from app import utilities
 
-class Equation(object):
-    def __init__(self, nid, expression):
-        self.nid = nid
-        self.expression = expression
+@dataclass
+class Equation(Prefab):
+    nid: str = None
+    expression: str = None
 
 class EquationCatalog(data):
     def import_data(self, fn):

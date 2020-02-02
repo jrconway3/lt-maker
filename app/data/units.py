@@ -3,41 +3,31 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-from app.data.data import data, serial_obj
+from dataclasses import dataclass
+
+from app.data.data import data, Prefab
 from app.data import stats, weapons
 from app.data.skills import LearnedSkill, LearnedSkillList
 from app import utilities
 
-class UnitPrefab(serial_obj):
-    def __init__(self, nid: str, name: str, desc: str, gender: int,
-                 level: int, klass: str, tags, 
-                 bases: stats.StatList, growths: stats.StatList, starting_items: list,
-                 learned_skills: LearnedSkillList, wexp_gain: weapons.WexpGainList,
-                 portrait_nid=None):
+@dataclass
+class UnitPrefab(Prefab):
+    nid: str = None
+    name: str = None
+    desc: str = None
+    gender: int = None
 
-        self.nid = nid
-        self.name = name
+    level: int = None
+    klass: str = None
 
-        self.desc = desc
-        self.gender = gender
+    tags: list = None
+    bases: stats.StatList = None
+    growths: stats.StatList = None
+    starting_items: list = None
+    learned_skills: LearnedSkillList = None
+    wexp_gain: weapons.WexpGainList = None
 
-        self.level = level
-        self.klass = klass
-
-        self.tags = tags
-
-        self.starting_position = None
-
-        # Stat stuff
-        self.bases = bases
-        self.growths = growths
-
-        self.starting_items = starting_items  # List of nids
-        self.learned_skills = learned_skills
-
-        self.wexp_gain = wexp_gain
-
-        self.portrait_nid = portrait_nid
+    portrait_nid: str = None
 
     def get_stat_lists(self):
         return [self.bases, self.growths]
@@ -76,5 +66,5 @@ class UnitCatalog(data):
             # items = [i for i in items if i]
 
             new_unit = UnitPrefab(nid, name, desc, gender, level, klass, tags,
-                            bases, growths, starting_items, learned_skills, wexp_gain, nid)
+                                  bases, growths, starting_items, learned_skills, wexp_gain, nid)
             self.append(new_unit)

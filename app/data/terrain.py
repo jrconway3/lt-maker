@@ -19,6 +19,8 @@ class Terrain(Prefab):
     mtype: str = None
 
 class TerrainCatalog(data):
+    datatype = Terrain
+
     def import_xml(self, xml_fn):
         terrain_data = ET.parse(xml_fn)
         for terrain in terrain_data.getroot().findall('terrain'):

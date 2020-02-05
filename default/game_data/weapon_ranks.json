@@ -1,0 +1,44 @@
+[
+    {
+        "rank": "E",
+        "requirement": 1,
+        "accuracy": 0,
+        "damage": 0,
+        "crit": 0
+    },
+    {
+        "rank": "D",
+        "requirement": 31,
+        "accuracy": 0,
+        "damage": 0,
+        "crit": 0
+    },
+    {
+        "rank": "C",
+        "requirement": 71,
+        "accuracy": 0,
+        "damage": 0,
+        "crit": 0
+    },
+    {
+        "rank": "B",
+        "requirement": 121,
+        "accuracy": 0,
+        "damage": 0,
+        "crit": 0
+    },
+    {
+        "rank": "A",
+        "requirement": 181,
+        "accuracy": 0,
+        "damage": 0,
+        "crit": 0
+    },
+    {
+        "rank": "S",
+        "requirement": 251,
+        "accuracy": 5,
+        "damage": 0,
+        "crit": 5
+    }
+]

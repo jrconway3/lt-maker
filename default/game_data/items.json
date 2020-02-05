@@ -1,0 +1,99 @@
+[
+    {
+        "nid": "Iron Sword",
+        "name": "Iron Sword",
+        "desc": null,
+        "value": 10,
+        "min_range": "1",
+        "max_range": "1",
+        "icon_nid": "Sword",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "weapon",
+                "Sword"
+            ],
+            [
+                "might",
+                5
+            ],
+            [
+                "hit",
+                90
+            ],
+            [
+                "crit",
+                0
+            ],
+            [
+                "weight",
+                5
+            ],
+            [
+                "level",
+                "E"
+            ],
+            [
+                "uses",
+                46
+            ]
+        ]
+    },
+    {
+        "nid": "Heal",
+        "name": "Heal",
+        "desc": "Restores (User's Magic + 10) HP",
+        "value": 20,
+        "min_range": "1",
+        "max_range": "1",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "heal_on_hit",
+                10
+            ],
+            [
+                "level",
+                "E"
+            ],
+            [
+                "uses",
+                30
+            ]
+        ]
+    },
+    {
+        "nid": "Vulnerary",
+        "name": "Vulnerary",
+        "desc": "Restores 10 HP.",
+        "value": 100,
+        "min_range": "0",
+        "max_range": "0",
+        "icon_nid": "Consumable",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "usable",
+                true
+            ],
+            [
+                "heal_on_use",
+                10
+            ],
+            [
+                "uses",
+                3
+            ]
+        ]
+    }
+]

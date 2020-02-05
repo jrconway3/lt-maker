@@ -26,6 +26,8 @@ class WeaponRank(Prefab):
             (self.rank, self.requirement, self.accuracy, self.damage, self.crit)
 
 class RankCatalog(data):
+    datatype = WeaponRank
+
     def import_data(self, txt_fn):
         with open(txt_fn) as fp:
             lines = [line.strip() for line in fp.readlines() if not line.strip().startswith('#')]
@@ -86,7 +88,23 @@ class WeaponType(Prefab):
     def __repr__(self):
         return ("WeaponType %s" % self.nid)
 
+    def serialize_attr(self, name, value):
+        if name in ('advantage', 'disadvantage'):
+            value = [adv.serialize() for adv in value]
+        else:
+            value = super().serialize_attr(name, value)
+        return value
+
+    def deserialize_attr(self, name, value):
+        if name in ('advantage', 'disadvantage'):
+            value = [Advantage.deserialize(adv) for adv in value]
+        else:
+            value = super().deserialize_attr(name, value)
+        return value
+
 class WeaponCatalog(data):
+    datatype = WeaponType
+
     def import_xml(self, xml_fn):
         weapon_data = ET.parse(xml_fn)
         for idx, weapon in enumerate(weapon_data.getroot().findall('weapon')):
@@ -109,6 +127,7 @@ class WeaponCatalog(data):
                 WeaponType(nid, name, magic, advantage, disadvantage, 
                            'wexp_icons', (0, idx))
             self.append(new_weapon_type)
+
 
 # === WEAPON EXPERIENCE GAINED ===
 class WexpGain(Prefab):

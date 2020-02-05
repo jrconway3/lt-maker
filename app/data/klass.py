@@ -3,11 +3,14 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
+from dataclasses import dataclass
+
 from app.data.data import data, Prefab
 from app.data import stats, weapons
 from app.data.skills import LearnedSkill, LearnedSkillList
 from app import utilities
 
+@dataclass
 class Klass(Prefab):
     nid: str = None
     short_name: str = None
@@ -76,6 +79,6 @@ class ClassCatalog(data):
 
             new_klass = Klass(nid, short_name, long_name, desc, tier, movement_group, 
                               promotes_from, turns_into, tags, max_level,
-                              bases, growths, promotion, max_stats,
-                              learned_skills, wexp_gain, growth_bonus)
+                              bases, growths, growth_bonus, promotion, max_stats,
+                              learned_skills, wexp_gain)
             self.append(new_klass)

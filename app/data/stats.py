@@ -20,6 +20,8 @@ class StatTypePrefab(Prefab):
         return "%s: %s" % (self.nid, self.name)
 
 class StatCatalog(data):
+    datatype = StatTypePrefab
+
     def import_xml(self, xml_fn):
         stat_data = ET.parse(xml_fn)
         for stat in stat_data.getroot().findall('stat'):

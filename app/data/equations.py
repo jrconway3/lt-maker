@@ -9,6 +9,8 @@ class Equation(Prefab):
     expression: str = None
 
 class EquationCatalog(data):
+    datatype = Equation
+
     def import_data(self, fn):
         with open(fn) as fp:
             lines = [line.strip() for line in fp.readlines() if not line.startswith('#')]

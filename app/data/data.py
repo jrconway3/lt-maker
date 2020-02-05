@@ -4,6 +4,8 @@ class data(object):
     Generally behaves as a list first and a dictionary second
     """
 
+    datatype = None
+
     def __init__(self, vals=None):
         if vals:
             self._list = vals
@@ -78,12 +80,20 @@ class data(object):
 
     # Saving functions
     def save(self):
-        return self._list  # Needs to save off a copy!
+        if self.datatype and issubclass(self.datatype, Prefab):
+            return [elem.serialize() for elem in self._list]
+        else:
+            return self._list
 
     def restore(self, vals):
         self.clear()
-        for val in vals:
-            self.append(val)
+        if self.datatype and issubclass(self.datatype, Prefab):
+            for s_dict in vals:
+                new_equation = self.datatype.deserialize(s_dict)
+                self.append(new_equation)
+        else:
+            for val in vals:
+                self.append(val)
 
     # Magic Methods
     def __repr__(self):

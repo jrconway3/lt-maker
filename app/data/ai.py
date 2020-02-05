@@ -1,4 +1,4 @@
-from app.data.data import data
+from app.data.data import data, Prefab
 
 AI_ActionTypes = ['None', 'Attack', 'Steal', 'Interact', 'Move_to', 'Move_away_from']
 AI_TargetTypes = ['None', 'Enemy', 'Ally', 'Unit', 'Position', 'Tile', 'Event']
@@ -8,7 +8,7 @@ AI_TargetSpecifications = [[], unit_spec, unit_spec, unit_spec, ['Starting', 'Cu
 # View Range
 # (Don't look | Movement*2 + Maximum Item Range | Entire Map | Custom Range (Integer))
 
-class AIPreset(object):
+class AIPreset(Prefab):
     def __init__(self, nid, priority):
         self.nid = nid
         self.behaviours = [AIBehaviour.DoNothing(), AIBehaviour.DoNothing(), AIBehaviour.DoNothing()]
@@ -20,7 +20,7 @@ class AIPreset(object):
     def set_behaviour(self, idx, behaviour):
         self.behaviours[idx] = behaviour
 
-class AIBehaviour(object):
+class AIBehaviour(Prefab):
     def __init__(self, action: str, target: str, target_spec, view_range: int):
         self.action: str = action
         self.target: str = target

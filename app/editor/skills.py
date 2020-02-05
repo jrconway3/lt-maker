@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QSpinBox, QItemDelegate
 
 from app.editor.custom_gui import ComboBox
 
-
 class LearnedSkill(object):
     def __init__(self, level, skill_nid):
         self.level = level

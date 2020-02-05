@@ -328,7 +328,7 @@ class ClassProperties(QWidget):
         self.exp_mult_box.edit.setValue(current.exp_mult)
         self.opp_exp_mult_box.edit.setValue(current.opponent_exp_mult)
 
-        self.class_skill_widget.set_current(current.skills)
+        self.class_skill_widget.set_current(current.learned_skills)
         self.wexp_gain_widget.set_current(current.wexp_gain)
 
         self.icon_edit.set_current(current.icon_nid, current.icon_index)

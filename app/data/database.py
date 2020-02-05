@@ -8,7 +8,7 @@ except ImportError:
 import json
 
 from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
-    minimap, items, klass, units, ai, levels
+    minimap, items, klass, units, ai, skills, levels
 
 from app.data.resources import RESOURCES
 
@@ -94,7 +94,7 @@ class Database(object):
         self.terrain.append(new_terrain)
 
     def create_new_weapon_type(self, nid, name):
-        new_weapon_type = weapons.WeaponType(nid, name, False, [], [])
+        new_weapon_type = weapons.WeaponType(nid, name, False, weapons.AdvantageList, weapons.AdvantageList)
         self.weapons.append(new_weapon_type)
 
     def create_new_faction(self, nid, name):
@@ -107,30 +107,38 @@ class Database(object):
 
     def create_new_class(self, nid, name):
         num_stats = len(self.stats)
-        bases = [10] + [0] * (num_stats - 2) + [5]
-        growths = [0] * num_stats
-        promotion = [0] * num_stats
-        max_stats = [30] * num_stats
-        wexp_gain = [0] * len(self.weapon_ranks)
+        bases = stats.StatList([10] + [0] * (num_stats - 2) + [5], self.stats)
+        growths = stats.StatList([0] * num_stats, self.stats)
+        growth_bonus = stats.StatList([0] * num_stats, self.stats)
+        promotion = stats.StatList([0] * num_stats, self.stats)
+        max_stats = stats.StatList([30] * num_stats, self.stats)
+        wexp_gain = weapons.WexpGainList([0] * len(self.weapons), self.weapons)
+        learned_skills = skills.LearnedSkillList()
         new_class = klass.Klass(nid, name, name, '', 1, 0, None, [], [], 20, 
-                                bases, growths, promotion, max_stats, [], wexp_gain)
+                                bases, growths, growth_bonus, promotion, max_stats, 
+                                learned_skills, wexp_gain)
         return new_class
 
     def create_new_unit(self, nid, name):
         num_stats = len(self.stats)
-        bases = [10] + [0] * (num_stats - 2) + [5]
-        growths = [0] * num_stats
-        wexp_gain = [0] * len(self.weapon_ranks)
-        new_unit = units.Unit(nid, name, '', 0, 1, 'Citizen', [], bases, growths, [], [], wexp_gain)
+        bases = stats.StatList([10] + [0] * (num_stats - 2) + [5], self.stats)
+        growths = stats.StatList([0] * num_stats, self.stats)
+        wexp_gain = weapons.WexpGainList([0] * len(self.weapons), self.weapons)
+        learned_skills = skills.LearnedSkillList()
+        new_unit = units.UnitPrefab(nid, name, '', 0, 1, 'Citizen', [], 
+                                    bases, growths, [], learned_skills, wexp_gain)
         return new_unit
 
     def create_new_ai(self, nid, name=None):
         new_ai = ai.AIPreset(nid, 20)
         return new_ai
 
-    def serialize(self, proj_dir='./default', title="default"):
-        save_loc = os.path.join(proj_dir, title + ".ltdata")
-        print("Serializing data as %s..." % save_loc)
+    def serialize(self, proj_dir='./default'):
+        # save_loc = os.path.join(proj_dir, title + ".ltdata")
+        data_dir = os.path.join(proj_dir, 'game_data')
+        if not os.path.exists(data_dir):
+            os.mkdir(data_dir)
+        print("Serializing data in %s..." % data_dir)
 
         # Place level image maps in correct place
         # This is how it works for now -- maybe in the future 
@@ -148,12 +156,19 @@ class Database(object):
                     level.tilemap.base_image = new_loc
 
         to_save = self.save()
+        for key, value in to_save.items():
+            save_loc = os.path.join(data_dir, key + '.json')
+            print("Serializing %s to %s" % (key, save_loc))
+            print(value, flush=True)
+            with open(save_loc, 'w') as serialize_file:
+                json.dump(value, serialize_file, indent=4)
 
-        with open(save_loc, 'w') as serialize_file:
-            # Remove the -1 here if you want to interrogate the pickled save file
-            # pickle.dump(to_save, serialize_file, -1)
-            # pickle.dump(to_save, serialize_file)
-            json.dump(to_save, serialize_file)
+        # # with open(save_loc, 'wb') as serialize_file:
+        # with open(save_loc, 'w') as serialize_file:
+        #     # Remove the -1 here if you want to interrogate the pickled save file
+        #     # pickle.dump(to_save, serialize_file, -1)
+        #     # pickle.dump(to_save, serialize_file)
+        #     json.dump(to_save, serialize_file)
 
         print("Done serializing!")
 
@@ -161,8 +176,9 @@ class Database(object):
         save_loc = os.path.join(proj_dir, title + ".ltdata")
         print("Deserializing data as %s..." % save_loc)
 
-        with open(save_loc, 'rb') as load_file:
-            save_obj = pickle.load(load_file)
+        # with open(save_loc, 'rb') as load_file:
+        with open(save_loc, 'r') as load_file:
+            save_obj = json.load(load_file)
 
         self.restore(save_obj)
         print("Done deserializing!")

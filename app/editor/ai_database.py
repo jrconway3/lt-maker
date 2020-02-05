@@ -172,20 +172,23 @@ class PositionSpecification(QWidget):
         else:
             self.x_spinbox.setEnabled(True)
             self.y_spinbox.setEnabled(True)
-            x, y = self.x_spinbox.value(), self.y_spinbox.value()
+            x, y = int(self.x_spinbox.value()), int(self.y_spinbox.value())
             self.window.current.target_spec = (x, y)
 
     def change_spinbox(self, value):
-        x, y = self.x_spinbox.value(), self.y_spinbox.value()
+        x, y = int(self.x_spinbox.value()), int(self.y_spinbox.value())
         self.window.current.target_spec = (x, y)
 
     def set_current(self, target_spec):
-        if target_spec == "Starting":
+        print("Set Current target spec", flush=True)
+        print(target_spec, flush=True)
+        if target_spec == ["Starting"]:
+            self.window.current.target_spec = "Starting"
             self.starting.setChecked(True)
         else:
             self.starting.setChecked(False)
-            self.x_spinbox.setValue(target_spec[0])
-            self.y_spinbox.setValue(target_spec[1])
+            self.x_spinbox.setValue(int(target_spec[0]))
+            self.y_spinbox.setValue(int(target_spec[1]))
 
 class BehaviourBox(QGroupBox):
     def __init__(self, parent=None):

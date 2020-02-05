@@ -121,7 +121,7 @@ class MainEditor(QMainWindow):
 
     # === Create Menu ===
     def create_actions(self):
-        self.current_save_loc = None
+        self.current_proj_dir = None
 
         self.new_act = QAction(QIcon('icons/file-plus.png'), "&New Project...", self, shortcut="Ctrl+N", triggered=self.new)
         self.open_act = QAction(QIcon('icons/folder.png'), "&Open Project...", self, shortcut="Ctrl+O", triggered=self.open)
@@ -252,11 +252,11 @@ class MainEditor(QMainWindow):
 
     def open(self):
         if self.maybe_save():
-            starting_path = self.current_save_loc or QDir.currentPath()
-            fn, ok = QFileDialog.getOpenFileName(self, "Open Project", starting_path,
-                                                 "LT Project Files (*.ltproj);;All Files (*)")
+            starting_path = self.current_proj_dir or QDir.currentPath()
+            fn, ok = QFileDialog.getExistingDirectory(self, "Open Project Directory", starting_path,
+                                                      "All Files (*)")
             if ok:
-                self.current_save_loc = fn
+                self.current_proj_dir = fn
                 self.load()
             else:
                 return False
@@ -266,41 +266,42 @@ class MainEditor(QMainWindow):
         print("Auto Open: %s" % path)
 
         if path and os.path.exists(path):
-            self.current_save_loc = path
+            self.current_proj_dir = path
             self.load()
             return True
         else:
             return False
 
     def load(self):
-        if os.path.exists(self.current_save_loc):
+        if os.path.exists(self.current_proj_dir):
             if not self.global_mode:
                 self.edit_global()
 
-            title = os.path.split(self.current_save_loc)[-1].split('.')[0]
+            title = os.path.split(self.current_proj_dir)[-1].split('.')[0]
             self.set_window_title(title)
 
-            RESOURCES.load(self.current_save_loc)
-            DB.deserialize(self.current_save_loc, title)
+            RESOURCES.load(self.current_proj_dir)
+            # DB.deserialize(self.current_proj_dir)
+            DB.init_load()
 
             self.undo_stack.clear()
-            print("Loaded project from %s" % self.current_save_loc)
-            self.status_bar.showMessage("Loaded project from %s" % self.current_save_loc)
+            print("Loaded project from %s" % self.current_proj_dir)
+            self.status_bar.showMessage("Loaded project from %s" % self.current_proj_dir)
             self.update_view()
 
     def save(self, new=False):
-        if new or not self.current_save_loc:
-            starting_path = self.current_save_loc or QDir.currentPath()
+        if new or not self.current_proj_dir:
+            starting_path = self.current_proj_dir or QDir.currentPath()
             fn, ok = QFileDialog.getSaveFileName(self, "Save Project", starting_path, 
-                                                 "LT Project Files (*.ltproj);;All Files (*)")
+                                                 "All Files (*)")
             if ok:
-                self.current_save_loc = fn.split('.')[0]
+                self.current_proj_dir = fn.split('.')[0]
             else:
                 return False
             new = True
 
         if new:
-            if os.path.exists(self.current_save_loc):
+            if os.path.exists(self.current_proj_dir):
                 ret = QMessageBox.warning(self, "Save Project", "The file already exists.\nDo you want to overwrite it?", 
                                           QMessageBox.Save | QMessageBox.Cancel)
                 if ret == QMessageBox.Save:
@@ -310,21 +311,21 @@ class MainEditor(QMainWindow):
 
         # Set title
         # title = os.path.split(self.current_save_loc)[-1].split('.')[0]
-        title = os.path.split(self.current_save_loc)[-1]
+        title = os.path.split(self.current_proj_dir)[-1]
         self.set_window_title(title)
         # Remove asterisk on window title
         if self.window_title.startswith('*'):
             self.window_title = self.window_title[1:]
 
         # Make directory for saving if it doesn't already exist
-        if not os.path.isdir(title):
-            os.mkdir(title)
+        if not os.path.isdir(self.current_proj_dir):
+            os.mkdir(self.current_proj_dir)
 
         # Actually save project
-        RESOURCES.serialize("./" + title)
-        DB.serialize("./" + title, title)
+        RESOURCES.serialize(self.current_proj_dir)
+        DB.serialize(self.current_proj_dir)
         
-        self.status_bar.showMessage('Saved project to %s' % self.current_save_loc)
+        self.status_bar.showMessage('Saved project to %s' % self.current_proj_dir)
         self.undo_stack.setClean()
 
     def save_as(self):
@@ -343,8 +344,8 @@ class MainEditor(QMainWindow):
 
     def closeEvent(self, event):
         if self.maybe_save():
-            print("Setting starting path %s" % self.current_save_loc)
-            self.settings.setValue("starting_path", self.current_save_loc)
+            print("Setting starting path %s" % self.current_proj_dir)
+            self.settings.setValue("starting_path", self.current_proj_dir)
             event.accept()
         else:
             event.ignore()

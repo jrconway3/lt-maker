@@ -5,10 +5,10 @@ except ImportError:
 
 from dataclasses import dataclass
 
-from app.data.data import data
+from app.data.data import data, Prefab
 
 @dataclass
-class Faction(object):
+class Faction(Prefab):
     nid: str = None
     name: str = None
     desc: str = ""
@@ -17,6 +17,8 @@ class Faction(object):
     icon_index: tuple = (0, 0)
 
 class FactionCatalog(data):
+    datatype = Faction
+
     def import_xml(self, xml_fn):
         faction_data = ET.parse(xml_fn)
         for faction in faction_data.getroot().findall('faction'):

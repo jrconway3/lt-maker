@@ -24,6 +24,7 @@ class UnitPrefab(Prefab):
     bases: stats.StatList = None
     growths: stats.StatList = None
     starting_items: list = None
+    
     learned_skills: LearnedSkillList = None
     wexp_gain: weapons.WexpGainList = None
 

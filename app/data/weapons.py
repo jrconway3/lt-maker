@@ -136,7 +136,16 @@ class WexpGain(Prefab):
         self.weapon_type = self.nid = weapon_type
         self.wexp_gain = wexp_gain
 
+    def serialize(self):
+        return (self.usable, self.weapon_type, self.wexp_gain)
+    
+    @classmethod
+    def deserialize(cls, s_tuple):
+        return cls(*s_tuple)
+
 class WexpGainList(data):
+    datatype = WexpGain
+
     def __init__(self, data, weapon_types):
         vals = []
         for i in range(len(weapon_types)):

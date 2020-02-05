@@ -24,7 +24,7 @@ class UnitPrefab(Prefab):
     bases: stats.StatList = None
     growths: stats.StatList = None
     starting_items: list = None
-    
+
     learned_skills: LearnedSkillList = None
     wexp_gain: weapons.WexpGainList = None
 
@@ -34,6 +34,8 @@ class UnitPrefab(Prefab):
         return [self.bases, self.growths]
 
 class UnitCatalog(data):
+    datatype = UnitPrefab
+    
     def import_xml(self, xml_fn, stat_types, weapon_types, weapon_ranks, item_catalog):
         unit_data = ET.parse(xml_fn)
         for unit in unit_data.getroot().findall('unit'):

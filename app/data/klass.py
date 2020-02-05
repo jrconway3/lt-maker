@@ -44,7 +44,23 @@ class Klass(Prefab):
     def get_stat_lists(self):
         return [self.bases, self.growths, self.promotion, self.growth_bonus, self.max_stats]
 
+    def serialize_attr(self, name, value):
+        if name == 'learned_skills':
+            value = [skill.serialize() for skill in value]
+        else:
+            value = super().serialize_attr(name, value)
+        return value
+
+    def deserialize_attr(self, name, value):
+        if name == 'learned_skills':
+            value = [LearnedSkill.deserialize(skill) for skill in value]
+        else:
+            value = super().deserialize_attr(name, value)
+        return value
+
 class ClassCatalog(data):
+    datatype = Klass
+
     def import_xml(self, xml_fn, stat_types, weapon_types, weapon_ranks):
         class_data = ET.parse(xml_fn)
         for klass in class_data.getroot().findall('class'):
@@ -53,7 +69,7 @@ class ClassCatalog(data):
             long_name = klass.find('long_name').text
             tier = int(klass.find('tier').text)
             promotes_from = klass.find('promotes_from').text if klass.find('promotes_from').text is not None else None
-            turns_into = klass.find('turns_into').text if klass.find('turns_into').text is not None else []
+            turns_into = klass.find('turns_into').text.split(',') if klass.find('turns_into').text is not None else []
             movement_group = klass.find('movement_group').text
             max_level = int(klass.find('max_level').text)
             tags = klass.find('tags').text.split(',') if klass.find('tags').text is not None else []

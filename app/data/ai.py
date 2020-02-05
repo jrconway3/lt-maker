@@ -20,6 +20,20 @@ class AIPreset(Prefab):
     def set_behaviour(self, idx, behaviour):
         self.behaviours[idx] = behaviour
 
+    def serialize_attr(self, name, value):
+        if name == 'behaviours':
+            value = [b.serialize() for b in value]
+        else:
+            value = super().serialize_attr(name, value)
+        return value
+
+    def deserialize_attr(self, name, value):
+        if name == 'behaviours':
+            value = [AIBehaviour.deserialize(b) for b in value]
+        else:
+            value = super().deserialize_attr(name, value)
+        return value
+
 class AIBehaviour(Prefab):
     def __init__(self, action: str, target: str, target_spec, view_range: int):
         self.action: str = action
@@ -32,6 +46,8 @@ class AIBehaviour(Prefab):
         return cls('None', 'None', None, 0)
 
 class AICatalog(data):
+    datatype = AIPreset
+
     def import_data(self, fn):
         with open(fn) as fp:
             lines = [line.strip().split() for line in fp.readlines() if not line.startswith('#')]

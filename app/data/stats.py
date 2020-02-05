@@ -46,7 +46,16 @@ class Stat(Prefab):
     def __str__(self):
         return str(self.value)
 
+    def serialize(self):
+        return (self.nid, self.value)
+
+    @classmethod
+    def deserialize(cls, s_tuple):
+        return cls(*s_tuple)
+
 class StatList(data):
+    datatype = Stat
+
     def __init__(self, data, stat_types):
         vals = []
         for i in range(len(stat_types)):

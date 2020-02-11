@@ -65,6 +65,10 @@ class Advantage(Prefab):
     def effects(self):
         return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attackspeed)
 
+    @classmethod
+    def default(cls):
+        return cls(None, None, [0]*7)
+
 class AdvantageList(list):
     def add_new_default(self, db):
         if len(self):
@@ -146,15 +150,23 @@ class WexpGain(Prefab):
 class WexpGainList(data):
     datatype = WexpGain
 
-    def __init__(self, data, weapon_types):
-        vals = []
+    @classmethod
+    def from_xml(cls, data, weapon_types):
+        new_wexpgain_list = cls()
         for i in range(len(weapon_types)):
             if i < len(data):
                 d = int(data[i])
-                vals.append(WexpGain(bool(d), weapon_types[i].nid, d))
+                new_wexpgain_list.append(WexpGain(bool(d), weapon_types[i].nid, d))
             else:
-                vals.append(WexpGain(False, weapon_types[i].nid, 0))
-        super().__init__(vals)
+                new_wexpgain_list.append(WexpGain(False, weapon_types[i].nid, 0))
+        return new_wexpgain_list
 
     def new_key(self, key):
         self[key] = WexpGain(False, key, 0)
+
+    @classmethod
+    def deserialize(cls, values):
+        new_wexpgain_list = cls()
+        for val in values:
+            new_wexpgain_list.append(WexpGain.deserialize(val))
+        return new_wexpgain_list

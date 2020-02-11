@@ -1,10 +1,5 @@
 import os, shutil
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 import json
 
 from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
@@ -107,12 +102,12 @@ class Database(object):
 
     def create_new_class(self, nid, name):
         num_stats = len(self.stats)
-        bases = stats.StatList([10] + [0] * (num_stats - 2) + [5], self.stats)
-        growths = stats.StatList([0] * num_stats, self.stats)
-        growth_bonus = stats.StatList([0] * num_stats, self.stats)
-        promotion = stats.StatList([0] * num_stats, self.stats)
-        max_stats = stats.StatList([30] * num_stats, self.stats)
-        wexp_gain = weapons.WexpGainList([0] * len(self.weapons), self.weapons)
+        bases = stats.StatList.from_xml([10] + [0] * (num_stats - 2) + [5], self.stats)
+        growths = stats.StatList.from_xml([0] * num_stats, self.stats)
+        growth_bonus = stats.StatList.from_xml([0] * num_stats, self.stats)
+        promotion = stats.StatList.from_xml([0] * num_stats, self.stats)
+        max_stats = stats.StatList.from_xml([30] * num_stats, self.stats)
+        wexp_gain = weapons.WexpGainList.from_xml([0] * len(self.weapons), self.weapons)
         learned_skills = skills.LearnedSkillList()
         new_class = klass.Klass(nid, name, name, '', 1, 0, None, [], [], 20, 
                                 bases, growths, growth_bonus, promotion, max_stats, 
@@ -121,9 +116,9 @@ class Database(object):
 
     def create_new_unit(self, nid, name):
         num_stats = len(self.stats)
-        bases = stats.StatList([10] + [0] * (num_stats - 2) + [5], self.stats)
-        growths = stats.StatList([0] * num_stats, self.stats)
-        wexp_gain = weapons.WexpGainList([0] * len(self.weapons), self.weapons)
+        bases = stats.StatList.from_xml([10] + [0] * (num_stats - 2) + [5], self.stats)
+        growths = stats.StatList.from_xml([0] * num_stats, self.stats)
+        wexp_gain = weapons.WexpGainList.from_xml([0] * len(self.weapons), self.weapons)
         learned_skills = skills.LearnedSkillList()
         new_unit = units.UnitPrefab(nid, name, '', 0, 1, 'Citizen', [], 
                                     bases, growths, [], learned_skills, wexp_gain)
@@ -172,13 +167,24 @@ class Database(object):
 
         print("Done serializing!")
 
-    def deserialize(self, proj_dir='./default', title="default"):
-        save_loc = os.path.join(proj_dir, title + ".ltdata")
-        print("Deserializing data as %s..." % save_loc)
+    def deserialize(self, proj_dir='./default'):
+        data_dir = os.path.join(proj_dir, 'game_data')
+        # save_loc = os.path.join(proj_dir, title + ".ltdata")
+        print("Deserializing data from %s..." % data_dir)
 
         # with open(save_loc, 'rb') as load_file:
-        with open(save_loc, 'r') as load_file:
-            save_obj = json.load(load_file)
+        # with open(save_loc, 'r') as load_file:
+        #     save_obj = json.load(load_file)
+        game_data_types = ("stats", "equations", "mcost", "terrain", "weapon_ranks",
+                           "weapons", "factions", "items", "tags", "classes", 
+                           "units", "ai", "levels")
+
+        save_obj = {}
+        for key in game_data_types:
+            save_loc = os.path.join(data_dir, key + '.json')
+            print("Deserializing %s from %s" % (key, save_loc))
+            with open(save_loc) as load_file:
+                save_obj[key] = json.load(load_file)
 
         self.restore(save_obj)
         print("Done deserializing!")

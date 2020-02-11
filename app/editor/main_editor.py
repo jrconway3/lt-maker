@@ -281,8 +281,8 @@ class MainEditor(QMainWindow):
             self.set_window_title(title)
 
             RESOURCES.load(self.current_proj_dir)
-            # DB.deserialize(self.current_proj_dir)
-            DB.init_load()
+            DB.deserialize(self.current_proj_dir)
+            # DB.init_load()
 
             self.undo_stack.clear()
             print("Loaded project from %s" % self.current_proj_dir)
@@ -327,12 +327,14 @@ class MainEditor(QMainWindow):
         
         self.status_bar.showMessage('Saved project to %s' % self.current_proj_dir)
         self.undo_stack.setClean()
+        return True
 
     def save_as(self):
         self.save(True)
 
     def maybe_save(self):
-        if not self.undo_stack.isClean():
+        # if not self.undo_stack.isClean():
+        if True:  # For now, since undo stack is not being used
             ret = QMessageBox.warning(self, "Main Editor", "The current project may have been modified.\n"
                                             "Do you want to save your changes?",
                                             QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)

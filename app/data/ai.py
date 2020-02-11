@@ -34,6 +34,10 @@ class AIPreset(Prefab):
             value = super().deserialize_attr(name, value)
         return value
 
+    @classmethod
+    def default(cls):
+        return cls(None, 0)
+
 class AIBehaviour(Prefab):
     def __init__(self, action: str, target: str, target_spec, view_range: int):
         self.action: str = action
@@ -44,6 +48,10 @@ class AIBehaviour(Prefab):
     @classmethod
     def DoNothing(cls):
         return cls('None', 'None', None, 0)
+
+    @classmethod
+    def default(cls):
+        return cls.DoNothing()
 
 class AICatalog(data):
     datatype = AIPreset

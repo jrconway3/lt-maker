@@ -21,7 +21,7 @@ class TileMap(object):
         for x in range(self.width):
             for y in range(self.height):
                 terrain = DB.terrain.get(map_key[y][x])
-                new_tile = Tile(terrain, (x, y), self)
+                new_tile = Tile(terrain.nid, (x, y), self)
                 self.tiles[(x, y)] = new_tile
 
     def change_image(self, image_fn, width, height):
@@ -37,20 +37,51 @@ class TileMap(object):
                     self.tiles[(x, y)] = old_tiles[(x, y)]
                 else:
                     default_terrain = DB.terrain[0]
-                    new_tile = Tile(default_terrain, (x, y), self)
+                    new_tile = Tile(default_terrain.nid, (x, y), self)
                     self.tiles[(x, y)] = new_tile
 
     @classmethod
     def default(cls):
         return cls("./app/default_data/default_tilemap_image.png", "./app/default_data/default_tilemap_terrain.txt")
 
+    def serialize(self):
+        s_dict = {}
+        s_dict['size'] = (self.width, self.height)
+        s_dict['tiles'] = []
+        for x in range(self.width):
+            for y in range(self.height):
+                s_dict['tiles'].append(self.tiles[(x, y)].serialize())
+        s_dict['base_image'] = self.base_image
+        return s_dict
+
+    @classmethod
+    def deserialize(cls, s_dict):
+        new_tilemap = cls.default()
+        width, height = s_dict['size']
+        new_tilemap.change_image(s_dict['base_image'], width, height)
+        new_tilemap.tiles.clear()
+        for idx, val in enumerate(s_dict['tiles']):
+            x = idx//height
+            y = idx%height
+            new_tilemap.tiles[(x, y)] = Tile.deserialize(val, new_tilemap)
+        return new_tilemap
+
 class Tile(object):
-    def __init__(self, terrain, position, parent):
+    def __init__(self, terrain_nid, position, parent):
         self.parent = parent
-        self.terrain = terrain
+        self.terrain_nid = terrain_nid
         self.position = position
 
         self.current_hp = 0
+
+    def serialize(self):
+        return (self.terrain_nid, self.position, self.current_hp)
+
+    @classmethod
+    def deserialize(cls, vals, parent):
+        terrain_nid, position, current_hp = vals
+        new_tile = cls(terrain_nid, position, parent)
+        return new_tile
 
 class TileSprite(object):
     def __init__(self, image, position, parent):

@@ -56,14 +56,22 @@ class Stat(Prefab):
 class StatList(data):
     datatype = Stat
 
-    def __init__(self, data, stat_types):
-        vals = []
+    @classmethod
+    def from_xml(cls, values, stat_types):
+        new_stat_list = cls()
         for i in range(len(stat_types)):
-            if i < len(data):
-                vals.append(Stat(stat_types[i].nid, data[i]))
+            if i < len(values):
+                new_stat_list.append(Stat(stat_types[i].nid, values[i]))
             else:
-                vals.append(Stat(stat_types[i].nid, 0))
-        super().__init__(vals)
+                new_stat_list.append(Stat(stat_types[i].nid, 0))
+        return new_stat_list
 
     def new_key(self, key):
         self[key] = 0
+
+    @classmethod
+    def deserialize(cls, values):
+        new_stat_list = cls()
+        for val in values:
+            new_stat_list.append(Stat.deserialize(val))
+        return new_stat_list

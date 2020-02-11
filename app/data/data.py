@@ -78,6 +78,10 @@ class data(object):
                 return idx
         raise ValueError
 
+    def move_index(self, old_index, new_index):
+        obj = self._list.pop(old_index)
+        self._list.insert(new_index, obj)
+
     # Saving functions
     def save(self):
         if self.datatype and issubclass(self.datatype, Prefab):

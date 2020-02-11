@@ -244,7 +244,7 @@ class UnitProperties(QWidget):
 
         weapon_section = QHBoxLayout()
         attrs = ("weapon_type", "wexp_gain")
-        self.wexp_gain_widget = HorizWeaponListWidget(WexpGainList([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
+        self.wexp_gain_widget = HorizWeaponListWidget(WexpGainList.from_xml([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
         # Changing of Weapon Gain done automatically
         # self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
         weapon_section.addWidget(self.wexp_gain_widget)

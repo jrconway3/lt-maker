@@ -20,11 +20,14 @@ class ClassStatWidget(QWidget):
         if obj:
             row_values = obj.get_stat_lists()
         else:
-            row_values = [StatList([], DB.stats)] * 5
+            row_values = [StatList.from_xml([], DB.stats)] * 5
 
         self.setup(column_titles, row_titles, row_values, title)
 
     def setup(self, column_titles, row_titles, row_values, title):
+        print(column_titles)
+        print(row_titles)
+        print(row_values, flush=True)
         self.model = StatModel(column_titles, row_titles, row_values, self)
         self.view = QTableView(self)
         self.view.setModel(self.model)
@@ -72,7 +75,7 @@ class UnitStatWidget(ClassStatWidget):
         if obj:
             row_values = obj.get_stat_lists()
         else:
-            row_values = [StatList([], DB.stats)] * 2
+            row_values = [StatList.from_xml([], DB.stats)] * 2
 
         self.setup(column_titles, row_titles, row_values, title)
 
@@ -104,8 +107,11 @@ class StatModel(VirtualListModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            row = self._data[index.row()]  # A StatList
+            row = self._data[index.row()]  # row is a StatList
             key = self._columns[index.column()]
+            print(key)
+            print(row)
+            print(self._data, flush=True)
             val = row.get(key).value
             return val
         elif role == Qt.TextAlignmentRole:

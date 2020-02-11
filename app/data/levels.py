@@ -30,7 +30,7 @@ class Level(Prefab):
 
     def serialize_attr(self, name, value):
         if name == 'tilemap':
-            value = value
+            value = value.serialize()
         elif name == 'units':
             value = [unit_prefab.serialize() for unit_prefab in value]
         else:
@@ -39,7 +39,7 @@ class Level(Prefab):
 
     def deserialize_attr(self, name, value):
         if name == 'tilemap':
-            value = value
+            value = tilemap.TileMap.deserialize(value)
         elif name == 'units':
             value = [UnitPrefab.deserialize(unit_data) for unit_data in value]
         else:
@@ -51,6 +51,8 @@ class Level(Prefab):
         return cls('0', 'Prologue')
 
 class LevelCatalog(data):
+    datatype = Level
+    
     def save(self):
         return [level.serialize() for level in self._list]
 

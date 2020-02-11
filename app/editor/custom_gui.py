@@ -194,11 +194,24 @@ class RightClickListView(QListView):
     def customMenuRequested(self, pos):
         index = self.indexAt(pos)
 
+        new_action = QAction("New", self, triggered=lambda: self.new(index.row()))
+        duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index.row()))
         delete_action = QAction("Delete", self, triggered=lambda: self.delete(index.row()))
         menu = QMenu(self)
+        menu.addAction(new_action)
+        menu.addAction(duplicate_action)
         menu.addAction(delete_action)
 
         menu.popup(self.viewport().mapToGlobal(pos))
+
+    def new(self, idx):
+        self.window.model.new(idx)
+        self.window.view.setCurrentIndex(self.window.model.index(idx))
+
+    def duplicate(self, idx):
+        self.window.model.duplicate(idx)
+        view = self.window.view
+        view.setCurrentIndex(self.window.model.index(idx + 1))
 
     def delete(self, idx):
         if self.deletion_func and self.deletion_func(self, idx):

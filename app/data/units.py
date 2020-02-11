@@ -33,6 +33,17 @@ class UnitPrefab(Prefab):
     def get_stat_lists(self):
         return [self.bases, self.growths]
 
+    def deserialize_attr(self, name, value):
+        if name in ('bases', 'growths'):
+            value = stats.StatList.deserialize(value)
+        elif name == 'learned_skills':
+            value = [LearnedSkill.deserialize(skill) for skill in value]
+        elif name == 'wexp_gain':
+            value = weapons.WexpGainList.deserialize(value)
+        else:
+            value = super().deserialize_attr(name, value)
+        return value
+
 class UnitCatalog(data):
     datatype = UnitPrefab
     
@@ -50,8 +61,8 @@ class UnitCatalog(data):
             else:
                 tags = []
 
-            bases = stats.StatList(utilities.intify(unit.find('bases').text), stat_types)
-            growths = stats.StatList(utilities.intify(unit.find('growths').text), stat_types)
+            bases = stats.StatList.from_xml(utilities.intify(unit.find('bases').text), stat_types)
+            growths = stats.StatList.from_xml(utilities.intify(unit.find('growths').text), stat_types)
 
             skills = utilities.skill_parser(unit.find('skills').text)
             learned_skills = LearnedSkillList()

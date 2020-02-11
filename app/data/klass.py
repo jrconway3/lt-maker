@@ -52,8 +52,12 @@ class Klass(Prefab):
         return value
 
     def deserialize_attr(self, name, value):
-        if name == 'learned_skills':
+        if name in ('bases', 'growths', 'growth_bonus', 'promotion', 'max_stats'):
+            value = stats.StatList.deserialize(value)
+        elif name == 'learned_skills':
             value = [LearnedSkill.deserialize(skill) for skill in value]
+        elif name == 'wexp_gain':
+            value = weapons.WexpGainList.deserialize(value)
         else:
             value = super().deserialize_attr(name, value)
         return value
@@ -75,11 +79,11 @@ class ClassCatalog(data):
             tags = klass.find('tags').text.split(',') if klass.find('tags').text is not None else []
             desc = klass.find('desc').text
 
-            bases = stats.StatList(utilities.intify(klass.find('bases').text), stat_types)
-            growths = stats.StatList(utilities.intify(klass.find('growths').text), stat_types)
-            promotion = stats.StatList(utilities.intify(klass.find('promotion').text) if klass.find('promotion') else [0] * len(bases), stat_types)
-            max_stats = stats.StatList(utilities.intify(klass.find('max').text), stat_types)
-            growth_bonus = stats.StatList(utilities.intify(klass.find('growth_bonus').text) if klass.find('growth_bonus') else [0] * len(growths), stat_types)
+            bases = stats.StatList.from_xml(utilities.intify(klass.find('bases').text), stat_types)
+            growths = stats.StatList.from_xml(utilities.intify(klass.find('growths').text), stat_types)
+            promotion = stats.StatList.from_xml(utilities.intify(klass.find('promotion').text) if klass.find('promotion') else [0] * len(bases), stat_types)
+            max_stats = stats.StatList.from_xml(utilities.intify(klass.find('max').text), stat_types)
+            growth_bonus = stats.StatList.from_xml(utilities.intify(klass.find('growth_bonus').text) if klass.find('growth_bonus') else [0] * len(growths), stat_types)
 
             skills = utilities.skill_parser(klass.find('skills').text)
             learned_skills = LearnedSkillList()

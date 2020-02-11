@@ -165,7 +165,7 @@ class ClassProperties(QWidget):
         weapon_section = QHBoxLayout()
 
         attrs = ("usable", "weapon_type", "wexp_gain")
-        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList([], DB.weapons), "Weapon Exp.", attrs, WexpGainDelegate, self)
+        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList.from_xml([], DB.weapons), "Weapon Exp.", attrs, WexpGainDelegate, self)
         self.wexp_gain_widget.model.checked_columns = {0}  # Add checked column
         weapon_section.addWidget(self.wexp_gain_widget)
 

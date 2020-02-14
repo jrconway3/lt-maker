@@ -151,7 +151,9 @@ class RightClickTreeView(QTreeView):
         if deletion_criteria:
             self.deletion_func, self.deletion_msg = deletion_criteria
         else:
-            self.deletion_func, self.deletion_msg = None, ''
+            self.deletion_func, self.deletion_msg = None, "This shouldn't happen"
+        print(self.deletion_func, flush=True)
+        print(self.deletion_msg, flush=True)
         self.uniformItemSizes = True
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -185,8 +187,9 @@ class RightClickListView(QListView):
         if deletion_criteria:
             self.deletion_func, self.deletion_msg = deletion_criteria
         else:
-            self.deletion_func, self.deletion_msg = None, ''
-        self.uniformItemSizes = True
+            self.deletion_func, self.deletion_msg = None, "This shouldn't happen"
+        print(self.deletion_func, flush=True)
+        print(self.deletion_msg, flush=True)
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.customMenuRequested)
@@ -214,7 +217,7 @@ class RightClickListView(QListView):
         view.setCurrentIndex(self.window.model.index(idx + 1))
 
     def delete(self, idx):
-        if self.deletion_func and self.deletion_func(self, idx):
+        if not self.deletion_func or self.deletion_func(self, idx):
             self.window.model.delete(idx)
         else:
             QMessageBox.critical(self.window, 'Error', self.deletion_msg)
@@ -245,7 +248,7 @@ class SingleListDialog(QDialog):
         self.initiate(data, title, parent)
 
         self.model = SingleListModel(self._data, title, self)
-        self.view = RightClickListView(self)
+        self.view = RightClickListView(parent=self)
         self.view.setModel(self.model)
 
         self.placement(title)
@@ -305,7 +308,7 @@ class MultiAttrListDialog(SingleListDialog):
         self.placement(title)
 
     def save(self):
-        return self._data.serialize()
+        return self._data.save()
 
     def restore(self, data):
         self._data.restore(data)

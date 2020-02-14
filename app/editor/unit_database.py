@@ -34,6 +34,7 @@ class UnitDatabase(DatabaseTab):
         return dialog
 
     def create_new(self):
+        print("Create New Unit!")
         nids = [d.nid for d in self._data]
         nid = name = utilities.get_next_name("New " + self.title, nids)
         DB.create_new_unit(nid, name)

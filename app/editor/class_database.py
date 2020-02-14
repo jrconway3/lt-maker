@@ -30,6 +30,9 @@ class ClassDatabase(DatabaseTab):
         right_frame = ClassProperties
 
         def deletion_func(view, idx):
+            print(view, idx)
+            print(view.window._data[idx])
+            print(view.window._data[idx].nid)
             return view.window._data[idx].nid != "Citizen"
 
         deletion_criteria = (deletion_func, "Cannot delete Citizen Class!")
@@ -318,10 +321,14 @@ class ClassProperties(QWidget):
             self.promotes_from_box.edit.setValue(current.promotes_from)
         else:
             self.promotes_from_box.edit.setValue("None")
+        # Need to make copies because otherwise ResetSelection calls
+        # self.tag_box.updated which resets the current.tags
+        turns_into = current.turns_into[:]
+        tags = current.tags[:]
         self.turns_into_box.edit.ResetSelection()
-        self.turns_into_box.edit.setCurrentTexts(current.turns_into)
+        self.turns_into_box.edit.setCurrentTexts(turns_into)
         self.tag_box.edit.ResetSelection()
-        self.tag_box.edit.setCurrentTexts(current.tags)
+        self.tag_box.edit.setCurrentTexts(tags)
 
         self.class_stat_widget.set_new_obj(current)
 

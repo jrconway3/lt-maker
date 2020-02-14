@@ -153,22 +153,22 @@ class CollectionModel(QAbstractListModel):
     def new(self, idx):
         collection = self.window
         collection.create_new()
-        model = collection.model
-        model._data.move_index(len(model._data) - 1, idx + 1)
-        model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
+        self._data.move_index(len(self._data) - 1, idx + 1)
+        # model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
+        self.layoutChanged.emit()
 
     def duplicate(self, idx):
-        model = self.window.model
-        obj = model._data[idx]
+        obj = self._data[idx]
         new_nid = utilities.get_next_name(obj.nid, self._data.keys())
         if isinstance(obj, Prefab):
             serialized_obj = obj.serialize()
             print("Duplication!")
             print(serialized_obj, flush=True)
-            new_obj = model._data.datatype.deserialize(serialized_obj)
+            new_obj = self._data.datatype.deserialize(serialized_obj)
         else:
             new_obj = copy.copy(obj)
         new_obj.nid = new_nid
-        model._data.insert(idx + 1, new_obj)
+        self._data.insert(idx + 1, new_obj)
         # new_obj = model._data.duplicate(obj.nid, new_nid)
-        model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
+        # model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
+        self.layoutChanged.emit()

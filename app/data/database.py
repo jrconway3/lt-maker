@@ -109,9 +109,11 @@ class Database(object):
         max_stats = stats.StatList.from_xml([30] * num_stats, self.stats)
         wexp_gain = weapons.WexpGainList.from_xml([0] * len(self.weapons), self.weapons)
         learned_skills = skills.LearnedSkillList()
-        new_class = klass.Klass(nid, name, name, '', 1, 0, None, [], [], 20, 
+        movement_group = self.mcost.column_headers[0]
+        new_class = klass.Klass(nid, name, name, '', 1, movement_group, None, [], [], 20, 
                                 bases, growths, growth_bonus, promotion, max_stats, 
                                 learned_skills, wexp_gain)
+        self.classes.append(new_class)
         return new_class
 
     def create_new_unit(self, nid, name):
@@ -122,6 +124,7 @@ class Database(object):
         learned_skills = skills.LearnedSkillList()
         new_unit = units.UnitPrefab(nid, name, '', 0, 1, 'Citizen', [], 
                                     bases, growths, [], learned_skills, wexp_gain)
+        self.units.append(new_unit)
         return new_unit
 
     def create_new_ai(self, nid, name=None):

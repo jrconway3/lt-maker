@@ -53,7 +53,7 @@ class MapView(QGraphicsView):
             painter = QPainter()
             painter.begin(self.working_image)
             for coord, tile in self.current_map.tiles.items():
-                color = DB.terrain.get(tile.terrain.nid).color
+                color = DB.terrain.get(tile.terrain_nid).color
                 write_color = QColor(color[0], color[1], color[2])
                 write_color.setAlpha(self.main_editor.terrain_painter_menu.get_alpha())
                 painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)

@@ -99,6 +99,7 @@ class ItemProperties(QWidget):
 
         self.value_box = PropertyBox("Value per use", QSpinBox, self)
         self.value_box.edit.setMaximum(1000000)
+        self.value_box.edit.setAlignment(Qt.AlignRight)
         self.value_box.edit.valueChanged.connect(self.value_changed)
         main_section.addWidget(self.value_box, 1, 0)
 

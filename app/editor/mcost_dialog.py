@@ -8,7 +8,9 @@ from PyQt5.QtCore import Qt, QSize
 from app.data.database import DB
 from app import utilities
 
-from app.editor.custom_gui import SimpleDialog
+from app.editor.custom_gui import SimpleDialog, DeletionDialog
+from app.editor.custom_widgets import MovementTypeBox
+from app.editor.base_database_gui import CollectionModel
 
 class McostDialog(SimpleDialog):
     def __init__(self, parent=None):
@@ -53,7 +55,7 @@ class McostDialog(SimpleDialog):
         self.buttonbox.rejected.connect(self.reject)
 
     def save(self):
-        return DB.mcost.serialize()
+        return DB.mcost.save()
 
     def restore(self, data):
         DB.mcost.restore(data)
@@ -173,6 +175,17 @@ class RowHeaderView(QHeaderView):
 
     def delete(self, idx):
         if self.parent().model().rowCount() > 1:
+            row_name = DB.mcost.row_headers[idx]
+            if any(terrain.mtype == row_name for terrain in DB.terrain):
+                affected_terrain = [terrain.name for terrain in DB.terrain if terrain.mtype == row_name]
+                msg = "Deleting row %s would remove these references." % row_name
+                dldlg = DeletionDialog.get_swap(affected_terrain, msg, MovementTypeBox(self))
+                swap, ok = dldlg.exec()
+                if ok:
+                    for terrain in affected_terrain:
+                        terrain.mtype = swap
+                else:
+                    return # User cancelled swap
             self.parent().model().delete_row(idx)
         else:
             QMessageBox.critical(self.parent(), 'Error', 'Cannot delete when only one row left!')
@@ -343,6 +356,15 @@ class GridModel(QAbstractTableModel):
     # Determines how each item behaves
     def flags(self, index):
         return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
+
+class MovementTypeModel(CollectionModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            mtype = self._data[index.row()]
+            return mtype
+        return None
 
 # Testing
 # Run "python -m app.editor.mcost_dialog" from main directory

@@ -34,6 +34,39 @@ class Dialog(QDialog):
         self.buttonbox.accepted.connect(self.accept)
         self.buttonbox.rejected.connect(self.reject)
 
+class DeletionDialog(Dialog):
+    def __init__(self, affected_items, msg, box, parent=None):
+        super().__init__(parent)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        item_list = '\n'.join(affected_items[:3])
+        if len(affected_items) > 4:
+            item_list += '\nand %d others' % (len(affected_items) - 3)
+        elif len(affected_items) == 4:
+            item_list += '\n%s' % affected_items[3].nid
+
+        self.elems = QLabel(item_list)
+        self.text1 = QLabel(msg)
+        self.text2 = QLabel("Swap these references to:")
+        self.box = box
+
+        self.layout.addWidget(self.elems)
+        self.layout.addWidget(self.text1)
+        self.layout.addWidget(self.text2)
+        self.layout.addWidget(self.box)
+        self.layout.addWidget(self.buttonbox)
+
+    @staticmethod
+    def get_swap(affected_items, msg, box, parent=None):
+        dialog = DeletionDialog(affected_items, msg, box, parent)
+        dialog.setWindowTitle("Deletion Warning")
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            return dialog.box.edit.currentText(), True
+        else:
+            return None, False
+
 class EditDialog(SimpleDialog):
     def __init__(self, data, parent):
         super().__init__(parent)

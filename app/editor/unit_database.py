@@ -354,8 +354,9 @@ class UnitProperties(QWidget):
         self.desc_box.edit.setText(current.desc)
         self.level_box.edit.setValue(current.level)
         self.class_box.edit.setValue(current.klass)
+        tags = current.tags[:]
         self.tag_box.edit.ResetSelection()
-        self.tag_box.edit.setCurrentTexts(current.tags)
+        self.tag_box.edit.setCurrentTexts(tags)
 
         self.unit_stat_widget.set_new_obj(current)
 

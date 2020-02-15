@@ -8,6 +8,7 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.custom_gui import ComboBox, PropertyBox
+from app.editor.custom_widgets import MovementTypeBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.mcost_dialog import McostDialog
 from app import utilities
@@ -137,14 +138,10 @@ class TerrainProperties(QWidget):
         self.platform_box.edit.currentIndexChanged.connect(self.platform_changed)
 
         movement_section = QHBoxLayout()
-        self.movement_box = PropertyBox("Movement Type", ComboBox, self)
-        self.movement_box.edit.addItems(DB.mcost.get_terrain_types())
+        self.movement_box = MovementTypeBox(self, button=True)
         self.movement_box.edit.currentIndexChanged.connect(self.movement_changed)
-        movement_section.addWidget(self.movement_box)
-
-        self.movement_box.add_button(QPushButton('...'))
-        self.movement_box.button.setMaximumWidth(40)
         self.movement_box.button.clicked.connect(self.access_movement_grid)
+        movement_section.addWidget(self.movement_box)
 
         main_section.addWidget(self.minimap_box)
         main_section.addWidget(self.platform_box)

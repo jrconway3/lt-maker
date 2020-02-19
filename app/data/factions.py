@@ -5,7 +5,7 @@ except ImportError:
 
 from dataclasses import dataclass
 
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 
 @dataclass
 class Faction(Prefab):
@@ -16,7 +16,7 @@ class Faction(Prefab):
     icon_nid: str = None
     icon_index: tuple = (0, 0)
 
-class FactionCatalog(data):
+class FactionCatalog(Data):
     datatype = Faction
 
     def import_xml(self, xml_fn):

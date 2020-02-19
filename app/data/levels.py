@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 from app.data import tilemap
 from app.data.units import UnitPrefab
 
@@ -50,7 +50,7 @@ class Level(Prefab):
     def default(cls):
         return cls('0', 'Prologue')
 
-class LevelCatalog(data):
+class LevelCatalog(Data):
     datatype = Level
     
     def save(self):

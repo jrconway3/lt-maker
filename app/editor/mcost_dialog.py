@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt, QSize
 
+from app.data.data import Data
 from app.data.database import DB
 from app import utilities
 
@@ -177,10 +178,11 @@ class RowHeaderView(QHeaderView):
         if self.parent().model().rowCount() > 1:
             row_name = DB.mcost.row_headers[idx]
             if any(terrain.mtype == row_name for terrain in DB.terrain):
-                affected_terrain = [terrain.name for terrain in DB.terrain if terrain.mtype == row_name]
-                msg = "Deleting row %s would remove these references." % row_name
-                dldlg = DeletionDialog.get_swap(affected_terrain, msg, MovementTypeBox(self))
-                swap, ok = dldlg.exec()
+                affected_terrain = Data([terrain for terrain in DB.terrain if terrain.mtype == row_name])
+                from app.editor.terrain_database import TerrainModel
+                model = TerrainModel
+                msg = "Deleting row <b>%s</b> would remove these references." % row_name
+                swap, ok = DeletionDialog.get_swap(affected_terrain, model, msg, MovementTypeBox(self))
                 if ok:
                     for terrain in affected_terrain:
                         terrain.mtype = swap
@@ -358,11 +360,14 @@ class GridModel(QAbstractTableModel):
         return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
 
 class MovementTypeModel(CollectionModel):
+    def rowCount(self, parent=None):
+        return len(self._data.row_headers)
+        
     def data(self, index, role):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            mtype = self._data[index.row()]
+            mtype = self._data.row_headers[index.row()]
             return mtype
         return None
 

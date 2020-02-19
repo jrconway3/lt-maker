@@ -44,7 +44,7 @@ class MovementTypeBox(PropertyBox):
     def __init__(self, parent=None, button=False):
         from app.editor.mcost_dialog import MovementTypeModel
         super().__init__("Movement Type", ComboBox, parent)
-        self.model = MovementTypeModel(DB.mcost.row_headers, parent)
+        self.model = MovementTypeModel(DB.mcost, parent)
         self.edit.setModel(self.model)
         if button:
             b = QPushButton('...')

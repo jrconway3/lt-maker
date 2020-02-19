@@ -3,7 +3,7 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 
-from app.data.data import data
+from app.data.data import Data
 import app.data.weapons as weapons
 import app.data.item_components as IC
 
@@ -28,7 +28,7 @@ class Item(object):
         self.icon_nid = icon_nid
         self.icon_index = icon_index
 
-        self.components = components or data()
+        self.components = components or Data()
         for component_key, component_value in self.components.items():
             self.__dict__[component_key] = component_value
 
@@ -81,7 +81,7 @@ class Item(object):
 
     @classmethod
     def deserialize_prefab(cls, dat):
-        item_components = data()
+        item_components = Data()
         components = [IC.deserialize_component(val) for val in dat['components']]
         for component in components:
             item_components.append(component)
@@ -91,7 +91,7 @@ class Item(object):
                 item_components)
         return i
 
-class ItemCatalog(data):
+class ItemCatalog(Data):
     @staticmethod
     def parse_component(item, c):
         if c.attr == bool:
@@ -128,7 +128,7 @@ class ItemCatalog(data):
 
             components = item.find('components').text or ''
             components = components.split(',')
-            my_components = data()
+            my_components = Data()
             for c_nid in components:
                 c = IC.get_component(c_nid)  # Needs to get copy
                 if isinstance(c.attr, tuple):

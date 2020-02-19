@@ -6,7 +6,7 @@ except ImportError:
 
 from dataclasses import dataclass
 
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 from app import utilities
 
 @dataclass
@@ -19,7 +19,7 @@ class StatTypePrefab(Prefab):
     def __repr__(self):
         return "%s: %s" % (self.nid, self.name)
 
-class StatCatalog(data):
+class StatCatalog(Data):
     datatype = StatTypePrefab
 
     def import_xml(self, xml_fn):
@@ -53,7 +53,7 @@ class Stat(Prefab):
     def deserialize(cls, s_tuple):
         return cls(*s_tuple)
 
-class StatList(data):
+class StatList(Data):
     datatype = Stat
 
     @classmethod

@@ -1,4 +1,4 @@
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 
 AI_ActionTypes = ['None', 'Attack', 'Steal', 'Interact', 'Move_to', 'Move_away_from']
 AI_TargetTypes = ['None', 'Enemy', 'Ally', 'Unit', 'Position', 'Tile', 'Event']
@@ -53,7 +53,7 @@ class AIBehaviour(Prefab):
     def default(cls):
         return cls.DoNothing()
 
-class AICatalog(data):
+class AICatalog(Data):
     datatype = AIPreset
 
     def import_data(self, fn):

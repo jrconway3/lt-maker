@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 from app import utilities
 
 @dataclass
@@ -8,7 +8,7 @@ class Equation(Prefab):
     nid: str = None
     expression: str = None
 
-class EquationCatalog(data):
+class EquationCatalog(Data):
     datatype = Equation
 
     def import_data(self, fn):

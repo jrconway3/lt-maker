@@ -1,4 +1,4 @@
-class data(object):
+class Data(object):
     """
     Only accepts data points that have nid attribute
     Generally behaves as a list first and a dictionary second
@@ -122,7 +122,7 @@ class Prefab(object):
         return s_dict
 
     def serialize_attr(self, name, value):
-        if isinstance(value, data):
+        if isinstance(value, Data):
             value = value.save()
         else:  # int, str, float, list, dict
             value = value
@@ -131,16 +131,13 @@ class Prefab(object):
     @classmethod
     def deserialize(cls, s_dict):
         self = cls.default()
-        print(cls)
-        print(s_dict)
-        print(self.__dict__.items())
         for attr_name, attr_value in self.__dict__.items():
             value = self.deserialize_attr(attr_name, s_dict.get(attr_name))
             setattr(self, attr_name, value)
         return self
 
     def deserialize_attr(self, name, value):
-        if isinstance(value, data):
+        if isinstance(value, Data):
             value = value.restore()
         else:
             value = value

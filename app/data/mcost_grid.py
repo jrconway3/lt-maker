@@ -84,7 +84,9 @@ class McostGrid(object):
         return self.column_headers
 
     def save(self):
-        return (self.grid, self.row_headers, self.column_headers)
+        # Need to save off copies of these lists, otherwise changes
+        # project even through reject
+        return ([x[:] for x in self.grid], self.row_headers[:], self.column_headers[:])
 
     @classmethod
     def deserialize(cls, data):

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from app.data.data import data
+from app.data.data import Data
 from app.data.weapons import WeaponRank, WeaponType
 
 # Custom Types
@@ -47,7 +47,7 @@ class item_component(object):
     def serialize(self):
         return (self.nid, self.value)
 
-item_components = data([
+item_components = Data([
     item_component('weapon', 'Weapon', WeaponType, None,
                              lambda x: 'spell' not in x),
     item_component('spell', 'Spell', (WeaponType, SpellAffect, SpellTarget),

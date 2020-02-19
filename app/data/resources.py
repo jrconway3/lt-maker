@@ -91,17 +91,17 @@ class Resources(object):
         return s
 
     def clear(self):
-        self.icons16 = data.data()
-        self.icons32 = data.data()
-        self.icons80 = data.data()
-        self.portraits = data.data()
-        self.panoramas = data.data()
-        self.map_sprites = data.data()
-        self.combat_anims = data.data()
-        self.combat_effects = data.data()
-        self.map_effects = data.data()
-        self.music = data.data()
-        self.sfx = data.data()
+        self.icons16 = data.Data()
+        self.icons32 = data.Data()
+        self.icons80 = data.Data()
+        self.portraits = data.Data()
+        self.panoramas = data.Data()
+        self.map_sprites = data.Data()
+        self.combat_anims = data.Data()
+        self.combat_effects = data.Data()
+        self.map_effects = data.Data()
+        self.music = data.Data()
+        self.sfx = data.Data()
 
     def load(self, proj_dir='./default'):
         self.main_folder = os.path.join(proj_dir, 'resources')

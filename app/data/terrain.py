@@ -5,7 +5,7 @@ except ImportError:
 
 from dataclasses import dataclass
 
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 
 @dataclass
 class Terrain(Prefab):
@@ -18,7 +18,7 @@ class Terrain(Prefab):
 
     mtype: str = None
 
-class TerrainCatalog(data):
+class TerrainCatalog(Data):
     datatype = Terrain
 
     def import_xml(self, xml_fn):

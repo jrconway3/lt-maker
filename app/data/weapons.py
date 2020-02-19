@@ -5,7 +5,7 @@ except ImportError:
 
 from dataclasses import dataclass
 
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 from app import utilities
 
 # === WEAPON RANK ===
@@ -25,7 +25,7 @@ class WeaponRank(Prefab):
         return "WeaponRank %s: %d -- (%d, %d, %d)" % \
             (self.rank, self.requirement, self.accuracy, self.damage, self.crit)
 
-class RankCatalog(data):
+class RankCatalog(Data):
     datatype = WeaponRank
 
     def import_data(self, txt_fn):
@@ -106,7 +106,7 @@ class WeaponType(Prefab):
             value = super().deserialize_attr(name, value)
         return value
 
-class WeaponCatalog(data):
+class WeaponCatalog(Data):
     datatype = WeaponType
 
     def import_xml(self, xml_fn):
@@ -147,7 +147,7 @@ class WexpGain(Prefab):
     def deserialize(cls, s_tuple):
         return cls(*s_tuple)
 
-class WexpGainList(data):
+class WexpGainList(Data):
     datatype = WexpGain
 
     @classmethod

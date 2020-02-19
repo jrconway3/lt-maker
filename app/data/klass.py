@@ -5,7 +5,7 @@ except ImportError:
 
 from dataclasses import dataclass
 
-from app.data.data import data, Prefab
+from app.data.data import Data, Prefab
 from app.data import stats, weapons
 from app.data.skills import LearnedSkill, LearnedSkillList
 from app import utilities
@@ -62,7 +62,7 @@ class Klass(Prefab):
             value = super().deserialize_attr(name, value)
         return value
 
-class ClassCatalog(data):
+class ClassCatalog(Data):
     datatype = Klass
 
     def import_xml(self, xml_fn, stat_types, weapon_types, weapon_ranks):

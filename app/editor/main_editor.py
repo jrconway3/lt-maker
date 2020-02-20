@@ -81,9 +81,9 @@ class MainEditor(QMainWindow):
         # DB.deserialize()
         # DB.init_load()
 
-        if self.auto_open():
-            pass
-        elif len(DB.levels) == 0:
+        self.auto_open()
+        
+        if len(DB.levels) == 0:
             self.level_menu.create_initial_level()
 
         self.map_view.update_view()

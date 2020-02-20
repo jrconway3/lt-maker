@@ -1,12 +1,12 @@
 class TileMap(object):
-    def __init__(self, image_fn, terrain_fn):
+    def __init__(self, image_nid, terrain_fn):
         map_key, self.width, self.height = self.build_map_key(terrain_fn)
 
         self.tiles = {} # The mechanical information about the tile organized by position
         self.tile_sprites = {}  # The sprite information about the tile organized by position
 
         self.populate_tiles(map_key)
-        self.base_image = image_fn
+        self.base_image_nid = image_nid
 
     def build_map_key(self, terrain_fn):
         with open(terrain_fn) as fp:
@@ -24,9 +24,9 @@ class TileMap(object):
                 new_tile = Tile(terrain.nid, (x, y), self)
                 self.tiles[(x, y)] = new_tile
 
-    def change_image(self, image_fn, width, height):
+    def change_image(self, image_nid, width, height):
         from app.data.database import DB
-        self.base_image = image_fn
+        self.base_image_nid = image_nid
         self.width, self.height = width, height
         # Preserve as much as possible about the old terrain information
         old_tiles = self.tiles.copy()
@@ -42,7 +42,7 @@ class TileMap(object):
 
     @classmethod
     def default(cls):
-        return cls("./app/default_data/default_tilemap_image.png", "./app/default_data/default_tilemap_terrain.txt")
+        return cls("default", "./app/default_data/default_tilemap_terrain.txt")
 
     def serialize(self):
         s_dict = {}
@@ -51,19 +51,19 @@ class TileMap(object):
         for x in range(self.width):
             for y in range(self.height):
                 s_dict['tiles'].append(self.tiles[(x, y)].serialize())
-        s_dict['base_image'] = self.base_image
+        s_dict['base_image_nid'] = self.base_image_nid
         return s_dict
 
     @classmethod
     def deserialize(cls, s_dict):
         new_tilemap = cls.default()
         width, height = s_dict['size']
-        new_tilemap.change_image(s_dict['base_image'], width, height)
+        new_tilemap.change_image(s_dict['base_image_nid'], width, height)
         new_tilemap.tiles.clear()
         for idx, val in enumerate(s_dict['tiles']):
             x = idx//height
             y = idx%height
-            new_tilemap.tiles[(x, y)] = Tile.deserialize(val, new_tilemap)
+            new_tilemap.tiles[(x, y)] = Tile.deserialize(val, (x, y), new_tilemap)
         return new_tilemap
 
 class Tile(object):
@@ -75,11 +75,10 @@ class Tile(object):
         self.current_hp = 0
 
     def serialize(self):
-        return (self.terrain_nid, self.position, self.current_hp)
+        return self.terrain_nid
 
     @classmethod
-    def deserialize(cls, vals, parent):
-        terrain_nid, position, current_hp = vals
+    def deserialize(cls, terrain_nid, position, parent):
         new_tile = cls(terrain_nid, position, parent)
         return new_tile
 

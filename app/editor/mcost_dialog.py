@@ -10,7 +10,7 @@ from app.data.database import DB
 from app import utilities
 
 from app.editor.custom_gui import SimpleDialog, DeletionDialog
-from app.editor.custom_widgets import MovementTypeBox
+from app.editor.custom_widgets import MovementCostBox, MovementClassBox
 from app.editor.base_database_gui import CollectionModel
 
 class McostDialog(SimpleDialog):
@@ -118,6 +118,19 @@ class ColumnHeaderView(QHeaderView):
 
     def delete(self, idx):
         if self.parent().model().columnCount() > 1:
+            column_name = DB.mcost.column_headers[idx]
+            affected = [klass for klass in DB.classes if klass.movement_group == column_name]
+            if affected:
+                affected_classes = Data(affected)
+                from app.editor.class_database import ClassModel
+                model = ClassModel
+                msg = "Deleting column <b>%s</b> would remove these references." % column_name
+                swap, ok = DeletionDialog.get_swap(affected_classes, model, msg, MovementClassBox(self))
+                if ok:
+                    for terrain in affected_classes:
+                        terrain.mtype = swap
+                else:
+                    return # User cancelled swap
             self.parent().model().delete_col(idx)
         else:
             QMessageBox.critical(self.parent(), 'Error', 'Cannot delete when only one column left!')
@@ -182,7 +195,7 @@ class RowHeaderView(QHeaderView):
                 from app.editor.terrain_database import TerrainModel
                 model = TerrainModel
                 msg = "Deleting row <b>%s</b> would remove these references." % row_name
-                swap, ok = DeletionDialog.get_swap(affected_terrain, model, msg, MovementTypeBox(self))
+                swap, ok = DeletionDialog.get_swap(affected_terrain, model, msg, MovementCostBox(self))
                 if ok:
                     for terrain in affected_terrain:
                         terrain.mtype = swap
@@ -359,15 +372,27 @@ class GridModel(QAbstractTableModel):
     def flags(self, index):
         return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
 
-class MovementTypeModel(CollectionModel):
+class MovementCostModel(CollectionModel):
     def rowCount(self, parent=None):
         return len(self._data.row_headers)
-        
+
     def data(self, index, role):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
             mtype = self._data.row_headers[index.row()]
+            return mtype
+        return None
+
+class MovementClassModel(CollectionModel):
+    def rowCount(self, parent=None):
+        return len(self._data.column_headers)
+        
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            mtype = self._data.column_headers[index.row()]
             return mtype
         return None
 

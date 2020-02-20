@@ -40,11 +40,22 @@ class FactionBox(PropertyBox):
             b.setMaximumWidth(40)
             self.add_button(b)
 
-class MovementTypeBox(PropertyBox):
+class MovementCostBox(PropertyBox):
     def __init__(self, parent=None, button=False):
-        from app.editor.mcost_dialog import MovementTypeModel
-        super().__init__("Movement Type", ComboBox, parent)
-        self.model = MovementTypeModel(DB.mcost, parent)
+        from app.editor.mcost_dialog import MovementCostModel
+        super().__init__("Movement Cost", ComboBox, parent)
+        self.model = MovementCostModel(DB.mcost, parent)
+        self.edit.setModel(self.model)
+        if button:
+            b = QPushButton('...')
+            b.setMaximumWidth(40)
+            self.add_button(b)
+
+class MovementClassBox(PropertyBox):
+    def __init__(self, parent=None, button=False):
+        from app.editor.mcost_dialog import MovementClassModel
+        super().__init__("Movement Class", ComboBox, parent)
+        self.model = MovementClassModel(DB.mcost, parent)
         self.edit.setModel(self.model)
         if button:
             b = QPushButton('...')

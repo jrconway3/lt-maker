@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QGridLayout, QPushButton, QSlider, QLabel, QListView, \
-    QWidget, QFileDialog, QMessageBox
-from PyQt5.QtCore import Qt, QSize, QDir
+    QWidget
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap
 
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+
 from app.data.database import DB
 
+from app.editor.resource_editor import ResourceEditor
 from app.editor.database_editor import DatabaseEditor
 from app.editor.terrain_database import TerrainModel
 from app.editor import commands
@@ -18,7 +19,7 @@ class TerrainPainterMenu(QWidget):
         grid = QGridLayout()
         self.setLayout(grid)
 
-        self.import_button = QPushButton('Import New Map PNG...')
+        self.import_button = QPushButton('Select New Map...')
         self.import_button.clicked.connect(self.import_new_map)
         grid.addWidget(self.import_button, 0, 0, 1, 2)
 
@@ -55,20 +56,13 @@ class TerrainPainterMenu(QWidget):
         return int(self.alpha_slider.value())
 
     def import_new_map(self):
-        image_file, _ = QFileDialog.getOpenFileName(self, "Choose Map PNG", QDir.currentPath(),
-                                                    "PNG Files (*.png);;All Files (*)")
-        im = QPixmap(image_file)
-        if im:
-            if im.width() % TILEWIDTH != 0: 
-                QMessageBox.critical(self.main_editor, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
-                return
-            elif im.height() % TILEHEIGHT != 0:
-                QMessageBox.critical(self.main_editor, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
-                return
-            else:
-                command = commands.ChangeTileMapImage(self.main_editor.current_level, image_file)
-                self.main_editor.undo_stack.push(command)
-                self.main_editor.update_view()
+        res, ok = ResourceEditor.get(self, "Maps")
+        if ok:
+            nid = res.nid
+            if not res.pixmap:
+                res.pixmap = QPixmap(res.full_path)
+            self.main_editor.current_level.tilemap.change_image(nid, res.pixmap.width(), res.pixmap.height())
+            self.main_editor.update_view()
 
     def on_item_changed(self, curr, prev):
         pass

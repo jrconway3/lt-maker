@@ -138,21 +138,6 @@ class Database(object):
             os.mkdir(data_dir)
         print("Serializing data in %s..." % data_dir)
 
-        # Place level image maps in correct place
-        # This is how it works for now -- maybe in the future 
-        # I will incorporate maps as a resource so it works the same
-        # as other resources -- but we need to see how layering and tilemaps
-        # will work before I decide
-        for idx, level in enumerate(self.levels):
-            if level.tilemap.base_image:
-                map_dir = os.path.join(proj_dir, 'maps')
-                if not os.path.exists(map_dir):
-                    os.mkdir(map_dir)
-                new_loc = os.path.join(map_dir, 'map%d.png' % idx)
-                if os.path.abspath(level.tilemap.base_image) != os.path.abspath(new_loc):
-                    shutil.copy(level.tilemap.base_image, new_loc)
-                    level.tilemap.base_image = new_loc
-
         to_save = self.save()
         for key, value in to_save.items():
             save_loc = os.path.join(data_dir, key + '.json')
@@ -185,9 +170,13 @@ class Database(object):
         save_obj = {}
         for key in game_data_types:
             save_loc = os.path.join(data_dir, key + '.json')
-            print("Deserializing %s from %s" % (key, save_loc))
-            with open(save_loc) as load_file:
-                save_obj[key] = json.load(load_file)
+            if os.path.exists(save_loc):
+                print("Deserializing %s from %s" % (key, save_loc))
+                with open(save_loc) as load_file:
+                    save_obj[key] = json.load(load_file)
+            else:
+                print("%s does not exist!" % save_loc)
+                save_obj[key] = []
 
         self.restore(save_obj)
         print("Done deserializing!")

@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
 
+from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.data.levels import Level
 
@@ -84,8 +85,12 @@ class LevelModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             level = self._data[index.row()]
-            img = QIcon(QPixmap(level.tilemap.base_image))
-            return img
+            res = RESOURCES.maps.get(level.tilemap.base_image_nid)
+            if res:
+                if not res.pixmap:
+                    res.pixmap = QPixmap(res.full_path)
+                img = QIcon(res.pixmap)
+                return img
         return None 
 
     def delete(self, idx):

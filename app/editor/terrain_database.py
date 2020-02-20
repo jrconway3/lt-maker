@@ -8,7 +8,7 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.custom_gui import ComboBox, PropertyBox
-from app.editor.custom_widgets import MovementTypeBox
+from app.editor.custom_widgets import MovementCostBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.mcost_dialog import McostDialog
 from app import utilities
@@ -138,7 +138,7 @@ class TerrainProperties(QWidget):
         self.platform_box.edit.currentIndexChanged.connect(self.platform_changed)
 
         movement_section = QHBoxLayout()
-        self.movement_box = MovementTypeBox(self, button=True)
+        self.movement_box = MovementCostBox(self, button=True)
         self.movement_box.edit.currentIndexChanged.connect(self.movement_changed)
         self.movement_box.button.clicked.connect(self.access_movement_grid)
         movement_section.addWidget(self.movement_box)
@@ -177,14 +177,13 @@ class TerrainProperties(QWidget):
         self.current.platform = self.platform_box.edit.currentText()
 
     def movement_changed(self, index):
-        self.current.movement = self.movement_box.edit.currentText()
+        self.current.mtype = self.movement_box.edit.currentText()
 
     def access_movement_grid(self):
         dlg = McostDialog()
         result = dlg.exec_()
         if result == QDialog.Accepted:
-            self.movement_box.edit.clear()
-            self.movement_box.edit.addItems(DB.mcost.get_terrain_types())
+            self.movement_box.edit.setValue(self.current.mtype)
         else:
             pass
 

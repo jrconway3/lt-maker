@@ -7,6 +7,7 @@ from app.editor.icon_display import Icon16Display, Icon32Display, Icon80Display
 from app.editor.portrait_display import PortraitDisplay
 from app.editor.map_sprite_display import MapSpriteDisplay
 from app.editor.panorama_display import PanoramaDisplay
+from app.editor.map_display import MapDisplay
 from app.editor.music_display import MusicDisplay
 
 from app.data.resources import RESOURCES
@@ -60,6 +61,7 @@ class ResourceEditor(QDialog):
         # self.tabs['Combat Animations'] = AnimationDisplay.create()
         # self.tabs['Combat Effects'] = CombatEffectDisplay.create()
         # self.tabs['Map Effects'] = MapEffectDisplay.create()
+        self.tabs['Maps'] = MapDisplay.create(self)
         self.tabs['Music'] = MusicDisplay.create(self)
         # self.tabs['SFX'] = SFXDisplay.create()
 

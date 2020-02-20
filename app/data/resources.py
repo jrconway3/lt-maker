@@ -100,6 +100,9 @@ class Resources(object):
         self.combat_anims = data.Data()
         self.combat_effects = data.Data()
         self.map_effects = data.Data()
+
+        self.maps = data.Data()
+
         self.music = data.Data()
         self.sfx = data.Data()
 
@@ -112,6 +115,9 @@ class Resources(object):
         self.set_up_portrait_coords('portraits/portrait_coords.xml')
         self.populate_map_sprites('map_sprites')
         self.populate_panoramas('panoramas')
+
+        self.populate_database(self.maps, 'maps', '.png', ImageResource)
+
         self.populate_database(self.music, 'music', '.ogg', Song)
 
     def reload(self):
@@ -199,6 +205,12 @@ class Resources(object):
                 new_full_path = os.path.join(map_sprites_dir, map_sprite.nid)
                 shutil.copy(map_sprite.moving_full_path, new_full_path + '-move.png')
                 map_sprite.set_full_path(new_full_path)
+        # Save Maps
+        map_dir = os.path.join(resource_dir, 'maps')
+        if not os.path.exists(map_dir):
+            os.mkdir(map_dir)
+        for map_image in self.maps:
+            move_image(map_image, map_dir)
         # Save Music
         music_dir = os.path.join(resource_dir, 'music')
         if not os.path.exists(music_dir):
@@ -251,6 +263,13 @@ class Resources(object):
         new_panorama = Panorama(nid, full_path, pixmaps)
         self.panoramas.append(new_panorama)
         return new_panorama
+
+    def create_new_map(self, nid, pixmap):
+        full_path = os.path.join(self.main_folder, 'maps', nid)
+        nid = nid[:-4]  # Get rid of .png ending
+        new_map = ImageResource(nid, full_path, pixmap)
+        self.maps.append(new_map)
+        return new_map
 
     def create_new_music(self, nid, full_path):
         new_music = Song(nid, full_path)

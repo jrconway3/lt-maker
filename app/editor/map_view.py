@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor import commands
@@ -41,7 +42,12 @@ class MapView(QGraphicsView):
     def update_view(self):
         self.clear_scene()
         if self.current_map:
-            self.working_image = QPixmap(self.current_map.base_image)
+            default = RESOURCES.maps.get('default')
+            res = RESOURCES.maps.get(self.current_map.base_image_nid, default)
+            if not res.pixmap:
+                res.pixmap = QPixmap(res.full_path)
+            pixmap = res.pixmap
+            self.working_image = pixmap
         else:
             return
         if self.main_editor.dock_visibility['Terrain']:

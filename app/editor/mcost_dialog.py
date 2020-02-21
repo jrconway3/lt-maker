@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialogButtonBox, QTableView, QInputDialog, QHeaderView, \
-    QGridLayout, QPushButton, QLineEdit, QStyledItemDelegate, QAction, QMenu, QMessageBox
+    QGridLayout, QPushButton, QLineEdit, QStyledItemDelegate, QAction, QMenu, QMessageBox, \
+    QDialog
 from PyQt5.QtGui import QIntValidator, QFontMetrics, QBrush, QColor
 from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
@@ -84,6 +85,17 @@ class VerticalTextHeaderStyle(QProxyStyle):
         else:
             super().drawControl(element, option, painter, parent)
 
+class McostDeletionDialog(DeletionDialog):
+    @staticmethod
+    def get_swap(affected_items, model, msg, box, parent=None):
+        dialog = DeletionDialog(affected_items, model, msg, box, parent)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            text = dialog.box.edit.currentText()
+            return text, True
+        else:
+            return None, False
+
 class ColumnHeaderView(QHeaderView):
     def __init__(self, parent=None):
         super().__init__(Qt.Horizontal, parent)
@@ -125,7 +137,7 @@ class ColumnHeaderView(QHeaderView):
                 from app.editor.class_database import ClassModel
                 model = ClassModel
                 msg = "Deleting column <b>%s</b> would remove these references." % column_name
-                swap, ok = DeletionDialog.get_swap(affected_classes, model, msg, MovementClassBox(self))
+                swap, ok = McostDeletionDialog.get_swap(affected_classes, model, msg, MovementClassBox(self))
                 if ok:
                     for terrain in affected_classes:
                         terrain.mtype = swap
@@ -196,7 +208,7 @@ class RowHeaderView(QHeaderView):
                 from app.editor.terrain_database import TerrainModel
                 model = TerrainModel
                 msg = "Deleting row <b>%s</b> would remove these references." % row_name
-                swap, ok = DeletionDialog.get_swap(affected_terrain, model, msg, MovementCostBox(self))
+                swap, ok = McostDeletionDialog.get_swap(affected_terrain, model, msg, MovementCostBox(self))
                 if ok:
                     for terrain in affected_terrain:
                         terrain.mtype = swap

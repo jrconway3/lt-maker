@@ -67,7 +67,6 @@ class Database(object):
         self.levels.restore(data['levels'])
 
     def save(self):
-        print([[w.weapon_type for w in k.wexp_gain] for k in self.classes], flush=True)
         to_save = {'stats': self.stats.save(),
                    'equations': self.equations.save(),
                    'mcost': self.mcost.save(),

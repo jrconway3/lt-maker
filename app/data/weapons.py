@@ -74,7 +74,7 @@ class AdvantageList(list):
         if len(self):
             new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
         else:
-            new_advantage = Advantage(db.weapons[0], db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
+            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
         self.append(new_advantage)
 
     def contains(self, weapon_type):

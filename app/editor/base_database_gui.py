@@ -167,5 +167,5 @@ class CollectionModel(QAbstractListModel):
         self.layoutChanged.emit()
         self.update_watchers(idx + 1)
 
-    def update_watchers(self):
+    def update_watchers(self, idx):
         pass

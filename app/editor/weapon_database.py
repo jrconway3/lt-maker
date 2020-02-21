@@ -62,10 +62,15 @@ class WeaponModel(CollectionModel):
     def delete(self, idx):
         weapon_type = self._data[idx]
         nid = weapon_type.nid
-        affected_klasses = [klass for klass in DB.classes if klass.wexp_gain.get(weapon_type)]
-        affected_units = [unit for unit in DB.units if unit.wexp_gain.get(weapon_type)]
+        affected_klasses = [klass for klass in DB.classes if klass.wexp_gain.get(nid).wexp_gain > 0]
+        affected_units = [unit for unit in DB.units if unit.wexp_gain.get(nid).wexp_gain > 0]
         affected_items = [item for item in DB.items if item.weapon and item.weapon.value == weapon_type]
-        affected_weapons = [weapon for weapon in DB.weapons if weapon.advantage.contains(weapon_type) or weapon.disadvantage.contains(weapon_type)]
+        affected_weapons = [weapon for weapon in DB.weapons if weapon.advantage.contains(nid) or weapon.disadvantage.contains(nid)]
+        print("Deleting Weapons")
+        print(affected_klasses)
+        print(affected_units)
+        print(affected_items)
+        print(affected_weapons, flush=True)
         if affected_klasses or affected_units or affected_items or affected_weapons:
             if affected_items:
                 affected = Data(affected_items)
@@ -83,8 +88,8 @@ class WeaponModel(CollectionModel):
                 affected = Data(affected_weapons)
                 from app.editor.weapon_database import WeaponModel
                 model = WeaponModel
-            msg = "Deleting WeaponType <b>%s</b> would remove these references." % nid
-            swap, ok = DeletionDialog.get_swap(affected, model, msg, WeaponTypeBox(self))
+            msg = "Deleting WeaponType <b>%s</b> would affect these objects." % nid
+            swap, ok = DeletionDialog.get_swap(affected, model, msg, WeaponTypeBox(self.window), self.window)
             if ok:
                 for klass in affected_klasses:
                     klass.wexp_gain.get(swap.nid).absorb(klass.wexp_gain.get(nid))

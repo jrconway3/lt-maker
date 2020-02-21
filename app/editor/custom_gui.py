@@ -37,10 +37,11 @@ class Dialog(QDialog):
 class DeletionDialog(Dialog):
     def __init__(self, affected_items, model, msg, box, parent=None):
         super().__init__(parent)
+        self.setWindowTitle("Deletion Warning")
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
-        self.model = model(affected_items, self)
+        self.model = model(affected_items, parent)
         self.view = QListView(self)
         self.view.setModel(self.model)
         self.view.setSelectionMode(0)  # No selection
@@ -58,11 +59,10 @@ class DeletionDialog(Dialog):
     @staticmethod
     def get_swap(affected_items, model, msg, box, parent=None):
         dialog = DeletionDialog(affected_items, model, msg, box, parent)
-        dialog.setWindowTitle("Deletion Warning")
         result = dialog.exec_()
         if result == QDialog.Accepted:
             idx = dialog.box.edit.currentIndex()
-            return dialog.model._data[idx], True
+            return dialog.box.model._data[idx], True
         else:
             return None, False
 

@@ -6,7 +6,8 @@ from PyQt5.QtCore import Qt
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox
+from app.extensions.custom_gui import PropertyBox
+
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icons import ItemIcon32
 import app.editor.utilities as editor_utilities

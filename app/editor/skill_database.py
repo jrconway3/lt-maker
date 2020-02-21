@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QSpinBox, QItemDelegate
 
-from app.editor.custom_gui import ComboBox
+from app.extensions.custom_gui import ComboBox
 
 class LearnedSkillDelegate(QItemDelegate):
     int_column = 0

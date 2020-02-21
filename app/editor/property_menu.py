@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.editor.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox
+from app.extensions.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox
 from app.editor.resource_editor import ResourceEditor
 import app.utilities as utilities
 

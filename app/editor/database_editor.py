@@ -10,7 +10,8 @@ import app.counters as counters
 
 from app.data.database import DB
 
-from app.editor.custom_gui import give_timer
+from app.extensions.custom_gui import give_timer
+
 from app.editor.unit_database import UnitDatabase
 from app.editor.class_database import ClassDatabase
 from app.editor.faction_database import FactionDatabase

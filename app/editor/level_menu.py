@@ -7,7 +7,7 @@ from app.data.database import DB
 from app.data.levels import Level
 
 from app.editor import commands
-from app.editor.custom_gui import RightClickListView
+from app.extensions.custom_gui import RightClickListView
 from app.editor.base_database_gui import CollectionModel
 import app.utilities as utilities
 

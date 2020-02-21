@@ -4,7 +4,8 @@ from PyQt5.QtCore import QSize
 # Custom Widgets
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox, ComboBox
+from app.extensions.custom_gui import PropertyBox, ComboBox
+
 from app.editor.faction_database import FactionModel
 
 class UnitBox(PropertyBox):

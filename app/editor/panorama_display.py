@@ -6,7 +6,7 @@ import os, glob
 
 from app.data.resources import RESOURCES
 
-from app.editor.custom_gui import give_timer
+from app.extensions.custom_gui import give_timer
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icon_display import IconView
 

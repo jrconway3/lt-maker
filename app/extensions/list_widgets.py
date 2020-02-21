@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QPushButton, QTreeView, QTableView
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QPushButton, QTreeView
 from PyQt5.QtCore import Qt
 
-from app.editor.custom_gui import SingleListModel, MultiAttrListModel, RightClickTreeView
+from app.extensions.custom_gui import RightClickTreeView
+from app.extensions.simple_list_models import SingleListModel, MultiAttrListModel
 
 class BasicSingleListWidget(QWidget):
     def __init__(self, data, title, dlgate, parent=None):

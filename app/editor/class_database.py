@@ -9,17 +9,19 @@ from app.data.skills import LearnedSkillList
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox, ComboBox, QHLine
-from app.editor.multi_select_combo_box import MultiSelectComboBox
+from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine
+from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWidget
+from app.extensions.multi_select_combo_box import MultiSelectComboBox
+
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import TagDialog, StatDialog
-from app.editor.sub_list_widget import AppendMultiListWidget, BasicMultiListWidget
 from app.editor.stat_widget import ClassStatWidget
 from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
 import app.editor.map_sprite_display as map_sprite_display
 from app.editor.icons import ItemIcon80
 from app.editor.resource_editor import ResourceEditor
+
 from app import utilities
 
 class ClassDatabase(DatabaseTab):

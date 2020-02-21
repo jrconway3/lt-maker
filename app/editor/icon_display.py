@@ -6,9 +6,8 @@ from PyQt5.QtGui import QPixmap, QIcon
 import os
 
 from app.data.resources import RESOURCES, ImageResource
-
+from app.extensions.custom_gui import RightClickTreeView
 from app.editor.base_database_gui import DatabaseTab
-from app.editor.custom_gui import RightClickTreeView
 
 class Icon16Display(DatabaseTab):
     creation_func = RESOURCES.create_new_16x16_icon

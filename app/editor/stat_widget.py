@@ -5,7 +5,8 @@ from PyQt5.QtCore import Qt
 from app.data.stats import StatList
 from app.data.database import DB
 
-from app.editor.custom_gui import IntDelegate, VirtualListModel
+from app.extensions.custom_gui import IntDelegate
+from app.extensions.simple_list_models import VirtualListModel
 
 class ClassStatWidget(QWidget):
     def __init__(self, obj, title, parent=None):

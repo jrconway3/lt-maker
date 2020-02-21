@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
 from app.data.database import DB
 from app.data.weapons import WeaponType, WeaponRank
 
-from app.editor.custom_gui import ComboBox
+from app.extensions.custom_gui import ComboBox
 
 class ComponentList(QListWidget):
     def __init__(self, parent):

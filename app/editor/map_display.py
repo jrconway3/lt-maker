@@ -8,7 +8,7 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.resources import RESOURCES
 
 from app.editor.base_database_gui import DatabaseTab
-from app.editor.custom_gui import RightClickTreeView
+from app.extensions.custom_gui import RightClickTreeView
 from app.editor.icon_display import IconTreeModel, IconView
 
 class MapDisplay(DatabaseTab):

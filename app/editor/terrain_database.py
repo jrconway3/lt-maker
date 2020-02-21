@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.editor.custom_gui import ComboBox, PropertyBox
+from app.extensions.custom_gui import ComboBox, PropertyBox
 from app.editor.custom_widgets import MovementCostBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.mcost_dialog import McostDialog

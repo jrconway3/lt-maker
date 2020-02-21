@@ -6,7 +6,7 @@ from PyQt5.QtCore import QAbstractListModel
 import copy
 
 from app.data.data import Prefab
-from app.editor.custom_gui import RightClickListView
+from app.extensions.custom_gui import RightClickListView
 
 from app import utilities
 

@@ -8,7 +8,7 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.editor.custom_gui import PropertyBox, QHLine, ComboBox
+from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import EquationDialog
 from app.editor.icons import ItemIcon16

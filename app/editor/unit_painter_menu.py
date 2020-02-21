@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QGridLayout, QPushButton, QListView, \
+from PyQt5.QtWidgets import QPushButton, QListView, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
     QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import QSize, Qt
@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon
 
 from app.data.database import DB
 
-from app.editor.custom_gui import PropertyBox, ComboBox, Dialog
+from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.base_database_gui import CollectionModel
 from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox
 from app.editor import class_database, item_database

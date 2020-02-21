@@ -10,7 +10,7 @@ from app.data.data import Data
 from app.data.database import DB
 from app import utilities
 
-from app.editor.custom_gui import SimpleDialog, DeletionDialog
+from app.extensions.custom_gui import SimpleDialog, DeletionDialog
 from app.editor.custom_widgets import MovementCostBox, MovementClassBox
 from app.editor.base_database_gui import CollectionModel
 

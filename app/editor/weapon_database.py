@@ -9,12 +9,14 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.data.weapons import AdvantageList
 
-from app.editor.custom_gui import ComboBox, PropertyBox, PropertyCheckBox, DeletionDialog
+from app.extensions.custom_gui import ComboBox, PropertyBox, PropertyCheckBox, DeletionDialog
+from app.extensions.list_widgets import AppendMultiListWidget
+
 from app.editor.custom_widgets import WeaponTypeBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import RankDialog
-from app.editor.sub_list_widget import AppendMultiListWidget
 from app.editor.icons import ItemIcon16
+
 from app import utilities
 import app.editor.utilities as editor_utilities
 
@@ -114,7 +116,7 @@ class WeaponModel(CollectionModel):
         DB.create_new_weapon_type(nid, name)
 
     # Called on create_new, new, and duplicate
-    # Makes sure that other datatypes that use this data
+    # Makes sure that other datatypes that use this data, but not directly
     # Are always updated correctly
     def update_watchers(self, idx):
         for klass in DB.classes:

@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.editor.custom_gui import SingleListDialog, MultiAttrListDialog
+from app.extensions.list_dialogs import SingleListDialog, MultiAttrListDialog
 
 class TagDialog(SingleListDialog):
     @classmethod

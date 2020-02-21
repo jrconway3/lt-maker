@@ -56,12 +56,13 @@ class DeletionDialog(Dialog):
         self.layout.addWidget(self.buttonbox)
 
     @staticmethod
-    def get_swap(affected_items, msg, box, parent=None):
-        dialog = DeletionDialog(affected_items, msg, box, parent)
+    def get_swap(affected_items, model, msg, box, parent=None):
+        dialog = DeletionDialog(affected_items, model, msg, box, parent)
         dialog.setWindowTitle("Deletion Warning")
         result = dialog.exec_()
         if result == QDialog.Accepted:
-            return dialog.box.edit.currentText(), True
+            idx = dialog.box.edit.currentIndex()
+            return dialog.model._data[idx], True
         else:
             return None, False
 
@@ -441,9 +442,6 @@ class MultiAttrListModel(VirtualListModel):
         self.window = parent
         self._data = data
         self._headers = headers
-        print(type(self._headers))
-        import sys
-        sys.stdout.flush()
         assert (isinstance(self._headers, list) or isinstance(self._headers, tuple))
         self.locked = locked
         if not locked:

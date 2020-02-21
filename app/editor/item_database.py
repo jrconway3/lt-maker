@@ -27,12 +27,6 @@ class ItemDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        DB.create_new_item(nid, name)
-        self.after_new()
-
 def get_pixmap(item):
     x, y = item.icon_index
     res = RESOURCES.icons16.get(item.icon_nid)
@@ -59,6 +53,11 @@ class ItemModel(CollectionModel):
                 pix = pix.scaled(32, 32)
                 return QIcon(pix)
         return None
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New Item", nids)
+        DB.create_new_item(nid, name)
 
 class ItemProperties(QWidget):
     def __init__(self, parent, current=None):

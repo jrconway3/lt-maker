@@ -25,12 +25,6 @@ class AIDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        DB.create_new_ai(nid, name)
-        self.after_new()
-
 class AIModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -40,6 +34,11 @@ class AIModel(CollectionModel):
             text = ai.nid
             return text
         return None
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New AI", nids)
+        DB.create_new_ai(nid, name)
 
 # Target Specifications
 class NullSpecification(QWidget):

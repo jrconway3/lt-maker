@@ -74,11 +74,19 @@ class AdvantageList(list):
         if len(self):
             new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
         else:
-            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
+            new_advantage = Advantage(db.weapons[0], db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
         self.append(new_advantage)
 
+    def contains(self, weapon_type):
+        return any(advantage.weapon_type == weapon_type for advantage in self)
+
+    def swap(self, old_weapon_type, new_weapon_type):
+        for advantage in self:
+            if advantage.weapon_type == old_weapon_type:
+                advantage.weapon_type = new_weapon_type
+
 # === WEAPON TYPE ===
-@dataclass
+@dataclass(eq=False)
 class WeaponType(Prefab):
     nid: str = None
     name: str = None
@@ -101,7 +109,7 @@ class WeaponType(Prefab):
 
     def deserialize_attr(self, name, value):
         if name in ('advantage', 'disadvantage'):
-            value = [Advantage.deserialize(adv) for adv in value]
+            value = AdvantageList([Advantage.deserialize(adv) for adv in value])
         else:
             value = super().deserialize_attr(name, value)
         return value
@@ -135,38 +143,46 @@ class WeaponCatalog(Data):
 
 # === WEAPON EXPERIENCE GAINED ===
 class WexpGain(Prefab):
-    def __init__(self, usable: bool, weapon_type: WeaponType, wexp_gain: int):
+    def __init__(self, usable: bool, weapon_type: str, wexp_gain: int):
         self.usable = usable
-        self.weapon_type = self.nid = weapon_type
+        self.nid = weapon_type
         self.wexp_gain = wexp_gain
 
+    def absorb(self, wexp_gain):
+        self.usable = wexp_gain.usable
+        self.wexp_gain = wexp_gain.wexp_gain
+
     def serialize(self):
-        return (self.usable, self.weapon_type, self.wexp_gain)
+        return (self.usable, self.nid, self.wexp_gain)
+
+    @property
+    def weapon_type(self):
+        return self.nid
     
     @classmethod
     def deserialize(cls, s_tuple):
         return cls(*s_tuple)
 
-class WexpGainList(Data):
+class WexpGainData(Data):
     datatype = WexpGain
 
     @classmethod
     def from_xml(cls, data, weapon_types):
-        new_wexpgain_list = cls()
+        new_wexpgain = cls()
         for i in range(len(weapon_types)):
             if i < len(data):
                 d = int(data[i])
-                new_wexpgain_list.append(WexpGain(bool(d), weapon_types[i].nid, d))
+                new_wexpgain.append(WexpGain(bool(d), weapon_types[i].nid, d))
             else:
-                new_wexpgain_list.append(WexpGain(False, weapon_types[i].nid, 0))
-        return new_wexpgain_list
+                new_wexpgain.append(WexpGain(False, weapon_types[i].nid, 0))
+        return new_wexpgain
 
-    def new_key(self, key):
-        self[key] = WexpGain(False, key, 0)
+    def new(self, idx, weapon_types):
+        self.insert(idx, WexpGain(False, weapon_types[idx].nid, 0))
 
     @classmethod
     def deserialize(cls, values):
-        new_wexpgain_list = cls()
+        new_wexpgain = cls()
         for val in values:
-            new_wexpgain_list.append(WexpGain.deserialize(val))
-        return new_wexpgain_list
+            new_wexpgain.append(WexpGain.deserialize(val))
+        return new_wexpgain

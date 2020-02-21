@@ -190,8 +190,9 @@ class RowHeaderView(QHeaderView):
     def delete(self, idx):
         if self.parent().model().rowCount() > 1:
             row_name = DB.mcost.row_headers[idx]
-            if any(terrain.mtype == row_name for terrain in DB.terrain):
-                affected_terrain = Data([terrain for terrain in DB.terrain if terrain.mtype == row_name])
+            affected = [terrain for terrain in DB.terrain if terrain.mtype == row_name]
+            if affected:
+                affected_terrain = Data(affected)
                 from app.editor.terrain_database import TerrainModel
                 model = TerrainModel
                 msg = "Deleting row <b>%s</b> would remove these references." % row_name

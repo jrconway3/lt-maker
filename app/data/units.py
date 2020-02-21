@@ -26,7 +26,7 @@ class UnitPrefab(Prefab):
     starting_items: list = None
 
     learned_skills: LearnedSkillList = None
-    wexp_gain: weapons.WexpGainList = None
+    wexp_gain: weapons.WexpGainData = None
 
     portrait_nid: str = None
 
@@ -39,7 +39,7 @@ class UnitPrefab(Prefab):
         elif name == 'learned_skills':
             value = [LearnedSkill.deserialize(skill) for skill in value]
         elif name == 'wexp_gain':
-            value = weapons.WexpGainList.deserialize(value)
+            value = weapons.WexpGainData.deserialize(value)
         else:
             value = super().deserialize_attr(name, value)
         return value
@@ -74,7 +74,7 @@ class UnitCatalog(Data):
                 if wexp in weapon_ranks.keys():
                     wexp_gain[index] = weapon_ranks.get(wexp).requirement
             wexp_gain = [int(i) for i in wexp_gain]
-            wexp_gain = weapons.WexpGainList(wexp_gain, weapon_types)
+            wexp_gain = weapons.WexpGainData.from_xml(wexp_gain, weapon_types)
 
             starting_items = unit.find('inventory').text.split(',')  # List of nids
             # items = [i for i in items if i]

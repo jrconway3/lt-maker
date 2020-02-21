@@ -28,12 +28,6 @@ class TerrainDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        DB.create_new_terrain(nid, name)
-        self.after_new()
-
 class TerrainModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -49,6 +43,11 @@ class TerrainModel(CollectionModel):
             pixmap.fill(QColor(color[0], color[1], color[2]))
             return QIcon(pixmap)
         return None
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New Terrain", nids)
+        DB.create_new_terrain(nid, name)
 
 class TerrainIcon(QPushButton):
     colorChanged = pyqtSignal(QColor)

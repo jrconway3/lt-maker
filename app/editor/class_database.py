@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
-from app.data.weapons import WexpGainList
+from app.data.weapons import WexpGainData
 from app.data.skills import LearnedSkillList
 from app.data.resources import RESOURCES
 from app.data.database import DB
@@ -40,12 +40,6 @@ class ClassDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        DB.create_new_class(nid, name)
-        self.after_new()
-
     def tick(self):
         self.update_list()
 
@@ -76,6 +70,11 @@ class ClassModel(CollectionModel):
             else:
                 return None
         return None
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New Class", nids)
+        DB.create_new_class(nid, name)
 
 class ClassProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -168,7 +167,7 @@ class ClassProperties(QWidget):
         weapon_section = QHBoxLayout()
 
         attrs = ("usable", "weapon_type", "wexp_gain")
-        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList.from_xml([], DB.weapons), "Weapon Exp.", attrs, WexpGainDelegate, self)
+        self.wexp_gain_widget = BasicMultiListWidget(WexpGainData.from_xml([], DB.weapons), "Weapon Exp.", attrs, WexpGainDelegate, self)
         self.wexp_gain_widget.model.checked_columns = {0}  # Add checked column
         weapon_section.addWidget(self.wexp_gain_widget)
 

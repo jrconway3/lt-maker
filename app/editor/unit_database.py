@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 
-from app.data.weapons import WexpGainList
+from app.data.weapons import WexpGainData
 from app.data.skills import LearnedSkillList
 from app.data.resources import RESOURCES
 from app.data.database import DB
@@ -33,19 +33,12 @@ class UnitDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-    def create_new(self):
-        print("Create New Unit!")
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        DB.create_new_unit(nid, name)
-        self.after_new()
-
 class WexpModel(VirtualListModel):
     def __init__(self, columns, data, parent=None):
         super().__init__(parent)
         self.window = parent
         self._columns = self._headers = columns
-        self._data: WexpGainList = data
+        self._data: WexpGainData = data
 
     def rowCount(self, parent=None):
         return 1
@@ -53,8 +46,8 @@ class WexpModel(VirtualListModel):
     def columnCount(self, parent=None):
         return len(self._headers)
 
-    def set_new_data(self, wexp_gain_list: WexpGainList):
-        self._data: WexpGainList = wexp_gain_list
+    def set_new_data(self, wexp_gain: WexpGainData):
+        self._data: WexpGainData = wexp_gain
         self.layoutChanged.emit()
 
     def update_column_header(self, columns):
@@ -75,15 +68,20 @@ class WexpModel(VirtualListModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            wexp_gain = self._data[index.column()]
-            return wexp_gain.wexp_gain
+            weapon = self._columns[index.column()]
+            wexp_gain = self._data.get(weapon.nid)
+            if wexp_gain:
+                return wexp_gain.wexp_gain
+            else:
+                return 0
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignRight + Qt.AlignVCenter
 
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        wexp_gain = self._data[index.column()]
+        weapon = self._columns[index.column()]
+        wexp_gain = self._data.get(weapon.nid)
         wexp_gain.wexp_gain = value
         self.dataChanged.emit(index, index)
         return True
@@ -102,10 +100,12 @@ class HorizWeaponListWidget(BasicSingleListWidget):
         self.view.setModel(self.model)
         delegate = dlgate(self.view)
         self.view.setItemDelegate(delegate)
-        for col in range(len(DB.weapons)):
-            self.view.resizeColumnToContents(col)
 
         self.placement(data, title)
+
+        for col in range(len(DB.weapons)):
+            self.view.resizeColumnToContents(col)
+            self.view.setColumnWidth(col, 20)
 
 def get_chibi(unit):
     res = RESOURCES.portraits.get(unit.portrait_nid)
@@ -134,6 +134,11 @@ class UnitModel(CollectionModel):
             else:
                 return None
         return None
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New Unit", nids)
+        DB.create_new_unit(nid, name)
 
 class GenderGroup(QWidget):
     toggled = pyqtSignal(bool)
@@ -245,7 +250,7 @@ class UnitProperties(QWidget):
 
         weapon_section = QHBoxLayout()
         attrs = ("weapon_type", "wexp_gain")
-        self.wexp_gain_widget = HorizWeaponListWidget(WexpGainList.from_xml([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
+        self.wexp_gain_widget = HorizWeaponListWidget(WexpGainData.from_xml([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
         # Changing of Weapon Gain done automatically
         # self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
         weapon_section.addWidget(self.wexp_gain_widget)

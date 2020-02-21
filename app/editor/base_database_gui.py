@@ -51,16 +51,6 @@ class DatabaseTab(QWidget):
         if self.right_frame.current:
             self.right_frame.set_current(self.right_frame.current)
 
-    def create_new(self):
-        raise NotImplementedError
-
-    def after_new(self):
-        model = self.left_frame.model
-        view = self.left_frame.view
-        model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
-        last_index = model.index(model.rowCount() - 1)
-        view.setCurrentIndex(last_index)
-
     @classmethod
     def edit(cls, parent=None):
         dialog = cls.create(parent)
@@ -101,7 +91,7 @@ class Collection(QWidget):
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
 
         self.button = QPushButton(button_text % self.title)
-        self.button.clicked.connect(self.window.create_new)
+        self.button.clicked.connect(self.model.append)
 
         grid.addWidget(self.view, 0, 0)
         grid.addWidget(self.button, 1, 0)
@@ -121,12 +111,6 @@ class Collection(QWidget):
 
     def update_list(self):
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))                
-
-    def create_new(self):
-        self.window.create_new()
-
-    def after_new(self):
-        self.window.after_new()
 
 class CollectionModel(QAbstractListModel):
     def __init__(self, data, window):
@@ -150,12 +134,23 @@ class CollectionModel(QAbstractListModel):
     def update(self):
         self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
 
+    def create_new(self):
+        raise NotImplementedError
+
+    def append(self):
+        self.create_new()
+        view = self.window.view
+        self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+        last_index = self.index(self.rowCount() - 1)
+        view.setCurrentIndex(last_index)
+        self.update_watchers(self.rowCount() - 1)
+        return last_index
+
     def new(self, idx):
-        collection = self.window
-        collection.create_new()
+        self.create_new()
         self._data.move_index(len(self._data) - 1, idx + 1)
-        # model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
         self.layoutChanged.emit()
+        self.update_watchers(idx + 1)
 
     def duplicate(self, idx):
         obj = self._data[idx]
@@ -169,6 +164,8 @@ class CollectionModel(QAbstractListModel):
             new_obj = copy.copy(obj)
         new_obj.nid = new_nid
         self._data.insert(idx + 1, new_obj)
-        # new_obj = model._data.duplicate(obj.nid, new_nid)
-        # model.dataChanged.emit(model.index(0), model.index(model.rowCount()))
         self.layoutChanged.emit()
+        self.update_watchers(idx + 1)
+
+    def update_watchers(self):
+        pass

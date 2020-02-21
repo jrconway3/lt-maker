@@ -27,12 +27,6 @@ class FactionDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        DB.create_new_faction(nid, name)
-        self.after_new()
-
 def get_pixmap(faction):
     x, y = faction.icon_index
     res = RESOURCES.icons32.get(faction.icon_nid)
@@ -58,6 +52,11 @@ class FactionModel(CollectionModel):
             if pixmap:
                 return QIcon(pixmap)
         return None
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New Faction", nids)
+        DB.create_new_faction(nid, name)
 
 class FactionProperties(QWidget):
     def __init__(self, parent, current=None):

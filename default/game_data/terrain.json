@@ -5,7 +5,8 @@
         "color": [
             192,
             224,
-            48
+            48,
+            255
         ],
         "minimap": "Grass",
         "platform": "Plains",

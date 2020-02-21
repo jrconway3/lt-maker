@@ -67,6 +67,7 @@ class Database(object):
         self.levels.restore(data['levels'])
 
     def save(self):
+        print([[w.weapon_type for w in k.wexp_gain] for k in self.classes], flush=True)
         to_save = {'stats': self.stats.save(),
                    'equations': self.equations.save(),
                    'mcost': self.mcost.save(),
@@ -89,7 +90,7 @@ class Database(object):
         self.terrain.append(new_terrain)
 
     def create_new_weapon_type(self, nid, name):
-        new_weapon_type = weapons.WeaponType(nid, name, False, weapons.AdvantageList, weapons.AdvantageList)
+        new_weapon_type = weapons.WeaponType(nid, name, False, weapons.AdvantageList(), weapons.AdvantageList())
         self.weapons.append(new_weapon_type)
 
     def create_new_faction(self, nid, name):
@@ -107,7 +108,7 @@ class Database(object):
         growth_bonus = stats.StatList.from_xml([0] * num_stats, self.stats)
         promotion = stats.StatList.from_xml([0] * num_stats, self.stats)
         max_stats = stats.StatList.from_xml([30] * num_stats, self.stats)
-        wexp_gain = weapons.WexpGainList.from_xml([0] * len(self.weapons), self.weapons)
+        wexp_gain = weapons.WexpGainData.from_xml([], self.weapons)
         learned_skills = skills.LearnedSkillList()
         movement_group = self.mcost.column_headers[0]
         new_class = klass.Klass(nid, name, name, '', 1, movement_group, None, [], [], 20, 
@@ -120,7 +121,7 @@ class Database(object):
         num_stats = len(self.stats)
         bases = stats.StatList.from_xml([10] + [0] * (num_stats - 2) + [5], self.stats)
         growths = stats.StatList.from_xml([0] * num_stats, self.stats)
-        wexp_gain = weapons.WexpGainList.from_xml([0] * len(self.weapons), self.weapons)
+        wexp_gain = weapons.WexpGainData.from_xml([], self.weapons)
         learned_skills = skills.LearnedSkillList()
         new_unit = units.UnitPrefab(nid, name, '', 0, 1, 'Citizen', [], 
                                     bases, growths, [], learned_skills, wexp_gain)

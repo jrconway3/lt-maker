@@ -4,11 +4,13 @@ from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QPushButton, \
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
+from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.data.weapons import AdvantageList
 
-from app.editor.custom_gui import ComboBox, PropertyBox, PropertyCheckBox
+from app.editor.custom_gui import ComboBox, PropertyBox, PropertyCheckBox, DeletionDialog
+from app.editor.custom_widgets import WeaponTypeBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.misc_dialogs import RankDialog
 from app.editor.sub_list_widget import AppendMultiListWidget
@@ -30,12 +32,6 @@ class WeaponDatabase(DatabaseTab):
         collection_model = WeaponModel
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
-
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New " + self.title, nids)
-        DB.create_new_weapon_type(nid, name)
-        self.after_new()
 
 def get_pixmap(weapon):
     x, y = weapon.icon_index
@@ -62,6 +58,64 @@ class WeaponModel(CollectionModel):
             if pixmap:
                 return QIcon(pixmap)
         return None
+
+    def delete(self, idx):
+        weapon_type = self._data[idx]
+        nid = weapon_type.nid
+        affected_klasses = [klass for klass in DB.classes if klass.wexp_gain.get(weapon_type)]
+        affected_units = [unit for unit in DB.units if unit.wexp_gain.get(weapon_type)]
+        affected_items = [item for item in DB.items if item.weapon and item.weapon.value == weapon_type]
+        affected_weapons = [weapon for weapon in DB.weapons if weapon.advantage.contains(weapon_type) or weapon.disadvantage.contains(weapon_type)]
+        if affected_klasses or affected_units or affected_items or affected_weapons:
+            if affected_items:
+                affected = Data(affected_items)
+                from app.editor.item_database import ItemModel
+                model = ItemModel
+            elif affected_klasses:
+                affected = Data(affected_klasses)
+                from app.editor.class_database import ClassModel
+                model = ClassModel
+            elif affected_units:
+                affected = Data(affected_units)
+                from app.editor.unit_database import UnitModel
+                model = UnitModel
+            elif affected_weapons:
+                affected = Data(affected_weapons)
+                from app.editor.weapon_database import WeaponModel
+                model = WeaponModel
+            msg = "Deleting WeaponType <b>%s</b> would remove these references." % nid
+            swap, ok = DeletionDialog.get_swap(affected, model, msg, WeaponTypeBox(self))
+            if ok:
+                for klass in affected_klasses:
+                    klass.wexp_gain.get(swap.nid).absorb(klass.wexp_gain.get(nid))
+                for unit in affected_units:
+                    unit.wexp_gain.get(swap.nid).absorb(unit.wexp_gain.get(nid))
+                for item in affected_items:
+                    item.weapon.value = swap
+                for weapon in affected_weapons:
+                    weapon.advantage.swap(weapon_type, swap)
+                    weapon.disadvantage.swap(weapon_type, swap)
+            else:
+                return  # User cancelled swap
+        for klass in DB.classes:
+            klass.wexp_gain.remove_key(nid)
+        for unit in DB.units:
+            unit.wexp_gain.remove_key(nid)
+        super().delete(idx)
+
+    def create_new(self):
+        nids = [d.nid for d in self._data]
+        nid = name = utilities.get_next_name("New Weapon Type", nids)
+        DB.create_new_weapon_type(nid, name)
+
+    # Called on create_new, new, and duplicate
+    # Makes sure that other datatypes that use this data
+    # Are always updated correctly
+    def update_watchers(self, idx):
+        for klass in DB.classes:
+            klass.wexp_gain.new(idx, DB.weapons)
+        for unit in DB.units:
+            unit.wexp_gain.new(idx, DB.weapons)
 
 class WeaponProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -125,12 +179,19 @@ class WeaponProperties(QWidget):
         self.current.nid = text
         self.window.update_list()
 
+    def update_watchers(self, old_nid, new_nid):
+        for klass in DB.classes:
+            klass.wexp_gain.change_key(old_nid, new_nid)
+        for unit in DB.units:
+            unit.wexp_gain.change_key(old_nid, new_nid)
+
     def nid_done_editing(self):
         # Check validity of nid!
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Weapon Type ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+        self.update_watchers(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

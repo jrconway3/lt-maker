@@ -57,11 +57,11 @@ class AppendSingleListWidget(BasicSingleListWidget):
         self.layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)
 
 class BasicMultiListWidget(BasicSingleListWidget):
-    def __init__(self, data, title, attrs, dlgate, parent=None):
+    def __init__(self, data, title, attrs, dlgate, parent=None, model=MultiAttrListModel):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
 
-        self.model = MultiAttrListModel(self.current, attrs, parent=self)
+        self.model = model(self.current, attrs, parent=self)
         self.view = QTreeView(self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)
@@ -72,11 +72,11 @@ class BasicMultiListWidget(BasicSingleListWidget):
         self.placement(data, title)
 
 class AppendMultiListWidget(BasicSingleListWidget):
-    def __init__(self, data, title, attrs, dlgate, parent=None):
+    def __init__(self, data, title, attrs, dlgate, parent=None, model=MultiAttrListModel):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
 
-        self.model = MultiAttrListModel(self.current, attrs, parent=self)
+        self.model = model(self.current, attrs, parent=self)
         self.view = RightClickTreeView(parent=self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)

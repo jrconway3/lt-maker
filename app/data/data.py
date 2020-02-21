@@ -34,6 +34,11 @@ class Data(object):
                 self._dict[nid] = val
                 break
 
+    def find_key(self, val):
+        for k, v in self._dict.items():
+            if v == val:
+                return k
+
     def change_key(self, old_key, new_key):
         old_value = self._dict[old_key]
         del self._dict[old_key]
@@ -93,8 +98,8 @@ class Data(object):
         self.clear()
         if self.datatype and issubclass(self.datatype, Prefab):
             for s_dict in vals:
-                new_equation = self.datatype.deserialize(s_dict)
-                self.append(new_equation)
+                new_val = self.datatype.deserialize(s_dict)
+                self.append(new_val)
         else:
             for val in vals:
                 self.append(val)

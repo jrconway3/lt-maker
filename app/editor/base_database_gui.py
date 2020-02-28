@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
     QSizePolicy, QSplitter
-from PyQt5.QtCore import QSize
-from PyQt5.QtCore import QAbstractListModel
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QAbstractListModel, QModelIndex
 
 import copy
 
@@ -169,3 +169,36 @@ class CollectionModel(QAbstractListModel):
 
     def update_watchers(self, idx):
         pass
+
+class DragDropCollectionModel(CollectionModel):
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+    def supportedDragActions(self):
+        return Qt.MoveAction
+
+    def insertRows(self, row, count, parent):
+        if count < 1 or row < 0 or row > self.rowCount() or parent.isValid():
+            return False
+        # self.beginInsertRows(QModelIndex(), row, row + count - 1)
+        self._data.begin_insert_row(row)
+        self.layoutChanged.emit()
+        # self.endInsertRows()
+        # print("insertRows", row, count, flush=True)
+        return True
+
+    def removeRows(self, row, count, parent):
+        if count < 1 or row < 0 or (row + count) > self.rowCount() or parent.isValid():
+            return False
+        # self.beginRemoveRows(QModelIndex(), row, row + count - 1)
+        self._data.make_drag_drop(row)
+        self.layoutChanged.emit()
+        # self.endRemoveRows()
+        # print("removeRows", row, count, flush=True)
+        return True
+
+    def flags(self, index):
+        if not index.isValid() or index.row() >= len(self._data) or index.model() is not self:
+            return Qt.ItemIsDropEnabled
+        else:
+            return Qt.ItemIsDragEnabled | super().flags(index)

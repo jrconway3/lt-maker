@@ -175,6 +175,11 @@ class RightClickView(object):
         super().__init__(parent)
         self.window = parent
 
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(4)  # QAbstractItemView.InternalMove
+
         if deletion_criteria:
             self.deletion_func, self.deletion_msg = deletion_criteria
         else:

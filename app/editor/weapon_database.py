@@ -13,7 +13,7 @@ from app.extensions.custom_gui import ComboBox, PropertyBox, PropertyCheckBox, D
 from app.extensions.list_widgets import AppendMultiListWidget
 
 from app.editor.custom_widgets import WeaponTypeBox
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.misc_dialogs import RankDialog
 from app.editor.icons import ItemIcon16
 
@@ -46,7 +46,7 @@ def get_pixmap(weapon):
     pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
-class WeaponModel(CollectionModel):
+class WeaponModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -117,7 +117,7 @@ class WeaponModel(CollectionModel):
 
     # Called on create_new, new, and duplicate
     # Makes sure that other datatypes that use this data, but not directly
-    # Are always updated correctly
+    # are always updated correctly
     def update_watchers(self, idx):
         for klass in DB.classes:
             klass.wexp_gain.new(idx, DB.weapons)

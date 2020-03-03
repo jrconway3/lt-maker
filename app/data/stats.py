@@ -67,7 +67,7 @@ class StatList(Data):
         return new_stat_list
 
     def new_key(self, key):
-        self[key] = 0
+        self.append(Stat(key, 0))
 
     @classmethod
     def deserialize(cls, values):

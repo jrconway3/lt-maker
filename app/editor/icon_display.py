@@ -146,6 +146,9 @@ class IconTreeModel(QAbstractItemModel):
         # if self.window.display:
         #     self.window.display.set_current(new_item)
 
+    def append(self):
+        self.create_new()
+
 class IconView(QGraphicsView):
     min_scale = 1
     max_scale = 5

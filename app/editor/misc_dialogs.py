@@ -32,28 +32,6 @@ class TagDialog(SingleListDialog):
     def on_append(self, element):
         pass
 
-class StatDialog(MultiAttrListDialog):
-    @classmethod
-    def create(cls):
-        return cls(DB.stats, "Stat", ("nid", "name", "maximum", "desc"), 
-                   {"HP", "MOV"})
-
-    def on_delete(self, element):
-        for klass in DB.classes:
-            for row in klass.get_stat_lists():
-                row.remove_key(element.nid)
-
-    def on_change(self, element, attr, old_value, new_value):
-        if attr == 'nid':
-            for klass in DB.classes:
-                for row in klass.get_stat_lists():
-                    row.change_key(old_value, new_value)
-
-    def on_append(self, element):
-        for klass in DB.classes:
-            for row in klass.get_stat_lists():
-                row.new_key(element.nid)
-
 class EquationDialog(MultiAttrListDialog):
     @classmethod
     def create(cls):

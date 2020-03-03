@@ -15,8 +15,8 @@ from app.extensions.simple_list_models import VirtualListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
 
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
-from app.editor.misc_dialogs import TagDialog, StatDialog
-from app.editor.stat_widget import UnitStatWidget
+from app.editor.misc_dialogs import TagDialog
+from app.editor.stat_widget import StatListWidget, StatTypeDialog
 from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.item_database import ItemListWidget
 import app.editor.weapon_database as weapon_database
@@ -238,7 +238,7 @@ class UnitProperties(QWidget):
 
         stat_section = QGridLayout()
 
-        self.unit_stat_widget = UnitStatWidget(self.current, "Stats", self)
+        self.unit_stat_widget = StatListWidget(self.current, "Stats", self)
         self.unit_stat_widget.button.clicked.connect(self.access_stats)
         # Changing of stats done automatically by using model view framework within
         stat_section.addWidget(self.unit_stat_widget, 1, 0, 1, 2)
@@ -346,7 +346,7 @@ class UnitProperties(QWidget):
             pass
 
     def access_stats(self):
-        dlg = StatDialog.create()
+        dlg = StatTypeDialog.create()
         result = dlg.exec_()
         if result == QDialog.Accepted:
             self.unit_stat_widget.update_stats()
@@ -365,6 +365,7 @@ class UnitProperties(QWidget):
         self.tag_box.edit.ResetSelection()
         self.tag_box.edit.setCurrentTexts(tags)
 
+        self.unit_stat_widget.update_stats()
         self.unit_stat_widget.set_new_obj(current)
 
         self.personal_skill_widget.set_current(current.learned_skills)

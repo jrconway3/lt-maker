@@ -30,6 +30,9 @@ class UnitPrefab(Prefab):
 
     portrait_nid: str = None
 
+    def get_stat_titles(self):
+        return ["Bases", "Growths"]
+
     def get_stat_lists(self):
         return [self.bases, self.growths]
 

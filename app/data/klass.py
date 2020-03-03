@@ -41,6 +41,9 @@ class Klass(Prefab):
     exp_mult: float = 1.
     opponent_exp_mult: float = 1.
 
+    def get_stat_titles(self):
+        return ['Generic Bases', 'Generic Growths', 'Promotion Gains', 'Growth Bonuses', 'Stat Maximums']
+
     def get_stat_lists(self):
         return [self.bases, self.growths, self.promotion, self.growth_bonus, self.max_stats]
 

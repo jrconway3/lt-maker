@@ -571,9 +571,7 @@
             "Swordmaster",
             "Assassin"
         ],
-        "tags": [
-            "Sword"
-        ],
+        "tags": [],
         "max_level": 20,
         "bases": [
             [
@@ -833,7 +831,7 @@
                 0
             ]
         ],
-        "icon_nid": null,
+        "icon_nid": "",
         "icon_index": [
             0,
             0
@@ -1686,12 +1684,12 @@
                 0
             ]
         ],
-        "icon_nid": null,
+        "icon_nid": "Generic_Portrait_Knight",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": null,
+        "map_sprite_nid": "knightM",
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },

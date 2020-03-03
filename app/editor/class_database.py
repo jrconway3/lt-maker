@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
     QVBoxLayout, QSizePolicy, QSpacerItem, QDoubleSpinBox
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
 from app.data.weapons import WexpGainData
@@ -14,8 +14,8 @@ from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWid
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
-from app.editor.misc_dialogs import TagDialog, StatDialog
-from app.editor.stat_widget import ClassStatWidget
+from app.editor.misc_dialogs import TagDialog
+from app.editor.stat_widget import StatListWidget, StatTypeDialog
 from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
 import app.editor.map_sprite_display as map_sprite_display
@@ -32,9 +32,6 @@ class ClassDatabase(DatabaseTab):
         right_frame = ClassProperties
 
         def deletion_func(view, idx):
-            print(view, idx)
-            print(view.window._data[idx])
-            print(view.window._data[idx].nid)
             return view.window._data[idx].nid != "Citizen"
 
         deletion_criteria = (deletion_func, "Cannot delete Citizen Class!")
@@ -50,7 +47,7 @@ def get_map_sprite_icon(klass, num=0, current=False):
     if not res:
         return None
     if not res.standing_pixmap:
-        res.standing_pixmap = res.standing_full_path
+        res.standing_pixmap = QPixmap(res.standing_full_path)
     pixmap = res.standing_pixmap
     pixmap = map_sprite_display.get_basic_icon(pixmap, num, current)
     return pixmap
@@ -162,7 +159,7 @@ class ClassProperties(QWidget):
 
         stat_section = QGridLayout()
 
-        self.class_stat_widget = ClassStatWidget(self.current, "Stats", self)
+        self.class_stat_widget = StatListWidget(self.current, "Stats", self)
         self.class_stat_widget.button.clicked.connect(self.access_stats)
         stat_section.addWidget(self.class_stat_widget, 1, 0, 1, 2)
 
@@ -295,7 +292,7 @@ class ClassProperties(QWidget):
             pass
 
     def access_stats(self):
-        dlg = StatDialog.create()
+        dlg = StatTypeDialog.create()
         result = dlg.exec_()
         if result == QDialog.Accepted:
             self.class_stat_widget.update_stats()
@@ -331,6 +328,7 @@ class ClassProperties(QWidget):
         self.tag_box.edit.ResetSelection()
         self.tag_box.edit.setCurrentTexts(tags)
 
+        self.class_stat_widget.update_stats()
         self.class_stat_widget.set_new_obj(current)
 
         self.exp_mult_box.edit.setValue(current.exp_mult)

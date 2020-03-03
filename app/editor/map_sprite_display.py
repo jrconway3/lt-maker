@@ -89,7 +89,10 @@ class MapSpriteModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             map_sprite = self._data[index.row()]
+            if not map_sprite.standing_pixmap:
+                map_sprite.standing_pixmap = QPixmap(map_sprite.standing_full_path)
             pixmap = map_sprite.standing_pixmap
+
             # Get passive counter from right frame
             right_frame = self.window.display
             num = right_frame.passive_counter.count

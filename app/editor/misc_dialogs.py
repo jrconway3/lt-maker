@@ -54,12 +54,6 @@ class StatDialog(MultiAttrListDialog):
             for row in klass.get_stat_lists():
                 row.new_key(element.nid)
 
-class RankDialog(MultiAttrListDialog):
-    @classmethod
-    def create(cls):
-        return cls(DB.weapon_ranks, "Weapon Rank", 
-                   ("rank", "requirement", "accuracy", "damage", "crit"))
-
 class EquationDialog(MultiAttrListDialog):
     @classmethod
     def create(cls):

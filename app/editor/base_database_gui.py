@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
     QSizePolicy, QSplitter
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtCore import QAbstractListModel, QModelIndex
+from PyQt5.QtCore import QAbstractItemModel, QAbstractListModel, QModelIndex
 
 import copy
 
@@ -171,6 +171,8 @@ class CollectionModel(QAbstractListModel):
         pass
 
 class DragDropCollectionModel(CollectionModel):
+    drop_to = None
+
     def supportedDropActions(self):
         return Qt.MoveAction
 
@@ -181,24 +183,155 @@ class DragDropCollectionModel(CollectionModel):
         if count < 1 or row < 0 or row > self.rowCount() or parent.isValid():
             return False
         # self.beginInsertRows(QModelIndex(), row, row + count - 1)
-        self._data.begin_insert_row(row)
+        self.drop_to = row
         self.layoutChanged.emit()
         # self.endInsertRows()
         # print("insertRows", row, count, flush=True)
         return True
 
+    def do_drag_drop(self, index):
+        if self.drop_to is None:
+            return False
+        if index < self.drop_to:
+            self._data.move_index(index, self.drop_to - 1)
+            return index, self.drop_to - 1
+        else:
+            self._data.move_index(index, self.drop_to)
+            return index, self.drop_to
+
     def removeRows(self, row, count, parent):
         if count < 1 or row < 0 or (row + count) > self.rowCount() or parent.isValid():
             return False
         # self.beginRemoveRows(QModelIndex(), row, row + count - 1)
-        self._data.make_drag_drop(row)
+        result = self.do_drag_drop(row)
         self.layoutChanged.emit()
+        if result:
+            self.update_drag_watchers(result[0], result[1])
         # self.endRemoveRows()
         # print("removeRows", row, count, flush=True)
         return True
+
+    def update_drag_watchers(self, fro, to):
+        pass
 
     def flags(self, index):
         if not index.isValid() or index.row() >= len(self._data) or index.model() is not self:
             return Qt.ItemIsDropEnabled
         else:
             return Qt.ItemIsDragEnabled | super().flags(index)
+
+class MultiAttrCollectionModel(QAbstractItemModel):
+    def __init__(self, data, headers, parent=None):
+        super().__init__(parent)
+        self.window = parent
+        self._data = data
+        self._headers = headers
+
+        self.edit_locked = set()
+        self.checked_columns = set()
+
+    def index(self, row, column, parent_index=QModelIndex()):
+        if self.hasIndex(row, column, parent_index):
+            return self.createIndex(row, column)
+        return QModelIndex()
+
+    def parent(self, index):
+        return QModelIndex()
+
+    def rowCount(self, parent=None):
+        return len(self._data)
+
+    def columnCount(self, parent=None):
+        return len(self._headers)
+
+    def headerData(self, idx, orientation, role=Qt.DisplayRole):
+        if role != Qt.DisplayRole:
+            return None
+        if orientation == Qt.Vertical:
+            return None
+        elif orientation == Qt.Horizontal:
+            return self._headers[idx].replace('_', ' ').capitalize()
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if index.column() in self.checked_columns:
+            if role == Qt.CheckStateRole:
+                data = self._data[index.row()]
+                attr = self._headers[index.column()]
+                val = getattr(data, attr)
+                return Qt.Checked if bool(val) else Qt.Unchecked
+            else:
+                return None
+        elif role == Qt.DisplayRole or role == Qt.EditRole:
+            data = self._data[index.row()]
+            attr = self._headers[index.column()]
+            return getattr(data, attr)
+        return None
+
+    def setData(self, index, value, role):
+        # Would probably need to be overwritten by subclases
+        if not index.isValid():
+            return False
+        data = self._data[index.row()]
+        attr = self._headers[index.column()]
+        current_value = getattr(data, attr)
+        setattr(data, attr, value)
+        self.change_watchers(data, attr, current_value, value)
+        self.dataChanged.emit(index, index)
+        return True
+
+    def change_watchers(self, data, attr, old_value, new_value):
+        pass
+
+    def flags(self, index):
+        basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
+        if getattr(self._data[index.row()], self._headers[0]) not in self.edit_locked or index.column() != 0:
+            basic_flags |= Qt.ItemIsEditable
+        if index.column() in self.checked_columns:
+            basic_flags |= Qt.ItemIsUserCheckable
+        return basic_flags
+
+    def delete(self, idx):
+        self._data.pop(idx)
+        self.layoutChanged.emit()
+
+    def update(self):
+        self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+
+    def create_new(self):
+        raise NotImplementedError
+
+    def append(self):
+        self.create_new()
+        view = self.window.view
+        # self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+        self.layoutChanged.emit()
+        last_index = self.index(self.rowCount() - 1, 0)
+        view.setCurrentIndex(last_index)
+        self.update_watchers(self.rowCount() - 1)
+        return last_index
+
+    def new(self, idx):
+        self.create_new()
+        self._data.move_index(len(self._data) - 1, idx + 1)
+        self.layoutChanged.emit()
+        self.update_watchers(idx + 1)
+
+    def duplicate(self, idx):
+        obj = self._data[idx]
+        new_nid = utilities.get_next_name(obj.nid, self._data.keys())
+        if isinstance(obj, Prefab):
+            serialized_obj = obj.serialize()
+            print("Duplication!")
+            print(serialized_obj, flush=True)
+            new_obj = self._data.datatype.deserialize(serialized_obj)
+        else:
+            new_obj = copy.copy(obj)
+        new_obj.nid = new_nid
+        self._data.insert(idx + 1, new_obj)
+        self.layoutChanged.emit()
+        self.update_watchers(idx + 1)
+
+    def update_watchers(self, idx):
+        pass

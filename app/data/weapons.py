@@ -21,6 +21,10 @@ class WeaponRank(Prefab):
     def nid(self):
         return self.rank
 
+    @nid.setter
+    def nid(self, value):
+        self.rank = value
+
     def __repr__(self):
         return "WeaponRank %s: %d -- (%d, %d, %d)" % \
             (self.rank, self.requirement, self.accuracy, self.damage, self.crit)
@@ -77,13 +81,18 @@ class AdvantageList(list):
             new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
         self.append(new_advantage)
 
-    def contains(self, weapon_type):
+    def contains(self, weapon_type: str):
         return any(advantage.weapon_type == weapon_type for advantage in self)
 
-    def swap(self, old_weapon_type, new_weapon_type):
+    def swap(self, old_weapon_type: str, new_weapon_type: str):
         for advantage in self:
             if advantage.weapon_type == old_weapon_type:
                 advantage.weapon_type = new_weapon_type
+
+    def swap_rank(self, old_rank: str, new_rank: str):
+        for advantage in self:
+            if advantage.weapon_rank == old_rank:
+                advantage.weapon_rank = new_rank
 
 # === WEAPON TYPE ===
 @dataclass(eq=False)

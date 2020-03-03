@@ -13,7 +13,6 @@ class Data(object):
         else:
             self._list = []
             self._dict = {}
-        self.drop_to = None
 
     def values(self):
         return self._list
@@ -92,16 +91,6 @@ class Data(object):
 
     def begin_insert_row(self, index):
         self.drop_to = index
-
-    def make_drag_drop(self, index):
-        if self.drop_to is None:
-            return False
-        print(self._list)
-        if index < self.drop_to:
-            self.move_index(index, self.drop_to - 1)
-        else:
-            self.move_index(index, self.drop_to)
-        print(self._list, flush=True)
 
     # Saving functions
     def save(self):

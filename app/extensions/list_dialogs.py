@@ -25,7 +25,6 @@ class SingleListDialog(QDialog):
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.saved_data = self.save()
-        self._actions = []
 
     def placement(self, title):
         layout = QGridLayout(self)
@@ -33,7 +32,7 @@ class SingleListDialog(QDialog):
         self.setLayout(layout)
 
         self.add_button = QPushButton("Add %s" % title)
-        self.add_button.clicked.connect(self.model.add_new_row)
+        self.add_button.clicked.connect(self.model.append)
         layout.addWidget(self.add_button, 1, 0, alignment=Qt.AlignLeft)
 
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
@@ -55,12 +54,14 @@ class SingleListDialog(QDialog):
         super().reject()
 
 class MultiAttrListDialog(SingleListDialog):
-    def __init__(self, data, title, attrs, locked=None, parent=None):
+    def __init__(self, data, title, attrs, model=MultiAttrListModel, deletion_criteria=None, locked: set = None, parent=None):
         QDialog.__init__(self, parent)
         self.initiate(data, title, parent)
 
-        self.model = MultiAttrListModel(self._data, attrs, locked, self)
-        self.view = RightClickTreeView(parent=self)
+        self.model = model(self._data, attrs, self)
+        if locked:
+            self.model.edit_locked = locked
+        self.view = RightClickTreeView(deletion_criteria, self)
         self.view.setModel(self.model)
         int_columns = [i for i, attr in enumerate(attrs) if type(getattr(self._data[0], attr)) == int]
         delegate = IntDelegate(self.view, int_columns)
@@ -75,14 +76,3 @@ class MultiAttrListDialog(SingleListDialog):
 
     def restore(self, data):
         self._data.restore(data)
-
-    def accept(self):
-        for action in self._actions:
-            kind = action[0]
-            if kind == 'Delete':
-                self.on_delete(action[1])
-            elif kind == 'Change':
-                self.on_change(*action[1])
-            elif kind == 'Append':
-                self.on_append(action[1])
-        super().accept()

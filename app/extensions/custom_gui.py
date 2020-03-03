@@ -61,6 +61,16 @@ class DeletionDialog(Dialog):
         else:
             return None, False
 
+    @staticmethod
+    def get_simple_swap(affected_items, model, msg, box, parent=None):
+        dialog = DeletionDialog(affected_items, model, msg, box, parent)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            idx = dialog.box.edit.currentIndex()
+            return idx, True
+        else:
+            return None, False
+
 class EditDialog(SimpleDialog):
     def __init__(self, data, parent):
         super().__init__(parent)
@@ -205,12 +215,12 @@ class RightClickView(object):
 
     def new(self, idx):
         self.window.model.new(idx)
-        self.window.view.setCurrentIndex(self.window.model.index(idx))
+        self.window.view.setCurrentIndex(self.window.model.index(idx, 0))
 
     def duplicate(self, idx):
         self.window.model.duplicate(idx)
         view = self.window.view
-        view.setCurrentIndex(self.window.model.index(idx + 1))
+        view.setCurrentIndex(self.window.model.index(idx + 1, 0))
 
     def delete(self, idx):
         if not self.deletion_func or self.deletion_func(self, idx):
@@ -238,7 +248,7 @@ class IntDelegate(QItemDelegate):
         if index.column() in self.int_columns:
             editor = QSpinBox(parent)
             editor.setAlignment(Qt.AlignRight)
-            editor.setRange(-255, 255)
+            editor.setRange(-1023, 1023)
             return editor
         else:
             return super().createEditor(parent, option, index)

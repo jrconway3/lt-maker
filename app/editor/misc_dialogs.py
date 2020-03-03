@@ -1,5 +1,7 @@
+from app.data.data import Data
 from app.data.database import DB
 
+from app.extensions.custom_gui import DeletionDialog
 from app.extensions.list_dialogs import SingleListDialog, MultiAttrListDialog
 
 class TagDialog(SingleListDialog):
@@ -31,24 +33,3 @@ class TagDialog(SingleListDialog):
 
     def on_append(self, element):
         pass
-
-class EquationDialog(MultiAttrListDialog):
-    @classmethod
-    def create(cls):
-        dlg = cls(DB.equations, "Equation", ("nid", "expression"), 
-                  {"ATTACKSPEED", "HIT", "AVOID", "CRIT_HIT", "CRIT_AVOID", 
-                   "DAMAGE", "DEFENSE", "MAGIC_DAMAGE", "MAGIC_DEFENSE", 
-                   "CRIT_ADD", "CRIT_MULT",
-                   "DOUBLE_ATK", "DOUBLE_DEF", "STEAL_ATK", "STEAL_DEF", 
-                   "HEAL", "RESCUE_AID", "RESCUE_WEIGHT", "RATING"})
-        return dlg
-
-# Testing
-# Run "python -m app.editor.misc_dialogs" from main directory
-if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    window = StatDialog.create()
-    window.show()
-    app.exec_()

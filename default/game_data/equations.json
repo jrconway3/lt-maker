@@ -74,9 +74,5 @@
     {
         "nid": "HEAL",
         "expression": "MAG"
-    },
-    {
-        "nid": "SPEED_DEFENSE",
-        "expression": "SPD"
     }
 ]

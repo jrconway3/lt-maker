@@ -87,7 +87,7 @@ class WeaponModel(DragDropCollectionModel):
                 from app.editor.weapon_database import WeaponModel
                 model = WeaponModel
             msg = "Deleting WeaponType <b>%s</b> would affect these objects." % nid
-            swap, ok = DeletionDialog.get_swap(affected, model, msg, WeaponTypeBox(self.window), self.window)
+            swap, ok = DeletionDialog.get_swap(affected, model, msg, WeaponTypeBox(self.window, exclude=weapon_type), self.window)
             if ok:
                 for klass in affected_klasses:
                     klass.wexp_gain.get(swap.nid).absorb(klass.wexp_gain.get(nid))

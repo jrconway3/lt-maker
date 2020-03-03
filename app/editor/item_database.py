@@ -5,12 +5,14 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 
 from app.data.resources import RESOURCES
+from app.data.data import Data
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
-from app.editor.misc_dialogs import EquationDialog
+from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox, DeletionDialog
+from app.editor.custom_widgets import ItemBox
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
+from app.editor.equation_widget import EquationDialog
 from app.editor.icons import ItemIcon16
 from app.editor import component_database
 import app.editor.utilities as editor_utilities
@@ -38,7 +40,7 @@ def get_pixmap(item):
     pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
-class ItemModel(CollectionModel):
+class ItemModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -53,6 +55,36 @@ class ItemModel(CollectionModel):
                 pix = pix.scaled(32, 32)
                 return QIcon(pix)
         return None
+
+    def delete(self, idx):
+        # Check to make sure nothing else is using me!!!
+        item = self._data[idx]
+        nid = item.nid
+        affected_units = [unit for unit in DB.units if nid in unit.starting_items]
+        affected_levels = [level for level in DB.levels if any(nid in unit.starting_items for unit in level.units)]
+        if affected_units or affected_levels:
+            if affected_units:
+                affected = Data(affected_units)
+                from app.editor.unit_database import UnitModel
+                model = UnitModel
+            elif affected_levels:
+                affected = Data(affected_levels)
+                from app.editor.level_menu import LevelModel
+                model = LevelModel
+            msg = "Deleting Item <b>%s</b> would affected these objects." % nid
+            swap, ok = DeletionDialog.get_swap(affected, model, msg, ItemBox(self.window, exclude=item), self.window)
+            if ok:
+                for unit in affected_units:
+                    # unit.items.replace(nid, swap.nid)
+                    unit.starting_items = [swap.nid if elem == nid else elem for elem in unit.starting_items]
+                for level in affected_levels:
+                    for unit in level.units:
+                        # unit.items.replace(nid, swap.nid)
+                        unit.starting_items = [swap.nid if elem == nid else elem for elem in unit.starting_items]
+            else:
+                return
+        # Delete watchers
+        super().delete(idx)
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -200,10 +232,15 @@ class ItemProperties(QWidget):
         dlg = EquationDialog.create()
         result = dlg.exec_()
         if result == QDialog.Accepted:
+            # current_min = self.min_range_box.edit.currentText()
+            # current_max = self.max_range_box.edit.currentText()
             self.min_range_box.edit.clear()
             self.min_range_box.edit.addItems(DB.equations.keys())
             self.max_range_box.edit.clear()
             self.max_range_box.edit.addItems(DB.equations.keys())
+            self.set_current(self.current)
+            # self.min_range_box.edit.setEditText(current_min)
+            # self.max_range_box.edit.setEditText(current_max)
         else:
             pass
 

@@ -26,9 +26,13 @@ class UnitBox(ObjBox):
         self.edit.setIconSize(QSize(32, 32))
 
 class ClassBox(ObjBox):
-    def __init__(self, parent=None, button=False):
+    def __init__(self, parent=None, button=False, exclude=None):
         from app.editor.class_database import ClassModel
-        super().__init__("Class", ClassModel, DB.classes, parent, button)
+        database = DB.classes
+        if exclude:
+            database = Data([d for d in DB.classes if d is not exclude])
+        super().__init__("Class", ClassModel, database, parent, button)
+        self.edit.setIconSize(QSize(32, 32))
 
 class FactionBox(ObjBox):
     def __init__(self, parent=None, button=False):

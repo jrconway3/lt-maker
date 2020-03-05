@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
     QLineEdit, QPushButton, QAction, QMenu, QMessageBox, QSizePolicy, QFrame, \
     QDialogButtonBox, QGridLayout, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QSize
 
 def give_timer(obj, fps=30):
     obj.main_timer = QTimer()
@@ -40,6 +40,7 @@ class DeletionDialog(Dialog):
         self.view = QListView(self)
         self.view.setModel(self.model)
         self.view.setSelectionMode(0)  # No selection
+        self.view.setIconSize(QSize(32, 32))
 
         self.text1 = QLabel(msg)
         self.text2 = QLabel("Swap these references to:")

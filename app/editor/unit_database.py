@@ -15,7 +15,7 @@ from app.extensions.simple_list_models import VirtualListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
 
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
-from app.editor.misc_dialogs import TagDialog
+from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatTypeDialog
 from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.item_database import ItemListWidget
@@ -226,7 +226,7 @@ class UnitProperties(QWidget):
 
         self.tag_box = PropertyBox("Personal Tags", MultiSelectComboBox, self)
         self.tag_box.edit.setPlaceholderText("No tag")
-        self.tag_box.edit.addItems(DB.tags)
+        self.tag_box.edit.addItems(DB.tags.keys())
         self.tag_box.edit.updated.connect(self.tags_changed)
         tag_section.addWidget(self.tag_box)
 
@@ -336,11 +336,11 @@ class UnitProperties(QWidget):
         self.current.starting_items = self.item_widget.get_items()
 
     def access_tags(self):
-        dlg = TagDialog.create()
+        dlg = TagDialog.create(self)
         result = dlg.exec_()
         if result == QDialog.Accepted:
             self.tag_box.edit.clear()
-            self.tag_box.edit.addItems(DB.tags)
+            self.tag_box.edit.addItems(DB.tags.keys())
             self.tag_box.edit.setCurrentTexts(self.current.tags)
         else:
             pass
@@ -362,7 +362,8 @@ class UnitProperties(QWidget):
         self.level_box.edit.setValue(current.level)
         self.class_box.edit.setValue(current.klass)
         tags = current.tags[:]
-        self.tag_box.edit.ResetSelection()
+        self.tag_box.edit.clear()
+        self.tag_box.edit.addItems(DB.tags.keys())
         self.tag_box.edit.setCurrentTexts(tags)
 
         self.unit_stat_widget.update_stats()

@@ -13,13 +13,13 @@ class EquationMultiModel(MultiAttrCollectionModel):
             affected = Data(affected_items)
             from app.editor.item_database import ItemModel
             model = ItemModel
-            msg = "Deleting Equation <b>%s</b> would affect these items"
+            msg = "Deleting Equation <b>%s</b> would affect these items" % element.nid
             combo_box = PropertyBox("Equation", ComboBox, self.window)
             objs = [eq for eq in DB.equations if eq.nid != element.nid]
             combo_box.edit.addItems([eq.nid for eq in objs])
             obj_idx, ok = DeletionDialog.get_simple_swap(affected, model, msg, combo_box)
-            swap = objs[obj_idx]
             if ok:
+                swap = objs[obj_idx]
                 for item in affected_items:
                     if item.min_range == element.nid:
                         item.min_range = swap.nid

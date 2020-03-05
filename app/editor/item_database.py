@@ -71,7 +71,7 @@ class ItemModel(DragDropCollectionModel):
                 affected = Data(affected_levels)
                 from app.editor.level_menu import LevelModel
                 model = LevelModel
-            msg = "Deleting Item <b>%s</b> would affected these objects." % nid
+            msg = "Deleting Item <b>%s</b> would affect these objects." % nid
             swap, ok = DeletionDialog.get_swap(affected, model, msg, ItemBox(self.window, exclude=item), self.window)
             if ok:
                 for unit in affected_units:

@@ -150,8 +150,8 @@ class WeaponRankMultiModel(MultiAttrCollectionModel):
             objs = [rank for rank in DB.weapon_ranks if rank.rank != element.rank]
             combo_box.edit.addItems([rank.rank for rank in objs])
             obj_idx, ok = DeletionDialog.get_simple_swap(affected, model, msg, combo_box)
-            swap = objs[obj_idx]
             if ok:
+                swap = objs[obj_idx]
                 for item in affected_items:
                     item.level.value = swap
                 for weapon in affected_weapons:

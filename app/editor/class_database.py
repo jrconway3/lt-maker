@@ -7,14 +7,16 @@ from PyQt5.QtCore import Qt
 from app.data.weapons import WexpGainData
 from app.data.skills import LearnedSkillList
 from app.data.resources import RESOURCES
+from app.data.data import Data
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine
+from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine, DeletionDialog
 from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWidget
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
-from app.editor.misc_dialogs import TagDialog
+from app.editor.custom_widgets import ClassBox
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
+from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatTypeDialog
 from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
@@ -52,7 +54,7 @@ def get_map_sprite_icon(klass, num=0, current=False):
     pixmap = map_sprite_display.get_basic_icon(pixmap, num, current)
     return pixmap
 
-class ClassModel(CollectionModel):
+class ClassModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -69,6 +71,57 @@ class ClassModel(CollectionModel):
             else:
                 return None
         return None
+
+    def delete(self, idx):
+        # check to make sure nothing else is using me!!!
+        klass = self._data[idx]
+        nid = klass.nid
+        affected_units = [unit for unit in DB.units if unit.klass == nid]
+        affected_classes = [k for k in DB.classes if k.promotes_from == nid or nid in k.turns_into]
+        affected_ais = [ai for ai in DB.ai if 
+                        any(behaviour.target_spec and 
+                            behaviour.target_spec[0] == "Class" and 
+                            behaviour.target_spec[1] == nid 
+                            for behaviour in ai.behaviours)]
+        affected_levels = [level for level in DB.levels if any(unit.klass == nid for unit in level.units)]
+        if affected_units or affected_classes or affected_ais or affected_levels:
+            if affected_units:
+                affected = Data(affected_units)
+                from app.editor.unit_database import UnitModel
+                model = UnitModel
+            elif affected_classes:
+                affected = Data(affected_classes)
+                from app.editor.class_database import ClassModel
+                model = ClassModel
+            elif affected_ais:
+                affected = Data(affected_ais)
+                from app.editor.ai_database import AIModel
+                model = AIModel
+            elif affected_levels:
+                affected = Data(affected_levels)
+                from app.editor.level_menu import LevelModel
+                model = LevelModel
+            msg = "Deleting Class <b>%s</b> would affect these objects" % nid
+            swap, ok = DeletionDialog.get_swap(affected, model, msg, ClassBox(self.window, exclude=klass), self.window)
+            if ok:
+                for unit in affected_units:
+                    unit.klass = swap.nid
+                for k in affected_classes:
+                    if k.promotes_from == nid:
+                        k.promotes_from = swap.nid
+                    k.turns_into = [swap.nid if elem == nid else elem for elem in k.turns_into]
+                for ai in affected_ais:
+                    for behaviour in ai.behaviours:
+                        if behaviour.target_spec and behaviour.target_spec[0] == "Class" and behaviour.target_spec[1] == nid:
+                            behaviour.target_spec[1] = swap.nid
+                for level in affected_levels:
+                    for unit in level.units:
+                        if unit.klass == nid:
+                            unit.klass = swap.nid
+            else:
+                return
+        # Delete watchers
+        super().delete(idx)
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -149,7 +202,7 @@ class ClassProperties(QWidget):
 
         self.tag_box = PropertyBox("Tags", MultiSelectComboBox, self)
         self.tag_box.edit.setPlaceholderText("No tag")
-        self.tag_box.edit.addItems(DB.tags)
+        self.tag_box.edit.addItems(DB.tags.keys())
         self.tag_box.edit.updated.connect(self.tags_changed)
         tag_section.addWidget(self.tag_box)
 
@@ -282,11 +335,11 @@ class ClassProperties(QWidget):
         self.current.opponent_exp_mult = float(self.opp_exp_mult_box.edit.text())
 
     def access_tags(self):
-        dlg = TagDialog.create()
+        dlg = TagDialog.create(self)
         result = dlg.exec_()
         if result == QDialog.Accepted:
             self.tag_box.edit.clear()
-            self.tag_box.edit.addItems(DB.tags)
+            self.tag_box.edit.addItems(DB.tags.keys())
             self.tag_box.edit.setCurrentTexts(self.current.tags)
         else:
             pass
@@ -323,9 +376,11 @@ class ClassProperties(QWidget):
         # self.tag_box.updated which resets the current.tags
         turns_into = current.turns_into[:]
         tags = current.tags[:]
-        self.turns_into_box.edit.ResetSelection()
+        self.turns_into_box.edit.clear()
+        self.turns_into_box.edit.addItems(DB.classes.keys())
         self.turns_into_box.edit.setCurrentTexts(turns_into)
-        self.tag_box.edit.ResetSelection()
+        self.tag_box.edit.clear()
+        self.tag_box.edit.addItems(DB.tags.keys())
         self.tag_box.edit.setCurrentTexts(tags)
 
         self.class_stat_widget.update_stats()

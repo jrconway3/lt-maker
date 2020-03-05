@@ -2,7 +2,7 @@ import os
 
 import json
 
-from app.data import stats, equations, weapons, factions, terrain, mcost_grid, \
+from app.data import stats, equations, tags, weapons, factions, terrain, mcost_grid, \
     minimap, items, klass, units, ai, skills, levels
 
 from app.data.resources import RESOURCES
@@ -20,7 +20,7 @@ class Database(object):
         self.weapons = weapons.WeaponCatalog()
         self.factions = factions.FactionCatalog()
         self.items = items.ItemCatalog()
-        self.tags = []
+        self.tags = tags.TagCatalog()
         self.classes = klass.ClassCatalog()
         self.units = units.UnitCatalog()
         self.ai = ai.AICatalog()
@@ -37,7 +37,7 @@ class Database(object):
         self.weapons.import_xml('./app/default_data/default_weapons.xml')
         self.factions.import_xml('./app/default_data/default_factions.xml')
         self.items.import_xml('./app/default_data/default_items.xml')
-        self.tags = ['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon']
+        self.tags = tags.TagCatalog(['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon', 'ZeroMove', 'NoAutoPromote'])
         self.classes.import_xml('./app/default_data/default_classes.xml', self.stats, self.weapons, self.weapon_ranks)
         self.units.import_xml('./app/default_data/default_units.xml', self.stats, self.weapons, self.weapon_ranks, self.items)
         self.ai.import_data('./app/default_data/default_ai.txt')
@@ -59,7 +59,7 @@ class Database(object):
         self.weapons.restore(data['weapons'])
         self.factions.restore(data['factions'])
         self.items.restore(data['items'])
-        self.tags = data['tags']
+        self.tags.restore(data['tags'])
         self.classes.restore(data['classes'])
         self.units.restore(data['units'])
         self.ai.restore(data['ai'])
@@ -75,7 +75,7 @@ class Database(object):
                    'weapons': self.weapons.save(),
                    'factions': self.factions.save(),
                    'items': self.items.save(),
-                   'tags': self.tags,  # Just a list
+                   'tags': self.tags.save(),
                    'classes': self.classes.save(),
                    'units': self.units.save(),
                    'ai': self.ai.save(),

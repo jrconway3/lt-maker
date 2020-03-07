@@ -9,12 +9,13 @@ from app.data.skills import LearnedSkillList
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, QHLine
+from app.extensions.custom_gui import PropertyBox, QHLine, DeletionDialog
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 from app.extensions.simple_list_models import VirtualListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
 
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.editor.custom_widgets import UnitBox, ClassBox
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatTypeDialog
 from app.editor.skill_database import LearnedSkillDelegate
@@ -119,7 +120,7 @@ def get_chibi(unit):
     pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
-class UnitModel(CollectionModel):
+class UnitModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -136,6 +137,35 @@ class UnitModel(CollectionModel):
             else:
                 return None
         return None
+
+    def delete(self, idx):
+        # check to make sure nothing else is using me!!!
+        unit = self._data[idx]
+        nid = unit.nid
+        affected_ais = [ai for ai in DB.ai if 
+                        any(behaviour.target_spec and 
+                        behaviour.target_spec[0] == "Unit" and 
+                        behaviour.target_spec[1] == nid 
+                        for behaviour in ai.behaviours)]
+        if affected_ais:
+            from app.edior.ai_database import AIModel
+            model = AIModel
+            msg = "Deleting Unit <b>%s</b> would affect these ais" % nid
+            swap, ok = DeletionDialog.get_swap(affected_ais, model, msg, UnitBox(self.window, exclude=unit), self.window)
+            if ok:
+                self.change_nid(nid, swap.nid)
+            else:
+                return
+        # Delete watchers
+        for level in DB.levels:
+            level.units = [unit for unit in level.units if nid != unit.nid]
+        super().delete(idx)
+
+    def change_nid(self, old_nid, new_nid):
+        for ai in DB.ai:
+            for behaviour in ai.behaviours:
+                if behaviour.target_spec and behaviour.target_spec[0] == "Unit" and behaviour.target_spec[1] == old_nid:
+                    behaviour.target_spec[1] = new_nid
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -174,6 +204,7 @@ class UnitProperties(QWidget):
         super().__init__(parent)
         self.window = parent
         self.view = self.window.left_frame.view
+        self.model = self.window.left_frame.model
         self._data = self.window._data
         self.database_editor = self.window.window
 
@@ -217,7 +248,6 @@ class UnitProperties(QWidget):
         self.level_box.edit.valueChanged.connect(self.level_changed)
         main_section.addWidget(self.level_box, 1, 0)
 
-        from app.editor.custom_widgets import ClassBox
         self.class_box = ClassBox(self)
         self.class_box.edit.currentIndexChanged.connect(self.class_changed)
         main_section.addWidget(self.class_box, 1, 1)
@@ -301,6 +331,7 @@ class UnitProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Unit ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+        self.model.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

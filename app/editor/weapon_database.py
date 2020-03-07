@@ -243,11 +243,14 @@ class WeaponProperties(QWidget):
         self.current.nid = text
         self.window.update_list()
 
-    def update_watchers(self, old_nid, new_nid):
+    def nid_change_watchers(self, old_nid, new_nid):
         for klass in DB.classes:
             klass.wexp_gain.change_key(old_nid, new_nid)
         for unit in DB.units:
             unit.wexp_gain.change_key(old_nid, new_nid)
+        for weapon in DB.weapons:
+            weapon.advantage.swap(old_nid, new_nid)
+            weapon.disadvantage.swap(old_nid, new_nid)
 
     def nid_done_editing(self):
         # Check validity of nid!
@@ -255,7 +258,7 @@ class WeaponProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Weapon Type ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
-        self.update_watchers(self._data.find_key(self.current), self.current.nid)
+        self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

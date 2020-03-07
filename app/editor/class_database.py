@@ -104,24 +104,28 @@ class ClassModel(DragDropCollectionModel):
             msg = "Deleting Class <b>%s</b> would affect these objects" % nid
             swap, ok = DeletionDialog.get_swap(affected, model, msg, ClassBox(self.window, exclude=klass), self.window)
             if ok:
-                for unit in affected_units:
-                    unit.klass = swap.nid
-                for k in affected_classes:
-                    if k.promotes_from == nid:
-                        k.promotes_from = swap.nid
-                    k.turns_into = [swap.nid if elem == nid else elem for elem in k.turns_into]
-                for ai in affected_ais:
-                    for behaviour in ai.behaviours:
-                        if behaviour.target_spec and behaviour.target_spec[0] == "Class" and behaviour.target_spec[1] == nid:
-                            behaviour.target_spec[1] = swap.nid
-                for level in affected_levels:
-                    for unit in level.units:
-                        if unit.klass == nid:
-                            unit.klass = swap.nid
+                self.change_nid(nid, swap.nid)
             else:
                 return
         # Delete watchers
         super().delete(idx)
+
+    def change_nid(self, old_nid, new_nid):
+        for unit in DB.units:
+            if unit.klass == old_nid:
+                unit.klass = new_nid
+        for k in DB.klasses:
+            if k.promotes_from == old_nid:
+                k.promotes_from = new_nid
+            k.turns_into = [new_nid if elem == old_nid else elem for elem in k.turns_into]
+        for ai in DB.ai:
+            for behaviour in ai.behaviours:
+                if behaviour.target_spec and behaviour.target_spec[0] == "Class" and behaviour.target_spec[1] == old_nid:
+                    behaviour.target_spec[1] = new_nid
+        for level in DB.levels:
+            for unit in level.units:
+                if unit.klass == old_nid:
+                    unit.klass = new_nid
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -132,6 +136,7 @@ class ClassProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
+        self.model = self.window.left_frame.model
         self._data = self.window._data
         self.database_editor = self.window.window
 
@@ -294,6 +299,7 @@ class ClassProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Class ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+        self.model.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

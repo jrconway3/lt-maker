@@ -47,6 +47,37 @@ class UnitPrefab(Prefab):
             value = super().deserialize_attr(name, value)
         return value
 
+@dataclass 
+class GenericUnit(Prefab):
+    nid: str = None
+    gender: int = None
+
+    level: int = None
+    klass: str = None
+
+    faction: str = None
+
+    starting_items: list = None
+
+    team: str = None
+    ai: str = None
+
+    starting_position: tuple = None
+
+    name: str = None
+    desc: str = None
+    generic: bool = True
+
+@dataclass
+class UniqueUnit(Prefab):
+    nid: str = None
+    team: str = None
+    ai: str = None
+
+    starting_position: tuple = None
+
+    generic: bool = False
+
 class UnitCatalog(Data):
     datatype = UnitPrefab
     

@@ -8,7 +8,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.base_database_gui import CollectionModel
-from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox
+from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox, AIBox
 from app.editor import class_database, item_database
 from app.editor.database_editor import DatabaseEditor
 from app.editor.unit_database import GenderGroup
@@ -69,11 +69,15 @@ class UnitPainterMenu(QWidget):
             if unit.starting_position:
                 self.map_view.center_on_pos(unit.starting_position)
 
+    def get_current(self):
+        return self._data[self.list_view.getCurrentIndex().row()]
+
     def create_generic(self):
-        created_unit, ok = GenericUnitDialog.get_unit(self)
+        created_unit, ok = GenericUnitDialog.get_unit(self, self.last_touched_generic)
         if ok:
             self.last_touched_generic = created_unit
             self._data.append(created_unit)
+            self.model.update()
             # Select the unit
             idx = self.model.index(self._data.index(created_unit))
             self.list_view.setCurrentIndex(idx)
@@ -85,10 +89,11 @@ class UnitPainterMenu(QWidget):
         unit, ok = LoadUnitDialog.get_unit(self)
         if ok:
             self._data.append(unit)
+            self.model.update()
             # Select the unit
             idx = self.model.index(self._data.index(unit))
             self.list_view.setCurrentIndex(idx)
-            self.last_touched_generic = unit
+            # self.last_touched_generic = unit
             self.window.update_view()
 
 class AllUnitModel(CollectionModel):
@@ -131,7 +136,7 @@ class LoadUnitDialog(Dialog):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.current = DB.units[0]
+        self.current = DB.create_unit_unique(DB.units[0].nid, 'player', DB.ai[0].nid)
 
         self.unit_box = UnitBox(self, button=True)
         self.unit_box.edit.currentIndexChanged.connect(self.unit_changed)
@@ -143,8 +148,7 @@ class LoadUnitDialog(Dialog):
         self.team_box.edit.activated.connect(self.team_changed)
         layout.addWidget(self.team_box)      
 
-        self.ai_box = PropertyBox("AI", ComboBox, self)
-        self.ai_box.edit.addItems(DB.ai.keys())
+        self.ai_box = AIBox(self)
         self.ai_box.edit.activated.connect(self.ai_changed)
         layout.addWidget(self.ai_box)  
 
@@ -154,7 +158,7 @@ class LoadUnitDialog(Dialog):
         self.current.team = val
 
     def unit_changed(self, index):
-        self.set_current(DB.units[index])
+        self.nid_changed(DB.units[index].nid)
 
     def ai_changed(self, val):
         self.current.ai = val
@@ -162,12 +166,16 @@ class LoadUnitDialog(Dialog):
     def access_units(self):
         unit, ok = DatabaseEditor.get(self, "Units")
         if ok:
-            self.set_current(unit)
+            self.nid_changed(unit.nid)
 
-    def set_current(self, unit):
-        self.current = unit
-        self.current.team = self.team_box.edit.currentText()
-        self.current.ai = self.ai_box.edit.currentText()
+    def nid_changed(self, nid):
+        self.current.nid = nid
+
+    # def set_current(self, current):
+    #     self.current = current
+    #     self.current.nid = self.
+    #     self.current.team = self.team_box.edit.currentText()
+    #     self.current.ai = self.ai_box.edit.currentText()
 
     @classmethod
     def get_unit(cls, parent):
@@ -181,13 +189,17 @@ class LoadUnitDialog(Dialog):
             return None, False
 
 class GenericUnitDialog(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, example=None):
         super().__init__(parent)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.current = DB.create_new_unit()
+        if example:
+            self.current = DB.create_unit_generic(example.gender, example.level, example.klass, example.faction,
+                                                  example.starting_items, example.team, example.ai)
+        else:
+            self.current = DB.create_unit_generic(0, 1, DB.classes[0], DB.factions[0], [DB.items[0]], 'player', DB.ai[0])
 
         self.team_box = PropertyBox("Team", ComboBox, self)
         self.team_box.edit.addItems(DB.teams)
@@ -215,8 +227,7 @@ class GenericUnitDialog(Dialog):
         self.faction_box.edit.currentIndexChanged.connect(self.faction_changeD)
         layout.addWidget(self.faction_box)
 
-        self.ai_box = PropertyBox("AI", ComboBox, self)
-        self.ai_box.edit.addItems(DB.ai.keys())
+        self.ai_box = AIBox(self)
         self.ai_box.edit.activated.connect(self.ai_changed)
         layout.addWidget(self.ai_box)
 
@@ -225,6 +236,8 @@ class GenericUnitDialog(Dialog):
         layout.addWidget(self.item_widget)
 
         layout.addWidget(self.buttonbox)
+
+        self.set_current(self.current)
 
     def team_changed(self, val):
         self.current.team = val
@@ -255,9 +268,19 @@ class GenericUnitDialog(Dialog):
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()
 
+    def set_current(self, current):
+        self.current = current
+        self.team_box.edit.setText(current.team)
+        self.level_box.edit.setValue(current.level)
+        self.class_box.edit.setValue(current.klass)
+        self.gender_box.edit.setValue(current.gender)
+        self.faction_box.edit.setValue(current.faction)
+        self.ai_box.edit.setValue(current.ai)
+        self.item_widget.set_current(current.starting_items)
+
     @classmethod
-    def get_unit(cls, parent):
-        dialog = cls(parent)
+    def get_unit(cls, parent, last_touched_generic):
+        dialog = cls(parent, last_touched_generic)
         dialog.setWindowTitle("Create Generic Unit")
         result = dialog.exec_()
         if result == QDialog.Accepted:

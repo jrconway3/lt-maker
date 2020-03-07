@@ -6,8 +6,9 @@ from PyQt5.QtCore import Qt
 import app.data.ai as ai
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, ComboBox
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.extensions.custom_gui import PropertyBox, ComboBox, DeletionDialog
+from app.editor.custom_widgets import AIBox
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app import utilities
 
 class AIDatabase(DatabaseTab):
@@ -25,7 +26,7 @@ class AIDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-class AIModel(CollectionModel):
+class AIModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -34,6 +35,29 @@ class AIModel(CollectionModel):
             text = ai.nid
             return text
         return None
+
+    def delete(self, idx):
+        # check to make sure nothing else is using me!!!
+        ai = self._data[idx]
+        nid = ai.nid
+        affected_levels = [level for level in DB.levels if any(unit.ai == nid for unit in level.units)]
+        if affected_levels:
+            from app.editor.level_menu import LevelModel
+            model = LevelModel
+            msg = "Deleting AI <b>%s</b> would affect units in these levels" % nid
+            swap, ok = DeletionDialog.get_swap(affected_levels, model, msg, AIBox(self.window, exclude=ai), self.window)
+            if ok:
+                self.change_nid(nid, swap.nid)
+            else:
+                return
+            # Delete watchers
+            super().delete(idx)
+
+    def change_nid(self, old_nid, new_nid):
+        for level in DB.levels:
+            for unit in level.units:
+                if unit.ai == old_nid:
+                    unit.ai = new_nid
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -272,6 +296,7 @@ class AIProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
+        self.model = self.window.left_frame.model
         self._data = self.window._data
         self.database_editor = self.window.window
 
@@ -316,6 +341,7 @@ class AIProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'AI ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+        self.model.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()   
 

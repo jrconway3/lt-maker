@@ -20,9 +20,12 @@ class ObjBox(PropertyBox):
             self.add_button(b)
 
 class UnitBox(ObjBox):
-    def __init__(self, parent=None, button=False):
+    def __init__(self, parent=None, button=False, exclude=None):
         from app.editor.unit_database import UnitModel
-        super().__init__("Unit", UnitModel, DB.units, parent, button)
+        database = DB.units
+        if exclude:
+            database = Data([d for d in DB.units if d is not exclude])
+        super().__init__("Unit", UnitModel, database, parent, button)
         self.edit.setIconSize(QSize(32, 32))
 
 class ClassBox(ObjBox):
@@ -45,6 +48,14 @@ class ItemBox(ObjBox):
         if exclude:
             database = Data([d for d in DB.items if d is not exclude])
         super().__init__("Item", ItemModel, database, parent, button)
+
+class AIBox(ObjBox):
+    def __init__(self, parent=None, button=False, exclude=None):
+        from app.editor.ai_database import AIModel
+        database = DB.ai
+        if exclude:
+            database = Data([d for d in DB.ai if d is not exclude])
+        super().__init__("AI", AIModel, database, parent, button)
 
 class WeaponTypeBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):

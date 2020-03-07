@@ -74,17 +74,18 @@ class ItemModel(DragDropCollectionModel):
             msg = "Deleting Item <b>%s</b> would affect these objects." % nid
             swap, ok = DeletionDialog.get_swap(affected, model, msg, ItemBox(self.window, exclude=item), self.window)
             if ok:
-                for unit in affected_units:
-                    # unit.items.replace(nid, swap.nid)
-                    unit.starting_items = [swap.nid if elem == nid else elem for elem in unit.starting_items]
-                for level in affected_levels:
-                    for unit in level.units:
-                        # unit.items.replace(nid, swap.nid)
-                        unit.starting_items = [swap.nid if elem == nid else elem for elem in unit.starting_items]
+                self.change_nid(swap.nid, nid)
             else:
                 return
         # Delete watchers
         super().delete(idx)
+
+    def change_nid(self, old_nid, new_nid):
+        for unit in DB.units:
+            unit.starting_items = [new_nid if elem == old_nid else elem for elem in unit.starting_items]
+        for level in DB.levels:
+            for unit in level.units:
+                unit.starting_items = [new_nid if elem == old_nid else elem for elem in unit.starting_items]
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -95,6 +96,7 @@ class ItemProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
+        self.model = self.window.left_frame.model
         self._data = self.window._data
         self.database_editor = self.window.window
 
@@ -191,6 +193,7 @@ class ItemProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Item Type ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+        self.model.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

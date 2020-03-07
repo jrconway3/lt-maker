@@ -127,6 +127,16 @@ class Database(object):
         self.units.append(new_unit)
         return new_unit
 
+    def create_unit_unique(self, nid, team, ai):
+        new_unit = units.UniqueUnit(nid, team, ai)
+        return new_unit
+
+    def create_unit_generic(self, gender, level, klass, faction, starting_items, team, ai):
+        new_nid = units.GenericUnit.get_next_nid()
+        new_generic = units.GenericUnit(new_nid, gender, level, klass, faction,
+                                        starting_items, team, ai)
+        return new_generic
+
     def create_new_ai(self, nid, name=None):
         new_ai = ai.AIPreset(nid, 20)
         return new_ai

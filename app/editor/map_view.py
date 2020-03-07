@@ -98,18 +98,18 @@ class MapView(QGraphicsView):
                     self.main_editor.terrain_painter_menu.paint_tile(pos)
             elif self.main_editor.dock_visibility['Units']:
                 if event.button() == Qt.LeftButton:
-                    current_unit = self.window.units_menu.get_current()
+                    current_unit = self.main_editor.unit_painter_menu.get_current()
                     if current_unit:
                         under_unit = self.main_editor.current_level.check_position(pos)
                         if under_unit:
                             print("Removing Unit")
-                            under_unit.position = None
-                        if current_unit.position:
+                            under_unit.starting_position = None
+                        if current_unit.starting_position:
                             print("Move Unit")
-                            current_unit.position = pos
+                            current_unit.starting_position = pos
                         else:
                             print("Place Unit")
-                            current_unit.position = pos
+                            current_unit.starting_position = pos
                         self.update_view()
                 elif event.button() == Qt.RightButton:
                     under_unit = self.main_editor.current_level.check_position(pos)

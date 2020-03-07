@@ -132,7 +132,8 @@ class CollectionModel(QAbstractListModel):
             self.window.display.set_current(new_item)
 
     def update(self):
-        self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+        # self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+        self.layoutChanged.emit()
 
     def create_new(self):
         raise NotImplementedError

@@ -19,6 +19,7 @@ from app.editor.weapon_database import WeaponDatabase
 from app.editor.item_database import ItemDatabase
 from app.editor.terrain_database import TerrainDatabase
 from app.editor.ai_database import AIDatabase
+from app.editor.constant_database import ConstantDatabase
 
 class DatabaseEditor(QDialog):
     def __init__(self, parent=None, starting_tab=None, one_tab_only=None):
@@ -78,6 +79,7 @@ class DatabaseEditor(QDialog):
         self.tabs['Items'] = ItemDatabase.create(self)
         self.tabs['Terrain'] = TerrainDatabase.create(self)
         self.tabs['AI'] = AIDatabase.create(self)
+        self.tabs['Constants'] = ConstantDatabase.create(self)
 
     def on_tab_changed(self, index):
         new_tab = self.tab_bar.currentWidget()

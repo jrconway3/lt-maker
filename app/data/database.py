@@ -2,13 +2,14 @@ import os
 
 import json
 
-from app.data import stats, equations, tags, weapons, factions, terrain, mcost_grid, \
+from app.data import game_constants, stats, equations, tags, weapons, factions, terrain, mcost_grid, \
     minimap, items, klass, units, ai, skills, levels
 
 from app.data.resources import RESOURCES
 
 class Database(object):
     def __init__(self):
+        self.constants = game_constants.constants
         self.levels = levels.LevelCatalog()
         self.teams = ["player", "enemy", "other", "enemy2"]
         self.stats = stats.StatCatalog()
@@ -51,6 +52,7 @@ class Database(object):
     # === Saving and loading important data functions ===
     def restore(self, data):
         # print(data['stats'])
+        self.constants.restore(data['constants'])
         self.stats.restore(data['stats'])
         self.equations.restore(data['equations'])
         self.mcost.restore(data['mcost'])
@@ -67,7 +69,8 @@ class Database(object):
         self.levels.restore(data['levels'])
 
     def save(self):
-        to_save = {'stats': self.stats.save(),
+        to_save = {'constants': self.constants.save(),
+                   'stats': self.stats.save(),
                    'equations': self.equations.save(),
                    'mcost': self.mcost.save(),
                    'terrain': self.terrain.save(),
@@ -173,7 +176,7 @@ class Database(object):
         # with open(save_loc, 'rb') as load_file:
         # with open(save_loc, 'r') as load_file:
         #     save_obj = json.load(load_file)
-        game_data_types = ("stats", "equations", "mcost", "terrain", "weapon_ranks",
+        game_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                            "weapons", "factions", "items", "tags", "classes", 
                            "units", "ai", "levels")
 

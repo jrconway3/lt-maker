@@ -64,8 +64,9 @@ constants = ConstantCatalog([
     Constant('kill_multiplier', "Exp multiplier on kill", 'ufloat', 3),
     Constant('boss_bonus', "Extra exp for killing a boss", int, 40),
     Constant('min_exp', "Min exp gained in combat", int, 1),
-    Constant('default_exp', "Default exp gained when nothing else applies", 'ufloat', 11),
-    Constant('steal_exp', "Exp gained for stealing an item", 'ufloat', 0),
-    Constant('heal_magnitude', "How much to multiply the amount healed by to determine experience gain", 'ufloat', 0),
-    Constant('heal_offset', "Added to total exp for healing", 'float', 11),
-    Constant('heal_min', "Min amount gained for healing", 'float', 11)])
+    Constant('default_exp', "Default exp gain", 'ufloat', 11),
+    Constant('steal_exp', "Exp gained on steal", 'ufloat', 0),
+    Constant('heal_curve', "How much to multiply the amount healed by to determine experience gain", 'ufloat', 0),
+    Constant('heal_magnitude', "Added to total exp for healing", 'int', 0),
+    Constant('heal_offset', "Modifies expected healing", 'float', 11),
+    Constant('heal_min', "Min exp gained for healing", 'float', 11)])

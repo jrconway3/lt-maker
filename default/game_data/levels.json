@@ -177,6 +177,15 @@
             "win": "",
             "loss": ""
         },
-        "units": []
+        "units": [
+            {
+                "nid": "Eirika",
+                "prefab": "Eirika",
+                "team": "player",
+                "ai": "None",
+                "starting_position": null,
+                "generic": false
+            }
+        ]
     }
 ]

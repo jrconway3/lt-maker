@@ -67,6 +67,10 @@ class Database(object):
         self.ai.restore(data['ai'])
 
         self.levels.restore(data['levels'])
+        # Need to restore the prefab link on restore
+        for level in self.levels:
+            for unit in level.units:
+                unit.restore_prefab(self.units)
 
     def save(self):
         to_save = {'constants': self.constants.save(),
@@ -131,7 +135,8 @@ class Database(object):
         return new_unit
 
     def create_unit_unique(self, nid, team, ai):
-        new_unit = units.UniqueUnit(nid, team, ai)
+        prefab = self.units.get(nid)
+        new_unit = units.UniqueUnit(nid, prefab, team, ai)
         return new_unit
 
     def create_unit_generic(self, gender, level, klass, faction, starting_items, team, ai):

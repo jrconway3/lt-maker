@@ -1,12 +1,17 @@
-import os
+import os, time
 
 from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, \
     QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
 
+import app.data.constants as constants
+import app.counters as counters
+
 from app.data.resources import RESOURCES
 from app.data.database import DB
+
+from app.extensions.custom_gui import give_timer
 
 from app.editor.map_view import MapView
 from app.editor.level_menu import LevelDatabase
@@ -23,11 +28,17 @@ class EventTileMenu(QWidget):
     def on_visibility_changed(self, state):
         pass
 
+    def tick(self):
+        pass
+
 class ReinforcementGroupsMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
 
     def on_visibility_changed(self, state):
+        pass
+
+    def tick(self):
         pass
 
 class Dock(QDockWidget):
@@ -46,6 +57,9 @@ class Dock(QDockWidget):
                 self.main_editor.status_bar.showMessage(message)
         self.main_editor.update_view()
 
+    def tick(self):
+        self.widget().tick()
+
 class MainEditor(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -55,6 +69,11 @@ class MainEditor(QMainWindow):
         self.settings.setDefaultFormat(QSettings.IniFormat)
         desktop = QDesktopWidget()
         main_screen_size = desktop.availableGeometry(desktop.primaryScreen())
+
+        give_timer(self, constants.FPS)
+        framerate = constants.FRAMERATE
+        self.passive_counter = counters.generic3counter(int(32*framerate), int(4*framerate))
+        self.active_counter = counters.generic3counter(int(13*framerate), int(6*framerate))
 
         # Use setFixedSize to make it permanent and unchangeable
         self.default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
@@ -86,6 +105,14 @@ class MainEditor(QMainWindow):
         if len(DB.levels) == 0:
             self.level_menu.create_initial_level()
 
+        self.map_view.update_view()
+
+    def tick(self):
+        current_time = int(round(time.time() * 1000))
+        self.passive_counter.update(current_time)
+        self.active_counter.update(current_time)
+        for dock in self.docks.values():
+            dock.tick()
         self.map_view.update_view()
 
     def on_clean_changed(self, clean):

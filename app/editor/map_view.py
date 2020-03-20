@@ -2,11 +2,13 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 
+from app.sprites import SPRITES
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor import commands
+from app.editor import class_database
 
 class MapView(QGraphicsView):
     min_scale = 1
@@ -47,11 +49,13 @@ class MapView(QGraphicsView):
             if not res.pixmap:
                 res.pixmap = QPixmap(res.full_path)
             pixmap = res.pixmap
-            self.working_image = pixmap
+            self.working_image = pixmap.copy()
         else:
             return
         if self.main_editor.dock_visibility['Terrain']:
             self.paint_terrain()
+        if self.main_editor.dock_visibility['Units']:
+            self.paint_units()
         self.show_map()
 
     def paint_terrain(self):
@@ -63,6 +67,35 @@ class MapView(QGraphicsView):
                 write_color = QColor(color[0], color[1], color[2])
                 write_color.setAlpha(self.main_editor.terrain_painter_menu.get_alpha())
                 painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
+            painter.end()
+
+    def paint_units(self):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for unit in self.main_editor.current_level.units:
+                if not unit.starting_position:
+                    continue
+                # Draw unit map sprite
+                klass_nid = unit.klass
+                num = self.main_editor.passive_counter.count
+                klass = DB.classes.get(klass_nid)
+                pixmap = class_database.get_map_sprite_icon(klass, num, False)
+                coord = unit.starting_position
+                if pixmap:
+                    painter.drawImage(coord[0] * TILEWIDTH - 4, coord[1] * TILEHEIGHT, pixmap.toImage())
+                else:
+                    pass  # TODO: for now  # Need a fallback option... CITIZEN??
+            # Highlight current unit with cursor
+            current_unit = self.main_editor.unit_painter_menu.get_current()
+            if current_unit and current_unit.starting_position:
+                coord = current_unit.starting_position
+                cursor_sprite = SPRITES.get('cursor')
+                if cursor_sprite:
+                    if not cursor_sprite.pixmap:
+                        cursor_sprite.pixmap = QPixmap(cursor_sprite.full_path)
+                    cursor_image = cursor_sprite.pixmap.toImage().copy(0, 64, 32, 32)
+                    painter.drawImage(coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
             painter.end()
 
     def show_map(self):
@@ -124,9 +157,10 @@ class MapView(QGraphicsView):
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and pos in self.current_map.tiles:
-            self.main_editor.set_position_bar(pos)
-            if (event.buttons() & Qt.LeftButton):
-                self.main_editor.terrain_painter_menu.paint_tile(pos)
+            if self.main_editor.dock_visibility['Terrain']:
+                self.main_editor.set_position_bar(pos)
+                if (event.buttons() & Qt.LeftButton):
+                    self.main_editor.terrain_painter_menu.paint_tile(pos)
         else:
             self.main_editor.set_position_bar(None)
 

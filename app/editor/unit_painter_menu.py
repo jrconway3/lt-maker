@@ -29,16 +29,16 @@ class UnitPainterMenu(QWidget):
         grid = QVBoxLayout()
         self.setLayout(grid)
 
-        self.list_view = QListView(self)
-        self.list_view.currentChanged = self.on_item_changed
+        self.view = QListView(self)
+        self.view.currentChanged = self.on_item_changed
 
         self.model = AllUnitModel(self._data, self)
-        self.list_view.setModel(self.model)
-        self.list_view.setIconSize(QSize(32, 32))
-        inventory_delegate = InventoryDelegate(self._data)
-        self.list_view.setItemDelegate(inventory_delegate)
+        self.view.setModel(self.model)
+        self.view.setIconSize(QSize(32, 32))
+        self.inventory_delegate = InventoryDelegate(self._data)
+        self.view.setItemDelegate(self.inventory_delegate)
 
-        grid.addWidget(self.list_view)
+        grid.addWidget(self.view)
 
         self.create_button = QPushButton("Create Generic Unit...")
         self.create_button.clicked.connect(self.create_generic)
@@ -52,15 +52,19 @@ class UnitPainterMenu(QWidget):
     def on_visibility_changed(self, state):
         pass
 
+    def tick(self):
+        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+
     def set_current_level(self, level):
         self.current_level = level
         self._data = self.current_level.units
         self.model._data = self._data
         self.model.update()
+        self.inventory_delegate._data = self._data
 
     def select(self, idx):
         index = self.model.index(idx)
-        self.list_view.setCurrentIndex(index)
+        self.view.setCurrentIndex(index)
 
     def on_item_changed(self, curr, prev):
         # idx = int(idx)
@@ -70,7 +74,7 @@ class UnitPainterMenu(QWidget):
                 self.map_view.center_on_pos(unit.starting_position)
 
     def get_current(self):
-        return self._data[self.list_view.getCurrentIndex().row()]
+        return self._data[self.view.currentIndex().row()]
 
     def create_generic(self):
         created_unit, ok = GenericUnitDialog.get_unit(self, self.last_touched_generic)
@@ -80,7 +84,7 @@ class UnitPainterMenu(QWidget):
             self.model.update()
             # Select the unit
             idx = self.model.index(self._data.index(created_unit))
-            self.list_view.setCurrentIndex(idx)
+            self.view.setCurrentIndex(idx)
             self.last_touched_generic = created_unit
             self.window.update_view()
 
@@ -92,7 +96,7 @@ class UnitPainterMenu(QWidget):
             self.model.update()
             # Select the unit
             idx = self.model.index(self._data.index(unit))
-            self.list_view.setCurrentIndex(idx)
+            self.view.setCurrentIndex(idx)
             # self.last_touched_generic = unit
             self.window.update_view()
 
@@ -106,8 +110,9 @@ class AllUnitModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
-            klass = unit.klass
+            klass_nid = unit.klass
             num = self.window.main_editor.passive_counter.count
+            klass = DB.classes.get(klass_nid)
             pixmap = class_database.get_map_sprite_icon(klass, num, index == self.window.view.currentIndex())
             if pixmap:
                 return QIcon(pixmap)
@@ -122,12 +127,16 @@ class InventoryDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
+        # if not len(self._data) > index.row():
+        #     print(self._data, flush=True)
+        #     return
         unit = self._data[index.row()]
-        items = unit.items
-        for idx, item in items:
+        items = unit.starting_items
+        for idx, item_nid in enumerate(items):
+            item = DB.items.get(item_nid)
             pixmap = item_database.get_pixmap(item)
             rect = option.rect
-            painter.drawImage(rect.right() - ((idx + 1) * 16), rect.center().y() - 8, pixmap)
+            painter.drawImage(rect.right() - ((idx + 1) * 16), rect.center().y() - 8, pixmap.toImage())
 
 class LoadUnitDialog(Dialog):
     def __init__(self, parent=None):

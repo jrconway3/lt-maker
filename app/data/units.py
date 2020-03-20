@@ -68,15 +68,37 @@ class GenericUnit(Prefab):
     desc: str = None
     generic: bool = True
 
+    def restore_prefab(self, units):
+        pass
+
 @dataclass
 class UniqueUnit(Prefab):
     nid: str = None
+    prefab: UnitPrefab = None
     team: str = None
     ai: str = None
 
     starting_position: tuple = None
 
     generic: bool = False
+
+    # If the attribute is not found
+    def __getattr__(self, attr):
+        if attr.startswith('__') and attr.endswith('__'):
+            return super().__getattr__(attr)
+        elif self.prefab:
+            return getattr(self.prefab, attr)
+        return None 
+
+    def serialize_attr(self, name, value):
+        if name == 'prefab':
+            value = self.nid
+        else:
+            value = super().deserialize_attr(name, value)
+        return value
+
+    def restore_prefab(self, units):
+        self.prefab = units.get(self.nid)
 
 class UnitCatalog(Data):
     datatype = UnitPrefab

@@ -49,6 +49,9 @@ class TerrainPainterMenu(QWidget):
     def on_visibility_changed(self, state):
         pass
 
+    def tick(self):
+        pass
+
     def tilemap(self):
         return self.main_editor.current_level.tilemap
 

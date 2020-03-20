@@ -132,12 +132,16 @@
         0
     ],
     [
+        "heal_curve",
+        0.0
+    ],
+    [
         "heal_magnitude",
         0
     ],
     [
         "heal_offset",
-        11
+        0.0
     ],
     [
         "heal_min",

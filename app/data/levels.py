@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from app.data.data import Data, Prefab
 from app.data import tilemap
-from app.data.units import UnitPrefab
+from app.data.units import UniqueUnit, GenericUnit
 
 class Level(Prefab):
     def __init__(self, nid, title):
@@ -24,7 +24,7 @@ class Level(Prefab):
 
     def check_position(self, pos):
         for unit in self.units:
-            if unit.position == pos:
+            if unit.starting_position == pos:
                 return unit
         return None
 
@@ -32,7 +32,7 @@ class Level(Prefab):
         if name == 'tilemap':
             value = value.serialize()
         elif name == 'units':
-            value = [unit_prefab.serialize() for unit_prefab in value]
+            value = [unit.serialize() for unit in value]
         else:
             value = super().serialize_attr(name, value)
         return value
@@ -41,7 +41,8 @@ class Level(Prefab):
         if name == 'tilemap':
             value = tilemap.TileMap.deserialize(value)
         elif name == 'units':
-            value = [UnitPrefab.deserialize(unit_data) for unit_data in value]
+            value = [GenericUnit.deserialize(unit_data) if unit_data['generic'] 
+                     else UniqueUnit.deserialize(unit_data) for unit_data in value]
         else:
             value = super().deserialize_attr(name, value)
         return value

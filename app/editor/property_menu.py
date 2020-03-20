@@ -110,6 +110,9 @@ class PropertiesMenu(QWidget):
             if self.main_editor.current_level is not self.current:
                 self.set_current(self.main_editor.current_level)
 
+    def tick(self):
+        pass
+
     def nid_changed(self, text):
         self.current.nid = text
         self.main_editor.update_view()

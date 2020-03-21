@@ -1,14 +1,7 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
     QLineEdit, QPushButton, QAction, QMenu, QMessageBox, QSizePolicy, QFrame, \
     QDialogButtonBox, QGridLayout, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
-from PyQt5.QtCore import Qt, QTimer, QSize
-
-def give_timer(obj, fps=30):
-    obj.main_timer = QTimer()
-    obj.main_timer.timeout.connect(obj.tick)
-    timer_speed = int(1000/float(fps))
-    obj.main_timer.setInterval(timer_speed)
-    obj.main_timer.start()
+from PyQt5.QtCore import Qt, QSize
 
 class SimpleDialog(QDialog):
     def __init__(self, parent=None):

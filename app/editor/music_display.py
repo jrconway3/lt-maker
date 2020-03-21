@@ -6,7 +6,6 @@ import os
 
 from app.data.resources import RESOURCES
 
-from app.extensions.custom_gui import give_timer
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 
 import app.data.constants as constants
@@ -64,8 +63,6 @@ class MusicProperties(QWidget):
         # Music Properties is set up different than most resource tabs
         # Music Properties ALWAYS shows the currently playing song
         # TODO: Need to add Double Click on a song to play it
-
-        give_timer(self, constants.FPS)
 
         self.current = current
 

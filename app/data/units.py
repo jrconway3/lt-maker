@@ -68,6 +68,13 @@ class GenericUnit(Prefab):
     desc: str = None
     generic: bool = True
 
+    def deserialize_attr(self, name, value):
+        if name == 'starting_position':
+            value = tuple(value)
+        else:
+            value = super().deserialize_attr(name, value)
+        return value
+
     def restore_prefab(self, units):
         pass
 
@@ -93,6 +100,13 @@ class UniqueUnit(Prefab):
     def serialize_attr(self, name, value):
         if name == 'prefab':
             value = self.nid
+        else:
+            value = super().serialize_attr(name, value)
+        return value
+
+    def deserialize_attr(self, name, value):
+        if name == 'starting_position':
+            value = tuple(value)
         else:
             value = super().deserialize_attr(name, value)
         return value

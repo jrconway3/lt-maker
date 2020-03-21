@@ -183,7 +183,21 @@
                 "prefab": "Eirika",
                 "team": "player",
                 "ai": "None",
-                "starting_position": null,
+                "starting_position": [
+                    8,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Seth",
+                "prefab": "Seth",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    3
+                ],
                 "generic": false
             }
         ]

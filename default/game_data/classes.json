@@ -1139,8 +1139,8 @@
         "promotes_from": "Cavalier",
         "turns_into": [],
         "tags": [
-            "Mounted",
-            "Horse"
+            "Horse",
+            "Mounted"
         ],
         "max_level": 20,
         "bases": [
@@ -1401,12 +1401,12 @@
                 0
             ]
         ],
-        "icon_nid": null,
+        "icon_nid": "",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": null,
+        "map_sprite_nid": "paladinM",
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },

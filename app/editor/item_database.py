@@ -299,6 +299,9 @@ class ItemList(QListWidget):
         self.index_list = []
         self.combo_box_list = []
 
+    def length(self):
+        return len(self.index_list)
+
     def add_item(self, item_nid):
         new_box = QListWidgetItem()
         combo_box = ComboBox(self)
@@ -310,14 +313,22 @@ class ItemList(QListWidget):
         combo_box.currentIndexChanged.connect(self.on_item_change)
         self.addItem(new_box)
         self.setItemWidget(new_box, combo_box)
-        self.index_list.append(item_nid)
+        corrected_item_nid = combo_box.currentText()
+        self.index_list.append(corrected_item_nid)
         self.combo_box_list.append(combo_box)
-        return item_nid
+        return corrected_item_nid
 
-    def remove_item(self, item):
-        if item.nid in self.index_list:
-            idx = self.index_list.index(item.nid)
-            self.index_list.remove(item.nid)
+    def remove_item(self, item_nid):
+        if item_nid in self.index_list:
+            idx = self.index_list.index(item_nid)
+            self.index_list.remove(item_nid)
+            self.combo_box_list.pop(idx)
+            return self.takeItem(idx)
+        return None
+
+    def remove_item_at_index(self, idx):
+        if len(self.index_list) > idx:
+            self.index_list.pop(idx)
             self.combo_box_list.pop(idx)
             return self.takeItem(idx)
         return None
@@ -331,6 +342,7 @@ class ItemList(QListWidget):
         self.clear()
         for i in items:
             self.add_item(i)
+        self.item_changed.emit()
 
     def on_item_change(self, index):
         self.item_changed.emit()
@@ -355,18 +367,33 @@ class ItemListWidget(QWidget):
         label.setAlignment(Qt.AlignBottom)
         self.layout.addWidget(label, 0, 0)
 
+        hbox = QHBoxLayout()
+        hbox.setSpacing(0)
+        hbox.setContentsMargins(0, 0, 0, 0)
+
         add_button = QPushButton("+")
         add_button.setMaximumWidth(30)
         add_button.clicked.connect(self.add_new_item)
-        self.layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)
+
+        remove_button = QPushButton("-")
+        remove_button.setMaximumWidth(30)
+        remove_button.clicked.connect(self.remove_last_item)
+
+        hbox.addWidget(remove_button, alignment=Qt.AlignRight)
+        hbox.addWidget(add_button, alignment=Qt.AlignRight)
+
+        self.layout.addLayout(hbox, 0, 1, alignment=Qt.AlignRight)
 
     def set_current(self, items):
         self.item_list.set_current(items)
 
     def add_new_item(self):
-        new_item = DB.items[0]
+        new_item = DB.items[0].nid
         self.item_list.add_item(new_item)
         self.activate()
+
+    def remove_last_item(self):
+        self.item_list.remove_item_at_index(self.item_list.length() - 1)
 
     def activate(self):
         self.items_updated.emit()

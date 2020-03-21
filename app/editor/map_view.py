@@ -7,6 +7,7 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
+from app.editor.timer import TIMER
 from app.editor import commands
 from app.editor import class_database
 
@@ -78,12 +79,12 @@ class MapView(QGraphicsView):
                     continue
                 # Draw unit map sprite
                 klass_nid = unit.klass
-                num = self.main_editor.passive_counter.count
+                num = TIMER.passive_counter.count
                 klass = DB.classes.get(klass_nid)
                 pixmap = class_database.get_map_sprite_icon(klass, num, False)
                 coord = unit.starting_position
                 if pixmap:
-                    painter.drawImage(coord[0] * TILEWIDTH - 4, coord[1] * TILEHEIGHT, pixmap.toImage())
+                    painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
                 else:
                     pass  # TODO: for now  # Need a fallback option... CITIZEN??
             # Highlight current unit with cursor
@@ -157,8 +158,8 @@ class MapView(QGraphicsView):
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and pos in self.current_map.tiles:
+            self.main_editor.set_position_bar(pos)
             if self.main_editor.dock_visibility['Terrain']:
-                self.main_editor.set_position_bar(pos)
                 if (event.buttons() & Qt.LeftButton):
                     self.main_editor.terrain_painter_menu.paint_tile(pos)
         else:
@@ -169,15 +170,16 @@ class MapView(QGraphicsView):
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and pos in self.current_map.tiles:
-            if event.button() == Qt.LeftButton:
-                # Force no merge when you've lifted up your pen...
-                last_index = self.main_editor.undo_stack.count() - 1
-                last_command = self.main_editor.undo_stack.command(last_index)
-                if isinstance(last_command, commands.ChangeTileTerrain):
-                    last_command.can_merge = False
-            elif event.button() == Qt.RightButton:
-                current_nid = self.current_map.tiles[pos].terrain.nid
-                self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
+            if self.main_editor.dock_visibility['Terrain']:
+                if event.button() == Qt.LeftButton:
+                    # Force no merge when you've lifted up your pen...
+                    last_index = self.main_editor.undo_stack.count() - 1
+                    last_command = self.main_editor.undo_stack.command(last_index)
+                    if isinstance(last_command, commands.ChangeTileTerrain):
+                        last_command.can_merge = False
+                elif event.button() == Qt.RightButton:
+                    current_nid = self.current_map.tiles[pos].terrain_nid
+                    self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
 
     def wheelEvent(self, event):
         if event.angleDelta().y() > 0 and self.screen_scale < self.max_scale:

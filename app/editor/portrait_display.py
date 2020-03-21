@@ -9,7 +9,7 @@ import time, random
 
 from app.data.resources import RESOURCES
 
-from app.extensions.custom_gui import PropertyBox, give_timer
+from app.extensions.custom_gui import PropertyBox
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icon_display import IconView
 
@@ -143,9 +143,6 @@ class PortraitProperties(QWidget):
         self.next_talk_update = 0
         # For blinking
         self.blink_update = 0
-
-        # === Timing ===
-        give_timer(self)
 
         left_section = QGridLayout()
 

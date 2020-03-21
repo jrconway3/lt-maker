@@ -1,16 +1,11 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QTabWidget, QDialogButtonBox
 from PyQt5.QtCore import Qt
 
-import time
-
 from collections import OrderedDict
-
-import app.data.constants as constants
-import app.counters as counters
 
 from app.data.database import DB
 
-from app.extensions.custom_gui import give_timer
+from app.editor.timer import TIMER
 
 from app.editor.unit_database import UnitDatabase
 from app.editor.class_database import ClassDatabase
@@ -38,12 +33,6 @@ class DatabaseEditor(QDialog):
         self.buttonbox.rejected.connect(self.reject)
         self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.mass_apply)
 
-        # Timing Section
-        give_timer(self, constants.FPS)
-        framerate = constants.FRAMERATE
-        self.passive_counter = counters.generic3counter(int(32*framerate), int(4*framerate))
-        self.active_counter = counters.generic3counter(int(13*framerate), int(6*framerate))
-
         self.tab_bar = QTabWidget(self)
         self.grid.addWidget(self.tab_bar, 0, 0, 1, 2)
 
@@ -63,10 +52,9 @@ class DatabaseEditor(QDialog):
         if starting_tab and starting_tab in self.tabs:
             self.tab_bar.setCurrentWidget(self.tabs[starting_tab])
 
+        TIMER.tick_elapsed.connect(self.tick)
+
     def tick(self):
-        current_time = int(round(time.time() * 1000))
-        self.passive_counter.update(current_time)
-        self.active_counter.update(current_time)
         if self.current_tab:
             self.current_tab.tick()
 

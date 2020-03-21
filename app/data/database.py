@@ -139,9 +139,8 @@ class Database(object):
         new_unit = units.UniqueUnit(nid, prefab, team, ai)
         return new_unit
 
-    def create_unit_generic(self, gender, level, klass, faction, starting_items, team, ai):
-        new_nid = units.GenericUnit.get_next_nid()
-        new_generic = units.GenericUnit(new_nid, gender, level, klass, faction,
+    def create_unit_generic(self, nid, gender, level, klass, faction, starting_items, team, ai):
+        new_generic = units.GenericUnit(nid, gender, level, klass, faction,
                                         starting_items, team, ai)
         return new_generic
 

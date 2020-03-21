@@ -1,13 +1,16 @@
-from PyQt5.QtWidgets import QPushButton, QListView, \
+from PyQt5.QtWidgets import QPushButton, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
     QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
 
+from app import utilities
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
-from app.editor.base_database_gui import CollectionModel
+from app.editor.timer import TIMER
+
+from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog, RightClickListView
+from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox, AIBox
 from app.editor import class_database, item_database
 from app.editor.database_editor import DatabaseEditor
@@ -29,7 +32,7 @@ class UnitPainterMenu(QWidget):
         grid = QVBoxLayout()
         self.setLayout(grid)
 
-        self.view = QListView(self)
+        self.view = RightClickListView(parent=self)
         self.view.currentChanged = self.on_item_changed
 
         self.model = AllUnitModel(self._data, self)
@@ -48,6 +51,11 @@ class UnitPainterMenu(QWidget):
         grid.addWidget(self.load_button)
 
         self.last_touched_generic = None
+
+        # self.display = self
+        self.display = None
+
+        TIMER.tick_elapsed.connect(self.tick)
 
     def on_visibility_changed(self, state):
         pass
@@ -100,7 +108,7 @@ class UnitPainterMenu(QWidget):
             # self.last_touched_generic = unit
             self.window.update_view()
 
-class AllUnitModel(CollectionModel):
+class AllUnitModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -111,7 +119,7 @@ class AllUnitModel(CollectionModel):
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
             klass_nid = unit.klass
-            num = self.window.main_editor.passive_counter.count
+            num = TIMER.passive_counter.count
             klass = DB.classes.get(klass_nid)
             pixmap = class_database.get_map_sprite_icon(klass, num, index == self.window.view.currentIndex())
             if pixmap:
@@ -134,9 +142,10 @@ class InventoryDelegate(QStyledItemDelegate):
         items = unit.starting_items
         for idx, item_nid in enumerate(items):
             item = DB.items.get(item_nid)
-            pixmap = item_database.get_pixmap(item)
-            rect = option.rect
-            painter.drawImage(rect.right() - ((idx + 1) * 16), rect.center().y() - 8, pixmap.toImage())
+            if item:
+                pixmap = item_database.get_pixmap(item)
+                rect = option.rect
+                painter.drawImage(rect.right() - ((idx + 1) * 16), rect.center().y() - 8, pixmap.toImage())
 
 class LoadUnitDialog(Dialog):
     def __init__(self, parent=None):
@@ -200,15 +209,19 @@ class LoadUnitDialog(Dialog):
 class GenericUnitDialog(Dialog):
     def __init__(self, parent=None, example=None):
         super().__init__(parent)
+        self.window = parent
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
+        units = self.window._data
         if example:
+            new_nid = utilities.get_next_int(example.nid, [unit.nid for unit in units])
             self.current = DB.create_unit_generic(example.gender, example.level, example.klass, example.faction,
                                                   example.starting_items, example.team, example.ai)
         else:
-            self.current = DB.create_unit_generic(0, 1, DB.classes[0], DB.factions[0], [DB.items[0]], 'player', DB.ai[0])
+            new_nid = utilities.get_next_int(101, [unit.nid for unit in units])
+            self.current = DB.create_unit_generic(new_nid, 0, 1, DB.classes[0].nid, DB.factions[0].nid, [DB.items[0].nid], 'player', DB.ai[0].nid)
 
         self.team_box = PropertyBox("Team", ComboBox, self)
         self.team_box.edit.addItems(DB.teams)
@@ -233,7 +246,7 @@ class GenericUnitDialog(Dialog):
         layout.addLayout(mini_layout)
 
         self.faction_box = FactionBox(self)
-        self.faction_box.edit.currentIndexChanged.connect(self.faction_changeD)
+        self.faction_box.edit.currentIndexChanged.connect(self.faction_changed)
         layout.addWidget(self.faction_box)
 
         self.ai_box = AIBox(self)
@@ -279,7 +292,7 @@ class GenericUnitDialog(Dialog):
 
     def set_current(self, current):
         self.current = current
-        self.team_box.edit.setText(current.team)
+        self.team_box.edit.setValue(current.team)
         self.level_box.edit.setValue(current.level)
         self.class_box.edit.setValue(current.klass)
         self.gender_box.edit.setValue(current.gender)

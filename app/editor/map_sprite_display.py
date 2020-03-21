@@ -3,17 +3,16 @@ from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMes
 from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
 
-import os, time
+import os
 
 from app.data.resources import RESOURCES
 
-from app.extensions.custom_gui import PropertyBox, give_timer
+from app.extensions.custom_gui import PropertyBox
+
+from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 from app.editor.icon_display import IconView
 import app.editor.utilities as editor_utilities
-
-import app.data.constants as constants
-import app.counters as counters
 
 class MapSpriteDisplay(DatabaseTab):
     @classmethod
@@ -93,9 +92,7 @@ class MapSpriteModel(CollectionModel):
                 map_sprite.standing_pixmap = QPixmap(map_sprite.standing_full_path)
             pixmap = map_sprite.standing_pixmap
 
-            # Get passive counter from right frame
-            right_frame = self.window.display
-            num = right_frame.passive_counter.count
+            num = TIMER.passive_counter.count
             pixmap = get_basic_icon(pixmap, num, index == self.window.view.currentIndex())
             if pixmap:
                 return QIcon(pixmap)
@@ -119,12 +116,6 @@ class MapSpriteProperties(QWidget):
                 resource.moving_pixmap = QPixmap(resource.moving_full_path)
 
         self.current = current
-
-        framerate = constants.FRAMERATE
-        give_timer(self, constants.FPS)
-
-        self.passive_counter = counters.generic3counter(int(32*framerate), int(4*framerate))
-        self.active_counter = counters.generic3counter(int(13*framerate), int(6*framerate))
 
         left_section = QHBoxLayout()
 
@@ -200,6 +191,8 @@ class MapSpriteProperties(QWidget):
         self.setLayout(final_section)
         final_section.addWidget(final_splitter)
 
+        TIMER.tick_elapsed.connect(self.tick)
+
     def set_current(self, current):
         self.current = current
         # Painting
@@ -221,30 +214,27 @@ class MapSpriteProperties(QWidget):
         self.draw_frame()
 
     def tick(self):
-        current_time = int(round(time.time() * 1000))
-        self.passive_counter.update(current_time)
-        self.active_counter.update(current_time)
         self.window.update_list()
         self.draw_frame()
 
     def draw_frame(self):
         if self.left_arrow.isChecked():
-            num = self.active_counter.count
+            num = TIMER.active_counter.count
             frame = self.current.moving_pixmap.copy(num*48, 40, 48, 40)
         elif self.right_arrow.isChecked():
-            num = self.active_counter.count
+            num = TIMER.active_counter.count
             frame = self.current.moving_pixmap.copy(num*48, 80, 48, 40)
         elif self.up_arrow.isChecked():
-            num = self.active_counter.count
+            num = TIMER.active_counter.count
             frame = self.current.moving_pixmap.copy(num*48, 120, 48, 40)
         elif self.down_arrow.isChecked():
-            num = self.active_counter.count
+            num = TIMER.active_counter.count
             frame = self.current.moving_pixmap.copy(num*48, 0, 48, 40)
         elif self.focus.isChecked():
-            num = self.passive_counter.count
+            num = TIMER.passive_counter.count
             frame = self.current.standing_pixmap.copy(num*64, 96, 64, 48)
         else:
-            num = self.passive_counter.count
+            num = TIMER.passive_counter.count
             frame = self.current.standing_pixmap.copy(num*64, 0, 64, 48)
         frame = frame.toImage()
         frame = editor_utilities.convert_colorkey(frame)

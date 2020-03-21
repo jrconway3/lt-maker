@@ -14,6 +14,8 @@ from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine, DeletionDia
 from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWidget
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
+from app.editor.timer import TIMER 
+
 from app.editor.custom_widgets import ClassBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.tag_widget import TagDialog
@@ -64,8 +66,12 @@ class ClassModel(DragDropCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             klass = self._data[index.row()]
-            num = self.window.database_editor.passive_counter.count
-            pixmap = get_map_sprite_icon(klass, num, index == self.window.view.currentIndex())
+            num = TIMER.passive_counter.count
+            if hasattr(self.window, 'view'):
+                active = index == self.window.view.currentIndex()
+            else:
+                active = False
+            pixmap = get_map_sprite_icon(klass, num, active)
             if pixmap:
                 return QIcon(pixmap)
             else:

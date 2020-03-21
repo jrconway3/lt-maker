@@ -402,6 +402,7 @@ class UnitProperties(QWidget):
 
         self.personal_skill_widget.set_current(current.learned_skills)
         self.wexp_gain_widget.set_current(current.wexp_gain)
+        print(current.starting_items)
         self.item_widget.set_current(current.starting_items)
 
         self.icon_edit.set_current(current.portrait_nid)

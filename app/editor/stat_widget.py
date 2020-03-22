@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QPushButton, \
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
     QSizePolicy, QTableView
 from PyQt5.QtCore import Qt
 
@@ -7,8 +7,6 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import IntDelegate
 from app.extensions.simple_list_models import VirtualListModel
-from app.extensions.list_dialogs import MultiAttrListDialog
-from app.editor.base_database_gui import MultiAttrCollectionModel
 
 class StatListWidget(QWidget):
     def __init__(self, obj, title, parent=None):
@@ -25,7 +23,6 @@ class StatListWidget(QWidget):
         else:
             row_titles = ['Example']
             row_values = [StatList.from_xml([], DB.stats)]
-        print(row_titles, row_values, flush=True)
 
         self.setup(column_titles, row_titles, row_values, title)
 
@@ -48,9 +45,9 @@ class StatListWidget(QWidget):
         label.setAlignment(Qt.AlignBottom)
         layout.addWidget(label, 0, 0)
 
-        self.button = QPushButton("...")
-        self.button.setMaximumWidth(40)
-        layout.addWidget(self.button, 0, 1, alignment=Qt.AlignRight)
+        # self.button = QPushButton("...")
+        # self.button.setMaximumWidth(40)
+        # layout.addWidget(self.button, 0, 1, alignment=Qt.AlignRight)
 
     def set_new_obj(self, obj):
         self._obj = obj
@@ -115,57 +112,3 @@ class StatModel(VirtualListModel):
     def flags(self, index):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren | Qt.ItemIsEditable
         return basic_flags
-
-class StatTypeMultiModel(MultiAttrCollectionModel):
-    def delete(self, idx):
-        element = DB.stats[idx]
-        # all clases and units are automatically affected!
-        # But not all equations are automatically effected
-        # But we will just let equations check themselves!!!
-        # Also some item components can use stat lists!!!
-        for klass in DB.classes:
-            for row in klass.get_stat_lists():
-                row.remove_key(element.nid)
-        for unit in DB.units:
-            for row in unit.get_stat_lists():
-                row.remove_key(element.nid)
-        super().delete(idx)
-
-    def create_new(self):
-        return self._data.add_new_default(DB)
-
-    def change_watchers(self, data, attr, old_value, new_value):
-        if attr == 'nid':
-            for klass in DB.classes:
-                for row in klass.get_stat_lists():
-                    row.change_key(old_value, new_value)
-            for unit in DB.classes:
-                for row in unit.get_stat_lists():
-                    row.change_key(old_value, new_value)
-            for equation in DB.equations:
-                equation.expression.replace(old_value, new_value)
-        elif attr == 'maximum':
-            for klass in DB.classes:
-                for row in klass.get_stat_lists():
-                    row.set_maximum(data.nid, new_value)
-            for unit in DB.classes:
-                for row in unit.get_stat_lists():
-                    row.set_maximum(data.nid, new_value)
-
-    def update_watchers(self, idx):
-        for klass in DB.classes:
-            for row in klass.get_stat_lists():
-                row.new_key(DB.stats[idx].nid)
-        for unit in DB.classes:
-            for row in unit.get_stat_lists():
-                row.new_key(DB.stats[idx].nid)
-
-class StatTypeDialog(MultiAttrListDialog):
-    @classmethod
-    def create(cls):
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid not in ("HP", "MOV")
-
-        deletion_criteria = (deletion_func, "Cannot delete HP or MOV stats!")
-        return cls(DB.stats, "Stat", ("nid", "name", "maximum", "desc"),
-                   StatTypeMultiModel, deletion_criteria, {"HP", "MOV"})

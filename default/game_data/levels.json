@@ -1,7 +1,7 @@
 [
     {
         "nid": "0",
-        "title": "Prologue",
+        "title": "DEBUG",
         "tilemap": {
             "size": [
                 15,
@@ -173,7 +173,7 @@
         },
         "market_flag": false,
         "objective": {
-            "simple": "",
+            "simple": "Rout",
             "win": "",
             "loss": ""
         },

@@ -75,3 +75,13 @@ class StatList(Data):
         for val in values:
             new_stat_list.append(Stat.deserialize(val))
         return new_stat_list
+
+    def set_maximum(self, nid, new_value):
+        stat = self.get(nid)
+        # Make sure value is not above maximum
+        stat.value = min(new_value, stat.value)
+
+    def check_maximum(self, stat_types):
+        for stat in self:
+            maximum = stat_types.get(stat.nid).maximum
+            stat.value = min(stat.value, maximum)

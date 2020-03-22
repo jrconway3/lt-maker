@@ -7,7 +7,7 @@ from app.editor.base_database_gui import MultiAttrCollectionModel
 
 class EquationMultiModel(MultiAttrCollectionModel):
     def delete(self, idx):
-        element = DB.equations[idx]
+        element = self._data[idx]
         affected_items = [item for item in DB.items if item.min_range == element.nid or item.max_range == element.nid]
         if affected_items:
             affected = Data(affected_items)
@@ -34,7 +34,7 @@ class EquationMultiModel(MultiAttrCollectionModel):
 
     def change_watchers(self, data, attr, old_value, new_value):
         if attr == 'nid':
-            DB.equations.update_nid(data, new_value)
+            self._data.update_nid(data, new_value)
             for item in DB.items:
                 if item.min_range == old_value:
                     item.min_range = new_value

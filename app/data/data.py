@@ -40,17 +40,20 @@ class Data(object):
                 return k
 
     def change_key(self, old_key, new_key):
-        old_value = self._dict[old_key]
-        del self._dict[old_key]
-        old_value.nid = new_key
-        self._dict[new_key] = old_value
+        if old_key in self._dict:
+            old_value = self._dict[old_key]
+            del self._dict[old_key]
+            old_value.nid = new_key
+            self._dict[new_key] = old_value
+        else:
+            print('%s not found in self._dict' % old_key)
 
     def append(self, val):
         if val.nid not in self._dict:
             self._list.append(val)
             self._dict[val.nid] = val
-        # else:
-        #     raise KeyError("%s already present in data" % val.nid)
+        else:
+            print("%s already present in data" % val.nid)
 
     def delete(self, val):
         # Fails silently

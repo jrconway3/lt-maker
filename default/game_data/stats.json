@@ -45,7 +45,7 @@
         "nid": "RES",
         "name": "Resistance",
         "maximum": 30,
-        "desc": "Reduces damage from magical attacks."
+        "desc": "Reduces damage from magic."
     },
     {
         "nid": "CON",

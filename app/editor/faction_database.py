@@ -8,7 +8,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox
 
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.icons import ItemIcon32
 import app.editor.utilities as editor_utilities
 from app import utilities
@@ -39,7 +39,7 @@ def get_pixmap(faction):
     pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 
-class FactionModel(CollectionModel):
+class FactionModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None

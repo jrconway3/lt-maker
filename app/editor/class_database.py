@@ -19,7 +19,7 @@ from app.editor.timer import TIMER
 from app.editor.custom_widgets import ClassBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.tag_widget import TagDialog
-from app.editor.stat_widget import StatListWidget, StatTypeDialog
+from app.editor.stat_widget import StatListWidget
 from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
 import app.editor.map_sprite_display as map_sprite_display
@@ -224,7 +224,7 @@ class ClassProperties(QWidget):
         stat_section = QGridLayout()
 
         self.class_stat_widget = StatListWidget(self.current, "Stats", self)
-        self.class_stat_widget.button.clicked.connect(self.access_stats)
+        # self.class_stat_widget.button.clicked.connect(self.access_stats)
         stat_section.addWidget(self.class_stat_widget, 1, 0, 1, 2)
 
         weapon_section = QHBoxLayout()
@@ -356,13 +356,13 @@ class ClassProperties(QWidget):
         else:
             pass
 
-    def access_stats(self):
-        dlg = StatTypeDialog.create()
-        result = dlg.exec_()
-        if result == QDialog.Accepted:
-            self.class_stat_widget.update_stats()
-        else:
-            pass
+    # def access_stats(self):
+    #     dlg = StatTypeDialog.create()
+    #     result = dlg.exec_()
+    #     if result == QDialog.Accepted:
+    #         self.class_stat_widget.update_stats()
+    #     else:
+    #         pass
 
     def select_map_sprite(self):
         res, ok = ResourceEditor.get(self, "Map Sprites")

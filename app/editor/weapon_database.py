@@ -166,9 +166,11 @@ class WeaponRankMultiModel(MultiAttrCollectionModel):
 
     def change_watchers(self, data, attr, old_value, new_value):
         if attr == 'rank':
+            self._data.update_nid(data, new_value)
             for weapon in DB.weapons:
                 weapon.advantage.swap_rank(old_value, new_value)
                 weapon.disadvantage.swap_rank(old_value, new_value)
+            # Don't need to swap Items since they have the weapon rank itself as their value
 
 class RankDialog(MultiAttrListDialog):
     @classmethod

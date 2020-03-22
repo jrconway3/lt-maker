@@ -183,11 +183,8 @@ class DragDropCollectionModel(CollectionModel):
     def insertRows(self, row, count, parent):
         if count < 1 or row < 0 or row > self.rowCount() or parent.isValid():
             return False
-        # self.beginInsertRows(QModelIndex(), row, row + count - 1)
         self.drop_to = row
         self.layoutChanged.emit()
-        # self.endInsertRows()
-        # print("insertRows", row, count, flush=True)
         return True
 
     def do_drag_drop(self, index):
@@ -203,13 +200,10 @@ class DragDropCollectionModel(CollectionModel):
     def removeRows(self, row, count, parent):
         if count < 1 or row < 0 or (row + count) > self.rowCount() or parent.isValid():
             return False
-        # self.beginRemoveRows(QModelIndex(), row, row + count - 1)
         result = self.do_drag_drop(row)
         self.layoutChanged.emit()
         if result:
             self.update_drag_watchers(result[0], result[1])
-        # self.endRemoveRows()
-        # print("removeRows", row, count, flush=True)
         return True
 
     def update_drag_watchers(self, fro, to):
@@ -336,3 +330,47 @@ class MultiAttrCollectionModel(QAbstractItemModel):
 
     def update_watchers(self, idx):
         pass
+
+class DragDropMultiAttrCollectionModel(MultiAttrCollectionModel):
+    drop_to = None
+
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+    def supportedDragActions(self):
+        return Qt.MoveAction
+
+    def insertRows(self, row, count, parent):
+        if count < 1 or row < 0 or row > self.rowCount() or parent.isValid():
+            return False
+        self.drop_to = row
+        self.layoutChanged.emit()
+        return True
+
+    def do_drag_drop(self, index):
+        if self.drop_to is None:
+            return False
+        if index < self.drop_to:
+            self._data.move_index(index, self.drop_to - 1)
+            return index, self.drop_to - 1
+        else:
+            self._data.move_index(index, self.drop_to)
+            return index, self.drop_to
+
+    def removeRows(self, row, count, parent):
+        if count < 1 or row < 0 or (row + count) > self.rowCount() or parent.isValid():
+            return False
+        result = self.do_drag_drop(row)
+        self.layoutChanged.emit()
+        if result:
+            self.update_drag_watchers(result[0], result[1])
+        return True
+
+    def update_drag_watchers(self, fro, to):
+        pass
+
+    def flags(self, index):
+        if not index.isValid() or index.row() >= len(self._data) or index.model() is not self:
+            return Qt.ItemIsDropEnabled
+        else:
+            return Qt.ItemIsDragEnabled | super().flags(index)

@@ -188,8 +188,6 @@ class RightClickView(object):
             self.deletion_func, self.deletion_msg = deletion_criteria
         else:
             self.deletion_func, self.deletion_msg = None, "This shouldn't happen"
-        print(self.deletion_func, flush=True)
-        print(self.deletion_msg, flush=True)
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.customMenuRequested)

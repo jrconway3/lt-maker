@@ -21,8 +21,6 @@ class McostDialog(SimpleDialog):
         self.setWindowTitle('Terrain Movement Cost')
         self.setMinimumSize(640, 480)
 
-        self.saved_data = self.save()
-
         self.model = GridModel(DB.mcost, self)
         self.view = QTableView()
         self.view.setModel(self.model)
@@ -51,23 +49,12 @@ class McostDialog(SimpleDialog):
         self.buttonbox.addButton(new_mtype_button, QDialogButtonBox.ActionRole)
         layout.addWidget(self.buttonbox, 1, 0, alignment=Qt.AlignLeft)
 
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
         layout.addWidget(self.buttonbox, 1, 1)
         self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-
-    def save(self):
-        return DB.mcost.save()
-
-    def restore(self, data):
-        DB.mcost.restore(data)
 
     def accept(self):
         super().accept()
-
-    def reject(self):
-        self.restore(self.saved_data)
-        super().reject()
 
 class VerticalTextHeaderStyle(QProxyStyle):
     def __init__(self, fontHeight):

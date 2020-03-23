@@ -65,40 +65,6 @@ class DeletionDialog(Dialog):
         else:
             return None, False
 
-class EditDialog(SimpleDialog):
-    def __init__(self, data, parent):
-        super().__init__(parent)
-        if self.parent():
-            self.main_editor = self.parent().parent()
-            self.main_editor.undo_stack.clear()
-        self._data = data
-        self.saved_data = self.save()
-
-        self.grid = QGridLayout()
-        self.setLayout(self.grid)
-
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Apply, Qt.Horizontal, self)
-        self.grid.addWidget(self.buttonbox, 1, 1)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-        self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
-
-    def save(self):
-        return self._data.serialize()
-
-    def restore(self, data):
-        self._data.restore(data)
-
-    def apply(self):
-        self.saved_data = self.save()
-
-    def accept(self):
-        super().accept()
-
-    def reject(self):
-        self.restore(self.saved_data)
-        super().reject()
-
 class QHLine(QFrame):
     def __init__(self):
         super().__init__()

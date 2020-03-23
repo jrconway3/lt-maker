@@ -25,6 +25,8 @@ class DatabaseEditor(QDialog):
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
+        self.save()
+
         self.grid = QGridLayout(self)
         self.setLayout(self.grid)
 
@@ -32,7 +34,7 @@ class DatabaseEditor(QDialog):
         self.grid.addWidget(self.buttonbox, 1, 1)
         self.buttonbox.accepted.connect(self.accept)
         self.buttonbox.rejected.connect(self.reject)
-        self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.mass_apply)
+        self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
 
         self.tab_bar = QTabWidget(self)
         self.grid.addWidget(self.tab_bar, 0, 0, 1, 2)
@@ -77,20 +79,51 @@ class DatabaseEditor(QDialog):
         self.current_tab.update_list()
         self.current_tab.reset()
 
-    def mass_restore(self):
-        for tab in self.tabs.values():
-            tab.restore(tab.saved_data)
+    def save(self):
+        self.saved_data = {}
+        self.saved_data['tags'] = DB.tags.save()
+        self.saved_data['units'] = DB.units.save()
+        self.saved_data['classes'] = DB.classes.save()
+        self.saved_data['factions'] = DB.factions.save()
+        self.saved_data['weapons'] = DB.weapons.save()
+        self.saved_data['weapon_ranks'] = DB.weapon_ranks.save()
+        self.saved_data['items'] = DB.items.save()
+        self.saved_data['terrain'] = DB.terrain.save()
+        self.saved_data['ai'] = DB.ai.save()
+        self.saved_data['equations'] = DB.equations.save()
+        self.saved_data['constants'] = DB.constants.save()
+        self.saved_data['stats'] = DB.stats.save()
+        self.saved_data['mcost'] = DB.mcost.save()
+        return self.saved_data
 
-    def mass_apply(self):
-        for tab in self.tabs.values():
-            tab.apply()
+    def restore(self):
+        #for tab in self.tabs.values():
+        #    tab.restore(tab.saved_data)
+        DB.tags.restore(self.saved_data['tags'])
+        DB.units.restore(self.saved_data['units'])
+        DB.classes.restore(self.saved_data['classes'])
+        DB.factions.restore(self.saved_data['factions'])
+        DB.weapons.restore(self.saved_data['weapons'])
+        DB.weapon_ranks.restore(self.saved_data['weapon_ranks'])
+        DB.items.restore(self.saved_data['items'])
+        DB.terrain.restore(self.saved_data['terrain'])
+        DB.ai.restore(self.saved_data['ai'])
+        DB.equations.restore(self.saved_data['equations'])
+        DB.constants.restore(self.saved_data['constants'])
+        DB.stats.restore(self.saved_data['stats'])
+        DB.mcost.restore(self.saved_data['mcost'])
+
+    def apply(self):
+        self.save()
+        # for tab in self.tabs.values():
+            # tab.apply()
 
     def accept(self):
         DB.serialize()
         super().accept()
 
     def reject(self):
-        self.mass_restore()
+        self.restore()
         DB.serialize()
         super().reject()
 

@@ -16,7 +16,6 @@ class DatabaseTab(QWidget):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = data
-        self.saved_data = self.save()
         self.title = title
 
         self.setWindowTitle('%s Editor' % self.title)
@@ -55,15 +54,6 @@ class DatabaseTab(QWidget):
     def edit(cls, parent=None):
         dialog = cls.create(parent)
         dialog.exec_()
-
-    def save(self):
-        return self._data.save()
-
-    def restore(self, data):
-        self._data.restore(data)
-
-    def apply(self):
-        self.saved_data = self.save()
 
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,

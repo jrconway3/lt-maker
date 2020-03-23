@@ -358,7 +358,6 @@ class ConstantDatabase(DatabaseTab):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = data
-        self.saved_data = self.save()
         self.title = title
 
         self.setWindowTitle('%s Editor' % self.title)

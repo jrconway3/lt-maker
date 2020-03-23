@@ -24,8 +24,6 @@ class SingleListDialog(QDialog):
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
-        self.saved_data = self.save()
-
     def placement(self, title):
         layout = QGridLayout(self)
         layout.addWidget(self.view, 0, 0, 1, 2)
@@ -35,23 +33,12 @@ class SingleListDialog(QDialog):
         self.add_button.clicked.connect(self.model.append)
         layout.addWidget(self.add_button, 1, 0, alignment=Qt.AlignLeft)
 
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
         layout.addWidget(self.buttonbox, 1, 1)
         self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-
-    def save(self):
-        return self._data
-
-    def restore(self, data):
-        self._data = data
 
     def accept(self):
         super().accept()
-
-    def reject(self):
-        self.restore(self.saved_data)
-        super().reject()
 
 class MultiAttrListDialog(SingleListDialog):
     def __init__(self, data, title, attrs, model=MultiAttrListModel, deletion_criteria=None, locked: set = None, parent=None):
@@ -70,9 +57,3 @@ class MultiAttrListDialog(SingleListDialog):
             self.view.resizeColumnToContents(col)
 
         self.placement(title)
-
-    def save(self):
-        return self._data.save()
-
-    def restore(self, data):
-        self._data.restore(data)

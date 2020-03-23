@@ -141,15 +141,19 @@ class MapView(QGraphicsView):
                         if current_unit.starting_position:
                             print("Move Unit")
                             current_unit.starting_position = pos
+                            message = "Moved unit %s to (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
+                            self.main_editor.status_bar.showMessage(message)
                         else:
                             print("Place Unit")
                             current_unit.starting_position = pos
+                            message = "Placed unit %s at (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
+                            self.main_editor.status_bar.showMessage(message)
                         self.update_view()
                 elif event.button() == Qt.RightButton:
                     under_unit = self.main_editor.current_level.check_position(pos)
                     if under_unit:
                         idx = self.main_editor.current_level.units.index(under_unit)
-                        self.window.units_menu.select(idx)
+                        self.main_editor.unit_painter_menu.select(idx)
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)

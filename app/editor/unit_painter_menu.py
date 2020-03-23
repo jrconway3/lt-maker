@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QPushButton, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
     QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QBrush, QColor
 
 from app import utilities
 from app.data.database import DB
@@ -121,11 +121,17 @@ class AllUnitModel(DragDropCollectionModel):
             klass_nid = unit.klass
             num = TIMER.passive_counter.count
             klass = DB.classes.get(klass_nid)
-            pixmap = class_database.get_map_sprite_icon(klass, num, index == self.window.view.currentIndex())
+            pixmap = class_database.get_map_sprite_icon(klass, num, index == self.window.view.currentIndex(), unit.team)
             if pixmap:
                 return QIcon(pixmap)
             else:
                 return None
+        elif role == Qt.ForegroundRole:
+            unit = self._data[index.row()]
+            if unit.starting_position:
+                return QBrush()
+            else:
+                return QBrush(QColor("red"))
         return None
 
 class InventoryDelegate(QStyledItemDelegate):
@@ -217,7 +223,7 @@ class GenericUnitDialog(Dialog):
         units = self.window._data
         if example:
             new_nid = utilities.get_next_int(example.nid, [unit.nid for unit in units])
-            self.current = DB.create_unit_generic(example.gender, example.level, example.klass, example.faction,
+            self.current = DB.create_unit_generic(new_nid, example.gender, example.level, example.klass, example.faction,
                                                   example.starting_items, example.team, example.ai)
         else:
             new_nid = utilities.get_next_int(101, [unit.nid for unit in units])
@@ -262,7 +268,7 @@ class GenericUnitDialog(Dialog):
         self.set_current(self.current)
 
     def team_changed(self, val):
-        self.current.team = val
+        self.current.team = self.team_box.edit.currentText()
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()

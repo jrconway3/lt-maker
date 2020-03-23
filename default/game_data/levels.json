@@ -199,6 +199,25 @@
                     3
                 ],
                 "generic": false
+            },
+            {
+                "nid": 101,
+                "gender": 0,
+                "level": 1,
+                "klass": "Knight",
+                "faction": "Soldier",
+                "starting_items": [
+                    "Iron Sword"
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    12,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ]
     }

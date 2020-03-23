@@ -66,7 +66,7 @@ class MapSpriteDisplay(DatabaseTab):
     def save(self):
         return None
 
-def get_basic_icon(pixmap, num, current=False):
+def get_basic_icon(pixmap, num, current=False, team='player'):
     if current:
         one_frame = pixmap.copy(num*64, 96, 64, 48)
     else:
@@ -74,6 +74,14 @@ def get_basic_icon(pixmap, num, current=False):
     if one_frame:
         image = one_frame.toImage()
         one_frame = editor_utilities.convert_colorkey(image)
+        if team == 'player':
+            pass
+        elif team == 'enemy':
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
+        elif team == 'other':
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
+        elif team == 'enemy2':
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy2_colors)
         pixmap = QPixmap.fromImage(one_frame)
         pixmap = pixmap.copy(16, 16, 32, 32)
         return pixmap

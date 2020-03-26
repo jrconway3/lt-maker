@@ -8,35 +8,30 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.resources import RESOURCES
 
 from app.editor.base_database_gui import DatabaseTab
-from app.extensions.custom_gui import RightClickTreeView
+from app.extensions.custom_gui import ResourceTreeView
 from app.editor.icon_display import IconTreeModel, IconView
 
 class MapDisplay(DatabaseTab):
-    creation_func = RESOURCES.create_new_map
-
     @classmethod
     def create(cls, parent=None):
         data = RESOURCES.maps
         title = "Maps"
         right_frame = MapProperties
-        collection_model = IconTreeModel
+        collection_model = MapTreeModel
 
-        def deletion_func(view, index):
-            print("Deleting Map")
-            idx = index.row()
-            print(view, idx, flush=True)
-            print(view.window._data[idx])
+        def deletion_func(view, idx):
             return view.window._data[idx].nid != "default"
         
         deletion_criteria = (deletion_func, "Cannot delete default map")
         dialog = cls(data, title, right_frame, deletion_criteria,
                      collection_model, parent, button_text="Add New %s...",
-                     view_type=RightClickTreeView)
+                     view_type=ResourceTreeView)
         return dialog
 
+class MapTreeModel(IconTreeModel):
     def create_new(self):
         starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        fn, ok = QFileDialog.getOpenFileName(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
             if fn.endswith('.png'):
                 local_name = os.path.split(fn)[-1]
@@ -47,11 +42,7 @@ class MapDisplay(DatabaseTab):
                 elif pix.height() % TILEHEIGHT != 0:
                     QMessageBox.critical(self, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
                     return
-                self.creation_func(local_name, pix)
-                self.after_new()
-
-    def save(self):
-        return None
+                RESOURCES.create_new_map(local_name, fn, pix)
 
 class MapProperties(QWidget):
     def __init__(self, parent, current=None):

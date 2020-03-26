@@ -125,12 +125,11 @@ class Resources(object):
         self.load()
 
     def serialize(self, proj_dir='./default'):
-        print("Starting Serialization...")
+        print("Starting Resource Serialization...")
 
         def move_image(image, parent_dir):
-            image_parent_dir = os.path.split(image.full_path)[0]
-            if os.path.abspath(image_parent_dir) != os.path.abspath(parent_dir):
-                new_full_path = os.path.join(parent_dir, image.nid + '.png')
+            new_full_path = os.path.join(parent_dir, image.nid + '.png')
+            if os.path.abspath(image.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(image.full_path, new_full_path)
                 image.set_full_path(new_full_path)
 
@@ -140,6 +139,15 @@ class Resources(object):
                 os.mkdir(subicons_dir)
             for icon in database:
                 move_image(icon, subicons_dir)
+
+        def delete_unused_icons(icons_dir, icon_dirname, database):
+            subicons_dir = os.path.join(icons_dir, icon_dirname)
+            nids = set(d.nid for d in database)
+            for fn in os.listdir(subicons_dir):
+                if not fn.endswith('.png') or fn[:-4] not in nids:
+                    full_path = os.path.join(subicons_dir, fn)
+                    print("Deleting %s" % full_path)
+                    os.remove(full_path)
 
         # Make the directory to save this resource pack in
         if not os.path.exists(proj_dir):
@@ -153,10 +161,13 @@ class Resources(object):
             os.mkdir(icons_dir)
         # Save Icons16
         save_icons(icons_dir, 'icons_16x16', self.icons16)
+        delete_unused_icons(icons_dir, 'icons_16x16', self.icons16)
         # Save Icons32
         save_icons(icons_dir, 'icons_32x32', self.icons32)
+        delete_unused_icons(icons_dir, 'icons_32x32', self.icons32)
         # Save Icons80
         save_icons(icons_dir, 'icons_80x72', self.icons80)
+        delete_unused_icons(icons_dir, 'icons_80x72', self.icons80)
         # Save Portraits
         portraits_dir = os.path.join(resource_dir, 'portraits')
         if not os.path.exists(portraits_dir):
@@ -221,51 +232,48 @@ class Resources(object):
                 new_full_path = os.path.join(music_dir, music.nid + '.ogg')
                 shutil.copy(music.full_path, new_full_path)
                 music.set_full_path(new_full_path)
-        print('Done Serializing!')
+        print('Done Resource Serializing!')
 
-    def create_new_16x16_icon(self, nid, pixmap):
-        full_path = os.path.join(self.main_folder, 'icons/icons_16x16', nid)
-        nid = nid[:-4]  # Get rid of .png ending
+    def create_new_16x16_icon(self, nid, full_path, pixmap):
+        # full_path = os.path.join(self.main_folder, 'icons/icons_16x16', nid)
         new_icon = ImageResource(nid, full_path, pixmap)
         self.icons16.append(new_icon)
         return new_icon
 
-    def create_new_32x32_icon(self, nid, pixmap):
-        full_path = os.path.join(self.main_folder, 'icons/icons_32x32', nid)
-        nid = nid[:-4]  # Get rid of .png ending
+    def create_new_32x32_icon(self, nid, full_path, pixmap):
+        # full_path = os.path.join(self.main_folder, 'icons/icons_32x32', nid)
         new_icon = ImageResource(nid, full_path, pixmap)
         self.icons32.append(new_icon)
         return new_icon
 
-    def create_new_80x72_icon(self, nid, pixmap):
-        full_path = os.path.join(self.main_folder, 'icons_80x72', nid)
-        nid = nid[:-4]  # Get rid of .png ending
+    def create_new_80x72_icon(self, nid, full_path, pixmap):
+        # full_path = os.path.join(self.main_folder, 'icons_80x72', nid)
         new_icon = ImageResource(nid, full_path, pixmap)
         self.icons80.append(new_icon)
         return new_icon
 
-    def create_new_portrait(self, nid, pixmap):
-        full_path = os.path.join(self.main_folder, 'portraits', nid)
+    def create_new_portrait(self, nid, full_path, pixmap):
+        # full_path = os.path.join(self.main_folder, 'portraits', nid)
         nid = nid[:-4]  # Get rid of .png ending
         new_portrait = Portrait(nid, full_path, pixmap)
         self.portraits.append(new_portrait)
         return new_portrait
 
-    def create_new_map_sprite(self, nid, standing_pixmap, moving_pixmap):
+    def create_new_map_sprite(self, nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap):
         nid = nid[:-4]
-        standing_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-stand.png')
-        moving_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-move.png')
+        # standing_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-stand.png')
+        # moving_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-move.png')
         new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap)
         self.map_sprites.append(new_map_sprite)
         return new_map_sprite
 
-    def create_new_panorama(self, nid, pixmaps, full_path):
+    def create_new_panorama(self, nid, full_path, pixmaps):
         new_panorama = Panorama(nid, full_path, pixmaps)
         self.panoramas.append(new_panorama)
         return new_panorama
 
-    def create_new_map(self, nid, pixmap):
-        full_path = os.path.join(self.main_folder, 'maps', nid)
+    def create_new_map(self, nid, full_path, pixmap):
+        # full_path = os.path.join(self.main_folder, 'maps', nid)
         nid = nid[:-4]  # Get rid of .png ending
         new_map = ImageResource(nid, full_path, pixmap)
         self.maps.append(new_map)

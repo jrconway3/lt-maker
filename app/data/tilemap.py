@@ -1,3 +1,5 @@
+from app.data import constants
+
 class TileMap(object):
     def __init__(self, image_nid, terrain_fn):
         map_key, self.width, self.height = self.build_map_key(terrain_fn)
@@ -27,7 +29,7 @@ class TileMap(object):
     def change_image(self, image_nid, width, height):
         from app.data.database import DB
         self.base_image_nid = image_nid
-        self.width, self.height = width, height
+        self.width, self.height = width//constants.TILEWIDTH, height//constants.TILEHEIGHT
         # Preserve as much as possible about the old terrain information
         old_tiles = self.tiles.copy()
         self.tiles.clear()

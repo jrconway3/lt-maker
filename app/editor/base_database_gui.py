@@ -115,11 +115,13 @@ class CollectionModel(QAbstractListModel):
         raise NotImplementedError
 
     def delete(self, idx):
+        print("delete", flush=True)
         self._data.pop(idx)
-        self.layoutChanged.emit()
         new_item = self._data[min(idx, len(self._data) - 1)]
         if self.window.display:
             self.window.display.set_current(new_item)
+        self.layoutChanged.emit()
+        print("done delete", flush=True)
 
     def update(self):
         # self.dataChanged.emit(self.index(0), self.index(self.rowCount()))

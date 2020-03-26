@@ -82,7 +82,19 @@ class UnitPainterMenu(QWidget):
                 self.map_view.center_on_pos(unit.starting_position)
 
     def get_current(self):
-        return self._data[self.view.currentIndex().row()]
+        idx = self.view.currentIndex().row()
+        if idx < len(self._data):
+            return self._data[idx]
+        return None
+
+        #     def get_current(self):
+        # idx = self.view.currentIndex().row()
+        # data_length = len(self._data)
+        # if idx < data_length:
+        #     return self._data[idx]
+        # else:
+        #     self.select(data_length - 1)
+        #     return self._data[-1]
 
     def create_generic(self):
         created_unit, ok = GenericUnitDialog.get_unit(self, self.last_touched_generic)

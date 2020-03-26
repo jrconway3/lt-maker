@@ -6,67 +6,52 @@ from PyQt5.QtGui import QPixmap, QIcon
 import os
 
 from app.data.resources import RESOURCES, ImageResource
-from app.extensions.custom_gui import RightClickTreeView
+from app.data.database import DB
+from app.extensions.custom_gui import ResourceTreeView
 from app.editor.base_database_gui import DatabaseTab
 
+from app import utilities
+
 class Icon16Display(DatabaseTab):
-    creation_func = RESOURCES.create_new_16x16_icon
     @classmethod
     def create(cls, parent=None):
         data = RESOURCES.icons16
         title = "16x16 Icon"
         right_frame = Icon16Properties
-        collection_model = IconTreeModel
+        collection_model = Icon16Model
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
                      collection_model, parent, button_text="Add New %s...",
-                     view_type=RightClickTreeView)
+                     view_type=ResourceTreeView)
         return dialog
 
-    def create_new(self):
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
-        if ok:
-            if fn.endswith('.png'):
-                local_name = os.path.split(fn)[-1]
-                pix = QPixmap(fn)
-                self.creation_func(local_name, pix)
-                self.after_new()
-
-    def save(self):
-        # No need to save icons -- resource editor does the job of serializing
-        # them to the filesystem
-        return None
-
 class Icon32Display(Icon16Display):
-    creation_func = RESOURCES.create_new_32x32_icon
     @classmethod
     def create(cls, parent=None):
         data = RESOURCES.icons32
         title = "32x32 Icon"
         right_frame = Icon32Properties
-        collection_model = IconTreeModel
+        collection_model = Icon32Model
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
                      collection_model, parent, button_text="Add New %s...",
-                     view_type=RightClickTreeView)
+                     view_type=ResourceTreeView)
         return dialog
 
 class Icon80Display(Icon16Display):
-    creation_func = RESOURCES.create_new_80x72_icon
     @classmethod
     def create(cls, parent=None):
         data = RESOURCES.icons80
         title = "80x72 Icon"
         right_frame = Icon80Properties
-        collection_model = IconTreeModel
+        collection_model = Icon80Model
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
                      collection_model, parent, button_text="Add New %s...",
-                     view_type=RightClickTreeView)
+                     view_type=ResourceTreeView)
         return dialog
 
 class IconTreeModel(QAbstractItemModel):
@@ -127,11 +112,27 @@ class IconTreeModel(QAbstractItemModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
+        if role == Qt.EditRole:
+            if value:
+                item = index.internalPointer()
+                old_nid = item.nid
+                nid = utilities.get_next_name(value, [d.nid for d in self._data])
+                self._data.update_nid(item, nid)
+                # Update nid of slices
+                for image_resource in item.sub_images:
+                    # Just for aesthetics, since everything actually refers to parent elsewhere
+                    x, y = image_resource.icon_index
+                    image_resource.nid = nid + " " + str(x) + ',' + str(y)
+                self.nid_change_watchers(item, old_nid, nid)
         return True
 
     def flags(self, index):
         if index.isValid():
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            item = index.internalPointer()
+            if item.parent_image:  # Child item
+                return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            else:
+                return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
         else:
             return Qt.NoItemFlags
 
@@ -146,8 +147,85 @@ class IconTreeModel(QAbstractItemModel):
         # if self.window.display:
         #     self.window.display.set_current(new_item)
 
+    def create_new(self):
+        raise NotImplementedError
+
     def append(self):
         self.create_new()
+        view = self.window.view
+        # self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+        self.layoutChanged.emit()
+        last_index = self.index(self.rowCount() - 1)
+        view.setCurrentIndex(last_index)
+        self.update_watchers(self.rowCount() - 1)
+        return last_index
+
+    def new(self, index):
+        item = index.internalPointer()
+        if item.parent_image:
+            QMessageBox.critical(self.window, 'Error', "Cannot create new image slice!")
+        else:
+            idx = self._data.index(item.nid)
+            self.create_new()
+            self._data.move_index(len(self._data) - 1, idx + 1)
+            self.layoutChanged.emit()
+            self.update_watchers(self.rowCount() - 1)
+
+    def update_watchers(self, idx):
+        pass
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        pass
+
+class Icon16Model(IconTreeModel):
+    creation_func = RESOURCES.create_new_16x16_icon
+    database = RESOURCES.icons16
+    width, height = 16, 16
+
+    def create_new(self):
+        starting_path = QDir.currentPath()
+        fn, ok = QFileDialog.getOpenFileName(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        if ok:
+            if fn.endswith('.png'):
+                nid = os.path.split(fn)[-1][:-4]  # Get rid of .png ending
+                pix = QPixmap(fn)
+                nid = utilities.get_next_name(nid, [d.nid for d in self.database])
+                icon = self.creation_func(nid, fn, pix)
+                icon_slice(icon, self.width, self.height)
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        # What uses 16x16 icons
+        # Items, Weapons, (Later on Affinities, Skills/Statuses)
+        for item in DB.items:
+            if item.icon_nid == old_nid:
+                item.icon_nid = new_nid
+        for weapon in DB.weapons:
+            if weapon.icon_nid == old_nid:
+                weapon.icon_nid = new_nid
+
+class Icon32Model(Icon16Model):
+    creation_func = RESOURCES.create_new_32x32_icon
+    database = RESOURCES.icons32
+    width, height = 32, 32
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        # What uses 32x32 icons
+        # Factions
+        for faction in DB.factions:
+            if faction.icon_nid == old_nid:
+                faction.icon_nid = new_nid
+
+class Icon80Model(Icon16Model):
+    creation_func = RESOURCES.create_new_80x72_icon
+    database = RESOURCES.icons80
+    width, height = 80, 72
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        # What uses 80x72 icons
+        # Classes
+        for klass in DB.classes:
+            if klass.icon_nid == old_nid:
+                klass.icon_nid = new_nid
 
 class IconView(QGraphicsView):
     min_scale = 1
@@ -184,6 +262,21 @@ class IconView(QGraphicsView):
             self.screen_scale -= 1
             self.scale(0.5, 0.5)
 
+def icon_slice(resource, base_width, base_height):
+    sheet = resource.pixmap
+    width, height = sheet.width(), sheet.height()
+    if width == base_width and height == base_height:
+        return
+    resource.sub_images.clear()
+    for x in range(width//base_width):
+        for y in range(height//base_height):
+            region = sheet.copy(x*base_width, y*base_height, base_width, base_height)
+            new_nid = resource.nid + " " + str(x) + ',' + str(y)
+            new_image = ImageResource(new_nid, resource.full_path, region)
+            new_image.icon_index = (x, y)
+            resource.sub_images.append(new_image)
+            new_image.parent_image = resource
+
 class Icon16Properties(QWidget):
     width, height = 16, 16
 
@@ -198,19 +291,8 @@ class Icon16Properties(QWidget):
             resource.pixmap = QPixmap(resource.full_path)
 
         for resource in list(self._data.values()):
-            sheet = resource.pixmap
-            width, height = sheet.width(), sheet.height()
-            if width == self.width and height == self.height:
-                continue
-            for x in range(width//self.width):
-                for y in range(height//self.height):
-                    region = sheet.copy(x*self.width, y*self.height, self.width, self.height)
-                    new_nid = resource.nid + " " + str(x) + ',' + str(y)
-                    new_image = ImageResource(new_nid, resource.full_path, region)
-                    new_image.icon_index = (x, y)
-                    resource.sub_images.append(new_image)
-                    new_image.parent_image = resource
-
+            icon_slice(resource, self.width, self.height)
+            
         self.current = current
 
         self.view = IconView(self)

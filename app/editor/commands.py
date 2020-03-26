@@ -18,23 +18,23 @@ class CreateNewLevel(QUndoCommand):
         DB.levels.append(self.new_level)
 
 class ChangeTileTerrain(QUndoCommand):
-    def __init__(self, level, pos, new_terrain):
+    def __init__(self, level, pos, new_terrain_nid):
         self.level = level
         self.pos = [pos]
-        self.old_terrain = [level.tilemap.tiles[pos].terrain]
-        self.new_terrain = [new_terrain]
+        self.old_terrain = [level.tilemap.tiles[pos].terrain_nid]
+        self.new_terrain = [new_terrain_nid]
         super().__init__(
             "(%d, %d): Changed Terrain from %s to %s" % 
-            (pos[0], pos[1], self.old_terrain[0].nid, self.new_terrain[0].nid))
+            (pos[0], pos[1], self.old_terrain[0], self.new_terrain[0]))
         self.can_merge = True
 
     def redo(self):
         for pos, new_terrain in zip(self.pos, self.new_terrain):
-            self.level.tilemap.tiles[pos].terrain = new_terrain
+            self.level.tilemap.tiles[pos].terrain_nid = new_terrain
 
     def undo(self):
         for pos, old_terrain in zip(self.pos, self.old_terrain):
-            self.level.tilemap.tiles[pos].terrain = old_terrain
+            self.level.tilemap.tiles[pos].terrain_nid = old_terrain
 
     def id(self):
         return 0

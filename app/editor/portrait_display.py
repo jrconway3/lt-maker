@@ -10,7 +10,7 @@ import time, random
 from app.data.resources import RESOURCES
 
 from app.extensions.custom_gui import PropertyBox
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.icon_display import IconView
 
 class PortraitDisplay(DatabaseTab):
@@ -26,23 +26,7 @@ class PortraitDisplay(DatabaseTab):
                      collection_model, parent, button_text="Add New %s...")
         return dialog
 
-    def create_new(self):
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose %s", starting_path)
-        if ok:
-            if fn.endswith('.png'):
-                local_name = os.path.split(fn)[-1]
-                pix = QPixmap(fn)
-                if pix.width() == 128 and pix.height() == 112:
-                    RESOURCES.create_new_portrait(local_name, pix)
-                    self.after_new()
-                else:
-                    QMessageBox.critical(self, "Error", "Image is not correct size (128x112 px)")
-
-    def save(self):
-        return None
-
-class PortraitModel(CollectionModel):
+class PortraitModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -56,6 +40,18 @@ class PortraitModel(CollectionModel):
             chibi = pixmap.copy(96, 16, 32, 32)
             return QIcon(chibi)
         return None
+
+    def create_new(self):
+        starting_path = QDir.currentPath()
+        fn, ok = QFileDialog.getOpenFileName(self, "Choose %s", starting_path)
+        if ok:
+            if fn.endswith('.png'):
+                local_name = os.path.split(fn)[-1]
+                pix = QPixmap(fn)
+                if pix.width() == 128 and pix.height() == 112:
+                    RESOURCES.create_new_portrait(local_name, fn, pix)
+                else:
+                    QMessageBox.critical(self, "Error", "Image is not correct size (128x112 px)")
 
 class SpinBoxXY(QWidget):
     coordsChanged = pyqtSignal(int, int)

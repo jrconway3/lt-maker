@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 
+import time
+
 from app.sprites import SPRITES
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.resources import RESOURCES
@@ -43,10 +45,9 @@ class MapView(QGraphicsView):
         self.scene.clear()
 
     def update_view(self):
-        self.clear_scene()
         if self.current_map:
-            default = RESOURCES.maps.get('default')
-            res = RESOURCES.maps.get(self.current_map.base_image_nid, default)
+            default_map_image = RESOURCES.maps.get('default')
+            res = RESOURCES.maps.get(self.current_map.base_image_nid, default_map_image)
             if not res.pixmap:
                 res.pixmap = QPixmap(res.full_path)
             pixmap = res.pixmap
@@ -63,10 +64,11 @@ class MapView(QGraphicsView):
         if self.working_image:
             painter = QPainter()
             painter.begin(self.working_image)
+            alpha = self.main_editor.terrain_painter_menu.get_alpha()
             for coord, tile in self.current_map.tiles.items():
                 color = DB.terrain.get(tile.terrain_nid).color
                 write_color = QColor(color[0], color[1], color[2])
-                write_color.setAlpha(self.main_editor.terrain_painter_menu.get_alpha())
+                write_color.setAlpha(alpha)
                 painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
             painter.end()
 
@@ -81,7 +83,7 @@ class MapView(QGraphicsView):
                 klass_nid = unit.klass
                 num = TIMER.passive_counter.count
                 klass = DB.classes.get(klass_nid)
-                pixmap = class_database.get_map_sprite_icon(klass, num, False)
+                pixmap = class_database.get_map_sprite_icon(klass, num, False, unit.team)
                 coord = unit.starting_position
                 if pixmap:
                     painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
@@ -101,6 +103,7 @@ class MapView(QGraphicsView):
 
     def show_map(self):
         if self.working_image:
+            self.clear_scene()
             self.scene.addPixmap(self.working_image)
 
     def show_map_from_individual_sprites(self):

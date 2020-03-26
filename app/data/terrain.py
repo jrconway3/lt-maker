@@ -18,6 +18,13 @@ class Terrain(Prefab):
 
     mtype: str = None
 
+    def deserialize_attr(self, name, value):
+        if name == 'color':
+            value = tuple(value)
+        else:
+            value = super().deserialize_attr(name, value)
+        return value
+
 class TerrainCatalog(Data):
     datatype = Terrain
 

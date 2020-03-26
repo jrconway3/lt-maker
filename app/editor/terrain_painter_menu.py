@@ -79,7 +79,7 @@ class TerrainPainterMenu(QWidget):
 
     def paint_tile(self, pos):
         current_terrain = DB.terrain[self.list_view.currentIndex().row()]
-        command = commands.ChangeTileTerrain(self.main_editor.current_level, pos, current_terrain)
+        command = commands.ChangeTileTerrain(self.main_editor.current_level, pos, current_terrain.nid)
         if command.makes_change():
             self.main_editor.undo_stack.push(command)
             self.main_editor.update_view()

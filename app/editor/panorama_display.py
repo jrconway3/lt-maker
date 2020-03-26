@@ -24,6 +24,22 @@ class PanoramaDisplay(DatabaseTab):
                      collection_model, parent, button_text="Add New %s...")
         return dialog
 
+class PanoramaModel(CollectionModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            panorama = self._data[index.row()]
+            text = panorama.nid
+            return text
+        elif role == Qt.DecorationRole:
+            panorama = self._data[index.row()]
+            pixmap = panorama.get_frame()
+            if pixmap:
+                pixmap = pixmap.scaled(32, 32)
+                return QIcon(pixmap)
+        return None
+
     def create_new(self):
         fn, ok = QFileDialog.getOpenFileName(self, "Add Background")
         if ok:
@@ -40,29 +56,9 @@ class PanoramaDisplay(DatabaseTab):
                     ims = [fn]
                     full_path = fn
                 pixs = [QPixmap(i) for i in ims]
-                RESOURCES.create_new_panorama(movie_prefix, pixs, full_path)
-                self.after_new()
+                RESOURCES.create_new_panorama(movie_prefix, full_path, pixs)
             else:
                 QMessageBox.critical(self.window, "File Type Error!", "Background must be PNG format!")
-
-    def save(self):
-        return None
-
-class PanoramaModel(CollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            panorama = self._data[index.row()]
-            text = panorama.nid
-            return text
-        elif role == Qt.DecorationRole:
-            panorama = self._data[index.row()]
-            pixmap = panorama.get_frame()
-            if pixmap:
-                pixmap = pixmap.scaled(32, 32)
-                return QIcon(pixmap)
-        return None
 
 class PanoramaProperties(QWidget):
     def __init__(self, parent, current=None):

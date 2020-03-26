@@ -197,6 +197,46 @@ class RightClickTreeView(RightClickView, QTreeView):
 class RightClickListView(RightClickView, QListView):
     pass
 
+class ResourceListView(RightClickView):
+    def customMenuRequested(self, pos):
+        index = self.indexAt(pos)
+
+        new_action = QAction("New", self, triggered=lambda: self.new(index.row()))
+        rename_action = QAction("Rename", self, triggered=lambda: self.edit(index))
+        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index.row()))
+        menu = QMenu(self)
+        menu.addAction(new_action)
+        menu.addAction(rename_action)
+        menu.addAction(delete_action)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+class ResourceTreeView(RightClickView, QTreeView):
+    def customMenuRequested(self, pos):
+        index = self.indexAt(pos)
+        item = index.internalPointer()
+        if item.parent_image:
+            pass
+
+        new_action = QAction("New", self, triggered=lambda: self.new(index))
+        rename_action = QAction("Rename", self, triggered=lambda: self.edit(index))
+        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
+        menu = QMenu(self)
+        menu.addAction(new_action)
+        menu.addAction(rename_action)
+        menu.addAction(delete_action)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+    def new(self, index):
+        self.window.model.new(index)
+        self.window.view.setCurrentIndex(index)
+
+    def keyPressEvent(self, event):
+        QTreeView.keyPressEvent(event)
+        if event.key() == Qt.Key_Delete:
+            self.delete(self.currentIndex())
+
 class IntDelegate(QItemDelegate):
     def __init__(self, parent, int_columns):
         super().__init__(parent)

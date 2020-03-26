@@ -27,45 +27,6 @@ class MapSpriteDisplay(DatabaseTab):
                      collection_model, parent, button_text="Add New %s...")
         return dialog
 
-    def create_new(self):
-        local_name = None
-        standing_pix, moving_pix = None, None
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose Standing %s", starting_path)
-        if ok:
-            if fn.endswith('.png'):
-                local_name = os.path.split(fn)[-1]
-                standing_pix = QPixmap(fn)
-                if standing_pix.width() == 192 and standing_pix.height() == 144:
-                    pass
-                else:
-                    QMessageBox.critical(self, "Error", "Standing Map Sprite is not correct size (160x148 px)")
-                    return
-            else:
-                QMessageBox.critical(self, "Error", "Image must be png format")
-                return
-        else:
-            return
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose Moving %s", QDir.currentPath())
-        if ok:
-            if fn.endswith('.png'):
-                moving_pix = QPixmap(fn)
-                if moving_pix.width() == 192 and moving_pix.height() == 160:
-                    pass
-                else:
-                    QMessageBox.critical(self, "Error", "Moving Map Sprite is not correct size (160x148 px)")
-                    return
-            else:
-                QMessageBox.critical(self, "Error", "Image must be png format")
-                return
-        else:
-            return
-        RESOURCES.create_new_map_sprite(local_name, standing_pix, moving_pix)
-        self.after_new()
-
-    def save(self):
-        return None
-
 def get_basic_icon(pixmap, num, current=False, team='player'):
     if current:
         one_frame = pixmap.copy(num*64, 96, 64, 48)
@@ -105,6 +66,44 @@ class MapSpriteModel(CollectionModel):
             if pixmap:
                 return QIcon(pixmap)
         return None
+
+    def create_new(self):
+        local_name = None
+        standing_full_path, moving_full_path = None, None
+        standing_pix, moving_pix = None, None
+        starting_path = QDir.currentPath()
+        fn, ok = QFileDialog.getOpenFileName(self, "Choose Standing %s", starting_path)
+        if ok:
+            if fn.endswith('.png'):
+                local_name = os.path.split(fn)[-1]
+                standing_pix = QPixmap(fn)
+                standing_full_path = fn
+                if standing_pix.width() == 192 and standing_pix.height() == 144:
+                    pass
+                else:
+                    QMessageBox.critical(self, "Error", "Standing Map Sprite is not correct size (160x148 px)")
+                    return
+            else:
+                QMessageBox.critical(self, "Error", "Image must be png format")
+                return
+        else:
+            return
+        fn, ok = QFileDialog.getOpenFileName(self, "Choose Moving %s", QDir.currentPath())
+        if ok:
+            if fn.endswith('.png'):
+                moving_pix = QPixmap(fn)
+                moving_full_path = fn
+                if moving_pix.width() == 192 and moving_pix.height() == 160:
+                    pass
+                else:
+                    QMessageBox.critical(self, "Error", "Moving Map Sprite is not correct size (160x148 px)")
+                    return
+            else:
+                QMessageBox.critical(self, "Error", "Image must be png format")
+                return
+        else:
+            return
+        RESOURCES.create_new_map_sprite(local_name, standing_full_path, moving_full_path, standing_pix, moving_pix)
 
 class MapSpriteProperties(QWidget):
     standing_width, standing_height = 192, 144

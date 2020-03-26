@@ -159,7 +159,7 @@
                 "1",
                 "1"
             ],
-            "base_image_nid": "default"
+            "base_image_nid": "MapSprite"
         },
         "music": {
             "player_phase": null,
@@ -173,9 +173,9 @@
         },
         "market_flag": false,
         "objective": {
-            "simple": "Rout",
-            "win": "",
-            "loss": ""
+            "simple": "Defeatu Boss",
+            "win": "Defeat Boss",
+            "loss": "Eirika dies"
         },
         "units": [
             {
@@ -199,25 +199,6 @@
                     3
                 ],
                 "generic": false
-            },
-            {
-                "nid": 101,
-                "gender": 0,
-                "level": 1,
-                "klass": "Knight",
-                "faction": "Soldier",
-                "starting_items": [
-                    "Iron Sword"
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": [
-                    12,
-                    4
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
             }
         ]
     }

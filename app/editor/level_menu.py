@@ -6,7 +6,6 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.data.levels import Level
 
-from app.editor import commands
 from app.extensions.custom_gui import RightClickListView
 from app.editor.base_database_gui import CollectionModel
 import app.utilities as utilities
@@ -43,8 +42,8 @@ class LevelDatabase(QWidget):
         nid = str(utilities.get_next_int("0", nids))
         name = "Chapter %s" % nid
 
-        new_level_command = commands.CreateNewLevel(nid, name)
-        self.main_editor.undo_stack.push(new_level_command)
+        # Create new level
+        DB.levels.append(Level(nid, name))
 
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
         last_index = self.model.index(self.model.rowCount() - 1)
@@ -57,7 +56,6 @@ class LevelDatabase(QWidget):
             self.main_editor.set_current_level(new_level)
 
     def on_double_click(self, index):
-        print("Double Click!", index)
         if DB.levels and self.main_editor.global_mode:
             new_level = DB.levels[index.row()]
             self.main_editor.set_current_level(new_level)

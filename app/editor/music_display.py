@@ -8,8 +8,6 @@ from app.data.resources import RESOURCES
 
 from app.editor.base_database_gui import DatabaseTab, CollectionModel
 
-import app.data.constants as constants
-
 class MusicDisplay(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
@@ -23,22 +21,6 @@ class MusicDisplay(DatabaseTab):
                      collection_model, parent, button_text="Add New %s...")
         return dialog
 
-    def create_new(self):
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Select Music File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
-        if ok:
-            if fn.endswith('.ogg'):
-                full_path = fn
-                local_name = os.path.split(fn)[-1]
-                nid = local_name[:-4]
-                RESOURCES.create_new_music(nid, full_path)
-                self.after_new()
-            else:
-                QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
-
-    def save(self):
-        return None
-
 class MusicModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -48,6 +30,18 @@ class MusicModel(CollectionModel):
             text = music.nid
             return text
         return None
+
+    def create_new(self):
+        starting_path = QDir.currentPath()
+        fn, ok = QFileDialog.getOpenFileName(self, "Select Music File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
+        if ok:
+            if fn.endswith('.ogg'):
+                full_path = fn
+                local_name = os.path.split(fn)[-1]
+                nid = local_name[:-4]
+                RESOURCES.create_new_music(nid, full_path)
+            else:
+                QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
 
 class MusicProperties(QWidget):
     default_text = "Nothing Playing"

@@ -2,8 +2,6 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 
-import time
-
 from app.sprites import SPRITES
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.resources import RESOURCES

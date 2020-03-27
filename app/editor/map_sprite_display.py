@@ -1,18 +1,21 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, \
     QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter, QButtonGroup
-from PyQt5.QtCore import Qt, QDir
+from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
 
 import os
 
 from app.data.resources import RESOURCES
+from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox
+from app.extensions.custom_gui import PropertyBox, ResourceListView
 
 from app.editor.timer import TIMER
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.icon_display import IconView
 import app.editor.utilities as editor_utilities
+
+from app import utilities
 
 class MapSpriteDisplay(DatabaseTab):
     @classmethod
@@ -24,7 +27,8 @@ class MapSpriteDisplay(DatabaseTab):
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...")
+                     collection_model, parent, button_text="Add New %s...",
+                     view_type=ResourceListView)
         return dialog
 
 def get_basic_icon(pixmap, num, current=False, team='player'):
@@ -47,7 +51,7 @@ def get_basic_icon(pixmap, num, current=False, team='player'):
         pixmap = pixmap.copy(16, 16, 32, 32)
         return pixmap
 
-class MapSpriteModel(CollectionModel):
+class MapSpriteModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -60,50 +64,60 @@ class MapSpriteModel(CollectionModel):
             if not map_sprite.standing_pixmap:
                 map_sprite.standing_pixmap = QPixmap(map_sprite.standing_full_path)
             pixmap = map_sprite.standing_pixmap
-
-            num = TIMER.passive_counter.count
-            pixmap = get_basic_icon(pixmap, num, index == self.window.view.currentIndex())
+            # num = TIMER.passive_counter.count
+            pixmap = get_basic_icon(pixmap, 0, index == self.window.view.currentIndex())
             if pixmap:
                 return QIcon(pixmap)
         return None
 
     def create_new(self):
-        local_name = None
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        nid = None
         standing_full_path, moving_full_path = None, None
         standing_pix, moving_pix = None, None
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose Standing %s", starting_path)
-        if ok:
+        fn, sok = QFileDialog.getOpenFileName(self.window, "Choose Standing Map Sprite", starting_path)
+        if sok:
             if fn.endswith('.png'):
-                local_name = os.path.split(fn)[-1]
+                nid = os.path.split(fn)[-1][:-4]
                 standing_pix = QPixmap(fn)
+                nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.map_sprites])
                 standing_full_path = fn
                 if standing_pix.width() == 192 and standing_pix.height() == 144:
                     pass
                 else:
-                    QMessageBox.critical(self, "Error", "Standing Map Sprite is not correct size (160x148 px)")
+                    QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size (192x144 px)")
                     return
             else:
-                QMessageBox.critical(self, "Error", "Image must be png format")
+                QMessageBox.critical(self.window, "Error", "Image must be PNG format")
                 return
-        else:
-            return
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose Moving %s", QDir.currentPath())
-        if ok:
+            parent_dir = os.path.split(fn)[0]
+            settings.setValue("last_open_path", parent_dir)
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fn, mok = QFileDialog.getOpenFileName(self.window, "Choose Moving Map Sprite", starting_path)
+        if mok:
             if fn.endswith('.png'):
                 moving_pix = QPixmap(fn)
                 moving_full_path = fn
                 if moving_pix.width() == 192 and moving_pix.height() == 160:
                     pass
                 else:
-                    QMessageBox.critical(self, "Error", "Moving Map Sprite is not correct size (160x148 px)")
+                    QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size (192x160 px)")
                     return
             else:
-                QMessageBox.critical(self, "Error", "Image must be png format")
+                QMessageBox.critical(self.window, "Error", "Image must be png format")
                 return
-        else:
-            return
-        RESOURCES.create_new_map_sprite(local_name, standing_full_path, moving_full_path, standing_pix, moving_pix)
+        if sok and mok and nid:
+            RESOURCES.create_new_map_sprite(nid, standing_full_path, moving_full_path, standing_pix, moving_pix)
+            parent_dir = os.path.split(fn)[0]
+            settings.setValue("last_open_path", parent_dir)
+
+    def nid_change_watchers(self, portrait, old_nid, new_nid):
+        # What uses map sprites
+        # Classes
+        for klass in DB.classes:
+            if klass.map_sprite_nid == old_nid:
+                klass.map_sprite_nid = new_nid
 
 class MapSpriteProperties(QWidget):
     standing_width, standing_height = 192, 144
@@ -221,7 +235,7 @@ class MapSpriteProperties(QWidget):
         self.draw_frame()
 
     def tick(self):
-        self.window.update_list()
+        # self.window.update_list()
         self.draw_frame()
 
     def draw_frame(self):

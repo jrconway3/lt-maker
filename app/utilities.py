@@ -29,14 +29,12 @@ def find_last_number(s: str):
     return None
 
 def get_prefix(s: str):
-    last_number = re.findall(r'\d+$', s)
+    last_number = re.findall(r'\d+', s)
     if last_number:
-        idx = re.search(r'\d+$', s).span(0)[0]
-        print(s[:idx])
+        idx = re.search(r'\d+', s).span(0)[0]
         return s[:idx]
     else:
         idx = s.index('.')
-        print(s[:idx])
         return s[:idx]
 
 def intify(s: str) -> list:

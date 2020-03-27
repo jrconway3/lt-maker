@@ -163,7 +163,8 @@ class Resources(object):
         resource_dir = os.path.join(proj_dir, 'resources')
         if not os.path.exists(resource_dir):
             os.mkdir(resource_dir)
-        # Save Icons
+
+        # === Save Icons ===
         icons_dir = os.path.join(resource_dir, 'icons')
         if not os.path.exists(icons_dir):
             os.mkdir(icons_dir)
@@ -176,7 +177,8 @@ class Resources(object):
         # Save Icons80
         save_icons(icons_dir, 'icons_80x72', self.icons80)
         delete_unused_icons(icons_dir, 'icons_80x72', self.icons80)
-        # Save Portraits
+
+        # === Save Portraits ===
         portraits_dir = os.path.join(resource_dir, 'portraits')
         if not os.path.exists(portraits_dir):
             os.mkdir(portraits_dir)
@@ -195,12 +197,12 @@ class Resources(object):
         tree.write(os.path.join(portraits_dir, 'portrait_coords.xml'))
         delete_unused_images(portraits_dir, self.portraits)
 
-        # Save Panoramas
+        # === Save Panoramas ===
         panoramas_dir = os.path.join(resource_dir, 'panoramas')
         if not os.path.exists(panoramas_dir):
             os.mkdir(panoramas_dir)
         for panorama in self.panoramas:
-            new_full_path = os.path.join(panoramas_dir, panorama.nid)
+            new_full_path = os.path.join(panoramas_dir, panorama.nid + '.png')
             if os.path.abspath(panorama.full_path) != os.path.abspath(new_full_path):
                 paths = panorama.get_all_paths()
                 if len(paths) > 1:
@@ -217,38 +219,54 @@ class Resources(object):
                 print("Deleting %s" % full_path)
                 os.remove(full_path)
                 
-        # Save Map Sprites
+        # === Save Map Sprites ===
         map_sprites_dir = os.path.join(resource_dir, 'map_sprites')
         if not os.path.exists(map_sprites_dir):
             os.mkdir(map_sprites_dir)
         for map_sprite in self.map_sprites:
             # Standing sprite
-            standing_parent_dir = os.path.split(map_sprite.standing_full_path)[0]
-            if os.path.abspath(standing_parent_dir) != os.path.abspath(map_sprites_dir):
-                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid)
-                shutil.copy(map_sprite.standing_full_path, new_full_path + '-stand.png')
+            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-stand.png')
+            if os.path.abspath(map_sprite.standing_full_path) != os.path.abspath(new_full_path):
+                shutil.copy(map_sprite.standing_full_path, new_full_path)
+                map_sprite.set_standing_full_path(new_full_path)
             # Moving sprite
-            moving_parent_dir = os.path.split(map_sprite.moving_full_path)[0]
-            if os.path.abspath(moving_parent_dir) != os.path.abspath(map_sprites_dir):
-                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid)
-                shutil.copy(map_sprite.moving_full_path, new_full_path + '-move.png')
-                map_sprite.set_full_path(new_full_path)
-        # Save Maps
+            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-move.png')
+            if os.path.abspath(map_sprite.moving_full_path) != os.path.abspath(new_full_path):
+                shutil.copy(map_sprite.moving_full_path, new_full_path)
+                map_sprite.set_moving_full_path(new_full_path)
+        # Deleting unused map sprites
+        nids = set(d.nid for d in self.map_sprites)
+        for fn in os.listdir(map_sprites_dir):
+            if fn.endswith('.png') and fn.split('-')[0] not in nids:
+                full_path = os.path.join(map_sprites_dir, fn)
+                print("Deleting %s" % full_path)
+                os.remove(full_path)
+
+        # === Save Maps ===
         map_dir = os.path.join(resource_dir, 'maps')
         if not os.path.exists(map_dir):
             os.mkdir(map_dir)
         for map_image in self.maps:
             move_image(map_image, map_dir)
-        # Save Music
+        delete_unused_images(map_dir, self.maps)
+
+        # === Save Music ===
         music_dir = os.path.join(resource_dir, 'music')
         if not os.path.exists(music_dir):
             os.mkdir(music_dir)
         for music in self.music:
-            music_parent_dir = os.path.split(music.full_path)[0]
-            if os.path.abspath(music_parent_dir) != os.path.abspath(music_dir):
-                new_full_path = os.path.join(music_dir, music.nid + '.ogg')
+            new_full_path = os.path.join(music_dir, music.nid + '.ogg')
+            if os.path.abspath(music.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(music.full_path, new_full_path)
                 music.set_full_path(new_full_path)
+        # Delete unused music
+        nids = set(d.nid for d in self.music)
+        for fn in os.listdir(music_dir):
+            if not fn.endswith('.ogg') or fn[:-4] not in nids:
+                full_path = os.path.join(music_dir, fn)
+                print("Deleting %s" % full_path)
+                os.remove(full_path)
+
         print('Done Resource Serializing!')
 
     def create_new_16x16_icon(self, nid, full_path, pixmap):
@@ -270,16 +288,11 @@ class Resources(object):
         return new_icon
 
     def create_new_portrait(self, nid, full_path, pixmap):
-        # full_path = os.path.join(self.main_folder, 'portraits', nid)
-        nid = nid[:-4]  # Get rid of .png ending
         new_portrait = Portrait(nid, full_path, pixmap)
         self.portraits.append(new_portrait)
         return new_portrait
 
     def create_new_map_sprite(self, nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap):
-        nid = nid[:-4]
-        # standing_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-stand.png')
-        # moving_full_path = os.path.join(self.main_folder, 'map_sprites', nid + '-move.png')
         new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap)
         self.map_sprites.append(new_map_sprite)
         return new_map_sprite
@@ -290,8 +303,6 @@ class Resources(object):
         return new_panorama
 
     def create_new_map(self, nid, full_path, pixmap):
-        # full_path = os.path.join(self.main_folder, 'maps', nid)
-        nid = nid[:-4]  # Get rid of .png ending
         new_map = ImageResource(nid, full_path, pixmap)
         self.maps.append(new_map)
         return new_map
@@ -340,10 +351,11 @@ class MapSprite(object):
         self.standing_pixmap = standing_pixmap
         self.moving_pixmap = moving_pixmap
 
-    def set_full_path(self, full_path):
-        full_path = full_path[:-4]  # Remove png ending
-        self.standing_full_path = full_path + '-stand.png'
-        self.moving_full_path = full_path + '-move.png'
+    def set_standing_full_path(self, full_path):
+        self.standing_full_path = full_path
+
+    def set_moving_full_path(self, full_path):
+        self.moving_full_path = full_path
 
 class Panorama(object):
     def __init__(self, nid, full_path=None, pixmaps=None, num_frames=0):

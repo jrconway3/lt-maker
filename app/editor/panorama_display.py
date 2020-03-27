@@ -6,7 +6,8 @@ import os, glob
 
 from app.data.resources import RESOURCES
 
-from app.extensitons.custom_gui import ResourceListView
+from app.extensions.custom_gui import ResourceListView
+from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.icon_display import IconView
 
@@ -60,9 +61,10 @@ class PanoramaModel(ResourceCollectionModel):
                         movie_prefix = nid
                         ims = [fn]
                         full_path = fn
-                    else:
+                    else:  # Should be nommed on by some other import
                         continue
                     pixs = [QPixmap(i) for i in ims]
+                    movie_prefix = utilities.get_next_name(movie_prefix, [d.nid for d in RESOURCES.panoramas])
                     if all(pix.width() >= 240 and pix.height() >= 160 for pix in pixs):
                         RESOURCES.create_new_panorama(movie_prefix, full_path, pixs)
                     else:
@@ -97,6 +99,8 @@ class PanoramaProperties(QWidget):
         self.setLayout(layout)
 
         layout.addWidget(self.view)
+
+        TIMER.tick_elapsed.connect(self.tick)
 
     def tick(self):
         if self.current:

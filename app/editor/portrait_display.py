@@ -15,6 +15,8 @@ from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.icon_display import IconView
 
+from app import utilities
+
 class PortraitDisplay(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
@@ -51,10 +53,11 @@ class PortraitModel(ResourceCollectionModel):
         if ok:
             for fn in fns:
                 if fn.endswith('.png'):
-                    local_name = os.path.split(fn)[-1]
+                    nid = os.path.split(fn)[-1][:-4]
                     pix = QPixmap(fn)
+                    nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.portraits])
                     if pix.width() == 128 and pix.height() == 112:
-                        RESOURCES.create_new_portrait(local_name, fn, pix)
+                        RESOURCES.create_new_portrait(nid, fn, pix)
                     else:
                         QMessageBox.critical(self.window, "Error", "Image is not correct size (128x112 px)")
                 else:

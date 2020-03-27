@@ -1,15 +1,18 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox
-from PyQt5.QtCore import QDir
+from PyQt5.QtCore import QDir, QSettings
 from PyQt5.QtGui import QPixmap
 
 import os
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.resources import RESOURCES
+from app.data.database import DB
 
 from app.editor.base_database_gui import DatabaseTab
 from app.extensions.custom_gui import ResourceTreeView
 from app.editor.icon_display import IconTreeModel, IconView
+
+from app import utilities
 
 class MapDisplay(DatabaseTab):
     @classmethod
@@ -30,19 +33,32 @@ class MapDisplay(DatabaseTab):
 
 class MapTreeModel(IconTreeModel):
     def create_new(self):
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
-            if fn.endswith('.png'):
-                local_name = os.path.split(fn)[-1]
-                pix = QPixmap(fn)
-                if pix.width() % TILEWIDTH != 0:
-                    QMessageBox.critical(self, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
-                    return
-                elif pix.height() % TILEHEIGHT != 0:
-                    QMessageBox.critical(self, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
-                    return
-                RESOURCES.create_new_map(local_name, fn, pix)
+            for fn in fns:
+                if fn.endswith('.png'):
+                    nid = os.path.split(fn)[-1][:-4]
+                    pix = QPixmap(fn)
+                    nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.maps])
+                    if pix.width() % TILEWIDTH != 0:
+                        QMessageBox.critical(self, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
+                        continue
+                    elif pix.height() % TILEHEIGHT != 0:
+                        QMessageBox.critical(self, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
+                        continue
+                    RESOURCES.create_new_map(nid, fn, pix)
+                else:
+                    QMessageBox.critical(self.window, "File Type Error!", "Icon must be PNG format!") 
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.setValue("last_open_path", parent_dir)
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        # What uses maps
+        for level in DB.levels:
+            if level.tilemap.base_image_nid == old_nid:
+                level.tilemap.base_image_nid = new_nid
 
 class MapProperties(QWidget):
     def __init__(self, parent, current=None):

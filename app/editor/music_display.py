@@ -1,12 +1,16 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, QToolButton, \
     QLabel, QStyle, QVBoxLayout, QSlider
-from PyQt5.QtCore import Qt, QDir
+from PyQt5.QtCore import Qt, QDir, QSettings
 
 import os
 
 from app.data.resources import RESOURCES
+from app.data.database import DB
 
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.extensions.custom_gui import ResourceListView
+from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
+
+from app import utilities
 
 class MusicDisplay(DatabaseTab):
     @classmethod
@@ -18,10 +22,11 @@ class MusicDisplay(DatabaseTab):
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...")
+                     collection_model, parent, button_text="Add New %s...",
+                     view_type=ResourceListView)
         return dialog
 
-class MusicModel(CollectionModel):
+class MusicModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -32,16 +37,27 @@ class MusicModel(CollectionModel):
         return None
 
     def create_new(self):
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Select Music File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Music File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
         if ok:
-            if fn.endswith('.ogg'):
-                full_path = fn
-                local_name = os.path.split(fn)[-1]
-                nid = local_name[:-4]
-                RESOURCES.create_new_music(nid, full_path)
-            else:
-                QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
+            for fn in fns:
+                if fn.endswith('.ogg'):
+                    nid = os.path.split(fn)[-1][:-4]
+                    nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.music])
+                    RESOURCES.create_new_music(nid, fn)
+                else:
+                    QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.setValue("last_open_path", parent_dir)
+
+    def nid_change_watchers(self, music, old_nid, new_nid):
+        # What uses music
+        # Levels
+        for level in DB.levels:
+            for key, value in level.music:
+                if value == old_nid:
+                    level.music[key] = new_nid
 
 class MusicProperties(QWidget):
     default_text = "Nothing Playing"

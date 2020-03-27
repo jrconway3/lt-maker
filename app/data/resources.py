@@ -149,6 +149,14 @@ class Resources(object):
                     print("Deleting %s" % full_path)
                     os.remove(full_path)
 
+        def delete_unused_images(direc, database):
+            nids = set(d.nid for d in database)
+            for fn in os.listdir(direc):
+                if fn.endswith('.png') and fn[:-4] not in nids:
+                    full_path = os.path.join(direc, fn)
+                    print("Deleting %s" % full_path)
+                    os.remove(full_path)
+
         # Make the directory to save this resource pack in
         if not os.path.exists(proj_dir):
             os.mkdir(proj_dir)
@@ -185,14 +193,15 @@ class Resources(object):
 
         tree = ET.ElementTree(root)
         tree.write(os.path.join(portraits_dir, 'portrait_coords.xml'))
+        delete_unused_images(portraits_dir, self.portraits)
+
         # Save Panoramas
         panoramas_dir = os.path.join(resource_dir, 'panoramas')
         if not os.path.exists(panoramas_dir):
             os.mkdir(panoramas_dir)
         for panorama in self.panoramas:
-            panorama_parent_dir = os.path.split(panorama.full_path)[0]
-            if os.path.abspath(panorama_parent_dir) != os.path.abspath(panoramas_dir):
-                new_full_path = os.path.join(panoramas_dir, panorama.nid)
+            new_full_path = os.path.join(panoramas_dir, panorama.nid)
+            if os.path.abspath(panorama.full_path) != os.path.abspath(new_full_path):
                 paths = panorama.get_all_paths()
                 if len(paths) > 1:
                     for idx, path in enumerate(paths):
@@ -200,6 +209,14 @@ class Resources(object):
                 else:
                     shutil.copy(paths[0], new_full_path + '.png')
                 panorama.set_full_path(new_full_path)
+        # Deleting unused panoramas
+        nids = set(d.nid for d in self.panoramas)
+        for fn in os.listdir(panoramas_dir):
+            if fn.endswith('.png') and utilities.get_prefix(fn) not in nids:
+                full_path = os.path.join(panoramas_dir, fn)
+                print("Deleting %s" % full_path)
+                os.remove(full_path)
+                
         # Save Map Sprites
         map_sprites_dir = os.path.join(resource_dir, 'map_sprites')
         if not os.path.exists(map_sprites_dir):

@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon
 
 import os, glob
 
 from app.data.resources import RESOURCES
 
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.extensitons.custom_gui import ResourceListView
+from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.icon_display import IconView
 
 import app.utilities as utilities
@@ -21,10 +22,11 @@ class PanoramaDisplay(DatabaseTab):
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...")
+                     collection_model, parent, button_text="Add New %s...",
+                     view_type=ResourceListView)
         return dialog
 
-class PanoramaModel(CollectionModel):
+class PanoramaModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -41,24 +43,39 @@ class PanoramaModel(CollectionModel):
         return None
 
     def create_new(self):
-        fn, ok = QFileDialog.getOpenFileName(self, "Add Background")
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Add Background", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
-            if fn.endswith('.png'):
-                nid = os.path.split(fn)[-1][:-4]
-                last_number = utilities.find_last_number(nid)
-                if last_number == 0:
-                    movie_prefix = fn[:-5]
-                    ims = glob.glob(movie_prefix + '*' + '.png')
-                    ims = sorted(ims, key=lambda x: utilities.find_last_number(x[:-4]))
-                    full_path = movie_prefix + '.png'
-                elif last_number is None:
-                    movie_prefix = nid
-                    ims = [fn]
-                    full_path = fn
-                pixs = [QPixmap(i) for i in ims]
-                RESOURCES.create_new_panorama(movie_prefix, full_path, pixs)
-            else:
-                QMessageBox.critical(self.window, "File Type Error!", "Background must be PNG format!")
+            for fn in fns:
+                if fn.endswith('.png'):
+                    nid = os.path.split(fn)[-1][:-4]
+                    last_number = utilities.find_last_number(nid)
+                    if last_number == 0:
+                        movie_prefix = utilities.get_prefix(fn)
+                        ims = glob.glob(movie_prefix + '*' + '.png')
+                        ims = sorted(ims, key=lambda x: utilities.find_last_number(x[:-4]))
+                        full_path = movie_prefix + '.png'
+                    elif last_number is None:
+                        movie_prefix = nid
+                        ims = [fn]
+                        full_path = fn
+                    else:
+                        continue
+                    pixs = [QPixmap(i) for i in ims]
+                    if all(pix.width() >= 240 and pix.height() >= 160 for pix in pixs):
+                        RESOURCES.create_new_panorama(movie_prefix, full_path, pixs)
+                    else:
+                        QMessageBox.critical(self.window, "Error", "Image must be at least 240x160 pixels in size")
+                else:
+                    QMessageBox.critical(self.window, "File Type Error!", "Background must be PNG format!")
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.setValue("last_open_path", parent_dir)
+
+    def nid_change_watchers(self, portrait, old_nid, new_nid):
+        # What uses panoramas
+        # Nothing for now -- later Dialogue
+        pass
 
 class PanoramaProperties(QWidget):
     def __init__(self, parent, current=None):

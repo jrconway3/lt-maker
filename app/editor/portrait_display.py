@@ -1,16 +1,18 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
     QSpinBox, QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, \
     QSplitter
-from PyQt5.QtCore import Qt, QDir, pyqtSignal 
+from PyQt5.QtCore import Qt, QDir, pyqtSignal, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 
 import os
 import time, random
 
 from app.data.resources import RESOURCES
+from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
+from app.extensions.custom_gui import PropertyBox, ResourceListView
+from app.editor.timer import TIMER
+from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.icon_display import IconView
 
 class PortraitDisplay(DatabaseTab):
@@ -23,10 +25,11 @@ class PortraitDisplay(DatabaseTab):
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...")
+                     collection_model, parent, button_text="Add New %s...",
+                     view_type=ResourceListView)
         return dialog
 
-class PortraitModel(DragDropCollectionModel):
+class PortraitModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -42,16 +45,29 @@ class PortraitModel(DragDropCollectionModel):
         return None
 
     def create_new(self):
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self, "Choose %s", starting_path)
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
-            if fn.endswith('.png'):
-                local_name = os.path.split(fn)[-1]
-                pix = QPixmap(fn)
-                if pix.width() == 128 and pix.height() == 112:
-                    RESOURCES.create_new_portrait(local_name, fn, pix)
+            for fn in fns:
+                if fn.endswith('.png'):
+                    local_name = os.path.split(fn)[-1]
+                    pix = QPixmap(fn)
+                    if pix.width() == 128 and pix.height() == 112:
+                        RESOURCES.create_new_portrait(local_name, fn, pix)
+                    else:
+                        QMessageBox.critical(self.window, "Error", "Image is not correct size (128x112 px)")
                 else:
-                    QMessageBox.critical(self, "Error", "Image is not correct size (128x112 px)")
+                    QMessageBox.critical(self.window, "File Type Error!", "Portrait must be PNG format!")
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.setValue("last_open_path", parent_dir)
+
+    def nid_change_watchers(self, portrait, old_nid, new_nid):
+        # What uses portraits
+        # Units (Later Dialogues)
+        for unit in DB.units:
+            if unit.portrait_nid == old_nid:
+                unit.portrait_nid = new_nid
 
 class SpinBoxXY(QWidget):
     coordsChanged = pyqtSignal(int, int)
@@ -191,6 +207,8 @@ class PortraitProperties(QWidget):
         final_section = QHBoxLayout()
         self.setLayout(final_section)
         final_section.addWidget(final_splitter)
+
+        TIMER.tick_elapsed.connect(self.tick)
 
     def set_current(self, current):
         self.current = current

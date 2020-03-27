@@ -207,6 +207,28 @@ class DragDropCollectionModel(CollectionModel):
         else:
             return Qt.ItemIsDragEnabled | super().flags(index)
 
+class ResourceCollectionModel(DragDropCollectionModel):
+    def setData(self, index, value, role):
+        if not index.isValid():
+            return False
+        if role == Qt.EditRole:
+            if value:
+                item = self._data[index.row()]
+                old_nid = item.nid
+                nid = utilities.get_next_name(value, [d.nid for d in self._data])
+                self._data.update_nid(item, nid)
+                self.nid_change_watchers(item, old_nid, nid)
+        return True
+
+    def flags(self, index):
+        flags = super().flags(index)
+        if not index.isValid():
+            return flags
+        return flags | Qt.ItemIsEditable
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        pass
+
 class MultiAttrCollectionModel(QAbstractItemModel):
     def __init__(self, data, headers, parent=None):
         super().__init__(parent)

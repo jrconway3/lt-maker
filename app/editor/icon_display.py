@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, \
     QGraphicsView, QGraphicsScene, QMessageBox
-from PyQt5.QtCore import Qt, QDir, QAbstractItemModel, QModelIndex
+from PyQt5.QtCore import Qt, QDir, QAbstractItemModel, QModelIndex, QSettings
 from PyQt5.QtGui import QPixmap, QIcon
 
 import os
@@ -183,15 +183,21 @@ class Icon16Model(IconTreeModel):
     width, height = 16, 16
 
     def create_new(self):
-        starting_path = QDir.currentPath()
-        fn, ok = QFileDialog.getOpenFileName(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
-            if fn.endswith('.png'):
-                nid = os.path.split(fn)[-1][:-4]  # Get rid of .png ending
-                pix = QPixmap(fn)
-                nid = utilities.get_next_name(nid, [d.nid for d in self.database])
-                icon = self.creation_func(nid, fn, pix)
-                icon_slice(icon, self.width, self.height)
+            for fn in fns:
+                if fn.endswith('.png'):
+                    nid = os.path.split(fn)[-1][:-4]  # Get rid of .png ending
+                    pix = QPixmap(fn)
+                    nid = utilities.get_next_name(nid, [d.nid for d in self.database])
+                    icon = self.creation_func(nid, fn, pix)
+                    icon_slice(icon, self.width, self.height)
+                else:
+                    QMessageBox.critical(self.window, "File Type Error!", "Icon must be PNG format!")
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.setValue("last_open_path", parent_dir)
 
     def nid_change_watchers(self, icon, old_nid, new_nid):
         # What uses 16x16 icons

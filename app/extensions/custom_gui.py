@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
     QLineEdit, QPushButton, QAction, QMenu, QMessageBox, QSizePolicy, QFrame, \
-    QDialogButtonBox, QGridLayout, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
+    QDialogButtonBox, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
 from PyQt5.QtCore import Qt, QSize
 
 class SimpleDialog(QDialog):
@@ -197,7 +197,7 @@ class RightClickTreeView(RightClickView, QTreeView):
 class RightClickListView(RightClickView, QListView):
     pass
 
-class ResourceListView(RightClickView):
+class ResourceListView(RightClickView, QListView):
     def customMenuRequested(self, pos):
         index = self.indexAt(pos)
 
@@ -233,7 +233,7 @@ class ResourceTreeView(RightClickView, QTreeView):
         self.window.view.setCurrentIndex(index)
 
     def keyPressEvent(self, event):
-        QTreeView.keyPressEvent(event)
+        QTreeView.keyPressEvent(self, event)
         if event.key() == Qt.Key_Delete:
             self.delete(self.currentIndex())
 

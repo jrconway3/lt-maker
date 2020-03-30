@@ -130,11 +130,17 @@ class ItemProperties(QWidget):
         self.desc_box.edit.textChanged.connect(self.desc_changed)
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
-        self.value_box = PropertyBox("Value per use", QSpinBox, self)
-        self.value_box.edit.setMaximum(1000000)
-        self.value_box.edit.setAlignment(Qt.AlignRight)
-        self.value_box.edit.valueChanged.connect(self.value_changed)
-        main_section.addWidget(self.value_box, 1, 0)
+        self.total_value_box = PropertyBox("Total Value", QSpinBox, self)
+        self.total_value_box.edit.setMaximum(100000000)
+        self.total_value_box.edit.setAlignment(Qt.AlignRight)
+        self.total_value_box.edit.valueChanged.connect(self.total_value_changed)
+        main_section.addWidget(self.total_value_box, 1, 0)
+
+        self.value_per_use_box = PropertyBox("Value per use", QSpinBox, self)
+        self.value_per_use_box.edit.setMaximum(1000000)
+        self.value_per_use_box.edit.setAlignment(Qt.AlignRight)
+        self.value_per_use_box.edit.valueChanged.connect(self.value_per_use_changed)
+        main_section.addWidget(self.value_per_use_box, 1, 1)
 
         self.min_range_box = PropertyBox("Minimum Range", ComboBox, self)
         self.min_range_box.edit.setEditable(True)
@@ -142,7 +148,7 @@ class ItemProperties(QWidget):
         self.min_range_box.edit.addItems(DB.equations.keys())
         # self.min_range_box.edit.currentTextChanged.connect(self.min_range_changed)
         self.min_range_box.edit.lineEdit().editingFinished.connect(self.check_min_range)
-        main_section.addWidget(self.min_range_box, 1, 1)
+        main_section.addWidget(self.min_range_box, 1, 2)
 
         self.min_range_box.add_button(QPushButton('...'))
         self.min_range_box.button.setMaximumWidth(40)
@@ -154,7 +160,7 @@ class ItemProperties(QWidget):
         self.max_range_box.edit.addItems(DB.equations.keys())
         # self.max_range_box.edit.currentTextChanged.connect(self.max_range_changed)
         self.max_range_box.edit.lineEdit().editingFinished.connect(self.check_max_range)
-        main_section.addWidget(self.max_range_box, 1, 2)
+        main_section.addWidget(self.max_range_box, 1, 3)
 
         self.max_range_box.add_button(QPushButton('...'))
         self.max_range_box.button.setMaximumWidth(40)
@@ -201,8 +207,29 @@ class ItemProperties(QWidget):
         self.current.name = text
         self.window.update_list()
 
-    def value_changed(self, val):
-        self.current.value = int(val)
+    def total_value_changed(self, val):
+        val = int(val)
+        if 'uses' in [c.nid for c in self.current.components]:
+            num_uses = self.current.components.get('uses').value
+            new_value_per_use = val // num_uses
+            new_total_value = new_value_per_use * num_uses
+            if new_total_value == self.total_value_box.edit.value():  # It hasn't changed
+                new_value_per_use += 1  # Try making it one bigger
+            self.current.value = new_value_per_use
+            self.total_value_box.edit.setValue(self.current.value * num_uses)
+            self.value_per_use_box.edit.setValue(self.current.value)
+        else:
+            self.value_per_use_box.edit.setValue(val)
+
+    def value_per_use_changed(self, val):
+        val = int(val)
+        if 'uses' in [c.nid for c in self.current.components]:
+            num_uses = self.current.components.get('uses').value
+            self.current.value = val
+            self.total_value_box.edit.setValue(val * num_uses)
+        else:
+            self.current.value = val
+            self.total_value_box.edit.setValue(val)
 
     def desc_changed(self, text):
         self.current.desc = text
@@ -264,7 +291,6 @@ class ItemProperties(QWidget):
         self.current = current
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
-        self.value_box.edit.setValue(current.value)
         self.desc_box.edit.setText(current.desc)
         if utilities.is_int(current.min_range):
             self.min_range_box.edit.setEditText(current.min_range)
@@ -278,6 +304,8 @@ class ItemProperties(QWidget):
         self.component_list.clear()
         for component in current.components.values():
             self.add_component_widget(component)
+
+        self.value_per_use_box.edit.setValue(current.value)
 
     def add_components(self):
         dlg = component_database.ComponentDialog(IC.item_components, "Item Components", self)

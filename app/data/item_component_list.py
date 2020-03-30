@@ -1,7 +1,7 @@
 # Item Components
 
-Weapon (bool) : Cannot be Spell
-Spell (Beneficial/Detrimental/Neutral AND Target (Ally/Enemy/Unit/Tile/Tile Without Unit)) : Cannot be Weapon
+Weapon (WeaponType) : Cannot be Spell
+Spell (WeaponType AND Beneficial/Detrimental/Neutral AND Target (Ally/Enemy/Unit/Tile/Tile Without Unit)) : Cannot be Weapon
 Usable (bool)
 Might (int) : Spell or Weapon
 Hit (int): Spell or Weapon
@@ -28,21 +28,21 @@ Cannot Double (bool): Weapon
 Heal on Hit (int): Weapon or Spell
 Heal on Use (int): Usable
 Repair (bool): Spell or Usable  -- will work on both hit and use
-Unlock (bool): Spell
+EventTile Interact (EventTileType): Spell
 Extra Targets (list of (Min Range / Max Range AND Target)): Spell
 Target Restrict (Eval): Spell
 Crit (int): Weapon or Spell AND Might
 Effective Versus (list of (Tag and int)): Weapon or Spell AND Might
 Reverse (bool): Weapon or Spell
-Magical (bool): Weapon or Spell
-Magical only at Range (bool): Weapon or Spell
+Magical (bool): Weapon or Spell and not Magical only at Range
+Magical only at Range (bool): Weapon or Spell and not Magic
 Ignores Weapon Triangle (bool): Weapon or Spell
 Weapon Experience (int): Weapon or Spell
 Does Half Damage on Miss (bool): Weapon or Spell
-Lifelink (bool): Weapon or Spell
-Half Lifelink (bool): Weapon or Spell
-Ignore Defense (bool): Weapon or Spell
-Ignore Half Defense (bool): Weapon or Spell
+Lifelink (bool): Weapon or Spell and not Lifelink
+Half Lifelink (bool): Weapon or Spell and not Half Lifelink
+Ignore Defense (bool): Weapon or Spell and not Ignore Half Defense
+Ignore Half Defense (bool): Weapon or Spell and not Ignore Defense
 Area of Effect (AOEType): Weapon or Spell
 Alternate Damage, Defense, Accuracy, Avoid, Crit Accuracy, Crit Avoid (Equation): Weapon or Spell AND associated Might, Hit, or Crit component
 Booster (bool): Usable

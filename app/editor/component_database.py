@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
 
 from app.data.database import DB
-from app.data.weapons import WeaponType, WeaponRank
+from app.data import item_components
 
 from app.extensions.custom_gui import ComboBox
 
@@ -16,6 +16,10 @@ class ComponentList(QListWidget):
         super().__init__(parent)
         self.window = parent
         self.index_list = []
+
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDragDropMode(4)  # Internal Move
 
     def add_component(self, component):
         item = QListWidgetItem()
@@ -56,6 +60,9 @@ class BoolItemComponent(QWidget):
     def create_editor(self, hbox):
         pass
 
+    def on_value_changed(self, val):
+        self._data.value = val
+
     @property
     def data(self):
         return self._data
@@ -69,7 +76,7 @@ class IntItemComponent(BoolItemComponent):
         hbox.addWidget(self.editor)
 
     def on_value_changed(self, val):
-        self._data.value = val
+        self._data.value = int(val)
 
 class WeaponTypeItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
@@ -80,9 +87,6 @@ class WeaponTypeItemComponent(BoolItemComponent):
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
-    def on_value_changed(self, val):
-        self._data.value = DB.weapons.get(val)
-
 class WeaponRankItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
@@ -92,20 +96,44 @@ class WeaponRankItemComponent(BoolItemComponent):
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
+class SpellItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor1 = ComboBox(self)
+        self.editor1.setMaximumWidth(120)
+        for weapon_rank in DB.weapon_ranks.value():
+            self.editor1.addItem(weapon_rank.nid)
+        self.editor1.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor1)
+
+        self.editor2 = ComboBox(self)
+        for spell_affect in item_components.SpellAffect:
+            self.editor2.addItem(spell_affect.name)
+        self.editor2.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor2)
+
+        self.editor3 = ComboBox(self)
+        for spell_target in item_components.SpellTarget:
+            self.editor3.addItem(spell_target.name)
+        self.editor3.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor3)
+
     def on_value_changed(self, val):
-        self._data.value = DB.weapon_ranks.get(val)
+        v1 = self.editor1.currentText()
+        v2 = item_components.SpellAffect[self.editor2.currentText()].value
+        v3 = item_components.SpellTarget[self.editor3.currentText()].value
+        self._data.value = (v1, v2, v3)
 
 def get_display_widget(component, parent):
     if component.attr == bool:
         c = BoolItemComponent(component, parent)
     elif component.attr == int:
         c = IntItemComponent(component, parent)
-    elif component.attr == WeaponType:
+    elif component.attr == 'WeaponType':
         c = WeaponTypeItemComponent(component, parent)
-    elif component.attr == WeaponRank:
+    elif component.attr == 'WeaponRank':
         c = WeaponRankItemComponent(component, parent)
-    elif type(component.attr) == tuple:  # TODO
-        c = BoolItemComponent(component, parent)
+    elif component.nid == 'spell':  # TODO
+        c = SpellItemComponent(component, parent)
     else:  # TODO
         c = BoolItemComponent(component, parent)
     return c

@@ -1,7 +1,6 @@
 from enum import Enum
 
 from app.data.data import Data
-from app.data.weapons import WeaponRank, WeaponType
 
 # Custom Types
 class SpellAffect(Enum):
@@ -19,6 +18,12 @@ class SpellTarget(Enum):
 # Requirement functions
 def no_requirement(other_components):
     return True
+
+def requires_weapon(other_components):
+    return 'weapon' in other_components
+
+def requires_spell(other_components):
+    return 'spell' in other_components
 
 def requires_spell_or_weapon(other_components):
     return 'weapon' in other_components or 'spell' in other_components
@@ -48,17 +53,18 @@ class item_component(object):
         return (self.nid, self.value)
 
 item_components = Data([
-    item_component('weapon', 'Weapon', WeaponType, None,
+    item_component('weapon', 'Weapon', 'WeaponType', None,
                              lambda x: 'spell' not in x),
-    item_component('spell', 'Spell', (WeaponType, SpellAffect, SpellTarget),
+    item_component('spell', 'Spell', ('WeaponType', SpellAffect, SpellTarget),
                             (None, SpellAffect.Neutral, SpellTarget.Unit),
                             lambda x: 'weapon' not in x),
     item_component('usable', 'Usable'),
     item_component('might', 'Might', int, 0, requires_spell_or_weapon),
     item_component('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),
-    item_component('level', 'Weapon Level Required', WeaponRank, None, requires_spell_or_weapon),
+    item_component('level', 'Weapon Level Required', 'WeaponRank', None, requires_spell_or_weapon),
     item_component('weight', 'Weight', int, 0, requires_spell_or_weapon),
     item_component('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
+    item_component('magic', 'Magical', bool, False, requires_spell_or_weapon),
 
     item_component('uses', 'Total Uses', int, 30),
     item_component('c_uses', 'Uses per Chapter', int, 8),

@@ -122,7 +122,7 @@ class ClassModel(DragDropCollectionModel):
         for unit in DB.units:
             if unit.klass == old_nid:
                 unit.klass = new_nid
-        for k in DB.klasses:
+        for k in DB.classes:
             if k.promotes_from == old_nid:
                 k.promotes_from = new_nid
             k.turns_into = [new_nid if elem == old_nid else elem for elem in k.turns_into]

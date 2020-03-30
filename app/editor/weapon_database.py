@@ -67,7 +67,7 @@ class WeaponModel(DragDropCollectionModel):
         nid = weapon_type.nid
         affected_klasses = [klass for klass in DB.classes if klass.wexp_gain.get(nid).wexp_gain > 0]
         affected_units = [unit for unit in DB.units if unit.wexp_gain.get(nid).wexp_gain > 0]
-        affected_items = [item for item in DB.items if item.weapon and item.weapon.value == weapon_type]
+        affected_items = [item for item in DB.items if item.weapon and item.weapon.value == nid]
         affected_weapons = [weapon for weapon in DB.weapons if weapon.advantage.contains(nid) or weapon.disadvantage.contains(nid)]
         if affected_klasses or affected_units or affected_items or affected_weapons:
             if affected_items:
@@ -94,7 +94,7 @@ class WeaponModel(DragDropCollectionModel):
                 for unit in affected_units:
                     unit.wexp_gain.get(swap.nid).absorb(unit.wexp_gain.get(nid))
                 for item in affected_items:
-                    item.weapon.value = swap
+                    item.weapon.value = swap.nid
                 for weapon in affected_weapons:
                     weapon.advantage.swap(nid, swap.nid)
                     weapon.disadvantage.swap(nid, swap.nid)
@@ -170,7 +170,9 @@ class WeaponRankMultiModel(MultiAttrCollectionModel):
             for weapon in DB.weapons:
                 weapon.advantage.swap_rank(old_value, new_value)
                 weapon.disadvantage.swap_rank(old_value, new_value)
-            # Don't need to swap Items since they have the weapon rank itself as their value
+            for item in DB.items:
+                if item.level and item.level.value == old_value:
+                    item.level.value = new_value
 
 class RankDialog(MultiAttrListDialog):
     @classmethod
@@ -253,6 +255,11 @@ class WeaponProperties(QWidget):
         for weapon in DB.weapons:
             weapon.advantage.swap(old_nid, new_nid)
             weapon.disadvantage.swap(old_nid, new_nid)
+        for item in DB.items:
+            if item.weapon and item.weapon.value == old_nid:
+                item.weapon.value = new_nid
+            elif item.spell and item.spell.value[0] == old_nid:
+                item.spell.value = (new_nid, *item.spell.value[1:])
 
     def nid_done_editing(self):
         # Check validity of nid!

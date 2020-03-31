@@ -42,7 +42,7 @@ constants = ConstantCatalog([
     Constant('def_double', "Defender can double counterattack", bool, True),
     Constant('enemy_leveling', "Method for autoleveling generic units", ("Random", "Fixed", "Hybrid", "FE8", "Match"), "Match"),
     Constant('rng', "Method for resolving accuracy rolls", ("Classic", "True Hit", "True Hit+", "Grandmaster"), "True Hit"),
-    Constant('num_skills', "Expected number of Skills at max level", int, 5),
+    # Constant('num_skills', "Expected number of Skills at max level", int, 5),
     Constant('auto_promote', "Units will promote automatically upon reaching max level", bool),
     Constant('min_damage', "Min damage dealt by an attack", int, 0),
     Constant('boss_crit', "Final blow on boss will use critical animation", bool),

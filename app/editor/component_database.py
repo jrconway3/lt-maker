@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, \
     QSpinBox, QHBoxLayout, QListWidget, QListWidgetItem, \
     QDialog, QTreeView, QDialogButtonBox, QVBoxLayout
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
+from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex, pyqtSignal
 
 from app.data.database import DB
 from app.data import item_components
@@ -12,6 +12,8 @@ from app.data import item_components
 from app.extensions.custom_gui import ComboBox
 
 class ComponentList(QListWidget):
+    order_swapped = pyqtSignal(int, int)
+    
     def __init__(self, parent):
         super().__init__(parent)
         self.window = parent
@@ -20,6 +22,8 @@ class ComponentList(QListWidget):
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
         self.setDragDropMode(4)  # Internal Move
+
+        self.model().rowsMoved.connect(self.row_moved)
 
     def add_component(self, component):
         item = QListWidgetItem()
@@ -35,6 +39,12 @@ class ComponentList(QListWidget):
             self.index_list.remove(component.data.nid)
             return self.takeItem(idx)
         return None
+
+    def row_moved(self, parent, start, end, destination, row):
+        # print(start, end, row, flush=True)
+        elem = self.index_list.pop(start)
+        self.index_list.insert(row, elem)
+        self.order_swapped.emit(start, row)
 
 class BoolItemComponent(QWidget):
     def __init__(self, data, parent):
@@ -78,12 +88,27 @@ class IntItemComponent(BoolItemComponent):
     def on_value_changed(self, val):
         self._data.value = int(val)
 
+class HitItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = QSpinBox(self)
+        self.editor.setMaximumWidth(40)
+        self.editor.setValue(self._data.value)
+        self.editor.setSingleStep(5)
+        self.editor.valueChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+class UsesItemComponent(IntItemComponent):
+    def on_value_changed(self, val):
+        self._data.value = int(val)
+        self.window.update_value_boxes()
+
 class WeaponTypeItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.setMaximumWidth(120)
         for weapon_type in DB.weapons.values():
             self.editor.addItem(weapon_type.nid)
+        self.editor.setValue(self._data.value)
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
@@ -93,6 +118,7 @@ class WeaponRankItemComponent(BoolItemComponent):
         self.editor.setMaximumWidth(120)
         for weapon_rank in DB.weapon_ranks.values():
             self.editor.addItem(weapon_rank.nid)
+        self.editor.setValue(self._data.value)
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
@@ -126,6 +152,10 @@ class SpellItemComponent(BoolItemComponent):
 def get_display_widget(component, parent):
     if component.attr == bool:
         c = BoolItemComponent(component, parent)
+    elif component.nid == 'uses':
+        c = UsesItemComponent(component, parent)
+    elif component.nid in ('hit', 'crit'):
+        c = HitItemComponent(component, parent)
     elif component.attr == int:
         c = IntItemComponent(component, parent)
     elif component.attr == 'WeaponType':
@@ -164,7 +194,10 @@ class ComponentDialog(QDialog):
         self.buttonbox.rejected.connect(self.reject)
 
     def get_checked(self):
-        return self.model.checked
+        components = item_components.item_components
+        # sort based off position in item_components
+        sorted_components = sorted(self.model.checked, key=lambda x: [c.nid for c in components].index(x))
+        return sorted_components
 
 class ComponentModel(QAbstractItemModel):
     def __init__(self, data, already_present, parent=None):

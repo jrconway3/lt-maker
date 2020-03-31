@@ -40,10 +40,6 @@
         "True Hit"
     ],
     [
-        "num_skills",
-        5
-    ],
-    [
         "auto_promote",
         false
     ],

@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 
 from app.sprites import SPRITES
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
@@ -22,7 +22,7 @@ class MapView(QGraphicsView):
         self.setScene(self.scene)
         self.setMouseTracking(True)
 
-        self.setMinimumSize(15*TILEWIDTH, 10*TILEHEIGHT)
+        self.setMinimumSize(WINWIDTH, WINHEIGHT)
         self.setStyleSheet("background-color:rgb(128, 128, 128);")
 
         self.current_map = None

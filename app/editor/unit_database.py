@@ -364,6 +364,8 @@ class UnitProperties(QWidget):
     #     pass
 
     def items_changed(self):
+        # print("Item Widget Get Items", flush=True)
+        # print(self.item_widget.get_items(), flush=True)
         self.current.starting_items = self.item_widget.get_items()
 
     def access_tags(self):
@@ -375,14 +377,6 @@ class UnitProperties(QWidget):
             self.tag_box.edit.setCurrentTexts(self.current.tags)
         else:
             pass
-
-    # def access_stats(self):
-    #     dlg = StatTypeDialog.create()
-    #     result = dlg.exec_()
-    #     if result == QDialog.Accepted:
-    #         self.unit_stat_widget.update_stats()
-    #     else:
-    #         pass
 
     def set_current(self, current):
         self.current = current
@@ -402,6 +396,9 @@ class UnitProperties(QWidget):
 
         self.personal_skill_widget.set_current(current.learned_skills)
         self.wexp_gain_widget.set_current(current.wexp_gain)
+        # print("Unit Set Current")
+        # print(current.nid)
+        # print(current.starting_items, flush=True)
         self.item_widget.set_current(current.starting_items)
 
         self.icon_edit.set_current(current.portrait_nid)

@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 
 import os, glob
 
+from app.data.constants import WINWIDTH, WINHEIGHT
 from app.data.resources import RESOURCES
 
 from app.extensions.custom_gui import ResourceListView
@@ -65,10 +66,10 @@ class PanoramaModel(ResourceCollectionModel):
                         continue
                     pixs = [QPixmap(i) for i in ims]
                     movie_prefix = utilities.get_next_name(movie_prefix, [d.nid for d in RESOURCES.panoramas])
-                    if all(pix.width() >= 240 and pix.height() >= 160 for pix in pixs):
+                    if all(pix.width() >= WINWIDTH and pix.height() >= WINHEIGHT for pix in pixs):
                         RESOURCES.create_new_panorama(movie_prefix, full_path, pixs)
                     else:
-                        QMessageBox.critical(self.window, "Error", "Image must be at least 240x160 pixels in size")
+                        QMessageBox.critical(self.window, "Error", "Image must be at least %dx%d pixels in size" % (WINWIDTH, WINHEIGHT))
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Background must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]

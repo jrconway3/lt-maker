@@ -65,6 +65,7 @@ item_components = Data([
     item_component('weight', 'Weight', int, 0, requires_spell_or_weapon),
     item_component('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
     item_component('magic', 'Magical', bool, False, requires_spell_or_weapon),
+    item_component('wexp', 'Weapon Experience Gained', int, 1, requires_spell_or_weapon),
 
     item_component('uses', 'Total Uses', int, 30),
     item_component('c_uses', 'Uses per Chapter', int, 8),

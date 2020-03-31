@@ -48,7 +48,7 @@
             ],
             [
                 "RES",
-                0
+                1
             ]
         ],
         "growths": [
@@ -90,11 +90,12 @@
             ],
             [
                 "RES",
-                0
+                30
             ]
         ],
         "starting_items": [
-            "Iron Sword"
+            "Rapier",
+            "Vulnerary"
         ],
         "learned_skills": [],
         "wexp_gain": [
@@ -193,7 +194,7 @@
             ],
             [
                 "RES",
-                0
+                8
             ]
         ],
         "growths": [
@@ -235,12 +236,12 @@
             ],
             [
                 "RES",
-                0
+                30
             ]
         ],
         "starting_items": [
-            "Iron Sword",
-            "Iron Sword",
+            "Steel Sword",
+            "Silver Lance",
             "Vulnerary"
         ],
         "learned_skills": [],
@@ -340,7 +341,7 @@
             ],
             [
                 "RES",
-                0
+                1
             ]
         ],
         "growths": [
@@ -382,11 +383,11 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "starting_items": [
-            "Iron Sword",
+            "Iron Lance",
             "Iron Lance",
             "Vulnerary",
             "Vulnerary"
@@ -488,7 +489,7 @@
             ],
             [
                 "RES",
-                0
+                3
             ]
         ],
         "growths": [
@@ -530,7 +531,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "starting_items": [
@@ -681,7 +682,7 @@
             ]
         ],
         "starting_items": [
-            "Iron Sword"
+            "Iron Axe"
         ],
         "learned_skills": [],
         "wexp_gain": [

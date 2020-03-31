@@ -1,3 +1,5 @@
+from functools import partial
+
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, \
     QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox
@@ -131,12 +133,14 @@ class ItemProperties(QWidget):
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
         self.total_value_box = PropertyBox("Total Value", QSpinBox, self)
+        self.total_value_box.edit.setKeyboardTracking(False)
         self.total_value_box.edit.setMaximum(100000000)
         self.total_value_box.edit.setAlignment(Qt.AlignRight)
         self.total_value_box.edit.valueChanged.connect(self.total_value_changed)
         main_section.addWidget(self.total_value_box, 1, 0)
 
         self.value_per_use_box = PropertyBox("Value per use", QSpinBox, self)
+        self.value_per_use_box.edit.setKeyboardTracking(False)
         self.value_per_use_box.edit.setMaximum(1000000)
         self.value_per_use_box.edit.setAlignment(Qt.AlignRight)
         self.value_per_use_box.edit.valueChanged.connect(self.value_per_use_changed)
@@ -177,6 +181,7 @@ class ItemProperties(QWidget):
 
         self.component_list = component_database.ComponentList(self)
         component_section.addWidget(self.component_list, 1, 0, 1, 2)
+        self.component_list.order_swapped.connect(self.component_moved)
 
         total_section = QVBoxLayout()
         self.setLayout(total_section)
@@ -212,12 +217,13 @@ class ItemProperties(QWidget):
         if 'uses' in [c.nid for c in self.current.components]:
             num_uses = self.current.components.get('uses').value
             new_value_per_use = val // num_uses
+            old_total_value = self.total_value_box.edit.value()
             new_total_value = new_value_per_use * num_uses
-            if new_total_value == self.total_value_box.edit.value():  # It hasn't changed
+            if val % num_uses != 0 and old_total_value > new_total_value:
                 new_value_per_use += 1  # Try making it one bigger
-            self.current.value = new_value_per_use
-            self.total_value_box.edit.setValue(self.current.value * num_uses)
-            self.value_per_use_box.edit.setValue(self.current.value)
+            self.current.value = new_total_value
+            self.value_per_use_box.edit.setValue(new_value_per_use)
+            self.total_value_box.edit.setValue(self.current.value)
         else:
             self.value_per_use_box.edit.setValue(val)
 
@@ -225,11 +231,17 @@ class ItemProperties(QWidget):
         val = int(val)
         if 'uses' in [c.nid for c in self.current.components]:
             num_uses = self.current.components.get('uses').value
-            self.current.value = val
-            self.total_value_box.edit.setValue(val * num_uses)
+            self.current.value = val * num_uses
+            self.total_value_box.edit.setValue(self.current.value)
         else:
             self.current.value = val
             self.total_value_box.edit.setValue(val)
+
+    def update_value_boxes(self):
+        # print("Updating Value Boxes", flush=True)
+        old_value = self.current.value
+        self.total_value_box.edit.setValue(0)  # Force a change
+        self.total_value_box.edit.setValue(old_value)
 
     def desc_changed(self, text):
         self.current.desc = text
@@ -277,6 +289,7 @@ class ItemProperties(QWidget):
     def add_component(self, component):
         self.add_component_widget(component)
         self.current.components.append(component)
+        self.update_value_boxes()
 
     def add_component_widget(self, component):
         c = component_database.get_display_widget(component, self)
@@ -286,6 +299,10 @@ class ItemProperties(QWidget):
         data = component_widget._data
         self.component_list.remove_component(component_widget)
         self.current.components.delete(data)
+        self.update_value_boxes()
+
+    def component_moved(self, start, end):
+        self.current.components.move_index(start, end)
 
     def set_current(self, current):
         self.current = current
@@ -305,7 +322,7 @@ class ItemProperties(QWidget):
         for component in current.components.values():
             self.add_component_widget(component)
 
-        self.value_per_use_box.edit.setValue(current.value)
+        self.total_value_box.edit.setValue(current.value)
 
     def add_components(self):
         dlg = component_database.ComponentDialog(IC.item_components, "Item Components", self)
@@ -338,12 +355,15 @@ class ItemList(QListWidget):
             icon = QIcon(pix) if pix else None
             combo_box.addItem(icon, i.nid)
         combo_box.setValue(item_nid)
-        combo_box.currentIndexChanged.connect(self.on_item_change)
         self.addItem(new_box)
         self.setItemWidget(new_box, combo_box)
         corrected_item_nid = combo_box.currentText()
         self.index_list.append(corrected_item_nid)
         self.combo_box_list.append(combo_box)
+        idx = len(self.combo_box_list) - 1
+        combo_box.currentIndexChanged.connect(partial(self.on_item_change, idx))
+        # print("ItemList Add Item: Index List")
+        # print(self.index_list, flush=True)
         return corrected_item_nid
 
     def remove_item(self, item_nid):
@@ -367,12 +387,22 @@ class ItemList(QListWidget):
         self.combo_box_list.clear()
 
     def set_current(self, items):
+        # print("ItemList Set Current")
+        # print(items, flush=True)
         self.clear()
+        # print("ItemList Set Current")
+        # print(items, flush=True)
         for i in items:
             self.add_item(i)
         self.item_changed.emit()
 
     def on_item_change(self, index):
+        # print("ItemList Item Change")
+        # print(index, flush=True)
+        combo_box = self.combo_box_list[index]
+        item_nid = combo_box.currentText()
+        # print(item_nid, flush=True)
+        self.index_list[index] = item_nid
         self.item_changed.emit()
 
 class ItemListWidget(QWidget):
@@ -422,12 +452,13 @@ class ItemListWidget(QWidget):
 
     def remove_last_item(self):
         self.item_list.remove_item_at_index(self.item_list.length() - 1)
+        self.activate()
 
     def activate(self):
         self.items_updated.emit()
 
     def get_items(self):
-        return self.item_list.index_list
+        return self.item_list.index_list[:]
 
 
 # Testing

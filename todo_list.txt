@@ -1,0 +1,21 @@
+# TO DO List
+
+Editor:
+Add Delete warnings for resources
+Have equations check their validity
+
+Map Editor + Tilemap
+Event Script editor
+For Database:
+    Statuses (include conditional statuses)
+    Supports
+    Overworld
+
+Engine:
+Make Engine
+Make sure Dialogue is better -- Add Dialogue Log
+Make both ways of GUI available (maybe?)
+
+Both:
+Create Launcher
+Allow Launcher to auto-update engine, editor, and launcher

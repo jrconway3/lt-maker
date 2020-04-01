@@ -150,7 +150,7 @@ class MultiAttrListModel(VirtualListModel):
 
     def flags(self, index):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
-        if getattr(self._data[index.row()], self._headers[0]) not in self.locked or index.column() != 0:
+        if not self.locked or getattr(self._data[index.row()], self._headers[0]) not in self.locked or index.column() != 0:
             basic_flags |= Qt.ItemIsEditable
         if index.column() in self.checked_columns:
             basic_flags |= Qt.ItemIsUserCheckable

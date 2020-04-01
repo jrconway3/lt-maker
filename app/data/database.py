@@ -159,7 +159,7 @@ class Database(object):
         for key, value in to_save.items():
             save_loc = os.path.join(data_dir, key + '.json')
             print("Serializing %s to %s" % (key, save_loc))
-            print(value, flush=True)
+            # print(value, flush=True)
             with open(save_loc, 'w') as serialize_file:
                 json.dump(value, serialize_file, indent=4)
 

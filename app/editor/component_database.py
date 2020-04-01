@@ -1,15 +1,17 @@
 from functools import partial
 
-from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, \
+from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, QPushButton, \
     QSpinBox, QHBoxLayout, QListWidget, QListWidgetItem, \
-    QDialog, QTreeView, QDialogButtonBox, QVBoxLayout
+    QDialog, QTreeView, QDialogButtonBox, QVBoxLayout, QItemDelegate
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex, pyqtSignal
 
+from app.data.data import Data
 from app.data.database import DB
 from app.data import item_components
 
 from app.extensions.custom_gui import ComboBox
+from app.extensions.list_widgets import AppendMultiListWidget
 
 class ComponentList(QListWidget):
     order_swapped = pyqtSignal(int, int)
@@ -24,6 +26,10 @@ class ComponentList(QListWidget):
         self.setDragDropMode(4)  # Internal Move
 
         self.model().rowsMoved.connect(self.row_moved)
+
+    def clear(self):
+        super().clear()
+        self.index_list.clear()
 
     def add_component(self, component):
         item = QListWidgetItem()
@@ -149,9 +155,37 @@ class SpellItemComponent(BoolItemComponent):
         v3 = item_components.SpellTarget[self.editor3.currentText()].value
         self._data.value = (v1, v2, v3)
 
+class EffectiveDelegate(QItemDelegate):
+    int_column = 1
+    tag_column = 0
+
+    def createEditor(self, parent, option, index):
+        if index.column() == self.int_column:
+            editor = QSpinBox(parent)
+            editor.setRange(-255, 255)
+            return editor
+        elif index.column() == self.tag_column:
+            editor = ComboBox(parent)
+            for tag in DB.tags:
+                editor.addItem(tag.nid)
+            return editor
+        else:
+            return super().createEditor(parent, option, index)
+
+class EffectiveItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        attrs = ("tag", "damage")
+        self.editor = AppendMultiListWidget(self._data.value, self._data.name, attrs, EffectiveDelegate, self)
+        self.editor.view.setColumnWidth(0, 100)
+        self.editor.view.setMaximumHeight(75)
+
+        hbox.addWidget(self.editor)
+
 def get_display_widget(component, parent):
     if component.attr == bool:
         c = BoolItemComponent(component, parent)
+    elif component.attr == item_components.EffectiveSubComponent:
+        c = EffectiveItemComponent(component, parent)
     elif component.nid == 'uses':
         c = UsesItemComponent(component, parent)
     elif component.nid in ('hit', 'crit'):
@@ -250,7 +284,7 @@ class ComponentModel(QAbstractItemModel):
     def flags(self, index):
         basic_flags = Qt.ItemNeverHasChildren
         data = self._data[index.row()]
-        if data.nid in self.already_present:
+        if data.nid in self.already_present.keys():
             pass
         elif data.requires(set(self.already_present.keys()) | self.checked):
             basic_flags |= Qt.ItemIsEnabled | Qt.ItemIsSelectable

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QTabWidget, QDialogButtonBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 
 from collections import OrderedDict
 
@@ -52,6 +52,9 @@ class DatabaseEditor(QDialog):
         self.current_tab = self.tab_bar.currentWidget()
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
+        if not starting_tab:
+            settings = QSettings("rainlash", "Lex Talionis")
+            starting_tab = settings.value("database_tab")
         if starting_tab and starting_tab in self.tabs:
             self.tab_bar.setCurrentWidget(self.tabs[starting_tab])
 
@@ -119,13 +122,20 @@ class DatabaseEditor(QDialog):
             # tab.apply()
 
     def accept(self):
+        self.store_last_tab()
         DB.serialize()
         super().accept()
 
     def reject(self):
         self.restore()
+        self.store_last_tab()
         DB.serialize()
         super().reject()
+
+    def store_last_tab(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_tab_name = self.tab_bar.tabText(self.tab_bar.currentIndex())
+        settings.setValue("database_tab", current_tab_name)
 
     @staticmethod
     def get(parent, tab_name):

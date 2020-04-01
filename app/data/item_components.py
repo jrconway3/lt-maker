@@ -1,6 +1,6 @@
 from enum import Enum
 
-from app.data.data import Data
+from app.data.data import Data, Prefab
 
 # Custom Types
 class SpellAffect(Enum):
@@ -31,7 +31,40 @@ def requires_spell_or_weapon(other_components):
 def requires_usable(other_components):
     return 'usable' in other_components
 
-class item_component(object):
+class EffectiveSubComponent(Prefab):
+    def __init__(self, tag, damage):
+        self.tag: str = tag
+        self.damage: int = damage
+
+    @property
+    def nid(self):
+        return self.tag
+
+    @nid.setter
+    def nid(self, value):
+        self.tag = value
+
+    def serialize(self):
+        return (self.tag, self.damage)
+
+    @classmethod
+    def deserialize(cls, s_tuple):
+        self = cls(s_tuple[0], s_tuple[1])
+        return self
+
+class EffectiveData(Data):
+    datatype = EffectiveSubComponent
+    
+    def add_new_default(self, DB):
+        for tag in DB.tags:
+            if tag.nid not in self.keys():
+                nid = tag.nid
+                break
+        else:
+            nid = DB.tags[0].nid
+        self.append(EffectiveSubComponent(nid, 0))
+
+class ItemComponent(object):
     def __init__(self, nid=None, name='', attr=bool, value=True, requires=no_requirement):
         self.nid = nid
         self.name = name
@@ -50,37 +83,49 @@ class item_component(object):
         return cls(other.nid, other.name, other.attr, other.value, other.requires)
 
     def serialize(self):
-        return (self.nid, self.value)
+        if isinstance(self.value, Data):
+            return self.nid, self.value.save()
+        elif isinstance(self.value, list):
+            return self.nid, [v.serialize() for v in self.value]
+        else:
+            return (self.nid, self.value)
 
 item_components = Data([
-    item_component('weapon', 'Weapon', 'WeaponType', None,
-                             lambda x: 'spell' not in x),
-    item_component('spell', 'Spell', ('WeaponType', SpellAffect, SpellTarget),
-                            (None, SpellAffect.Neutral, SpellTarget.Unit),
-                            lambda x: 'weapon' not in x),
-    item_component('usable', 'Usable'),
-    item_component('might', 'Might', int, 0, requires_spell_or_weapon),
-    item_component('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),
-    item_component('level', 'Weapon Level Required', 'WeaponRank', None, requires_spell_or_weapon),
-    item_component('weight', 'Weight', int, 0, requires_spell_or_weapon),
-    item_component('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
-    item_component('magic', 'Magical', bool, False, requires_spell_or_weapon),
-    item_component('wexp', 'Weapon Experience Gained', int, 1, requires_spell_or_weapon),
+    ItemComponent('weapon', 'Weapon', 'WeaponType', None,
+                  lambda x: 'spell' not in x),
+    ItemComponent('spell', 'Spell', ('WeaponType', SpellAffect, SpellTarget),
+                  (None, SpellAffect.Neutral, SpellTarget.Unit),
+                  lambda x: 'weapon' not in x),
+    ItemComponent('usable', 'Usable'),
+    ItemComponent('might', 'Might', int, 0, requires_spell_or_weapon),
+    ItemComponent('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),
+    ItemComponent('level', 'Weapon Level Required', 'WeaponRank', None, requires_spell_or_weapon),
+    ItemComponent('weight', 'Weight', int, 0, requires_spell_or_weapon),
+    ItemComponent('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
+    ItemComponent('magic', 'Magical', bool, False, requires_spell_or_weapon),
+    ItemComponent('wexp', 'Weapon Experience Gained', int, 1, requires_spell_or_weapon),
 
-    item_component('uses', 'Total Uses', int, 30),
-    item_component('c_uses', 'Uses per Chapter', int, 8),
+    ItemComponent('uses', 'Total Uses', int, 30),
+    ItemComponent('c_uses', 'Uses per Chapter', int, 8),
     
-    item_component('heal_on_hit', 'Heal on Hit', int, 0, requires_spell_or_weapon),
-    item_component('heal_on_use', 'Heal on Use', int, 10, requires_usable)
+    ItemComponent('heal_on_hit', 'Heal on Hit', int, 0, requires_spell_or_weapon),
+    ItemComponent('heal_on_use', 'Heal on Use', int, 10, requires_usable),
+
+    ItemComponent('effective', 'Effective Against', EffectiveSubComponent, EffectiveData(), requires_spell_or_weapon)
 ])
 
 def get_component(nid):
     base = item_components.get(nid)
-    return item_component.copy(base)
+    return ItemComponent.copy(base)
 
 def deserialize_component(dat):
     nid, value = dat
     base = item_components.get(nid)
-    copy = item_component.copy(base)
-    copy.value = value
+    copy = ItemComponent.copy(base)
+    if copy.attr in (EffectiveSubComponent, ):
+        for v in value:
+            deserialized = copy.attr.deserialize(value)
+            copy.value.append(deserialized)
+    else:
+        copy.value = value
     return copy

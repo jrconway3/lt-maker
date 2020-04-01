@@ -6,6 +6,8 @@ Usable (bool)
 Might (int) : Spell or Weapon
 Hit (int): Spell or Weapon
 Rank (Weapon Rank): Spell or Weapon
+Locked to Unit (list of Unit): Spell or Weapon or Usable
+Locked to Class (list of Class): Spell or Weapon or Usable
 Status on Hit (Status): Spell or Weapon
 Status while Equipped (Status): Weapon
 Status while Held (Status)

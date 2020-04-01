@@ -8,8 +8,8 @@ from app.editor.base_database_gui import MultiAttrCollectionModel
 class TagMultiModel(MultiAttrCollectionModel):
     def delete(self, idx):
         element = DB.tags[idx]
-        affected_units = [unit for unit in DB.units if element.nid in unit.tags]
-        affected_classes = [k for k in DB.classes if element.nid in k.tags]
+        affected_units = [unit for unit in DB.units if element.nid in unit.tags.keys()]
+        affected_classes = [k for k in DB.classes if element.nid in k.tags.keys()]
         if affected_units or affected_classes:
             if affected_units:
                 affected = Data(affected_units)

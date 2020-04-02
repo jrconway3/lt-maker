@@ -31,25 +31,24 @@ class MapSpriteDisplay(DatabaseTab):
                      view_type=ResourceListView)
         return dialog
 
-def get_basic_icon(pixmap, num, current=False, team='player'):
-    if current:
-        one_frame = pixmap.copy(num*64, 96, 64, 48)
+def get_basic_icon(pixmap, num, active=False, team='player'):
+    if active:
+        one_frame = pixmap.copy(num*64 + 16, 96 + 16, 32, 32)
     else:
-        one_frame = pixmap.copy(num*64, 0, 64, 48)
-    if one_frame:
-        image = one_frame.toImage()
-        one_frame = editor_utilities.convert_colorkey(image)
-        if team == 'player':
-            pass
-        elif team == 'enemy':
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
-        elif team == 'other':
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
-        elif team == 'enemy2':
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy2_colors)
-        pixmap = QPixmap.fromImage(one_frame)
-        pixmap = pixmap.copy(16, 16, 32, 32)
-        return pixmap
+        one_frame = pixmap.copy(num*64 + 16, 0 + 16, 32, 32)
+    # pixmap = pixmap.copy(16, 16, 32, 32)
+    image = one_frame.toImage()
+    one_frame = editor_utilities.convert_colorkey(image)
+    if team == 'player':
+        pass
+    elif team == 'enemy':
+        one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
+    elif team == 'other':
+        one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
+    elif team == 'enemy2':
+        one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy2_colors)
+    pixmap = QPixmap.fromImage(one_frame)
+    return pixmap
 
 class MapSpriteModel(ResourceCollectionModel):
     def data(self, index, role):

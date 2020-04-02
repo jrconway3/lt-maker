@@ -26,10 +26,11 @@ class TileMap(object):
                 new_tile = Tile(terrain.nid, (x, y), self)
                 self.tiles[(x, y)] = new_tile
 
-    def change_image(self, image_nid, width, height):
+    def change_image(self, image_nid, image_width, image_height):
         from app.data.database import DB
         self.base_image_nid = image_nid
-        self.width, self.height = width//constants.TILEWIDTH, height//constants.TILEHEIGHT
+        self.width, self.height = image_width//constants.TILEWIDTH, image_height//constants.TILEHEIGHT
+        assert self.width > 0 and self.height > 0
         # Preserve as much as possible about the old terrain information
         old_tiles = self.tiles.copy()
         self.tiles.clear()
@@ -49,6 +50,8 @@ class TileMap(object):
     def serialize(self):
         s_dict = {}
         s_dict['size'] = (self.width, self.height)
+        if self.width == 0 or self.height == 0:
+            print("*** WIDTH AND HEIGHT === 0!!! ***")
         s_dict['tiles'] = []
         for x in range(self.width):
             for y in range(self.height):
@@ -60,7 +63,7 @@ class TileMap(object):
     def deserialize(cls, s_dict):
         new_tilemap = cls.default()
         width, height = s_dict['size']
-        new_tilemap.change_image(s_dict['base_image_nid'], width, height)
+        new_tilemap.change_image(s_dict['base_image_nid'], width * constants.TILEWIDTH, height * constants.TILEHEIGHT)
         new_tilemap.tiles.clear()
         for idx, val in enumerate(s_dict['tiles']):
             x = idx//height

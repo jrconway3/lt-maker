@@ -27,6 +27,7 @@ class UnitBox(ObjBox):
             database = Data([d for d in DB.units if d is not exclude])
         super().__init__("Unit", UnitModel, database, parent, button)
         self.edit.setIconSize(QSize(32, 32))
+        self.edit.view().setUniformItemSizes(True)
 
 class ClassBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
@@ -35,7 +36,8 @@ class ClassBox(ObjBox):
         if exclude:
             database = Data([d for d in DB.classes if d is not exclude])
         super().__init__("Class", ClassModel, database, parent, button)
-        self.edit.setIconSize(QSize(32, 32))
+        self.edit.setIconSize(QSize(16, 16))
+        self.edit.view().setUniformItemSizes(True)
 
 class FactionBox(ObjBox):
     def __init__(self, parent=None, button=False):

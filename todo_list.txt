@@ -4,6 +4,8 @@ Editor:
 Add Delete warnings for resources
 Have equations check their validity
 Add Female map sprite support
+Add new + duplicate support to AllUnitModel
+Allow edit to happen on AllUnitModel
 
 Map Editor + Tilemap
 Event Script editor

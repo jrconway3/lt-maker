@@ -1,8 +1,6 @@
 from PyQt5.QtWidgets import QUndoCommand
 from PyQt5.QtGui import QPixmap
 
-from app.data.constants import TILEWIDTH, TILEHEIGHT
-
 from app.data.database import DB
 from app.data.levels import Level
 
@@ -87,9 +85,9 @@ class ChangeTileMapImage(QUndoCommand):
     def redo(self):
         im = QPixmap(self.new_image)
         if im:
-            self.level.tilemap.change_image(self.new_image, im.width() // TILEWIDTH, im.height() // TILEHEIGHT)
+            self.level.tilemap.change_image(self.new_image, im.width(), im.height())
 
     def undo(self):
         im = QPixmap(self.old_image)
         if im:
-            self.level.tilemap.change_image(self.old_image, im.width() // TILEWIDTH, im.height() // TILEHEIGHT)
+            self.level.tilemap.change_image(self.old_image, im.width(), im.height())

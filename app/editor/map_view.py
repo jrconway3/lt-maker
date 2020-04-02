@@ -153,7 +153,7 @@ class MapView(QGraphicsView):
                 elif event.button() == Qt.RightButton:
                     under_unit = self.main_editor.current_level.check_position(pos)
                     if under_unit:
-                        idx = self.main_editor.current_level.units.index(under_unit)
+                        idx = self.main_editor.current_level.units.index(under_unit.nid)
                         self.main_editor.unit_painter_menu.select(idx)
 
     def mouseMoveEvent(self, event):

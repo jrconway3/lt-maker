@@ -103,21 +103,21 @@ class UnitPainterMenu(QWidget):
             self._data.append(created_unit)
             self.model.update()
             # Select the unit
-            idx = self.model.index(self._data.index(created_unit))
-            self.view.setCurrentIndex(idx)
+            idx = self._data.index(created_unit.nid)
+            index = self.model.index(idx)
+            self.view.setCurrentIndex(index)
             self.last_touched_generic = created_unit
             self.window.update_view()
 
     def load_unit(self):
-        # unit, ok = DatabaseEditor.get(self, "Units")
         unit, ok = LoadUnitDialog.get_unit(self)
         if ok:
             self._data.append(unit)
             self.model.update()
             # Select the unit
-            idx = self.model.index(self._data.index(unit))
-            self.view.setCurrentIndex(idx)
-            # self.last_touched_generic = unit
+            idx = self._data.index(unit.nid)
+            index = self.model.index(idx)
+            self.view.setCurrentIndex(index)
             self.window.update_view()
 
 class AllUnitModel(DragDropCollectionModel):
@@ -132,8 +132,10 @@ class AllUnitModel(DragDropCollectionModel):
             unit = self._data[index.row()]
             klass_nid = unit.klass
             num = TIMER.passive_counter.count
+            num = 0
             klass = DB.classes.get(klass_nid)
-            pixmap = class_database.get_map_sprite_icon(klass, num, index == self.window.view.currentIndex(), unit.team)
+            active = index == self.window.view.currentIndex()
+            pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team)
             if pixmap:
                 return QIcon(pixmap)
             else:
@@ -153,9 +155,6 @@ class InventoryDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
-        # if not len(self._data) > index.row():
-        #     print(self._data, flush=True)
-        #     return
         unit = self._data[index.row()]
         items = unit.starting_items
         for idx, item_nid in enumerate(items):
@@ -191,13 +190,13 @@ class LoadUnitDialog(Dialog):
         layout.addWidget(self.buttonbox)
 
     def team_changed(self, val):
-        self.current.team = val
+        self.current.team = self.team_box.edit.currentText()
 
     def unit_changed(self, index):
         self.nid_changed(DB.units[index].nid)
 
     def ai_changed(self, val):
-        self.current.ai = val
+        self.current.ai = self.ai_box.edit.currentText()
 
     def access_units(self):
         unit, ok = DatabaseEditor.get(self, "Units")
@@ -206,6 +205,7 @@ class LoadUnitDialog(Dialog):
 
     def nid_changed(self, nid):
         self.current.nid = nid
+        self.current.prefab = DB.units.get(nid)
 
     # def set_current(self, current):
     #     self.current = current
@@ -234,11 +234,11 @@ class GenericUnitDialog(Dialog):
 
         units = self.window._data
         if example:
-            new_nid = utilities.get_next_int(example.nid, [unit.nid for unit in units])
+            new_nid = utilities.get_next_generic_nid(example.nid, [unit.nid for unit in units])
             self.current = DB.create_unit_generic(new_nid, example.gender, example.level, example.klass, example.faction,
                                                   example.starting_items, example.team, example.ai)
         else:
-            new_nid = utilities.get_next_int(101, [unit.nid for unit in units])
+            new_nid = utilities.get_next_generic_nid(101, [unit.nid for unit in units])
             self.current = DB.create_unit_generic(new_nid, 0, 1, DB.classes[0].nid, DB.factions[0].nid, [DB.items[0].nid], 'player', DB.ai[0].nid)
 
         self.team_box = PropertyBox("Team", ComboBox, self)
@@ -248,6 +248,7 @@ class GenericUnitDialog(Dialog):
 
         self.class_box = ClassBox(self)
         self.class_box.edit.currentIndexChanged.connect(self.class_changed)
+        self.class_box.model.display_team = self.current.team
         layout.addWidget(self.class_box)
 
         self.level_box = PropertyBox("Level", QSpinBox, self)
@@ -282,6 +283,7 @@ class GenericUnitDialog(Dialog):
     def team_changed(self, val):
         self.current.team = self.team_box.edit.currentText()
         self.class_box.model.display_team = self.current.team
+        self.class_box.model.layoutChanged.emit()  # Force color change
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()
@@ -304,7 +306,7 @@ class GenericUnitDialog(Dialog):
         self.current.desc = faction.desc
 
     def ai_changed(self, val):
-        self.current.ai = val
+        self.current.ai = self.ai_box.edit.currentText()
 
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()

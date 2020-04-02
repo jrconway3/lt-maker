@@ -20,7 +20,7 @@ class Level(Prefab):
                           'win': '',
                           'loss': ''}
 
-        self.units = []
+        self.units = Data()
 
     def check_position(self, pos):
         for unit in self.units:
@@ -41,8 +41,8 @@ class Level(Prefab):
         if name == 'tilemap':
             value = tilemap.TileMap.deserialize(value)
         elif name == 'units':
-            value = [GenericUnit.deserialize(unit_data) if unit_data['generic'] 
-                     else UniqueUnit.deserialize(unit_data) for unit_data in value]
+            value = Data([GenericUnit.deserialize(unit_data) if unit_data['generic'] 
+                          else UniqueUnit.deserialize(unit_data) for unit_data in value])
         else:
             value = super().deserialize_attr(name, value)
         return value

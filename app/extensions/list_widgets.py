@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QPushButton, QTreeView
 from PyQt5.QtCore import Qt
 
 from app.extensions.custom_gui import RightClickTreeView
-from app.extensions.simple_list_models import SingleListModel, MultiAttrListModel
+from app.extensions.list_models import SingleListModel, DefaultMultiAttrListModel
 
 class BasicSingleListWidget(QWidget):
     def __init__(self, data, title, dlgate, parent=None):
@@ -21,7 +21,6 @@ class BasicSingleListWidget(QWidget):
     def initiate(self, data, parent):
         self.window = parent
         self.current = data
-        self._actions = []
 
     def placement(self, data, title):
         self.layout = QGridLayout(self)
@@ -54,11 +53,11 @@ class AppendSingleListWidget(BasicSingleListWidget):
 
         add_button = QPushButton("+")
         add_button.setMaximumWidth(30)
-        add_button.clicked.connect(self.model.add_new_row)
+        add_button.clicked.connect(self.model.append)
         self.layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)
 
 class BasicMultiListWidget(BasicSingleListWidget):
-    def __init__(self, data, title, attrs, dlgate, parent=None, model=MultiAttrListModel):
+    def __init__(self, data, title, attrs, dlgate, parent=None, model=DefaultMultiAttrListModel):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
 
@@ -73,7 +72,7 @@ class BasicMultiListWidget(BasicSingleListWidget):
         self.placement(data, title)
 
 class AppendMultiListWidget(BasicSingleListWidget):
-    def __init__(self, data, title, attrs, dlgate, parent=None, model=MultiAttrListModel):
+    def __init__(self, data, title, attrs, dlgate, parent=None, model=DefaultMultiAttrListModel):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
 
@@ -89,5 +88,5 @@ class AppendMultiListWidget(BasicSingleListWidget):
 
         add_button = QPushButton("+")
         add_button.setMaximumWidth(30)
-        add_button.clicked.connect(self.model.add_new_row)
+        add_button.clicked.connect(self.model.append)
         self.layout.addWidget(add_button, 0, 1, alignment=Qt.AlignRight)

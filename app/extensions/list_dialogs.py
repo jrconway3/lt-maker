@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QPushButton, QDialog, QDialogButtonBox, QGridLayout
 from PyQt5.QtCore import Qt
 
 from app.extensions.custom_gui import RightClickListView, RightClickTreeView, IntDelegate
-from app.extensions.simple_list_models import SingleListModel, MultiAttrListModel
+from app.extensions.list_models import SingleListModel, DefaultMultiAttrListModel
 
 # === LIST DIALOGS ===========================================================
 class SingleListDialog(QDialog):
@@ -41,7 +41,7 @@ class SingleListDialog(QDialog):
         super().accept()
 
 class MultiAttrListDialog(SingleListDialog):
-    def __init__(self, data, title, attrs, model=MultiAttrListModel, deletion_criteria=None, locked: set = None, parent=None):
+    def __init__(self, data, title, attrs, model=DefaultMultiAttrListModel, deletion_criteria=None, locked: set = None, parent=None):
         QDialog.__init__(self, parent)
         self.initiate(data, title, parent)
 

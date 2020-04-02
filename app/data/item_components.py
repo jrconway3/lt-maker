@@ -31,6 +31,9 @@ def requires_spell_or_weapon(other_components):
 def requires_usable(other_components):
     return 'usable' in other_components
 
+def requires_aspect(other_components):
+    return 'weapon' in other_components or 'spell' in other_components or 'usable' in other_components
+
 class EffectiveSubComponent(Prefab):
     def __init__(self, tag, damage):
         self.tag: str = tag
@@ -52,6 +55,18 @@ class EffectiveSubComponent(Prefab):
         self = cls(s_tuple[0], s_tuple[1])
         return self
 
+class RestrictedSubComponent(Prefab):
+    def __init__(self, nid):
+        self.nid: str = nid
+
+    def serialize(self):
+        return self.nid
+
+    @classmethod
+    def deserialize(cls, s):
+        self = cls(s)
+        return self
+
 class EffectiveData(Data):
     datatype = EffectiveSubComponent
     
@@ -63,6 +78,30 @@ class EffectiveData(Data):
         else:
             nid = DB.tags[0].nid
         self.append(EffectiveSubComponent(nid, 0))
+
+class PrfUnitData(Data):
+    datatype = RestrictedSubComponent
+
+    def add_new_default(self, DB):
+        for unit in DB.units:
+            if unit.nid not in self.keys():
+                nid = unit.nid
+                break
+        else:
+            nid = DB.units[0].nid
+        self.append(RestrictedSubComponent(nid))
+
+class PrfClassData(Data):
+    datatype = RestrictedSubComponent
+
+    def add_new_default(self, DB):
+        for klass in DB.classes:
+            if klass.nid not in self.keys():
+                nid = klass.nid
+                break
+        else:
+            nid = DB.classes[0].nid
+        self.append(RestrictedSubComponent(nid))
 
 class ItemComponent(object):
     def __init__(self, nid=None, name='', attr=bool, value=True, requires=no_requirement):
@@ -111,7 +150,9 @@ item_components = Data([
     ItemComponent('heal_on_hit', 'Heal on Hit', int, 0, requires_spell_or_weapon),
     ItemComponent('heal_on_use', 'Heal on Use', int, 10, requires_usable),
 
-    ItemComponent('effective', 'Effective Against', EffectiveSubComponent, EffectiveData(), requires_spell_or_weapon)
+    ItemComponent('effective', 'Effective Against', EffectiveSubComponent, EffectiveData(), requires_spell_or_weapon),
+    ItemComponent('prf_unit', 'Restricted to (Unit)', RestrictedSubComponent, PrfUnitData(), requires_aspect),
+    ItemComponent('prf_class', 'Restricted to (Class)', RestrictedSubComponent, PrfClassData(), requires_aspect)
 ])
 
 def get_component(nid):
@@ -122,9 +163,9 @@ def deserialize_component(dat):
     nid, value = dat
     base = item_components.get(nid)
     copy = ItemComponent.copy(base)
-    if copy.attr in (EffectiveSubComponent, ):
+    if copy.attr in (EffectiveSubComponent, RestrictedSubComponent):
         for v in value:
-            deserialized = copy.attr.deserialize(value)
+            deserialized = copy.attr.deserialize(v)
             copy.value.append(deserialized)
     else:
         copy.value = value

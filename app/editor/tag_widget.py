@@ -3,9 +3,9 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import DeletionDialog, PropertyBox, ComboBox
 from app.extensions.list_dialogs import MultiAttrListDialog
-from app.editor.base_database_gui import MultiAttrCollectionModel
+from app.extensions.list_models import DragDropMultiAttrListModel
 
-class TagMultiModel(MultiAttrCollectionModel):
+class TagMultiModel(DragDropMultiAttrListModel):
     def delete(self, idx):
         element = DB.tags[idx]
         affected_units = [unit for unit in DB.units if element.nid in unit.tags.keys()]

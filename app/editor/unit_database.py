@@ -11,7 +11,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, QHLine, DeletionDialog
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
-from app.extensions.simple_list_models import VirtualListModel
+from app.extensions.list_models import VirtualListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
 
 from app.editor.custom_widgets import UnitBox, ClassBox

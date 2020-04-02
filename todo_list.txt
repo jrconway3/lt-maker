@@ -3,6 +3,7 @@
 Editor:
 Add Delete warnings for resources
 Have equations check their validity
+Add Female map sprite support
 
 Map Editor + Tilemap
 Event Script editor
@@ -10,6 +11,10 @@ For Database:
     Statuses (include conditional statuses)
     Supports
     Overworld
+
+For Resources:
+Animations
+Title Screen
 
 Engine:
 Make Engine

@@ -18,10 +18,102 @@
         "color": [
             64,
             128,
-            64
+            64,
+            255
         ],
         "minimap": "Forest",
         "platform": "Forest",
         "mtype": "Forest"
+    },
+    {
+        "nid": "3",
+        "name": "Thicket",
+        "color": [
+            0,
+            32,
+            0,
+            255
+        ],
+        "minimap": "Thicket",
+        "platform": "Thicket",
+        "mtype": "Thicket"
+    },
+    {
+        "nid": "4",
+        "name": "Bridge",
+        "color": [
+            170,
+            170,
+            127,
+            255
+        ],
+        "minimap": "Bridge",
+        "platform": "Bridge",
+        "mtype": "Normal"
+    },
+    {
+        "nid": "10",
+        "name": "Lake",
+        "color": [
+            0,
+            160,
+            248,
+            255
+        ],
+        "minimap": "Sea",
+        "platform": "Lake",
+        "mtype": "Sea"
+    },
+    {
+        "nid": "11",
+        "name": "Sea",
+        "color": [
+            0,
+            104,
+            160,
+            255
+        ],
+        "minimap": "Sea",
+        "platform": "Sea",
+        "mtype": "Sea"
+    },
+    {
+        "nid": "12",
+        "name": "River",
+        "color": [
+            0,
+            160,
+            248,
+            255
+        ],
+        "minimap": "River",
+        "platform": "River",
+        "mtype": "River"
+    },
+    {
+        "nid": "20",
+        "name": "Hill",
+        "color": [
+            112,
+            84,
+            56,
+            255
+        ],
+        "minimap": "Hill",
+        "platform": "Hill",
+        "mtype": "Hill"
+    },
+    {
+        "nid": "21",
+        "name": "Mountain",
+        "color": [
+            80,
+            48,
+            40,
+            255
+        ],
+        "minimap": "Mountain",
+        "platform": "Mountain",
+        "mtype": "Mountain"
     }
 ]

@@ -123,21 +123,27 @@
                 40
             ],
             [
+                "wexp",
+                2
+            ],
+            [
                 "effective",
                 [
                     [
-                        "Armor",
+                        "Mounted",
                         10
                     ],
                     [
-                        "Mounted",
+                        "Armor",
                         10
                     ]
                 ]
             ],
             [
-                "wexp",
-                2
+                "prf_unit",
+                [
+                    "Eirika"
+                ]
             ]
         ]
     },

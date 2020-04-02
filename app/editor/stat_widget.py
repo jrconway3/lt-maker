@@ -6,7 +6,7 @@ from app.data.stats import StatList
 from app.data.database import DB
 
 from app.extensions.custom_gui import IntDelegate
-from app.extensions.simple_list_models import VirtualListModel
+from app.extensions.list_models import VirtualListModel
 
 class StatListWidget(QWidget):
     def __init__(self, obj, title, parent=None):

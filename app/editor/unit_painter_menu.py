@@ -281,6 +281,7 @@ class GenericUnitDialog(Dialog):
 
     def team_changed(self, val):
         self.current.team = self.team_box.edit.currentText()
+        self.class_box.model.display_team = self.current.team
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()

@@ -3,9 +3,9 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import DeletionDialog, PropertyBox, ComboBox
 from app.extensions.list_dialogs import MultiAttrListDialog
-from app.editor.base_database_gui import MultiAttrCollectionModel
+from app.extensions.list_models import DragDropMultiAttrListModel
 
-class EquationMultiModel(MultiAttrCollectionModel):
+class EquationMultiModel(DragDropMultiAttrListModel):
     def delete(self, idx):
         element = self._data[idx]
         affected_items = [item for item in DB.items if item.min_range == element.nid or item.max_range == element.nid]

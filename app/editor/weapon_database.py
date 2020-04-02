@@ -12,9 +12,10 @@ from app.data.weapons import AdvantageList
 from app.extensions.custom_gui import ComboBox, PropertyBox, PropertyCheckBox, DeletionDialog
 from app.extensions.list_dialogs import MultiAttrListDialog
 from app.extensions.list_widgets import AppendMultiListWidget
+from app.extensions.list_models import DragDropMultiAttrListModel
 
 from app.editor.custom_widgets import WeaponTypeBox
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel, MultiAttrCollectionModel
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.icons import ItemIcon16
 
 from app import utilities
@@ -128,7 +129,7 @@ class WeaponModel(DragDropCollectionModel):
         for unit in DB.units:
             unit.wexp_gain.move_index(fro, to)
 
-class WeaponRankMultiModel(MultiAttrCollectionModel):
+class WeaponRankMultiModel(DragDropMultiAttrListModel):
     def delete(self, idx):
         # Check to make sure nothing else is using this rank
         element = DB.weapon_ranks[idx]

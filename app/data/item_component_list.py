@@ -12,7 +12,6 @@ Status on Hit (Status): Spell or Weapon
 Status while Equipped (Status): Weapon
 Status while Held (Status)
 Status on Use (Status): Usable
-Droppable (bool)
 Locked (bool)
 Uses (int)
 Chapter Uses (int)
@@ -48,9 +47,13 @@ Ignore Half Defense (bool): Weapon or Spell and not Ignore Defense
 Area of Effect (AOEType): Weapon or Spell
 Alternate Damage, Defense, Accuracy, Avoid, Crit Accuracy, Crit Avoid (Equation): Weapon or Spell AND associated Might, Hit, or Crit component
 Booster (bool): Usable
-Promotion (list of Classes): Usable
-Permanent Stat Increase (list of Stats): Usable
-Permanent Growth Increase (list of Growths): Usable
+Promotion (list of Classes): Spell or Usable
+Permanent Stat Increase (list of Stats): Spell or Usable
+Permanent Growth Increase (list of Growths): Spell or Usable
+Hit Point Cost (int): Weapon or Spell or Usable
+Mana Cost (int): Weapon or Spell or Usable
+Cooldown (int): Weapon or Spell or Usable
+Triggers Event (Event): Weapon or Spell or Usable
 
 No AI (bool)
 AI Item Priority (float)

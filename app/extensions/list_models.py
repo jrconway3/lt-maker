@@ -2,6 +2,9 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QAbstractItemModel
 from PyQt5.QtCore import Qt, QModelIndex
 
+import copy
+
+from app.data.data import Prefab
 from app.data.database import DB
 
 from app import utilities
@@ -46,13 +49,11 @@ class SingleListModel(VirtualListModel):
         self._headers = [title]
 
     def delete(self, idx):
-        self.window._actions.append(('Delete', self._data[idx]))
         self._data.pop(idx)
         self.layoutChanged.emit()
 
-    def add_new_row(self):
+    def append(self):
         new_row = utilities.get_next_name("New %s" % self.title, self._data)
-        self.window._actions.append(('Append', new_row))
         self._data.append(new_row)
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1, 0)
@@ -76,7 +77,6 @@ class SingleListModel(VirtualListModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        self.window._actions.append(('Change', self._data[index.row()], value))
         self._data[index.row()] = value
         self.dataChanged.emit(index, index)
         return True
@@ -86,31 +86,14 @@ class SingleListModel(VirtualListModel):
         return basic_flags
 
 class MultiAttrListModel(VirtualListModel):
-    def __init__(self, data, headers, locked=None, parent=None):
+    def __init__(self, data, headers, parent=None):
         super().__init__(parent)
         self.window = parent
         self._data = data
         self._headers = headers
-        assert (isinstance(self._headers, list) or isinstance(self._headers, tuple))
-        self.locked = locked
-        if not locked:
-            self.locked = set()
+
+        self.edit_locked = set()
         self.checked_columns = set()
-
-    def delete(self, idx):
-        if getattr(self._data[idx], self._headers[0]) not in self.locked:
-            self.window._actions.append(('Delete', self._data[idx]))
-            self._data.pop(idx)
-            self.layoutChanged.emit()
-        else:
-            QMessageBox.critical(self.window, 'Error', "Cannot delete this row!")
-
-    def add_new_row(self):
-        new = self._data.add_new_default(DB)
-        self.window._actions.append(('Append', new))
-        self.layoutChanged.emit()
-        last_index = self.index(self.rowCount() - 1, 0)
-        self.window.view.setCurrentIndex(last_index)
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
@@ -143,15 +126,113 @@ class MultiAttrListModel(VirtualListModel):
         data = self._data[index.row()]
         attr = self._headers[index.column()]
         current_value = getattr(data, attr)
+        self.change_watchers(data, attr, current_value, value)
         setattr(data, attr, value)
-        self.window._actions.append(('Change', data, attr, current_value, value))
         self.dataChanged.emit(index, index)
         return True
 
+    def change_watchers(self, data, attr, old_value, new_value):
+        pass
+
     def flags(self, index):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
-        if not self.locked or getattr(self._data[index.row()], self._headers[0]) not in self.locked or index.column() != 0:
+        if not self.edit_locked or getattr(self._data[index.row()], self._headers[0]) not in self.edit_locked or index.column() != 0:
             basic_flags |= Qt.ItemIsEditable
         if index.column() in self.checked_columns:
             basic_flags |= Qt.ItemIsUserCheckable
         return basic_flags
+
+    def delete(self, idx):
+        if not self.edit_locked or getattr(self._data[idx], self._headers[0]) not in self.edit_locked:
+            self._data.pop(idx)
+            self.layoutChanged.emit()
+        else:
+            QMessageBox.critical(self.window, 'Error', "Cannot delete this row!")
+
+    def create_new(self):
+        raise NotImplementedError
+
+    def append(self):
+        self.create_new()
+        self.layoutChanged.emit()
+        last_index = self.index(self.rowCount() - 1, 0)
+        self.window.view.setCurrentIndex(last_index)
+        self.update_watchers(self.rowCount() - 1)
+        return last_index
+
+    def new(self, idx):
+        self.create_new()
+        self._data.move_index(len(self._data) - 1, idx + 1)
+        self.layoutChanged.emit()
+        self.update_watchers(idx + 1)
+
+    def duplicate(self, idx):
+        obj = self._data[idx]
+        new_nid = utilities.get_next_name(obj.nid, self._data.keys())
+        if isinstance(obj, Prefab):
+            serialized_obj = obj.serialize()
+            print("Duplcation!")
+            print(serialized_obj, flush=True)
+            new_obj = self._data.datatype.deserialize(serialized_obj)
+        else:
+            new_obj = copy.copy(obj)
+        new_obj.nid = new_nid
+        self._data.insert(idx + 1, new_obj)
+        self.layoutChanged.emit()
+        self.update_watchers(idx + 1)
+
+    def update_watchers(self, idx):
+        pass
+
+class DragDropMultiAttrListModel(MultiAttrListModel):
+    drop_to = None
+
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+    def supportedDragActions(self):
+        return Qt.MoveAction
+
+    def insertRows(self, row, count, parent):
+        if count < 1 or row < 0 or row > self.rowCount() or parent.isValid():
+            return False
+        self.drop_to = row
+        self.layoutChanged.emit()
+        return True
+
+    def do_drag_drop(self, index):
+        if self.drop_to is None:
+            return False
+        if index < self.drop_to:
+            self._data.move_index(index, self.drop_to - 1)
+            return index, self.drop_to - 1
+        else:
+            self._data.move_index(index, self.drop_to)
+            return index, self.drop_to
+
+    def removeRows(self, row, count, parent):
+        if count < 1 or row < 0 or (row + count) > self.rowCount() or parent.isValid():
+            return False
+        result = self.do_drag_drop(row)
+        self.layoutChanged.emit()
+        if result:
+            self.update_drag_watchers(result[0], result[1])
+        return True
+
+    def update_drag_watchers(self, fro, to):
+        pass
+
+    def flags(self, index):
+        if not index.isValid() or index.row() >= len(self._data) or index.model() is not self:
+            return Qt.ItemIsDropEnabled
+        else:
+            return Qt.ItemIsDragEnabled | super().flags(index)
+
+class DefaultMultiAttrListModel(DragDropMultiAttrListModel):
+    def change_watchers(self, data, attr, old_value, new_value):
+        if attr in self.headers and self.headers.index(attr) == 0:
+            new_value = utilities.get_next_name(new_value, [d.nid for d in self._data])
+            self._data.update_nid(data, new_value)
+
+    def create_new(self):
+        self._data.add_new_default(DB)

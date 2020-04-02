@@ -9,7 +9,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, PropertyBox
 from app.editor.custom_widgets import MovementCostBox
-from app.editor.base_database_gui import DatabaseTab, CollectionModel
+from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.mcost_dialog import McostDialog
 from app import utilities
 
@@ -28,7 +28,7 @@ class TerrainDatabase(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
-class TerrainModel(CollectionModel):
+class TerrainModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None

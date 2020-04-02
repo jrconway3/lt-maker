@@ -155,6 +155,21 @@ class SpellItemComponent(BoolItemComponent):
         v3 = item_components.SpellTarget[self.editor3.currentText()].value
         self._data.value = (v1, v2, v3)
 
+class UnitDelegate(QItemDelegate):
+    data = DB.units
+
+    def createEditor(self, parent, option, index):
+        if index.column() == 0:
+            editor = ComboBox(parent)
+            for obj in self.data:
+                editor.addItem(obj.nid)
+            return editor
+        else:
+            return super().createEditor(parent, option, index)
+
+class ClassDelegate(UnitDelegate):
+    data = DB.classes
+
 class EffectiveDelegate(QItemDelegate):
     int_column = 1
     tag_column = 0
@@ -181,11 +196,29 @@ class EffectiveItemComponent(BoolItemComponent):
 
         hbox.addWidget(self.editor)
 
+class RestrictedUnitComponent(BoolItemComponent):
+    delegate = UnitDelegate
+
+    def create_editor(self, hbox):
+        attrs = ("nid", )
+        self.editor = AppendMultiListWidget(self._data.value, self._data.name, attrs, self.delegate, self)
+        self.editor.view.setColumnWidth(0, 100)
+        self.editor.view.setMaximumHeight(75)
+
+        hbox.addWidget(self.editor)
+
+class RestrictedClassComponent(RestrictedUnitComponent):
+    delegate = ClassDelegate
+
 def get_display_widget(component, parent):
     if component.attr == bool:
         c = BoolItemComponent(component, parent)
     elif component.attr == item_components.EffectiveSubComponent:
         c = EffectiveItemComponent(component, parent)
+    elif component.nid == 'prf_unit':
+        c = RestrictedUnitComponent(component, parent)
+    elif component.nid == 'prf_class':
+        c = RestrictedClassComponent(component, parent)
     elif component.nid == 'uses':
         c = UsesItemComponent(component, parent)
     elif component.nid in ('hit', 'crit'):

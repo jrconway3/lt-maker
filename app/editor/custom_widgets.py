@@ -36,7 +36,7 @@ class ClassBox(ObjBox):
         if exclude:
             database = Data([d for d in DB.classes if d is not exclude])
         super().__init__("Class", ClassModel, database, parent, button)
-        self.edit.setIconSize(QSize(16, 16))
+        self.edit.setIconSize(QSize(32, 32))
         self.edit.view().setUniformItemSizes(True)
 
 class FactionBox(ObjBox):

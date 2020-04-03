@@ -18,6 +18,8 @@ from app.editor.property_menu import PropertiesMenu
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
 
+__version__ = "0.0.1.dev"
+
 class EventTileMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -102,9 +104,9 @@ class MainEditor(QMainWindow):
 
     def set_window_title(self, title):
         if self.window_title.startswith('*'):
-            self.window_title = '*' + title + ' -- LT Maker'
+            self.window_title = '*' + title + ' -- LT Maker %s' % (__version__)
         else:
-            self.window_title = title + ' -- LT Maker'
+            self.window_title = title + ' -- LT Maker %s' % (__version__)
         self.setWindowTitle(self.window_title)
 
     def get_current_level(self):

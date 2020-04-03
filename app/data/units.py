@@ -70,7 +70,8 @@ class GenericUnit(Prefab):
 
     def deserialize_attr(self, name, value):
         if name == 'starting_position':
-            value = tuple(value)
+            if value is not None:
+                value = tuple(value)
         else:
             value = super().deserialize_attr(name, value)
         return value

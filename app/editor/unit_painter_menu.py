@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QPushButton, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
-    QVBoxLayout, QHBoxLayout
+    QVBoxLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QBrush, QColor
 
 from app import utilities
+from app.data.units import GenericUnit
 from app.data.database import DB
 
 from app.editor.timer import TIMER
@@ -34,6 +35,7 @@ class UnitPainterMenu(QWidget):
 
         self.view = RightClickListView(parent=self)
         self.view.currentChanged = self.on_item_changed
+        self.view.doubleClicked.connect(self.on_double_click)
 
         self.model = AllUnitModel(self._data, self)
         self.view.setModel(self.model)
@@ -96,8 +98,10 @@ class UnitPainterMenu(QWidget):
         #     self.select(data_length - 1)
         #     return self._data[-1]
 
-    def create_generic(self):
-        created_unit, ok = GenericUnitDialog.get_unit(self, self.last_touched_generic)
+    def create_generic(self, example=None):
+        if not example:
+            example = self.last_touched_generic
+        created_unit, ok = GenericUnitDialog.get_unit(self, example)
         if ok:
             self.last_touched_generic = created_unit
             self._data.append(created_unit)
@@ -108,17 +112,50 @@ class UnitPainterMenu(QWidget):
             self.view.setCurrentIndex(index)
             self.last_touched_generic = created_unit
             self.window.update_view()
+            return created_unit
+        return None
 
     def load_unit(self):
         unit, ok = LoadUnitDialog.get_unit(self)
         if ok:
-            self._data.append(unit)
-            self.model.update()
-            # Select the unit
-            idx = self._data.index(unit.nid)
-            index = self.model.index(idx)
-            self.view.setCurrentIndex(index)
-            self.window.update_view()
+            if unit.nid in self._data.keys():
+                QMessageBox.critical(self, "Error!", "%s already present in level!" % unit.nid)
+            else:
+                self._data.append(unit)
+                self.model.update()
+                # Select the unit
+                idx = self._data.index(unit.nid)
+                index = self.model.index(idx)
+                self.view.setCurrentIndex(index)
+                self.window.update_view()
+                return unit
+        return None
+
+    def on_double_click(self, index):
+        idx = index.row()
+        unit = self._data[idx]
+        if unit.generic:
+            serialized_unit = unit.serialize()
+            unit, ok = GenericUnitDialog.get_unit(self, unit=unit)
+            if ok:
+                pass
+            else:
+                # Restore the old unit
+                unit = GenericUnit.deserialize(serialized_unit)
+                self._data.pop(idx)
+                self._data.insert(idx, unit)
+        else:  # Unique unit
+            old_unit_nid = unit.nid
+            old_unit_team = unit.team
+            old_unit_ai = unit.ai
+            edited_unit, ok = LoadUnitDialog.get_unit(self, unit)
+            if ok:
+                pass
+            else:
+                unit.nid = old_unit_nid
+                unit.prefab = DB.units.get(unit.nid)
+                unit.team = old_unit_team
+                unit.ai = old_unit_ai
 
 class AllUnitModel(DragDropCollectionModel):
     def data(self, index, role):
@@ -132,7 +169,6 @@ class AllUnitModel(DragDropCollectionModel):
             unit = self._data[index.row()]
             klass_nid = unit.klass
             num = TIMER.passive_counter.count
-            num = 0
             klass = DB.classes.get(klass_nid)
             active = index == self.window.view.currentIndex()
             pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team)
@@ -147,6 +183,31 @@ class AllUnitModel(DragDropCollectionModel):
             else:
                 return QBrush(QColor("red"))
         return None
+
+    def new(self, idx):
+        unit = self._data[idx]
+        if unit.generic:
+            ok = self.window.create_generic(unit)
+        else:
+            ok = self.window.load_unit()
+        if ok:
+            self._data.move_index(len(self._data) - 1, idx + 1)
+            self.layoutChanged.emit()
+            self.update_watchers(idx + 1)
+
+    def duplicate(self, idx):
+        obj = self._data[idx]
+        if obj.generic:
+            new_nid = utilities.get_next_generic_nid(obj.nid, self._data.keys())
+            serialized_obj = obj.serialize()
+            new_obj = GenericUnit.deserialize(serialized_obj)
+            new_obj.nid = new_nid
+            new_obj.starting_position = None
+            self._data.insert(idx + 1, new_obj)
+            self.layoutChanged.emit()
+            self.update_watchers(idx + 1)
+        else:
+            QMessageBox.critical(self.window, "Error!", "Cannot duplicate unique unit!")
 
 class InventoryDelegate(QStyledItemDelegate):
     def __init__(self, data):
@@ -165,25 +226,33 @@ class InventoryDelegate(QStyledItemDelegate):
                 painter.drawImage(rect.right() - ((idx + 1) * 16), rect.center().y() - 8, pixmap.toImage())
 
 class LoadUnitDialog(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, current=None):
         super().__init__(parent)
+        self.setWindowTitle("Load Unit")
+        self.window = parent
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.current = DB.create_unit_unique(DB.units[0].nid, 'player', DB.ai[0].nid)
+        if current:
+            self.current = current
+        else:
+            self.current = DB.create_unit_unique(DB.units[0].nid, 'player', DB.ai[0].nid)
 
         self.unit_box = UnitBox(self, button=True)
+        self.unit_box.edit.setValue(self.current.nid)
         self.unit_box.edit.currentIndexChanged.connect(self.unit_changed)
         self.unit_box.button.clicked.connect(self.access_units)
         layout.addWidget(self.unit_box)
 
         self.team_box = PropertyBox("Team", ComboBox, self)
         self.team_box.edit.addItems(DB.teams)
+        self.team_box.edit.setValue(self.current.team)
         self.team_box.edit.activated.connect(self.team_changed)
         layout.addWidget(self.team_box)      
 
         self.ai_box = AIBox(self)
+        self.ai_box.edit.setValue(self.current.ai)
         self.ai_box.edit.activated.connect(self.ai_changed)
         layout.addWidget(self.ai_box)  
 
@@ -214,9 +283,8 @@ class LoadUnitDialog(Dialog):
     #     self.current.ai = self.ai_box.edit.currentText()
 
     @classmethod
-    def get_unit(cls, parent):
-        dialog = cls(parent)
-        dialog.setWindowTitle("Load Unit")
+    def get_unit(cls, parent, unit=None):
+        dialog = cls(parent, unit)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             unit = dialog.current
@@ -225,20 +293,23 @@ class LoadUnitDialog(Dialog):
             return None, False
 
 class GenericUnitDialog(Dialog):
-    def __init__(self, parent=None, example=None):
+    def __init__(self, parent=None, example=None, unit=None):
         super().__init__(parent)
+        self.setWindowTitle("Create Generic Unit")
         self.window = parent
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
         units = self.window._data
-        if example:
-            new_nid = utilities.get_next_generic_nid(example.nid, [unit.nid for unit in units])
+        if unit:
+            self.current = unit
+        elif example:
+            new_nid = utilities.get_next_generic_nid(example.nid, units.keys())
             self.current = DB.create_unit_generic(new_nid, example.gender, example.level, example.klass, example.faction,
                                                   example.starting_items, example.team, example.ai)
         else:
-            new_nid = utilities.get_next_generic_nid(101, [unit.nid for unit in units])
+            new_nid = utilities.get_next_generic_nid(101, units.keys())
             self.current = DB.create_unit_generic(new_nid, 0, 1, DB.classes[0].nid, DB.factions[0].nid, [DB.items[0].nid], 'player', DB.ai[0].nid)
 
         self.team_box = PropertyBox("Team", ComboBox, self)
@@ -322,9 +393,8 @@ class GenericUnitDialog(Dialog):
         self.item_widget.set_current(current.starting_items)
 
     @classmethod
-    def get_unit(cls, parent, last_touched_generic):
-        dialog = cls(parent, last_touched_generic)
-        dialog.setWindowTitle("Create Generic Unit")
+    def get_unit(cls, parent, last_touched_generic=None, unit=None):
+        dialog = cls(parent, last_touched_generic, unit)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             unit = dialog.current

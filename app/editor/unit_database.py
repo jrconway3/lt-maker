@@ -31,7 +31,7 @@ class UnitDatabase(DatabaseTab):
         data = DB.units
         title = "Unit"
         right_frame = UnitProperties
-        deletion_criteria = None
+        deletion_criteria = (None, None, None)
         collection_model = UnitModel
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
@@ -364,9 +364,23 @@ class UnitProperties(QWidget):
     #     pass
 
     def items_changed(self):
+        def can_wield(unit, item):
+            if item.weapon and item.level:
+                return False
+            elif item.spell and item.level:
+                return False
+            else:
+                return True
+
         # print("Item Widget Get Items", flush=True)
         # print(self.item_widget.get_items(), flush=True)
         self.current.starting_items = self.item_widget.get_items()
+        # See which ones can actually be wielded
+        wieldable_list = []
+        for item_nid in self.current.starting_items:
+            item = DB.items.get(item_nid)
+            wieldable_list.append(not can_wield(self.current, item))
+        self.item_widget.set_color(wieldable_list)
 
     def access_tags(self):
         dlg = TagDialog.create(self)

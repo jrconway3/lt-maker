@@ -4,6 +4,23 @@ Editor:
 Add Delete warnings for resources
 Have equations check their validity
 Add Female map sprite support
+*Swap left and right click on menu
+*Add AI and Level to Quick Menu
+Add Average Stats in Unit Database and in Generic Unit Creator
+*Add Preferences -> Left Click Select vs Right Click Select
+*Custom Weapon Experience
+*Heals Target
+*Make on map delete work
+*Make checkboxes work better 
+Make checkbox for droppable
+Make icon for Items that can't be wielded... Might just change text color
+*Change Back Icon from curve to straight left arrow -- that's racist
+*Change Duplicate to grey on unique units
+*Determine what's happening when right click empty selection
+*Make units appear on properties and normal thing
+*Consider moving deletion_func to model instead of view
+*Make Left-clicking empty unselect
+*Make Left-clicking empty unselect map view also
 
 Map Editor + Tilemap
 Event Script editor

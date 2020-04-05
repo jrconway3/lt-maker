@@ -94,6 +94,7 @@ class MultiAttrListModel(VirtualListModel):
 
         self.edit_locked = set()
         self.checked_columns = set()
+        self.nid_column = -1  # What column the nid is on
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
@@ -230,7 +231,7 @@ class DragDropMultiAttrListModel(MultiAttrListModel):
 
 class DefaultMultiAttrListModel(DragDropMultiAttrListModel):
     def change_watchers(self, data, attr, old_value, new_value):
-        if attr in self.headers and self.headers.index(attr) == 0:
+        if attr in self._headers and self._headers.index(attr) == self.nid_column:
             new_value = utilities.get_next_name(new_value, [d.nid for d in self._data])
             self._data.update_nid(data, new_value)
 

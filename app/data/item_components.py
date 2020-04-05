@@ -142,12 +142,12 @@ item_components = Data([
     ItemComponent('weight', 'Weight', int, 0, requires_spell_or_weapon),
     ItemComponent('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
     ItemComponent('magic', 'Magical', bool, False, requires_spell_or_weapon),
-    ItemComponent('wexp', 'Weapon Experience Gained', int, 1, requires_spell_or_weapon),
+    ItemComponent('wexp', 'Custom Weapon Experience', int, 1, requires_spell_or_weapon),
 
     ItemComponent('uses', 'Total Uses', int, 30),
     ItemComponent('c_uses', 'Uses per Chapter', int, 8),
     
-    ItemComponent('heal_on_hit', 'Heal on Hit', int, 0, requires_spell_or_weapon),
+    ItemComponent('heal_on_hit', 'Heals Target', int, 0, requires_spell_or_weapon),
     ItemComponent('heal_on_use', 'Heal on Use', int, 10, requires_usable),
 
     ItemComponent('effective', 'Effective Against', EffectiveSubComponent, EffectiveData(), requires_spell_or_weapon),

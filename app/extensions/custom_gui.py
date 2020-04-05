@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
-    QLineEdit, QPushButton, QAction, QMenu, QMessageBox, QSizePolicy, QFrame, \
+    QLineEdit, QPushButton, QAction, QMenu, QSizePolicy, QFrame, \
     QDialogButtonBox, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QItemSelectionModel
 
 class SimpleDialog(QDialog):
     def __init__(self, parent=None):
@@ -131,17 +131,17 @@ class PropertyCheckBox(QWidget):
         layout = QHBoxLayout()
         self.setLayout(layout)
 
-        self.label = QLabel(label, self)
-        self.label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.edit = widget(self)
+        # self.label = QLabel(label, self)
+        # self.label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.edit = widget(label, self)
         self.edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         layout.addWidget(self.edit)
-        layout.addWidget(self.label)
-        layout.setAlignment(self.label, Qt.AlignLeft)
+        # layout.addWidget(self.label)
+        # layout.setAlignment(self.label, Qt.AlignLeft)
 
 class RightClickView(object):
-    def __init__(self, deletion_criteria=None, parent=None):
+    def __init__(self, action_funcs=None, parent=None):
         super().__init__(parent)
         self.window = parent
 
@@ -150,46 +150,63 @@ class RightClickView(object):
         self.setDropIndicatorShown(True)
         self.setDragDropMode(4)  # QAbstractItemView.InternalMove
 
-        if deletion_criteria:
-            self.deletion_func, self.deletion_msg = deletion_criteria
+        if action_funcs:
+            self.can_delete, self.can_duplicate, self.can_rename = action_funcs
         else:
-            self.deletion_func, self.deletion_msg = None, "This shouldn't happen"
+            self.can_delete, self.can_duplicate, self.can_rename = None, None, None
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.customMenuRequested)
 
     def customMenuRequested(self, pos):
         index = self.indexAt(pos)
-
-        new_action = QAction("New", self, triggered=lambda: self.new(index.row()))
-        duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index.row()))
-        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index.row()))
         menu = QMenu(self)
-        menu.addAction(new_action)
-        menu.addAction(duplicate_action)
-        menu.addAction(delete_action)
 
+        new_action = QAction("New", self, triggered=lambda: self.new(index))
+        menu.addAction(new_action)
+        # Check to see if we're actually selecting something
+        if index.isValid():
+            print(self.can_delete, self.can_duplicate, self.can_rename, flush=True)
+            duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index))
+            menu.addAction(duplicate_action)
+            delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
+            menu.addAction(delete_action)
+            if self.can_duplicate and not self.can_duplicate(self.model(), index):
+                duplicate_action.setEnabled(False)
+            if self.can_delete and not self.can_delete(self.model(), index):
+                delete_action.setEnabled(False)
+            
         menu.popup(self.viewport().mapToGlobal(pos))
 
-    def new(self, idx):
-        self.window.model.new(idx)
-        self.window.view.setCurrentIndex(self.window.model.index(idx, 0))
+    def new(self, index):
+        idx = index.row()
+        self.model().new(idx)
+        self.setCurrentIndex(index)
 
-    def duplicate(self, idx):
-        self.window.model.duplicate(idx)
-        view = self.window.view
-        view.setCurrentIndex(self.window.model.index(idx + 1, 0))
+    def duplicate(self, index):
+        idx = index.row()
+        self.model().duplicate(idx)
+        self.setCurrentIndex(index)
 
-    def delete(self, idx):
-        if not self.deletion_func or self.deletion_func(self, idx):
-            self.window.model.delete(idx)
-        else:
-            QMessageBox.critical(self.window, 'Error', self.deletion_msg)
+    def delete(self, index):
+        idx = index.row()
+        self.model().delete(idx)
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
         if event.key() == Qt.Key_Delete:
-            self.delete(self.currentIndex().row())
+            indices = self.selectionModel().selectedIndexes()
+            for index in indices:
+                if not self.can_delete or self.can_delete(self.model(), index):
+                    self.delete(index)
+
+    def mousePressEvent(self, event):
+        index = self.indexAt(event.pos())
+        is_selected = self.selectionModel().isSelected(index)
+        super().mousePressEvent(event)
+        if not index.isValid() or is_selected:
+            self.clearSelection()
+            self.selectionModel().setCurrentIndex(index, QItemSelectionModel.Select)
 
 class RightClickTreeView(RightClickView, QTreeView):
     pass
@@ -198,44 +215,40 @@ class RightClickListView(RightClickView, QListView):
     pass
 
 class ResourceListView(RightClickView, QListView):
+    def check_index(self, index):
+        return True
+
     def customMenuRequested(self, pos):
         index = self.indexAt(pos)
+        if not self.check_index(index):
+            return
 
-        new_action = QAction("New", self, triggered=lambda: self.new(index.row()))
-        rename_action = QAction("Rename", self, triggered=lambda: self.edit(index))
-        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index.row()))
         menu = QMenu(self)
+        new_action = QAction("New", self, triggered=lambda: self.new(index))
         menu.addAction(new_action)
-        menu.addAction(rename_action)
-        menu.addAction(delete_action)
+
+        # Check to see if we're actually selecting something
+        if index.isValid():
+            rename_action = QAction("Rename", self, triggered=lambda: self.edit(index))
+            menu.addAction(rename_action)
+            delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
+            menu.addAction(delete_action)
+            if self.can_rename and not self.can_rename(self.model(), index):
+                rename_action.setEnabled(False)
+            if self.can_delete and not self.can_delete(self.model(), index):
+                delete_action.setEnabled(False)
 
         menu.popup(self.viewport().mapToGlobal(pos))
 
-class ResourceTreeView(RightClickView, QTreeView):
-    def customMenuRequested(self, pos):
-        index = self.indexAt(pos)
+class ResourceTreeView(ResourceListView):
+    def check_index(self, index):
         item = index.internalPointer()
         if item.parent_image:
-            pass
+            return False
+        return True
 
-        new_action = QAction("New", self, triggered=lambda: self.new(index))
-        rename_action = QAction("Rename", self, triggered=lambda: self.edit(index))
-        delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
-        menu = QMenu(self)
-        menu.addAction(new_action)
-        menu.addAction(rename_action)
-        menu.addAction(delete_action)
-
-        menu.popup(self.viewport().mapToGlobal(pos))
-
-    def new(self, index):
-        self.window.model.new(index)
-        self.window.view.setCurrentIndex(index)
-
-    def keyPressEvent(self, event):
-        QTreeView.keyPressEvent(self, event)
-        if event.key() == Qt.Key_Delete:
-            self.delete(self.currentIndex())
+    # def keyPressEvent(self, event):
+    #     RightClickView.keyPressEvent(self, event)
 
 class IntDelegate(QItemDelegate):
     def __init__(self, parent, int_columns):

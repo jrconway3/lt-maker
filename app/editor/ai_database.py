@@ -18,12 +18,11 @@ class AIDatabase(DatabaseTab):
         title = "AI"
         right_frame = AIProperties
 
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid != "None"
+        def deletion_func(model, index):
+            return model._data[index.row()].nid != "None"
         
-        deletion_criteria = (deletion_func, "Cannot delete 'None' AI")
         collection_model = AIModel
-        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
+        dialog = cls(data, title, right_frame, (deletion_func, None, None), collection_model, parent)
         return dialog
 
 class AIModel(DragDropCollectionModel):

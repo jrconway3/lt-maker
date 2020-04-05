@@ -22,11 +22,10 @@ class MapDisplay(DatabaseTab):
         right_frame = MapProperties
         collection_model = MapTreeModel
 
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid != "default"
+        def deletion_func(model, index):
+            return model._data[index.row()].nid != "default"
         
-        deletion_criteria = (deletion_func, "Cannot delete default map")
-        dialog = cls(data, title, right_frame, deletion_criteria,
+        dialog = cls(data, title, right_frame, (deletion_func, None, deletion_func),
                      collection_model, parent, button_text="Add New %s...",
                      view_type=ResourceTreeView)
         return dialog

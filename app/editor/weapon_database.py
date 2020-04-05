@@ -28,12 +28,11 @@ class WeaponDatabase(DatabaseTab):
         title = "Weapon Type"
         right_frame = WeaponProperties
 
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid != "Default"
+        def deletion_func(model, index):
+            return model._data[index].nid != "Default"
 
-        deletion_criteria = (deletion_func, "Cannot delete Default weapon type!")
         collection_model = WeaponModel
-        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
+        dialog = cls(data, title, right_frame, (deletion_func, None, deletion_func), collection_model, parent)
         return dialog
 
 def get_pixmap(weapon):
@@ -178,13 +177,12 @@ class WeaponRankMultiModel(DragDropMultiAttrListModel):
 class RankDialog(MultiAttrListDialog):
     @classmethod
     def create(cls):
-        def deletion_func(view, idx):
-            return view.model().rowCount() > 1
+        def deletion_func(model, index):
+            return model.rowCount() > 1
 
-        deletion_criteria = (deletion_func, "Cannot delete when only one rank left!")
         return cls(DB.weapon_ranks, "Weapon Rank", 
                    ("rank", "requirement", "accuracy", "damage", "crit"),
-                   WeaponRankMultiModel, deletion_criteria)
+                   WeaponRankMultiModel, (deletion_func, None, None))
 
 class WeaponProperties(QWidget):
     def __init__(self, parent, current=None):

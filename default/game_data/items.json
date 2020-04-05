@@ -61,19 +61,19 @@
             ],
             [
                 "might",
-                7
+                8
             ],
             [
                 "hit",
-                95
+                75
             ],
             [
                 "crit",
-                10
+                0
             ],
             [
                 "weight",
-                5
+                10
             ],
             [
                 "level",
@@ -81,7 +81,50 @@
             ],
             [
                 "uses",
-                40
+                30
+            ]
+        ]
+    },
+    {
+        "nid": "Silver Sword",
+        "name": "Silver Sword",
+        "desc": "Sword of Silver.",
+        "value": 1500,
+        "min_range": "1",
+        "max_range": "1",
+        "icon_nid": "Sword",
+        "icon_index": [
+            0,
+            3
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "might",
+                13
+            ],
+            [
+                "hit",
+                80
+            ],
+            [
+                "level",
+                "A"
+            ],
+            [
+                "weight",
+                8
+            ],
+            [
+                "crit",
+                0
+            ],
+            [
+                "uses",
+                20
             ]
         ]
     },

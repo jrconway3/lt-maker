@@ -389,6 +389,9 @@ class ItemListWidget(QWidget):
     def get_items(self):
         return self.item_list.index_list[:]
 
+    def set_color(self, color_list):
+        self.item_list.set_color(color_list)
+
 
 # Testing
 # Run "python -m app.editor.item_database" from main directory

@@ -18,11 +18,10 @@ class LevelDatabase(QWidget):
         self.grid = QGridLayout()
         self.setLayout(self.grid)
 
-        def deletion_func(view, idx):
+        def deletion_func(model, index):
             return len(DB.levels) > 1
 
-        deletion_criteria = (deletion_func, 'Must have at least one level in project!')
-        self.view = RightClickListView(deletion_criteria, self)
+        self.view = RightClickListView((deletion_func, None, None), self)
         self.view.setMinimumSize(128, 320)
         self.view.setIconSize(QSize(64, 64))
         self.view.currentChanged = self.on_level_changed

@@ -20,12 +20,11 @@ class TerrainDatabase(DatabaseTab):
         title = "Terrain"
         right_frame = TerrainProperties
 
-        def deletion_func(view, idx):
-            return view.model().rowCount() > 1 
+        def deletion_func(model, index):
+            return model.rowCount() > 1 
 
-        deletion_criteria = (deletion_func, 'Cannot delete when only one terrain left!')
         collection_model = TerrainModel
-        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
+        dialog = cls(data, title, right_frame, (deletion_func, None, None), collection_model, parent)
         return dialog
 
 class TerrainModel(DragDropCollectionModel):

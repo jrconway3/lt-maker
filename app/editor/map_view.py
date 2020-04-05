@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 
 from app.sprites import SPRITES
@@ -18,6 +18,7 @@ class MapView(QGraphicsView):
     def __init__(self, window=None):
         super().__init__()
         self.main_editor = window
+        self.settings = QSettings("rainlash", "Lex Talionis")
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.setMouseTracking(True)
@@ -52,9 +53,13 @@ class MapView(QGraphicsView):
             self.working_image = pixmap.copy()
         else:
             return
-        if self.main_editor.dock_visibility['Terrain']:
+        if self.main_editor.dock_visibility['Properties']:
+            self.paint_units()
+        elif self.main_editor.dock_visibility['Terrain']:
             self.paint_terrain()
-        if self.main_editor.dock_visibility['Units']:
+        elif self.main_editor.dock_visibility['Units']:
+            self.paint_units()
+        else:
             self.paint_units()
         self.show_map()
 
@@ -128,11 +133,16 @@ class MapView(QGraphicsView):
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and pos in self.current_map.tiles:
+            # Terrain
             if self.main_editor.dock_visibility['Terrain']:
-                if event.button() == Qt.LeftButton:
+                if event.button() == self.settings.value('place_button', Qt.RightButton):
                     self.main_editor.terrain_painter_menu.paint_tile(pos)
+                elif event.button() == self.settings.value('select_button', Qt.LeftButton):
+                    current_nid = self.current_map.tiles[pos].terrain_nid
+                    self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
+            # Units
             elif self.main_editor.dock_visibility['Units']:
-                if event.button() == Qt.LeftButton:
+                if event.button() == self.settings.value('place_button', Qt.RightButton):
                     current_unit = self.main_editor.unit_painter_menu.get_current()
                     if current_unit:
                         under_unit = self.main_editor.current_level.check_position(pos)
@@ -150,7 +160,7 @@ class MapView(QGraphicsView):
                             message = "Placed unit %s at (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
                             self.main_editor.status_bar.showMessage(message)
                         self.update_view()
-                elif event.button() == Qt.RightButton:
+                elif event.button() == self.settings.value('select_button', Qt.LeftButton):
                     under_unit = self.main_editor.current_level.check_position(pos)
                     if under_unit:
                         idx = self.main_editor.current_level.units.index(under_unit.nid)
@@ -165,7 +175,7 @@ class MapView(QGraphicsView):
         if self.current_map and pos in self.current_map.tiles:
             self.main_editor.set_position_bar(pos)
             if self.main_editor.dock_visibility['Terrain']:
-                if (event.buttons() & Qt.LeftButton):
+                if (event.buttons() & self.settings.value('place_button', Qt.RightButton)):
                     self.main_editor.terrain_painter_menu.paint_tile(pos)
         else:
             self.main_editor.set_position_bar(None)
@@ -176,15 +186,12 @@ class MapView(QGraphicsView):
 
         if self.current_map and pos in self.current_map.tiles:
             if self.main_editor.dock_visibility['Terrain']:
-                if event.button() == Qt.LeftButton:
+                if event.button() == self.settings.value('place_button', Qt.RightButton):
                     # Force no merge when you've lifted up your pen...
                     last_index = self.main_editor.undo_stack.count() - 1
                     last_command = self.main_editor.undo_stack.command(last_index)
                     if isinstance(last_command, commands.ChangeTileTerrain):
                         last_command.can_merge = False
-                elif event.button() == Qt.RightButton:
-                    current_nid = self.current_map.tiles[pos].terrain_nid
-                    self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
 
     def wheelEvent(self, event):
         if event.angleDelta().y() > 0 and self.screen_scale < self.max_scale:
@@ -193,3 +200,12 @@ class MapView(QGraphicsView):
         elif event.angleDelta().y() < 0 and self.screen_scale > self.min_scale:
             self.screen_scale -= 1
             self.scale(0.5, 0.5)
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if self.main_editor.dock_visibility['Units']:
+            if event.key() == Qt.Key_Delete:
+                unit_painter_menu = self.main_editor.unit_painter_menu
+                indices = unit_painter_menu.view.selectionModel().selectedIndexes()
+                for index in indices:
+                    unit_painter_menu.model.delete(index.row())

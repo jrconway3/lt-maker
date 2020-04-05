@@ -16,12 +16,11 @@ class StatTypeDatabase(DatabaseTab):
         title: str = "Stat Types"
         right_frame = StatTypeProperties
 
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid not in ("HP", "MOV")
+        def deletion_func(model, index):
+            return model._data[index].nid not in ("HP", "MOV")
 
-        deletion_criteria = (deletion_func, "Cannot delete HP or MOV stats!")
         collection_model = StatTypeModel
-        return cls(data, title, right_frame, deletion_criteria, collection_model, parent)
+        return cls(data, title, right_frame, (deletion_func, None, deletion_func), collection_model, parent)
 
 class StatTypeModel(DragDropCollectionModel):
     def data(self, index, role):

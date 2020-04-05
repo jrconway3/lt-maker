@@ -10,6 +10,7 @@ from app.data.database import DB
 
 from app.editor.timer import TIMER
 
+from app.editor.preferences import PreferencesDialog
 from app.editor.map_view import MapView
 from app.editor.level_menu import LevelDatabase
 from app.editor.database_editor import DatabaseEditor
@@ -139,11 +140,12 @@ class MainEditor(QMainWindow):
         self.redo_act = QAction(QIcon('icons/corner-up-right.png'), "Redo", self, triggered=self.redo)
         self.redo_act.setShortcuts(["Ctrl+Y", "Ctrl+Shift+Z"])
 
+        self.preferences_act = QAction("&Preferences...", self, triggered=self.edit_preferences)
         self.about_act = QAction("&About", self, triggered=self.about)
 
         # Toolbar actions
         self.modify_level_act = QAction(QIcon('icons/map.png'), "Edit Level", self, shortcut="E", triggered=self.edit_level)
-        self.back_to_main_act = QAction(QIcon('icons/back.png'), "Back", self, shortcut="E", triggered=self.edit_global)
+        self.back_to_main_act = QAction(QIcon('icons/left_arrow.png'), "Back", self, shortcut="E", triggered=self.edit_global)
         self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, shortcut="D", triggered=self.edit_database)
         self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
         self.test_play_act = QAction(QIcon('icons/play.png'), "Test Play", self, shortcut="T", triggered=self.test_play)
@@ -419,10 +421,14 @@ class MainEditor(QMainWindow):
     def test_play(self):
         pass
 
+    def edit_preferences(self):
+        dialog = PreferencesDialog(self)
+        dialog.exec_()
+
     def about(self):
         QMessageBox.about(self, "About Lex Talionis Game Maker",
             "<p>This is the <b>Lex Talionis</b> Game Maker.</p>"
-            "<p>Check out https://gitlab.com/rainlash/lex-talionis/wikis/home "
+            "<p>Check out <a href='https://gitlab.com/rainlash/lex-talionis/wikis/home'>https://gitlab.com/rainlash/lex-talionis/wikis/home</a> "
             "for more information and helpful tutorials.</p>"
             "<p>This program has been freely distributed under the MIT License.</p>"
             "<p>Copyright 2014-2020 rainlash.</p>")

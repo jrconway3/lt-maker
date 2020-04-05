@@ -33,7 +33,10 @@ class UnitPainterMenu(QWidget):
         grid = QVBoxLayout()
         self.setLayout(grid)
 
-        self.view = RightClickListView(parent=self)
+        def duplicate_func(model, index):
+            return isinstance(model._data[index.row()], GenericUnit)
+
+        self.view = RightClickListView((None, duplicate_func, None), parent=self)
         self.view.currentChanged = self.on_item_changed
         self.view.doubleClicked.connect(self.on_double_click)
 
@@ -84,19 +87,11 @@ class UnitPainterMenu(QWidget):
                 self.map_view.center_on_pos(unit.starting_position)
 
     def get_current(self):
-        idx = self.view.currentIndex().row()
-        if idx < len(self._data):
-            return self._data[idx]
+        for index in self.view.selectionModel().selectedIndexes():
+            idx = index.row()
+            if len(self._data) > 0 and idx < len(self._data):
+                return self._data[idx]
         return None
-
-        #     def get_current(self):
-        # idx = self.view.currentIndex().row()
-        # data_length = len(self._data)
-        # if idx < data_length:
-        #     return self._data[idx]
-        # else:
-        #     self.select(data_length - 1)
-        #     return self._data[-1]
 
     def create_generic(self, example=None):
         if not example:
@@ -163,14 +158,16 @@ class AllUnitModel(DragDropCollectionModel):
             return None
         if role == Qt.DisplayRole:
             unit = self._data[index.row()]
-            text = unit.nid
+            text = str(unit.nid)
+            if isinstance(unit, GenericUnit):
+                text += ' (' + str(unit.ai) + ' Lv ' + str(unit.level) + ')'
             return text
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
             klass_nid = unit.klass
             num = TIMER.passive_counter.count
             klass = DB.classes.get(klass_nid)
-            active = index == self.window.view.currentIndex()
+            active = self.window.view.selectionModel().isSelected(index)
             pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team)
             if pixmap:
                 return QIcon(pixmap)

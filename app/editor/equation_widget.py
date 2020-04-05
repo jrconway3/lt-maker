@@ -50,10 +50,9 @@ class EquationDialog(MultiAttrListDialog):
 
     @classmethod
     def create(cls):
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid not in cls.locked_vars
+        def deletion_func(model, index):
+            return model._data[index.row()].nid not in cls.locked_vars
 
-        deletion_criteria = (deletion_func, "This equation is required!")
         dlg = cls(DB.equations, "Equation", ("nid", "expression"), 
-                  EquationMultiModel, deletion_criteria, cls.locked_vars)
+                  EquationMultiModel, (deletion_func, None, deletion_func), cls.locked_vars)
         return dlg

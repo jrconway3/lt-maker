@@ -42,7 +42,8 @@ class BoolConstantsModel(ComponentModel):
         return True
 
     def flags(self, index):
-        basic_flags = Qt.ItemNeverHasChildren | Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable
+        # basic_flags = Qt.ItemNeverHasChildren | Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable
+        basic_flags = Qt.ItemNeverHasChildren | Qt.ItemIsEnabled | Qt.ItemIsSelectable
         return basic_flags
 
 class MainExpEquation(QWidget):
@@ -368,10 +369,11 @@ class ConstantDatabase(DatabaseTab):
 
         bool_section = QGroupBox(self)
         bool_constants = Data([d for d in self._data if d.attr == bool])
-        bool_model = BoolConstantsModel(bool_constants, self)
+        self.bool_model = BoolConstantsModel(bool_constants, self)
         bool_view = QTreeView()
-        bool_view.setModel(bool_model)
+        bool_view.setModel(self.bool_model)
         bool_view.header().hide()
+        bool_view.clicked.connect(self.on_bool_click)
 
         bool_layout = QHBoxLayout()
         bool_section.setLayout(bool_layout)
@@ -431,4 +433,11 @@ class ConstantDatabase(DatabaseTab):
             layout.addWidget(box)
         return section
 
-        # self.layout.addWidget()
+    def on_bool_click(self, index):
+        if bool(self.bool_model.flags(index) & Qt.ItemIsEnabled):
+            current_checked = self.bool_model.data(index, Qt.CheckStateRole)
+            # Toggle checked
+            if current_checked == Qt.Checked:
+                self.bool_model.setData(index, Qt.Unchecked, Qt.CheckStateRole)
+            else:
+                self.bool_model.setData(index, Qt.Checked, Qt.CheckStateRole)

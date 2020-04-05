@@ -193,6 +193,7 @@ class EffectiveItemComponent(BoolItemComponent):
         self.editor = AppendMultiListWidget(self._data.value, self._data.name, attrs, EffectiveDelegate, self)
         self.editor.view.setColumnWidth(0, 100)
         self.editor.view.setMaximumHeight(75)
+        self.editor.model.nid_column = 0
 
         hbox.addWidget(self.editor)
 
@@ -204,6 +205,7 @@ class RestrictedUnitComponent(BoolItemComponent):
         self.editor = AppendMultiListWidget(self._data.value, self._data.name, attrs, self.delegate, self)
         self.editor.view.setColumnWidth(0, 100)
         self.editor.view.setMaximumHeight(75)
+        self.editor.model.nid_column = 0
 
         hbox.addWidget(self.editor)
 
@@ -251,6 +253,7 @@ class ComponentDialog(QDialog):
         self.view = QTreeView()
         self.view.setModel(self.model)
         self.view.header().hide()
+        self.view.clicked.connect(self.on_click)
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.view)
@@ -262,9 +265,21 @@ class ComponentDialog(QDialog):
 
     def get_checked(self):
         components = item_components.item_components
+        # remove components that were already present
+        checked = self.model.checked - set(self.model.already_present.keys())
         # sort based off position in item_components
-        sorted_components = sorted(self.model.checked, key=lambda x: [c.nid for c in components].index(x))
+        sorted_components = sorted(checked, key=lambda x: [c.nid for c in components].index(x))
         return sorted_components
+
+    def on_click(self, index):
+        # Only if clickable
+        if bool(self.model.flags(index) & Qt.ItemIsEnabled):
+            nid_clicked = self.model._data[index.row()].nid
+            if nid_clicked in self.model.checked:
+                self.model.checked.discard(nid_clicked)
+            else:
+                self.model.checked.add(nid_clicked)
+            self.model.dataChanged.emit(index, index)
 
 class ComponentModel(QAbstractItemModel):
     def __init__(self, data, already_present, parent=None):
@@ -272,7 +287,7 @@ class ComponentModel(QAbstractItemModel):
         self.window = parent
         self._data = data
         self.already_present = already_present
-        self.checked = set()
+        self.checked = set(self.already_present.keys())
     
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         return None
@@ -321,5 +336,5 @@ class ComponentModel(QAbstractItemModel):
             pass
         elif data.requires(set(self.already_present.keys()) | self.checked):
             basic_flags |= Qt.ItemIsEnabled | Qt.ItemIsSelectable
-            basic_flags |= Qt.ItemIsUserCheckable
+            # basic_flags |= Qt.ItemIsUserCheckable
         return basic_flags

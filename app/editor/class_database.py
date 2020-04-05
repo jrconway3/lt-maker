@@ -35,12 +35,11 @@ class ClassDatabase(DatabaseTab):
         title = "Class"
         right_frame = ClassProperties
 
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid != "Citizen"
+        def deletion_func(model, index):
+            return model._data[index.row()].nid != "Citizen"
 
-        deletion_criteria = (deletion_func, "Cannot delete Citizen Class!")
         collection_model = ClassModel
-        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
+        dialog = cls(data, title, right_frame, (deletion_func, None, deletion_func), collection_model, parent)
         return dialog
 
     def tick(self):

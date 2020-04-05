@@ -1,8 +1,8 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QIcon, QPalette
 
 from app.extensions.custom_gui import ComboBox
 
@@ -80,3 +80,13 @@ class MultiComboBoxList(QListWidget):
         # print(item_nid, flush=True)
         self.index_list[index] = item_nid
         self.item_changed.emit()
+
+    def set_color(self, color_list):
+        print(color_list, flush=True)
+        for idx, box in enumerate(self.combo_box_list):
+            palette = box.palette()
+            if color_list[idx]:
+                palette.setColor(QPalette.Text, Qt.red)
+            else:
+                palette.setColor(QPalette.Text, Qt.black)
+            box.setPalette(palette)

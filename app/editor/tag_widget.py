@@ -50,9 +50,8 @@ class TagDialog(MultiAttrListDialog):
 
     @classmethod
     def create(cls, parent=None):
-        def deletion_func(view, idx):
-            return view.window._data[idx].nid not in cls.locked_vars
+        def deletion_func(model, index):
+            return model._data[index].nid not in cls.locked_vars
 
-        deletion_criteria = (deletion_func, "This tag cannot be deleted!")
-        dlg = cls(DB.tags, "Tag", ("nid",), TagMultiModel, deletion_criteria, cls.locked_vars, parent)
+        dlg = cls(DB.tags, "Tag", ("nid",), TagMultiModel, (deletion_func, None, deletion_func), cls.locked_vars, parent)
         return dlg

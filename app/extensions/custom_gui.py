@@ -23,7 +23,7 @@ class Dialog(QDialog):
         self.buttonbox.rejected.connect(self.reject)
 
 class DeletionDialog(Dialog):
-    def __init__(self, affected_items, model, msg, box, parent=None):
+    def __init__(self, affected_items, model, msg, box=None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Deletion Warning")
         self.layout = QVBoxLayout()
@@ -36,13 +36,15 @@ class DeletionDialog(Dialog):
         self.view.setIconSize(QSize(32, 32))
 
         self.text1 = QLabel(msg)
-        self.text2 = QLabel("Swap these references to:")
-        self.box = box
+        if box:
+            self.text2 = QLabel("Swap these references to:")
+            self.box = box
 
         self.layout.addWidget(self.text1)
         self.layout.addWidget(self.view)
-        self.layout.addWidget(self.text2)
-        self.layout.addWidget(self.box)
+        if box:
+            self.layout.addWidget(self.text2)
+            self.layout.addWidget(self.box)
         self.layout.addWidget(self.buttonbox)
 
     @staticmethod
@@ -64,6 +66,15 @@ class DeletionDialog(Dialog):
             return idx, True
         else:
             return None, False
+
+    @staticmethod
+    def inform(affected_items, model, msg, parent=None):
+        dialog = DeletionDialog(affected_items, model, msg, None, parent)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+            return True
+        else:
+            return False
 
 class QHLine(QFrame):
     def __init__(self):
@@ -214,7 +225,7 @@ class RightClickTreeView(RightClickView, QTreeView):
 class RightClickListView(RightClickView, QListView):
     pass
 
-class ResourceListView(RightClickView, QListView):
+class ResourceView(RightClickView):
     def check_index(self, index):
         return True
 
@@ -240,15 +251,24 @@ class ResourceListView(RightClickView, QListView):
 
         menu.popup(self.viewport().mapToGlobal(pos))
 
-class ResourceTreeView(ResourceListView):
+class ResourceListView(ResourceView, QListView):
+    pass
+
+class ResourceTreeView(ResourceView, QTreeView):
     def check_index(self, index):
         item = index.internalPointer()
         if item.parent_image:
             return False
         return True
 
+    def delete(self, index):
+        self.model().delete(index)
+
     # def keyPressEvent(self, event):
     #     RightClickView.keyPressEvent(self, event)
+
+    def mousePressEvent(self, event):  # Try using the old version of this
+        QTreeView.mousePressEvent(self, event)
 
 class IntDelegate(QItemDelegate):
     def __init__(self, parent, int_columns):

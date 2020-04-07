@@ -5,10 +5,11 @@ from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
 
 import os
 
+from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, ResourceListView
+from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
 
 from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
@@ -64,7 +65,8 @@ class MapSpriteModel(ResourceCollectionModel):
                 map_sprite.standing_pixmap = QPixmap(map_sprite.standing_full_path)
             pixmap = map_sprite.standing_pixmap
             # num = TIMER.passive_counter.count
-            pixmap = get_basic_icon(pixmap, 0, index == self.window.view.currentIndex())
+            num = 0
+            pixmap = get_basic_icon(pixmap, num, index == self.window.view.currentIndex())
             if pixmap:
                 return QIcon(pixmap)
         return None
@@ -111,12 +113,32 @@ class MapSpriteModel(ResourceCollectionModel):
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)
 
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_classes = [klass for klass in DB.classes if nid in (klass.male_map_sprite_nid, klass.female_map_sprite_nid)]
+        if affected_classes:
+            affected = Data(affected_classes)
+            from app.editor.class_database import ClassModel
+            model = ClassModel
+            msg = "Deleting Map Sprite <b>%s</b> would affect these classes." % nid
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        # Delete watchers
+        super().delete(idx)
+
     def nid_change_watchers(self, portrait, old_nid, new_nid):
         # What uses map sprites
         # Classes
         for klass in DB.classes:
-            if klass.map_sprite_nid == old_nid:
-                klass.map_sprite_nid = new_nid
+            if klass.male_map_sprite_nid == old_nid:
+                klass.male_map_sprite_nid = new_nid
+            if klass.female_map_sprite_nid == old_nid:
+                klass.female_map_sprite_nid = new_nid
 
 class MapSpriteProperties(QWidget):
     standing_width, standing_height = 192, 144

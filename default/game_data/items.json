@@ -57,7 +57,7 @@
         "components": [
             [
                 "weapon",
-                null
+                "Sword"
             ],
             [
                 "might",
@@ -88,7 +88,7 @@
     {
         "nid": "Silver Sword",
         "name": "Silver Sword",
-        "desc": "Sword of Silver.",
+        "desc": "",
         "value": 1500,
         "min_range": "1",
         "max_range": "1",
@@ -100,7 +100,7 @@
         "components": [
             [
                 "weapon",
-                null
+                "Sword"
             ],
             [
                 "might",
@@ -143,7 +143,7 @@
         "components": [
             [
                 "weapon",
-                null
+                "Sword"
             ],
             [
                 "might",
@@ -205,7 +205,7 @@
         "components": [
             [
                 "weapon",
-                "Axe"
+                "Lance"
             ],
             [
                 "might",
@@ -295,11 +295,11 @@
             ],
             [
                 "might",
-                8
+                11
             ],
             [
                 "hit",
-                75
+                65
             ],
             [
                 "crit",
@@ -307,7 +307,7 @@
             ],
             [
                 "weight",
-                10
+                15
             ],
             [
                 "level",
@@ -315,7 +315,58 @@
             ],
             [
                 "uses",
-                45
+                30
+            ],
+            [
+                "wexp",
+                2
+            ]
+        ]
+    },
+    {
+        "nid": "Steel Axe",
+        "name": "Steel Axe",
+        "desc": "",
+        "value": 360,
+        "min_range": "1",
+        "max_range": "1",
+        "icon_nid": "Axe",
+        "icon_index": [
+            0,
+            1
+        ],
+        "components": [
+            [
+                "weapon",
+                "Axe"
+            ],
+            [
+                "might",
+                11
+            ],
+            [
+                "hit",
+                65
+            ],
+            [
+                "crit",
+                0
+            ],
+            [
+                "weight",
+                15
+            ],
+            [
+                "level",
+                "E"
+            ],
+            [
+                "uses",
+                30
+            ],
+            [
+                "wexp",
+                2
             ]
         ]
     },

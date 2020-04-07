@@ -75,6 +75,13 @@ class PanoramaModel(ResourceCollectionModel):
             parent_dir = os.path.split(fns[-1])[0]
             settings.setValue("last_open_path", parent_dir)
 
+    def delete(self, idx):
+        # Check to see what is using me?
+        # Nothing for now -- later Dialogue
+        res = self._data[idx]
+        nid = res.nid
+        super().delete(idx)
+
     def nid_change_watchers(self, portrait, old_nid, new_nid):
         # What uses panoramas
         # Nothing for now -- later Dialogue

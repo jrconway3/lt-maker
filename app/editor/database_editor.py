@@ -52,7 +52,7 @@ class DatabaseEditor(QDialog):
         self.current_tab = self.tab_bar.currentWidget()
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
-        if not starting_tab:
+        if not starting_tab and not one_tab_only:
             settings = QSettings("rainlash", "Lex Talionis")
             starting_tab = settings.value("database_tab")
         if starting_tab and starting_tab in self.tabs:

@@ -207,8 +207,7 @@
                 "klass": "Fighter",
                 "faction": "Soldier",
                 "starting_items": [
-                    "Iron Axe",
-                    "Vulnerary"
+                    "Iron Axe"
                 ],
                 "team": "enemy",
                 "ai": "Attack",

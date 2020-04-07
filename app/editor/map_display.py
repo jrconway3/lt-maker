@@ -5,11 +5,12 @@ from PyQt5.QtGui import QPixmap
 import os
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.base_database_gui import DatabaseTab
-from app.extensions.custom_gui import ResourceTreeView
+from app.extensions.custom_gui import ResourceTreeView, DeletionDialog
 from app.editor.icon_display import IconTreeModel, IconView
 
 from app import utilities
@@ -52,6 +53,23 @@ class MapTreeModel(IconTreeModel):
                     QMessageBox.critical(self.window, "File Type Error!", "Icon must be PNG format!") 
             parent_dir = os.path.split(fns[-1])[0]
             settings.setValue("last_open_path", parent_dir)
+
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_levels = [level for level in DB.levels if level.tilemap and nid == level.tilemap.base_image_nid]
+        if affected_levels:
+            affected = Data(affected_levels)
+            from app.editor.level_menu import LevelModel
+            model = LevelModel
+            msg = "Deleting Map Image <b>%s</b> would affect these levels."
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        super().delete(idx)
 
     def nid_change_watchers(self, icon, old_nid, new_nid):
         # What uses maps

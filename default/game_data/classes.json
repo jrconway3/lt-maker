@@ -273,7 +273,8 @@
             0,
             0
         ],
-        "map_sprite_nid": "citizenM",
+        "male_map_sprite_nid": "citizenM",
+        "female_map_sprite_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -555,7 +556,8 @@
             0,
             0
         ],
-        "map_sprite_nid": "lordF",
+        "male_map_sprite_nid": null,
+        "female_map_sprite_nid": "lordF",
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -836,7 +838,8 @@
             0,
             0
         ],
-        "map_sprite_nid": null,
+        "male_map_sprite_nid": null,
+        "female_map_sprite_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1124,7 +1127,8 @@
             0,
             0
         ],
-        "map_sprite_nid": "cavalierM",
+        "male_map_sprite_nid": "cavalierM",
+        "female_map_sprite_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1405,7 +1409,8 @@
             0,
             0
         ],
-        "map_sprite_nid": "paladinM",
+        "male_map_sprite_nid": "paladinM",
+        "female_map_sprite_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1688,7 +1693,8 @@
             0,
             0
         ],
-        "map_sprite_nid": "knightM",
+        "male_map_sprite_nid": "knightM",
+        "female_map_sprite_nid": "knightM",
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1969,7 +1975,8 @@
             0,
             0
         ],
-        "map_sprite_nid": "FighterM",
+        "male_map_sprite_nid": "FighterM",
+        "female_map_sprite_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -2247,7 +2254,8 @@
             0,
             0
         ],
-        "map_sprite_nid": "soldierM",
+        "male_map_sprite_nid": "soldierM",
+        "female_map_sprite_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     }

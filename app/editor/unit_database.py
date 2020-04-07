@@ -24,6 +24,7 @@ import app.editor.weapon_database as weapon_database
 from app.editor.icons import UnitPortrait
 import app.editor.utilities as editor_utilities
 from app import utilities
+from app.editor.helper_funcs import can_wield
 
 class UnitDatabase(DatabaseTab):
     @classmethod
@@ -148,7 +149,7 @@ class UnitModel(DragDropCollectionModel):
                         behaviour.target_spec[1] == nid 
                         for behaviour in ai.behaviours)]
         if affected_ais:
-            from app.edior.ai_database import AIModel
+            from app.editor.ai_database import AIModel
             model = AIModel
             msg = "Deleting Unit <b>%s</b> would affect these ais" % nid
             swap, ok = DeletionDialog.get_swap(affected_ais, model, msg, UnitBox(self.window, exclude=unit), self.window)
@@ -364,22 +365,12 @@ class UnitProperties(QWidget):
     #     pass
 
     def items_changed(self):
-        def can_wield(unit, item):
-            if item.weapon and item.level:
-                return False
-            elif item.spell and item.level:
-                return False
-            else:
-                return True
-
-        # print("Item Widget Get Items", flush=True)
-        # print(self.item_widget.get_items(), flush=True)
         self.current.starting_items = self.item_widget.get_items()
         # See which ones can actually be wielded
         wieldable_list = []
         for item_nid in self.current.starting_items:
             item = DB.items.get(item_nid)
-            wieldable_list.append(not can_wield(self.current, item))
+            wieldable_list.append(not can_wield(self.current, item, prefab=True))
         self.item_widget.set_color(wieldable_list)
 
     def access_tags(self):

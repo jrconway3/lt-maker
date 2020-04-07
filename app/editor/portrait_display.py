@@ -7,10 +7,11 @@ from PyQt5.QtGui import QPixmap, QIcon, QPainter
 import os
 import time, random
 
+from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, ResourceListView
+from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
 from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.icon_display import IconView
@@ -64,6 +65,23 @@ class PortraitModel(ResourceCollectionModel):
                     QMessageBox.critical(self.window, "File Type Error!", "Portrait must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.setValue("last_open_path", parent_dir)
+
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_units = [unit for unit in DB.units if unit.portrait_nid == nid]
+        if affected_units:
+            affected = Data(affected_units)
+            from app.editor.unit_database import UnitModel
+            model = UnitModel
+            msg = "Deleting Portrait <b>%s</b> would affect these units."
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        super().delete(idx)
 
     def nid_change_watchers(self, portrait, old_nid, new_nid):
         # What uses portraits

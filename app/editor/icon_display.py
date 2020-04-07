@@ -5,9 +5,10 @@ from PyQt5.QtGui import QPixmap, QIcon
 
 import os
 
+from app.data.data import Data
 from app.data.resources import RESOURCES, ImageResource
 from app.data.database import DB
-from app.extensions.custom_gui import ResourceTreeView
+from app.extensions.custom_gui import ResourceTreeView, DeletionDialog
 from app.editor.base_database_gui import DatabaseTab
 
 from app import utilities
@@ -124,6 +125,7 @@ class IconTreeModel(QAbstractItemModel):
                     x, y = image_resource.icon_index
                     image_resource.nid = nid + " " + str(x) + ',' + str(y)
                 self.nid_change_watchers(item, old_nid, nid)
+                self.dataChanged.emit(index, index)
         return True
 
     def flags(self, index):
@@ -141,11 +143,9 @@ class IconTreeModel(QAbstractItemModel):
         if item.parent_image:
             QMessageBox.critical(self.window, 'Error', "Can't delete child item!")
         else:
+            self.layoutAboutToBeChanged.emit()
             self._data.delete(item)
             self.layoutChanged.emit()
-        # new_item = self._data[min(idx, len(self._data) - 1)]
-        # if self.window.display:
-        #     self.window.display.set_current(new_item)
 
     def create_new(self):
         raise NotImplementedError
@@ -191,13 +191,46 @@ class Icon16Model(IconTreeModel):
                 if fn.endswith('.png'):
                     nid = os.path.split(fn)[-1][:-4]  # Get rid of .png ending
                     pix = QPixmap(fn)
-                    nid = utilities.get_next_name(nid, [d.nid for d in self.database])
-                    icon = self.creation_func(nid, fn, pix)
-                    icon_slice(icon, self.width, self.height)
+                    if pix.width() % self.width == 0 and pix.height() % self.height == 0:
+                        nid = utilities.get_next_name(nid, [d.nid for d in self.database])
+                        icon = self.creation_func(nid, fn, pix)
+                        icon_slice(icon, self.width, self.height)
+                    else:
+                        QMessageBox.critical(self.window, "File Size Error!", "Icon width and height must be exactly divisible by %dx%d pixels!" % (self.width, self.height))
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Icon must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.setValue("last_open_path", parent_dir)
+
+    def delete(self, index):
+        icon = index.internalPointer()
+        if icon.parent_image:
+            QMessageBox.critical(self.window, 'Error', "Can't delete child item!")
+        else:
+            nid = icon.nid
+            # What uses 16x16 icons
+            # Items, Weapons, (Later on Affinities, Skills/Statuses)
+            affected_items = [item for item in DB.items if item.icon_nid == nid]
+            affected_weapons = [weapon for weapon in DB.weapons if weapon.icon_nid == nid]
+            if affected_items or affected_weapons:
+                if affected_items:
+                    affected = Data(affected_items)
+                    from app.editor.item_database import ItemModel
+                    model = ItemModel
+                elif affected_weapons:
+                    affected = Data(affected_weapons)
+                    from app.editor.weapon_database import WeaponModel
+                    model = WeaponModel
+                msg = "Deleting Icon <b>%s</b> would affect these objects."
+                ok = DeletionDialog.inform(affected, model, msg, self.window)
+                if ok:
+                    pass
+                else:
+                    return
+            self.layoutAboutToBeChanged.emit()
+            self._data.delete(icon)
+            # self.dataChanged.emit()
+            self.layoutChanged.emit()
 
     def nid_change_watchers(self, icon, old_nid, new_nid):
         # What uses 16x16 icons
@@ -214,6 +247,29 @@ class Icon32Model(Icon16Model):
     database = RESOURCES.icons32
     width, height = 32, 32
 
+    def delete(self, index):
+        icon = index.internalPointer()
+        if icon.parent_image:
+            QMessageBox.critical(self.window, 'Error', "Can't delete child item!")
+        else:
+            nid = icon.nid
+            # What uses 32x32 icons
+            # Factions
+            affected_factions = [faction for faction in DB.factions if faction.icon_nid == nid]
+            if affected_factions:
+                affected = Data(affected_factions)
+                from app.editor.faction_database import FactionModel
+                model = FactionModel
+                msg = "Deleting Icon <b>%s</b> would affect these factions."
+                ok = DeletionDialog.inform(affected, model, msg, self.window)
+                if ok:
+                    pass
+                else:
+                    return
+            self.layoutAboutToBeChanged.emit()
+            self._data.delete(icon)
+            self.layoutChanged.emit()
+
     def nid_change_watchers(self, icon, old_nid, new_nid):
         # What uses 32x32 icons
         # Factions
@@ -225,6 +281,29 @@ class Icon80Model(Icon16Model):
     creation_func = RESOURCES.create_new_80x72_icon
     database = RESOURCES.icons80
     width, height = 80, 72
+
+    def delete(self, index):
+        icon = index.internalPointer()
+        if icon.parent_image:
+            QMessageBox.critical(self.window, 'Error', "Can't delete child item!")
+        else:
+            nid = icon.nid
+            # What uses 80x72 icons
+            # Classes
+            affected_classes = [klass for klass in DB.classes if klass.icon_nid == nid]
+            if affected_classes:
+                affected = Data(affected_classes)
+                from app.editor.class_database import ClassModel
+                model = ClassModel
+                msg = "Deleting Icon <b>%s</b> would affect these classes."
+                ok = DeletionDialog.inform(affected, model, msg, self.window)
+                if ok:
+                    pass
+                else:
+                    return
+            self.layoutAboutToBeChanged.emit()
+            self._data.delete(icon)
+            self.layoutChanged.emit()
 
     def nid_change_watchers(self, icon, old_nid, new_nid):
         # What uses 80x72 icons
@@ -271,8 +350,8 @@ class IconView(QGraphicsView):
 def icon_slice(resource, base_width, base_height):
     sheet = resource.pixmap
     width, height = sheet.width(), sheet.height()
-    if width == base_width and height == base_height:
-        return
+    # if width == base_width and height == base_height:
+    #     return
     resource.sub_images.clear()
     for x in range(width//base_width):
         for y in range(height//base_height):
@@ -287,7 +366,7 @@ class Icon16Properties(QWidget):
     width, height = 16, 16
 
     def __init__(self, parent, current=None):
-        super().__init__(parent)
+        QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window._data
         self.resource_editor = self.window.window

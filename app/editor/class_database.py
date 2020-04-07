@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QDoubleSpinBox
+    QVBoxLayout, QSizePolicy, QSpacerItem, QDoubleSpinBox, QLabel
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
@@ -45,8 +45,11 @@ class ClassDatabase(DatabaseTab):
     def tick(self):
         self.update_list()
 
-def get_map_sprite_icon(klass, num=0, current=False, team='player'):
-    res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+def get_map_sprite_icon(klass, num=0, current=False, team='player', gender=0):
+    if gender >= 5:
+        res = RESOURCES.map_sprites.get(klass.female_map_sprite_nid)
+    else:
+        res = RESOURCES.map_sprites.get(klass.male_map_sprite_nid)
     if not res:
         return None
     if not res.standing_pixmap:
@@ -73,6 +76,9 @@ class ClassModel(DragDropCollectionModel):
             else:
                 active = False
             pixmap = get_map_sprite_icon(klass, num, active, self.display_team)
+            # Fallback to female map sprite nid
+            if not pixmap:
+                pixmap = get_map_sprite_icon(klass, num, active, self.display_team, gender=5)
             if pixmap:
                 return QIcon(pixmap)
             else:
@@ -259,8 +265,15 @@ class ClassProperties(QWidget):
         self.opp_exp_mult_box.edit.valueChanged.connect(self.opp_exp_mult_changed)
         exp_section.addWidget(self.opp_exp_mult_box)
 
-        self.map_sprite_box = QPushButton("Choose Map Sprite...")
-        self.map_sprite_box.clicked.connect(self.select_map_sprite)
+        self.male_map_sprite_label = QLabel()
+        self.male_map_sprite_label.setMaximumWidth(32)
+        self.male_map_sprite_box = QPushButton("Choose Male Map Sprite...")
+        self.male_map_sprite_box.clicked.connect(self.select_male_map_sprite)
+
+        self.female_map_sprite_label = QLabel()
+        self.female_map_sprite_label.setMaximumWidth(32)
+        self.female_map_sprite_box = QPushButton("Choose Female Map Sprite...")
+        self.female_map_sprite_box.clicked.connect(self.select_female_map_sprite)
 
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)
@@ -276,7 +289,14 @@ class ClassProperties(QWidget):
         right_section.addLayout(weapon_section)
         right_section.addWidget(QHLine())
         right_section.addLayout(skill_section)
-        right_section.addWidget(self.map_sprite_box)
+        male_section = QHBoxLayout()
+        male_section.addWidget(self.male_map_sprite_label)
+        male_section.addWidget(self.male_map_sprite_box)
+        right_section.addLayout(male_section)
+        female_section = QHBoxLayout()
+        female_section.addWidget(self.female_map_sprite_label)
+        female_section.addWidget(self.female_map_sprite_box)
+        right_section.addLayout(female_section)
         right_widget = QWidget()
         right_widget.setLayout(right_section)
 
@@ -365,11 +385,22 @@ class ClassProperties(QWidget):
     #     else:
     #         pass
 
-    def select_map_sprite(self):
+    def select_male_map_sprite(self):
         res, ok = ResourceEditor.get(self, "Map Sprites")
         if ok:
             nid = res.nid
-            self.current.map_sprite_nid = nid
+            self.current.male_map_sprite_nid = nid
+            pix = get_map_sprite_icon(self.current, num=0, gender=0)
+            self.male_map_sprite_label.setPixmap(pix)
+            self.window.update_list()
+
+    def select_female_map_sprite(self):
+        res, ok = ResourceEditor.get(self, "Map Sprites")
+        if ok:
+            nid = res.nid
+            self.current.female_map_sprite_nid = nid
+            pix = get_map_sprite_icon(self.current, num=0, gender=5)
+            self.female_map_sprite_label.setPixmap(pix)
             self.window.update_list()
 
     def set_current(self, current):
@@ -406,6 +437,16 @@ class ClassProperties(QWidget):
         self.wexp_gain_widget.set_current(current.wexp_gain)
 
         self.icon_edit.set_current(current.icon_nid, current.icon_index)
+        pix = get_map_sprite_icon(self.current, num=0, gender=0)
+        if pix:
+            self.male_map_sprite_label.setPixmap(pix)
+        else:
+            self.male_map_sprite_label.clear()
+        pix = get_map_sprite_icon(self.current, num=0, gender=5)
+        if pix:
+            self.female_map_sprite_label.setPixmap(pix)
+        else:
+            self.female_map_sprite_label.clear()
 
 # Testing
 # Run "python -m app.editor.class_database" from main directory

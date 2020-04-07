@@ -590,7 +590,7 @@
     {
         "nid": "O'Neill",
         "name": "O'Neill",
-        "desc": "??",
+        "desc": "A troop leader in Grado's army.",
         "gender": 0,
         "level": 4,
         "klass": "Fighter",
@@ -682,7 +682,7 @@
             ]
         ],
         "starting_items": [
-            "Iron Axe"
+            "Steel Axe"
         ],
         "learned_skills": [],
         "wexp_gain": [

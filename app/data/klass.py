@@ -36,7 +36,8 @@ class Klass(Prefab):
 
     icon_nid: str = None
     icon_index: tuple = (0, 0)
-    map_sprite_nid: str = None
+    male_map_sprite_nid: str = None
+    female_map_sprite_nid: str = None
 
     exp_mult: float = 1.
     opponent_exp_mult: float = 1.

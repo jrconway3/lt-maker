@@ -17,6 +17,7 @@ from app.editor import class_database, item_database
 from app.editor.database_editor import DatabaseEditor
 from app.editor.unit_database import GenderGroup
 from app.editor.item_database import ItemListWidget
+from app.editor.helper_funcs import can_wield
 
 class UnitPainterMenu(QWidget):
     def __init__(self, parent=None):
@@ -168,7 +169,7 @@ class AllUnitModel(DragDropCollectionModel):
             num = TIMER.passive_counter.count
             klass = DB.classes.get(klass_nid)
             active = self.window.view.selectionModel().isSelected(index)
-            pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team)
+            pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team, unit.gender)
             if pixmap:
                 return QIcon(pixmap)
             else:
@@ -378,6 +379,12 @@ class GenericUnitDialog(Dialog):
 
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()
+        # See which ones can actually be wielded
+        wieldable_list = []
+        for item_nid in self.current.starting_items:
+            item = DB.items.get(item_nid)
+            wieldable_list.append(not can_wield(self.current, item))
+        self.item_widget.set_color(wieldable_list)
 
     def set_current(self, current):
         self.current = current

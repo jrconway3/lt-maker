@@ -4,10 +4,11 @@ from PyQt5.QtCore import Qt, QDir, QSettings
 
 import os
 
+from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.extensions.custom_gui import ResourceListView
+from app.extensions.custom_gui import ResourceListView, DeletionDialog
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 
 from app import utilities
@@ -50,6 +51,23 @@ class MusicModel(ResourceCollectionModel):
                     QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.setValue("last_open_path", parent_dir)
+
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_levels = [level for level in DB.levels if nid in level.music.values()]
+        if affected_levels:
+            affected = Data(affected_levels)
+            from app.editor.level_menu import LevelModel
+            model = LevelModel
+            msg = "Deleting Music <b>%s</b> would affect these levels."
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        super().delete(idx)
 
     def nid_change_watchers(self, music, old_nid, new_nid):
         # What uses music

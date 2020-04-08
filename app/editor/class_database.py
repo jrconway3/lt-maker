@@ -19,7 +19,7 @@ from app.editor.timer import TIMER
 from app.editor.custom_widgets import ClassBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.tag_widget import TagDialog
-from app.editor.stat_widget import StatListWidget
+from app.editor.stat_widget import StatListWidget, StatAverageDialog, ClassStatAveragesModel
 from app.editor.weapon_database import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
 import app.editor.map_sprite_display as map_sprite_display
@@ -231,7 +231,9 @@ class ClassProperties(QWidget):
         stat_section = QGridLayout()
 
         self.class_stat_widget = StatListWidget(self.current, "Stats", self)
-        # self.class_stat_widget.button.clicked.connect(self.access_stats)
+        self.class_stat_widget.button.clicked.connect(self.display_averages)
+        self.class_stat_widget.model.dataChanged.connect(self.stat_list_model_data_changed)
+        self.averages_dialog = None
         stat_section.addWidget(self.class_stat_widget, 1, 0, 1, 2)
 
         weapon_section = QHBoxLayout()
@@ -385,6 +387,23 @@ class ClassProperties(QWidget):
     #     else:
     #         pass
 
+    def display_averages(self):
+        # Modeless dialog
+        if not self.averages_dialog:
+            self.averages_dialog = StatAverageDialog(self.current, "Class", ClassStatAveragesModel, self)
+        self.averages_dialog.show()
+        self.averages_dialog.raise_()
+        self.averages_dialog.activateWindow()
+
+    def close_averages(self):
+        if self.averages_dialog:
+            self.averages_dialog.done(0)
+            self.averages_dialog = None
+
+    def stat_list_model_data_changed(self, index1, index2):
+        if self.averages_dialog:
+            self.averages_dialog.update()
+
     def select_male_map_sprite(self):
         res, ok = ResourceEditor.get(self, "Map Sprites")
         if ok:
@@ -429,6 +448,8 @@ class ClassProperties(QWidget):
 
         self.class_stat_widget.update_stats()
         self.class_stat_widget.set_new_obj(current)
+        if self.averages_dialog:
+            self.averages_dialog.set_current(current)
 
         self.exp_mult_box.edit.setValue(current.exp_mult)
         self.opp_exp_mult_box.edit.setValue(current.opponent_exp_mult)
@@ -447,6 +468,9 @@ class ClassProperties(QWidget):
             self.female_map_sprite_label.setPixmap(pix)
         else:
             self.female_map_sprite_label.clear()
+
+    def hideEvent(self, event):
+        self.close_averages()
 
 # Testing
 # Run "python -m app.editor.class_database" from main directory

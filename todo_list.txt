@@ -6,7 +6,10 @@ Have equations check their validity
 *Add Female map sprite support
 *Swap left and right click on menu
 *Add AI and Level to Quick Menu
-Add Average Stats in Unit Database and in Generic Unit Creator
+*Add Average Stats in Unit Database and in Generic Unit Creator
+Changing base level needs update to average stats
+Changing class needs update to average stats
+Changing turns into needs update to average stats
 *Add Preferences -> Left Click Select vs Right Click Select
 *Custom Weapon Experience
 *Heals Target

@@ -217,7 +217,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "learned_skills": [],
@@ -286,9 +286,7 @@
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
-        "turns_into": [
-            "Eirika_Great_Lord"
-        ],
+        "turns_into": [],
         "tags": [
             "Sword"
         ],
@@ -374,7 +372,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "growth_bonus": [
@@ -500,7 +498,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "learned_skills": [],
@@ -569,10 +567,7 @@
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
-        "turns_into": [
-            "Swordmaster",
-            "Assassin"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -614,7 +609,7 @@
             ],
             [
                 "RES",
-                0
+                1
             ]
         ],
         "growths": [
@@ -656,7 +651,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "growth_bonus": [
@@ -782,7 +777,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "learned_skills": [],
@@ -940,7 +935,7 @@
             ],
             [
                 "RES",
-                0
+                15
             ]
         ],
         "growth_bonus": [
@@ -1066,7 +1061,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "learned_skills": [
@@ -1185,7 +1180,7 @@
             ],
             [
                 "RES",
-                0
+                6
             ]
         ],
         "growths": [
@@ -1227,7 +1222,7 @@
             ],
             [
                 "RES",
-                0
+                25
             ]
         ],
         "growth_bonus": [
@@ -1275,11 +1270,11 @@
         "promotion": [
             [
                 "HP",
-                0
+                2
             ],
             [
                 "STR",
-                0
+                1
             ],
             [
                 "MAG",
@@ -1287,11 +1282,11 @@
             ],
             [
                 "SKL",
-                0
+                1
             ],
             [
                 "SPD",
-                0
+                2
             ],
             [
                 "LCK",
@@ -1299,19 +1294,19 @@
             ],
             [
                 "DEF",
-                0
+                2
             ],
             [
                 "CON",
-                0
+                2
             ],
             [
                 "MOV",
-                0
+                1
             ],
             [
                 "RES",
-                0
+                2
             ]
         ],
         "max_stats": [
@@ -1353,7 +1348,7 @@
             ],
             [
                 "RES",
-                0
+                26
             ]
         ],
         "learned_skills": [],
@@ -1422,10 +1417,7 @@
         "tier": 1,
         "movement_group": "Armors",
         "promotes_from": null,
-        "turns_into": [
-            "General",
-            "Great_Knight"
-        ],
+        "turns_into": [],
         "tags": [
             "Armor"
         ],
@@ -1469,7 +1461,7 @@
             ],
             [
                 "RES",
-                0
+                1
             ]
         ],
         "growths": [
@@ -1511,7 +1503,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "growth_bonus": [
@@ -1637,7 +1629,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "learned_skills": [],
@@ -1706,10 +1698,7 @@
         "tier": 1,
         "movement_group": "Regular",
         "promotes_from": null,
-        "turns_into": [
-            "Warrior",
-            "Hero"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -1793,7 +1782,7 @@
             ],
             [
                 "RES",
-                0
+                15
             ]
         ],
         "growth_bonus": [
@@ -1919,7 +1908,7 @@
             ],
             [
                 "RES",
-                0
+                20
             ]
         ],
         "learned_skills": [],

@@ -82,7 +82,7 @@ class MultiComboBoxList(QListWidget):
         self.item_changed.emit()
 
     def set_color(self, color_list):
-        print(color_list, flush=True)
+        # print(color_list, flush=True)
         for idx, box in enumerate(self.combo_box_list):
             palette = box.palette()
             if color_list[idx]:

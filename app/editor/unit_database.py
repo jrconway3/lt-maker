@@ -17,7 +17,7 @@ from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWi
 from app.editor.custom_widgets import UnitBox, ClassBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.tag_widget import TagDialog
-from app.editor.stat_widget import StatListWidget
+from app.editor.stat_widget import StatListWidget, StatAverageDialog, UnitStatAveragesModel
 from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.item_database import ItemListWidget
 import app.editor.weapon_database as weapon_database
@@ -270,6 +270,9 @@ class UnitProperties(QWidget):
         stat_section = QGridLayout()
 
         self.unit_stat_widget = StatListWidget(self.current, "Stats", self)
+        self.unit_stat_widget.button.clicked.connect(self.display_averages)
+        self.unit_stat_widget.model.dataChanged.connect(self.stat_list_model_data_changed)
+        self.averages_dialog = None
         # self.unit_stat_widget.button.clicked.connect(self.access_stats)
         # Changing of stats done automatically by using model view framework within
         stat_section.addWidget(self.unit_stat_widget, 1, 0, 1, 2)
@@ -358,6 +361,23 @@ class UnitProperties(QWidget):
     def tags_changed(self):
         self.current.tags = self.tag_box.edit.currentText()
 
+    def display_averages(self):
+        # Modeless dialog
+        if not self.averages_dialog:
+            self.averages_dialog = StatAverageDialog(self.current, "Unit", UnitStatAveragesModel, self)
+        self.averages_dialog.show()
+        self.averages_dialog.raise_()
+        self.averages_dialog.activateWindow()
+
+    def close_averages(self):
+        if self.averages_dialog:
+            self.averages_dialog.done(0)
+            self.averages_dialog = None
+
+    def stat_list_model_data_changed(self, index1, index2):
+        if self.averages_dialog:
+            self.averages_dialog.update()
+
     # def learned_skills_changed(self):
     #     pass
 
@@ -398,6 +418,8 @@ class UnitProperties(QWidget):
 
         self.unit_stat_widget.update_stats()
         self.unit_stat_widget.set_new_obj(current)
+        if self.averages_dialog:
+            self.averages_dialog.set_current(current)
 
         self.personal_skill_widget.set_current(current.learned_skills)
         self.wexp_gain_widget.set_current(current.wexp_gain)
@@ -407,6 +429,9 @@ class UnitProperties(QWidget):
         self.item_widget.set_current(current.starting_items)
 
         self.icon_edit.set_current(current.portrait_nid)
+
+    def hideEvent(self, event):
+        self.close_averages()
 
 # Testing
 # Run "python -m app.editor.unit_database" from main directory

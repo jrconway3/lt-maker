@@ -414,11 +414,16 @@ class UnitProperties(QWidget):
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()
         # See which ones can actually be wielded
-        wieldable_list = []
+        color_list = []
         for item_nid, droppable in self.current.starting_items:
             item = DB.items.get(item_nid)
-            wieldable_list.append(not can_wield(self.current, item, prefab=True))
-        self.item_widget.set_color(wieldable_list)
+            if droppable:
+                color_list.append(Qt.darkGreen)
+            elif not can_wield(self.current, item, prefab=True):
+                color_list.append(Qt.red)
+            else:
+                color_list.append(Qt.black)
+        self.item_widget.set_color(color_list)
 
     def access_tags(self):
         dlg = TagDialog.create(self)

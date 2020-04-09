@@ -85,10 +85,7 @@ class MultiComboBoxList(QListWidget):
         # print(color_list, flush=True)
         for idx, box in enumerate(self.combo_box_list):
             palette = box.palette()
-            if color_list[idx]:
-                palette.setColor(QPalette.Text, Qt.red)
-            else:
-                palette.setColor(QPalette.Text, Qt.black)
+            palette.setColor(QPalette.Text, color_list[idx])
             box.setPalette(palette)
 
 class ItemBox(QWidget):
@@ -163,10 +160,7 @@ class MultiComboBoxListWithCheckbox(MultiComboBoxList):
     def set_color(self, color_list):
         # print(color_list, flush=True)
         for idx, box in enumerate(self.combo_box_list):
-            # combo_box = box.combo_box
-            palette = box.palette()
-            if color_list[idx]:
-                palette.setColor(QPalette.Text, Qt.red)
-            else:
-                palette.setColor(QPalette.Text, Qt.black)
-            box.setPalette(palette)
+            combo_box = box.combo_box
+            palette = combo_box.palette()
+            palette.setColor(QPalette.Text, color_list[idx])
+            combo_box.setPalette(palette)

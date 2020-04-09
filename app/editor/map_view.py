@@ -165,6 +165,8 @@ class MapView(QGraphicsView):
                     if under_unit:
                         idx = self.main_editor.current_level.units.index(under_unit.nid)
                         self.main_editor.unit_painter_menu.select(idx)
+                    else:
+                        self.main_editor.unit_painter_menu.deselect()
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)

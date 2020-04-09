@@ -170,6 +170,7 @@ class MainEditor(QMainWindow):
 
         help_menu = QMenu("Help", self)
         help_menu.addAction(self.about_act)
+        help_menu.addAction(self.preferences_act)
 
         self.menuBar().addMenu(file_menu)
         self.menuBar().addMenu(edit_menu)

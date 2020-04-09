@@ -81,6 +81,9 @@ class UnitPainterMenu(QWidget):
         index = self.model.index(idx)
         self.view.setCurrentIndex(index)
 
+    def deselect(self):
+        self.view.clearSelection()
+
     def on_item_changed(self, curr, prev):
         # idx = int(idx)
         if self._data:
@@ -223,7 +226,14 @@ class InventoryDelegate(QStyledItemDelegate):
             if item:
                 pixmap = item_database.get_pixmap(item)
                 rect = option.rect
-                painter.drawImage(rect.right() - ((idx + 1) * 16), rect.center().y() - 8, pixmap.toImage())
+                left = rect.right() - ((idx + 1) * 16)
+                top = rect.center().y() - 8
+                if droppable:
+                    green = QColor("Green")
+                    green.setAlpha(80)
+                    painter.setBrush(QBrush(green))
+                    painter.drawRect(left, top, pixmap.width(), pixmap.height())
+                painter.drawImage(left, top, pixmap.toImage())
 
 class LoadUnitDialog(Dialog):
     def __init__(self, parent=None, current=None):
@@ -382,11 +392,16 @@ class GenericUnitDialog(Dialog):
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()
         # See which ones can actually be wielded
-        wieldable_list = []
-        for (item_nid, droppable) in self.current.starting_items:
+        color_list = []
+        for item_nid, droppable in self.current.starting_items:
             item = DB.items.get(item_nid)
-            wieldable_list.append(not can_wield(self.current, item))
-        self.item_widget.set_color(wieldable_list)
+            if droppable:
+                color_list.append(Qt.darkGreen)
+            elif not can_wield(self.current, item, prefab=False):
+                color_list.append(Qt.red)
+            else:
+                color_list.append(Qt.black)
+        self.item_widget.set_color(color_list)
 
     def set_current(self, current):
         self.current = current

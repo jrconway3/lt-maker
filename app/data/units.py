@@ -36,6 +36,14 @@ class UnitPrefab(Prefab):
     def get_stat_lists(self):
         return [self.bases, self.growths]
 
+    def get_items(self):
+        return [i[0] for i in self.starting_items]
+
+    def replace_item_nid(self, old_nid, new_nid):
+        for item in self.starting_items:
+            if item[0] == old_nid:
+                item[0] = new_nid
+
     def deserialize_attr(self, name, value):
         if name in ('bases', 'growths'):
             value = stats.StatList.deserialize(value)
@@ -43,6 +51,9 @@ class UnitPrefab(Prefab):
             value = [LearnedSkill.deserialize(skill) for skill in value]
         elif name == 'wexp_gain':
             value = weapons.WexpGainData.deserialize(value)
+        elif name == 'starting_items':
+            # Need to convert to item nid + droppable
+            value = [i if isinstance(i, list) else [i, False] for i in value]
         else:
             value = super().deserialize_attr(name, value)
         return value
@@ -72,6 +83,9 @@ class GenericUnit(Prefab):
         if name == 'starting_position':
             if value is not None:
                 value = tuple(value)
+        elif name == 'starting_items':
+            # Need to convert to item nid + droppable
+            value = [i if isinstance(i, list) else [i, False] for i in value]
         else:
             value = super().deserialize_attr(name, value)
         return value

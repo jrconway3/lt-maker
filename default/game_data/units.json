@@ -94,8 +94,14 @@
             ]
         ],
         "starting_items": [
-            "Rapier",
-            "Vulnerary"
+            [
+                "Rapier",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
         ],
         "learned_skills": [],
         "wexp_gain": [
@@ -240,9 +246,18 @@
             ]
         ],
         "starting_items": [
-            "Steel Sword",
-            "Silver Lance",
-            "Vulnerary"
+            [
+                "Steel Sword",
+                false
+            ],
+            [
+                "Silver Lance",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
         ],
         "learned_skills": [],
         "wexp_gain": [
@@ -387,10 +402,22 @@
             ]
         ],
         "starting_items": [
-            "Iron Lance",
-            "Iron Lance",
-            "Vulnerary",
-            "Vulnerary"
+            [
+                "Iron Lance",
+                false
+            ],
+            [
+                "Iron Lance",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
         ],
         "learned_skills": [],
         "wexp_gain": [
@@ -535,7 +562,10 @@
             ]
         ],
         "starting_items": [
-            "Iron Lance"
+            [
+                "Iron Lance",
+                false
+            ]
         ],
         "learned_skills": [],
         "wexp_gain": [
@@ -682,7 +712,10 @@
             ]
         ],
         "starting_items": [
-            "Steel Axe"
+            [
+                "Steel Axe",
+                false
+            ]
         ],
         "learned_skills": [],
         "wexp_gain": [
@@ -827,7 +860,10 @@
             ]
         ],
         "starting_items": [
-            "Iron Lance"
+            [
+                "Iron Lance",
+                false
+            ]
         ],
         "learned_skills": [],
         "wexp_gain": [

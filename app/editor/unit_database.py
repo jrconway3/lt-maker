@@ -415,7 +415,7 @@ class UnitProperties(QWidget):
         self.current.starting_items = self.item_widget.get_items()
         # See which ones can actually be wielded
         wieldable_list = []
-        for item_nid in self.current.starting_items:
+        for item_nid, droppable in self.current.starting_items:
             item = DB.items.get(item_nid)
             wieldable_list.append(not can_wield(self.current, item, prefab=True))
         self.item_widget.set_color(wieldable_list)

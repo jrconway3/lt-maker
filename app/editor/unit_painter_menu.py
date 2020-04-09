@@ -217,7 +217,8 @@ class InventoryDelegate(QStyledItemDelegate):
         super().paint(painter, option, index)
         unit = self._data[index.row()]
         items = unit.starting_items
-        for idx, item_nid in enumerate(items):
+        for idx, item in enumerate(items):
+            item_nid, droppable = item
             item = DB.items.get(item_nid)
             if item:
                 pixmap = item_database.get_pixmap(item)
@@ -382,7 +383,7 @@ class GenericUnitDialog(Dialog):
         self.current.starting_items = self.item_widget.get_items()
         # See which ones can actually be wielded
         wieldable_list = []
-        for item_nid in self.current.starting_items:
+        for (item_nid, droppable) in self.current.starting_items:
             item = DB.items.get(item_nid)
             wieldable_list.append(not can_wield(self.current, item))
         self.item_widget.set_color(wieldable_list)

@@ -9,12 +9,12 @@ from app.data.data import Data
 from app.data.database import DB
 import app.data.item_components as IC
 
-from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox, DeletionDialog
+from app.extensions.custom_gui import PropertyBox, QHLine, QVLine, ComboBox, DeletionDialog
 from app.editor.custom_widgets import ItemBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.equation_widget import EquationDialog
 from app.editor.icons import ItemIcon16
-from app.editor.multi_combo_box_list import MultiComboBoxList
+from app.editor.multi_combo_box_list import MultiComboBoxListWithCheckbox
 from app.editor import component_database
 import app.editor.utilities as editor_utilities
 from app import utilities
@@ -61,8 +61,8 @@ class ItemModel(DragDropCollectionModel):
         # Check to make sure nothing else is using me!!!
         item = self._data[idx]
         nid = item.nid
-        affected_units = [unit for unit in DB.units if nid in unit.starting_items]
-        affected_levels = [level for level in DB.levels if any(nid in unit.starting_items for unit in level.units)]
+        affected_units = [unit for unit in DB.units if nid in unit.get_items()]
+        affected_levels = [level for level in DB.levels if any(nid in unit.get_items() for unit in level.units)]
         if affected_units or affected_levels:
             if affected_units:
                 affected = Data(affected_units)
@@ -83,10 +83,10 @@ class ItemModel(DragDropCollectionModel):
 
     def change_nid(self, old_nid, new_nid):
         for unit in DB.units:
-            unit.starting_items = [new_nid if elem == old_nid else elem for elem in unit.starting_items]
+            unit.replace_item_nid(old_nid, new_nid)
         for level in DB.levels:
             for unit in level.units:
-                unit.starting_items = [new_nid if elem == old_nid else elem for elem in unit.starting_items]
+                unit.replace_item_nid(old_nid, new_nid)
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -341,18 +341,29 @@ class ItemListWidget(QWidget):
         super().__init__(parent)
         self.window = parent
         
-        self.item_list = MultiComboBoxList(DB.items, get_pixmap, self)
+        self.item_list = MultiComboBoxListWithCheckbox(DB.items, get_pixmap, self)
         self.item_list.item_changed.connect(self.activate)
 
         self.layout = QGridLayout(self)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.item_list, 1, 0, 1, 2)
+        self.layout.addWidget(self.item_list, 3, 0, 1, 2)
         self.setLayout(self.layout)
 
         label = QLabel(title)
         label.setAlignment(Qt.AlignBottom)
         self.layout.addWidget(label, 0, 0)
+
+        header1 = QLabel("Item ID")
+        header1.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
+        self.layout.addWidget(header1, 2, 0)
+
+        header2 = QLabel("Droppable")
+        header2.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+        self.layout.addWidget(header2, 2, 1)
+
+        hline = QHLine()
+        self.layout.addWidget(hline, 1, 0, 1, 2)
 
         hbox = QHBoxLayout()
         hbox.setSpacing(0)

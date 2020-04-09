@@ -207,7 +207,10 @@
                 "klass": "Fighter",
                 "faction": "Soldier",
                 "starting_items": [
-                    "Iron Axe"
+                    [
+                        "Iron Axe",
+                        false
+                    ]
                 ],
                 "team": "enemy",
                 "ai": "Attack",
@@ -226,7 +229,10 @@
                 "klass": "Fighter",
                 "faction": "Soldier",
                 "starting_items": [
-                    "Iron Axe"
+                    [
+                        "Iron Axe",
+                        false
+                    ]
                 ],
                 "team": "enemy",
                 "ai": "Attack",

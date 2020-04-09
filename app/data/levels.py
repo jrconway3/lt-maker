@@ -62,3 +62,8 @@ class LevelCatalog(Data):
         for s_dict in serialized_data:
             new_level = Level.deserialize(s_dict)
             self.append(new_level)
+
+    def restore_all_prefabs(self, db):
+        for level in self:
+            for unit in level.units:
+                unit.restore_prefab(db.units)

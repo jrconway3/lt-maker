@@ -230,7 +230,7 @@ class ClassProperties(QWidget):
 
         stat_section = QGridLayout()
 
-        self.class_stat_widget = StatListWidget(self.current, "Stats", self)
+        self.class_stat_widget = StatListWidget(self.current, "Stats", parent=self)
         self.class_stat_widget.button.clicked.connect(self.display_averages)
         self.class_stat_widget.model.dataChanged.connect(self.stat_list_model_data_changed)
         self.averages_dialog = None

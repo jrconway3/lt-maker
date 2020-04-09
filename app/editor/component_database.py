@@ -132,7 +132,7 @@ class SpellItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor1 = ComboBox(self)
         self.editor1.setMaximumWidth(120)
-        for weapon_rank in DB.weapon_ranks.value():
+        for weapon_rank in DB.weapon_ranks.values():
             self.editor1.addItem(weapon_rank.nid)
         self.editor1.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor1)

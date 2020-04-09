@@ -12,8 +12,16 @@ from app.data.database import DB
 from app.extensions.custom_gui import IntDelegate
 from app.extensions.list_models import VirtualListModel
 
+class MultiEditTableView(QTableView):
+    def commitData(self, editor):
+        super().commitData(editor)
+        model = self.currentIndex().model()
+        value = model.data(self.currentIndex(), Qt.EditRole)
+        for index in self.selectionModel().selectedIndexes():
+            model.setData(index, value, Qt.EditRole)
+
 class StatListWidget(QWidget):
-    def __init__(self, obj, title, parent=None):
+    def __init__(self, obj, title, reset_button=False, parent=None):
         super().__init__(parent)
         self.window = parent
         self._obj = obj
@@ -28,12 +36,15 @@ class StatListWidget(QWidget):
             row_titles = ['Example']
             row_values = [StatList.from_xml([], DB.stats)]
 
+        self.reset_button_flag = reset_button
+
         self.setup(column_titles, row_titles, row_values, title)
 
     def setup(self, column_titles, row_titles, row_values, title):
         self.model = StatModel(column_titles, row_titles, row_values, self)
-        self.view = QTableView(self)
+        self.view = MultiEditTableView(self)
         self.view.setModel(self.model)
+        self.view.setSelectionMode(3)  # ExtendedSelection
         delegate = IntDelegate(self.view, range(len(column_titles)))
         self.view.setItemDelegate(delegate)
         for col in range(len(column_titles)):
@@ -49,9 +60,17 @@ class StatListWidget(QWidget):
         label.setAlignment(Qt.AlignBottom)
         layout.addWidget(label, 0, 0)
 
+        hbox = QHBoxLayout()
+
+        if self.reset_button_flag:
+            self.reset_button = QPushButton("Apply Class Values")
+            self.reset_button.setMaximumWidth(150)
+            hbox.addWidget(self.reset_button, alignment=Qt.AlignRight)
+
         self.button = QPushButton("Display Averages")
         self.button.setMaximumWidth(130)
-        layout.addWidget(self.button, 0, 1, alignment=Qt.AlignRight)
+        hbox.addWidget(self.button, alignment=Qt.AlignRight)
+        layout.addLayout(hbox, 0, 1, alignment=Qt.AlignRight)
 
     def set_new_obj(self, obj):
         self._obj = obj
@@ -328,8 +347,10 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
         quantile90 = 0
         classes = [obj.klass]
         base_klass = DB.classes.get(obj.klass)
-        if level_ups > base_klass.max_level - 1 and base_klass.turns_into:
-            classes.append(base_klass.turns_into[0])
+        tier = base_klass.tier
+        turns_into = [k for k in base_klass.turns_into if DB.classes.get(k).tier == tier + 1]
+        if level_ups > base_klass.max_level - 1 and turns_into:
+            classes.append(turns_into[0])
             level_ups -= 1  # In order to promote
         for idx, klass in enumerate(classes):
             klass = DB.classes.get(klass)

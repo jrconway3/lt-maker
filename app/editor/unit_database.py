@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
     QVBoxLayout, QSizePolicy, QSpacerItem, QTableView, QRadioButton, QStyledItemDelegate
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QItemSelection, QItemSelectionModel
 
 from app.data.weapons import WexpGainData
 from app.data.skills import LearnedSkillList
@@ -269,8 +269,9 @@ class UnitProperties(QWidget):
 
         stat_section = QGridLayout()
 
-        self.unit_stat_widget = StatListWidget(self.current, "Stats", self)
+        self.unit_stat_widget = StatListWidget(self.current, "Stats", reset_button=True, parent=self)
         self.unit_stat_widget.button.clicked.connect(self.display_averages)
+        self.unit_stat_widget.reset_button.clicked.connect(self.reset_stats)
         self.unit_stat_widget.model.dataChanged.connect(self.stat_list_model_data_changed)
         self.averages_dialog = None
         # self.unit_stat_widget.button.clicked.connect(self.access_stats)
@@ -353,13 +354,39 @@ class UnitProperties(QWidget):
 
     def level_changed(self, val):
         self.current.level = val
+        if self.averages_dialog:
+            self.averages_dialog.update()
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()
         self.level_box.edit.setMaximum(DB.classes.get(self.current.klass).max_level)
+        if self.averages_dialog:
+            self.averages_dialog.update()
 
     def tags_changed(self):
         self.current.tags = self.tag_box.edit.currentText()
+
+    def reset_stats(self):
+        model = self.unit_stat_widget.model
+        view = self.unit_stat_widget.view
+        selected_indexes = view.selectionModel().selectedIndexes()
+        my_klass = DB.classes.get(self.current.klass)
+        
+        if not selected_indexes:
+            # Select all
+            topLeft = model.index(0, 0)
+            bottomRight = model.index(model.rowCount() - 1, model.columnCount() - 1)
+            selection = QItemSelection(topLeft, bottomRight)
+            view.selectionModel().select(selection, QItemSelectionModel.Select)
+            selected_indexes = view.selectionModel().selectedIndexes()
+
+        for index in selected_indexes:
+            stat_nid = DB.stats[index.column()].nid
+            if index.row() == 0:
+                class_value = my_klass.bases.get(stat_nid).value
+            else:
+                class_value = my_klass.growths.get(stat_nid).value
+            model.setData(index, class_value, Qt.EditRole)
 
     def display_averages(self):
         # Modeless dialog

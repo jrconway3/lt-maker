@@ -67,7 +67,8 @@ class UnitPainterMenu(QWidget):
         pass
 
     def tick(self):
-        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+        # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+        self.model.layoutChanged.emit()
 
     def set_current_level(self, level):
         self.current_level = level

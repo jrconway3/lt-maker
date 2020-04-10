@@ -1,0 +1,74 @@
+# Engine design
+Priority 1
+input manager 
+    - mouse control
+    - mouse and joystick configurations
+bitmap font
+    - addition to resource editor
+static random
+music thread
+pathfinding
+imagesDict
+    - better loading on the fly; Don't need to load EVERY resource until necessary
+image_modification -- consider using indexed images since its so much faster
+engine
+main
+    - sets up game state
+game state
+    - singleton class that loads everything at the beginning and does the running
+    - better handling with no current level (overworld, base)
+    - better places to store temporary data that needs to be moved around between states
+state machine
+    - better start, begin, end, finish control
+    - better use of "name" to register states with machine
+map
+    - make sure it works well
+camera
+    - separate class that handles camera with more control than previous hodgepodge
+menus (make folder within engine)
+    - better inheritance -- based off QT
+    - make sure mouse control also works with menus
+    - better handling of popups, scroll bars, counters, etc
+    - help menu
+cursor
+    - separate class that better handles the cursor
+    - mouse support as well
+save/load
+    - better saving and loading for current game -- no need for separate save slot class
+phase
+    - Class that handles turn phase transition
+items, units, classes
+    - should all be handled better
+stats
+    - bonuses no longer added permanently -- now just loaded on the fly by querying status effects
+actions
+turnwheel
+interaction
+solver
+health bar
+level up
+    - make a lot better
+title screen
+game over
+state transitions
+
+
+Priority 2
+AI
+enemy damage/spell boundary
+status effects
+auras
+dialogue
+    - major overhaul
+    - split into event scripting and dialogue
+    text chunk
+    help menus
+    panoramas
+info menu, option menu, unit menu
+combat animations
+minimap
+weather effects
+prep menu
+base menu
+overworld
+supports

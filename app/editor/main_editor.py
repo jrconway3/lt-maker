@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
 
+from app.data.constants import VERSION
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
@@ -19,7 +20,7 @@ from app.editor.property_menu import PropertiesMenu
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
 
-__version__ = "0.0.1.dev"
+__version__ = VERSION
 
 class EventTileMenu(QWidget):
     def __init__(self, parent):

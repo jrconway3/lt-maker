@@ -421,7 +421,11 @@ class MainEditor(QMainWindow):
         pass
 
     def test_play(self):
-        pass
+        from app.engine import engine, game_state
+        title = DB.constants.get('title').value
+        engine.start(title, from_editor=True)
+        game = game_state.start_game()
+        engine.run(game)
 
     def edit_preferences(self):
         dialog = PreferencesDialog(self)

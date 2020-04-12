@@ -1,26 +1,19 @@
 import os
 
-from app.data.constants import WINWIDTH, WINHEIGHT, VERSION
+from app.data.constants import VERSION
+from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.engine import engine
 from app.engine import config as cf
+from app.engine import game_state
 
 def main():
-    engine.init()
-    icon = engine.image_load('main_icon.png')
-    engine.set_icon(icon)
-    screen_size = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])
-    displaysurf = engine.build_display(screen_size)
+    RESOURCES.load()
+    DB.deserialize()
     title = DB.constants.get('title').value
-    engine.set_title(title + ' - v' + VERSION)
-    print("Version: %s" % VERSION)
-    
-    base_surf = engine.create_surface((WINWIDTH, WINHEIGHT))
-    while True:
-        engine.update_time()
-        events = engine.get_events()
-        engine.push_display(base_surf, screen_size, displaysurf)
-        engine.update_display()
+    engine.start(title)
+    game = game_state.start_game()
+    engine.run(game)
 
 def create_debug_log():
     """

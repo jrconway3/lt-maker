@@ -1,7 +1,7 @@
 from app.engine import engine
 from app.engine import config as cf
 
-class InputManager(object):
+class InputManager():
     def __init__(self):
         self.init_joystick()
 

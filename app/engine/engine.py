@@ -2,6 +2,7 @@ import sys
 
 import pygame
 
+from app.data.constants import WINWIDTH, WINHEIGHT, VERSION, FPS
 from app.engine import config as cf
 
 import logging
@@ -9,7 +10,9 @@ logger = logging.getLogger(__name__)
 
 constants = {'current_time': 0,
              'last_time': 0,
-             'last_fps': 0}
+             'last_fps': 0,
+             'standalone': True,
+             'running': True}
 
 # === engine functions ===
 def init():
@@ -43,7 +46,8 @@ def terminate(crash=False):
     pygame.mixer.music.stop()
     pygame.mixer.quit()
     pygame.quit()
-    sys.exit()
+    if constants['standalone']:
+        sys.exit()
 
 def on_end(crash=False):
     # Edit screen size
@@ -79,6 +83,11 @@ BLEND_RGBA_MULT = pygame.BLEND_RGBA_MULT
 
 def blit(dest, source, pos=(0, 0), mask=None, blend=0):
     dest.blit(source, pos, mask, blend)
+
+def blit_center(dest, source, pos=(WINWIDTH//2, WINHEIGHT//2)):
+    x = pos[0] - source.get_width()//2
+    y = pos[1] - source.get_height()//2
+    dest.blit(source, (x, y))
 
 def create_surface(size, transparent=False):
     if transparent:
@@ -144,9 +153,11 @@ def get_events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()
+            return pygame.QUIT
         if event.type == pygame.KEYDOWN and cf.SETTINGS['debug']:
             if event.key == pygame.K_ESCAPE:
                 terminate()
+                return pygame.QUIT
         events.append(event)
     return events
 
@@ -165,3 +176,40 @@ def joystick_avail():
 
 def get_joystick():
     return pygame.joystick.Joystick(0)
+
+# === loop functions ===
+DISPLAYSURF = None
+SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])
+FPSCLOCK = pygame.time.Clock()
+
+def start(title, from_editor=False):
+    if from_editor:
+        constants['standalone'] = False
+    init()
+    icon = image_load('main_icon.png')
+    set_icon(icon)
+    global DISPLAYSURF
+    DISPLAYSURF = build_display(SCREENSIZE)
+    set_title(title + ' - v' + VERSION)
+    print("Version: %s" % VERSION)
+
+def tick():
+    return FPSCLOCK.tick(FPS)
+
+def run(game):
+    surf = create_surface((WINWIDTH, WINHEIGHT))
+    while True:
+        update_time()
+
+        events = get_events()
+        if events == pygame.QUIT:
+            break
+
+        surf, repeat = game.state.update(events, surf)
+        while repeat:  # Let's the game traverse through state chains
+            surf, repeat = game.state.update([], surf)
+
+        push_display(surf, SCREENSIZE, DISPLAYSURF)
+        update_display()
+
+        game.playtime += tick()

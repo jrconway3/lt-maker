@@ -7,9 +7,11 @@ class StateMachine():
         self.temp_state = []
 
     def load_states(self, starting_states=None):
-        from app.engine import title_screen, transitions
+        from app.engine import title_screen, transitions, general_states
         self.all_states = {'title_start': title_screen.TitleStartState,
-                           'transition_in': transitions.TransitionInState}
+                           'transition_in': transitions.TransitionInState,
+                           'turn_change': general_states.TurnChangeState,
+                           'free': general_states.FreeState}
         if starting_states:
             for state_name in starting_states:
                 self.state.append(self.all_states[state_name](state_name))
@@ -22,6 +24,10 @@ class StateMachine():
 
     def clear(self):
         self.temp_state.append('clear')
+
+    def refresh(self):
+        # Clears all states except the top one
+        self.state = self.state[-1:]
 
     def get(self):
         if self.state:
@@ -49,7 +55,7 @@ class StateMachine():
                 self.state.append(new_state)
         self.temp_state.clear()
 
-    def update(self, events, surf):
+    def update(self, event, surf):
         if not self.state:
             return None, False
         state = self.state[-1]
@@ -68,7 +74,7 @@ class StateMachine():
                 repeat_flag = True
         # Take Input
         if not repeat_flag:
-            input_output = state.take_input(events)
+            input_output = state.take_input(event)
             if input_output == 'repeat':
                 repeat_flag = True
         # Update

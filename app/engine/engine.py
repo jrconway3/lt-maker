@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from app.data.constants import WINWIDTH, WINHEIGHT, VERSION, FPS
+from app.data.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
 
 import logging
@@ -162,6 +162,7 @@ def get_events():
     return events
 
 # === controls functions ===
+QUIT = pygame.QUIT
 KEYUP = pygame.KEYUP
 KEYDOWN = pygame.KEYDOWN
 MOUSEBUTTONDOWN = pygame.MOUSEBUTTONDOWN
@@ -182,34 +183,5 @@ DISPLAYSURF = None
 SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])
 FPSCLOCK = pygame.time.Clock()
 
-def start(title, from_editor=False):
-    if from_editor:
-        constants['standalone'] = False
-    init()
-    icon = image_load('main_icon.png')
-    set_icon(icon)
-    global DISPLAYSURF
-    DISPLAYSURF = build_display(SCREENSIZE)
-    set_title(title + ' - v' + VERSION)
-    print("Version: %s" % VERSION)
-
 def tick():
     return FPSCLOCK.tick(FPS)
-
-def run(game):
-    surf = create_surface((WINWIDTH, WINHEIGHT))
-    while True:
-        update_time()
-
-        events = get_events()
-        if events == pygame.QUIT:
-            break
-
-        surf, repeat = game.state.update(events, surf)
-        while repeat:  # Let's the game traverse through state chains
-            surf, repeat = game.state.update([], surf)
-
-        push_display(surf, SCREENSIZE, DISPLAYSURF)
-        update_display()
-
-        game.playtime += tick()

@@ -1,3 +1,5 @@
+from app.engine.game_state import game
+
 class State():
     name = None
     in_level = True
@@ -17,17 +19,28 @@ class State():
     def begin(self):
         pass
 
-    def take_input(self, events):
+    def take_input(self, event):
         pass
 
     def update(self):
         pass
 
-    def draw(self):
-        return None
+    def draw(self, surf):
+        return surf
 
     def end(self):
         pass
 
     def finish(self):
         pass
+
+class MapState(State):
+    def update(self):
+        # game.camera.update()
+        # game.tilemap.update()
+        # game.highlights.update()
+        game.cursor.update()
+
+    def draw(self, surf):
+        surf = game.map_view.draw()
+        return surf

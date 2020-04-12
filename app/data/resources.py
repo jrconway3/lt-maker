@@ -363,6 +363,7 @@ class Panorama(object):
         self.full_path = full_path  # Ignores numbers at the end
         self.num_frames = num_frames or len(pixmaps)
         self.pixmaps = pixmaps or []
+        self.images = []
         self.idx = 0
 
     def set_full_path(self, full_path):
@@ -382,9 +383,15 @@ class Panorama(object):
         if self.pixmaps:
             return self.pixmaps[self.idx]
 
+    def get_img_frame(self):
+        if self.images:
+            return self.images[self.idx]
+
     def increment_frame(self):
         if self.pixmaps:
             self.idx = (self.idx + 1) % len(self.pixmaps)  # Wrap around
+        elif self.images:
+            self.idx = (self.idx + 1) % len(self.images)  # Wrap around
 
 class Song(object):
     def __init__(self, nid, full_path=None):

@@ -2,7 +2,7 @@ from app.engine import engine
 from app.engine import config as cf
 
 class InputManager():
-    def __init__(self):
+    def start(self):
         self.init_joystick()
 
         self.buttons = ('UP', 'DOWN', 'LEFT', 'RIGHT', 'SELECT', 'BACK', 'INFO', 'AUX', 'START')
@@ -158,4 +158,4 @@ class InputManager():
                         pushed = amount > control[2]
                     update_state(pushed, self.axis_state, control[3], button)
 
-
+INPUT = InputManager()

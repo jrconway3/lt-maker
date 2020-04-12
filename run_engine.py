@@ -5,15 +5,24 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 from app.engine import engine
 from app.engine import config as cf
+from app.engine import driver
 from app.engine import game_state
 
 def main():
     RESOURCES.load()
     DB.deserialize()
     title = DB.constants.get('title').value
-    engine.start(title)
+    driver.start(title)
     game = game_state.start_game()
-    engine.run(game)
+    driver.run(game)
+
+def test_play():
+    RESOURCES.load()
+    DB.deserialize()
+    title = DB.constants.get('title').value
+    driver.start(title, from_editor=True)
+    game = game_state.start_level('DEBUG')
+    driver.run(game)
 
 def create_debug_log():
     """
@@ -51,7 +60,8 @@ if __name__ == '__main__':
                         format='%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s')
     logger.info('*** Lex Talionis Engine Version %s ***' % VERSION)
     try:
-        main()
+        # main()
+        test_play()
     except Exception as e:
         logger.exception(e)
         inform_error()

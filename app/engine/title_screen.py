@@ -12,15 +12,14 @@ class TitleStartState(State):
     show_map = False
 
     def start(self):
-        self.logo = SPRITES.get('Logo').pixmap
+        self.logo = SPRITES.get('Logo')
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = Background(imgs) if imgs else None
         game.memory['transition_speed'] = 0.01
         game.state.change('transition_in')
         return 'repeat'
 
-    def take_input(self, events):
-        event = game.input_manager.process_input(events)
+    def take_input(self, event):
         if event:
             game.state.change('title_main')
             game.state.change('transition_out')

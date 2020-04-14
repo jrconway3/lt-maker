@@ -1,4 +1,5 @@
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.counters import generic3counter
+from app.data.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
 from app.engine.sprites import SPRITES
 from app.engine import engine
 from app.engine.game_state import game
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 class Cursor():
     def __init__(self):
+        self.cursor_counter = generic3counter(20*FRAMERATE, 2*FRAMERATE, 8*FRAMERATE)
         self.position = (0, 0)
         self.draw_state = 0
         self.speed_state = False
@@ -19,11 +21,30 @@ class Cursor():
     def get_hover(self):
         return game.grid.get_unit(self.position)
 
+    def hide(self):
+        self.draw_state = 0
+
     def show(self):
         self.draw_state = 1
 
+    def set_turnwheel_sprite(self):
+        self.draw_state = 3
+
+    def set_pos(self, pos):
+        logger.info("New position %s", pos)
+        self.position = pos
+
+    def autocursor(self):
+        player_units = [unit for unit in game.level.units if unit.team == 'player']
+        lord_units = [unit for unit in player_units if 'Lord' in unit.tags]
+        if lord_units:
+            self.set_pos(lord_units[0].position)
+        elif player_units:
+            self.set_pos(player_units[0].position)
+
     def update(self):
-        left = engine.CURSORCOUNTER.count * TILEWIDTH * 2
+        self.cursor_counter.update(engine.get_time())
+        left = self.cursor_counter.count * TILEWIDTH * 2
         self.image = engine.subsurface(self.passive_sprite, (left, 0, 32, 32))
 
     def format_sprite(self, sprite):

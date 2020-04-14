@@ -62,11 +62,51 @@ class Action():
         return self
 
 class IncrementTurn(Action):
-    def __init__(self):
-        pass
-
     def do(self):
         game.turncount += 1
 
     def reverse(self):
         game.turncount -= 1
+
+class LockTurnwheel(Action):
+    def __init__(self, lock):
+        self.lock = lock
+
+class Reset(Action):
+    # TODO -- Make RESET WORK
+    def __init__(self, unit):
+        self.unit = unit
+
+class ResetAll(Action):
+    def __init__(self, units):
+        self.actions = [Reset(unit) for unit in units]
+
+    def do(self):
+        for action in self.actions:
+            action.do()
+
+    def reverse(self):
+        for action in self.actions:
+            action.reverse()
+
+# === Master Functions for adding to the action log ===
+def do(action):
+    game.action_log.action_depth += 1
+    action.do()
+    game.action_log.action_depth -= 1
+    if game.action_log.record and game.action_log.action_depth <= 0:
+        game.action_log.append(action)
+
+def execute(action):
+    game.action_log.action_depth += 1
+    action.execute()
+    game.action_log.action_depth -= 1
+    if game.action_log.record and game.action_log.action_depth <= 0:
+        game.action_log.append(action)
+
+def reverse(action):
+    game.action_log.action_depth += 1
+    action.reverse()
+    game.action_log.action_depth -= 1
+    if game.action_log.record and game.action_log.action_depth <= 0:
+        game.action_log.remove(action)

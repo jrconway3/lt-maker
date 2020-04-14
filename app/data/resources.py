@@ -350,6 +350,8 @@ class MapSprite(object):
         self.moving_full_path = move_full_path
         self.standing_pixmap = standing_pixmap
         self.moving_pixmap = moving_pixmap
+        self.standing_image = None
+        self.moving_image = None
 
     def set_standing_full_path(self, full_path):
         self.standing_full_path = full_path

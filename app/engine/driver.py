@@ -1,6 +1,5 @@
 from app.data.constants import WINWIDTH, WINHEIGHT, VERSION
 from app.engine import engine
-from app.engine.input_manager import INPUT
 
 def start(title, from_editor=False):
     if from_editor:
@@ -10,7 +9,6 @@ def start(title, from_editor=False):
     engine.set_icon(icon)
     engine.DISPLAYSURF = engine.build_display(engine.SCREENSIZE)
     engine.set_title(title + ' - v' + VERSION)
-    INPUT.start()
     print("Version: %s" % VERSION)
 
 def run(game):
@@ -21,7 +19,7 @@ def run(game):
         raw_events = engine.get_events()
         if raw_events == engine.QUIT:
             break
-        event = INPUT.process_input(raw_events)
+        event = game.input_manager.process_input(raw_events)
 
         surf, repeat = game.state.update(event, surf)
         while repeat:  # Let's the game traverse through state chains

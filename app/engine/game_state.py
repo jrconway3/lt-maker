@@ -1,10 +1,12 @@
 import random
 from collections import Counter
 
-from app.engine import state_machine, static_random, a_star
-from app.engine import config as cf
-
+from app.data.tilemap import TileMap
+from app.data.level_object import LevelObject
 from app.data.database import DB
+
+from app.engine import state_machine, input_manager, static_random, a_star
+from app.engine import config as cf
 
 import logging
 logger = logging.getLogger(__name__)
@@ -14,6 +16,7 @@ class GameState():
         self.game_constants = Counter()
         self.memory = {}
 
+        self.input_manager = input_manager.InputManager()
         self.state = state_machine.StateMachine()
 
         self.playtime = 0
@@ -54,35 +57,52 @@ class GameState():
         """
         Cleans up variables that need to be reset at the end of each level
         """
+        from app.engine import turnwheel
         self.level_constants = Counter()
         self.turncount = 0
-        # self.action_log = turnwheel.ActionLog()
+        self.action_log = turnwheel.ActionLog()
 
     def generic(self):
         """
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
-        from app.engine import cursor
+        from app.engine import cursor, camera, phase
         self.cursor = cursor.Cursor()
+        self.camera = camera.Camera()
+        self.phase = phase.PhaseController()
+
+        # Build registries
+        self.item_registry = {}
+        self.map_sprite_registry = {}
 
     def start_level(self, level_nid):
         """
         Done at the beginning of a new level to start the level up
         """
-        self.current_level = DB.levels.get(level_nid)
-        self.tilemap = self.load_map(self.current_level.tilemap)
+        level_prefab = DB.levels.get(level_nid)
+        self.tilemap = self.load_map(level_prefab.tilemap)
+        self.current_level = LevelObject(level_prefab, self.tilemap)
+        for unit in self.current_level.units:
+            for item in unit.items:
+                self.register_item(item)
 
     def load_map(self, tilemap):
         # TODO
-        from app.engine.map_view import MapView
+        from app.engine import map_view
+        s = tilemap.serialize()
+        tilemap = TileMap.deserialize(s)  # To make a copy
         self.grid = a_star.GridManager(tilemap)
         # self.boundary = boundary.BoundaryInterface(tilemap)
-        self.map_view = MapView(tilemap)
+        self.map_view = map_view.MapView(tilemap)
         return tilemap
 
     @property
     def level(self):
         return self.current_level
+
+    def register_item(self, item):
+        logger.info("Registering item %s as %s", item, item.uid)
+        self.item_registry[item.uid] = item
 
 game = None
 

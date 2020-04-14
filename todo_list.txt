@@ -2,6 +2,11 @@
 
 Editor:
 Have equations check their validity
+Register items, statuses, and units with the save_state manager
+Title Screen editor
+Map Editor
+Sounds section of resources
+SPRITES registry in resources
 
 Map Editor + Tilemap
 Event Script editor

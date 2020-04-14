@@ -24,16 +24,56 @@ class TurnChangeState(MapState):
             game.state.change('free')
             # TODO
             # game.state.change('status_upkeep') 
-            # game.state.change('phase_change')
+            game.state.change('phase_change')
             # EVENTS TRIGGER HERE
         else:
             game.state.change('ai')
             # game.state.change('status_upkeep')
-            # game.state.change('phase_change')
+            game.state.change('phase_change')
             # game.state.change('end_step')
 
     def take_input(self, event):
         return 'repeat'
+
+class PhaseChangeState(MapState):
+    name = 'phase_change'
+
+    def begin(self):
+        self.save_state()
+        logger.info("Phase Change Start")
+        # These are done here instead of in turnchange because
+        # introScript and other event scripts will have to go on the stack
+        # in between this and turn change
+        # And they technically happen before I want the player to have the turnwheel locked
+        # units reset, etc.
+        action.do(action.LockTurnwheel(game.phase.get_current() != 'player'))
+        action.do(action.ResetAll([unit for unit in game.level.units if not unit.dead]))
+        game.cursor.hide()
+        game.phase.slide_in()
+
+    def update(self):
+        super().update()
+        done = game.phase.update()
+        if done:
+            game.state.back()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = game.phase.draw(surf)
+        return surf
+
+    def end(self):
+        logger.info("Phase Change End")
+
+    def save_state(self):
+        if game.phase.get_current() == 'player':
+            logger.info("Saving as we enter player phase!")
+            name = game.level.nid + '_' + str(game.turncount)
+            # TODO SUSPEND
+        elif game.phase.get_current() == 'enemy':
+            logger.info("Saving as we enter enemy phase!")
+            name = game.level.nid + '_' + str(game.turncount) + 'b'
+            # TODO SUSPEND
 
 class FreeState(MapState):
     name = 'free'

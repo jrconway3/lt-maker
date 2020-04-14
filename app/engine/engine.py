@@ -131,6 +131,9 @@ def set_colorkey(surf, color, rleaccel=True):
     else:
         surf.set_colorkey(color)
 
+def make_pixel_array(surf):
+    return pygame.PixelArray(surf)
+
 # === transform functions ===
 def flip_horiz(surf):
     return pygame.transform.flip(surf, 1, 0)

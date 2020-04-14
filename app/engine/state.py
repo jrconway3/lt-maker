@@ -36,10 +36,11 @@ class State():
 
 class MapState(State):
     def update(self):
-        # game.camera.update()
+        game.camera.update()
         # game.tilemap.update()
         # game.highlights.update()
         game.cursor.update()
+        game.map_view.update()
 
     def draw(self, surf):
         surf = game.map_view.draw()

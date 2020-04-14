@@ -34,7 +34,7 @@ class McostGrid(object):
     def get_mcost(self, unit_type, terrain_type):
         cidx = self.column_headers.index(unit_type)
         ridx = self.row_headers.index(terrain_type)
-        return self.get((ridx, cidx))
+        return self.get((cidx, ridx))
 
     def width(self):
         return len(self.column_headers)

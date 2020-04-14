@@ -11,7 +11,8 @@ class StateMachine():
         self.all_states = {'title_start': title_screen.TitleStartState,
                            'transition_in': transitions.TransitionInState,
                            'turn_change': general_states.TurnChangeState,
-                           'free': general_states.FreeState}
+                           'free': general_states.FreeState,
+                           'phase_change': general_states.PhaseChangeState}
         if starting_states:
             for state_name in starting_states:
                 self.state.append(self.all_states[state_name](state_name))

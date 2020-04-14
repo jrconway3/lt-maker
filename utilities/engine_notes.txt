@@ -55,6 +55,8 @@ title screen
 game over
 state transitions
 
+IN GUI:
+    title screen editor
 
 Priority 2
 AI

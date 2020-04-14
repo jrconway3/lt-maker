@@ -66,3 +66,6 @@ def is_int(s: str) -> bool:
         return True
     except ValueError:
         return False
+
+def clamp(i, min_, max_):
+    return min(max_, max(min_, i))

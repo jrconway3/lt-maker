@@ -2,6 +2,7 @@ import sys
 
 import pygame
 
+from app.data.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
 
 import logging
@@ -9,7 +10,9 @@ logger = logging.getLogger(__name__)
 
 constants = {'current_time': 0,
              'last_time': 0,
-             'last_fps': 0}
+             'last_fps': 0,
+             'standalone': True,
+             'running': True}
 
 # === engine functions ===
 def init():
@@ -43,7 +46,8 @@ def terminate(crash=False):
     pygame.mixer.music.stop()
     pygame.mixer.quit()
     pygame.quit()
-    sys.exit()
+    if constants['standalone']:
+        sys.exit()
 
 def on_end(crash=False):
     # Edit screen size
@@ -79,6 +83,11 @@ BLEND_RGBA_MULT = pygame.BLEND_RGBA_MULT
 
 def blit(dest, source, pos=(0, 0), mask=None, blend=0):
     dest.blit(source, pos, mask, blend)
+
+def blit_center(dest, source, pos=(WINWIDTH//2, WINHEIGHT//2)):
+    x = pos[0] - source.get_width()//2
+    y = pos[1] - source.get_height()//2
+    dest.blit(source, (x, y))
 
 def create_surface(size, transparent=False):
     if transparent:
@@ -122,6 +131,9 @@ def set_colorkey(surf, color, rleaccel=True):
     else:
         surf.set_colorkey(color)
 
+def make_pixel_array(surf):
+    return pygame.PixelArray(surf)
+
 # === transform functions ===
 def flip_horiz(surf):
     return pygame.transform.flip(surf, 1, 0)
@@ -144,13 +156,16 @@ def get_events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()
+            return pygame.QUIT
         if event.type == pygame.KEYDOWN and cf.SETTINGS['debug']:
             if event.key == pygame.K_ESCAPE:
                 terminate()
+                return pygame.QUIT
         events.append(event)
     return events
 
 # === controls functions ===
+QUIT = pygame.QUIT
 KEYUP = pygame.KEYUP
 KEYDOWN = pygame.KEYDOWN
 MOUSEBUTTONDOWN = pygame.MOUSEBUTTONDOWN
@@ -165,3 +180,11 @@ def joystick_avail():
 
 def get_joystick():
     return pygame.joystick.Joystick(0)
+
+# === loop functions ===
+DISPLAYSURF = None
+SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])
+FPSCLOCK = pygame.time.Clock()
+
+def tick():
+    return FPSCLOCK.tick(FPS)

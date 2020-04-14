@@ -3,6 +3,8 @@ Priority 1
 input manager 
     - mouse control
     - mouse and joystick configurations
+    - how do mouse controls itneract with cursor and menus
+integration with editor
 bitmap font
     - addition to resource editor
 static random
@@ -35,6 +37,7 @@ cursor
     - mouse support as well
 save/load
     - better saving and loading for current game -- no need for separate save slot class
+    - where are saves stored
 phase
     - Class that handles turn phase transition
 items, units, classes

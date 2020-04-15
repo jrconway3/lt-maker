@@ -101,3 +101,4 @@ class FreeState(MapState):
             pass
         elif event == 'START':
             pass
+        game.cursor.take_input()

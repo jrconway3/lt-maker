@@ -68,10 +68,10 @@ class GridManager(object):
             self.team_grid[idx] = None
 
     def get_unit(self, pos):
-        return self.unit_map[pos[0] * self.height + pos[1]]
+        return self.unit_grid[pos[0] * self.height + pos[1]]
 
     def get_team(self, pos):
-        return self.team_map[pos[0] * self.height + pos[1]]
+        return self.team_grid[pos[0] * self.height + pos[1]]
 
     # For movement
     def init_grid(self, mode, tilemap):

@@ -39,6 +39,9 @@ class InputManager():
     def is_pressed(self, button):
         return self.keys_pressed[button] or self.joys_pressed[button]
 
+    def just_pressed(self, button):
+        return button in self.key_down_events
+
     def update(self):
         self.update_key_map()
         self.update_joystick_control()

@@ -47,7 +47,7 @@ class PhaseController():
         self.phase_in[self.current].begin()
 
     def update(self):
-        self.phase_in[self.current].update()
+        return self.phase_in[self.current].update()
 
     def draw(self, surf):
         surf = self.phase_in[self.current].draw(surf)
@@ -100,7 +100,7 @@ class PhaseIn():
             trans = diff**2
 
         image = image_mods.make_translucent(self.image, trans)
-        surf.blit(image, (offset_x, WINHEIGHT//2 - self.image.get_height()//2))
+        surf.blit(image, (offset_x + WINWIDTH//2 - self.image.get_width()//2, WINHEIGHT//2 - self.image.get_height()//2))
 
         transition_space1 = engine.copy_surface(self.transition_space)
         transition_space2 = engine.copy_surface(self.transition_space)

@@ -85,6 +85,8 @@ class GameState():
         for unit in self.current_level.units:
             for item in unit.items:
                 self.register_item(item)
+        for unit in self.current_level.units:
+            self.arrive(unit)
 
     def load_map(self, tilemap):
         # TODO
@@ -103,6 +105,25 @@ class GameState():
     def register_item(self, item):
         logger.info("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
+
+    # For placing units on map and removing them from map
+    def leave(self, unit, test=False):
+        if unit.position:
+            logger.info("Leave %s %s %s", unit, unit.nid, unit.position)
+            if not test:
+                game.grid.set_unit(unit.position, None)
+                # Boundary
+            # Tiles
+        # Auras
+
+    def arrive(self, unit, test=False):
+        if unit.position:
+            logger.info("Arrive %s %s %s", unit, unit.nid, unit.position)
+            if not test:
+                game.grid.set_unit(unit.position, unit)
+                # Boundary
+            # Tiles
+            # Auras
 
 game = None
 

@@ -41,7 +41,7 @@ class UnitObject(Prefab):
             self.tags = [tag for tag in prefab.tags]
             self.stats = {stat.nid: stat.value for stat in prefab.bases}
             self.growths = {stat.nid: stat.value for stat in prefab.growths}
-            self.wexp = {weapon.nid: prefab.wexp_gain for weapon in prefab.wexp_gain}
+            self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
             self.portrait_nid = prefab.portrait_nid
         self.growth_points = {k: 50 for k in self.stats.keys()}
 
@@ -84,3 +84,39 @@ class UnitObject(Prefab):
                     weapon_type = item.spell.value[0]
                 requirement = DB.weapon_ranks.get(item.level.value).requirement
                 self.wexp[weapon_type] = min(self.wexp[weapon_type], requirement)
+
+    def can_wield(self, item):
+        if (item.weapon or item.spell) and item.level:
+            weapon_rank = DB.weapon_ranks.get(item.level.value)
+            req = weapon_rank.requirement
+            comp = item.weapon.value if item.weapon else item.spell.value[0]
+            spec_wexp = self.wexp.get(comp)
+            klass = DB.classes.get(self.klass)
+            klass_usable = klass.wexp_gain.get(comp).usable
+            if klass_usable and spec_wexp >= req:
+                return True
+            return False
+        elif item.prf_self:
+            if self.nid in item.prf_unit.value.keys():
+                return True
+            else:
+                return False
+        elif item.prf_class:
+            if self.klass in item.prf_class.value.keys():
+                return True
+            else:
+                return False
+        else:
+            return True
+
+    def get_weapon(self):
+        for item in self.items:
+            if item.weapon and self.can_wield(item):
+                return item
+        return None
+
+    def get_spell(self):
+        for item in self.items:
+            if item.spell and self.can_wield(item):
+                return item
+        return None

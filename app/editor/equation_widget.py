@@ -44,7 +44,7 @@ class EquationMultiModel(DragDropMultiAttrListModel):
 class EquationDialog(MultiAttrListDialog):
     locked_vars = {"ATTACKSPEED", "HIT", "AVOID", "CRIT_HIT", "CRIT_AVOID", 
                    "DAMAGE", "DEFENSE", "MAGIC_DAMAGE", "MAGIC_DEFENSE", 
-                   "CRIT_ADD", "CRIT_MULT",
+                   "HITPOINTS", "MOVEMENT", "CRIT_ADD", "CRIT_MULT",
                    "DOUBLE_ATK", "DOUBLE_DEF", "STEAL_ATK", "STEAL_DEF", 
                    "HEAL", "RESCUE_AID", "RESCUE_WEIGHT", "RATING"}
 

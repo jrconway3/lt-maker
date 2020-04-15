@@ -1,5 +1,13 @@
 [
     {
+        "nid": "HITPOINTS",
+        "expression": "HP"
+    },
+    {
+        "nid": "MOVEMENT",
+        "expression": "MOV"
+    },
+    {
         "nid": "ATTACKSPEED",
         "expression": "SPD - max(0, WEIGHT - CON)"
     },

@@ -1,8 +1,10 @@
 # TO DO List
 
 Editor:
+Get units moving + highlights + a_star + djikstra's
 Have equations check their validity
 Register items, statuses, and units with the save_state manager
+Get saving and loading to work
 Title Screen editor
 Map Editor
 Sounds section of resources

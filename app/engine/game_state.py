@@ -5,7 +5,7 @@ from app.data.tilemap import TileMap
 from app.data.level_object import LevelObject
 from app.data.database import DB
 
-from app.engine import state_machine, input_manager, static_random, a_star
+from app.engine import state_machine, input_manager, static_random, a_star, equations
 from app.engine import config as cf
 
 import logging
@@ -17,6 +17,7 @@ class GameState():
         self.memory = {}
 
         self.input_manager = input_manager.InputManager()
+        self.equations = equations.Parser()
         self.state = state_machine.StateMachine()
 
         self.playtime = 0
@@ -66,10 +67,12 @@ class GameState():
         """
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
-        from app.engine import cursor, camera, phase
+        from app.engine import cursor, camera, phase, highlight, targets
         self.cursor = cursor.Cursor()
         self.camera = camera.Camera()
         self.phase = phase.PhaseController()
+        self.highlight = highlight.HighlightController()
+        self.targets = targets.TargetSystem()
 
         # Build registries
         self.item_registry = {}
@@ -85,6 +88,8 @@ class GameState():
         for unit in self.current_level.units:
             for item in unit.items:
                 self.register_item(item)
+        for unit in self.current_level.units:
+            self.arrive(unit)
 
     def load_map(self, tilemap):
         # TODO
@@ -103,6 +108,25 @@ class GameState():
     def register_item(self, item):
         logger.info("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
+
+    # For placing units on map and removing them from map
+    def leave(self, unit, test=False):
+        if unit.position:
+            logger.info("Leave %s %s %s", unit, unit.nid, unit.position)
+            if not test:
+                game.grid.set_unit(unit.position, None)
+                # Boundary
+            # Tiles
+        # Auras
+
+    def arrive(self, unit, test=False):
+        if unit.position:
+            logger.info("Arrive %s %s %s", unit, unit.nid, unit.position)
+            if not test:
+                game.grid.set_unit(unit.position, unit)
+                # Boundary
+            # Tiles
+            # Auras
 
 game = None
 

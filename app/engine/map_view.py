@@ -25,18 +25,20 @@ class MapView():
         self.fast_move_sprite_counter.update(current_time)
 
     def draw_units(self, surf):
-        for unit in game.level.units:
-            if unit.position:
-                if not unit.sprite:
-                    unit.sprite = unit_sprite.UnitSprite(unit)
-                unit.sprite.update()
-                surf = unit.sprite.draw(surf)
+        culled_units = [unit for unit in game.level.units if unit.position]
+        draw_units = sorted(culled_units, key=lambda unit: unit.position[1])
+        for unit in draw_units:
+            if not unit.sprite:
+                unit.sprite = unit_sprite.UnitSprite(unit)
+            unit.sprite.update()
+            surf = unit.sprite.draw(surf)
 
     def draw(self):
         surf = engine.copy_surface(self.map_image)
         surf = surf.convert_alpha()
+        surf = game.highlight.draw(surf)
         self.draw_units(surf)
-        game.cursor.draw(surf)
+        surf = game.cursor.draw(surf)
 
         # Cull
         rect = game.camera.get_x() * TILEWIDTH, game.camera.get_y() * TILEHEIGHT, WINWIDTH, WINHEIGHT

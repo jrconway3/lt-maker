@@ -4,12 +4,12 @@ def can_wield(unit, item, prefab=False):
     if (item.weapon or item.spell) and item.level:
         weapon_rank = DB.weapon_ranks.get(item.level.value)
         req = weapon_rank.requirement
-        comp = item.weapon if item.weapon else item.spell
+        comp = item.weapon.value if item.weapon else item.spell.value[0]
         if prefab:
-            wexp_gain_data = unit.wexp_gain.get(comp.value)
+            wexp_gain_data = unit.wexp_gain.get(comp)
         else:
             klass = DB.classes.get(unit.klass)
-            wexp_gain_data = klass.wexp_gain.get(comp.value)
+            wexp_gain_data = klass.wexp_gain.get(comp)
         if wexp_gain_data and wexp_gain_data.usable:
             if not prefab and unit.generic:
                 return True

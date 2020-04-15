@@ -1,4 +1,15 @@
+import heapq
+
 from app.data.database import DB
+
+def compare_teams(t1: str, t2: str) -> bool:
+    # Returns True if allies, False if enemies
+    if t1 == t2:
+        return True
+    elif (t1 == 'player' and t2 == 'other') or (t2 == 'player' and t1 == 'other'):
+        return True
+    else:
+        return False
 
 class Node():
     __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f']
@@ -86,3 +97,74 @@ class GridManager(object):
 
     def get_grid(self, mode):
         return self.grids[mode]
+
+class Djikstra():
+    __slots__ = ['open', 'closed', 'cells', 'width', 'height', 'start_pos', 'start_cell', 'unit_team', 'pass_through']
+
+    def __init__(self, start_pos, grid, width, height, unit_team, pass_through):
+        self.open = []
+        heapq.heapify(self.open)
+        self.closed = set()
+        self.cells = grid # Must keep order
+        self.width, self.height = width, height
+        self.reset_grid()
+        self.start_pos = start_pos
+        self.start_cell = self.get_cell(start_pos[0], start_pos[1])
+        self.unit_team = unit_team
+        self.pass_through = pass_through
+
+    def reset_grid(self):
+        for cell in self.cells:
+            cell.reset()
+
+    def get_cell(self, x, y):
+        return self.cells[x * self.height + y]
+
+    def get_adjacent_cells(self, cell):
+        """
+        Returns adjacent cells to a cell.
+        """
+        cells = []
+        if cell.x < self.width - 1:
+            cells.append(self.get_cell(cell.x + 1, cell.y))
+        if cell.y > 0:
+            cells.append(self.get_cell(cell.x, cell.y - 1))
+        if cell.x > 0:
+            cells.append(self.get_cell(cell.x - 1, cell.y))
+        if cell.y < self.height - 1:
+            cells.append(self.get_cell(cell.x, cell.y + 1))
+
+    def update_cell(self, adj, cell):
+        # g is true distance between this cell and starting position
+        adj.g = cell.g + adj.cost
+        adj.parent = cell
+
+    def process(self, team_map, movement_left):
+        # add starting cell to open heap queue
+        heapq.heappush(self.open, self.start_cell.g, self.start_cell)
+        while self.open:
+            # pop cell from heap queue
+            g, cell = heapq.heappop(self.open)
+            # If we've traveled too far -- always g ordered, so leaving at the 
+            # first sign of trouble will always work
+            if g > movement_left:
+                return {(cell.x, cell.y) for cell in self.closed}
+            # add cell to closed set so we don't process it twice
+            self.closed.add(cell)
+            # get adjacent cells for cell
+            adj_cells = self.get_adjacent_cells(cell)
+            for adj in adj_cells:
+                if adj.reachable and adj not in self.closed:
+                    unit_team = team_map[adj.x * self.height + adj.y]
+                    if not unit_team or compare_teams(self.unit_team, unit_team) or self.pass_through:
+                        if (adj.g, adj) in self.open:
+                            # if adj cell in open list, check if current path
+                            # is better than the one previously found for this adj cell
+                            if adj.g > cell.g + adj.cost:
+                                self.update_cell(adj, cell)
+                                heapq.heappush(self.open, (adj.g, adj))
+                        else:
+                            self.update_cell(adj, cell)
+                            heapq.heappush(self.open, (adj.g, adj))
+            # Sometimes gets here if unit is enclosed
+            return {(cell.x, cell.y) for cell in self.closed}

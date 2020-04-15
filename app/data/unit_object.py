@@ -41,7 +41,7 @@ class UnitObject(Prefab):
             self.tags = [tag for tag in prefab.tags]
             self.stats = {stat.nid: stat.value for stat in prefab.bases}
             self.growths = {stat.nid: stat.value for stat in prefab.growths}
-            self.wexp = {weapon.nid: prefab.wexp_gain for weapon in prefab.wexp_gain}
+            self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
             self.portrait_nid = prefab.portrait_nid
         self.growth_points = {k: 50 for k in self.stats.keys()}
 

@@ -1,3 +1,8 @@
+from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.engine.sprites import SPRITES
+from app.engine import engine
+from app.engine.game_state import game
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -18,7 +23,7 @@ class HighlightController():
                        'splash': SPRITES.get('highlight_lightred'),
                        'possible_move': SPRITES.get('highlight_lightblue'),
                        'move': SPRITES.get('highlight_blue'),
-                       'aura': SPRITES.get('highlight_purple'),
+                       'aura': SPRITES.get('highlight_lightpurple'),
                        'spell_splash': SPRITES.get('highlight_lightpurple')}
 
         self.highlights = {k: set() for k in self.images}
@@ -34,6 +39,13 @@ class HighlightController():
             for k in self.images:
                 self.highlights[k].discard(position)
         self.highlights[name].add(position)
+        self.transitions[name] = self.starting_cutoff
+
+    def add_highlights(self, positions: set, name: str, allow_overlap: bool = False):
+        if not allow_overlap:
+            for k in self.images:
+                self.highlights[k] -= positions
+        self.highlights[name] |= positions
         self.transitions[name] = self.starting_cutoff
 
     def remove_highlights(self, name=None):
@@ -54,14 +66,28 @@ class HighlightController():
         if self.current_hover and hover_unit != self.current_hover:
             self.remove_highlights()
         if hover_unit and hover_unit != self.current_hover:
-            valid_moves = game.targets.get_valid_moves(cur_hover)
-            if cur_hover.get_spell():
-                self.display_excess_spell_attacks(cur_hover, valid_moves, light=True)
-            if cur_hover.get_weapon():
-                self.display_excess_attacks(cur_hover, valid_moves, light=True)
-            self.display_moves(cur_hover, valid_moves, light=True)
-            # Aura.add_aura_highlights(cur_hover)
-        self.current_hover = cur_hover
+            valid_moves = game.targets.get_valid_moves(hover_unit)
+            if hover_unit.get_spell():
+                valid_attacks = game.targets.get_possible_spell_attacks(hover_unit, valid_moves)
+                self.display_possible_spell_attacks(valid_attacks, light=True)
+            if hover_unit.get_weapon():
+                valid_attacks = game.targets.get_possible_attacks(hover_unit, valid_moves)
+                self.display_possible_attacks(valid_attacks, light=True)
+            self.display_moves(valid_moves, light=True)
+            # Aura.add_aura_highlights(hover_unit)
+        self.current_hover = hover_unit
+
+    def display_moves(self, valid_moves, light=False):
+        name = 'possible_move' if light else 'move'
+        self.add_highlights(valid_moves, name)
+
+    def display_possible_attacks(self, valid_attacks, light=False):
+        name = 'splash' if light else 'attack'
+        self.add_highlights(valid_attacks, name)
+
+    def display_possible_spell_attacks(self, valid_attacks, light=False):
+        name = 'spell_splash' if light else 'spell'
+        self.add_highlights(valid_attacks, name)
 
     def update(self):
         self.update_idx = (self.update_idx + 1) % 64
@@ -75,6 +101,5 @@ class HighlightController():
             rect = (self.update_idx//4 * TILEWIDTH + cut_off, cut_off, TILEWIDTH - cut_off, TILEHEIGHT - cut_off)
             image = engine.subsurface(self.images[name], rect)
             for position in highlight_set:
-                surf.blit(image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT)
-
-
+                surf.blit(image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT))
+        return surf

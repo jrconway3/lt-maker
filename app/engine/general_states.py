@@ -102,3 +102,10 @@ class FreeState(MapState):
         elif event == 'START':
             pass
         game.cursor.take_input()
+
+    def update(self):
+        super().update()
+        game.highlight.handle_hover()
+
+    def end(self):
+        game.highlight.remove_highlights()

@@ -3,7 +3,7 @@
         "nid": "HITPOINTS",
         "expression": "HP"
     },
-    {   
+    {
         "nid": "MOVEMENT",
         "expression": "MOV"
     },

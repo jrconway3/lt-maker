@@ -4,9 +4,9 @@ from app.data.data import Data, Prefab
 
 # Custom Types
 class SpellAffect(Enum):
-    Beneficial = 1
+    Helpful = 1
     Neutral = 2
-    Detrimental = 3
+    Harmful = 3
 
 class SpellTarget(Enum):
     Ally = 1

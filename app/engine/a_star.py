@@ -38,6 +38,9 @@ class Node():
     def __lt__(self, n):
         return self.cost < n
 
+    def __repr__(self):
+        return "Node(%d, %d): cost=%d, g=%d, h=%d, f=%f, %s" % (self.x, self.y, self.cost, self.g, self.h, self.f, self.reachable)
+
 class GridManager(object):
     __slots__ = ['width', 'height', 'grids', 'team_grid', 'unit_grid', 'aura_grid', 'known_auras']
 
@@ -133,6 +136,7 @@ class Djikstra():
             cells.append(self.get_cell(cell.x - 1, cell.y))
         if cell.y < self.height - 1:
             cells.append(self.get_cell(cell.x, cell.y + 1))
+        return cells
 
     def update_cell(self, adj, cell):
         # g is true distance between this cell and starting position
@@ -141,7 +145,7 @@ class Djikstra():
 
     def process(self, team_map, movement_left):
         # add starting cell to open heap queue
-        heapq.heappush(self.open, self.start_cell.g, self.start_cell)
+        heapq.heappush(self.open, (self.start_cell.g, self.start_cell))
         while self.open:
             # pop cell from heap queue
             g, cell = heapq.heappop(self.open)
@@ -166,5 +170,5 @@ class Djikstra():
                         else:
                             self.update_cell(adj, cell)
                             heapq.heappush(self.open, (adj.g, adj))
-            # Sometimes gets here if unit is enclosed
-            return {(cell.x, cell.y) for cell in self.closed}
+        # Sometimes gets here if unit is enclosed
+        return {(cell.x, cell.y) for cell in self.closed}

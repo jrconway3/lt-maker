@@ -69,3 +69,12 @@ def is_int(s: str) -> bool:
 
 def clamp(i, min_, max_):
     return min(max_, max(min_, i))
+
+def compare_teams(t1: str, t2: str) -> bool:
+    # Returns True if allies, False if enemies
+    if t1 == t2:
+        return True
+    elif (t1 == 'player' and t2 == 'other') or (t2 == 'player' and t1 == 'other'):
+        return True
+    else:
+        return False

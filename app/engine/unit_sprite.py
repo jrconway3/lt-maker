@@ -5,6 +5,7 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine import engine
+import app.engine.config as cf
 from app.engine.game_state import game
 
 def color_convert(image, conversion_dict):
@@ -50,9 +51,9 @@ class MapSprite():
             color_convert(map_sprite.moving_image, conversion_dict)
 
     def create_gray(self, imgs):
-        imgs = []
+        imgs = [color_convert(img, gray_colors) for img in imgs]
         for img in imgs:
-            imgs.append(color_convert(img, gray_colors))
+            engine.set_colorkey(img, COLORKEY, rleaccel=True)
         return imgs
 
 class UnitSprite():
@@ -65,7 +66,7 @@ class UnitSprite():
         self.transition_counter = 0
         self.transition_time = 400
 
-        self.next_position = None
+        self.net_position = None
         self.offset = [0, 0]
 
         self.load_sprites()
@@ -101,12 +102,29 @@ class UnitSprite():
 
     def change_state(self, new_state):
         self.state = new_state
+        if self.state == 'selected':
+            self.image_state = 'down'
+
+    def handle_net_position(self, pos):
+        if abs(pos[0]) >= abs(pos[1]):
+            if pos[0] > 0:
+                self.image_state = 'right'
+            elif pos[0] < 0:
+                self.image_state = 'left'
+            else:
+                self.image_state = 'down'  # default
+        else:
+            if pos[1] < 0:
+                self.image_state = 'up'
+            else:
+                self.image_state = 'down'
 
     def update(self):
         self.update_state()
         self.update_transition()
 
     def update_state(self):
+        current_time = engine.get_time()
         if self.state == 'normal':
             if self.unit.finished and not self.unit.is_dying:
                 self.image_state = 'gray'
@@ -114,6 +132,18 @@ class UnitSprite():
                 self.image_state = 'active'
             else:
                 self.image_state = 'passive'
+        elif self.state == 'moving':
+            next_position = game.moving_units.get_next_position(self.unit.nid)
+            if not next_position:
+                self.offset = [0, 0]
+                self.transition_state = 'normal'
+                return
+            self.net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
+            last_update = game.moving_units.get_last_update(self.unit.nid)
+            dt = current_time - last_update
+            self.offset[0] = int(TILEWIDTH * dt / cf.SETTINGS['unit_speed'] * self.net_position[0])
+            self.offset[1] = int(TILEHEIGHT * dt / cf.SETTINGS['unit_speed'] * self.net_position[1])
+            self.handle_net_position(self.net_position)
 
     def update_transition(self):
         pass
@@ -124,9 +154,9 @@ class UnitSprite():
         elif self.image_state == 'active':
             return image[game.map_view.active_sprite_counter.count].copy()
         elif self.state == 'combat_anim':
-            return image[game.map_view.fast_move_sprite_counter].copy()
+            return image[game.map_view.fast_move_sprite_counter.count].copy()
         else:
-            return image[game.map_view.move_sprite_counter].copy()
+            return image[game.map_view.move_sprite_counter.count].copy()
 
     def draw(self, surf):
         image = getattr(self.map_sprite, self.image_state)

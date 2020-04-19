@@ -61,6 +61,46 @@ class Action():
             setattr(self, name, self.deserialize_obj(value))
         return self
 
+class Move(Action):
+    """
+    A basic, user-directed move
+    """
+    def __init__(self, unit, new_pos, path=None):
+        self.unit = unit
+        self.old_pos = self.unit.position
+        self.new_pos = new_pos
+
+        self.prev_movement_left = self.unit.movement_left
+        self.new_movement_left = None
+
+        self.path = path
+        self.has_moved = self.unit.has_moved
+
+    def do(self):
+        if self.path is None:
+            self.path = game.cursor.path
+        game.moving_units.begin_move(self.unit, self.path)
+
+    def execute(self):
+        game.leave(self.unit)
+        if self.new_movement_left is not None:
+            self.unit.movement_left = self.new_movement_left
+        self.unit.has_moved = True
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
+
+    def reverse(self):
+        game.leave(self.unit)
+        self.new_movement_left = self.unit.movement_left
+        self.unit.movement_left = self.prev_movement_left
+        self.unit.has_moved = self.has_moved
+        self.unit.position = self.old_pos
+        game.arrive(self.unit)
+
+# Just another name for move
+class CantoMove(Move):
+    pass
+
 class IncrementTurn(Action):
     def do(self):
         game.turncount += 1
@@ -72,10 +112,32 @@ class LockTurnwheel(Action):
     def __init__(self, lock):
         self.lock = lock
 
-class Reset(Action):
-    # TODO -- Make RESET WORK
+class Wait(Action):
     def __init__(self, unit):
         self.unit = unit
+        self.action_state = self.unit.get_action_state()
+
+    def do(self):
+        self.unit.has_moved = True
+        self.unit.has_traded = True
+        self.unit.has_attacked = True
+        self.unit.finished = True
+        self.unit.current_move = None
+        self.unit.sprite.change_state('normal')
+
+    def reverse(self):
+        self.unit.set_action_state(self.action_state)
+
+class Reset(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.action_state = self.unit.get_action_state()
+
+    def do(self):
+        self.unit.reset()
+
+    def reverse(self):
+        self.unit.set_action_state(self.action_state)
 
 class ResetAll(Action):
     def __init__(self, units):

@@ -1,6 +1,8 @@
+from app.data.database import DB
+
 from app.engine.state import MapState
 from app.engine.game_state import game
-from app.engine import action
+from app.engine import action, menus
 
 import logging
 logger = logging.getLogger(__name__)
@@ -86,6 +88,8 @@ class FreeState(MapState):
             game.action_log.set_first_free_action()
 
     def take_input(self, event):
+        game.cursor.take_input()
+        
         if event == 'INFO':
             if game.cursor.get_hover():
                 # info_menu.start()
@@ -96,16 +100,267 @@ class FreeState(MapState):
         elif event == 'AUX':
             pass
         elif event == 'SELECT':
-            pass
+            cur_pos = game.cursor.position
+            cur_unit = game.grid.get_unit(cur_pos)
+            if cur_unit:
+                game.cursor.cur_unit = cur_unit
+                if cur_unit.team == 'player' and 'un_selectable' not in cur_unit.status_bundle:
+                    game.state.change('move')
         elif event == 'BACK':
             pass
         elif event == 'START':
             pass
-        game.cursor.take_input()
 
     def update(self):
         super().update()
         game.highlight.handle_hover()
+
+    def end(self):
+        game.highlight.remove_highlights()
+
+class MoveState(MapState):
+    name = 'move'
+
+    def begin(self):
+        game.cursor.show()
+        cur_unit = game.cursor.cur_unit
+        cur_unit.sprite.change_state('selected')
+
+        self.valid_moves = game.highlight.display_highlights(cur_unit)
+
+        game.cursor.place_arrows()
+
+    def take_input(self, event):
+        game.cursor.take_input()
+        cur_unit = game.cursor.cur_unit
+
+        if event == 'INFO':
+            pass
+        elif event == 'AUX':
+            pass
+
+        elif event == 'BACK':
+            game.state.clear()
+            game.state.change('free')
+            if cur_unit.has_attacked:
+                action.do(action.Wait(self.cur_unit))
+            else:
+                cur_unit.sprite.change_state('normal')
+
+        elif event == 'SELECT':
+            if game.cursor.position == cur_unit.position:
+                if cur_unit.has_attacked:
+                    game.state.clear()
+                    game.state.change('free')
+                    action.do(action.Wait(self.cur_unit))
+                else:
+                    # Just move in place
+                    cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
+                    action.execute(cur_unit.current_move)
+                    game.state.change('menu')
+
+            elif game.cursor.position in self.valid_moves:
+                if game.grid.get_unit(game.cursor.position):
+                    # ERROR!
+                    pass
+                else:
+                    if cur_unit.has_attacked:
+                        cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
+                        game.state.change('canto_wait')
+                    else:
+                        cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
+                        game.state.change('menu')
+                    game.state.change('movement')
+                    action.do(cur_unit.current_move)
+            else:
+                # Error!
+                pass
+
+    def end(self):
+        game.cursor.remove_arrows()
+        game.highlight.remove_highlights()
+
+class MovementState(MapState):
+    # Responsible for moving units that need to be moved
+    name = 'movement'
+
+    def begin(self):
+        game.cursor.hide()
+
+    def update(self):
+        super().update()
+        game.moving_units.update()
+        if len(game.moving_units) <= 0:
+            game.state.back()
+            return 'repeat'
+
+class CantoWaitState(MapState):
+    name = 'canto_wait'
+
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
+        self.menu = menus.Choice(self.cur_unit, ['Wait'])
+
+    def begin(self):
+        self.cur_unit.sprite.change_state('selected')
+
+    def take_input(self, event):
+        if event == 'INFO':
+            pass
+
+        elif event == 'SELECT':
+            game.state.clear()
+            game.state.change('free')
+            action.do(action.Wait(self.cur_unit))
+
+        elif event == 'BACK':
+            if self.cur_unit.current_move:
+                action.reverse(self.cur_unit.current_move)
+                self.cur_unit.current_move = None
+
+class MenuState(MapState):
+    name = 'menu'
+    normal_options = {'Item', 'Wait', 'Take', 'Give', 'Rescue', 'Trade', 'Drop', 'Visit', 'Armory', 'Vendor', 'Spells', 'Attack', 'Steal', 'Shove'}
+
+    def begin(self):
+        game.cursor.hide()
+        self.cur_unit = game.cursor.cur_unit
+
+        valid_moves = {self.cur_unit.position}
+
+        if not self.cur_unit.has_attacked:
+            self.cur_unit.sprite.change_state('menu')
+            spell_targets = game.targets.get_all_spell_targets(self.cur_unit)
+            atk_targets = game.targets.get_all_weapon_targets(self.cur_unit)
+        else:
+            self.cur_unit.sprite.change_state('selected')
+            spell_targets = set()
+            atk_targets = set()
+
+        if spell_targets:
+            valid_attacks = game.targets.get_possible_spell_attacks(self.cur_unit, valid_moves)
+            game.highlight.display_possible_spell_attacks(valid_attacks)
+        if atk_targets:
+            valid_attacks = game.targets.get_possible_attacks(self.cur_unit, valid_moves)
+            game.highlight.display_possible_attacks(valid_attacks)
+        if self.cur_unit.has_canto():
+            # Shows the canto moves in the menu
+            game.highlight.display_moves(game.targets.get_valid_moves(self.cur_unit))
+        # Aura
+        game.cursor.set_pos(self.cur_unit.position)
+
+        options = []
+
+        adj_positions = game.targets.get_adjacent_positions(self.cur_unit.position)
+        adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
+        adj_units = [_ for _ in adj_units if _]  # Remove Nones
+        adj_allies = [unit for unit in adj_units if game.targets.check_ally(self.cur_unit, unit)]
+
+        # If the unit has valid targets
+        if atk_targets:
+            options.append("Attack")
+        # If the unit has valid spell targets
+        if spell_targets:
+            options.append("Spell")
+        # If the unit has a traveler
+        if self.cur_unit.traveler and not self.cur_unit.has_attacked:
+            for adj_pos in adj_positions:
+                # If at least one adjacent, passable position is free of units
+                tile = game.tilemap.tiles[adj_pos]
+                terrain = DB.terrain.get(tile.terrain_nid)
+                traveler = game.level.units.get(self.cur_unit.traveler)
+                mgroup = DB.classes.get(traveler.klass).movement_group
+                if not game.grid.get_unit(adj_pos) and DB.mcost.get_mcost(mgroup, terrain.mtype) < game.equations.movement(traveler):
+                    options.append("Drop")
+                    break
+        if adj_allies:
+            # If the unit does not have a travler
+            if not self.cur_unit.traveler and not self.cur_unit.has_attacked:
+                # If Rescue AID is higher than Rescue Weight
+                if any(not ally.traveler and game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(ally) for ally in adj_allies):
+                    options.append("Rescue")
+                if any(ally.traveler and game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(game.level.units.get(ally.traveler)) for ally in adj_allies):
+                    options.append("Take")
+            # If the unit has a traveler
+            if self.cur_unit.traveler and not self.cur_unit.has_attacked:
+                if any(not ally.traveler and game.equations.rescue_aid(ally) > game.equations.rescue_weight(game.level.units.get(self.cur_unit.traveler)) for ally in adj_allies):
+                    options.append("Give")
+        # If the unit has an item
+        if self.cur_unit.items:
+            options.append("Item")
+        if adj_allies:
+            if any(ally.team == self.cur_unit.team for ally in adj_allies):
+                options.append("Trade")
+        options.append("Wait")
+
+        self.menu = menus.Choice(self.cur_unit, options)
+        self.menu.set_limit(8)
+        self.menu.set_color(['text_green' if option not in self.normal_options else 'text_white' for option in options])
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        if 'DOWN' in directions:
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            self.menu.move_up(first_push)
+
+        # Back, put unit back to where he/she started
+        if event == 'BACK':
+            if self.cur_unit.has_traded:
+                if self.cur_unit.has_canto():
+                    game.cursor.set_pos(self.cur_unit.position)
+                    game.state.change('move')
+                else:
+                    game.state.clear()
+                    game.state.change('free')
+                    action.do(action.Wait(self.cur_unit))
+            else:
+                if self.cur_unit.current_move:
+                    action.reverse(self.cur_unit.current_move)
+                    self.cur_unit.current_move = None
+                game.cursor.set_pos(self.cur_unit.position)
+                game.state.change('move')
+
+        elif event == 'INFO':
+            pass
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            print(selection)
+            logger.info("Player selected %s", selection)
+            game.highlight.remove_highlights()
+
+            if selection == 'Attack':
+                game.state.change('weapon_choice')
+            elif selection == 'Spells':
+                game.state.change('spell_choice')
+            elif selection == 'Item':
+                game.state.change('item')
+            elif selection == 'Trade':
+                pass
+            elif selection == 'Rescue':
+                pass
+            elif selection == 'Take':
+                pass
+            elif selection == 'Drop':
+                pass
+            elif selection == 'Give':
+                pass
+            elif selection == 'Wait':
+                game.state.clear()
+                game.state.change('free')
+                action.do(action.Wait(self.cur_unit))
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
 
     def end(self):
         game.highlight.remove_highlights()

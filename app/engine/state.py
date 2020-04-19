@@ -1,3 +1,4 @@
+from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
 
 class State():
@@ -35,6 +36,11 @@ class State():
         pass
 
 class MapState(State):
+    def __init__(self, name=None):
+        if name:
+            self.name = name
+        self.fluid = FluidScroll()
+
     def update(self):
         game.cursor.update()
         game.camera.update()

@@ -12,7 +12,12 @@ class StateMachine():
                            'transition_in': transitions.TransitionInState,
                            'turn_change': general_states.TurnChangeState,
                            'free': general_states.FreeState,
-                           'phase_change': general_states.PhaseChangeState}
+                           'phase_change': general_states.PhaseChangeState,
+                           'move': general_states.MoveState,
+                           'movement': general_states.MovementState,
+                           'canto_wait': general_states.CantoWaitState,
+                           'menu': general_states.MenuState
+                           }
         if starting_states:
             for state_name in starting_states:
                 self.state.append(self.all_states[state_name](state_name))

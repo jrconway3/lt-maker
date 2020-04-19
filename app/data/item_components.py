@@ -15,6 +15,15 @@ class SpellTarget(Enum):
     Tile = 4
     TileWithoutUnit = 5
 
+class AOEMode(Enum):
+    AllAllies = 1
+    AllEnemies = 2
+    AllUnits = 3
+    AllTiles = 4
+    Cleave = 5
+    Burst = 6
+    Line = 7
+
 # Requirement functions
 def no_requirement(other_components):
     return True
@@ -103,7 +112,7 @@ class PrfClassData(Data):
             nid = DB.classes[0].nid
         self.append(RestrictedSubComponent(nid))
 
-class ItemComponent(object):
+class ItemComponent():
     def __init__(self, nid=None, name='', attr=bool, value=True, requires=no_requirement):
         self.nid = nid
         self.name = name
@@ -129,12 +138,25 @@ class ItemComponent(object):
         else:
             return (self.nid, self.value)
 
+class SpellComponent(ItemComponent):
+    @property
+    def weapon_type(self):
+        return self.value[0]
+
+    @property
+    def affect(self):
+        return self.value[1]
+
+    @property
+    def target(self):
+        return self.value[2]
+
 item_components = Data([
     ItemComponent('weapon', 'Weapon', 'WeaponType', None,
                   lambda x: 'spell' not in x),
-    ItemComponent('spell', 'Spell', ('WeaponType', SpellAffect, SpellTarget),
-                  (None, SpellAffect.Neutral, SpellTarget.Unit),
-                  lambda x: 'weapon' not in x),
+    SpellComponent('spell', 'Spell', ('WeaponType', SpellAffect, SpellTarget),
+                   (None, SpellAffect.Neutral, SpellTarget.Unit),
+                   lambda x: 'weapon' not in x),
     ItemComponent('usable', 'Usable'),
     ItemComponent('might', 'Might', int, 0, requires_spell_or_weapon),
     ItemComponent('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),

@@ -58,13 +58,16 @@ class UnitObject(Prefab):
         # -- Other properties
         self.dead = False
         self.is_dying = False
-        self.finished = False
-        self.has_acted = False
-        self.has_subacted = False
-        self.has_moved = False
+        self._finished = False
+        self._has_attacked = False
+        self._has_traded = False
+        self._has_moved = False
 
         self.sprite = None
         self.battle_anim = None
+
+        self.current_move = None  # Holds the move action the unit last used
+        # Maybe move to movement manager?
 
     def create_items(self, item_nid_list):
         items = []
@@ -83,7 +86,7 @@ class UnitObject(Prefab):
                 elif item.spell:
                     weapon_type = item.spell.value[0]
                 requirement = DB.weapon_ranks.get(item.level.value).requirement
-                self.wexp[weapon_type] = min(self.wexp[weapon_type], requirement)
+                self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
 
     def can_wield(self, item):
         if (item.weapon or item.spell) and item.level:
@@ -120,3 +123,56 @@ class UnitObject(Prefab):
             if item.spell and self.can_wield(item):
                 return item
         return None
+
+    def has_canto(self):
+        return 'canto' in self.status_bundle or 'canto_plus' in self.status_bundle
+
+    def has_canto_plus(self):
+        return 'canto_plus' in self.status_bundle
+
+    @property
+    def finished(self):
+        return self._finished
+
+    @property
+    def has_attacked(self):
+        return self._finished or self._has_attacked
+
+    @property
+    def has_traded(self):
+        return self._finished or self._has_attacked or self._has_traded
+
+    @property
+    def has_moved(self):
+        return self._finished or self._has_attacked or self._has_traded or self._has_moved
+
+    @finished.setter
+    def finished(self, val):
+        self._finished = val
+
+    @has_attacked.setter
+    def has_attacked(self, val):
+        self._has_attacked = val
+
+    @has_traded.setter
+    def has_traded(self, val):
+        self._has_traded = val
+
+    @has_moved.setter
+    def has_moved(self, val):
+        self._has_moved = val
+
+    def get_action_state(self):
+        return (self._finished, self._has_attacked, self._has_traded, self._has_moved)
+
+    def set_action_state(self, state):
+        self._finished = state[0]
+        self._has_attacked = state[1]
+        self._has_traded = state[2]
+        self._has_moved = state[3]
+
+    def reset(self):
+        self._finished = False
+        self._has_attacked = False
+        self._has_traded = False
+        self._has_moved = False

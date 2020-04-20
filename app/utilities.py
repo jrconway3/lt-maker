@@ -78,3 +78,9 @@ def compare_teams(t1: str, t2: str) -> bool:
         return True
     else:
         return False
+
+def calculate_distance(pos1: tuple, pos2: tuple) -> int:
+    """
+    Taxicab/Manhattan distance
+    """
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])

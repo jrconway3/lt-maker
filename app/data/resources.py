@@ -17,7 +17,7 @@ class Resources(object):
 
         # Standardized, Locked resources
         self.platforms = {}
-        self.misc = {}
+        self.fonts = {}
         
         self.init_load()
 
@@ -27,7 +27,7 @@ class Resources(object):
 
         # Standard locked resources
         self.platforms = self.get_sprites("resources", 'platforms')
-        self.misc = self.get_sprites("resources", 'misc')
+        self.fonts = self.get_fonts("resources", 'fonts')
 
     def populate_database(self, d, folder, ftype, obj):
         for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
@@ -88,6 +88,18 @@ class Resources(object):
                 if name.endswith('.png'):
                     full_name = os.path.join(root, name)
                     s[name[:-4]] = full_name
+        return s
+
+    def get_fonts(self, home, sub):
+        s = {}
+        for root, dirs, files in os.walk(os.path.join(home, sub)):
+            for name in files:
+                if name.endswith('.png'):
+                    full_name = os.path.join(root, name)
+                    nid = name[:-4]
+                    idx_name = nid.split('_')[0] + '.idx'
+                    idx_full_name = os.path.join(root, idx_name)
+                    s[name[:-4]] = Font(nid, full_name, idx_full_name)
         return s
 
     def clear(self):
@@ -402,5 +414,11 @@ class Song(object):
 
     def set_full_path(self, full_path):
         self.full_path = full_path
+
+class Font(object):
+    def __init__(self, nid, png_path, idx_path):
+        self.nid = nid
+        self.png_path = png_path
+        self.idx_path = idx_path
 
 RESOURCES = Resources()

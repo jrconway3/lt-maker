@@ -37,6 +37,7 @@ class MapView():
         surf = engine.copy_surface(self.map_image)
         surf = surf.convert_alpha()
         surf = game.highlight.draw(surf)
+        surf = game.cursor.draw_arrows(surf)
         self.draw_units(surf)
         surf = game.cursor.draw(surf)
 

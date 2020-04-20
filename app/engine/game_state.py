@@ -1,8 +1,6 @@
 import random
 from collections import Counter
 
-from app.data.tilemap import TileMap
-from app.data.level_object import LevelObject
 from app.data.database import DB
 
 from app.engine import state_machine, input_manager, static_random, a_star, equations
@@ -17,7 +15,7 @@ class GameState():
         self.memory = {}
 
         self.input_manager = input_manager.InputManager()
-        self.equations = equations.Parser()
+        self.equations = equations.Parser(self)
         self.state = state_machine.StateMachine()
 
         self.playtime = 0
@@ -67,12 +65,15 @@ class GameState():
         """
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
-        from app.engine import cursor, camera, phase, highlight, targets
+        from app.engine import cursor, camera, phase, highlight, targets, movement
         self.cursor = cursor.Cursor()
         self.camera = camera.Camera()
         self.phase = phase.PhaseController()
         self.highlight = highlight.HighlightController()
         self.targets = targets.TargetSystem()
+        self.moving_units = movement.MovementManager()
+
+        self.alerts = []
 
         # Build registries
         self.item_registry = {}
@@ -82,6 +83,7 @@ class GameState():
         """
         Done at the beginning of a new level to start the level up
         """
+        from app.data.level_object import LevelObject
         level_prefab = DB.levels.get(level_nid)
         self.tilemap = self.load_map(level_prefab.tilemap)
         self.current_level = LevelObject(level_prefab, self.tilemap)
@@ -92,7 +94,7 @@ class GameState():
             self.arrive(unit)
 
     def load_map(self, tilemap):
-        # TODO
+        from app.data.tilemap import TileMap
         from app.engine import map_view
         s = tilemap.serialize()
         tilemap = TileMap.deserialize(s)  # To make a copy

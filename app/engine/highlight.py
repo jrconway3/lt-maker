@@ -34,6 +34,9 @@ class HighlightController():
 
         self.current_hover = None
 
+    def check_in_move(self, position):
+        return position in self.highlights['move']
+
     def add_highlight(self, position, name, allow_overlap=False):
         if not allow_overlap:
             for k in self.images:
@@ -66,14 +69,7 @@ class HighlightController():
         if self.current_hover and hover_unit != self.current_hover:
             self.remove_highlights()
         if hover_unit and hover_unit != self.current_hover:
-            valid_moves = game.targets.get_valid_moves(hover_unit)
-            if hover_unit.get_spell():
-                valid_attacks = game.targets.get_possible_spell_attacks(hover_unit, valid_moves)
-                self.display_possible_spell_attacks(valid_attacks, light=True)
-            if hover_unit.get_weapon():
-                valid_attacks = game.targets.get_possible_attacks(hover_unit, valid_moves)
-                self.display_possible_attacks(valid_attacks, light=True)
-            self.display_moves(valid_moves, light=True)
+            self.display_highlights(hover_unit, light=True)
             # Aura.add_aura_highlights(hover_unit)
         self.current_hover = hover_unit
 
@@ -88,6 +84,17 @@ class HighlightController():
     def display_possible_spell_attacks(self, valid_attacks, light=False):
         name = 'spell_splash' if light else 'spell'
         self.add_highlights(valid_attacks, name)
+
+    def display_highlights(self, unit, light=False):
+        valid_moves = game.targets.get_valid_moves(unit)
+        if unit.get_spell():
+            valid_attacks = game.targets.get_possible_spell_attacks(unit, valid_moves)
+            self.display_possible_spell_attacks(valid_attacks, light=light)
+        if unit.get_weapon():
+            valid_attacks = game.targets.get_possible_attacks(unit, valid_moves)
+            self.display_possible_attacks(valid_attacks, light=light)
+        self.display_moves(valid_moves, light=light)
+        return valid_moves
 
     def update(self):
         self.update_idx = (self.update_idx + 1) % 64

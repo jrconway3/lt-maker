@@ -1,8 +1,9 @@
 from app.data.constants import TILEX, WINWIDTH, WINHEIGHT
+from app.data.database import DB
 from app import utilities
 from app.engine.sprites import SPRITES, FONT
 
-from app.engine import engine, image_mods
+from app.engine import engine, image_mods, icons
 from app.engine.base_surf import create_base_surf
 from app.engine.game_state import game
 
@@ -35,6 +36,71 @@ class BasicOption():
             top = y + 9
             surf.blit(highlight_surf, (left, top))
         return surf
+
+class ItemOption(BasicOption):
+    def __init__(self, idx, item):
+        self.idx = idx
+        self.item = item
+        self.help_box = None
+        self.color = 'text_grey'
+        self.ignore = False
+
+    def get(self):
+        return self.item
+
+    def width(self):
+        return 104
+
+    def height(self):
+        return 16
+
+    def get_color(self):
+        owner = game.get_unit(self.item.owner)
+        if self.color:
+            main_font = self.color
+            uses_font = self.color
+            if main_font == 'text_white':
+                uses_font = 'text_blue'
+        elif owner.can_wield(self.item):
+            main_font = 'text_white'
+            uses_font = 'text_blue'
+        return main_font, uses_font
+
+    def draw(self, surf, x, y):
+        main_font = 'text_grey'
+        uses_font = 'text_grey'
+        icons.draw_item(surf, self.item, (x + 2, y))
+        main_font, uses_font = self.get_color()
+        FONT[main_font].blit(self.item.name, surf, (x + 20, y))
+        uses_string = '--'
+        if self.item.uses:
+            uses_string = str(self.item.uses.value)
+        elif self.item.c_uses:
+            uses_string = str(self.item.c_uses.value)
+        left = x + self.width() - 4 - FONT[uses_font].size(uses_string)[0] - 5
+        FONT[uses_font].blit(uses_string, surf, (left, y))
+
+class FullItemOption(ItemOption):
+    def width(self):
+        return 120
+
+    def draw(self, surf, x, y):
+        main_font = 'text_grey'
+        uses_font = 'text_grey'
+        icons.draw_item(surf, self.item, (x + 2, y))
+        main_font, uses_font = self.get_color()
+        FONT[main_font].blit(self.item.name, surf, (x + 20, y))
+        uses_string = '--/--'
+        if self.item.uses:
+            prefab = DB.items.get(self.item.nid)
+            total = prefab.uses.value
+            uses_string = str(self.item.uses.value) + '/' + str(total)
+        elif self.item.c_uses:
+            prefab = DB.items.get(self.item.nid)
+            total = prefab.uses.value
+            uses_string = str(self.item.c_uses.value) + '/' + str(total)
+        left = x + self.width() - 4 - FONT[uses_font].size(uses_string)[0] - 5
+        FONT[uses_font].blit(uses_string, surf, (left, y))
 
 class Cursor():
     def __init__(self):
@@ -174,11 +240,27 @@ class Choice(Simple):
         super().__init__(owner, options, topleft, background)
 
         self.horizontal = False
+        self.display_total_uses = False
         self.gem = True
         self.shimmer = 0
 
     def set_horizontal(self, val):
         self.horizontal = val
+
+    def set_total_uses(self, val):
+        self.display_total_uses = val
+        self.update_options()
+
+    def create_options(self, options):
+        self.options.clear()
+        for idx, option in enumerate(options):
+            if isinstance(option, items.Item):
+                if self.display_total_uses:
+                    self.options.append(FullItemOption(idx, option))
+                else:
+                    self.options.append(ItemOption(idx, option))
+            else:
+                self.options.append(BasicOption(idx, option))
 
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):

@@ -12,11 +12,15 @@ class StateMachine():
                            'transition_in': transitions.TransitionInState,
                            'turn_change': general_states.TurnChangeState,
                            'free': general_states.FreeState,
+                           'options_child': general_states.OptionsChildState,
                            'phase_change': general_states.PhaseChangeState,
                            'move': general_states.MoveState,
                            'movement': general_states.MovementState,
+                           'wait': general_states.WaitState,
                            'canto_wait': general_states.CantoWaitState,
-                           'menu': general_states.MenuState
+                           'menu': general_states.MenuState,
+                           'item': general_states.ItemState,
+                           'item_child': general_states.ItemChildState
                            }
         if starting_states:
             for state_name in starting_states:

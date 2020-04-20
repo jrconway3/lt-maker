@@ -1,25 +1,62 @@
 # TO DO List
 
 Editor:
-Get units moving + highlights + a_star + djikstra's
-Have equations check their validity
-Register items, statuses, and units with the save_state manager
-Get saving and loading to work
-Title Screen editor
-Map Editor
-Sounds section of resources
-SPRITES registry in resources
-
-Map Editor + Tilemap
-Event Script editor
-For Database:
-    Statuses (include conditional statuses)
-    Supports
-    Overworld
-
-For Resources:
-Animations
+Items
+Mouse Cursor
+Attacking
+Trading
+Rescuing/Dropping/etc.
+Enemy AI
+OptionsMenu
+Turnwheel
+Suspending
+    - Register items, statuses, and units with the save_state manager
+    - Saving and loading
 Title Screen
+Spells
+All remaining Item components
+Winning/Losing
+SettingsMenu
+
+Launcher
+Auto-update
+
+Equations check their validity
+
+Sounds section of resources
+Music/Sounds
+
+Map Editor with Tilemap manager
+Title Screen Editor
+
+---
+Minimap
+UnitMenu
+InfoMenu
+Animation Editor in Resources
+Combat Animations
+
+---
+Status editor in database
+Statuses
+Auras
+Event Script editor
+Event scripts
+Dialogue
+
+---
+PrepMenu
+    - Pick Units, Items (Merge, Optimize singly), Formation
+BaseMenu
+    - Items, Market, Base Convos, Supports, World Map, Lore, Records
+Supports
+Overworld
+
+---
+Make Sacred Stones
+
+---
+Alternate GUI???
 
 Engine:
 Make Engine

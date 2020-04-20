@@ -1,7 +1,10 @@
 from collections import Counter
 
+from app import utilities
 from app.data.data import Prefab
 from app.data.database import DB
+
+from app.engine.game_state import game
 
 class Multiset(Counter):
     def __contains__(self, item):
@@ -28,7 +31,7 @@ class UnitObject(Prefab):
             self.faction = prefab.faction
             self.name = DB.factions.get(self.faction).name
             self.desc = DB.factions.get(self.faction).desc
-            self.tags = []
+            self._tags = []
             self.stats = {stat.nid: stat.value for stat in DB.classes.get(self.klass).bases}
             self.growths = {stat.nid: stat.value for stat in DB.classes.get(self.klass).growths}
             self.wexp = {weapon.nid: 0 for weapon in DB.weapons}
@@ -38,7 +41,7 @@ class UnitObject(Prefab):
             self.faction = None
             self.name = prefab.name
             self.desc = prefab.desc
-            self.tags = [tag for tag in prefab.tags]
+            self._tags = [tag for tag in prefab.tags]
             self.stats = {stat.nid: stat.value for stat in prefab.bases}
             self.growths = {stat.nid: stat.value for stat in prefab.growths}
             self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
@@ -49,9 +52,9 @@ class UnitObject(Prefab):
         self.status_bundle = Multiset()
 
         # TODO -- change these to use equations
-        self.current_hp = self.stats.get('HP')
-        self.current_mana = self.stats.get('MAG')
-        self.movement_left = self.stats.get('MOV')
+        self.current_hp = game.equations.hitpoints(self)
+        self.current_mana = game.equations.mana(self)
+        self.movement_left = game.equations.movement(self)
 
         self.traveler = None
 
@@ -68,6 +71,24 @@ class UnitObject(Prefab):
 
         self.current_move = None  # Holds the move action the unit last used
         # Maybe move to movement manager?
+
+    def get_hp(self):
+        return self.current_hp
+
+    def set_hp(self, val):
+        self.current_hp = utilities.clamp(val, 0, game.equations.hitpoints(self))
+
+    def get_mana(self):
+        return self.current_mana
+
+    def set_mana(self, val):
+        self.current_mana = utilities.clamp(val, 0, game.equations.mana(self))
+
+    @property
+    def tags(self):
+        unit_tags = self._tags
+        class_tags = DB.classes.get(self.klass).tags
+        return unit_tags + class_tags
 
     def create_items(self, item_nid_list):
         items = []
@@ -111,6 +132,30 @@ class UnitObject(Prefab):
                 return False
         else:
             return True
+
+    def can_use(self, item):
+        if item.heal:
+            if self.get_hp() < game.equations.hitpoints(self):
+                return True
+        if item.mana:
+            if self.get_mana() < game.equations.mana(self):
+                return True
+        if item.permanent_stat_increase:
+            for stat_nid, increase in item.permanent_stat_increase.value.items():
+                current_value = self.stats[stat_nid]
+                klass_max = DB.classes.get(self.klass).max_stats.get(stat_nid)
+                if current_value < klass_max:
+                    return True
+        if item.promotion:
+            klass = DB.classes.get(self.klass)
+            allowed_classes = item.promotion.value
+            max_level = klass.max_level
+            if self.level >= max_level//2 and len(klass.turns_into) >= 1 and \
+                    (klass in allowed_classes or 'All' in allowed_classes):
+                return True
+        if not item.heal or item.mana or item.permanent_stat_increase or item.promotion:
+            return True
+        return False
 
     def get_weapon(self):
         for item in self.items:

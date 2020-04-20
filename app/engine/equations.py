@@ -4,7 +4,8 @@ from app import utilities
 from app.data.database import DB
 
 class Parser():
-    def __init__(self):
+    def __init__(self, game):
+        self.game = game  # Needed for certain status nonsense later
         self.equations = {}
         for equation in DB.equations.values():
             self.equations[equation.nid] = self.tokenize(equation.expression)

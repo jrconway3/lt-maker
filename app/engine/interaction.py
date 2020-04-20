@@ -1,9 +1,32 @@
 from app.data.item_components import SpellAffect, AOEMode
 from app import utilities
+import app.engine.config as cf
+from app.engine import action, banner, combat
 from app.engine.game_state import game
 
 import logging
 logger = logging.getLogger(__name__)
+
+def handle_booster(unit, item):
+    action.do(action.UseItem(item))
+    if item.uses and item.uses.value <= 0:
+        game.alerts.append(banner.BrokenItem(unit, item))
+        game.state.change('alert_display')
+        action.do(action.RemoveItem(unit, item))
+
+    # Actually use item
+    if item.permanent_stat_increase:
+        game.memory['exp'] = (unit, item.permanent_stat_increase, None, 'booster')
+        game.state.change('exp')
+    elif item.permanent_growth_increase:
+        action.do(action.PermanentGrowthIncrease(unit, item.permanent_growth_increase))
+    elif item.wexp_increase:
+        action.do(action.GainWexp(unit, item.wexp_increase))
+    elif item.promotion:
+        game.memory['exp'] = (unit, 0, None, 'item_promote')
+        game.state.change('exp')
+    elif item.event_script:
+        pass  # TODO
 
 def get_aoe(item, user, atk_pos, target_pos) -> tuple:
     if not item.aoe:
@@ -51,3 +74,13 @@ def convert_positions(attacker, atk_position, target_position, item):
     logger.info("Main Defender: %s, Splash: %s" % main_defender, splash_units)
     return main_defender, splash_units
 
+def start_combat(attacker, defender, def_pos, splash, item, 
+                 skill_used=None, event_combat=None, ai_combat=False):
+    def animation_wanted(attacker, defender):
+        return (cf.SETTINGS['animation'] == 'Always' or
+                (cf.SETTINGS['animation'] == 'Your Turn' and attacker.team == 'player') or
+                (cf.SETTINGS['animation'] == 'Combat Only' and game.targets.check_enemy(attacker, defender)))
+
+    toggle_anim = game.input_manager.is_pressed('AUX')
+    # Create animation combat here
+    return combat.MapCombat(attacker, defender, def_pos, splash, item, skill_used, event_combat, ai_combat)

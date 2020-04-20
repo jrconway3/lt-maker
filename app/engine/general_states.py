@@ -2,7 +2,7 @@ from app.data.database import DB
 
 from app.engine.state import MapState
 from app.engine.game_state import game
-from app.engine import action, menus
+from app.engine import action, menus, interaction
 
 import logging
 logger = logging.getLogger(__name__)
@@ -118,6 +118,62 @@ class FreeState(MapState):
     def end(self):
         game.highlight.remove_highlights()
 
+class OptionChildState(MapState):
+    name = 'option_child'
+
+    def begin(self):
+        selection = game.memory['option_owner']
+        options = ['Yes', 'No']
+        self.menu = menus.Choice(selection, options, game.memory['option_child'])
+
+    def take_input(self, event):
+        if event == 'DOWN':
+            self.menu.move_down()
+        elif event == 'UP':
+            self.menu.move_up()
+
+        elif event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            if selection == 'Yes':
+                if self.menu.owner == 'End':
+                    game.state.change('ai')
+                elif self.menu.owner == 'Suspend':
+                    game.state.back()
+                    game.state.back()
+                    logger.info('Suspending game...')
+                    save.suspend_game(game, 'suspend')
+                    game.state.clear()
+                    game.state.change('title_start')
+                elif self.menu.owner == 'Save':
+                    game.state.back()
+                    game.state.back()
+                    logger.info('Creating battle save...')
+                    game.memory['save_kind'] = 'battle'
+                    game.state.change('title_save')
+                    game.state.change('transition_out')
+                elif self.menu.owner == 'Discard' or self.menu.owner == 'Storage':
+                    item = game.memory['option_item']
+                    cur_unit = game.memory['option_unit']
+                    if item in cur_unit.items:
+                        action.do(action.DiscardItem(cur_unit, item))
+                    if cur_unit.items:
+                        game.state.back()
+                        game.state.back()
+                    else:  # If the unit has no more items, head all the way back to menu
+                        game.state.back()
+                        game.state.back()
+                        game.state.back()
+            else:
+                game.state.back()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
+
 class MoveState(MapState):
     name = 'move'
 
@@ -193,6 +249,20 @@ class MovementState(MapState):
         if len(game.moving_units) <= 0:
             game.state.back()
             return 'repeat'
+
+class WaitState(MapState):
+    """
+    State that forces all units that should have waited to wait
+    """
+    name = 'wait'
+
+    def update(self):
+        super().update()
+        game.state.back()
+        for unit in game.level.units:
+            if unit.has_attacked and not unit.finished:
+                action.do(action.Wait(unit))
+        return 'repeat'
 
 class CantoWaitState(MapState):
     name = 'canto_wait'
@@ -364,3 +434,110 @@ class MenuState(MapState):
 
     def end(self):
         game.highlight.remove_highlights()
+
+class ItemState(MapState):
+    name = 'item'
+
+    def start(self):
+        game.cursor.hide()
+        self.cur_unit = game.cursor.cur_unit
+        options = [item for item in self.cur_unit.items]
+        self.menu = menus.Choice(self.cur_unit, options)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        if 'DOWN' in directions:
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            game.memory['parent_menu'] = self.menu
+            game.state.change('item_child')
+
+        elif event == 'INFO':
+            pass
+
+    def update(self):
+        super().update()
+        self.menu.update_options(self.cur_unit.items)
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
+
+class ItemChildState(MapState):
+    name = 'item_child'
+
+    def begin(self):
+        parent_menu = game.memory['parent_menu']
+        item = parent_menu.get_current()
+        self.cur_unit = game.cursor.cur_unit
+
+        options = []
+        if item.weapon and self.cur_unit.can_wield(item):
+            options.append("Equip")
+        if item.usable and self.cur_unit.can_use(item):
+            options.append("Use")
+        if not item.locked:
+            if 'convoy' in game.game_constants:
+                options.append('Storage')
+            else:
+                options.append('Discard')
+
+        self.menu = menus.Choice(item, options, parent_menu)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        if 'DOWN' in directions:
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            item = self.menu.owner
+            if selection == 'Use':
+                if item.booster:  # Does not use interact object
+                    game.state.clear()
+                    game.state.change('free')
+                    game.state.change('wait')
+                    interaction.handle_booster(self.cur_unit, item)
+                else:
+                    game.combat = interaction.start_combat(self.cur_unit, self.cur_unit, self.cur_unit.position, [], item)
+                    game.state.change('combat')
+            elif selection == 'Equip':
+                action.do(action.EquipItem(self.cur_unit, item))
+                game.memory['parent_menu'].current_index = 0  # Reset selection
+                game.state.back()
+            elif selection == 'Storage' or selection == 'Discard':
+                game.memory['option_owner'] = selection
+                game.memory['option_item'] = item
+                game.memory['option_unit'] = self.cur_unit
+                game.memory['option_menu'] = self.menu
+                game.state.change('option_child')
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
+
+
+
+
+

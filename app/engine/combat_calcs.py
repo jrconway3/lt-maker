@@ -17,7 +17,30 @@ def get_weapon_rank_bonus(unit, item):
             highest_rank = weapon_rank
     return highest_rank
 
-def compute_advantage(item1, item2)
+def compute_advantage(unit, item1, item2, advantage=True):
+    if not item1 or not item2:
+        return None
+    item1_weapontype = item1.weapon.value if item1.weapon else item1.spell.weapon_type if item1.spell else None
+    item2_weapontype = item2.weapon.value if item2.weapon else item2.spell.weapon_type if item2.spell else None
+    if not item1_weapontype or not item2_weapontype:
+        return None
+    if advantage:
+        bonus = DB.weapons.get(item1_weapontype).advantage
+    else:
+        bonus = DB.weapons.get(item1_weapontype).disadvantage
+    for adv in bonus:
+        if adv.weapon_type == 'All' or adv.weapon_type == item2_weapontype:
+            if adv.weapon_rank == 'All' or DB.weapon_ranks.get(adv.weapon_rank).requirement >= unit.wexp[item1_weapontype]:
+                return adv
+    return None
+
+def get_effective(item, target):
+    might = 0
+    if item.effective:
+        for sub_component in item.effective:
+            if sub_component.tag in target.tags:
+                might += sub_component.damage
+    return might
 
 def accuracy(unit, item=None, dist=0):
     if not item:
@@ -105,17 +128,22 @@ def compute_hit(unit, target, item=None, mode=None):
     # Calculations
     if item.weapon or item.spell:
         dist = utilities.calculate_distance(unit.position, target.position)
-        advantage = compute_advantage(item, target.get_weapon())
         bonus = 0
-        if advantage[0] > 0:
-            bonus += advantage[0] * get_advantage(unit, item).accuracy
-        else:
-            bonus -= advantage[0] * get_disadvantage(unit, item).accuracy
-        if advantage[1] > 0:
-            bonus -= advantage[1] * get_advantage(target, target.get_weapon()).avoid
-        else:
-            bonus += advantage[1] * get_disadvantage(target, target.get_weapon()).avoid
 
+        adv = compute_advantage(unit, item, target.get_weapon())
+        disadv = compute_advantage(unit, item, target.get_weapon(), False)
+        if adv:
+            bonus += adv.accuracy
+        if disadv:
+            bonus += disadv.accuracy
+
+        adv = compute_advantage(unit, target.get_weapon(), item)
+        disadv = compute_advantage(unit, target.get_weapon(), item, False)
+        if adv:
+            bonus -= adv.avoid
+        if disadv:
+            bonus -= disadv.avoid
+        
         hitrate = accuracy(unit, item, dist) + bonus - avoid(target, item, dist)
         return utilities.clamp(hitrate, 0, 100)
     else:
@@ -138,22 +166,26 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
         pass
     else:
         # Determine effective
-        if item.effective:
-            for sub_component in item.effective:
-                if sub_component.tag in target.tags:
-                    might += sub_component.damage
-        # Weapon Triangle
-        advantage = compute_advantage(item, target.get_weapon())
-        bonus = 0
-        if advantage[0] > 0:
-            bonus += advantage[0] * get_advantage(unit, item).damage
-        else:
-            bonus -= advantage[0] * get_disadvantage(unit, item).damage
-        if advantage[1] > 0:
-            bonus -= advantage[1] * get_advantage(target, target.get_weapon()).resist
-        else:
-            bonus += advantage[1] * get_disadvantage(target, target.get_weapon()).resist
+        might = get_effective(item, target)
 
+        # Weapon Triangle
+        bonus = 0
+
+        adv = compute_advantage(unit, item, target.get_weapon())
+        disadv = compute_advantage(unit, item, target.get_weapon(), False)
+        if adv:
+            bonus += adv.damage
+        if disadv:
+            bonus += disadv.damage
+
+        adv = compute_advantage(unit, target.get_weapon(), item)
+        disadv = compute_advantage(unit, target.get_weapon(), item, False)
+        if adv:
+            bonus -= adv.resist
+        if disadv:
+            bonus -= disadv.resist
+
+        might += bonus
         might -= defense(target, item, dist)
 
         # Handle crit
@@ -163,10 +195,3 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
                 might += damage(unit, item, dist)
 
         return max(DB.constants.get('min_damage'), might)
-
-
-
-
-
-
-

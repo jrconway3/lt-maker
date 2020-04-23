@@ -336,11 +336,9 @@ class MenuState(MapState):
         if self.cur_unit.traveler and not self.cur_unit.has_attacked:
             for adj_pos in adj_positions:
                 # If at least one adjacent, passable position is free of units
-                tile = game.tilemap.tiles[adj_pos]
-                terrain = DB.terrain.get(tile.terrain_nid)
                 traveler = game.level.units.get(self.cur_unit.traveler)
-                mgroup = DB.classes.get(traveler.klass).movement_group
-                if not game.grid.get_unit(adj_pos) and DB.mcost.get_mcost(mgroup, terrain.mtype) < game.equations.movement(traveler):
+                mcost = game.movement.get_mcost(traveler, adj_pos)
+                if not game.grid.get_unit(adj_pos) and mcost < game.equations.movement(traveler):
                     options.append("Drop")
                     break
         if adj_allies:

@@ -46,7 +46,6 @@ constants = ConstantCatalog([
     Constant('auto_promote', "Units will promote automatically upon reaching max level", bool),
     Constant('min_damage', "Min damage dealt by an attack", int, 0),
     Constant('boss_crit', "Final blow on boss will use critical animation", bool),
-    Constant('unarmed_disadvantage', "Unarmed weapon disadvantage multiplier", int, 0),
     Constant('convoy_on_death', "Weapons held by dead units are sent to convoy", bool),
     Constant('steal', "Steal Type", ("Nonweapons", "All unequipped"), "Nonweapons"),
     Constant('num_save_slots', "Number of save slots", int, 3),

@@ -1,4 +1,5 @@
 from app.data.constants import TILEX, WINWIDTH, WINHEIGHT
+from app.data import items
 from app.data.database import DB
 from app import utilities
 from app.engine.sprites import SPRITES, FONT
@@ -345,4 +346,7 @@ class Choice(Simple):
         return surf
 
     def horiz_draw(self, surf):
+        return surf
+
+    def draw_scroll_bar(self, surf):
         return surf

@@ -379,7 +379,7 @@ class ConstantDatabase(DatabaseTab):
         bool_section.setLayout(bool_layout)
         bool_layout.addWidget(bool_view)
 
-        battle_constants = ('num_items', 'num_accessories', 'min_damage', 'unarmed_disadvantage', 'enemy_leveling', 'rng')
+        battle_constants = ('num_items', 'num_accessories', 'min_damage', 'enemy_leveling', 'rng')
         battle_section = self.create_section(battle_constants)
         battle_section.setTitle("Battle Constants")
         misc_constants = ('title', 'steal', 'num_save_slots')

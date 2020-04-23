@@ -9,6 +9,6 @@ def draw_item(surf, item, topleft, effective=False, cooldown=False):
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 
     if effective:
-        image = image_mods.make_translucent(image.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
+        image = image_mods.make_white(image.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
     surf.blit(image, topleft)
     return surf

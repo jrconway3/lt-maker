@@ -104,6 +104,42 @@ class Move(Action):
 class CantoMove(Move):
     pass
 
+class SimpleMove(Move):
+    """
+    A script directed move, no animation
+    """
+    def __init__(self, unit, new_pos):
+        self.unit = unit
+        self.old_pos = self.unit.position
+        self.new_pos = new_pos
+
+    def do(self):
+        game.leave(self.unit)
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
+
+    def reverse(self):
+        game.leave(self.unit)
+        self.unit.position = self.old_pos
+        game.arrive(self.unit)
+
+class Teleport(SimpleMove):
+    pass
+
+class ForcedMovement(SimpleMove):
+    pass
+
+class Warp(SimpleMove):
+    def do(self):
+        self.unit.sprite.set_transition('warp_move')
+        self.unit.sprite.set_next_position(self.new_pos)
+        # Initiate warp flowers
+
+    def execute(self):
+        game.leave(self.unit)
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
+
 class IncrementTurn(Action):
     def do(self):
         game.turncount += 1

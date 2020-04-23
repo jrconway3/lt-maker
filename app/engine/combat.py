@@ -1,10 +1,13 @@
 import math
 
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app import utilities
 from app.data import unit_object
+from app.data.item_components import SpellAffect
 from app.data.database import DB
 
-from app.engine import engine, banner, action
+from app.engine import engine, banner, action, combat_calcs, gui
+from app.engine.health_bar import HealthBar
 from app.engine.game_state import game
 
 import logging
@@ -96,7 +99,7 @@ class Combat():
             normal_exp = max(exp_gained, DB.constants.get('min_exp').value)
         elif self.item.spell:
             if self.item.heal:
-                heal_diff = self.p1.get_internal_level() + DB.constants.get('heal_offset').value      
+                heal_diff = damage_done - self.p1.get_internal_level() + DB.constants.get('heal_offset').value      
                 exp_gained = (DB.constants.get('heal_curve').value * heal_diff) + DB.constants.get('heal_magnitude').value
                 exp_gained *= p1_klass.exp_mult
                 normal_exp = max(exp_gained, DB.constants.get('heal_min').value)
@@ -362,7 +365,7 @@ class MapCombat(Combat):
             if result.attacker == self.p1 and result.defender == self.p1:
                 hit = combat_calcs.compute_hit(self.p1, self.p1, self.item, 'Attack')
                 mt = combat_calcs.compute_damage(self.p1, self.p1, self.item, 'Attack')
-                p1_health = HealthBar('p1', self.p1, self.item, hit, mt)
+                p1_health = HealthBar('p1', self.p1, self.item, self.p1, hit, mt)
                 self.health_bars[self.p1] = p1_health
 
             # P1 on P2 or P2 on P1
@@ -370,23 +373,23 @@ class MapCombat(Combat):
                     (result.attacker == self.p2 and result.defender == self.p1):
                 hit = combat_calcs.compute_hit(self.p1, self.p2, self.item, 'Attack')
                 mt = combat_calcs.compute_damage(self.p1, self.p2, self.item, 'Attack')
-                p1_health = HealthBar('p1', self.p1, self.item, hit, mt)
+                p1_health = HealthBar('p1', self.p1, self.item, self.p2, hit, mt)
                 self.health_bars[self.p1] = p1_health
                 if self.item.weapon and self.solver.defender_can_counterattack():
                     hit = combat_calcs.compute_hit(self.p2, self.p1, self.p2.get_weapon(), 'Defense')
                     mt = combat_calcs.compute_damage(self.p2, self.p1, self.p2.get_weapon(), 'Defense')
                 else:
                     hit, mt = None, None
-                p2_health = HealthBar('p2', self.p2, self.p2.get_weapon(), hit, mt)
+                p2_health = HealthBar('p2', self.p2, self.p2.get_weapon(), self.p1, hit, mt)
                 self.health_bars[self.p2] = p2_health
 
             # P1 on single splash
             elif result.attacker == self.p1:
                 hit = combat_calcs.compute_hit(result.attacker, result.defender, self.item, 'Attack')
                 mt = combat_calcs.compute_damage(result.attacker, result.defender, self.item, 'Attack')
-                p1_health = HealthBar('p1', result.attacker, self.item, hit, mt)
+                p1_health = HealthBar('p1', result.attacker, self.item, result.defender, hit, mt)
                 self.health_bars[self.p1] = p1_health
-                p2_health = HealthBar('splash', result.defender, None, None, None)
+                p2_health = HealthBar('splash', result.defender, None, result.attacker, None, None)
                 self.health_bars[result.defender] = p2_health
 
         elif len(self.results) > 1:
@@ -439,9 +442,9 @@ class MapCombat(Combat):
         def_pos = result.defender.position
         atk_pos = result.attacker.position
         if result.atk_movement:
-            movement.forced_movement(result.attacker, result.defender, def_pos, result.atk_movement)
+            game.movement.forced_movement(result.attacker, result.defender, def_pos, result.atk_movement)
         if result.def_movement:
-            movement.forced_movement(result.defender, result.attacker, atk_pos, result.def_movement)
+            game.movement.forced_movement(result.defender, result.attacker, atk_pos, result.def_movement)
         # Summoning
 
     def _end_phase(self):
@@ -553,11 +556,3 @@ class MapCombat(Combat):
         self.handle_death(all_units)
         # Actually remove items
         self.remove_broken_items(a_broke_item, d_broke_item)
-
-
-
-
-
-
-
-

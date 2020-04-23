@@ -70,6 +70,10 @@ def is_int(s: str) -> bool:
 def clamp(i, min_, max_):
     return min(max_, max(min_, i))
 
+def lerp(a, b, t):
+    t = clamp(t, 0, 1)
+    return (b - a) * t
+
 def compare_teams(t1: str, t2: str) -> bool:
     # Returns True if allies, False if enemies
     if t1 == t2:

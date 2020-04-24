@@ -36,6 +36,7 @@ constants = ConstantCatalog([
     Constant('num_accessories', "Max number of Accessories in inventory", int, 0),
     Constant('turnwheel', "Turnwheel", bool),
     Constant('overworld', "Overworld", bool),
+    Constant('crit', "Allow Criticals", bool, True),
     Constant('line_of_sight', "Force weapons to obey line of sight rules", bool),
     Constant('spell_los', "Force spells to obey line of sight rules", bool),
     Constant('aura_los', "Force auras to obey line of sight rules", bool),

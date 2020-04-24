@@ -295,6 +295,22 @@ class EquipItem(Action):
     def reverse(self):
         self.unit.insert_item(self.old_idx, self.item)
 
+class UseItem(Action):
+    def __init__(self, item):
+        self.item = item
+
+    def do(self):
+        if self.item.uses:
+            self.item.uses.value -= 1
+        if self.item.c_uses:
+            self.item.c_uses.value -= 1
+
+    def reverse(self):
+        if self.item.uses:
+            self.item.uses.value += 1
+        if self.item.c_cuses:
+            self.item.c_uses.value += 1
+
 class GainWexp(Action):
     def __init__(self, unit, item):
         self.unit = unit

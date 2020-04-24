@@ -6,7 +6,7 @@ from app.data import unit_object
 from app.data.item_components import SpellAffect
 from app.data.database import DB
 
-from app.engine import engine, banner, action, combat_calcs, gui
+from app.engine import engine, banner, action, combat_calcs, gui, solver
 from app.engine.health_bar import HealthBar
 from app.engine.game_state import game
 

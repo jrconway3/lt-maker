@@ -1,8 +1,9 @@
 from app.data.database import DB
 
+from app.engine.sprites import SPRITES
 from app.engine.state import MapState
 from app.engine.game_state import game
-from app.engine import action, menus, interaction
+from app.engine import action, menus, interaction, combat, image_mods
 
 import logging
 logger = logging.getLogger(__name__)
@@ -336,9 +337,11 @@ class MenuState(MapState):
         if self.cur_unit.traveler and not self.cur_unit.has_attacked:
             for adj_pos in adj_positions:
                 # If at least one adjacent, passable position is free of units
+                tile = game.tilemap.tiles[adj_pos]
+                terrain = DB.terrain.get(tile.terrain_nid)
                 traveler = game.level.units.get(self.cur_unit.traveler)
-                mcost = game.movement.get_mcost(traveler, adj_pos)
-                if not game.grid.get_unit(adj_pos) and mcost < game.equations.movement(traveler):
+                mgroup = DB.classes.get(traveler.klass).movement_group
+                if not game.grid.get_unit(adj_pos) and DB.mcost.get_mcost(mgroup, terrain.mtype) < game.equations.movement(traveler):
                     options.append("Drop")
                     break
         if adj_allies:
@@ -535,7 +538,241 @@ class ItemChildState(MapState):
         surf = self.menu.draw(surf)
         return surf
 
+class WeaponChoiceState(MapState):
+    name = 'weapon_choice'
 
+    def get_options(self, unit):
+        options = [item for item in unit.items if item.weapon and unit.can_wield(item)]
+        # Skill straining
+        options = [item for item in options if game.targets.get_valid_weapon_targets(unit, item)]
+        return options
 
+    def disp_attacks(self, unit, item):
+        valid_attacks, valid_splash = game.targets.get_attacks(unit, item)
+        game.highlight.display_possible_attacks(valid_attacks)
+        game.highlight.display_possible_attacks(valid_splash, light=True)
 
+    def begin(self):
+        game.cursor.hide()
+        self.cur_unit = game.cursor.cur_unit
+        self.cur_unit.sprite.change_state('chosen')
+        options = self.get_options(self.cur_unit)
+        self.menu = menus.Choice(self.cur_unit, options)
+        self.disp_attacks(self.cur_unit, self.menu.get_current())
 
+    def proceed(self):
+        game.state.change('attack')
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        if 'DOWN' in directions:
+            self.menu.move_down(first_push)
+            game.highlight.remove_highlights()
+            self.disp_attacks(self.cur_unit, self.menu.get_current())
+        elif 'UP' in directions:
+            self.menu.move_up(first_push)
+            game.highlight.remove_highlights()
+
+        if event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            action.do(action.EquipItem(self.cur_unit, selection))
+            self.proceed()
+
+        elif event == 'INFO':
+            pass
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
+
+    def end(self):
+        game.highlight.remove_highlights()
+
+class SpellChoiceState(WeaponChoiceState):
+    name = 'spell_choice'
+
+    def get_options(self, unit):
+        options = [item for item in unit.items if item.spell and unit.can_wield(item)]
+        # Skill straining
+        options = [item for item in options if game.targets.get_valid_spell_targets(unit, item)]
+        return options
+
+    def disp_attacks(self, unit, item):
+        spell_attacks = game.targets.get_spell_attacks(unit, item)
+        game.highlight.display_possible_spells(spell_attacks)
+
+    def proceed(self):
+        game.state.change('spell')
+
+class AttackState(MapState):
+    name = 'attack'
+
+    def display_single_attack(self, weapon):
+        game.highlight.remove_highlights()
+        attack_position, splash_positions = \
+            interaction.get_aoe(weapon, self.attacker, self.attacker.position, game.cursor.position)
+        game.highlight.display_possible_attacks({attack_position})
+        game.highlight.display_possible_attacks(splash_positions, light=True)
+
+    def begin(self):
+        game.cursor.combat_show()
+        self.attacker = game.cursor.cur_unit
+        weapon = self.attacker.get_weapon()
+        targets = game.targets.get_valid_weapon_targets(self.attacker, weapon)
+        self.selection = SelectionHelper(targets)
+        closest_position = self.selection.get_closest(game.cursor.position)
+        game.cursor.set_pos(closest_position)
+        self.display_single_attack(weapon)
+
+        self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+
+    def take_input(self, event):
+        self.fluid.update()
+        directions = self.fluid.get_directions()
+        if 'DOWN' in directions:
+            new_position = self.selection.get_down(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'UP' in directions:
+            new_position = self.selection.get_up(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        if 'LEFT' in directions:
+            new_position = self.selection.get_left(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'RIGHT' in directions:
+            new_position = self.selection.get_right(game.cursor.position)
+            game.cursor.set_pos(new_position)
+
+        if event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            weapon = self.attacker.get_weapon()
+            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, weapon)
+            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, weapon)
+            game.state.change('combat')
+
+        if directions:
+            self.display_single_attack()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        # TODO Draw attack info
+        return surf
+
+    def end(self):
+        game.highlight.remove_highlights()
+
+class SpellState(MapState):
+    name = 'spell'
+
+    def display_single_attack(self, item):
+        game.highlight.remove_highlights()
+        attack_position, splash_positions = \
+            interaction.get_aoe(item, self.attacker, self.attacker.position, game.cursor.position)
+        if attack_position:
+            game.highlight.display_possible_spells({attack_position})
+        game.highlight.display_possible_spells(splash_positions)
+
+    def begin(self):
+        game.cursor.combat_show()
+        self.attacker = game.cursor.cur_unit
+        spell = self.attacker.get_spell()
+        targets = game.targets.get_valid_spell_targets(self.attacker, spell)
+        self.selection = SelectionHelper(targets)
+        if spell.heal:
+            units = [game.level.units.get(game.grid.get_unit(pos)) for pos in targets]
+            units = sorted(units, key=lambda unit: unit.get_hp())
+            closest_position = units[0].position
+        else:
+            closest_position = self.selection.get_closest(game.cursor.position)
+        game.cursor.set_pos(closest_position)
+        
+        # spell_attacks = game.target.get_spell_attacks(self.attacker, spell)
+        # game.highlight.display_possible_spells(spell_attacks)
+        self.display_single_attack(spell)
+
+        self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+
+    def take_input(self, event):
+        self.fluid.update()
+        directions = self.fluid.get_directions()
+        if 'DOWN' in directions:
+            new_position = self.selection.get_down(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'UP' in directions:
+            new_position = self.selection.get_up(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        if 'LEFT' in directions:
+            new_position = self.selection.get_left(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'RIGHT' in directions:
+            new_position = self.selection.get_right(game.cursor.position)
+            game.cursor.set_pos(new_position)
+
+        if event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            spell = self.attacker.get_spell()
+            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, spell)
+            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, spell)
+            game.state.change('combat')
+
+        if directions:
+            self.display_single_attack()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        # TODO Draw attack info
+        return surf
+
+    def end(self):
+        game.highlight.remove_highlights()
+
+class CombatState(MapState):
+    name = 'combat'
+    fuzz_background = image_mods.make_translucent(SPRITES.get('BlackBackground'), 0.25)
+    dark_fuzz_background = image_mods.make_translucent(SPRITES.get('BlackBackground'), 0.5)
+
+    def start(self):
+        self.skip = False
+        width = game.tilemap.width * TILEWIDTH
+        height = game.tilemap.height * TILEHEIGHT
+        self.unit_surf = engine.create_surface((width, height), transparent=True)
+        self.is_animation_combat = isinstance(game.combat_instance, combat.AnimationCombat)
+
+    def begin(self):
+        game.cursor.hide()
+
+    def take_input(self, event):
+        if event == 'START' and not self.skip:
+            self.skip = True
+            game.combat_instance.skip()
+        elif event == 'BACK':
+            # Arena
+            pass
+
+    def update(self):
+        super().update()
+        done = game.combat_instance.update()
+        if self.skip and not self.is_animation_combat:
+            while not done:
+                done = game.combat_instance.update()
+
+    def draw(self, surf):
+        if self.is_animation_combat:
+            pass
+        else:
+            surf = super().draw(surf)
+            surf = game.combat_instance.draw(surf)
+        return surf

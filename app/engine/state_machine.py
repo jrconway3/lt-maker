@@ -20,7 +20,12 @@ class StateMachine():
                            'canto_wait': general_states.CantoWaitState,
                            'menu': general_states.MenuState,
                            'item': general_states.ItemState,
-                           'item_child': general_states.ItemChildState
+                           'item_child': general_states.ItemChildState,
+                           'weapon_choice': general_states.WeaponChoiceState,
+                           'spell_choice': general_states.SpellChoiceState,
+                           'attack': general_states.AttackState,
+                           'spell': general_states.SpellState,
+                           'combat': general_states.CombatState
                            }
         if starting_states:
             for state_name in starting_states:

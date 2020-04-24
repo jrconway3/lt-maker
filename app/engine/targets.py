@@ -88,6 +88,64 @@ class TargetSystem():
         valid_moves.add(unit.position)
         return valid_moves
 
+    def get_attacks(self, unit, weapon=None) -> tuple:
+        """
+        Determines all possible positions the unit could attack, given
+        one main weapon or an optionally given main weapon
+        Should be called after unit has moved
+        Does not attempt to determine if an enemy is actually in that specific place
+        """
+        if unit.has_attacked:
+            return set(), set()
+        if not weapon:
+            weapon = unit.get_weapon()
+        if not weapon:
+            return set(), set()
+
+        # Calculate legal targets for cursor
+        item_range = game.equations.get_range(unit, weapon)
+        attacks = self.get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+        attacks = {pos for pos in attacks if not utilities.compare_teams(unit.team, game.grid.get_team(pos))}
+        # TODO line of sight
+
+        # Now actually find true and splash attack position
+        true_attacks = {}
+        splash_attacks = {}
+        for position in attacks:
+            attack, splash_pos = interaction.get_aoe(weapon, unit, unit.position, position)
+            if attack:
+                true_attacks.add(attack)
+            splash_attacks |= splash_pos
+        splash_attacks -= true_attacks
+        return true_attacks, splash_attacks
+
+    def get_spell_attacks(self, unit, spell=None) -> set:
+        """
+        Determines all possible positions the unit could spell, given
+        one spell or an optionally given spell
+        Should be called after unit has moved
+        Does not attempt to determine if an enemy is actually in that specific place
+        """
+        if unit.has_attacked:
+            return set()
+        if not spell:
+            spell = unit.get_spell()
+        if not spell:
+            return set()
+
+        # Calculate legal targets
+        item_range = game.equations.get_range(unit, spell)
+        attacks = self.get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+
+        # Now filter based on target:
+        if spell.spell.target == SpellTarget.Enemy:
+            attacks = {pos for pos in attacks if not utilities.compare_teams(unit.team, game.grid.get_team(pos))}
+        elif spell.spell.target == SpellTarget.Ally:
+            attacks = {pos for pos in attacks if utilities.compare_teams(unit.team, game.grid.get_team(pos)) is not False}
+        # TODO line of sight
+
+        return attacks
+
     def get_possible_attacks(self, unit, valid_moves: set, boundary=False) -> set:
         potential_range = self.find_potential_range(unit, weapon=True, boundary=boundary)
 
@@ -183,3 +241,67 @@ class TargetSystem():
         for spell in spells:
             targets |= self.get_valid_spell_targets(unit, spell=spell)
         return targets
+
+class SelectionHelper():
+    def __init__(self, pos_list):
+        self.pos_list = pos_list
+
+    # For a given position, determine which position in self.pos_list is closest
+    def get_closest(self, position):
+        if self.pos_list:
+            return min(self.pos_list, key=lambda pos: utilities.calculate_distance(pos, position))
+        else:
+            return None
+
+    # For a given position, determine which position in self.pos_list is the closest position in the downward direction
+    def get_down(self, position):
+        min_distance, closest = 100, None
+        for pos in self.pos_list:
+            if pos[1] > position[1]: # If further down than the position
+                dist = utilities.calculate_distance(pos, position)
+                if dist < min_distance:
+                    closest = pos
+                    min_distance = dist
+        if closest is None: # Nothing was found in the down direction
+            # Just find the closest
+            closest = self.get_closest(position)
+        return closest
+
+    def get_up(self, position):
+        min_distance, closest = 100, None
+        for pos in self.pos_list:
+            if pos[1] < position[1]: # If further up than the position
+                dist = utilities.calculate_distance(pos, position)
+                if dist < min_distance:
+                    closest = pos
+                    min_distance = dist
+        if closest is None: # Nothing was found in the down direction
+            # Just find the closest
+            closest = self.get_closest(position)
+        return closest
+
+    def get_right(self, position):
+        min_distance, closest = 100, None
+        for pos in self.pos_list:
+            if pos[0] > position[0]: # If further right than the position
+                dist = utilities.calculate_distance(pos, position)
+                if dist < min_distance:
+                    closest = pos
+                    min_distance = dist
+        if closest is None: # Nothing was found in the down direction
+            # Just find the closest
+            closest = self.get_closest(position)
+        return closest
+
+    def get_left(self, position):
+        min_distance, closest = 100, None
+        for pos in self.pos_list:
+            if pos[0] < position[0]: # If further left than the position
+                dist = utilities.calculate_distance(pos, position)
+                if dist < min_distance:
+                    closest = pos
+                    min_distance = dist
+        if closest is None: # Nothing was found in the down direction
+            # Just find the closest
+            closest = self.get_closest(position)
+        return closest

@@ -36,6 +36,9 @@ class Cursor():
     def show(self):
         self.draw_state = 1
 
+    def combat_show(self):
+        self.draw_state = 2
+
     def set_turnwheel_sprite(self):
         self.draw_state = 3
 

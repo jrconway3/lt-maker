@@ -51,7 +51,7 @@ class Parser():
         expr = 'int(%s)' % expr
         return eval(expr)
 
-    def get_range(self, item, unit) -> list:
+    def get_range(self, item, unit) -> set:
         # Calc min range
         if utilities.is_int(item.min_range):
             min_range = int(item.min_range)
@@ -63,4 +63,4 @@ class Parser():
         else:
             max_range = self.get(item.max_range, unit, item)
         max_range += item.longshot.value if item.longshot else 0
-        return list(range(min_range, max_range + 1))
+        return set(range(min_range, max_range + 1))

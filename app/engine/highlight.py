@@ -24,7 +24,7 @@ class HighlightController():
                        'possible_move': SPRITES.get('highlight_lightblue'),
                        'move': SPRITES.get('highlight_blue'),
                        'aura': SPRITES.get('highlight_lightpurple'),
-                       'spell_splash': SPRITES.get('highlight_lightpurple')}
+                       'spell_splash': SPRITES.get('highlight_lightgreen')}
 
         self.highlights = {k: set() for k in self.images}
         self.transitions = {k: self.starting_cutoff for k in self.images}

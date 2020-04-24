@@ -76,7 +76,9 @@ def lerp(a, b, t):
 
 def compare_teams(t1: str, t2: str) -> bool:
     # Returns True if allies, False if enemies
-    if t1 == t2:
+    if t1 is None or t2 is None:
+        return None
+    elif t1 == t2:
         return True
     elif (t1 == 'player' and t2 == 'other') or (t2 == 'player' and t1 == 'other'):
         return True

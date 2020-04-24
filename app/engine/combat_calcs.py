@@ -42,6 +42,17 @@ def get_effective(item, target):
                 might += sub_component.damage
     return might
 
+def attackspeed(unit, item, dist=0):
+    if not item:
+        item = unit.get_weapon()
+    if item and item.custom_attackspeed_equation:
+        equation = item.custom_attackspeed_equation
+    else:
+        equation = 'ATTACKSPEED'
+    value = game.equations.get(equation, unit, item, dist)
+    # TODO Status
+    return value
+
 def accuracy(unit, item=None, dist=0):
     if not item:
         item = unit.get_weapon()
@@ -49,20 +60,22 @@ def accuracy(unit, item=None, dist=0):
         item = unit.get_spell()
     if not item:
         return None
+    if not (item.weapon or item.spell):
+        return 10000
+
     equation = 'HIT'
     if item.custom_hit_equation:
         equation = item.custom_hit_equation
 
     accuracy = 0
-    if (item.weapon or item.spell) and item.hit:
-        accuracy += item.hit + game.equations.get(equation, unit, item, dist)
+    if item.hit:
+        accuracy += item.hit.value + game.equations.get(equation, unit, item, dist)
     else:
         accuracy = 10000
-
-    if item.weapon or item.spell:
-        weapon_rank = get_weapon_rank_bonus(unit, item)
-        if weapon_rank:
-            accuracy += weapon_rank.accuracy
+    
+    weapon_rank = get_weapon_rank_bonus(unit, item)
+    if weapon_rank:
+        accuracy += weapon_rank.accuracy
     return accuracy
 
 def avoid(unit, item_to_avoid=None, dist=0):
@@ -70,6 +83,38 @@ def avoid(unit, item_to_avoid=None, dist=0):
         base = game.equations.get(item_to_avoid.custom_avoid_equation, unit, item_to_avoid, dist)
     else:
         base = game.equations.avoid(unit, item_to_avoid, dist)
+
+    return base
+
+def crit_accuracy(unit, item=None, dist=0):
+    if not item:
+        item = item.get_weapon()
+    if not item:
+        item = item.get_spell()
+    if not item:
+        return None
+    if not (item.weapon or item.spell):
+        return None
+
+    if item.crit is not None:
+        equation = 'CRIT_HIT'
+        if item.custom_crit_equation:
+            equation = item.custom_crit_equation
+
+        accuracy = item.crit.value + game.equations.get(equation, unit, item, dist)
+    
+        weapon_rank = get_weapon_rank_bonus(unit, item)
+        if weapon_rank:
+            accuracy += weapon_rank.crit
+    else:
+        accuracy = 0
+    return accuracy
+
+def crit_avoid(unit, item_to_avoid=None, dist=0):
+    if item_to_avoid and item_to_avoid.custom_dodge_equation:
+        base = game.equations.get(item_to_avoid.custom_dodge_equation, unit, item_to_avoid, dist)
+    else:
+        base = game.equations.crit_avoid(unit, item_to_avoid, dist)
 
     return base
 
@@ -81,7 +126,7 @@ def damage(unit, item=None, dist=0):
     if not item.damage:
         return 0
 
-    might = item.damage
+    might = item.damage.value
     if item.custom_damage_equation:
         equation = item.custom_damage_equation
     elif item.is_magic():
@@ -117,6 +162,17 @@ def defense(unit, item_to_avoid=None, dist=0):
 
     return res
 
+def compute_heal(unit, target, item, mode=None):
+    dist = utilities.calculate_distance(unit.position, target.position)
+    if item.heal == 'All':
+        heal = game.equations.hitpoints() - target.get_hp()
+    elif utilities.is_int(item.heal):
+        heal = int(item.heal) + game.equations.heal(unit, item, dist)
+    else:
+        heal = game.equations.get(item.heal, unit, item, dist)
+    # TODO Caretaker 
+    return heal
+
 def compute_hit(unit, target, item=None, mode=None):
     if not item:
         item = unit.get_weapon()
@@ -148,6 +204,39 @@ def compute_hit(unit, target, item=None, mode=None):
         return utilities.clamp(hitrate, 0, 100)
     else:
         return 100
+
+def compute_crit(unit, target, item, mode=None):
+    if not item: 
+        item = unit.get_weapon()
+    if not item:
+        return None
+    if not isinstance(target, unit_object.UnitObject):
+        return 0
+    if not item.crit:
+        return 0
+    # TODO cannot be crit
+    if (item.weapon or item.spell) and item.crit:
+        dist = utilities.calculate_distance(unit.position, target.position)
+        bonus = 0
+
+        adv = compute_advantage(unit, item, target.get_weapon())
+        disadv = compute_advantage(unit, item, target.get_weapon(), False)
+        if adv:
+            bonus += adv.crit
+        if disadv:
+            bonus += disadv.crit
+
+        adv = compute_advantage(unit, target.get_weapon(), item)
+        disadv = compute_advantage(unit, target.get_weapon(), item, False)
+        if adv:
+            bonus -= adv.dodge
+        if disadv:
+            bonus -= disadv.dodge
+
+        critrate = crit_accuracy(unit, item, dist) + bonus - crit_avoid(target, item, dist)
+        return utilities.clamp(critrate, 0, 100)
+    else:
+        return 0
 
 def compute_damage(unit, target, item=None, mode=None, crit=False):
     if not item:
@@ -195,3 +284,29 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
                 might += damage(unit, item, dist)
 
         return max(DB.constants.get('min_damage'), might)
+
+def outspeed(unit, target, item, mode=None) -> bool:
+    if not isinstance(target, unit_object.UnitObject):
+        return False
+
+    # Weapon Triangle
+    bonus = 0
+
+    adv = compute_advantage(unit, item, target.get_weapon())
+    disadv = compute_advantage(unit, item, target.get_weapon(), False)
+    if adv:
+        bonus += adv.attackspeed
+    if disadv:
+        bonus += disadv.attackspeed
+
+    adv = compute_advantage(unit, target.get_weapon(), item)
+    disadv = compute_advantage(unit, target.get_weapon(), item, False)
+    if adv:
+        bonus -= adv.attackspeed
+    if disadv:
+        bonus -= disadv.attackspeed
+
+    # Skills and Status TODO
+    dist = utilities.calculate_distance(unit.position, target.position)
+    val = game.equations.double_atk(unit, item, dist) + bonus - game.equations.double_def(target, item, dist)
+    return val > 0

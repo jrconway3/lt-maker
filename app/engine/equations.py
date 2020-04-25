@@ -30,7 +30,7 @@ class Parser():
             dic[stat.nid] = ("unit.stats['%s']" % stat.nid)
         for nid in self.equations.keys():
             dic[nid] = ("equations['%s'](equations, unit, item, dist)" % nid)
-        dic['WEIGHT'] = '(item.weight if item and item.weight else 0)'
+        dic['WEIGHT'] = '(item.weight.value if item and item.weight else 0)'
         dic['DIST'] = 'dist'
         return dic
 

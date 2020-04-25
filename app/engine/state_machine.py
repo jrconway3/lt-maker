@@ -12,7 +12,7 @@ class StateMachine():
                            'transition_in': transitions.TransitionInState,
                            'turn_change': general_states.TurnChangeState,
                            'free': general_states.FreeState,
-                           'options_child': general_states.OptionsChildState,
+                           'option_child': general_states.OptionChildState,
                            'phase_change': general_states.PhaseChangeState,
                            'move': general_states.MoveState,
                            'movement': general_states.MovementState,

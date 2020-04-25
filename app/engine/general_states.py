@@ -1,9 +1,12 @@
+from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.state import MapState
+import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import action, menus, interaction, combat, image_mods
+from app.engine import engine,action, menus, interaction, combat, image_mods
+from app.engine.targets import SelectionHelper
 
 import logging
 logger = logging.getLogger(__name__)
@@ -617,22 +620,22 @@ class SpellChoiceState(WeaponChoiceState):
 class AttackState(MapState):
     name = 'attack'
 
-    def display_single_attack(self, weapon):
+    def display_single_attack(self):
         game.highlight.remove_highlights()
         attack_position, splash_positions = \
-            interaction.get_aoe(weapon, self.attacker, self.attacker.position, game.cursor.position)
+            interaction.get_aoe(self.weapon, self.attacker, self.attacker.position, game.cursor.position)
         game.highlight.display_possible_attacks({attack_position})
         game.highlight.display_possible_attacks(splash_positions, light=True)
 
     def begin(self):
         game.cursor.combat_show()
         self.attacker = game.cursor.cur_unit
-        weapon = self.attacker.get_weapon()
-        targets = game.targets.get_valid_weapon_targets(self.attacker, weapon)
+        self.weapon = self.attacker.get_weapon()
+        targets = game.targets.get_valid_weapon_targets(self.attacker, self.weapon)
         self.selection = SelectionHelper(targets)
         closest_position = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_position)
-        self.display_single_attack(weapon)
+        self.display_single_attack()
 
         self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
 
@@ -656,9 +659,8 @@ class AttackState(MapState):
             game.state.back()
 
         elif event == 'SELECT':
-            weapon = self.attacker.get_weapon()
-            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, weapon)
-            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, weapon)
+            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, self.weapon)
+            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.weapon)
             game.state.change('combat')
 
         if directions:
@@ -675,10 +677,10 @@ class AttackState(MapState):
 class SpellState(MapState):
     name = 'spell'
 
-    def display_single_attack(self, item):
+    def display_single_attack(self):
         game.highlight.remove_highlights()
         attack_position, splash_positions = \
-            interaction.get_aoe(item, self.attacker, self.attacker.position, game.cursor.position)
+            interaction.get_aoe(self.spell, self.attacker, self.attacker.position, game.cursor.position)
         if attack_position:
             game.highlight.display_possible_spells({attack_position})
         game.highlight.display_possible_spells(splash_positions)
@@ -686,10 +688,10 @@ class SpellState(MapState):
     def begin(self):
         game.cursor.combat_show()
         self.attacker = game.cursor.cur_unit
-        spell = self.attacker.get_spell()
-        targets = game.targets.get_valid_spell_targets(self.attacker, spell)
+        self.spell = self.attacker.get_spell()
+        targets = game.targets.get_valid_spell_targets(self.attacker, self.spell)
         self.selection = SelectionHelper(targets)
-        if spell.heal:
+        if self.spell.heal:
             units = [game.level.units.get(game.grid.get_unit(pos)) for pos in targets]
             units = sorted(units, key=lambda unit: unit.get_hp())
             closest_position = units[0].position
@@ -699,7 +701,7 @@ class SpellState(MapState):
         
         # spell_attacks = game.target.get_spell_attacks(self.attacker, spell)
         # game.highlight.display_possible_spells(spell_attacks)
-        self.display_single_attack(spell)
+        self.display_single_attack()
 
         self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
 
@@ -723,9 +725,8 @@ class SpellState(MapState):
             game.state.back()
 
         elif event == 'SELECT':
-            spell = self.attacker.get_spell()
-            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, spell)
-            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, spell)
+            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, self.spell)
+            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.spell)
             game.state.change('combat')
 
         if directions:

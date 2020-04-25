@@ -1,6 +1,6 @@
 import math
 
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app import utilities
 from app.data import unit_object
 from app.data.item_components import SpellAffect
@@ -64,7 +64,7 @@ class Combat():
         if DB.constants.get('double_wexp').value:
             for result in results:
                 action.do(action.GainWexp(result.attacker, item))
-            if DB.constants.get('fatal_wexp').value:
+            if DB.constants.get('kill_wexp').value:
                 already_dead = set()
                 for result in results:
                     if result.defender.is_dying and result.defender.nid not in already_dead:
@@ -73,7 +73,7 @@ class Combat():
         elif results:
             unit = results[0].attacker
             action.do(action.GainWexp(unit, item))
-            if DB.constants.get('fatal_wexp').value and any(result.defender.is_dying for result in results):
+            if DB.constants.get('kill_wexp').value and any(result.defender.is_dying for result in results):
                 action.do(action.GainWexp(unit, item))
 
     def calc_init_exp_p1(self, my_exp, other_unit, applicable_results):
@@ -238,6 +238,7 @@ class MapCombat(Combat):
         self._skip = False
 
         self.last_update = engine.get_time()
+        self.additional_time = 0
         self.state = 'pre_init'
 
         self.damage_numbers = []
@@ -365,37 +366,42 @@ class MapCombat(Combat):
             if result.attacker == self.p1 and result.defender == self.p1:
                 hit = combat_calcs.compute_hit(self.p1, self.p1, self.item, 'Attack')
                 mt = combat_calcs.compute_damage(self.p1, self.p1, self.item, 'Attack')
-                p1_health = HealthBar('p1', self.p1, self.item, self.p1, hit, mt)
-                self.health_bars[self.p1] = p1_health
+                if self.p1 not in self.health_bars:
+                    p1_health = HealthBar('p1', self.p1, self.item, self.p1, hit, mt)
+                    self.health_bars[self.p1] = p1_health
 
             # P1 on P2 or P2 on P1
             elif (result.attacker == self.p1 and result.defender == self.p2) or \
                     (result.attacker == self.p2 and result.defender == self.p1):
                 hit = combat_calcs.compute_hit(self.p1, self.p2, self.item, 'Attack')
                 mt = combat_calcs.compute_damage(self.p1, self.p2, self.item, 'Attack')
-                p1_health = HealthBar('p1', self.p1, self.item, self.p2, hit, mt)
-                self.health_bars[self.p1] = p1_health
+                if self.p1 not in self.health_bars:
+                    p1_health = HealthBar('p1', self.p1, self.item, self.p2, hit, mt)
+                    self.health_bars[self.p1] = p1_health
                 if self.item.weapon and self.solver.defender_can_counterattack():
                     hit = combat_calcs.compute_hit(self.p2, self.p1, self.p2.get_weapon(), 'Defense')
                     mt = combat_calcs.compute_damage(self.p2, self.p1, self.p2.get_weapon(), 'Defense')
                 else:
                     hit, mt = None, None
-                p2_health = HealthBar('p2', self.p2, self.p2.get_weapon(), self.p1, hit, mt)
-                self.health_bars[self.p2] = p2_health
+                if self.p2 not in self.health_bars:
+                    p2_health = HealthBar('p2', self.p2, self.p2.get_weapon(), self.p1, hit, mt)
+                    self.health_bars[self.p2] = p2_health
 
             # P1 on single splash
             elif result.attacker == self.p1:
                 hit = combat_calcs.compute_hit(result.attacker, result.defender, self.item, 'Attack')
                 mt = combat_calcs.compute_damage(result.attacker, result.defender, self.item, 'Attack')
-                p1_health = HealthBar('p1', result.attacker, self.item, result.defender, hit, mt)
-                self.health_bars[self.p1] = p1_health
-                p2_health = HealthBar('splash', result.defender, None, result.attacker, None, None)
-                self.health_bars[result.defender] = p2_health
+                if self.p1 not in self.health_bars:
+                    p1_health = HealthBar('p1', result.attacker, self.item, result.defender, hit, mt)
+                    self.health_bars[self.p1] = p1_health
+                if result.defender not in self.health_bars:
+                    p2_health = HealthBar('splash', result.defender, None, result.attacker, None, None)
+                    self.health_bars[result.defender] = p2_health
 
         elif len(self.results) > 1:
             # Many splash attacks
             # No health bars!!
-            pass
+            self.health_bars.clear()
 
     def _handle_result_anim(self, result):
         if result.outcome:
@@ -465,6 +471,8 @@ class MapCombat(Combat):
             damage_num.draw(surf, (rel_x * TILEWIDTH + 4, rel_y * TILEHEIGHT))
         self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
+        return surf
+
     def clean_up(self):
         game.state.back()
         # Skill used
@@ -501,7 +509,7 @@ class MapCombat(Combat):
         self.turnwheel_death_messages(all_units)
 
         self.handle_state_stack()
-        self.handle_item_gain()
+        self.handle_item_gain(all_units)
         if self.p1 is not self.p2:
             self.broken_item_alert(a_broke_item, d_broke_item)
 
@@ -556,3 +564,7 @@ class MapCombat(Combat):
         self.handle_death(all_units)
         # Actually remove items
         self.remove_broken_items(a_broke_item, d_broke_item)
+
+class AnimationCombat(Combat):
+    # TODO Implement
+    pass

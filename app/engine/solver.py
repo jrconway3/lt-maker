@@ -4,6 +4,9 @@ from app.data.database import DB
 from app.engine import static_random, action, combat_calcs
 from app.engine.game_state import game
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Result():
     def __init__(self, attacker, defender):
         self.attacker = attacker
@@ -30,7 +33,7 @@ class SolverState():
     def get_next_state(self, solver):
         return None
 
-    def proess(self, solver):
+    def process(self, solver):
         return None
 
 class PreInitState(SolverState):
@@ -59,7 +62,7 @@ class AttackerState(SolverState):
     def is_brave(self, item):
         return item.brave
 
-    def check_for_brave(self, solver, unit, item):
+    def check_brave(self, solver, unit, item):
         if self.is_brave(item):
             return True
         # Adept Proc
@@ -189,6 +192,7 @@ class SolverStateMachine():
 
     def ratchet(self, solver):
         next_state = self.state.get_next_state(solver)
+        logger.info(next_state)
         if next_state != self.state_name:
             self.change_state(next_state)
         if self.get_state():  # If we actually went anywhere, process it
@@ -357,7 +361,7 @@ class Solver():
         random_state = static_random.get_combat_random_state()
         result = None
         while not result:
-            result = self.state_machine.ratchet(self)
+            result = self.state.ratchet(self)
 
             new_random_state = static_random.get_combat_random_state()
             action.do(action.RecordRandomState(random_state, new_random_state))

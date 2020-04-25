@@ -1,9 +1,9 @@
-from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
+from app.data.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
 from app import utilities
 from app.data import unit_object
 from app.engine.sprites import SPRITES, FONT
 from app.engine import engine, combat_calcs, icons
-from app.game_state import game
+from app.engine.game_state import game
 
 class HealthBar():
     blind_speed = 1/8.  # 8 frames to fade in
@@ -23,7 +23,7 @@ class HealthBar():
         pass
 
     def shake(self, num):
-        self.current_shake = 1
+        self.current_shake_idx = 1
         if num == 1:  # Normal hit
             self.shake_set = [(-3, -3), (0, 0), (3, 3), (0, 0)]
         elif num == 2:  # Kill
@@ -80,6 +80,7 @@ class HealthBar():
         self.blinds = 1
         self.last_update = 0 
         self.transition_flag = False
+        self.time_for_change = 200
 
         self.shake_set = [(0, 0)]  # How the hp bar will shake
         self.shake_offset = (0, 0)  # How it is currently shaking
@@ -87,6 +88,7 @@ class HealthBar():
 
         self.bg_surf = None
         self.c_surf = None
+        self.stats_surf = None
         self.gem = None
 
         self.skill_icons = []
@@ -108,6 +110,11 @@ class HealthBar():
         position = stat_surf.get_width() - FONT['number_small2'].size(damage)[0] - 2, -2
         FONT['number_small2'].blit(damage, stat_surf, position)
         return stat_surf
+
+    def force_position_update(self):
+        if self.unit:
+            width, height = self.bg_surf.get_width(), self.bg_surf.get_height()
+            self.determine_position(width, height)
 
     def determine_position(self, width, height):
         self.true_position = self.topleft
@@ -164,15 +171,15 @@ class HealthBar():
 
         if self.unit and self.blinds >= 1:
             # Shake
-            if self.current_shake:
-                self.shake_offset = self.shake_set[self.current_shake - 1]
+            if self.current_shake_idx:
+                self.shake_offset = self.shake_set[self.current_shake_idx - 1]
                 self.current_shake_idx += 1
                 if self.current_shake_idx > len(self.shake_set):
                     self.current_shake_idx = 0
 
             # Check to see if we should begin showing transition
             if self.true_hp != self.unit.get_hp() and not self.transition_flag:
-                self.transition_flag
+                self.transition_flag = True
                 self.time_for_change = max(200, abs(self.true_hp - self.unit.get_hp()) * 2 * FRAMERATE)  # 2 frames an hp point
                 self.last_update = engine.get_time()
 
@@ -190,12 +197,12 @@ class HealthBar():
             width, height = self.bg_surf.get_width(), self.bg_surf.get_height()
             true_height = height + self.c_surf.get_height()
             if self.hit or self.mt:
-                bg_surf = engine.create_surface(width, true_height)
+                bg_surf = engine.create_surface((width, true_height))
             else:
-                bg_surf = engine.create_surface(width, height)
+                bg_surf = engine.create_surface((width, height))
             bg_surf.blit(self.bg_surf, (0, 0))
             # Name
-            name_width = FONT['text_numbers'].size(self.unit.name)
+            name_width = FONT['text_numbers'].size(self.unit.name)[0]
             position = width - name_width - 4, 3
             FONT['text_numbers'].blit(self.unit.name, bg_surf, position)
             # Item
@@ -214,10 +221,10 @@ class HealthBar():
                     adv = combat_calcs.compute_advantage(self.unit, self.item, self.target.get_weapon())
                     disadv = combat_calcs.compute_advantage(self.unit, self.item, self.target.get_weapon(), False)
                     if adv:
-                        up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.get_advantage_arrow_count() * 7, 0, 7, 10))
+                        up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
                         bg_surf.blit(up_arrow, (11, 7))
                     elif disadv:
-                        down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.get_advantage_arrow_count() * 7, 10, 7, 10))
+                        down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
                         bg_surf.blit(down_arrow, (11, 7))
 
                 # Blit health bars -- must be blit every frame
@@ -253,11 +260,11 @@ class HealthBar():
 
                 # Gem
                 if self.blinds >= 1 and self.gem and self.ordering:
-                    if self.order == 'left':
+                    if self.ordering == 'left':
                         position = (x + 2, y - 3)
-                    elif self.order == 'right':
+                    elif self.ordering == 'right':
                         position = (x + 56, y - 3)
-                    elif self.order == 'middle':
+                    elif self.ordering == 'middle':
                         position = (x + 27, y - 3)
                     surf.blit(self.gem, position)
 
@@ -267,3 +274,5 @@ class HealthBar():
                     x, y = self.true_position + width // 2, self.true_position[1] - 16 * idx * 16
                     skill_icon.draw(surf, (x, y))
                 self.skill_icons = [s for s in self.skill_icons if not s.done]
+
+        return surf

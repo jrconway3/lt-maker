@@ -53,7 +53,10 @@ class UnitObject(Prefab):
 
         # TODO -- change these to use equations
         self.current_hp = game.equations.hitpoints(self)
-        self.current_mana = game.equations.mana(self)
+        if 'MANA' in DB.equations:
+            self.current_mana = game.equations.mana(self)
+        else:
+            self.current_mana = 0
         self.movement_left = game.equations.movement(self)
 
         self.traveler = None
@@ -168,6 +171,31 @@ class UnitObject(Prefab):
             if item.spell and self.can_wield(item):
                 return item
         return None
+
+    def equip(self, item):
+        if item in self.items and self.items.index(item) == 0:
+            return  # Don't need to do anything
+        self.insert_item(0, item)
+
+    def add_item(self, item):
+        index = len(self.items)
+        self.insert_item(index, item)
+
+    def insert_item(self, index, item):
+        if item in self.items:
+            self.items.remove(item)
+            self.items.insert(index, item)
+            # Statuses here
+        else:
+            self.items.insert(index, item)
+            item.owner_nid = self.nid
+            # Statuses here
+
+    def remove_item(self, item):
+        was_weapon = self.get_weapon() == item
+        self.items.remove(item)
+        item.owner_nid = None
+        # Status effects
 
     def has_canto(self):
         return 'canto' in self.status_bundle or 'canto_plus' in self.status_bundle

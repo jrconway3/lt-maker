@@ -329,6 +329,7 @@ class ImageResource(object):
         self.nid = nid
         self.full_path = full_path
         self.pixmap = pixmap
+        self.image = None
 
         self.sub_images = []
         self.parent_image = None

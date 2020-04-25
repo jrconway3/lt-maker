@@ -71,7 +71,7 @@ def convert_positions(attacker, atk_position, target_position, item):
             splash_units = [unit for unit in splash_units if unit.get_hp() < game.equations.hitpoints(unit)]
     # if item.weapon or (item.spell and item.spell.affect != SpellAffect.Helpful):
     #     splash_units += Tiles!
-    logger.info("Main Defender: %s, Splash: %s" % main_defender, splash_units)
+    logger.info("Main Defender: %s, Splash: %s", main_defender, splash_units)
     return main_defender, splash_units
 
 def start_combat(attacker, defender, def_pos, splash, item, 
@@ -82,5 +82,5 @@ def start_combat(attacker, defender, def_pos, splash, item,
                 (cf.SETTINGS['animation'] == 'Combat Only' and game.targets.check_enemy(attacker, defender)))
 
     toggle_anim = game.input_manager.is_pressed('AUX')
-    # Create animation combat here
+    # TODO Create animation combat here
     return combat.MapCombat(attacker, defender, def_pos, splash, item, skill_used, event_combat, ai_combat)

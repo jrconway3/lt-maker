@@ -24,3 +24,22 @@ def make_white(image, white):
     engine.fill(image, (white, white, white), None, engine.BLEND_RGB_ADD)
 
     return image
+
+def change_color(image, color):
+    """
+    Additively blends a color with the image
+    """
+    image = engine.copy_surface(image)
+    for idx, band in enumerate(color):
+        blend_mode = engine.BLEND_RGB_ADD
+        if band < 0:
+            blend_mode = engine.BLEND_RGB_SUB
+            band = -band
+        if idx == 0:
+            new_color = (band, 0, 0)
+        elif idx == 1:
+            new_color = (0, band, 0)
+        else:
+            new_color = (0, 0, band)
+        engine.fill(image, new_color, None, blend_mode)
+    return image

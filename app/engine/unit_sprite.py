@@ -4,7 +4,9 @@ from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_co
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.engine import engine
+from app import utilities
+
+from app.engine import engine, image_mods
 import app.engine.config as cf
 from app.engine.game_state import game
 
@@ -69,6 +71,8 @@ class UnitSprite():
         self.net_position = None
         self.offset = [0, 0]
 
+        self.flicker = None
+
         self.load_sprites()
 
     def load_sprites(self):
@@ -93,6 +97,12 @@ class UnitSprite():
     def draw_anyway(self):
         return self.transition_state != 'normal'
 
+    def begin_flicker(self, total_time, color):
+        self.flicker = (engine.get_time(), total_time, color)
+
+    def end_flicker(self):
+        self.flicker = None
+
     def set_transition(self, new_state):
         self.transition_state = new_state
         if self.transition_state == 'fake_in':
@@ -102,6 +112,20 @@ class UnitSprite():
 
     def change_state(self, new_state):
         self.state = new_state
+        if self.state in ('combat_attacker', 'combat_anim'):
+            self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
+            self.handle_net_position(self.net_position)
+            self.offset = [0, 0]
+        elif self.state in ('combat_active'):
+            self.image_state = 'active'
+        elif self.state == 'combat_defender':
+            attacker = game.combat_instance.p1
+            self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
+            self.handle_net_position(self.net_position)
+        elif self.state == 'combat_counter':
+            attacker = game.combat_instance.p2
+            self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
+            self.handle_net_position(self.net_position)
         if self.state == 'selected':
             self.image_state = 'down'
 
@@ -132,6 +156,12 @@ class UnitSprite():
                 self.image_state = 'active'
             else:
                 self.image_state = 'passive'
+        elif self.state == 'combat_anim':
+            self.offset[0] = utilities.clamp(self.net_position[0], -1, 1) * game.map_view.attack_movement_counter.count
+            self.offset[1] = utilities.clamp(self.net_position[1], -1, 1) * game.map_view.attack_movement_counter.count
+        elif self.state == 'chosen':
+            self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
+            self.handle_net_position(self.net_position)
         elif self.state == 'moving':
             next_position = game.moving_units.get_next_position(self.unit.nid)
             if not next_position:
@@ -164,6 +194,15 @@ class UnitSprite():
         x, y = self.unit.position
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
+
+        if self.flicker:
+            starting_time, total_time, color = self.flicker
+            time_passed = engine.get_time() - starting_time
+            if time_passed >= total_time:
+                self.end_flicker()
+            else:
+                color = tuple((total_time - time_passed) * float(c) // total_time for c in color)
+                image = image_mods.change_color(image.convert_alpha(), color)
 
         # Each image has (self.image.get_width() - 32)//2 buggers on the
         # left and right of it, to handle any off tile spriting

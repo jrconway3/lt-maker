@@ -103,14 +103,14 @@ class TargetSystem():
             return set(), set()
 
         # Calculate legal targets for cursor
-        item_range = game.equations.get_range(unit, weapon)
+        item_range = game.equations.get_range(weapon, unit)
         attacks = self.get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
         attacks = {pos for pos in attacks if not utilities.compare_teams(unit.team, game.grid.get_team(pos))}
         # TODO line of sight
 
         # Now actually find true and splash attack position
-        true_attacks = {}
-        splash_attacks = {}
+        true_attacks = set()
+        splash_attacks = set()
         for position in attacks:
             attack, splash_pos = interaction.get_aoe(weapon, unit, unit.position, position)
             if attack:
@@ -134,7 +134,7 @@ class TargetSystem():
             return set()
 
         # Calculate legal targets
-        item_range = game.equations.get_range(unit, spell)
+        item_range = game.equations.get_range(spell, unit)
         attacks = self.get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
 
         # Now filter based on target:

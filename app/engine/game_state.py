@@ -72,6 +72,7 @@ class GameState():
         self.highlight = highlight.HighlightController()
         self.targets = targets.TargetSystem()
         self.moving_units = movement.MovementManager()
+        self.combat_instance = None
 
         self.alerts = []
 
@@ -110,6 +111,20 @@ class GameState():
     def register_item(self, item):
         logger.info("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
+
+    def get_unit(self, unit_nid):
+        """
+        Can get units not just in the current level
+        Could be used to get units in overworld, base,
+        etc.
+        """
+        unit = self.level.units.get(unit_nid)
+        if unit:
+            return unit
+        for party in self.parties:
+            unit = party.units.get(unit_nid)
+            if unit:
+                return unit
 
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):

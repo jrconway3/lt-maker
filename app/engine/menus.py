@@ -43,7 +43,7 @@ class ItemOption(BasicOption):
         self.idx = idx
         self.item = item
         self.help_box = None
-        self.color = 'text_grey'
+        self.color = None
         self.ignore = False
 
     def get(self):
@@ -56,13 +56,13 @@ class ItemOption(BasicOption):
         return 16
 
     def get_color(self):
-        owner = game.get_unit(self.item.owner)
+        owner = game.get_unit(self.item.owner_nid)
         if self.color:
             main_font = self.color
             uses_font = self.color
             if main_font == 'text_white':
                 uses_font = 'text_blue'
-        elif owner.can_wield(self.item):
+        elif owner and owner.can_wield(self.item):
             main_font = 'text_white'
             uses_font = 'text_blue'
         return main_font, uses_font
@@ -128,6 +128,8 @@ class Simple():
         self.background = background
 
         self.current_index = 0
+
+        self.display_total_uses = False
 
         self.options = []
         self.create_options(options)
@@ -241,7 +243,6 @@ class Choice(Simple):
         super().__init__(owner, options, topleft, background)
 
         self.horizontal = False
-        self.display_total_uses = False
         self.gem = True
         self.shimmer = 0
 

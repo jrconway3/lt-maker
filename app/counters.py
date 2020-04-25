@@ -38,7 +38,7 @@ class generic3counter():
                 self.count = 0
                 self.lastcount = 1
 
-class simple4counter():
+class simplecounter():
     def __init__(self, times):
         self.count = 0
         self.times = times

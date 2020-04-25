@@ -1,4 +1,4 @@
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app import utilities
 from app.data.database import DB
 
@@ -42,9 +42,9 @@ class MovementManager():
         else:
             return None
 
-    def get_mcost(unit_to_move, pos):
+    def get_mcost(self, unit_to_move, pos):
         terrain = game.tilemap.tiles[pos].terrain_nid
-        mtype = terrain.mtype
+        mtype = DB.terrain.get(terrain).mtype
         movement_group = DB.classes.get(unit_to_move.klass).movement_group
         mcost = DB.mcost.get_mcost(movement_group, mtype)
         return mcost

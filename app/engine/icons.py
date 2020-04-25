@@ -1,11 +1,17 @@
-from app.constants import COLORKEY
+from app.data.constants import COLORKEY
 from app.data.resources import RESOURCES
 
 from app.engine import engine, image_mods
 
 def draw_item(surf, item, topleft, effective=False, cooldown=False):
-    image = RESOURCES.icons16x16.get(item.icon_nid)
-    image = engine.subsurface(image, (item.icon_index[0] * 16, item.icon_index[1] * 16, 16, 16))
+    image = RESOURCES.icons16.get(item.icon_nid)
+    if not image:
+        return surf
+
+    if not image.image:
+        image.image = engine.image_load(image.full_path)
+    image = engine.subsurface(image.image, (item.icon_index[0] * 16, item.icon_index[1] * 16, 16, 16))
+    image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 
     if effective:

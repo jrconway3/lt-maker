@@ -29,7 +29,8 @@ class ConstantCatalog(Data):
         for dat in vals:
             nid, value = dat
             base = self.get(nid)
-            base.value = value
+            if base:
+                base.value = value
 
 constants = ConstantCatalog([
     Constant('num_items', "Max number of Items in inventory", int, 5),

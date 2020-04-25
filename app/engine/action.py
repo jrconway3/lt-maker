@@ -3,7 +3,7 @@ import sys
 from app.data import unit_object, items
 from app.data.database import DB
 
-from app.engine import banner
+from app.engine import banner, static_random
 from app.engine.game_state import game
 
 class Action():
@@ -198,6 +198,14 @@ class ResetAll(Action):
         for action in self.actions:
             action.reverse()
 
+class HasAttacked(Reset):
+    def do(self):
+        self.unit.has_attacked = True
+
+class HasTraded(Reset):
+    def do(self):
+        self.unit.has_traded = True
+
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
     def __init__(self, item):
@@ -364,6 +372,29 @@ class ChangeTileHP(Action):
         self.position = pos
         self.num = num
         self.old_hp = 1
+
+class UpdateUnitRecords(Action):
+    def __init__(self, unit, record):
+        self.unit = unit
+        self.record = record
+
+    # TODO Implement rest of this
+
+class RecordRandomState(Action):
+    run_on_load = True  # TODO is this necessary?
+
+    def __init__(self, old, new):
+        self.old = old
+        self.new = new
+
+    def do(self):
+        pass
+
+    def execute(self):
+        static_random.set_combat_random_state(self.new)
+
+    def reverse(self):
+        static_random.set_combat_random_state(self.old)
 
 # === Master Functions for adding to the action log ===
 def do(action):

@@ -1,7 +1,7 @@
 from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
 from app.data.resources import RESOURCES
 
-from app.counters import generic3counter, simple4counter
+from app.counters import generic3counter, simplecounter
 
 from app.engine import engine, unit_sprite
 from app.engine.game_state import game
@@ -14,13 +14,10 @@ class MapView():
 
         self.passive_sprite_counter = generic3counter(32 * FRAMERATE, 4 * FRAMERATE)
         self.active_sprite_counter = generic3counter(13 * FRAMERATE, 6 * FRAMERATE)
-        self.move_sprite_counter = simple4counter((10 * FRAMERATE, 5 * FRAMERATE, 10 * FRAMERATE, 5 * FRAMERATE))
-        self.fast_move_sprite_counter = simple4counter((6 * FRAMERATE, 3 * FRAMERATE, 6 * FRAMERATE, 3 * FRAMERATE))
-        self.arrow_counter = 0
-        self.arrow_anim = (0, 1, 2)
-
-    def get_advantage_arrow_count(self):
-        return self.arrow_anim[self.arrow_counter]
+        self.move_sprite_counter = simplecounter((10 * FRAMERATE, 5 * FRAMERATE, 10 * FRAMERATE, 5 * FRAMERATE))
+        self.fast_move_sprite_counter = simplecounter((6 * FRAMERATE, 3 * FRAMERATE, 6 * FRAMERATE, 3 * FRAMERATE))
+        self.attack_movement_counter = generic3counter(4 * FRAMERATE, 3 * FRAMERATE, 4 * FRAMERATE)
+        self.arrow_counter = simplecounter((16 * FRAMERATE, 16 * FRAMERATE, 16 * FRAMERATE))
 
     def update(self):
         current_time = engine.get_time()
@@ -28,7 +25,8 @@ class MapView():
         self.active_sprite_counter.update(current_time)
         self.move_sprite_counter.update(current_time)
         self.fast_move_sprite_counter.update(current_time)
-        self.arrow_counter = (self.arrow_counter + 1) % len(self.arrow_anim)
+        self.attack_movement_counter.update(current_time)
+        self.arrow_counter.update(current_time)
 
     def draw_units(self, surf):
         culled_units = [unit for unit in game.level.units if unit.position]

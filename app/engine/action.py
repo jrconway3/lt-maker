@@ -319,6 +319,35 @@ class UseItem(Action):
         if self.item.c_cuses:
             self.item.c_uses.value += 1
 
+class GainExp(Action):
+    def __init__(self, unit, exp_gain):
+        self.unit = unit
+        self.old_exp = self.unit.exp
+        self.exp_gain = exp_gain
+
+    def do(self):
+        self.unit.set_exp((self.old_exp + self.exp_gain) % 100)
+
+    def reverse(self):
+        self.unit.set_exp(self.old_exp)
+
+class SetExp(GainExp):
+    def do(self):
+        self.unit.set_exp(self.exp_gain)
+
+class IncLevel(Action):
+    """
+    Assumes unit did not promote
+    """
+    def __init__(self, unit):
+        self.unit = unit
+
+    def do(self):
+        self.unit.level += 1
+
+    def reverse(self):
+        self.unit.level -= 1
+
 class GainWexp(Action):
     def __init__(self, unit, item):
         self.unit = unit

@@ -1,13 +1,32 @@
 import logging
 logger = logging.getLogger(__name__)
 
+class SimpleStateMachine():
+    def __init__(self, starting_state):
+        self.state = []
+        self.state.append(starting_state)
+
+    def change(self, new_state):
+        self.state.append(new_state)
+
+    def back(self):
+        self.state.pop()
+
+    def get_state(self):
+        if self.state:
+            return self.state[-1]
+        return None
+
+    def clear(self):
+        self.state.clear()
+
 class StateMachine():
     def __init__(self):
         self.state = []
         self.temp_state = []
 
     def load_states(self, starting_states=None):
-        from app.engine import title_screen, transitions, general_states
+        from app.engine import title_screen, transitions, general_states, level_up
         self.all_states = {'title_start': title_screen.TitleStartState,
                            'transition_in': transitions.TransitionInState,
                            'turn_change': general_states.TurnChangeState,
@@ -25,7 +44,8 @@ class StateMachine():
                            'spell_choice': general_states.SpellChoiceState,
                            'attack': general_states.AttackState,
                            'spell': general_states.SpellState,
-                           'combat': general_states.CombatState
+                           'combat': general_states.CombatState,
+                           'exp': level_up.ExpState
                            }
         if starting_states:
             for state_name in starting_states:

@@ -87,6 +87,12 @@ class UnitObject(Prefab):
     def set_mana(self, val):
         self.current_mana = utilities.clamp(val, 0, game.equations.mana(self))
 
+    def get_exp(self):
+        return self.exp
+
+    def set_exp(self, val):
+        self.exp = int(val)
+
     @property
     def tags(self):
         unit_tags = self._tags

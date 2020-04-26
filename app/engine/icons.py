@@ -18,3 +18,20 @@ def draw_item(surf, item, topleft, effective=False, cooldown=False):
         image = image_mods.make_white(image.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
     surf.blit(image, topleft)
     return surf
+
+def draw_portrait(surf, nid, topleft=None, bottomright=None):
+    image = RESOURCES.portraits.get(nid)
+    if not image:
+        return surf
+
+    if not image.image:
+        image.image = engine.image_load(image.full_path)
+    image = engine.subsurface(image.image, (0, 0, 96, 80))
+    image = image.convert()
+    engine.set_colorkey(image, COLORKEY, rleaccel=True)
+
+    if topleft:
+        surf.blit(image, topleft)
+    elif bottomright:
+        surf.blit(image, (bottomright[0] - 96, bottomright[1] - 80))
+    return surf

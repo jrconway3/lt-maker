@@ -43,3 +43,16 @@ def change_color(image, color):
             new_color = (0, 0, band)
         engine.fill(image, new_color, None, blend_mode)
     return image
+
+def blend_colors(color1, color2, t):
+    """
+    gets a color between color1 and color2 depending on t
+    t is between 0 and 1
+    """
+    t = utilities.clamp(t, 0, 1)
+    color_diff = (color2[0] - color1[0], color2[1] - color1[1], color2[2] - color1[2])
+    new_color = []
+    for idx, chroma in enumerate(color_diff):
+        new_color.append(int(chroma * t) + color1[idx])
+
+    return new_color

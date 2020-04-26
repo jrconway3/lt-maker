@@ -197,6 +197,10 @@ class UnitObject(Prefab):
         item.owner_nid = None
         # Status effects
 
+    def get_internal_level(self):
+        # TODO -- Figure this out
+        return self.level
+
     def has_canto(self):
         return 'canto' in self.status_bundle or 'canto_plus' in self.status_bundle
 

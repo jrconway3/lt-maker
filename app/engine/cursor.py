@@ -149,7 +149,9 @@ class Cursor():
         self.cursor_counter.update(engine.get_time())
         left = self.cursor_counter.count * TILEWIDTH * 2
         hovered_unit = self.get_hover()
-        if hovered_unit and hovered_unit.team == 'player' and not hovered_unit.finished:
+        if self.draw_state == 2:
+            self.image = engine.subsurface(self.red_sprite, (left, 0, 32, 32))
+        elif hovered_unit and hovered_unit.team == 'player' and not hovered_unit.finished:
             self.image = self.active_sprite
         else:
             self.image = engine.subsurface(self.passive_sprite, (left, 0, 32, 32))

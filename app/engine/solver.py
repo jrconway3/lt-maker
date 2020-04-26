@@ -4,9 +4,6 @@ from app.data.database import DB
 from app.engine import static_random, action, combat_calcs
 from app.engine.game_state import game
 
-import logging
-logger = logging.getLogger(__name__)
-
 class Result():
     def __init__(self, attacker, defender):
         self.attacker = attacker
@@ -79,6 +76,8 @@ class AttackerState(SolverState):
                     solver.attacker_brave += 1  # Mark first brave attack
                     return 'Attacker'
                 elif solver.allow_counterattack():
+                    solver.defender_brave = 0
+                    solver.def_rounds += 1
                     return 'Defender'
                 elif solver.atk_rounds < 2 and solver.item.weapon and \
                         combat_calcs.outspeed(solver.attacker, solver.defender, solver.item, "Attack") and \
@@ -192,7 +191,6 @@ class SolverStateMachine():
 
     def ratchet(self, solver):
         next_state = self.state.get_next_state(solver)
-        logger.info(next_state)
         if next_state != self.state_name:
             self.change_state(next_state)
         if self.get_state():  # If we actually went anywhere, process it
@@ -253,7 +251,7 @@ class Solver():
             return False
 
     def defender_has_vantage(self):
-        return isinstance(self.defender, unit_object.UnitObject)
+        return False and isinstance(self.defender, unit_object.UnitObject)
 
     def def_double(self):
         return DB.constants.get('def_double').value and \
@@ -319,10 +317,10 @@ class Solver():
         if (item.weapon and attacker is not defender) or item.spell:
             if not item.hit or roll < to_hit:  # TODO Evasion here
                 result.outcome = 1
-                if item.damage is not None:
+                if item.might is not None:
                     result.def_damage = combat_calcs.compute_damage(attacker, defender, item, mode)
                     if DB.constants.get('crit').value:
-                        self.handle_crit(result, attacker, defender, item, mode)
+                        self.handle_crit(result, attacker, defender, item, mode, event_command)
                 if item.heal is not None:
                     result.def_damage = -combat_calcs.compute_heal(attacker, defender, item, mode)
 
@@ -332,6 +330,7 @@ class Solver():
                     result.atk_movement = item.self_movement
 
                 result.def_damage *= damage_mod  # Handle hybrid nonsense
+                result.def_damage = int(result.def_damage)
 
         else:  # Usable
             result.outcome = 1

@@ -125,13 +125,13 @@ def damage(unit, item=None, dist=0):
         item = item.get_weapon()
     if not item:
         return 0
-    if not item.damage:
+    if not item.might:
         return 0
 
-    might = item.damage.value
+    might = item.might.value
     if item.custom_damage_equation:
         equation = item.custom_damage_equation
-    elif item.is_magic():
+    elif item_funcs.is_magic(item):
         equation = 'MAGIC_DAMAGE'
     else:
         equation = 'DAMAGE'
@@ -190,8 +190,6 @@ def compute_hit(unit, target, item=None, mode=None):
 
         adv = compute_advantage(unit, item, target.get_weapon())
         disadv = compute_advantage(unit, item, target.get_weapon(), False)
-        print(adv)
-        print(disadv)
         if adv:
             bonus += int(adv.accuracy)
         if disadv:
@@ -283,11 +281,11 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
 
         # Handle crit
         if crit:
-            might *= game.equation.crit_mult(unit, item, dist)
+            might *= game.equations.crit_mult(unit, item, dist)
             for _ in range(game.equations.crit_add(unit, item, dist)):
                 might += damage(unit, item, dist)
 
-        return max(DB.constants.get('min_damage').value, might)
+        return int(max(DB.constants.get('min_damage').value, might))
 
 def outspeed(unit, target, item, mode=None) -> bool:
     if not isinstance(target, unit_object.UnitObject):

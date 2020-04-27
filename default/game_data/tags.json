@@ -4,5 +4,7 @@
     "Horse",
     "Mounted",
     "Dragon",
-    "Armor"
+    "Armor",
+    "ZeroMove",
+    "NoAutoPromote"
 ]

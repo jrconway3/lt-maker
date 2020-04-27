@@ -777,3 +777,17 @@ class CombatState(MapState):
             surf = super().draw(surf)
             surf = game.combat_instance.draw(surf)
         return surf
+
+class DyingState(MapState):
+    name = 'dying'
+
+    def begin(self):
+        game.cursor.hide()
+
+    def update(self):
+        super().update()
+
+        done = game.death.update()
+        if done:
+            game.state.back()
+            return 'repeat'

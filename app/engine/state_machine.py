@@ -37,6 +37,7 @@ class StateMachine():
                            'movement': general_states.MovementState,
                            'wait': general_states.WaitState,
                            'canto_wait': general_states.CantoWaitState,
+                           'dying': general_states.DyingState,
                            'menu': general_states.MenuState,
                            'item': general_states.ItemState,
                            'item_child': general_states.ItemChildState,

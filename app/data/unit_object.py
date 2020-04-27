@@ -46,7 +46,11 @@ class UnitObject(Prefab):
             self.growths = {stat.nid: stat.value for stat in prefab.growths}
             self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
             self.portrait_nid = prefab.portrait_nid
-        self.growth_points = {k: 50 for k in self.stats.keys()}
+            
+        if DB.constants.get('player_leveling').value == 'Fixed':
+            self.growth_points = {k: 50 for k in self.stats.keys()}
+        else:
+            self.growth_points = {k: 0 for k in self.stats.keys()}
 
         self.status_effects = []
         self.status_bundle = Multiset()

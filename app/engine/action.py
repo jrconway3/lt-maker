@@ -1,9 +1,11 @@
 import sys
 
+from app import utilities
+from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data import unit_object, items
 from app.data.database import DB
 
-from app.engine import banner, static_random
+from app.engine import banner, static_random, unit_funcs
 from app.engine.game_state import game
 
 class Action():
@@ -140,6 +142,58 @@ class Warp(SimpleMove):
         self.unit.position = self.new_pos
         game.arrive(self.unit)
 
+class ArriveOnMap(Action):
+    def __init__(self, unit, pos):
+        self.unit = unit
+        self.place_on_map = PlaceOnMap(unit, pos)
+
+    def do(self):
+        self.place_on_map.do()
+        game.arrive(self.unit)
+
+    def reverse(self):
+        game.leave(self.unit)
+        self.place_on_map.reverse()
+
+class PlaceOnMap(Action):
+    def __init__(self, unit, pos):
+        self.unit = unit
+        self.pos = pos
+
+    def do(self):
+        self.unit.position = self.pos
+        if self.unit.position:
+            self.unit.previous_position = self.unit.position
+
+    def reverse(self):
+        self.unit.position = None
+
+class LeaveMap(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.remove_from_map = RemoveFromMap(self.unit)
+
+    def do(self):
+        game.leave(self.unit)
+        self.remove_from_map.do()
+
+    def reverse(self):
+        self.remove_from_map.reverse()
+        game.arrive(self.unit)
+
+class RemoveFromMap(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_pos = self.unit.position
+
+    def do(self):
+        self.unit.position = None
+
+    def reverse(self):
+        self.unit.position = self.old_pos
+        if self.unit.position:
+            self.unit.previous_position = self.unit.position
+
 class IncrementTurn(Action):
     def do(self):
         game.turncount += 1
@@ -205,6 +259,76 @@ class HasAttacked(Reset):
 class HasTraded(Reset):
     def do(self):
         self.unit.has_traded = True
+
+# === RESCUE ACTIONS ========================================================
+class Rescue(Action):
+    def __init__(self, unit, rescuee):
+        self.unit = unit
+        self.rescuee = rescuee
+        self.old_pos = self.rescuee.position
+
+    def do(self):
+        self.unit.traveler = self.rescuee.nid
+        self.unit.has_attacked = True
+
+        # TODO Add transition
+
+        game.leave(self.rescuee)
+        self.rescuee.position = None
+
+    def execute(self):
+        self.unit.traveler = self.rescuee.nid
+        self.unit.has_attacked = True
+
+        game.leave(self.rescuee)
+        self.rescuee.position = None
+
+    def reverse(self):
+        self.rescuee.position = self.old_pos
+        game.arrive(self.rescuee)
+        self.unit.has_attacked = False
+        self.unit.traveler = None
+
+class Drop(Action):
+    def __init__(self, unit, droppee, pos):
+        self.unit = unit
+        self.droppee = droppee
+        self.pos = pos
+        self.droppee_wait_action = Wait(self.droppee)
+        self.action_state = unit.get_action_state()
+
+    def do(self):
+        self.droppee.position = self.pos
+        game.arrive(self.droppee)
+        self.droppee.sprite.change_state('normal')
+        self.droppee_wait_action.do()
+
+        self.unit.has_attacked = True
+        self.unit.has_traded = True
+        self.unit.traveler = None
+
+        if utilities.calculate_distance(self.unit.position, self.pos) == 1:
+            self.droppee.sprite.set_transition('fake_in')
+            self.droppee.sprite.offset = [(self.unit.position[0] - self.pos[0]) * TILEWIDTH, 
+                                          (self.unit.position[1] - self.pos[1]) * TILEHEIGHT]
+
+    def execute(self):
+        self.droppee.position = self.pos
+        game.arrive(self.droppee)
+        self.droppee.sprite.change_state('normal')
+        self.droppee_wait_action.execute()
+
+        self.unit.has_attacked = True
+        self.unit.has_traded = True
+        self.unit.traveler = None
+
+    def reverse(self):
+        self.unit.traveler = self.droppee.nid
+        self.unit.set_action_state(self.action_state)
+
+        self.droppee.droppee_wait_action.reverse()
+        game.leave(self.droppee)
+        self.droppee.position = None
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
@@ -348,6 +472,18 @@ class IncLevel(Action):
     def reverse(self):
         self.unit.level -= 1
 
+class ApplyLevelUp(Action):
+    def __init__(self, unit, stat_changes):
+        self.unit = unit
+        self.stat_changes = stat_changes
+
+    def do(self):
+        unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
+
+    def reverse(self):
+        negative_changes = {(k, -v) for k, v in self.stat_changes.items()}
+        unit_funcs.apply_stat_changes(self.unit, negative_changes)
+
 class GainWexp(Action):
     def __init__(self, unit, item):
         self.unit = unit
@@ -401,6 +537,43 @@ class ChangeTileHP(Action):
         self.position = pos
         self.num = num
         self.old_hp = 1
+
+class Die(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_pos = unit.position
+        self.leave_map = LeaveMap(self.unit)
+        self.drop = None
+
+    def do(self):
+        if self.unit.traveler:
+            drop_me = game.level.units.get(self.unit.traveler)
+            self.drop = Drop(self.unit, drop_me, self.unit.position)
+            self.drop.do()
+            # TODO Drop Sound
+
+        self.leave_map.do()
+        self.unit.dead = True
+        self.unit.is_dying = False
+
+    def reverse(self):
+        self.unit.dead = False
+        self.unit.sprite.set_transition('normal')
+        self.unit.sprite.change_state('normal')
+
+        self.leave_map.reverse()
+        if self.drop:
+            self.drop.reverse()
+
+class Resurrect(Action):
+    def __init__(self, unit):
+        self.unit = unit
+
+    def do(self):
+        self.unit.dead = False
+
+    def reverse(self):
+        self.unit.dead = True
 
 class UpdateUnitRecords(Action):
     def __init__(self, unit, record):

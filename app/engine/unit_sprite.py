@@ -126,7 +126,19 @@ class UnitSprite():
             attacker = game.combat_instance.p2
             self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
-        if self.state == 'selected':
+        elif self.state == 'fake_transition_in':
+            pos = (self.unit.position[0] + utilities.clamp(self.offset[0], -1, 1),
+                   self.unit.position[1] + utilities.clamp(self.offset[1], -1, 1))
+            pos = (pos[0] - self.unit.position[0], pos[1] - self.unit.position[1])
+            self.net_position = (-pos[0], -pos[1])
+            self.handle_net_position(self.net_position)
+        elif self.state == 'fake_transition_out':
+            pos = (self.unit.position[0] + utilities.clamp(self.offset[0], -1, 1),
+                   self.unit.position[1] + utilities.clamp(self.offset[1], -1, 1))
+            pos = (pos[0] - self.unit.position[0], pos[1] - self.unit.position[1])
+            self.net_position = pos
+            self.handle_net_position(self.net_position)
+        elif self.state == 'selected':
             self.image_state = 'down'
 
     def handle_net_position(self, pos):
@@ -174,6 +186,36 @@ class UnitSprite():
             self.offset[0] = int(TILEWIDTH * dt / cf.SETTINGS['unit_speed'] * self.net_position[0])
             self.offset[1] = int(TILEHEIGHT * dt / cf.SETTINGS['unit_speed'] * self.net_position[1])
             self.handle_net_position(self.net_position)
+        elif self.state == 'fake_transition_in':
+            if self.offset[0] > 0:
+                self.offset[0] -= 2
+            elif self.offset[0] < 0:
+                self.offset[0] += 2
+            if self.offset[1] > 0:
+                self.offset[1] -= 2
+            elif self.offset[1] < 0:
+                self.offset[1] += 2
+
+            if self.offset[0] == 0 and self.offset[1] == 0:
+                self.set_transition('normal')
+                self.change_state('normal')
+        elif self.state == 'fake_transition_out':
+            if self.offset[0] > 0:
+                self.offset[0] += 2
+            elif self.offset[0] < 0:
+                self.offset[0] -= 2
+            if self.offset[1] > 0:
+                self.offset[1] += 2
+            elif self.offset[1] < 0:
+                self.offset[1] -= 2
+
+            if abs(self.offset[0]) > TILEWIDTH or abs(self.offset[1]) > TILEHEIGHT:
+                self.set_transition('normal')
+                self.change_state('normal')
+                self.offset = [0, 0]
+
+                game.leave(self.unit)
+                self.unit.position = None
 
     def update_transition(self):
         pass

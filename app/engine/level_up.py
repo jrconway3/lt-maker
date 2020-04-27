@@ -3,7 +3,7 @@ import math
 from app.data.constants import WINWIDTH, WINHEIGHT, FRAMERATE
 from app.data.database import DB
 
-from app.engine import engine, image_mods, icons
+from app.engine import engine, image_mods, icons, unit_funcs, action
 from app.engine.sprites import SPRITES, FONT
 from app.engine.state import State
 from app.engine.state_machine import SimpleStateMachine
@@ -88,7 +88,7 @@ class ExpState(State):
                     # GC.SOUNDDICT['Experience Gain'].stop()
                     if DB.constants.get('auto_promote').value and \
                             self.unit_klass.turns_into and \
-                            'no_auto_promote' not in self.unit.tags:
+                            'NoAutoPromote' not in self.unit.tags:
                         self.exp_bar.update(100)
                         # GC.SOUNDDICT['Level Up'].play()
                     else:
@@ -188,7 +188,7 @@ class ExpState(State):
             if current_time - self.start_time > 100:
                 class_options = self.unit_klass.turns_into
                 if DB.constants.get('auto_promote').value and class_options and \
-                        'no_auto_promote' not in self.unit.tags:
+                        'NoAutoPromote' not in self.unit.tags:
                     self.exp_bar.update(0)
                     if len(class_options) > 1:
                         game.cursor.cur_unit = self.unit

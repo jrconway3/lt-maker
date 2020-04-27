@@ -64,6 +64,12 @@ class Item(object):
         serial_dict = {}
         serial_dict['uid'] = self.uid
         serial_dict['nid'] = self.nid
+        serial_dict['owner_nid'] = self.owner_nid
+        serial_dict['droppable'] = self.droppable
+        serial_dict['volatiles'] = []
+        for component in self.components.values():
+            if component.volatile:
+                serial_dict['volatiles'].append(component.serialize())
         return serial_dict
 
     def serialize_prefab(self):

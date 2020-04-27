@@ -475,7 +475,7 @@ class MapCombat(Combat):
             position = damage_num.left
             c_pos = game.camera.get_xy()
             rel_x = position[0] - c_pos[0]
-            rel_y = position[0] - c_pos[1]
+            rel_y = position[1] - c_pos[1]
             damage_num.draw(surf, (rel_x * TILEWIDTH + 4, rel_y * TILEHEIGHT))
         self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
@@ -510,7 +510,7 @@ class MapCombat(Combat):
 
         for unit in all_units:
             if unit.get_hp() <= 0:
-                unit.is_dying = True
+                game.death.should_die(unit)
             if isinstance(unit, unit_object.UnitObject):
                 unit.sprite.change_state('normal')
 

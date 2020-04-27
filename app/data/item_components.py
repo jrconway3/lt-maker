@@ -113,12 +113,13 @@ class PrfClassData(Data):
         self.append(RestrictedSubComponent(nid))
 
 class ItemComponent():
-    def __init__(self, nid=None, name='', attr=bool, value=True, requires=no_requirement):
-        self.nid = nid
-        self.name = name
+    def __init__(self, nid=None, name='', attr=bool, value=True, requires=no_requirement, volatile=False):
+        self.nid: str = nid
+        self.name: str = name
         self.attr = attr
         self.value = value
         self.requires = requires
+        self.volatile: bool = volatile
 
     def __getstate__(self):
         return self.nid, self.value
@@ -166,8 +167,8 @@ item_components = Data([
     ItemComponent('magic', 'Magical', bool, False, requires_spell_or_weapon),
     ItemComponent('wexp', 'Custom Weapon Experience', int, 1, requires_spell_or_weapon),
 
-    ItemComponent('uses', 'Total Uses', int, 30),
-    ItemComponent('c_uses', 'Uses per Chapter', int, 8),
+    ItemComponent('uses', 'Total Uses', int, 30, volatile=True),
+    ItemComponent('c_uses', 'Uses per Chapter', int, 8, volatile=True),
     
     ItemComponent('heal_on_hit', 'Heals Target', int, 0, requires_spell_or_weapon),
     ItemComponent('heal_on_use', 'Heal on Use', int, 10, requires_usable),

@@ -19,6 +19,20 @@ def draw_item(surf, item, topleft, effective=False, cooldown=False):
     surf.blit(image, topleft)
     return surf
 
+def draw_weapon(surf, weapon, topleft):
+    image = RESOURCES.icons16.get(weapon.icon_nid)
+    if not image:
+        return surf
+
+    if not image.image:
+        image.image = engine.image_load(image.full_path)
+    image = engine.subsurface(image.image, (weapon.icon_index[0] * 16, weapon.icon_index[1] * 16, 16, 16))
+    image = image.convert()
+    engine.set_colorkey(image, COLORKEY, rleaccel=True)
+    
+    surf.blit(image, topleft)
+    return surf
+
 def draw_portrait(surf, nid, topleft=None, bottomright=None):
     image = RESOURCES.portraits.get(nid)
     if not image:

@@ -120,7 +120,7 @@ class TerrainProperties(QWidget):
         main_section = QVBoxLayout()
 
         self.minimap_box = PropertyBox("Minimap Type", ComboBox, self)
-        minimap_tiles = QImage(DB.minimap.minimap_tiles)
+        minimap_tiles = QImage(DB.minimap.minimap_tiles.full_path)
         sf = DB.minimap.scale_factor
         for text, sprite_coord in DB.minimap.get_minimap_types():
             im = minimap_tiles.copy(sprite_coord[0]*sf, sprite_coord[1]*sf, sf, sf)

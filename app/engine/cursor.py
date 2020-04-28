@@ -1,4 +1,5 @@
 from app.counters import generic3counter
+from app import utilities
 from app.data.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
 from app.engine.sprites import SPRITES
 from app.engine import engine
@@ -45,6 +46,37 @@ class Cursor():
     def set_pos(self, pos):
         logger.info("New position %s", pos)
         self.position = pos
+
+    def move(self, dx, dy, mouse=False):
+        x, y = self.position
+        self.position = x + dx, y + dy
+
+        if game.highlight.check_in_move(self.position):
+            self.border_position = self.position
+
+        if self.display_arrows:
+            if self.border_position:
+                self.path = game.targets.get_path(self.cur_unit, self.border_position)
+            else:
+                self.path = game.targets.get_path(self.cur_unit, self.position)
+            self.construct_arrows(self.path[::-1])
+
+        if mouse:
+            self.offset_x += utilities.clamp(8*dx, -8, 8)
+            self.offset_y += utilities.clamp(8*dy, -8, 8)
+            self.offset_x = min(self.offset_x, 8)
+            self.offset_y = min(self.offset_y, 8)
+        # If we are slow
+        elif cf.SETTINGS['cursor_speed'] >= 40:
+            if self.speed_state:
+                self.offset_x += 8*dx
+                self.offset_y += 8*dy
+            else:
+                self.offset_x += 12*dx
+                self.offset_y += 12*dy
+
+        self.offset_x = min(self.offset_x, 12)
+        self.offset_y = min(self.offset_y, 12)
 
     def autocursor(self):
         player_units = [unit for unit in game.level.units if unit.team == 'player']
@@ -108,6 +140,7 @@ class Cursor():
         self.fluid.update()
         directions = self.fluid.get_directions()
 
+        # Handle keyboard first
         if 'LEFT' in directions and self.position[0] > 0:
             self.move(-1, 0)
             game.camera.set_x(self.position[0])
@@ -122,28 +155,12 @@ class Cursor():
             self.move(0, 1)
             game.camera.set_y(self.position[1])
 
-    def move(self, dx, dy):
-        x, y = self.position
-        self.position = x + dx, y + dy
-
-        if game.highlight.check_in_move(self.position):
-            self.border_position = self.position
-
-        if self.display_arrows:
-            if self.border_position:
-                self.path = game.targets.get_path(self.cur_unit, self.border_position)
-            else:
-                self.path = game.targets.get_path(self.cur_unit, self.position)
-            self.construct_arrows(self.path[::-1])
-
-        # If we are slow
-        if cf.SETTINGS['cursor_speed'] >= 40:
-            if self.speed_state:
-                self.offset_x += 8*dx
-                self.offset_y += 8*dy
-            else:
-                self.offset_x += 12*dx
-                self.offset_y += 12*dy
+        # Handle mouse
+        mouse_position = game.input_manager.get_mouse_position()
+        if mouse_position:
+            new_pos = mouse_position[0] // TILEWIDTH, mouse_position[1] // TILEHEIGHT
+            dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
+            self.move(dpos[0], dpos[1], mouse=True)
 
     def update(self):
         self.cursor_counter.update(engine.get_time())

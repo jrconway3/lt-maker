@@ -16,6 +16,14 @@
         false
     ],
     [
+        "crit",
+        true
+    ],
+    [
+        "permadeath",
+        true
+    ],
+    [
         "line_of_sight",
         false
     ],
@@ -30,6 +38,10 @@
     [
         "def_double",
         true
+    ],
+    [
+        "player_leveling",
+        "Random"
     ],
     [
         "enemy_leveling",
@@ -50,10 +62,6 @@
     [
         "boss_crit",
         false
-    ],
-    [
-        "unarmed_disadvantage",
-        0
     ],
     [
         "convoy_on_death",

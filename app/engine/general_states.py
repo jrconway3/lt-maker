@@ -2,10 +2,10 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
-from app.engine.state import MapState
+from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine,action, menus, interaction, combat, image_mods
+from app.engine import engine, action, menus, interaction, combat, image_mods, banner
 from app.engine.targets import SelectionHelper
 
 import logging
@@ -110,6 +110,8 @@ class FreeState(MapState):
                 game.cursor.cur_unit = cur_unit
                 if cur_unit.team == 'player' and 'un_selectable' not in cur_unit.status_bundle:
                     game.state.change('move')
+            else:
+                game.state.change('option_menu')
         elif event == 'BACK':
             pass
         elif event == 'START':
@@ -122,15 +124,105 @@ class FreeState(MapState):
     def end(self):
         game.highlight.remove_highlights()
 
-class OptionChildState(MapState):
+class OptionMenuState(MapState):
+    name = 'option_menu'
+
+    def start(self):
+        game.cursor.hide()
+        options = ['Unit', 'Objective', 'Options']
+        info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
+        if DB.constants.get('permadeath').value:
+            options.append('Suspend')
+            info_desc.append('Suspend_desc')
+        else:
+            options.append('Save')
+            info_desc.append('Save_desc')
+        options.append('End')
+        info_desc.append('End_desc')
+        if DB.constants.get('turnwheel').value:
+            options.insert(1, 'Turnwheel')
+            info_desc.insert(1, 'Turnwheel_desc')
+        self.menu = menus.Choice(None, options, info=info_desc)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            if selection == 'End':
+                if cf.SETTINGS['confirm_end']:
+                    game.memory['option_owner'] = selection
+                    game.memory['option_menu'] = self.menu
+                    game.state.change('option_child')
+                else:
+                    game.state.change('ai')
+            elif selection == 'Suspend' or selection == 'Save':
+                if cf.SETTINGS['confirm_end']:
+                    game.memory['option_owner'] = selection
+                    game.memory['option_menu'] = self.menu
+                    game.state.change('option_child')
+                else:
+                    if self.menu.owner == 'Suspend':
+                        game.state.back()
+                        game.state.back()
+                        logger.info('Suspending game...')
+                        save.suspend_game(game, 'suspend')
+                        game.state.clear()
+                        game.state.change('title_start')
+                    elif self.menu.owner == 'Save':
+                        game.state.back()
+                        game.state.back()
+                        logger.info('Creating battle save...')
+                        game.memory['save_kind'] = 'battle'
+                        game.state.change('title_save')
+                        game.state.change('transition_out')
+            elif selection == 'Objective':
+                game.state.change('objective')
+                game.state.change('transition_out')
+            elif selection == 'Options':
+                game.state.change('config_menu')
+                game.state.change('transition_out')
+            elif selection == 'Unit':
+                game.state.change('unit_menu')
+                game.state.change('transition_out')
+            elif selection == 'Turnwheel':
+                if cf.SETTINGS['debug'] or game.game_constants.get('current_turnwheel_uses', 1) > 0:
+                    game.state.change('turnwheel')
+                else:
+                    alert = banner.custom("Turnwheel_empty")
+                    # Add banner sound
+                    game.alerts.append(alert)
+                    game.state.change('display_alerts')
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        self.menu.draw(surf)
+        return surf
+
+class OptionChildState(State):
     name = 'option_child'
+    transparent = True
 
     def begin(self):
         selection = game.memory['option_owner']
         options = ['Yes', 'No']
-        self.menu = menus.Choice(selection, options, game.memory['option_child'])
+        self.menu = menus.Choice(selection, options, game.memory['option_menu'])
 
     def take_input(self, event):
+        self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
         elif event == 'UP':
@@ -174,7 +266,6 @@ class OptionChildState(MapState):
                 game.state.back()
 
     def draw(self, surf):
-        surf = super().draw(surf)
         surf = self.menu.draw(surf)
         return surf
 
@@ -375,6 +466,7 @@ class MenuState(MapState):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
+        self.menu.handle_mouse()
         if 'DOWN' in directions:
             self.menu.move_down(first_push)
         elif 'UP' in directions:
@@ -452,6 +544,7 @@ class ItemState(MapState):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
+        self.menu.handle_mouse()
         if 'DOWN' in directions:
             self.menu.move_down(first_push)
         elif 'UP' in directions:
@@ -501,6 +594,7 @@ class ItemChildState(MapState):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
+        self.menu.handle_mouse()
         if 'DOWN' in directions:
             self.menu.move_down(first_push)
         elif 'UP' in directions:
@@ -570,6 +664,7 @@ class WeaponChoiceState(MapState):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
+        self.menu.handle_mouse()
         if 'DOWN' in directions:
             self.menu.move_down(first_push)
             game.highlight.remove_highlights()
@@ -791,3 +886,31 @@ class DyingState(MapState):
         if done:
             game.state.back()
             return 'repeat'
+
+class DisplayAlertsState(State):
+    name = 'display_alerts'
+    transparent = True
+
+    def begin(self):
+        game.cursor.hide()
+
+    def take_input(self, event):
+        if game.alerts:
+            alert = game.alerts[-1]
+
+        if event and alert and alert.time_to_start and \
+                engine.get_time() - alert.time_to_start > alert.time_to_wait:
+            alert = game.alerts.pop()
+            game.state.back()
+            return 'repeat'
+
+    def update(self):
+        if game.alerts:
+            alert = game.alerts
+            alert.update()
+
+    def draw(self, surf):
+        if game.alerts:
+            alert = game.alerts
+            alert.draw(surf)
+        return surf

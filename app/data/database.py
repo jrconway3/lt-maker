@@ -3,7 +3,7 @@ import os
 import json
 
 from app.data import game_constants, stats, equations, tags, weapons, factions, terrain, mcost_grid, \
-    minimap, items, klass, units, ai, skills, levels
+    minimap, items, klass, units, ai, translations, skills, levels
 
 from app.data.resources import RESOURCES
 
@@ -25,6 +25,7 @@ class Database(object):
         self.classes = klass.ClassCatalog()
         self.units = units.UnitCatalog()
         self.ai = ai.AICatalog()
+        self.translations = translations.TranslationCatalog()
 
         # self.init_load()
         # self.deserialize()
@@ -65,6 +66,7 @@ class Database(object):
         self.classes.restore(data['classes'])
         self.units.restore(data['units'])
         self.ai.restore(data['ai'])
+        self.translations.restore(data['translations'])
 
         self.levels.restore(data['levels'])
         # Need to restore the prefab link on restore
@@ -86,6 +88,7 @@ class Database(object):
                    'classes': self.classes.save(),
                    'units': self.units.save(),
                    'ai': self.ai.save(),
+                   'translations': self.translations.save(),
                    'levels': self.levels.save(),
                    }
         return to_save
@@ -182,7 +185,7 @@ class Database(object):
         #     save_obj = json.load(load_file)
         game_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                            "weapons", "factions", "items", "tags", "classes", 
-                           "units", "ai", "levels")
+                           "units", "ai", "translations", "levels")
 
         save_obj = {}
         for key in game_data_types:

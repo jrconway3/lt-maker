@@ -4,16 +4,16 @@ from app.data.database import DB
 from app import utilities
 from app.engine.sprites import SPRITES, FONT
 
-from app.engine import engine, image_mods, icons
+from app.engine import engine, image_mods, icons, help_menu, text_funcs
 from app.engine.base_surf import create_base_surf
 from app.engine.game_state import game
 
 class BasicOption():
     def __init__(self, idx, text):
         self.idx = idx
-        self.text = text
+        self.text = text_funcs.translate(text)
         self.help_box = None
-        self.color = 'text_width'
+        self.color = 'text_white'
         self.ignore = False
 
     def get(self):
@@ -66,6 +66,12 @@ class ItemOption(BasicOption):
             main_font = 'text_white'
             uses_font = 'text_blue'
         return main_font, uses_font
+
+    def get_help_box(self):
+        if self.item.weapon or self.item.spell:
+            return help_menu.ItemHelpDialog(self.item)
+        else:
+            return help_menu.HelpDialog(self.item.desc)
 
     def draw(self, surf, x, y):
         main_font = 'text_grey'
@@ -122,7 +128,7 @@ class Simple():
     """
     Abstract menu class. Must implement personal draw function
     """
-    def __init__(self, owner, options, topleft=None, background='menu_bg_base'):
+    def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
         self.owner = owner
         self.topleft = topleft
         self.background = background
@@ -132,7 +138,7 @@ class Simple():
         self.display_total_uses = False
 
         self.options = []
-        self.create_options(options)
+        self.create_options(options, info)
 
         self.cursor = Cursor()
 
@@ -140,6 +146,7 @@ class Simple():
         self.scroll = 0
 
         self.takes_input = True
+        self.info_flag = False
 
     def set_limit(self, val):
         self.limit = max(2, val)
@@ -152,10 +159,16 @@ class Simple():
         for idx, option in enumerate(self.options):
             option.ignore = ignores[idx]
 
-    def create_options(self, options):
+    def toggle_info(self):
+        self.info_flag = not self.info_flag
+
+    def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
-            self.options.append(BasicOption(idx, option))
+            option = BasicOption(idx, option)
+            if info_descs:
+                option.help_box = help_menu.HelpDialog(info_descs[idx])
+            self.options.append(option)
 
     def get_current(self):
         return self.options[self.current_index].get()
@@ -208,8 +221,9 @@ class Simple():
                 self.cursor.y_offset += 1
         self.scroll = max(0, self.scroll)
 
-    def update_options(self, options):
-        self.create_items(options)
+    def update_options(self):
+        bare_options = [option.get() for option in self.options]
+        self.create_options(bare_options)
         self.current_index = utilities.clamp(self.current_index, 0, len(self.options) - 1)
 
     def get_menu_width(self):
@@ -238,9 +252,23 @@ class Simple():
     def update(self):
         self.cursor.update()
 
+    # For mouse handling
+    def get_rects(self):
+        return NotImplementedError
+
+    def handle_mouse(self):
+        mouse_position = game.input_manager.get_mouse_position()
+        if mouse_position:
+            mouse_x, mouse_y = mouse_position
+            idxs, option_rects = self.get_rects()
+            for idx, option_rect in zip(idxs, option_rects):
+                x, y, width, height = option_rect
+                if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                    self.move_to(idx)
+
 class Choice(Simple):
-    def __init__(self, owner, options, topleft=None, background='menu_bg_base'):
-        super().__init__(owner, options, topleft, background)
+    def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
+        super().__init__(owner, options, topleft, background, info)
 
         self.horizontal = False
         self.gem = True
@@ -253,16 +281,21 @@ class Choice(Simple):
         self.display_total_uses = val
         self.update_options()
 
-    def create_options(self, options):
+    def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
             if isinstance(option, items.Item):
                 if self.display_total_uses:
-                    self.options.append(FullItemOption(idx, option))
+                    option = FullItemOption(idx, option)
                 else:
-                    self.options.append(ItemOption(idx, option))
+                    option = ItemOption(idx, option)
+                option.help_box = option.get_help_box()
+                self.options.append(option)
             else:
-                self.options.append(BasicOption(idx, option))
+                option = BasicOption(idx, option)
+                if info_descs:
+                    option.help_box = help_menu.HelpDialog(info_descs[idx])
+                self.options.append(option)
 
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):
@@ -312,9 +345,25 @@ class Choice(Simple):
 
     def draw(self, surf):
         if self.horizontal:
-            return self.horiz_draw(surf)
+            surf = self.horiz_draw(surf)
         else:
-            return self.vert_draw(surf)
+            surf = self.vert_draw(surf)
+            if self.info_flag:
+                surf = self.vert_draw_info(surf)
+        return surf
+
+    def vert_draw_info(self, surf):
+        help_box = self.options[self.current_index].help_box
+        if not help_box:
+            return surf
+        topleft = self.get_topleft()
+        idxs, rects = self.get_rects()
+        rect = rects[self.current_index - self.scroll]
+        if topleft[0] < WINWIDTH // 2:
+            help_box.draw(surf, (rect[0], rect[1]))
+        else:
+            help_box.draw(surf, (rect[0] + self.get_menu_width() - rect[2], rect[1]))
+        return surf
 
     def vert_draw(self, surf):
         topleft = self.get_topleft()
@@ -351,3 +400,20 @@ class Choice(Simple):
 
     def draw_scroll_bar(self, surf):
         return surf
+
+    # For mouse handling
+    def get_rects(self):
+        topleft = self.get_topleft()
+        end_index = self.scroll + self.limit
+        choices = self.options[self.scroll:end_index]
+        running_height = 0
+        idxs, rects = [], []
+        for idx, choice in enumerate(choices):
+            top = topleft[1] + 4 + running_height
+            left = topleft[0]
+            rect = (left, top, choice.width(), choice.height())
+            rects.append(rect)
+            idxs.append(self.scroll + idx)
+
+            running_height += choice.height()
+        return idxs, rects

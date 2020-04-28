@@ -55,6 +55,9 @@ if __name__ == '__main__':
     except WindowsError:
         print("Error! Debug logs in use -- Another instance of this is already running!")
         engine.terminate()
+    except PermissionError:
+        print("Error! Debug logs in use -- Another instance of this is already running!")
+        engine.terminate()
     logging_level = logging.DEBUG if cf.SETTINGS['debug'] else logging.WARNING
     logging.basicConfig(filename='saves/debug.log.1', filemode='w', level=logging_level, 
                         format='%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s')

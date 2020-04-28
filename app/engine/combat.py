@@ -446,7 +446,6 @@ class MapCombat(Combat):
                 d = gui.DamageNumber(int(num), idx, len(str_damage), left, 'small_cyan')
                 self.damage_numbers.append(d)
             elif result.def_damage > 0:  # Damage
-                print(result.def_damage)
                 d = gui.DamageNumber(int(num), idx, len(str_damage), left, 'small_red')
                 self.damage_numbers.append(d)
 

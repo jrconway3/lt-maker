@@ -14,7 +14,7 @@ class ExpState(State):
     transparent = True
 
     def start(self):
-        if 'exp' in game.memory:
+        if 'exp' not in game.memory or game.memory['exp'] is None:
             # Generally can only happen if a player character attacks a player character.
             # Then two 'exp' command will be put on the stack
             # But of the course the second will overwrites the first's memory
@@ -54,7 +54,7 @@ class ExpState(State):
         # TODO Animation for Level Up logo
 
     def update(self):
-        super().update(self)
+        super().update()
         current_time = engine.get_time()
 
         # Initiating State
@@ -261,6 +261,22 @@ class ExpState(State):
         elif self.state.get_state() == 'wait':
             if current_time - self.start_time > 1000:  # Wait a while
                 game.state.back()
+
+    def draw(self, surf):
+        # surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
+
+        if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
+            if self.exp_bar:
+                self.exp_bar.draw(surf)
+
+        elif self.state.get_state() == 'level_up':
+            pass
+
+        elif self.state.get_state() == 'level_screen':
+            if self.level_screen:
+                self.level_screen.draw(surf)
+
+        return surf
 
 class LevelUpScreen():
     bg = SPRITES.get('level_screen')
@@ -481,10 +497,10 @@ class ExpBar():
     def update(self, exp=None):
         if self.done:
             self.offset += 1  # So fade in and out
-            if self.sprite_offset >= self.height//2:
+            if self.offset >= self.height//2:
                 return True
-        elif self.sprite_offset > 0:
-            self.sprite_offset -= 1
+        elif self.offset > 0:
+            self.offset -= 1
 
         if exp is not None:
             self.num = exp
@@ -507,6 +523,6 @@ class ExpBar():
         # Transition
         new_surf = engine.subsurface(new_surf, (0, self.offset, self.width, self.height - self.offset * 2))
 
-        surf.blit(new_surf, (self.pos[0], self.pos[1] + self.sprite_offset))
+        surf.blit(new_surf, (self.pos[0], self.pos[1] + self.offset))
         return surf
 

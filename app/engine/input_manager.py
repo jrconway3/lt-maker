@@ -21,6 +21,7 @@ class InputManager():
 
         self.key_up_events = []
         self.key_down_events = []
+        self.current_mouse_position = None
 
         self.unavailable_button = None
 
@@ -41,6 +42,13 @@ class InputManager():
 
     def just_pressed(self, button):
         return button in self.key_down_events
+
+    def get_mouse_position(self):
+        if self.current_mouse_position:
+            return (self.current_mouse_position[0] // cf.SETTINGS['screen_size'],
+                    self.current_mouse_position[1] // cf.SETTINGS['screen_size'])
+        else:
+            return None
 
     def update(self):
         self.update_key_map()
@@ -98,14 +106,31 @@ class InputManager():
                         self.key_down_events.append(button)
 
         # Check mouse
+        self.current_mouse_position = None
         for event in events:
             if event.type == engine.MOUSEBUTTONDOWN:
                 lmb = event.button == 1
+                if lmb:
+                    self.key_down_events.append('SELECT')
                 rmb = event.button == 3
+                if rmb:
+                    self.key_down_events.append('BACK')
                 mmb = event.button == 2
                 wheel_up = event.button == 4
                 wheel_down = event.button == 5
+                if wheel_up:
+                    self.key_down_events.append('UP')
+                else:
+                    self.key_up_events.append('UP')
+                if wheel_down:
+                    self.key_down_events.append('DOWN')
+                else:
+                    self.key_up_events.append('DOWN')
                 position = event.pos
+                self.current_mouse_position = position
+            elif event.type == engine.MOUSEMOTION:
+                position = event.pos
+                self.current_mouse_position = position
 
         # Check game pad
         if self.joystick:

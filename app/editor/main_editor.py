@@ -19,6 +19,7 @@ from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
+from app.editor.translation_widget import TranslationDialog
 
 __version__ = VERSION
 
@@ -152,6 +153,7 @@ class MainEditor(QMainWindow):
         self.test_play_act = QAction(QIcon('icons/play.png'), "Test Play", self, shortcut="T", triggered=self.test_play)
 
         self.modify_resources_act = QAction("Edit Resources...", self, shortcut="R", triggered=self.edit_resources)
+        self.modify_translations_act = QAction("Edit Translations...", self, triggered=self.edit_translations)
 
     def create_menus(self):
         file_menu = QMenu("File", self)
@@ -168,6 +170,7 @@ class MainEditor(QMainWindow):
         # edit_menu.addAction(self.undo_act)
         # edit_menu.addAction(self.redo_act)
         edit_menu.addAction(self.modify_resources_act)
+        edit_menu.addAction(self.modify_translations_act)
 
         help_menu = QMenu("Help", self)
         help_menu.addAction(self.about_act)
@@ -416,6 +419,12 @@ class MainEditor(QMainWindow):
     def edit_resources(self):
         dialog = ResourceEditor(self)
         dialog.exec_()
+
+    def edit_translations(self):
+        DB.deserialize()
+        dialog = TranslationDialog.create()
+        dialog.exec_()
+        DB.serialize()
 
     def edit_events(self):
         pass

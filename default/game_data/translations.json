@@ -1,0 +1,34 @@
+[
+    {
+        "nid": "Unit_desc",
+        "text": "Display a chart of all units on the field."
+    },
+    {
+        "nid": "Objective_desc",
+        "text": "Current objective and overall status."
+    },
+    {
+        "nid": "Options_desc",
+        "text": "Change settings and controls."
+    },
+    {
+        "nid": "Suspend_desc",
+        "text": "Save the game for later. On reload, save is deleted."
+    },
+    {
+        "nid": "Save_desc",
+        "text": "Save the game for later."
+    },
+    {
+        "nid": "End_desc",
+        "text": "Pass the turn."
+    },
+    {
+        "nid": "Turnwheel_desc",
+        "text": "Can undo previous actions."
+    },
+    {
+        "nid": "Turnwheel_empty",
+        "text": "No turnwheel uses remaining!"
+    }
+]

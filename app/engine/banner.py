@@ -12,7 +12,7 @@ class Banner():
         self.surf = None
 
     def figure_out_size(self):
-        self.length = FONT['text_white'].size(''.join(self.text))[0]
+        self.length = FONT['text_white'].width(''.join(self.text))
         self.length += (16 if self.item else 0)
         self.font_height = 16
         self.size = self.length + 18, 24
@@ -36,7 +36,7 @@ class Banner():
 
         left = 6
         for idx, word in enumerate(self.text):
-            word_width = FONT[self.font[idx]].size(word)[0]
+            word_width = FONT[self.font[idx]].width(word)
             FONT[self.font[idx]].blit(word, bg_surf, (left, self.size[1]//2 - self.font_height//2 + 4))
             left += word_width
 
@@ -46,8 +46,6 @@ class Banner():
         return surf
 
 class AcquiredItem(Banner):
-    allows_choice = True
-
     def __init__(self, unit, item):
         super().__init__()
         self.unit = unit
@@ -61,9 +59,6 @@ class AcquiredItem(Banner):
             self.text = [unit.name, ' got ', article, ' ', item.name, '.']
             self.font = ['text_blue', 'text_white', 'text_white', 'text_white', 'text_blue', 'text_white']
         self.figure_out_size()
-
-class NoChoiceAcquiredItem(AcquiredItem):
-    allows_choice = False
 
 class SentToConvoy(Banner):
     def __init__(self, item):
@@ -85,4 +80,10 @@ class BrokenItem(Banner):
             self.text = [unit.name, ' broke ', item.name, '.']
             # self.sound = GC.SOUNDDICT['ItemBreak']
         self.font = ['text_blue', 'text_white', 'text_blue', 'text_blue']
+        self.figure_out_size()
+
+class Custom(Banner):
+    def __init__(self, text):
+        self.text = [text]
+        self.font = ['text_white']
         self.figure_out_size()

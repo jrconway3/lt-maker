@@ -31,6 +31,7 @@ class StateMachine():
                            'transition_in': transitions.TransitionInState,
                            'turn_change': general_states.TurnChangeState,
                            'free': general_states.FreeState,
+                           'option_menu': general_states.OptionMenuState,
                            'option_child': general_states.OptionChildState,
                            'phase_change': general_states.PhaseChangeState,
                            'move': general_states.MoveState,
@@ -46,6 +47,7 @@ class StateMachine():
                            'attack': general_states.AttackState,
                            'spell': general_states.SpellState,
                            'combat': general_states.CombatState,
+                           'display_alerts': general_states.DisplayAlertsState,
                            'exp': level_up.ExpState
                            }
         if starting_states:

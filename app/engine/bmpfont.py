@@ -9,7 +9,7 @@ class BmpFont():
         self.idx_path = idx_path
         self.png_path = png_path
         self.space_offset = 0
-        self.width = 8
+        self._width = 8
         self.height = 16
         self.transrgb = (0, 0, 0)
         self.memory = {}
@@ -26,7 +26,7 @@ class BmpFont():
                 elif words[0] == 'space_offset':
                     self.space_offset = int(words[1])
                 elif words[0] == "width":
-                    self.width = int(words[1])
+                    self._width = int(words[1])
                 elif words[0] == "height":
                     self.height = int(words[1])
                 elif words[0] == "transrgb":
@@ -38,7 +38,7 @@ class BmpFont():
                         words[0] = words[0].upper()
                     if self.all_lowercase:
                         words[0] = words[0].lower()
-                    self.chartable[words[0]] = (int(words[1]) * self.width,
+                    self.chartable[words[0]] = (int(words[1]) * self._width,
                                                 int(words[2]) * self.height,
                                                 int(words[3]))
         self.surface = engine.image_load(self.png_path)
@@ -59,7 +59,7 @@ class BmpFont():
                         print(e)
                         print("%s is not chartable" % c)
                         print("string: ", string)
-                    subsurf = engine.subsurface(self.surface, (char_pos_x, char_pos_y, self.width, self.height))
+                    subsurf = engine.subsurface(self.surface, (char_pos_x, char_pos_y, self._width, self.height))
                     self.memory[c] = (subsurf, char_width)
                 else:
                     subsurf, char_width = self.memory[c]
@@ -82,8 +82,8 @@ class BmpFont():
                         print("%s is not chartable" % c)
                         print("string: ", string)
 
-                    highsurf = engine.subsurface(self.surface, (char_pos_x, char_pos_y, self.width, self.height))
-                    lowsurf = engine.subsurface(self.surface, (char_pos_x, char_pos_y + self.height, self.width, self.height))
+                    highsurf = engine.subsurface(self.surface, (char_pos_x, char_pos_y, self._width, self.height))
+                    lowsurf = engine.subsurface(self.surface, (char_pos_x, char_pos_y + self.height, self._width, self.height))
                     self.memory[c] = (highsurf, lowsurf, char_width)
             for c in string:
                 highsurf, lowsurf, char_width = self.memory[c]
@@ -108,6 +108,14 @@ class BmpFont():
         else:
             normal_render(x, y)
 
+    def right_blit(self, string, surf, pos):
+        width = self.width(string)
+        self.blit(string, surf, (pos[0] - width, pos[1]))
+
+    def center_blit(self, string, surf, pos):
+        width = self.width(string)
+        self.blit(string, surf, (pos[0] - width//2, pos[1]))
+
     def size(self, string):
         """
         Returns the length and width of a bitmapped string
@@ -130,3 +138,26 @@ class BmpFont():
                 char_width = 8
             length += char_width
         return (length, self.height)
+
+    def width(self, string):
+        """
+        Returns the length and width of a bitmapped string
+        """
+        length = 0
+
+        if self.all_uppercase:
+            string = string.upper()
+        if self.all_lowercase:
+            string = string.lower()
+        string = string.replace('_', ' ')
+
+        for c in string:
+            try:
+                char_width = self.chartable[c][2]
+            except KeyError as e:
+                print(e)
+                print("%s is not chartable" % c)
+                print("string: ", string)
+                char_width = 8
+            length += char_width
+        return length

@@ -90,3 +90,24 @@ def calculate_distance(pos1: tuple, pos2: tuple) -> int:
     Taxicab/Manhattan distance
     """
     return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+def process_terms(terms):
+    """ 
+    Processes weighted lists
+    """
+    weight_sum = sum(term[1] for term in terms)
+    if weight_sum <= 0:
+        return 0
+    return sum(float(val, weight) for weight, val in terms) / weight_sum
+
+def farther_away_pos(pos, valid_moves: set, enemy_pos: set):
+    if valid_moves and enemy_pos:
+        avg_x, avg_y = 0, 0
+        for x, y in enemy_pos:
+            avg_x += x
+            avg_y += y
+        avg_x /= len(enemy_pos)
+        avg_y /= len(enemy_pos)
+        return sorted(valid_moves, key=lambda move: calculate_distance((avg_x, avg_y), move))[-1]
+    else:
+        return None

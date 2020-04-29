@@ -24,6 +24,7 @@ class UnitObject(Prefab):
         self.generic = prefab.generic
 
         self.ai = prefab.ai
+        self.ai_group = None
 
         self.items = self.create_items(prefab.starting_items)
 

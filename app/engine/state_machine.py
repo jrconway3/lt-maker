@@ -38,6 +38,7 @@ class StateMachine():
                            'movement': general_states.MovementState,
                            'wait': general_states.WaitState,
                            'canto_wait': general_states.CantoWaitState,
+                           'move_camera': general_states.MoveCameraState,
                            'dying': general_states.DyingState,
                            'menu': general_states.MenuState,
                            'item': general_states.ItemState,
@@ -48,6 +49,7 @@ class StateMachine():
                            'spell': general_states.SpellState,
                            'combat': general_states.CombatState,
                            'display_alerts': general_states.DisplayAlertsState,
+                           'ai': general_states.AIState,
                            'exp': level_up.ExpState
                            }
         if starting_states:

@@ -914,3 +914,54 @@ class DisplayAlertsState(State):
             alert = game.alerts
             alert.draw(surf)
         return surf
+
+class AIState(MapState):
+    name = 'ai'
+
+    def start(self):
+        game.cursor.hide()
+        self.unit_list = [unit for unit in game.level.units if unit.position and 
+                          not unit.finished and unit.team == game.phase.get_current()]
+        # Sort by distance to closest enemy (ascending)
+        self.unit_list = sorted(self.unit_list, key=lambda unit: game.targets.distance_to_closest_enemy(unit))
+        # Sort ai groups together
+        self.unit_list = sorted(self.unit_list, key=lambda unit: unit.ai_group)
+        # Sort by ai priority
+        self.unit_list = sorted(self.unit_list, key=lambda unit: DB.ai.get(unit.ai).priority)
+        # Reverse, because we will be popping them off at the end
+        self.unit_list.reverse()
+
+        self.cur_unit = None
+
+    def update(self):
+        super().update()
+
+        # Don't bother if someone is dying!!!
+        if any(unit.is_dying for unit in game.level.units):
+            return
+
+        if (not self.cur_unit or not self.cur_unit.position) and self.unit_list:
+            self.cur_unit = self.unit_list.pop()
+
+        logger.info("Current AI: %s", self.cur_unit)
+        
+        if self.cur_unit:
+            game.ai.load_unit(self.cur_unit)
+            did_something = game.ai.act()
+            # Center camera on current unit
+            if did_something and self.cur_unit.position:
+                game.cursor.set_pos(self.cur_unit.position)
+                game.state.change('move_camera')
+
+            if game.ai.is_done():
+                logger.info("Current AI %s is done with turn.", self.cur_unit)
+                action.do(action.Wait(self.cur_unit))
+                game.ai.reset()
+                self.cur_unit = None
+        else:
+            logger.info("AI Phase complete")
+            game.ai.reset()
+            self.unit_list.clear()
+            self.cur_unit = None
+            game.state.change('turn_change')
+            return 'repeat'

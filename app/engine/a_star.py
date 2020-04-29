@@ -174,7 +174,7 @@ class Djikstra():
         return {(cell.x, cell.y) for cell in self.closed}
 
 class AStar():
-    def __init__(self, start_pos, goal_pos, grid, width, height, unit_team, pass_through):
+    def __init__(self, start_pos, goal_pos, grid, width, height, unit_team, pass_through=False):
         self.cells = grid
         self.width = width
         self.height = height

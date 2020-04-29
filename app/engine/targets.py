@@ -46,6 +46,15 @@ class TargetSystem():
                 main_set.add((x + i, y - r + magn))
         return main_set
 
+    def distance_to_closest_enemy(self, unit, pos=None):
+        if pos is None:
+            pos = unit.position
+        enemy_list = [u for u in game.level.units if u.position and self.check_enemy(u, unit)]
+        if not enemy_list:
+            return 100  # No enemies
+        dist_list = [utilities.calculate_distance(enemy.position, pos) for enemy in enemy_list]
+        return min(dist_list)
+
     def get_adjacent_positions(self, pos):
         x, y = pos
         adjs = ((x, y - 1), (x - 1, y), (x + 1, y), (x, y + 1))

@@ -29,6 +29,7 @@ class StateMachine():
         from app.engine import title_screen, transitions, general_states, level_up
         self.all_states = {'title_start': title_screen.TitleStartState,
                            'transition_in': transitions.TransitionInState,
+                           'transition_out': transitions.TransitionOutState,
                            'turn_change': general_states.TurnChangeState,
                            'free': general_states.FreeState,
                            'option_menu': general_states.OptionMenuState,
@@ -43,6 +44,10 @@ class StateMachine():
                            'menu': general_states.MenuState,
                            'item': general_states.ItemState,
                            'item_child': general_states.ItemChildState,
+                           'rescue_select': general_states.SelectState,
+                           'drop_select': general_states.SelectState,
+                           'give_select': general_states.SelectState,
+                           'take_select': general_states.SelectState,
                            'weapon_choice': general_states.WeaponChoiceState,
                            'spell_choice': general_states.SpellChoiceState,
                            'attack': general_states.AttackState,

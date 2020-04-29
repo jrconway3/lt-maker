@@ -100,7 +100,10 @@ def process_terms(terms):
         return 0
     return sum(float(val, weight) for weight, val in terms) / weight_sum
 
-def farther_away_pos(pos, valid_moves: set, enemy_pos: set):
+def dot_product(a: tuple, b: tuple) -> float:
+    return sum(a[i] * b[i] for i in range(len(b)))
+
+def farthest_away_pos(pos, valid_moves: set, enemy_pos: set):
     if valid_moves and enemy_pos:
         avg_x, avg_y = 0, 0
         for x, y in enemy_pos:
@@ -109,5 +112,25 @@ def farther_away_pos(pos, valid_moves: set, enemy_pos: set):
         avg_x /= len(enemy_pos)
         avg_y /= len(enemy_pos)
         return sorted(valid_moves, key=lambda move: calculate_distance((avg_x, avg_y), move))[-1]
+    else:
+        return None
+
+def smart_farthest_away_pos(position, valid_moves: set, enemy_pos: set):
+    # Figure out avg position of enemies
+    if valid_moves and enemy_pos:
+        avg_x, avg_y = 0, 0
+        for pos, mag in enemy_pos:
+            diff_x = position[0] - pos[0]
+            diff_y = position[1] - pos[1]
+            diff_x /= mag
+            diff_y /= mag
+            avg_x += diff_x
+            avg_y += diff_y
+        avg_x /= len(enemy_pos)
+        avg_y /= len(enemy_pos)
+        # Now have vector pointing away from average enemy position
+        # I want the dot product between that vector and the vector of each possible move
+        # The highest dot product is the best 
+        return sorted(valid_moves, key=lambda move: dot_product((move[0] - position[0], move[1] - position[1]), (avg_x, avg_y)))[-1]
     else:
         return None

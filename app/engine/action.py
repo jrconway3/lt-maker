@@ -330,6 +330,42 @@ class Drop(Action):
         game.leave(self.droppee)
         self.droppee.position = None
 
+class Give(Action):
+    def __init__(self, unit, other):
+        self.unit = unit
+        self.other = other
+        self.action_state = self.unit.get_action_state()
+
+    def do(self):
+        self.other.traveler = self.unit.traveler
+        self.unit.traveler = None
+
+        self.unit.has_traded = True
+        
+    def reverse(self):
+        self.unit.traveler = self.other.traveler
+        self.other.traveler = None
+
+        self.unit.set_action_state(self.action_state)
+
+class Take(Action):
+    def __init__(self, unit, other):
+        self.unit = unit
+        self.other = other
+        self.action_state = self.unit.get_action_state()
+
+    def do(self):
+        self.unit.traveler = self.other.traveler
+        self.other.traveler = None
+
+        self.unit.has_traded = True
+        
+    def reverse(self):
+        self.other.traveler = self.unit.traveler
+        self.unit.traveler = None
+
+        self.unit.set_action_state(self.action_state)
+
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
     def __init__(self, item):

@@ -1,5 +1,6 @@
+from app.data.constants import WINWIDTH, WINHEIGHT
 from app.engine.sprites import SPRITES, FONT
-from app.engine import engine, base_surf, image_mods, icons
+from app.engine import engine, base_surf, image_mods, icons, text_funcs
 
 class Banner():
     def __init__(self):
@@ -87,3 +88,46 @@ class Custom(Banner):
         self.text = [text]
         self.font = ['text_white']
         self.figure_out_size()
+
+class Pennant():
+    """
+    Lower banner that scrolls across bottom of screen
+    """
+
+    font = FONT['convo_white']
+    bg_surf = SPRITES['pennant_bg']
+
+    def __init__(self, text):
+        self.change_text(text)
+
+        self.sprite_offset = 32
+
+        self.width = WINWIDTH
+        self.height = 16
+
+    def change_text(self, text):
+        self.text = text_funcs.translate(text)
+        self.text_width = self.font.width(self.text)
+        self.text_counter = 0
+
+    def draw(self, surf, draw_on_top=False):
+        self.sprite_offset -= 4
+        self.sprite_offset = max(0, self.sprite_offset)
+
+        counter = self.text_counter
+
+        # If cursor is all the way on the bottom of the map
+        if draw_on_top:
+            surf.blit(engine.flip_vert(self.bg_surf), (0, -self.sprite_offset))
+            while counter < self.width:
+                self.font.blit(self.text, surf, (counter, -self.sprite_offset))
+                counter += self.text_width + 24
+        else:
+            surf.blit(self.bg_surf, (0, WINHEIGHT - self.height + self.sprite_offset))
+            while counter < self.width:
+                self.font.blit(self.text, surf, (counter, WINHEIGHT - self.height + self.sprite_offset))
+                counter += self.text_white + 24
+
+        self.text_counter -= 1
+        if self.text_counter <= -(self.text_width + 24):
+            self.text_counter = 0

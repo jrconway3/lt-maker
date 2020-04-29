@@ -65,7 +65,8 @@ class GameState():
         """
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
-        from app.engine import cursor, camera, phase, highlight, targets, movement, death
+        from app.engine import cursor, camera, phase, highlight, targets, \
+            movement, death, ai_controller
         self.cursor = cursor.Cursor()
         self.camera = camera.Camera()
         self.phase = phase.PhaseController()
@@ -74,6 +75,7 @@ class GameState():
         self.moving_units = movement.MovementManager()
         self.death = death.DeathManager()
         self.combat_instance = None
+        self.ai = ai_controller.AIController()
 
         self.alerts = []
 

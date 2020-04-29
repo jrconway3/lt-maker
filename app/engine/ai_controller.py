@@ -2,7 +2,7 @@ import math
 
 from app import utilities
 from app.data.constants import FRAMERATE
-from app.data.item_components import SpellAffect
+from app.data.item_components import SpellTarget
 from app.data.database import DB
 from app.data import unit_object
 
@@ -76,7 +76,7 @@ class AIController():
             self.attack_ai_complete = True
         elif not self.canto_ai_complete:
             if self.unit.has_attacked and self.unit.has_canto_plus():
-                self.canto_retreat()
+                self.retreat()
                 self.move()
             self.canto_ai_complete = True
 
@@ -114,13 +114,42 @@ class AIController():
                         game.highlight.display_possible_spells(splash_positions)
                     # Combat
                     defender, splash = interaction.convert_positions(self.unit, self.unit.position, self.goal_target.position, self.goal_item)
-                    game.combat_instance = interaction.start_combat(self.unit, defender, self.goal_target.position, splash, self.goal_item)
+                    game.combat_instance = interaction.start_combat(self.unit, defender, self.goal_target.position, splash, self.goal_item, ai_combat=True)
                     game.state.change('combat')
 
     def canto_retreat(self):
         valid_positions = self.get_true_valid_moves()
         enemy_positions = {u.position for u in game.level.units if u.position and game.targets.check_enemy(self.unit, u)}
         self.goal_position = utilities.farthest_away_pos(self.unit.position, valid_positions, enemy_positions)
+
+    def smart_retreat(self):
+        valid_positions = self.get_true_valid_moves()
+
+        if self.behaviour.targets == 'Enemy':
+            target_positions = {u.position for u in game.level.units if u.position and game.targets.check_enemy(self.unit, u)}
+        elif self.behaviour.targets == 'Ally':
+            target_positions = {u.position for u in game.level.units if u.position and game.targets.check_ally(self.unit, u)}
+        elif self.behaviour.targets == 'Unit':
+            target_positions = {u.position for u in game.level.units if u.position}
+
+        zero_move = max(game.targets.find_potential_range(self.unit, True, True))
+        single_move = zero_move + game.equations.movement(self.unit)
+        double_move = self.single_move + game.equations.movement(self.unit)
+
+        target_positions = {(pos, utilities.calculate_distance(self.unit.position, pos)) for pos in target_positions}
+
+        if self.behaviour.view_range == -4:
+            pass
+        elif self.behaviour.view_range == -3:
+            target_positions = {(pos, mag) for pos, mag in target_positions if mag < double_move}
+        elif self.behaviour.view_range == -2:
+            target_positions = {(pos, mag) for pos, mag in target_positions if mag < single_move}
+        elif self.behaviour.view_range == -1:
+            target_positions = {(pos, mag) for pos, mag in target_positions if mag < zero_move}
+        else:
+            target_positions = {(pos, mag) for pos, mag in target_positions if mag < self.view_range}
+
+        self.goal_position = utilities.smart_farthest_away_pos(self.unit.position, valid_positions, target_positions)
 
     def get_true_valid_moves(self) -> set:
         valid_moves = game.targets.get_valid_moves(self.unit)
@@ -152,6 +181,13 @@ class AIController():
                     elif self.behaviour.action == "Attack":
                         self.inner_ai = self.build_primary()
                         self.state = "Primary"
+                    elif self.behaviour.action == 'Move_to':
+                        self.inner_ai = self.build_secondary()
+                        self.state = "Secondary"
+                    elif self.behaviour.action == "Move_away_from":
+                        self.smart_retreat()
+                        success = True
+                        self.state = "Done"
                 else:
                     self.state = 'Done'
 
@@ -203,7 +239,9 @@ class PrimaryAI():
 
         if self.behaviour.action == "Attack":
             self.items = [item for item in self.unit.items if self.unit.can_wield(item) and 
-                          (item.weapon or (item.spell and item.spell.affect == SpellAffect.Harmful))]
+                          (item.weapon or item.spell)]
+
+        self.all_targets = self.get_all_targets(self.unit)
 
         logger.info("Testing Items: %s", self.items)
         
@@ -223,28 +261,45 @@ class PrimaryAI():
             self.get_all_valid_targets()
             self.possible_moves = self.get_possible_moves()
 
-    def get_targets(self, unit, item, valid_moves):
-        targets = set()
-        item_range = game.equations.get_range(item, unit)
-
+    def get_all_targets(self, unit) -> set:
         if self.behaviour.target == "Enemy":
-            test = [u.position for u in game.level.units if u.position and game.targets.check_enemy(unit, u)]
-            while test:
-                pos = test.pop()
-                for valid_move in valid_moves:
-                    if utilities.calculate_distance(pos, valid_move) in item_range:
-                        targets.add(pos)
-                        break
+            targets = {u for u in game.level.units if u.position and game.targets.check_enemy(unit, u)}
+        elif self.behaviour.target == "Unit":
+            targets = {u for u in game.level.units if u.position}
+        elif self.behaviour.target == "Ally":
+            targets = {u for u in game.level.units if u.position and game.targets.check_ally(unit, u)}
         elif self.behaviour.target == "Tile":
-            # TODO add destroyable tiles
-            pass
-
+            targets = set()  # TODO add destroyable tiles
         return targets
+
+    def get_valid_targets(self, unit, item, valid_moves) -> list:
+        item_range = game.equations.get_range(item, unit)
+        valid_targets = set()
+
+        if item.weapon:
+            filtered_targets = [u.position for u in self.all_targets if game.targets.check_enemy(unit, u)]
+        elif item.spell:
+            if item.spell.target == SpellTarget.Ally:
+                filtered_targets = [u.position for u in self.all_targets if game.targets.check_ally(unit, u)]
+            elif item.spell.target == SpellTarget.Enemy:
+                filtered_targets = [u.position for u in self.all_targets if game.targets.check_enemy(unit, u)]
+            else:
+                filtered_targets = [u.position for u in self.all_targets]
+
+        while filtered_targets:
+            pos = filtered_targets.pop()
+            for valid_move in valid_moves:
+                # Determine if we can hit this unit at one of our moves
+                if utilities.calculate_distance(pos, valid_move) in item_range:
+                    valid_targets.add(pos)
+                    break
+
+        return list(valid_targets)
 
     def get_all_valid_targets(self):
         item = self.items[self.item_index]
         logger.info(item)
-        self.valid_targets = self.get_targets(self.unit, item, self.valid_moves)
+        self.valid_targets = self.get_valid_targets(self.unit, item, self.valid_moves)
         if 0 in game.equations.get_range(item, self.unit):
             self.valid_targets += self.valid_moves  # Hack to target self in all valid positions
             self.valid_targets = list(set(self.valid_targets))  # Only uniques
@@ -402,11 +457,34 @@ class SecondaryAI():
             self.view_range = -3  # Try this first
 
         self.available_targets = []
-        if self.behaviour.target == "Enemy":
-            self.all_targets = [u.position for u in game.level.units if u.position and game.targets.check_enemy(self.unit, u)]
-        elif self.behaviour.target == "Tile":
-            # TODO add breakable tiles
-            self.all_targets = []
+
+        # Determine all targets
+        if self.behaviour.action == "Attack":
+            if self.behaviour.target == "Enemy":
+                self.all_targets = [u.position for u in game.level.units if u.position and game.targets.check_enemy(self.unit, u)]
+            elif self.behaviour.target == "Unit":
+                self.all_targets = [u.position for u in game.level.units if u.position]
+            elif self.behaviour.target == "Ally":
+                self.all_targets = [u.position for u in game.level.units if u.position and game.targets.check_ally(self.unit, u)]
+            elif self.behaviour.target == "Tile":
+                # TODO add breakable tiles
+                self.all_targets = []
+        elif self.behaviour.action == "Move_to":
+            # Move to a specific position
+            if self.behaviour.target == "Position":
+                if self.behaviour.target_spec == ["Starting"]:
+                    self.all_targets = [self.unit.starting_position]
+                else:
+                    self.all_targets = [self.behaviour.target_spec]
+            elif self.behaviour.target == "Ally":
+                self.all_targets = [u for u in game.level.units if u.position and game.targets.check_ally(self.unit, u)]
+                if self.behaviour.target_spec:
+                    if self.behaviour.target_spec[0] == "Tag":
+                        self.all_targets = [u.position for u in self.all_targets if self.behaviour.target_spec[1] in u.tags]
+                    elif self.behaviour.target_spec[0] == "Class":
+                        self.all_targets = [u.position for u in self.all_targets if u.klass == self.behaviour.target_spec[1]]
+                else:
+                    self.all_targets = [u.position for u in self.all_targets]
 
         self.single_move = game.equations.movement(self.unit) + max(game.targets.find_potential_range(self.unit, True, True))
         self.double_move = self.single_move + game.equations.movement(self.unit)

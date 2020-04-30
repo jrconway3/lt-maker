@@ -245,6 +245,8 @@ class UnitSprite():
             else:
                 color = tuple((total_time - time_passed) * float(c) // total_time for c in color)
                 image = image_mods.change_color(image.convert_alpha(), color)
+        elif game.boundary.draw_flag and self.unit in game.boundary.displaying_units:
+            image = image_mods.change_color(image.convert_color, (80, 0, 0))
 
         # Each image has (self.image.get_width() - 32)//2 buggers on the
         # left and right of it, to handle any off tile spriting

@@ -1,6 +1,13 @@
 from dataclasses import dataclass
+from app.data.constants import WINWIDTH, WINHEIGHT
+
+from app.engine.sprites import SPRITES, FONT
+
 from app.engine.game_state import game
 import app.engine.action as Action
+from app.engine.background import SpriteBackground
+from app.engine.state import MapState
+from app.engine import engine, base_surf, image_mods
 
 import logging
 logger = logging.getLogger(__name__)
@@ -327,3 +334,186 @@ class ActionLog():
             self.append(getattr(Action, name).deserialize(action))
         self.first_free_action = first_free_action
         return self
+
+class TurnwheelDisplay():
+    locked_sprite = SPRITES.get('focus_fade_red')
+    unlocked_sprite = SPRITES.get('focus_fade_green')
+
+    def __init__(self, desc, turn):
+        self.desc = desc
+        self.turn = turn
+        self.state = 'in'
+        self.transition = -24
+
+    def change_text(self, desc, turn):
+        self.desc = desc
+        self.turn = turn
+
+    def fade_out(self):
+        self.state = 'out'
+
+    def draw(self, surf):
+        if self.state == 'in':
+            self.transition += 2
+            if self.transition >= 0:
+                self.transition = 0
+                self.state = 'normal'
+        elif self.state == 'out':
+            self.transition -= 2
+
+        if game.action_log.locked:
+            surf.blit(self.locked_sprite, (0, 0))
+        else:
+            surf.blit(self.unlocked_sprite, (0, 0))
+
+        # Turnwheel message
+        if self.desc:
+            font = FONT['text_white']
+            num_lines = len(self.desc)
+            bg = base_surf.create_base_surf((WINWIDTH, 8 + font.height * num_lines), 'clear_menu_bg_base')
+            for idx, line in enumerate(self.desc):
+                font.blit(line, bg, (4, 4 + font.height * idx))
+            if self.transition != 0:
+                bg = image_mods.make_translucent(bg, -self.transition/24.)
+            surf.blit(bg, (0, 0))
+
+        # Turncount
+        golden_words_surf = SPRITES.get('golden_words')
+        # Get turn
+        turn_surf = engine.subsurface(golden_words_surf, (0, 17, 26, 10))
+        turn_bg = base_surf.create_base_surf((48, 24), 'trans_menu_bg_base')
+        turn_bg.blit(turn_surf, (4, 6))
+        FONT['text_blue'].blit_right(str(self.turn), turn_bg, (44, 3))
+        surf.blit(turn_bg, WINWIDTH - 44, 4 + self.transition)
+        # Unit Count
+        count_bg = base_surf.create_base_surf((48, 24), 'trans_menu_bg_base')
+        player_units = [unit for unit in game.level.units if unit.team == 'player' and unit.position]
+        unused_units = [unit for unit in player_units if not unit.finished]
+        count_str = str(len(unused_units)) + "/" + str(len(player_units))
+        count_width = FONT['text_blue'].width(count_str)
+        FONT['text_blue'].blit(count_str, count_bg, (24 - count_width/2, 3))
+        surf.blit(count_bg, (4, WINHEIGHT - 28 - self.transition))
+        # Num uses
+        if game.game_constants.get('max_turnwheel_uses', -1) > 0:
+            uses_bg = base_surf.create_base_surf((48, 24), 'trans_menu_bg_base')
+            uses_text = str(game.game_constants['current_turnwheel_uses']) + ' Left'
+            x = 48 - FONT['text_blue'].width(uses_text) - 8
+            FONT['text_blue'].blit(uses_text, uses_bg, (x, 4))
+            surf.blit(uses_bg, (WINWIDTH - 52, WINHEIGHT - 28 - self.transition))
+
+class TurnwheelState(MapState):
+    def begin(self):
+        game.action_log.record = False
+
+        # Lower volume
+
+        self.bg = SpriteBackground(SPRITES.get('focus_fade'), fade=True)
+        turnwheel_desc = game.action_log.set_up()
+        self.display = TurnwheelDisplay(turnwheel_desc, game.turncount)
+
+        self.transition_out = 0
+
+        # For darken background and drawing
+        self.darken_background = 0
+        self.target_dark = 0
+        self.end_effect = None
+        self.particles = []
+
+        self.last_direction = 'FORWARD'
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        if self.transition_out > 0:
+            return  # Don't take input after a choice has been made
+
+        if 'DOWN' in directions or 'RIGHT' in directions:
+            old_message = None
+            if self.last_direction == 'BACKWARD':
+                game.action_log.current_unit = None
+                old_message = game.action_log.forward()
+            new_message = game.action_log.forward()
+            if new_message is None:
+                new_message = old_message
+            if new_message is not None:
+                self.display.change_text(new_message, game.turncount)
+            self.last_direction = 'FORWARD'
+        elif 'UP' in directions or 'LEFT' in directions:
+            old_message = None
+            if self.last_direction == 'FORWARD':
+                game.action_log.current_unit = None
+                old_message = game.action_log.backward()
+            new_message = game.action_log.backward()
+            if new_message is None:
+                new_message = old_message
+            if new_message is not None:
+                self.display.change_text(new_message, game.turncount)
+            self.last_direction = 'BACKWARD'
+
+        if event == 'SELECT':
+            if game.action_log.can_use():
+                game.action_log.finalize()
+                self.transition_out = 60
+                self.display.fade_out()
+                self.turnwheel_effect()
+                self.bg.fade_out()
+                game.game_constants['current_turnwheel_uses'] -= 1
+            elif not game.action_log.locked:
+                self.back_out()
+            else:
+                # ERROR SOUND
+                pass
+
+        elif event == 'BACK':
+            self.back_out()
+
+    def back_out(self):
+        game.action_log.reset()
+        self.transition_out = 24
+        self.display.fade_out()
+        self.bg.fade_out()
+
+    def turnwheel_effect(self):
+        pass
+        # Add effect and warp flowers
+
+    def update(self):
+        super().update()
+
+        if self.transition_out > 0:
+            self.transition_out -= 1
+            if self.transition_out <= 0:
+                game.state.back()
+                game.state.back()
+                # Call turnwheel script whenever the turnwheel is used
+
+        # Update animations
+        # if self.end_effect:
+        #     self.end_effect.update()
+
+    def darken(self):
+        self.target_dark += 4
+
+    def lighten(self):
+        self.target_dark -= 4
+
+    def draw(self, surf):
+        if self.display:
+            self.display.draw(surf)
+
+        if self.darken_background or self.target_dark:
+            bg = image_mods.make_translucent(SPRITES.get('bg_black'), 1 - self.darken_background/8.)
+            surf.blit(bg, (0, 0))
+            if self.target_dark > self.darken_background:
+                self.darken_background += 1
+            elif self.target_dark < self.darken_background:
+                self.darken_background -= 1
+
+        # Draw animation
+        return surf
+
+    def end(self):
+        game.boundary.reset()
+        # Set volume back
+        game.action_log.record = True

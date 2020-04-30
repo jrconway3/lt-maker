@@ -12,7 +12,7 @@ class TransitionInState(State):
     transparent = True
 
     def start(self):
-        self.bg = SPRITES.get('BlackBackground')
+        self.bg = SPRITES.get('bg_black')
         self.counter = 0
         self.transition_speed = game.memory.get('transition_speed', transition_speed)
 
@@ -33,7 +33,7 @@ class TransitionOutState(State):
     transparent = True
 
     def start(self):
-        self.bg = SPRITES.get('BlackBackground')
+        self.bg = SPRITES.get('bg_black')
         self.transition_speed = game.memory.get('transition_speed', transition_speed)
         self.counter = transition_max
 

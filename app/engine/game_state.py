@@ -66,7 +66,7 @@ class GameState():
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
         from app.engine import cursor, camera, phase, highlight, targets, \
-            movement, death, ai_controller
+            movement, death, ai_controller, boundary
         self.cursor = cursor.Cursor()
         self.camera = camera.Camera()
         self.phase = phase.PhaseController()
@@ -76,6 +76,7 @@ class GameState():
         self.death = death.DeathManager()
         self.combat_instance = None
         self.ai = ai_controller.AIController()
+        self.boundary = boundary.BoundaryInterface()
 
         self.alerts = []
 
@@ -135,7 +136,7 @@ class GameState():
             logger.info("Leave %s %s %s", unit, unit.nid, unit.position)
             if not test:
                 game.grid.set_unit(unit.position, None)
-                # Boundary
+                game.boundary.leave(unit)
             # Tiles
         # Auras
 
@@ -144,7 +145,7 @@ class GameState():
             logger.info("Arrive %s %s %s", unit, unit.nid, unit.position)
             if not test:
                 game.grid.set_unit(unit.position, unit)
-                # Boundary
+                game.boundary.arrive(unit)
             # Tiles
             # Auras
 

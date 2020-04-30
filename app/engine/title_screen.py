@@ -3,7 +3,7 @@ from app.data.resources import RESOURCES
 from app.engine import engine
 from app.engine.sprites import SPRITES
 from app.engine.state import State
-from app.engine.background import Background
+from app.engine.background import PanoramaBackground
 from app.engine.game_state import game
 
 class TitleStartState(State):
@@ -12,9 +12,9 @@ class TitleStartState(State):
     show_map = False
 
     def start(self):
-        self.logo = SPRITES.get('Logo')
+        self.logo = SPRITES.get('logo')
         imgs = RESOURCES.panoramas.get('title_background')
-        self.bg = Background(imgs) if imgs else None
+        self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['transition_speed'] = 0.01
         game.state.change('transition_in')
         return 'repeat'

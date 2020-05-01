@@ -389,6 +389,18 @@ class CantoWaitState(MapState):
                 action.reverse(self.cur_unit.current_move)
                 self.cur_unit.current_move = None
 
+class MoveCameraState(MapState):
+    name = 'move_camera'
+
+    def begin(self):
+        game.cursor.hide()
+
+    def update(self):
+        super().update()
+        if game.camera.at_rest():
+            game.state.back()
+            return 'repeat'
+
 class MenuState(MapState):
     name = 'menu'
     normal_options = {'Item', 'Wait', 'Take', 'Give', 'Rescue', 'Trade', 'Drop', 'Visit', 'Armory', 'Vendor', 'Spells', 'Attack', 'Steal', 'Shove'}
@@ -513,13 +525,13 @@ class MenuState(MapState):
             elif selection == 'Trade':
                 pass
             elif selection == 'Rescue':
-                pass
+                game.state.change('rescue_select')
             elif selection == 'Take':
-                pass
+                game.state.change('take_select')
             elif selection == 'Drop':
-                pass
+                game.state.change('drop_select')
             elif selection == 'Give':
-                pass
+                game.state.change('give_select')
             elif selection == 'Wait':
                 game.state.clear()
                 game.state.change('free')
@@ -641,6 +653,99 @@ class ItemChildState(MapState):
         surf = self.menu.draw(surf)
         return surf
 
+class SelectState(MapState):
+    name = 'select'
+
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
+
+        adj_positions = game.targets.get_adjacent_positions(self.cur_unit.position)
+        adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
+        adj_units = [_ for _ in adj_units if _]  # Remove Nones
+        adj_allies = [unit for unit in adj_units if game.targets.check_ally(self.cur_unit, unit)]
+
+        if self.name == 'rescue_select':
+            good_pos = [unit.position for unit in adj_allies if not unit.traveler and
+                        game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(unit)]
+        elif self.name == 'take_select':
+            good_pos = [unit.position for unit in adj_allies if unit.traveler and
+                        game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(game.level.units.get(unit.traveler))]
+        elif self.name == 'drop_select':
+            traveler = game.level.units.get(self.cur_unit.traveler)
+            good_pos = [adj for adj in adj_positions if not game.grid.get_unit(adj) and
+                        game.movement.get_mcost(traveler, adj) <= game.equations.movement(traveler)]
+        elif self.name == 'give_select':
+            traveler = game.level.units.get(self.cur_unit.traveler)
+            good_pos = [unit.position for unit in adj_allies if not unit.traveler and
+                        game.equations.rescue_aid(unit) > game.equations.rescue_weight(traveler)]
+        
+        self.selection = SelectionHelper(good_pos)
+        closest_pos = self.selection.get_closest(self.cur_unit.position)
+        game.cursor.set_pos(closest_pos)
+
+        self.pennant = banner.Pennant(self.name)
+
+    def begin(self):
+        game.cursor.combat_show()
+        self.cur_unit.sprite.change_state('chosen')
+
+    def take_input(self, event):
+        self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        if 'DOWN' in directions:
+            new_position = self.selection.get_down(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'UP' in directions:
+            new_position = self.selection.get_up(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        if 'LEFT' in directions:
+            new_position = self.selection.get_left(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'RIGHT' in directions:
+            new_position = self.selection.get_right(game.cursor.position)
+            game.cursor.set_pos(new_position)
+
+        new_position = self.selection.handle_mouse()
+        if new_position:
+            game.cursor.set_pos(new_position)
+
+        if event == 'BACK':
+            game.state.back()
+
+        elif event == 'SELECT':
+            if self.name == 'rescue_select':
+                unit = game.grid.get_unit(game.cursor.position)
+                action.do(action.Rescue(self.cur_unit, unit))
+                if self.cur_unit.has_canto():
+                    game.state.change('menu')
+                else:
+                    game.state.change('free')
+                    action.do(action.Wait(self.cur_unit))
+                    game.cursor.set_pos(self.cur_unit.position)
+            elif self.name == 'take_select':
+                unit = game.grid.get_unit(game.cursor.position)
+                action.do(action.Take(self.cur_unit, unit))
+                # Taking does not count as major action
+                game.state.change('menu')
+            elif self.name == 'give_select':
+                unit = game.grid.get_unit(game.cursor.position)
+                action.do(action.Give(self.cur_unit, unit))
+                # Giving does not count as a major action
+                game.state.change('menu')
+            elif self.name == 'drop_select':
+                game.state.change('menu')
+                unit = game.level.units.get(self.cur_unit.traveler)
+                action.do(action.Drop(self.cur_unit, unit, game.cursor.position))
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        if self.pennant:
+            draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
+            self.pennant.draw(surf, draw_on_top)
+        return surf
+
+
 class WeaponChoiceState(MapState):
     name = 'weapon_choice'
 
@@ -756,6 +861,10 @@ class AttackState(MapState):
             new_position = self.selection.get_right(game.cursor.position)
             game.cursor.set_pos(new_position)
 
+        new_position = self.selection.handle_mouse()
+        if new_position:
+            game.cursor.set_pos(new_position)
+
         if event == 'BACK':
             game.state.back()
 
@@ -806,40 +915,10 @@ class SpellState(MapState):
 
         self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
 
-    def take_input(self, event):
-        self.fluid.update()
-        directions = self.fluid.get_directions()
-        if 'DOWN' in directions:
-            new_position = self.selection.get_down(game.cursor.position)
-            game.cursor.set_pos(new_position)
-        elif 'UP' in directions:
-            new_position = self.selection.get_up(game.cursor.position)
-            game.cursor.set_pos(new_position)
-        if 'LEFT' in directions:
-            new_position = self.selection.get_left(game.cursor.position)
-            game.cursor.set_pos(new_position)
-        elif 'RIGHT' in directions:
-            new_position = self.selection.get_right(game.cursor.position)
-            game.cursor.set_pos(new_position)
-
-        if event == 'BACK':
-            game.state.back()
-
-        elif event == 'SELECT':
-            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, self.spell)
-            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.spell)
-            game.state.change('combat')
-
-        if directions:
-            self.display_single_attack()
-
     def draw(self, surf):
         surf = super().draw(surf)
         # TODO Draw attack info
         return surf
-
-    def end(self):
-        game.highlight.remove_highlights()
 
 class CombatState(MapState):
     name = 'combat'
@@ -847,14 +926,12 @@ class CombatState(MapState):
     dark_fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.5)
 
     def start(self):
+        game.cursor.hide()
         self.skip = False
         width = game.tilemap.width * TILEWIDTH
         height = game.tilemap.height * TILEHEIGHT
         self.unit_surf = engine.create_surface((width, height), transparent=True)
         self.is_animation_combat = isinstance(game.combat_instance, combat.AnimationCombat)
-
-    def begin(self):
-        game.cursor.hide()
 
     def take_input(self, event):
         if event == 'START' and not self.skip:

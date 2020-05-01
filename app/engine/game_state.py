@@ -66,7 +66,7 @@ class GameState():
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
         from app.engine import cursor, camera, phase, highlight, targets, \
-            movement, death, ai_controller, boundary
+            movement, death, ai_controller
         self.cursor = cursor.Cursor()
         self.camera = camera.Camera()
         self.phase = phase.PhaseController()
@@ -76,7 +76,6 @@ class GameState():
         self.death = death.DeathManager()
         self.combat_instance = None
         self.ai = ai_controller.AIController()
-        self.boundary = boundary.BoundaryInterface()
 
         self.alerts = []
 
@@ -89,9 +88,13 @@ class GameState():
         Done at the beginning of a new level to start the level up
         """
         from app.data.level_object import LevelObject
+        from app.engine import boundary
         level_prefab = DB.levels.get(level_nid)
         self.tilemap = self.load_map(level_prefab.tilemap)
         self.current_level = LevelObject(level_prefab, self.tilemap)
+
+        self.boundary = boundary.BoundaryInterface(self.tilemap.width, self.tilemap.height)
+
         for unit in self.current_level.units:
             for item in unit.items:
                 self.register_item(item)

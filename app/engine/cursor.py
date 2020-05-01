@@ -27,6 +27,7 @@ class Cursor():
         self.display_arrows = False
         self.arrows = []
         self.border_position = None  # Last position within movement borders
+        self.stopped_at_move_border = False
 
     def get_hover(self):
         return game.grid.get_unit(self.position)
@@ -138,7 +139,33 @@ class Cursor():
 
     def take_input(self):
         self.fluid.update()
-        directions = self.fluid.get_directions()
+        if self.stopped_at_move_border:
+            directions = self.fluid.get_directions(slow_speed=True)
+        else:
+            directions = self.fluid.get_directions()
+
+        if game.highlight.check_in_move(self.position):
+            if directions:
+                # If we would move off the current move
+                if ('LEFT' in directions and not game.input_manager.just_pressed('LEFT') and
+                        not game.highlight.check_in_move((self.position[0] - 1, self.position[1]))) or \
+                        ('RIGHT' in directions and not game.input_manager.just_pressed('RIGHT') and
+                         not game.highlight.check_in_move((self.position[0] + 1, self.position[1]))) or \
+                        ('UP' in directions and not game.input_manager.just_pressed('UP') and
+                         not game.highlight.check_in_move((self.position[0], self.position[1] - 1))) or \
+                        ('DOWN' in directions and not game.input_manager.just_pressed('DOWN') and
+                         not game.highlight.check_in_move((self.position[0], self.position[1] + 1))):
+                    # Then we can just keep going
+                    if self.stopped_at_move_border:
+                        self.stopped_at_move_border = False
+                    else:  # Ooh, we gotta stop the cursor movement
+                        directions.clear()
+                        self.fluid.reset()
+                        self.stopped_at_move_border = True
+                else:
+                    self.stopped_at_move_border = False
+        else:
+            self.stopped_at_move_border = False
 
         # Handle keyboard first
         if 'LEFT' in directions and self.position[0] > 0:
@@ -168,6 +195,8 @@ class Cursor():
         hovered_unit = self.get_hover()
         if self.draw_state == 2:
             self.image = engine.subsurface(self.red_sprite, (left, 0, 32, 32))
+        elif self.draw_state == 3:  # Green for turnwheel
+            self.image = engine.subsurface(self.green_sprite, (left, 0, 32, 32))
         elif hovered_unit and hovered_unit.team == 'player' and not hovered_unit.finished:
             self.image = self.active_sprite
         else:

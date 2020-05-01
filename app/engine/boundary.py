@@ -1,7 +1,9 @@
+from app import utilities
+
 from app.engine.sprites import SPRITES
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 
-from app.engine import engine, utilities
+from app.engine import engine
 from app.engine.game_state import game
 
 class BoundaryInterface():
@@ -60,7 +62,7 @@ class BoundaryInterface():
             self.surf = None
 
     def _set(self, positions, mode, nid):
-        grid = self.grid[mode]
+        grid = self.grids[mode]
         self.dictionaries[mode][nid] = set()
         for pos in positions:
             grid[pos[0] * self.height + pos[1]].add(nid)
@@ -83,7 +85,7 @@ class BoundaryInterface():
         self._set(valid_attacks, 'attack', unit.nid)
         self._set(valid_spells, 'spell', unit.nid)
 
-        area_of_influence = game.targets.find_manhattan_spheres(set(range(1, game.equations.movement(unit) + 1)), unit.position)
+        area_of_influence = game.targets.find_manhattan_spheres(set(range(1, game.equations.movement(unit) + 1)), *unit.position)
         area_of_influence = {pos for pos in area_of_influence if self.check_bounds(pos)}
         self._set(area_of_influence, 'movement', unit.nid)
 

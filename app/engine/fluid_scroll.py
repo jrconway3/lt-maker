@@ -69,11 +69,13 @@ class FluidScroll():
             return True  # This is a first push
         return False
 
-    def get_directions(self, double_speed=False):
+    def get_directions(self, double_speed=False, slow_speed=False):
         directions = []
         current_time = engine.get_time()
 
-        if self.move_counter >= 2:
+        if slow_speed:
+            speed = self.slow_speed
+        elif self.move_counter >= 2:
             speed = self.fast_speed
         else:
             speed = self.slow_speed

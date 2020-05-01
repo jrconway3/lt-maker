@@ -1,4 +1,5 @@
 from app import utilities
+from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 from app.data.item_components import SpellAffect, SpellTarget
 from app.engine import a_star, interaction
@@ -254,6 +255,14 @@ class TargetSystem():
 class SelectionHelper():
     def __init__(self, pos_list):
         self.pos_list = pos_list
+
+    def handle_mouse(self):
+        mouse_position = game.input_manager.get_mouse_position()
+        if mouse_position:
+            new_pos = mouse_position[0] // TILEWIDTH, mouse_position[1] // TILEHEIGHT
+            if new_pos in self.pos_list:
+                return new_pos
+        return None
 
     # For a given position, determine which position in self.pos_list is closest
     def get_closest(self, position):

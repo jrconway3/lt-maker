@@ -30,5 +30,25 @@
     {
         "nid": "Turnwheel_empty",
         "text": "No turnwheel uses remaining!"
+    },
+    {
+        "nid": "rescue_select",
+        "text": "Select a unit to rescue."
+    },
+    {
+        "nid": "take_select",
+        "text": "Take the traveler from an adjacent unit."
+    },
+    {
+        "nid": "drop_select",
+        "text": "Select which tile to drop the unit into."
+    },
+    {
+        "nid": "give_select",
+        "text": "Give the traveler to an adjacent unit."
+    },
+    {
+        "nid": "trade_select",
+        "text": "Select a unit to trade with."
     }
 ]

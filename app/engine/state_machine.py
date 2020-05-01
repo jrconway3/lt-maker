@@ -26,7 +26,7 @@ class StateMachine():
         self.temp_state = []
 
     def load_states(self, starting_states=None):
-        from app.engine import title_screen, transitions, general_states, level_up
+        from app.engine import title_screen, transitions, general_states, level_up, turnwheel
         self.all_states = {'title_start': title_screen.TitleStartState,
                            'transition_in': transitions.TransitionInState,
                            'transition_out': transitions.TransitionOutState,
@@ -55,7 +55,8 @@ class StateMachine():
                            'combat': general_states.CombatState,
                            'display_alerts': general_states.DisplayAlertsState,
                            'ai': general_states.AIState,
-                           'exp': level_up.ExpState
+                           'exp': level_up.ExpState,
+                           'turnwheel': turnwheel.TurnwheelState
                            }
         if starting_states:
             for state_name in starting_states:

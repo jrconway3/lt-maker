@@ -1,14 +1,14 @@
 # TO DO List
 
 Editor:
-Items
-Mouse Cursor
-Attacking
+* Items
+* Mouse Cursor
+* Attacking
 Trading
-Rescuing/Dropping/etc.
-Enemy AI
-OptionsMenu
-Turnwheel
+* Rescuing/Dropping/etc.
+* Enemy AI
+* OptionsMenu
+* Turnwheel
 Suspending
     - Register items, statuses, and units with the save_state manager
     - Saving and loading
@@ -17,6 +17,7 @@ Spells
 All remaining Item components
 Winning/Losing
 SettingsMenu
+UI View
 
 Launcher
 Auto-update

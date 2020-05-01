@@ -566,7 +566,7 @@ class MapCombat(Combat):
                     action.do(action.UpdateUnitRecords(self.p2, records))
                     if my_exp > 0:
                         game.memory['exp'] = (self.p2, my_exp, None, 'init')
-                        game.state.change('exp_gain')
+                        game.state.change('exp')
 
         self.handle_death(all_units)
         # Actually remove items

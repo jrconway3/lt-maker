@@ -98,7 +98,7 @@ def process_terms(terms):
     weight_sum = sum(term[1] for term in terms)
     if weight_sum <= 0:
         return 0
-    return sum(float(val, weight) for weight, val in terms) / weight_sum
+    return sum(float(val * weight) for weight, val in terms) / weight_sum
 
 def dot_product(a: tuple, b: tuple) -> float:
     return sum(a[i] * b[i] for i in range(len(b)))

@@ -44,6 +44,13 @@ def change_color(image, color):
         engine.fill(image, new_color, None, blend_mode)
     return image
 
+def tint_image(image, color):
+    new_image = change_color(image, color)
+    engine.fill(new_image, (255, 255, 255, color[3]), None, engine.BLEND_RGBA_MULT)
+    image.blit(new_image, (0, 0))
+
+    return image
+
 def blend_colors(color1, color2, t):
     """
     gets a color between color1 and color2 depending on t

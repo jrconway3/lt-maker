@@ -105,6 +105,8 @@ class UnitSprite():
 
     def set_transition(self, new_state):
         self.transition_state = new_state
+        self.transition_counter = self.transition_time  # 400
+
         if self.transition_state == 'fake_in':
             self.change_state('fake_transition_in')
         elif self.transition_state in ('fake_out', 'rescue'):
@@ -218,7 +220,11 @@ class UnitSprite():
                 self.unit.position = None
 
     def update_transition(self):
-        pass
+        self.transition_counter -= engine.get_delta()
+        if self.transition_counter < 0:
+            self.transition_counter = 0
+            if self.transition_state == 'fade_out':
+                self.transition_state = 'normal'
 
     def select_frame(self, image):
         if self.image_state == 'passive' or self.image_state == 'gray':
@@ -237,6 +243,11 @@ class UnitSprite():
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
 
+        if self.unit.is_dying:
+            image = image_mods.make_white(image.convert_alpha(), 1)
+            progress = (self.transition_time - self.transition_counter) / self.transition_time
+            image = image_mods.make_translucent(image, progress)
+
         if self.flicker:
             starting_time, total_time, color = self.flicker
             time_passed = engine.get_time() - starting_time
@@ -247,6 +258,17 @@ class UnitSprite():
                 image = image_mods.change_color(image.convert_alpha(), color)
         elif game.boundary.draw_flag and self.unit in game.boundary.displaying_units:
             image = image_mods.change_color(image.convert_color, (80, 0, 0))
+
+        if game.action_log.hovered_unit is self.unit:
+            time = engine.get_time()
+            length = 200
+            if not (time // length) % 2:
+                diff = time % length
+                if diff > length // 2:
+                    diff = length - diff
+                diff = utilities.clamp(255. * diff / length * 2, 0, 255) 
+                color = (-120, 120, -120, diff)  # Tint image green at magnitude depending on diff
+                image = image_mods.tint_image(image.convert_alpha(), color)
 
         # Each image has (self.image.get_width() - 32)//2 buggers on the
         # left and right of it, to handle any off tile spriting

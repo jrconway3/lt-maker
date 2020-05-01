@@ -94,7 +94,7 @@ class AIController():
             return False
 
     def attack(self):
-        if self.goal_target:
+        if self.goal_target:  # Target is a tuple
             if self.goal_item:
                 if self.goal_item in self.unit.items:
                     self.unit.equip(self.goal_item)
@@ -102,19 +102,19 @@ class AIController():
                     if self.goal_item.weapon:
                         game.highlight.remove_highlights()
                         attack_position, splash_positions = \
-                            interaction.get_aoe(self.goal_item, self.unit, self.unit.position, self.goal_target.position)
+                            interaction.get_aoe(self.goal_item, self.unit, self.unit.position, self.goal_target)
                         game.highlight.display_possible_attacks({attack_position})
                         game.highlight.display_possible_attacks(splash_positions, light=True)
                     elif self.goal_item.spell:
                         game.highlight.remove_highlights()
                         attack_position, splash_positions = \
-                            interaction.get_aoe(self.goal_item, self.unit, self.unit.position, self.goal_target.position)
+                            interaction.get_aoe(self.goal_item, self.unit, self.unit.position, self.goal_target)
                         if attack_position:
                             game.highlight.display_possible_spells({attack_position})
                         game.highlight.display_possible_spells(splash_positions)
                     # Combat
-                    defender, splash = interaction.convert_positions(self.unit, self.unit.position, self.goal_target.position, self.goal_item)
-                    game.combat_instance = interaction.start_combat(self.unit, defender, self.goal_target.position, splash, self.goal_item, ai_combat=True)
+                    defender, splash = interaction.convert_positions(self.unit, self.unit.position, self.goal_target, self.goal_item)
+                    game.combat_instance = interaction.start_combat(self.unit, defender, self.goal_target, splash, self.goal_item, ai_combat=True)
                     game.state.change('combat')
 
     def canto_retreat(self):
@@ -217,7 +217,7 @@ class AIController():
 
         return False
 
-    def build_attack_primary(self):
+    def build_primary(self):
         if self.behaviour.view_range == -1:  # Guard AI
             valid_moves = {self.unit.position}
         else:
@@ -225,7 +225,7 @@ class AIController():
 
         return PrimaryAI(self.unit, valid_moves, self.behaviour)
 
-    def build_attack_secondary(self):
+    def build_secondary(self):
         return SecondaryAI(self.unit, self.behaviour)
 
 class PrimaryAI():
@@ -306,7 +306,7 @@ class PrimaryAI():
         logger.info("Valid Targets: %s", self.valid_targets)
 
     def get_possible_moves(self):
-        if self.target_index < self.valid_targets and self.item_index < len(self.items):
+        if self.target_index < len(self.valid_targets) and self.item_index < len(self.items):
             # Given an item and a target, find all positions in valid_moves that I can strike the target at.
             item = self.items[self.item_index]
             target = self.valid_targets[self.target_index]
@@ -376,7 +376,7 @@ class PrimaryAI():
             self.best_item = item
             self.max_tp = tp
 
-    def compute_priorty_weapon(self, defender, splash, move, item):
+    def compute_priority_weapon(self, defender, splash, move, item):
         terms = []
 
         offensive_term = 0
@@ -514,7 +514,7 @@ class SecondaryAI():
 
         self.best_position = None
 
-    def update(self):
+    def run(self):
         if self.available_targets:
             target = self.available_targets.pop()
             # Find a path to the target
@@ -531,7 +531,7 @@ class SecondaryAI():
                 self.best_path = path
 
         elif self.best_target:
-            self.best_position = utilities.travel_algorithm(self.best_path, self.unit.movement_left, self.unit, self.grid)
+            self.best_position = game.targets.travel_algorithm(self.best_path, self.unit.movement_left, self.unit, self.grid)
             return True, self.best_position
 
         else:

@@ -192,6 +192,27 @@ class TargetSystem():
         path = pathfinder.process(game.grid.team_grid, ally_block=ally_block)
         return path
 
+    def travel_algorithm(self, path, moves, unit, grid):
+        """
+        Given a long path, travels along that path as far as possible
+        """
+        if not path:
+            return unit.position
+
+        moves_left = moves
+        through_path = 0
+        for position in path[::-1][1:]:  # Remove start position, travel backwards
+            moves_left -= grid[position[0] * game.tilemap.height + position[1]].cost
+            if moves_left >= 0:
+                through_path += 1
+            else:
+                break
+        # Don't move where a unit already is, and don't make through path < 0
+        # Lower the through path by one, cause we can't move that far
+        while through_path > 0 and any(other_unit.position == path[-(through_path + 1)] for other_unit in game.level.units if unit is not other_unit):
+            through_path -= 1
+        return path[-(through_path + 1)]  # Travel as far as we can
+
     def get_valid_weapon_targets(self, unit, weapon=None, force_range=None) -> set:
         if weapon is None:
             weapon = unit.get_weapon()

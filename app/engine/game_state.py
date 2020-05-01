@@ -136,7 +136,7 @@ class GameState():
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):
         if unit.position:
-            logger.info("Leave %s %s %s", unit, unit.nid, unit.position)
+            logger.info("Leave %s %s", unit.nid, unit.position)
             if not test:
                 game.grid.set_unit(unit.position, None)
                 game.boundary.leave(unit)
@@ -145,7 +145,7 @@ class GameState():
 
     def arrive(self, unit, test=False):
         if unit.position:
-            logger.info("Arrive %s %s %s", unit, unit.nid, unit.position)
+            logger.info("Arrive %s %s", unit.nid, unit.position)
             if not test:
                 game.grid.set_unit(unit.position, unit)
                 game.boundary.arrive(unit)

@@ -28,6 +28,7 @@ class AIController():
         self.canto_ai_complete = False
 
     def load_unit(self, unit):
+        self.reset()
         self.unit = unit
 
     def reset(self):

@@ -1002,6 +1002,7 @@ class AIState(MapState):
     name = 'ai'
 
     def start(self):
+        logger.info("Starting AI State")
         game.cursor.hide()
         self.unit_list = [unit for unit in game.level.units if unit.position and 
                           not unit.finished and unit.team == game.phase.get_current()]
@@ -1025,11 +1026,12 @@ class AIState(MapState):
 
         if (not self.cur_unit or not self.cur_unit.position) and self.unit_list:
             self.cur_unit = self.unit_list.pop()
+            # also resets AI
+            game.ai.load_unit(self.cur_unit)
 
-        logger.info("Current AI: %s", self.cur_unit)
+        logger.info("Current AI: %s", self.cur_unit.nid if self.cur_unit else None)
         
         if self.cur_unit:
-            game.ai.load_unit(self.cur_unit)
             did_something = game.ai.act()
             # Center camera on current unit
             if did_something and self.cur_unit.position:
@@ -1037,7 +1039,7 @@ class AIState(MapState):
                 game.state.change('move_camera')
 
             if game.ai.is_done():
-                logger.info("Current AI %s is done with turn.", self.cur_unit)
+                logger.info("Current AI %s is done with turn.", self.cur_unit.nid)
                 action.do(action.Wait(self.cur_unit))
                 game.ai.reset()
                 self.cur_unit = None

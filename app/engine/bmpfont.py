@@ -108,7 +108,7 @@ class BmpFont():
         else:
             normal_render(x, y)
 
-    def right_blit(self, string, surf, pos):
+    def blit_right(self, string, surf, pos):
         width = self.width(string)
         self.blit(string, surf, (pos[0] - width, pos[1]))
 

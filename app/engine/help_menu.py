@@ -126,8 +126,8 @@ class ItemHelpDialog(HelpDialog):
         else:
             crit = None
         weight = self.item.weight.value if self.item.weight else '--'
-        min_rng = self.item.minimum_range
-        max_rng = self.item.maximum_range
+        min_rng = self.item.min_range
+        max_rng = self.item.max_range
         if utilities.is_int(min_rng) and utilities.is_int(max_rng):
             if min_rng == max_rng:
                 rng = min_rng
@@ -168,13 +168,13 @@ class ItemHelpDialog(HelpDialog):
         if self.vals[5] is not None:
             self.font_yellow.blit('Crit', (116, 22))
 
-        self.font_blue.right_blit(self.vals[0], (54, 6))
-        self.font_blue.right_blit(self.vals[1], (108, 6))
-        self.font_blue.right_blit(self.vals[2], (160, 6))
-        self.font_blue.right_blit(self.vals[3], (54, 22))
-        self.font_blue.right_blit(self.vals[4], (108, 22))
+        self.font_blue.blit_right(self.vals[0], (54, 6))
+        self.font_blue.blit_right(self.vals[1], (108, 6))
+        self.font_blue.blit_right(self.vals[2], (160, 6))
+        self.font_blue.blit_right(self.vals[3], (54, 22))
+        self.font_blue.blit_right(self.vals[4], (108, 22))
         if self.vals[5] is not None:
-            self.font_blue.right_blit(self.vals[5], (160, 22))
+            self.font_blue.blit_right(self.vals[5], (160, 22))
 
         if cf.SETTINGS['text_speed'] > 0:
             num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))

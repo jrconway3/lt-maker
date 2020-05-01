@@ -71,7 +71,7 @@ def convert_positions(attacker, atk_position, target_position, item):
             splash_units = [unit for unit in splash_units if unit.get_hp() < game.equations.hitpoints(unit)]
     # if item.weapon or (item.spell and item.spell.affect != SpellAffect.Helpful):
     #     splash_units += Tiles!
-    logger.info("Main Defender: %s, Splash: %s", main_defender, splash_units)
+    logger.info("Main Defender: %s, Splash: %s", main_defender.nid if main_defender else None, splash_units)
     return main_defender, splash_units
 
 def start_combat(attacker, defender, def_pos, splash, item, 

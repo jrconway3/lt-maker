@@ -32,6 +32,9 @@ class ConstantCatalog(Data):
             if base:
                 base.value = value
 
+    def max_items(self):
+        return self.get('num_items').value + self.get('num_accessories').value
+
 constants = ConstantCatalog([
     Constant('num_items', "Max number of Items in inventory", int, 5),
     Constant('num_accessories', "Max number of Accessories in inventory", int, 0),

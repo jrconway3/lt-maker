@@ -153,7 +153,7 @@ class ItemHelpDialog(HelpDialog):
         self.help_surf = base_surf.create_base_surf(176, size_y, 'message_bg_base')
         self.h_surf = engine.create_surface((176, size_y + 3), transparent=True)
 
-    def draw(self, surf, pos):
+    def draw(self, surf, pos, right=False):
         time = engine.get_time()
         if time > self.last_time + 1000:  # If it's been at least a second since last update
             self.start_time = time - 16
@@ -190,5 +190,8 @@ class ItemHelpDialog(HelpDialog):
                 self.font.blit(line[:num_characters], help_surf, (8, self.font.height * idx + 6 + 32))
                 num_characters -= len(line)
 
-        surf = self.final_draw(surf, pos, time, help_surf)
+        if right:
+            surf = self.final_draw(surf, (pos[0] - help_surf.get_width(), pos[1]), time, help_surf)
+        else:
+            surf = self.final_draw(surf, pos, time, help_surf)
         return surf

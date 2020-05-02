@@ -1,10 +1,11 @@
 from app import utilities
 from app.data.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 from app.data.item_components import SpellTarget
+from app.data import unit_object
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES, FONT
-from app.engine import engine, base_surf, image_mods, text_funcs, icons, combat_calcs, unit_object
+from app.engine import engine, base_surf, image_mods, text_funcs, icons, combat_calcs
 import app.engine.config as cf
 from app.engine.game_state import game
 
@@ -409,7 +410,7 @@ class UIView():
             if spell.hit is not None:
                 height += 1
 
-            bg_surf = SPRITES.get('Spell_Window' + str(height))
+            bg_surf = SPRITES.get('spell_window' + str(height))
             bg_surf = image_mods.make_translucent(bg_surf, .1)
             width, height = bg_surf.get_width(), bg_surf.get_height()
 

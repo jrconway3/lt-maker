@@ -58,7 +58,7 @@ class Item(object):
         return self.name
 
     def __repr__(self):
-        return "Item: %s" % self.nid   
+        return "Item: %s %s" % (self.nid, self.uid)
 
     def serialize(self):
         serial_dict = {}

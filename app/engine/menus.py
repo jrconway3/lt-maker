@@ -8,6 +8,34 @@ from app.engine import engine, image_mods, icons, help_menu, text_funcs
 from app.engine.base_surf import create_base_surf
 from app.engine.game_state import game
 
+class EmptyOption():
+    def __init__(self, idx):
+        self.idx = idx
+        self.help_box = None
+        self.color = None
+        self.ignore = False
+
+    def get(self):
+        return None
+
+    def width(self):
+        return 104
+
+    def height(self):
+        return 16
+
+    def draw(self, surf, x, y):
+        pass
+
+    def draw_highlight(self, surf, x, y, menu_width):
+        highlight_surf = SPRITES.get('menu_highlight')
+        width = highlight_surf.get_width()
+        for slot in range((menu_width - 10)//width):
+            left = x + 5 + slot*width
+            top = y + 9
+            surf.blit(highlight_surf, (left, top))
+        return surf
+
 class BasicOption():
     def __init__(self, idx, text):
         self.idx = idx
@@ -57,6 +85,8 @@ class ItemOption(BasicOption):
 
     def get_color(self):
         owner = game.get_unit(self.item.owner_nid)
+        main_font = 'text_grey'
+        uses_font = 'text_grey'
         if self.color:
             main_font = self.color
             uses_font = self.color
@@ -128,6 +158,9 @@ class Simple():
     """
     Abstract menu class. Must implement personal draw function
     """
+
+    trade_name_surf = SPRITES.get('trade_name')
+
     def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
         self.owner = owner
         self.topleft = topleft
@@ -136,14 +169,15 @@ class Simple():
         self.current_index = 0
 
         self.display_total_uses = False
+        self.limit = 1000
+        self.hard_limit = False
+        self.scroll = 0
 
         self.options = []
         self.create_options(options, info)
 
         self.cursor = Cursor()
-
-        self.limit = 1000
-        self.scroll = 0
+        self.draw_cursor = 1  # 0 No draw, 1 Regular, 2 Draw but no move
 
         self.takes_input = True
         self.info_flag = False
@@ -158,6 +192,13 @@ class Simple():
     def set_ignore(self, ignores):
         for idx, option in enumerate(self.options):
             option.ignore = ignores[idx]
+
+    def set_cursor(self, val):
+        self.draw_cursor = val
+
+    def set_hard_limit(self, val):
+        self.hard_limit = val
+        self.update_options()
 
     def toggle_info(self):
         self.info_flag = not self.info_flag
@@ -200,7 +241,9 @@ class Simple():
                 if self.current_index > self.scroll + self.limit - 2:
                     self.scroll += 1
                 self.cursor.y_offset -= 1
-        if self.limit < len(self.options):
+        if self.hard_limit:
+            self.scroll = 0
+        elif self.limit < len(self.options):
             self.scroll = min(len(self.options) - self.limit, self.scroll)
 
     def move_up(self, first_push=True):
@@ -219,10 +262,16 @@ class Simple():
                 if self.current_index < self.scroll + 1:
                     self.scroll -= 1
                 self.cursor.y_offset += 1
-        self.scroll = max(0, self.scroll)
+        if self.hard_limit:
+            self.scroll = 0
+        else:
+            self.scroll = max(0, self.scroll)
 
-    def update_options(self):
-        bare_options = [option.get() for option in self.options]
+    def update_options(self, options=None):
+        if options is not None:
+            bare_options = options
+        else:
+            bare_options = [option.get() for option in self.options]
         self.create_options(bare_options)
         self.current_index = utilities.clamp(self.current_index, 0, len(self.options) - 1)
 
@@ -250,7 +299,8 @@ class Simple():
             return self.topleft
 
     def update(self):
-        self.cursor.update()
+        if self.draw_cursor == 1:
+            self.cursor.update()
 
     # For mouse handling
     def get_rects(self):
@@ -271,8 +321,12 @@ class Choice(Simple):
         super().__init__(owner, options, topleft, background, info)
 
         self.horizontal = False
+
         self.gem = True
         self.shimmer = 0
+
+        self.stationary_cursor = Cursor()
+        self.fake_cursor_idx = None
 
     def set_horizontal(self, val):
         self.horizontal = val
@@ -280,6 +334,9 @@ class Choice(Simple):
     def set_total_uses(self, val):
         self.display_total_uses = val
         self.update_options()
+
+    def set_fake_cursor(self, val):
+        self.fake_cursor_idx = val
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
@@ -295,6 +352,11 @@ class Choice(Simple):
                 option = BasicOption(idx, option)
                 if info_descs:
                     option.help_box = help_menu.HelpDialog(info_descs[idx])
+                self.options.append(option)
+
+        if self.hard_limit:
+            for num in range(self.limit - len(options)):
+                option = EmptyOption(len(options) + num)
                 self.options.append(option)
 
     def move_down(self, first_push=True):
@@ -384,10 +446,14 @@ class Choice(Simple):
                 top = topleft[1] + 4 + running_height
                 left = topleft[0]
 
-                if idx == self.current_index and self.takes_input:
+                if idx == self.current_index and self.takes_input and self.draw_cursor:
+                    choice.draw_highlight(surf, left, top, menu_width)
+                if idx == self.fake_cursor_idx:
                     choice.draw_highlight(surf, left, top, menu_width)
                 choice.draw(surf, left, top)
-                if idx == self.current_index and self.takes_input:
+                if idx == self.fake_cursor_idx:
+                    self.stationary_cursor.draw(surf, left, top)
+                if idx == self.current_index and self.takes_input and self.draw_cursor:
                     self.cursor.draw(surf, left, top)
                     
                 running_height += choice.height()
@@ -417,3 +483,169 @@ class Choice(Simple):
 
             running_height += choice.height()
         return idxs, rects
+
+class Trade(Simple):
+    """
+    Menu used for trading items between two units
+    Built from two choice menus
+    """
+
+    def __init__(self, initiator, partner, items1, items2):
+        self.owner = initiator
+        self.partner = partner
+
+        self.menu1 = Choice(self.owner, items1, (11, 68))
+        self.menu1.set_limit(DB.constants.max_items())
+        self.menu1.set_hard_limit(True)  # Makes hard limit
+        self.menu2 = Choice(self.partner, items2, (125, 68))
+        self.menu2.set_limit(DB.constants.max_items())
+        self.menu2.set_hard_limit(True)  # Makes hard limit
+        self.menu2.set_cursor(0)
+
+        self.selecting_hand = (0, 0)
+        self.other_hand = None
+
+        self._selected_option = None
+
+    def selected_option(self):
+        return self._selected_option
+
+    def unset_selected_option(self):
+        self._selected_option = None
+        self.selecting_hand = self.other_hand
+        self.other_hand = None
+        self.menu1.set_fake_cursor(None)
+        self.menu2.set_fake_cursor(None)
+        # handle cursor
+        if self.selecting_hand[0] == 0:
+            self.menu1.move_to(self.selecting_hand[1])
+            self.menu1.set_cursor(1)
+            self.menu2.set_cursor(0)
+        else:
+            self.menu2.move_to(self.selecting_hand[1])
+            self.menu1.set_cursor(0)
+            self.menu2.set_cursor(1)
+
+    def set_selected_option(self):
+        self.other_hand = self.selecting_hand
+        if self.selecting_hand[0] == 0:
+            self._selected_option = self.menu1.options[self.selecting_hand[1]]
+            self.selecting_hand = (1, self.selecting_hand[1])
+            self.menu2.move_to(self.selecting_hand[1])
+            self.menu1.set_fake_cursor(self.other_hand[1])
+            self.menu2.set_cursor(1)
+            self.menu1.set_cursor(0)
+        else:
+            self._selected_option = self.menu2.options[self.selecting_hand[1]]
+            self.selecting_hand = (0, self.selecting_hand[1])
+            self.menu1.move_to(self.selecting_hand[1])
+            self.menu2.set_fake_cursor(self.other_hand[1])
+            self.menu1.set_cursor(1)
+            self.menu2.set_cursor(0)
+
+    def get_current_option(self):
+        if self.selecting_hand[0] == 0:
+            return self.menu1.options[self.selecting_hand[1]]
+        else:
+            return self.menu2.options[self.selecting_hand[1]]
+
+    def update_options(self, items1, items2):
+        self.menu1.update_options(items1)
+        self.menu2.update_options(items2)
+
+    def move_down(self, first_push=True):
+        if self.selecting_hand[0] == 0:
+            self.menu1.current_index = self.selecting_hand[1]
+            self.menu1.move_down(first_push)
+            self.selecting_hand = (0, self.menu1.current_index)
+        else:
+            self.menu2.current_index = self.selecting_hand[1]
+            self.menu2.move_down(first_push)
+            self.selecting_hand = (1, self.menu2.current_index)
+
+    def move_up(self, first_push=True):
+        if self.selecting_hand[0] == 0:
+            self.menu1.current_index = self.selecting_hand[1]
+            self.menu1.move_up(first_push)
+            self.selecting_hand = (0, self.menu1.current_index)
+        else:
+            self.menu2.current_index = self.selecting_hand[1]
+            self.menu2.move_up(first_push)
+            self.selecting_hand = (1, self.menu2.current_index)
+
+    def cursor_left(self):
+        self.menu1.set_cursor(1)
+        self.menu2.set_cursor(0)
+
+    def move_left(self):
+        if self.selecting_hand[0] == 1:
+            self.selecting_hand = (0, self.selecting_hand[1])
+            self.menu1.move_to(self.selecting_hand[1])
+            self.cursor_left()
+            return True
+        return False
+
+    def cursor_right(self):
+        self.menu2.set_cursor(1)
+        self.menu1.set_cursor(0)
+
+    def move_right(self):
+        if self.selecting_hand[0] == 0:
+            self.selecting_hand = (1, self.selecting_hand[1])
+            self.menu2.move_to(self.selecting_hand[1])
+            self.cursor_right()
+            return True
+        return False
+
+    def update(self):
+        self.menu1.update()
+        self.menu2.update()
+
+    def draw(self, surf):
+        # Draw trade names
+        surf.blit(self.trade_name_surf, (-4, -1))
+        surf.blit(self.trade_name_surf, (WINWIDTH - self.trade_name_surf.get_width() + 4, -1))
+        FONT['text_white'].blit(self.owner.name, surf, (24 - FONT['text_white'].width(self.owner.name)//2, 0))
+        FONT['text_white'].blit(self.partner.name, surf, (WINWIDTH - 24 - FONT['text_white'].width(self.owner.name)//2, 0))
+
+        # Draw Portraits
+        # Owner
+        owner_surf = engine.create_surface((96, 80), transparent=True)
+        icons.draw_portrait(owner_surf, self.owner.nid, (0, 0))
+        owner_surf = engine.subsurface(owner_surf, (0, 3, 96, 68))
+        owner_surf = engine.flip_horiz(owner_surf)
+        surf.blit(owner_surf, (11 + 52 - 48, 0))
+
+        # Partner
+        partner_surf = engine.create_surface((96, 80), transparent=True)
+        icons.draw_portrait(partner_surf, self.partner.nid, (0, 0))
+        partner_surf = engine.subsurface(partner_surf, (0, 3, 96, 68))
+        surf.blit(partner_surf, (125 + 52 - 48, 0))
+
+        self.menu1.draw(surf)
+        self.menu2.draw(surf)
+
+        return surf
+
+    def handle_mouse(self):
+        mouse_position = game.input_manager.get_mouse_position()
+        if mouse_position:
+            mouse_x, mouse_y = mouse_position
+            idxs1, option_rects1 = self.menu1.get_rects()
+            idxs2, option_rects2 = self.menu2.get_rects()
+            # Menu1
+            for idx, option_rect in zip(idxs1, option_rects1):
+                x, y, width, height = option_rect
+                if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                    self.menu1.move_to(idx)
+                    if self.selecting_hand[0] == 1:
+                        self.cursor_left()
+                    self.selecting_hand = (0, idx)
+            # Menu2
+            for idx, option_rect in zip(idxs2, option_rects2):
+                x, y, width, height = option_rect
+                if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                    self.menu2.move_to(idx)
+                    if self.selecting_hand[0] == 0:
+                        self.cursor_right()
+                    self.selecting_hand = (1, idx)

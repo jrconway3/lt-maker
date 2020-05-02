@@ -13,9 +13,9 @@ def start(title, from_editor=False):
 
 def run(game):
     surf = engine.create_surface((WINWIDTH, WINHEIGHT))
-    import time
+    # import time
     while True:
-        start = time.time_ns()
+        # start = time.time_ns()
         engine.update_time()
 
         raw_events = engine.get_events()
@@ -29,9 +29,9 @@ def run(game):
 
         engine.push_display(surf, engine.SCREENSIZE, engine.DISPLAYSURF)
         engine.update_display()
-        end = time.time_ns()
-        milliseconds_elapsed = (end - start)/1e6
-        if milliseconds_elapsed > 10:
-            print("Engine took too long: %f" % milliseconds_elapsed)
+        # end = time.time_ns()
+        # milliseconds_elapsed = (end - start)/1e6
+        # if milliseconds_elapsed > 10:
+        #     print("Engine took too long: %f" % milliseconds_elapsed)
 
         game.playtime += engine.tick()

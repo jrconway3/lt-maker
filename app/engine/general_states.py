@@ -276,7 +276,6 @@ class OptionChildState(State):
                 game.state.back()
 
     def update(self):
-        super().update()
         self.menu.update()
 
     def draw(self, surf):
@@ -531,7 +530,7 @@ class MenuState(MapState):
             elif selection == 'Item':
                 game.state.change('item')
             elif selection == 'Trade':
-                pass
+                game.state.change('trade_select')
             elif selection == 'Rescue':
                 game.state.change('rescue_select')
             elif selection == 'Take':
@@ -566,6 +565,9 @@ class ItemState(MapState):
         options = [item for item in self.cur_unit.items]
         self.menu = menus.Choice(self.cur_unit, options)
 
+    def begin(self):
+        self.menu.update_options(self.cur_unit.items)
+
     def take_input(self, event):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
@@ -584,11 +586,11 @@ class ItemState(MapState):
             game.state.change('item_child')
 
         elif event == 'INFO':
-            pass
+            self.menu.toggle_info()
 
     def update(self):
         super().update()
-        self.menu.update_options(self.cur_unit.items)
+        self.menu.update()
 
     def draw(self, surf):
         surf = super().draw(surf)
@@ -597,6 +599,7 @@ class ItemState(MapState):
 
 class ItemChildState(MapState):
     name = 'item_child'
+    transparet = True
 
     def begin(self):
         parent_menu = game.memory['parent_menu']
@@ -653,11 +656,9 @@ class ItemChildState(MapState):
                 game.state.change('option_child')
 
     def update(self):
-        super().update()
         self.menu.update()
 
     def draw(self, surf):
-        surf = super().draw(surf)
         surf = self.menu.draw(surf)
         return surf
 
@@ -686,6 +687,8 @@ class SelectState(MapState):
             traveler = game.level.units.get(self.cur_unit.traveler)
             good_pos = [unit.position for unit in adj_allies if not unit.traveler and
                         game.equations.rescue_aid(unit) > game.equations.rescue_weight(traveler)]
+        elif self.name == 'trade_select':
+            good_pos = [unit.position for unit in adj_allies]
         
         self.selection = SelectionHelper(good_pos)
         closest_pos = self.selection.get_closest(self.cur_unit.position)
@@ -745,6 +748,8 @@ class SelectState(MapState):
                 game.state.change('menu')
                 unit = game.level.units.get(self.cur_unit.traveler)
                 action.do(action.Drop(self.cur_unit, unit, game.cursor.position))
+            elif self.name == 'trade_select':
+                game.state.change('trade')
 
     def draw(self, surf):
         surf = super().draw(surf)
@@ -753,6 +758,85 @@ class SelectState(MapState):
             self.pennant.draw(surf, draw_on_top)
         return surf
 
+class TradeState(MapState):
+    name = 'trade'
+
+    def begin(self):
+        game.cursor.hide()
+        self.initiator = game.cursor.cur_unit
+        self.initiator.sprite.change_state('chosen')
+        self.partner = game.cursor.get_hover()
+
+        self.menu = menus.Trade(self.initiator, self.partner, self.initiator.items, self.partner.items)
+
+    def do_trade(self):
+        item1 = self.menu.selected_option().get()
+        item2 = self.menu.get_current_option().get()
+
+        if (item1 is item2) or (item1 and item1.locked) or (item2 and item2.locked):
+            self.menu.unset_selected_option()
+            # Play error sound
+            return
+
+        if self.menu.other_hand[0] == 0:
+            if self.menu.selecting_hand[0] == 0:
+                action.do(action.TradeItem(self.initiator, self.initiator, item1, item2))
+            else:
+                action.do(action.TradeItem(self.initiator, self.partner, item1, item2))
+        else:
+            if self.menu.selecting_hand[0] == 0:
+                action.do(action.TradeItem(self.partner, self.initiator, item1, item2))
+            else:
+                action.do(action.TradeItem(self.partner, self.partner, item1, item2))
+        action.do(action.HasTraded(self.initiator))
+
+        self.menu.unset_selected_option()
+        self.menu.update_options(self.initiator.items, self.partner.items)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                pass
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                pass
+
+        if event == 'RIGHT':
+            if self.menu.move_right():
+                pass
+        elif event == 'LEFT':
+            if self.menu.move_left():
+                pass
+
+        elif event == 'BACK':
+            if self.menu.selected_option():
+                self.menu.unset_selected_option()
+            else:
+                # game.state.change('menu')
+                game.state.back()
+                game.state.back()
+
+        elif event == 'SELECT':
+            if self.menu.selected_option():
+                self.do_trade()
+            else:
+                self.menu.set_selected_option()
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        self.menu.draw(surf)
+        return surf
 
 class WeaponChoiceState(MapState):
     name = 'weapon_choice'
@@ -921,8 +1005,6 @@ class SpellState(MapState):
             closest_position = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_position)
         
-        # spell_attacks = game.target.get_spell_attacks(self.attacker, spell)
-        # game.highlight.display_possible_spells(spell_attacks)
         game.ui_view.spell_info_disp = None
         self.display_single_attack()
 

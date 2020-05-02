@@ -48,6 +48,8 @@ class StateMachine():
                            'drop_select': general_states.SelectState,
                            'give_select': general_states.SelectState,
                            'take_select': general_states.SelectState,
+                           'trade_select': general_states.SelectState,
+                           'trade': general_states.TradeState,
                            'weapon_choice': general_states.WeaponChoiceState,
                            'spell_choice': general_states.SpellChoiceState,
                            'attack': general_states.AttackState,

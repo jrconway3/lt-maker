@@ -972,8 +972,8 @@ class AttackState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        if self.cur_unit and game.cursor.get_hover():
-            surf = game.ui_view.draw_attack_info(self.cur_unit, game.cursor.get_hover())
+        if self.attacker and game.cursor.get_hover():
+            surf = game.ui_view.draw_attack_info(surf, self.attacker, game.cursor.get_hover())
         return surf
 
     def end(self):

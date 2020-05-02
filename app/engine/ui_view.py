@@ -221,7 +221,7 @@ class UIView():
 
         if grandmaster:
             surf = SPRITES.get('attack_info_grandmaster')
-        elif cf.SETTINGS['crit']:
+        elif crit:
             surf = SPRITES.get('attack_info_crit')
         else:
             surf = SPRITES.get('attack_info')
@@ -239,7 +239,7 @@ class UIView():
         FONT['text_white'].blit(defender.name, surf, position)
         # Enemy Weapon
         if isinstance(defender, unit_object.UnitObject) and defender.get_weapon():
-            width = FONT['text_white'].blit(defender.get_weapon().name)
+            width = FONT['text_white'].width(defender.get_weapon().name)
             y_pos = 100
             if not crit:
                 y_pos -= 16
@@ -266,7 +266,7 @@ class UIView():
                 blit_num(surf, c, 64, 67)
         # Enemy Hit and Mt
         if not attacker.get_weapon().cannot_be_countered and isinstance(defender, unit_object.UnitObject) and defender.get_weapon() and \
-               utilities.calculate_distance(attacker.position, defender.position) in game.equations.get_range(defender, defender.get_weapon()):
+               utilities.calculate_distance(attacker.position, defender.position) in game.equations.get_range(defender.get_weapon(), defender):
             e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'Defense')
             e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'Defense')
             if crit:
@@ -330,7 +330,7 @@ class UIView():
             icons.draw_item(surf, defender.get_weapon(), (topleft[0] + 50, y_pos), white)
 
         # Advantage arrows
-        if isinstance(defender, unit_object.UnitObject) and game.target.check_enemy(attacker, defender):
+        if isinstance(defender, unit_object.UnitObject) and game.targets.check_enemy(attacker, defender):
             adv = combat_calcs.compute_advantage(attacker, attacker.get_weapon(), defender.get_weapon())
             disadv = combat_calcs.compute_advantage(attacker, attacker.get_weapon(), defender.get_weapon(), False)
             if adv:
@@ -340,7 +340,7 @@ class UIView():
                 down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
                 surf.blit(down_arrow, (topleft[0] + 13, topleft[1] + 8))
 
-            y_pos = topleft[1] + 89
+            y_pos = topleft[1] + 105
             if not crit:
                 y_pos -= 16
             if not grandmaster:

@@ -1,7 +1,7 @@
 from app.engine.sprites import SPRITES
 from app.engine import engine
 
-def create_base_surf(width, height, base='menu_bg_base', top_left_sigil=None):
+def create_base_surf(width, height, base='menu_bg_base'):
     sprite = SPRITES.get(base)
     
     base_width = sprite.get_width()

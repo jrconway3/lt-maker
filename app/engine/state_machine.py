@@ -79,6 +79,10 @@ class StateMachine():
         if self.state:
             return self.state[-1].name
 
+    def get_state(self):
+        if self.state:
+            return self.state[-1].name
+
     def process_temp_state(self):
         for transition in self.temp_state:
             if transition == 'pop':

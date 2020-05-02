@@ -88,12 +88,9 @@ class GameState():
         Done at the beginning of a new level to start the level up
         """
         from app.data.level_object import LevelObject
-        from app.engine import boundary
         level_prefab = DB.levels.get(level_nid)
         self.tilemap = self.load_map(level_prefab.tilemap)
         self.current_level = LevelObject(level_prefab, self.tilemap)
-
-        self.boundary = boundary.BoundaryInterface(self.tilemap.width, self.tilemap.height)
 
         for unit in self.current_level.units:
             for item in unit.items:
@@ -103,12 +100,13 @@ class GameState():
 
     def load_map(self, tilemap):
         from app.data.tilemap import TileMap
-        from app.engine import map_view
+        from app.engine import map_view, ui_view, boundary
         s = tilemap.serialize()
         tilemap = TileMap.deserialize(s)  # To make a copy
         self.grid = a_star.GridManager(tilemap)
-        # self.boundary = boundary.BoundaryInterface(tilemap)
+        self.boundary = boundary.BoundaryInterface(tilemap.width, tilemap.height)
         self.map_view = map_view.MapView(tilemap)
+        self.ui_view = ui_view.UIView()
         return tilemap
 
     @property

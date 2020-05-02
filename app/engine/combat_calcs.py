@@ -44,17 +44,6 @@ def get_effective(item, target):
                 might += sub_component.damage
     return might
 
-def attackspeed(unit, item, dist=0):
-    if not item:
-        item = unit.get_weapon()
-    if item and item.custom_attackspeed_equation:
-        equation = item.custom_attackspeed_equation
-    else:
-        equation = 'ATTACKSPEED'
-    value = game.equations.get(equation, unit, item, dist)
-    # TODO Status
-    return value
-
 def accuracy(unit, item=None, dist=0):
     if not item:
         item = unit.get_weapon()

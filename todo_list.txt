@@ -13,11 +13,11 @@ Suspending
     - Register items, statuses, and units with the save_state manager
     - Saving and loading
 Title Screen
-Spells
-All remaining Item components
+Spells (w/ Multiple targets)
+* All remaining Item components
 Winning/Losing
 SettingsMenu
-UI View
+* UI View
 
 Launcher
 Auto-update

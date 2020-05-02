@@ -46,7 +46,9 @@ class MapView():
         self.draw_units(surf)
         surf = game.cursor.draw(surf)
 
-        # Cull
+        # Camera Cull
         rect = game.camera.get_x() * TILEWIDTH, game.camera.get_y() * TILEHEIGHT, WINWIDTH, WINHEIGHT
         surf = engine.subsurface(surf, rect)
+
+        surf = game.ui_view.draw(surf)
         return surf

@@ -362,7 +362,7 @@ class Choice(Simple):
         if topleft[0] < WINWIDTH // 2:
             help_box.draw(surf, (rect[0], rect[1]))
         else:
-            help_box.draw(surf, (rect[0] + self.get_menu_width() - rect[2], rect[1]))
+            help_box.draw(surf, (rect[0] + self.get_menu_width(), rect[1]), right=True)
         return surf
 
     def vert_draw(self, surf):

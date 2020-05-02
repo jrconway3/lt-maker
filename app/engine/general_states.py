@@ -213,6 +213,10 @@ class OptionMenuState(MapState):
         elif event == 'INFO':
             self.menu.toggle_info()
 
+    def update(self):
+        super().update()
+        self.menu.update()
+
     def draw(self, surf):
         surf = super().draw(surf)
         self.menu.draw(surf)
@@ -270,6 +274,10 @@ class OptionChildState(State):
                         game.state.back()
             else:
                 game.state.back()
+
+    def update(self):
+        super().update()
+        self.menu.update()
 
     def draw(self, surf):
         surf = self.menu.draw(surf)
@@ -793,7 +801,7 @@ class WeaponChoiceState(MapState):
             self.proceed()
 
         elif event == 'INFO':
-            pass
+            self.menu.toggle_info()
 
     def update(self):
         super().update()

@@ -33,6 +33,20 @@ def draw_weapon(surf, weapon, topleft):
     surf.blit(image, topleft)
     return surf
 
+def draw_faction(surf, faction, topleft):
+    image = RESOURCES.icons32.get(faction.icon_nid)
+    if not image:
+        return surf
+
+    if not image.image:
+        image.image = engine.image_load(image.full_path)
+    image = engine.subsurface(image.image, (faction.icon_index[0] * 32, faction.icon_index[1] * 32, 32, 32))
+    image = image.convert()
+    engine.set_colorkey(image, COLORKEY, rleaccel=True)
+    
+    surf.blit(image, topleft)
+    return surf
+
 def draw_portrait(surf, nid, topleft=None, bottomright=None):
     image = RESOURCES.portraits.get(nid)
     if not image:
@@ -48,4 +62,21 @@ def draw_portrait(surf, nid, topleft=None, bottomright=None):
         surf.blit(image, topleft)
     elif bottomright:
         surf.blit(image, (bottomright[0] - 96, bottomright[1] - 80))
+    return surf
+
+def draw_chibi(surf, nid, topleft=None, bottomright=None):
+    image = RESOURCES.portraits.get(nid)
+    if not image:
+        return surf
+
+    if not image.image:
+        image.image = engine.image_load(image.full_path)
+    image = engine.subsurface(image.image, (96, 16, 32, 32))
+    image = image.convert()
+    engine.set_colorkey(image, COLORKEY, rleaccel=True)
+
+    if topleft:
+        surf.blit(image, topleft)
+    elif bottomright:
+        surf.blit(image, (bottomright[0] - 32, bottomright[1] - 32))
     return surf

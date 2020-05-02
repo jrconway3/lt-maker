@@ -97,6 +97,10 @@ class UnitSprite():
     def draw_anyway(self):
         return self.transition_state != 'normal'
 
+    def reset(self):
+        self.offset = [0, 0]
+        game.map_view.attack_movement_counter.reset()
+
     def begin_flicker(self, total_time, color):
         self.flicker = (engine.get_time(), total_time, color)
 
@@ -117,7 +121,7 @@ class UnitSprite():
         if self.state in ('combat_attacker', 'combat_anim'):
             self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
-            self.offset = [0, 0]
+            self.reset()
         elif self.state in ('combat_active'):
             self.image_state = 'active'
         elif self.state == 'combat_defender':

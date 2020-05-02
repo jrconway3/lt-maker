@@ -57,7 +57,12 @@ class InitState(SolverState):
 
 class AttackerState(SolverState):
     def is_brave(self, item):
-        return item.brave
+        if item.brave:
+            if item.brave.value == 'Always Brave':
+                return True
+            elif item.brave.value == 'Brave while attacking':
+                return True
+        return False
 
     def check_brave(self, solver, unit, item):
         if self.is_brave(item):
@@ -97,7 +102,12 @@ class AttackerState(SolverState):
 
 class DefenderState(AttackerState):
     def is_brave(self, item):
-        return item.brave
+        if item.brave:
+            if item.brave.value == 'Always Brave':
+                return True
+            elif item.brave.value == 'Brave while defending':
+                return True
+        return False
 
     def get_next_state(self, solver):
         if solver.event_combat and solver.event_combat[-1] == 'quit':
@@ -128,7 +138,7 @@ class DefenderState(AttackerState):
         result = solver.generate_result(solver.defender, solver.attacker, ditem, 'Defense')
         return result
 
-class SplashState(SolverState):
+class SplashState(AttackerState):
     def __init__(self):
         self.idx = 0
 

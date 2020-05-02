@@ -16,13 +16,21 @@ class SpellTarget(Enum):
     TileWithoutUnit = 5
 
 class AOEMode(Enum):
-    AllAllies = 1
-    AllEnemies = 2
-    AllUnits = 3
-    AllTiles = 4
-    Cleave = 5
-    Burst = 6
-    Line = 7
+    Normal = 1
+    All = 2
+    CrossCleave = 3
+    SquareCleave = 4
+    FatCross = 5
+    FatCrossWithHole = 6
+    Square = 7
+    SquareWithHole = 8
+    Line = 9
+    ThickLine = 10
+
+class ForcedMovement(Enum):
+    Shove = 1
+    Swap = 2
+    Warp = 3
 
 # Requirement functions
 def no_requirement(other_components):
@@ -42,6 +50,37 @@ def requires_usable(other_components):
 
 def requires_aspect(other_components):
     return 'weapon' in other_components or 'spell' in other_components or 'usable' in other_components
+
+def requires_might(other_components):
+    return 'might' in other_components
+
+def requires_hit(other_components):
+    return 'hit' in other_components
+
+def requires_might_and_hit(other_components):
+    return 'might' in other_components and 'hit' in other_components
+
+def requires_crit(other_components):
+    return 'crit' in other_components
+
+def requires_uses(other_components):
+    return 'uses' in other_components or 'c_uses' in other_components
+
+def repair_requires(other_components):
+    must_not_have = set('might', 'hit', 'crit', 'hit_status', 'heal_on_hit', 'aoe', 'multiple_targets')
+    return ('spell' in other_components and not other_components & must_not_have)
+
+class BasicSubComponent(Prefab):
+    def __init__(self, nid):
+        self.nid: str = nid
+
+    def serialize(self):
+        return self.nid
+
+    @classmethod
+    def deserialize(cls, s):
+        self = cls(s)
+        return self
 
 class EffectiveSubComponent(Prefab):
     def __init__(self, tag, damage):
@@ -64,16 +103,43 @@ class EffectiveSubComponent(Prefab):
         self = cls(s_tuple[0], s_tuple[1])
         return self
 
-class RestrictedSubComponent(Prefab):
-    def __init__(self, nid):
-        self.nid: str = nid
+class StatChangeSubComponent(EffectiveSubComponent):
+    def __init__(self, stat, amount):
+        self.stat: str = stat
+        self.amount: int = amount
+
+    @property
+    def nid(self):
+        return self.stat
+
+    @nid.setter
+    def nid(self, value):
+        self.stat = value
 
     def serialize(self):
-        return self.nid
+        return (self.stat, self.amount)
+
+class GrowthChangeSubComponent(StatChangeSubComponent):
+    def __init__(self, stat, percent):
+        self.stat: str = stat
+        self.percent: int = percent
+
+    def serialize(self):
+        return (self.stat, self.percent)
+
+class TargetSubComponent(Prefab):
+    def __init__(self, nid, min_range, max_range, target):
+        self.nid: str = nid
+        self.min_range: str = min_range
+        self.max_range: str = max_range
+        self.target: SpellTarget = target
+
+    def serialize(self):
+        return (self.nid, self.min_range, self.max_range, self.target)
 
     @classmethod
-    def deserialize(cls, s):
-        self = cls(s)
+    def deserialize(cls, s_tuple):
+        self = cls(*s_tuple)
         return self
 
 class EffectiveData(Data):
@@ -88,8 +154,23 @@ class EffectiveData(Data):
             nid = DB.tags[0].nid
         self.append(EffectiveSubComponent(nid, 0))
 
+class StatChangeData(Data):
+    datatype = StatChangeSubComponent
+
+    def add_new_default(self, DB):
+        for stat in DB.stats:
+            if stat.nid not in self.keys():
+                nid = stat.nid
+                break
+        else:
+            stat = DB.stats[0].nid
+        self.append(self.datatype(nid, 0))
+
+class GrowthChangeData(Data):
+    datatype = GrowthChangeSubComponent
+
 class PrfUnitData(Data):
-    datatype = RestrictedSubComponent
+    datatype = BasicSubComponent
 
     def add_new_default(self, DB):
         for unit in DB.units:
@@ -98,10 +179,10 @@ class PrfUnitData(Data):
                 break
         else:
             nid = DB.units[0].nid
-        self.append(RestrictedSubComponent(nid))
+        self.append(BasicSubComponent(nid))
 
 class PrfClassData(Data):
-    datatype = RestrictedSubComponent
+    datatype = BasicSubComponent
 
     def add_new_default(self, DB):
         for klass in DB.classes:
@@ -110,7 +191,19 @@ class PrfClassData(Data):
                 break
         else:
             nid = DB.classes[0].nid
-        self.append(RestrictedSubComponent(nid))
+        self.append(self.datatype(nid))
+
+class PromoteData(PrfClassData):
+    pass
+
+class ClassChangeData(PrfClassData):
+    pass
+
+class TargetData(Data):
+    datatype = TargetSubComponent
+    
+    def add_new_default(self, DB):
+        self.append(TargetSubComponent(len(self), 1, 1, SpellTarget.Enemy))
 
 class ItemComponent():
     def __init__(self, nid=None, name='', attr=bool, value=True, requires=no_requirement, volatile=False):
@@ -165,17 +258,74 @@ item_components = Data([
     ItemComponent('weight', 'Weight', int, 0, requires_spell_or_weapon),
     ItemComponent('crit', 'Critical Rate', int, 0, requires_spell_or_weapon),
     ItemComponent('magic', 'Magical', bool, False, requires_spell_or_weapon),
+    ItemComponent('exp', 'Custom Experience', int, 10, requires_aspect),
     ItemComponent('wexp', 'Custom Weapon Experience', int, 1, requires_spell_or_weapon),
 
-    ItemComponent('uses', 'Total Uses', int, 30, volatile=True),
-    ItemComponent('c_uses', 'Uses per Chapter', int, 8, volatile=True),
+    ItemComponent('uses', 'Total Uses', int, 30, requires_aspect, volatile=True),
+    ItemComponent('c_uses', 'Uses per Chapter', int, 8, requires_aspect, volatile=True),
+    ItemComponent('hp_cost', 'Costs HP', int, 0, requires_aspect),
+    ItemComponent('mana_cost', 'Costs Mana', int, 0, requires_aspect),
+    # ItemComponent('cooldown', 'Cooldown', int, 0, requires_aspect, volatile=True),
     
     ItemComponent('heal_on_hit', 'Heals Target', int, 0, requires_spell_or_weapon),
     ItemComponent('heal_on_use', 'Heal on Use', int, 10, requires_usable),
 
     ItemComponent('effective', 'Effective Against', EffectiveSubComponent, EffectiveData(), requires_spell_or_weapon),
-    ItemComponent('prf_unit', 'Restricted to (Unit)', RestrictedSubComponent, PrfUnitData(), requires_aspect),
-    ItemComponent('prf_class', 'Restricted to (Class)', RestrictedSubComponent, PrfClassData(), requires_aspect)
+    ItemComponent('prf_unit', 'Restricted to (Unit)', BasicSubComponent, PrfUnitData(), requires_aspect),
+    ItemComponent('prf_class', 'Restricted to (Class)', BasicSubComponent, PrfClassData(), requires_aspect),
+
+    ItemComponent('locked', 'Cannot be removed from Unit'),
+    ItemComponent('brave', 'Brave', 'BraveChoice', 0, requires_spell_or_weapon),
+    ItemComponent('reverse', 'Reverses Weapon Triangle', bool, False, requires_spell_or_weapon),
+    ItemComponent('cannot_be_countered', 'Cannot be Countered', bool, False, requires_weapon),
+    ItemComponent('no_double', 'Cannot Double', bool, False, requires_weapon),
+    ItemComponent('ignore_triangle', 'Ignores Weapon Triangle', bool, False, requires_spell_or_weapon),
+    ItemComponent('damage_on_miss', 'Does %% Damage even on Miss', float, 0.5, requires_might_and_hit),
+    ItemComponent('lifelink', 'Heals user %% of Damage Dealt', float, 0.5, requires_might),
+    ItemComponent('unrepairable', 'Cannot be Repaired', bool, False, requires_uses),
+
+    ItemComponent('aoe', 'Area of Effect', (AOEMode, SpellTarget, int), (AOEMode.Normal, SpellTarget.Unit, 0), requires_spell_or_weapon),
+
+    ItemComponent('promotion', 'Promotes (Class)', BasicSubComponent, PromoteData(), requires_usable),
+    ItemComponent('class_change', 'Change (Class)', BasicSubComponent, ClassChangeData(), requires_usable),
+    ItemComponent('permanent_stat_increase', 'Permanent Increase (Stat)', StatChangeSubComponent, StatChangeData(), requires_usable),
+    ItemComponent('permanent_growth_increase', 'Permanent Increase (Growth)', GrowthChangeSubComponent, GrowthChangeData(), requires_usable),
+
+    ItemComponent('custom_damage_equation', 'Custom Damage Equation', 'Equation', None, requires_might),
+    ItemComponent('custom_defense_equation', 'Custom Defense Equation', 'Equation', None, requires_might),
+    ItemComponent('custom_hit_equation', 'Custom Hit Equation', 'Equation', None, requires_hit),
+    ItemComponent('custom_avoid_equation', 'Custom Avoid Equation', 'Equation', None, requires_hit),
+    ItemComponent('custom_crit_equation', 'Custom Crit Equation', 'Equation', None, requires_crit),
+    ItemComponent('custom_dodge_equation', 'Custom Crit Avoid Equation', 'Equation', None, requires_crit),
+    ItemComponent('custom_double_atk_equation', 'Custom Double Attack Equation', 'Equation', None, requires_spell_or_weapon),
+    ItemComponent('custom_double_def_equation', 'Custom Double Defense Equation', 'Equation', None, requires_spell_or_weapon),
+
+    # ItemComponent('hit_status', 'Applies Status on hit', 'Status', None, requires_spell_or_weapon),
+    # ItemComponent('use_status', 'Applies Status on use', 'Status', None, requires_usable),
+    # ItemComponent('equip_status', 'Applies Status while equipped', 'Status', None, requires_weapon),
+    # ItemComponent('hold_status', 'Applies Status while held', 'Status', None),
+
+    # ItemComponent('movement_hit', 'Applies Movement on hit', 'Movement', None, requires_spell_or_weapon),
+    # ItemComponent('movement_self_hit', 'Applies Movement to self on hit', 'Movement', None, requires_spell_or_weapon),
+    # ItemComponent('movement_use', 'Applies Movement on use', 'Movement', None, requires_usable),
+
+    ItemComponent('repair', 'Repairs Items', bool, False, lambda x: repair_requires),
+    # ItemComponent('target_restrict', 'Restrict Targets', 'Eval', '', requires_aspect),
+    ItemComponent('multiple_targets', 'Multiple Targets', TargetSubComponent, TargetData(), requires_spell),
+    # ItemComponent('interact', 'Interact with Event Tile', ??, None, requires_spell),
+    # ItemComponent('event_on_use', ??)
+    # ItemComponent('event_on_hit', ??)
+
+    ItemComponent('no_ai', 'AI will not use', bool, False, requires_aspect),
+    ItemComponent('ai_item_priority', 'Custom AI Priority', int, 1, requires_aspect),
+    # ItemComponent('ai_target', 'Restrict AI Targets', 'Eval', '', requires_aspect),
+    # ItemComponent('warning', 'Show Warning', 'Eval', '', requires_spell_or_weapon),
+
+    ItemComponent('map_hit_color', 'Map Hit Color', 'Color', (255, 255, 255, 120), requires_aspect),
+    # ItemComponent('map_anim', 'Custom Map Animation', 'Animation', None, requires_aspect),
+    # ItemComponent('custom_sfx', 'Custom Sound', 'Sound', None, requires_aspect),
+    # ItemComponent('combat_effect', 'Custom Effect in Combat', 'Effect', None, requires_weapon),
+
 ])
 
 def get_component(nid):
@@ -186,7 +336,7 @@ def deserialize_component(dat):
     nid, value = dat
     base = item_components.get(nid)
     copy = ItemComponent.copy(base)
-    if copy.attr in (EffectiveSubComponent, RestrictedSubComponent):
+    if copy.attr in (EffectiveSubComponent, BasicSubComponent, StatChangeSubComponent, GrowthChangeSubComponent, TargetSubComponent):
         for v in value:
             deserialized = copy.attr.deserialize(v)
             copy.value.append(deserialized)

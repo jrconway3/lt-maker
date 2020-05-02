@@ -38,6 +38,11 @@ class generic3counter():
                 self.count = 0
                 self.lastcount = 1
 
+    def reset(self):
+        self.count = 0
+        self.last_update = 0
+        self.lastcount = 1
+
 class simplecounter():
     def __init__(self, times):
         self.count = 0

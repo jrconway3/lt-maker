@@ -47,6 +47,7 @@ class Cursor():
     def set_pos(self, pos):
         logger.info("New position %s", pos)
         self.position = pos
+        game.ui_view.remove_unit_display()
 
     def move(self, dx, dy, mouse=False):
         x, y = self.position
@@ -61,6 +62,9 @@ class Cursor():
             else:
                 self.path = game.targets.get_path(self.cur_unit, self.position)
             self.construct_arrows(self.path[::-1])
+
+        # Remove unit info display
+        game.ui_view.remove_unit_display()
 
         if mouse:
             self.offset_x += utilities.clamp(8*dx, -8, 8)
@@ -80,7 +84,7 @@ class Cursor():
         self.offset_y = min(self.offset_y, 12)
 
     def autocursor(self):
-        player_units = [unit for unit in game.level.units if unit.team == 'player']
+        player_units = [unit for unit in game.level.units if unit.team == 'player' and unit.position]
         lord_units = [unit for unit in player_units if 'Lord' in unit.tags]
         if lord_units:
             self.set_pos(lord_units[0].position)

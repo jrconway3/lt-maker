@@ -849,6 +849,8 @@ class AttackState(MapState):
         self.selection = SelectionHelper(targets)
         closest_position = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_position)
+        game.ui_view.attack_info_disp = None
+        game.ui_view.attack_info_offset = 80
         self.display_single_attack()
 
         self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
@@ -886,11 +888,13 @@ class AttackState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        # TODO Draw attack info
+        if self.cur_unit and game.cursor.get_hover():
+            surf = game.ui_view.draw_attack_info(self.cur_unit, game.cursor.get_hover())
         return surf
 
     def end(self):
         game.highlight.remove_highlights()
+        game.ui_view.attack_info_disp = None
 
 class SpellState(MapState):
     name = 'spell'
@@ -919,13 +923,15 @@ class SpellState(MapState):
         
         # spell_attacks = game.target.get_spell_attacks(self.attacker, spell)
         # game.highlight.display_possible_spells(spell_attacks)
+        game.ui_view.spell_info_disp = None
         self.display_single_attack()
 
         self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
 
     def draw(self, surf):
         surf = super().draw(surf)
-        # TODO Draw attack info
+        if self.attacker:
+            surf = game.ui_view.draw_spell_info(surf, self.attacker, game.cursor.get_hover())
         return surf
 
 class CombatState(MapState):

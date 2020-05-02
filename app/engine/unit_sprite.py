@@ -240,9 +240,13 @@ class UnitSprite():
         else:
             return image[game.map_view.move_sprite_counter.count].copy()
 
-    def draw(self, surf):
-        image = getattr(self.map_sprite, self.image_state)
+    def create_image(self, state):
+        image = getattr(self.map_sprite, state)
         image = self.select_frame(image)
+        return image
+
+    def draw(self, surf):
+        image = self.create_image(self.image_state)
         x, y = self.unit.position
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]

@@ -1,3 +1,5 @@
+import math
+
 from app.data.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data import items
 from app.data.database import DB
@@ -39,7 +41,8 @@ class EmptyOption():
 class BasicOption():
     def __init__(self, idx, text):
         self.idx = idx
-        self.text = text_funcs.translate(text)
+        self.text = text
+        self.display_text = text_funcs.translate(text)
         self.help_box = None
         self.color = 'text_white'
         self.ignore = False
@@ -48,14 +51,14 @@ class BasicOption():
         return self.text
 
     def width(self):
-        return FONT[self.color].size(self.text)[0] + 24
+        return FONT[self.color].size(self.display_text)[0] + 24
 
     def height(self):
         return 16
 
     def draw(self, surf, x, y):
         font = FONT[self.color]
-        font.blit(self.text, surf, (x + 6, y))
+        font.blit(self.display_text, surf, (x + 6, y))
 
     def draw_highlight(self, surf, x, y, menu_width):
         highlight_surf = SPRITES.get('menu_highlight')
@@ -65,6 +68,56 @@ class BasicOption():
             top = y + 9
             surf.blit(highlight_surf, (left, top))
         return surf
+
+class TitleOption():
+    def __init__(self, idx, text, option_bg_name):
+        self.idx = idx
+        self.text = text
+        self.display_text = text_funcs.translate(text)
+        self.option_bg_name = option_bg_name
+
+        self.color = 'chapter_grey'
+
+    def get(self):
+        return self.text
+
+    def width(self):
+        return SPRITES.get(self.option_bg_name).get_width()
+
+    def height(self):
+        return SPRITES.get(self.option_bg_name).get_height()
+
+    def draw_text(self, surf, x, y):
+        font = FONT[self.color]
+
+        text = self.display_text
+        text_size = self.font.size(text)
+        position = (x - text_size[0], y - text_size[1]//2)
+
+        # Handle outline
+        t = math.sin(math.radians((engine.get_time()//10) % 180))
+        color_transition = image_mods.blend_colors((192, 248, 248), (56, 48, 40), t)
+        outline_surf = engine.create_surface((text_size[0] + 2, text_size[1] + 2), transparent=True)
+        font.blit(text, outline_surf, (0, 0))
+        font.blit(text, outline_surf, (0, 2))
+        font.blit(text, outline_surf, (2, 0))
+        font.blit(text, outline_surf, (2, 2))
+        outline_surf = image_mods.change_color(outline_surf, color_transition)
+
+        surf.blit(outline_surf, (position[0] - 1, position[1] - 1))
+        self.font.blit(text, surf, position)
+
+    def draw(self, surf, x, y):
+        left = x - self.width()//2
+        surf.blit(SPRITES.get(self.option_bg_name), (left, y))
+
+        self.draw_text(surf, left, y + self.height()//2)
+
+    def draw_highlight(self, surf, x, y):
+        left = x - self.width()//2
+        surf.blit(SPRITES.get(self.option_bg_name + '_highlight'), (left, y))
+
+        self.draw_text(surf, left, y + self.height()//2)
 
 class ItemOption(BasicOption):
     def __init__(self, idx, item):
@@ -140,10 +193,13 @@ class FullItemOption(ItemOption):
         FONT[uses_font].blit(uses_string, surf, (left, y))
 
 class Cursor():
-    def __init__(self):
+    def __init__(self, sprite=None):
         self.counter = 0
         self.anim = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
-        self.sprite = SPRITES.get('menu_hand')
+        if not sprite:
+            self.sprite = SPRITES.get('menu_hand')
+        else:
+            self.sprite = sprite
         self.y_offset = 0
 
     def update(self):
@@ -151,6 +207,11 @@ class Cursor():
 
     def draw(self, surf, x, y):
         surf.blit(self.sprite, (x - 12 + self.anim[self.counter], y + 3 + self.y_offset * 8))
+        self.y_offset = 0
+        return surf
+
+    def draw_vert(self, surf, x, y):
+        surf.blit(self.sprite, (x - 12, y + 3 + self.y_offset * 8 + self.anim[self.counter]))
         self.y_offset = 0
         return surf
 
@@ -649,3 +710,125 @@ class Trade(Simple):
                     if self.selecting_hand[0] == 0:
                         self.cursor_right()
                     self.selecting_hand = (1, idx)
+
+class Main(Simple):
+    def __init__(self, options, option_bg):
+        self.limit = 1000
+        self.hard_limit = False
+        self.scroll = 0
+
+        self.options = []
+        self.options = self.create_options(options)
+        self.current_index = 0
+
+        self.cursor1 = Cursor(SPRITES.get('cursor_dragon'))
+        self.cursor2 = Cursor(engine.flip_horiz(SPRITES.get('cursor_dragon')))
+        self.option_bg = option_bg
+
+        self.center = WINWIDTH//2, WINHEIGHT//2
+
+    def create_options(self, options):
+        self.options.clear()
+        for idx, option in enumerate(options):
+            option = TitleOption(idx, option, self.option_bg)
+            self.options.append(option)
+
+    def update(self):
+        self.cursor1.update()
+        self.cursor2.update()
+
+    def draw(self, surf, center=(WINWIDTH//2, WINHEIGHT//2), show_cursor=True):
+        self.center = center
+        num_options = len(self.options)
+        for idx, option in enumerate(self.options):
+            top = center[1] - (num_options/2.0 - self.idx) * (option.height() + 1)
+            if self.current_index == idx:
+                option.draw_highlight(surf, center[0], top)
+            else:
+                option.draw(surf, center[0], top)
+                
+        if show_cursor:
+            height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
+            self.cursor1.draw_vert(surf, (center[0] - option.width()//2 - 8 - 8, height))
+            self.cursor2.draw_vert(surf, (center[0] + option.width()//2 - 8 + 8, height))
+
+    def get_rects(self):
+        idxs, rects = [], []
+        num_options = len(self.options)
+        for idx, option in enumerate(self.options):
+            top = self.center[1] - (num_options/2.0 - idx) * (option.get_height() + 1)
+            left = self.center[0] - option.get_width()//2
+            rect = (left, top, option.width(), option.height())
+            rects.append(rect)
+            idxs.append(self.scroll + idx)
+        return idxs, rects
+
+class ChapterSelect(Main):
+    def __init__(self, options, colors):
+        super().__init__(options, 'chapter_select')
+        self.colors = colors
+        self.use_rel_y = len(options) > 3
+        self.rel_pos_y = 0
+
+    def set_color(self, idx, color):
+        self.colors[idx] = color
+
+    def create_options(self, options):
+        self.options.clear()
+        for idx, option in enumerate(options):
+            option = TitleOption(idx, option, self.option_bg)
+            self.options.append(option)
+
+    def move_down(self, first_push=True):
+        super().move_down(first_push)
+        if self.use_rel_y:
+            self.rel_pos_y -= 30
+
+    def move_up(self, first_push=True):
+        super().move_up(first_push)
+        if self.use_rel_y:
+            self.rel_pos_y += 30
+
+    def update(self):
+        super().update()
+        if self.use_rel_y:
+            if self.rel_pos_y > 0:
+                self.rel_pos_y = max(0, self.rel_pos_y - 4)
+            elif self.rel_pos_y < 0:
+                self.rel_pos_y = min(0, self.rel_pos_y + 4)
+
+    def draw(self, surf, center=(WINWIDTH//2, WINHEIGHT//2), show_cursor=True):
+        self.center = center
+        num_options = len(self.options)
+        start_index = max(0, self.current_index - 3)
+        for idx, option in enumerate(self.options[start_index:self.current_index + 3], start_index):
+            diff = idx - self.current_index
+            if self.use_rel_y:
+                top = center[1] + diff * (option.height() + 1) + self.rel_pos_y
+            else:
+                top = center[1] + idx * (option.height() + 1) - ((num_options - 1) * 15 - 4)
+            if self.current_index == idx:
+                option.draw_highlight(surf, center[0], top)
+            else:
+                option.draw(surf, center[0], top)
+                
+        if show_cursor:
+            height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
+            self.cursor1.draw_vert(surf, (center[0] - option.width()//2 - 8 - 8, height))
+            self.cursor2.draw_vert(surf, (center[0] + option.width()//2 - 8 + 8, height))
+
+    def get_rects(self):
+        idxs, rects = [], []
+        num_options = len(self.options)
+        start_index = max(0, self.current_index - 3)
+        for idx, option in enumerate(self.options[start_index:self.current_index + 3], start_index):
+            diff = idx - self.current_index
+            if self.use_rel_y:
+                top = self.center[1] + diff * (option.height() + 1) + self.rel_pos_y
+            else:
+                top = self.center[1] + idx * (option.height() + 1) - ((num_options - 1) * 15 - 4)
+            left = self.center[0] - option.get_width()//2
+            rect = (left, top, option.width(), option.height())
+            rects.append(rect)
+            idxs.append(self.scroll + idx)
+        return idxs, rects

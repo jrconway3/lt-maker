@@ -72,6 +72,17 @@ class Item(object):
                 serial_dict['volatiles'].append(component.serialize())
         return serial_dict
 
+    @classmethod
+    def deserialize(cls, s_dict, prefab):
+        item = cls.deserialize_prefab(prefab)
+        item.uid = s_dict['uid']
+        item.owner_nid = s_dict['owner_nid']
+        item.droppable = s_dict['droppable']
+        for serialized_component in s_dict['volatiles']:
+            component = IC.deserialize(serialized_component)
+            setattr(item, component.nid, component)
+        return item
+
     def serialize_prefab(self):
         serial_dict = {'nid': self.nid,
                        'name': self.name,

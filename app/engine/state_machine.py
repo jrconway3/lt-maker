@@ -28,8 +28,18 @@ class StateMachine():
     def load_states(self, starting_states=None):
         from app.engine import title_screen, transitions, general_states, level_up, turnwheel
         self.all_states = {'title_start': title_screen.TitleStartState,
+                           'title_main': title_screen.TitleMainState,
+                           'title_load': title_screen.TitleLoadState,
+                           'title_restart': title_screen.TitleRestartState,
+                           'title_new': title_screen.TitleNewState,
+                           'title_new_child': title_screen.TitleNewChildState,
+                           'title_extras': title_screen.TitleExtrasState,
+                           'title_wait': title_screen.TitleWaitState,
+                           'title_save': title_screen.TitleSaveState,
                            'transition_in': transitions.TransitionInState,
                            'transition_out': transitions.TransitionOutState,
+                           'transition_pop': transitions.TransitionPopState,
+                           'transition_double_pop': transitions.TransitionDoublePopState,
                            'turn_change': general_states.TurnChangeState,
                            'free': general_states.FreeState,
                            'option_menu': general_states.OptionMenuState,

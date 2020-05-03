@@ -1,6 +1,9 @@
 import random
 from collections import Counter
 
+from app.data.constants import VERSION
+from app.data.party import Party
+from app.data.items import Item
 from app.data.database import DB
 
 from app.engine import state_machine, input_manager, static_random, a_star, equations
@@ -8,6 +11,10 @@ from app.engine import config as cf
 
 import logging
 logger = logging.getLogger(__name__)
+
+# TODO
+class Status():
+    pass
 
 class GameState():
     def __init__(self):
@@ -57,6 +64,9 @@ class GameState():
         Cleans up variables that need to be reset at the end of each level
         """
         from app.engine import turnwheel
+        self.unit_registry = {}
+        self.item_registry = {}
+        self.status_registry = {}
         self.level_constants = Counter()
         self.turncount = 0
         self.action_log = turnwheel.ActionLog()
@@ -80,7 +90,6 @@ class GameState():
         self.alerts = []
 
         # Build registries
-        self.item_registry = {}
         self.map_sprite_registry = {}
 
     def start_level(self, level_nid):
@@ -90,9 +99,10 @@ class GameState():
         from app.data.level_object import LevelObject
         level_prefab = DB.levels.get(level_nid)
         self.tilemap = self.load_map(level_prefab.tilemap)
-        self.current_level = LevelObject(level_prefab, self.tilemap)
+        self.current_level = LevelObject.from_prefab(level_prefab, self.tilemap)
 
         for unit in self.current_level.units:
+            self.register_unit(unit)
             for item in unit.items:
                 self.register_item(item)
         for unit in self.current_level.units:
@@ -109,13 +119,70 @@ class GameState():
         self.ui_view = ui_view.UIView()
         return tilemap
 
+    def save(self):
+        self.action_log.record = False
+        s_dict = {'units': [unit.serialize() for unit in self.unit_registry.values()],
+                  'items': [item.serialize() for item in self.item_registry.values()],
+                  'status': [status.serialize() for status in self.status_registry.values()],
+                  'level': self.current_level.serialize(),
+                  'turncount': self.turncount,
+                  'playtime': self.playtime,
+                  'game_constants': self.game_constants,
+                  'level_constants': self.level_constants,
+                  'parties': {nid: party.serialize() for nid, party in self.parties.values()},
+                  'current_party': self.current_party,
+                  'action_log': self.action_log.serialize()
+                  }
+        import time
+        meta_dict = {'playtime': self.playtime,
+                     'realtime': time.time(),
+                     'version': VERSION,
+                     'title': DB.constants.get('title').value,
+                     'level_title': self.current_level.title,
+                     }
+        self.action_log.record = True
+        return s_dict, meta_dict
+
+    def load(self, s_dict):
+        from app.engine import turnwheel
+        from app.data.unit_object import UnitObject
+        from app.data.level_object import LevelObject
+
+        logger.info("Loading Game...")
+        self.game_constants = Counter(s_dict.get('game_constants', {}))
+        self.level_constants = Counter(s_dict.get('level_constants', {}))
+        self.playtime = float(s_dict['playtime'])
+        self.parties = {nid: Party.deserialize(party) for nid, party in s_dict['parties'].items()}
+        self.current_party = s_dict['current_party']
+        self.turncount = int(s_dict['turncount'])
+
+        self.item_registry = {item['nid']: Item.deserialize(item, DB.items.get(item['nid'])) for item in s_dict['items']}
+        self.status_registry = {status['nid']: Status.deserialize(status, DB.status.get(status['nid'])) for status in s_dict['status']}
+        self.unit_registry = {unit['nid']: UnitObject.deserialize(unit) for unit in s_dict['units']}
+
+        self.action_log = turnwheel.ActionLog.deserialize(s_dict['action_log'])
+
+        logger.info("Loading Map...")
+        self.tilemap = self.load_map(s_dict['level']['tilemap'])
+        self.current_level = LevelObject.deserialize(s_dict['level'], self.tilemap, self)
+
+        self.generic()
+
     @property
     def level(self):
         return self.current_level
 
+    def register_unit(self, unit):
+        logger.info("Registering unit %s as %s", unit, unit.nid)
+        self.unit_registry[unit.nid] = unit
+
     def register_item(self, item):
         logger.info("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
+
+    def register_status(self, status):
+        logger.info("Registering status %s as %s", status, status.uid)
+        self.item_registry[status.uid] = status
 
     def get_unit(self, unit_nid):
         """
@@ -123,13 +190,16 @@ class GameState():
         Could be used to get units in overworld, base,
         etc.
         """
-        unit = self.level.units.get(unit_nid)
-        if unit:
-            return unit
-        for party in self.parties:
-            unit = party.units.get(unit_nid)
-            if unit:
-                return unit
+        unit = self.unit_registry.get(unit_nid)
+        return unit
+
+    def get_item(self, item_uid):
+        item = self.item_registry.get(item_uid)
+        return item
+
+    def get_status(self, status_uid):
+        status = self.item_registry.get(status_uid)
+        return status
 
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):

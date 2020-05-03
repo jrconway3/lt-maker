@@ -13,7 +13,7 @@ Suspending
     - Register items, statuses, and units with the save_state manager
     - Saving and loading
 Title Screen
-Spells (w/ Multiple targets)
+* Spells (w/ Multiple targets)
 * All remaining Item components
 Winning/Losing
 SettingsMenu
@@ -26,7 +26,7 @@ Auto-update
 Equations check their validity
 
 Sounds section of resources
-Music/Sounds
+Music/Sounds into engine
 
 Map Editor with Tilemap manager
 Title Screen Editor

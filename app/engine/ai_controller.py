@@ -2,7 +2,7 @@ import math
 
 from app import utilities
 from app.data.constants import FRAMERATE
-from app.data.item_components import SpellTarget
+from app.data.item_components import SpellTarget, SpellAffect
 from app.data.database import DB
 from app.data import unit_object
 
@@ -239,8 +239,8 @@ class PrimaryAI():
         self.behaviour = behaviour
 
         if self.behaviour.action == "Attack":
-            self.items = [item for item in self.unit.items if self.unit.can_wield(item) and 
-                          (item.weapon or item.spell)]
+            self.items = [item for item in self.unit.items if self.unit.can_wield(item) and
+                (item.weapon or item.spell or item.usable) and not item.no_ai]
 
         self.all_targets = self.get_all_targets(self.unit)
 
@@ -357,13 +357,16 @@ class PrimaryAI():
 
     def determine_utility(self, move, target, item):
         defender, splash = interaction.convert_positions(self.unit, move, target, item)
+        tp = 0
         if defender or splash:
             if item.spell:
                 tp = self.compute_priority_spell(defender, splash, move, item)
             elif item.weapon:
                 tp = self.compute_priority_weapon(defender, splash, move, item)
-            else:
-                tp = self.compute_prority_item(defender, splash, move, item)
+            if item.usable:
+                itp = self.compute_prority_usable(defender, splash, move, item)
+                if itp > tp:  # Only use usable if greater than item spell or weapon
+                    tp = itp
         unit = game.grid.get_unit(target)
         if unit:
             name = unit.nid
@@ -448,6 +451,106 @@ class PrimaryAI():
         terms.append((distance_term, 1))
 
         return utilities.process_terms(terms)
+
+    def compute_priority_spell(self, defender, splash, move, item):
+        terms = []
+        closest_enemy_distance = game.targets.distance_to_closest_enemy(self.unit, move)
+
+        targets = [s for s in splash if isinstance(s, unit_object.UnitObject)]
+        if defender:
+            targets.insert(0, defender)
+
+        if item.spell.affect == SpellAffect.Helpful:
+            if item.heal_on_hit:
+                heal_term = 0
+                help_term = 0
+
+                for target in targets:
+                    if game.targets.check_ally(self.unit, target):
+                        max_hp = game.equations.hitpoints(target)
+                        missing_health = max_hp - target.get_hp()
+                        help_term += utilities.clamp(missing_health / float(max_hp), 0, 1)
+                        spell_heal = combat_calcs.compute_heal(self.unit, target, item, 'Attack')
+                        heal_term += utilities.clamp(min(spell_heal, missing_health) / float(max_hp), 0, 1)
+
+                    logger.info("Help: %s, Heal: %s", help_term, heal_term)
+                    if help_term <= 0:
+                        return 0
+
+                    terms.append((help_term, 40))
+                    terms.append((heal_term, 40))
+
+            elif item.status:
+                # TODO status
+                status_term = 0
+                terms.append((status_term, 40))
+
+            closest_enemy_term = math.log(closest_enemy_distance)/4.
+            terms.append((closest_enemy_term, 10))
+
+        else:
+            offensive_term = 0
+            status_term = 0
+
+            for target in targets:
+                raw_damage = combat_calcs.compute_damage(self.unit, target, item, "Attack")
+                crit_damage = combat_calcs.compute_damage(self.unit, target, item, "Attack", crit=True)
+
+                # Damage I do compared to target's current hp
+                lethality = utilities.clamp(raw_damage / float(target.get_hp()), 0, 1)
+                # TODO Do I add a new status to the target
+                status = 0
+                # Accuracy
+                accuracy = utilities.clamp(combat_calcs.compute_hit(self.unit, target, item, "Attack")/100., 0, 1)
+                crit_accuracy = utilities.clamp(combat_calcs.compute_crit(self.unit, target, item, "Attack")/100., 0, 1)
+
+                if game.targets.check_enemy(self.unit, target):
+                    offensive_term += lethality * accuracy
+                    offensive_term += crit_damage * crit_accuracy * accuracy
+                    status_term += status * accuracy
+                else:
+                    offensive_term -= lethality * accuracy
+                    offensive_term -= crit_damage * crit_accuracy * accuracy
+                    status_term -= status * accuracy
+
+                logger.info("Damage: %s, Accuracy: %s", lethality, accuracy)
+
+            if offensive_term <= 0 and status_term <= 0:
+                logger.info("Offense: %d, Status: %d", offensive_term, status_term)
+                return 0
+
+            # Only here to break ties
+            closest_enemy_term = math.log(closest_enemy_distance)/4.
+            terms.append((closest_enemy_term, 1))
+
+            logger.info("Offense: %s, Status: %s, Distance: %s", offensive_term, status_term, closest_enemy_term)
+            terms.append((offensive_term, 59))
+            terms.append((status_term, 20))
+            terms.append((closest_enemy_term, 1))
+
+        return utilities.process_terms(terms)
+
+    # Currently only computes utility correctly for healing items
+    def compute_priority_usable(self, defender, splash, move, item):
+        terms = []
+        closest_enemy_distance = game.targets.distance_to_closest_enemy(self.unit, move)
+        if item.heal_on_use:
+            max_hp = game.equations.hitpoints(self.unit)
+            missing_health = max_hp - defender.get_hp()
+            if missing_health <= 0:
+                return 0
+            heal_term = utilities.clamp(int(item.heal_on_use.value) / float(missing_health), 0, 1)
+            help_term = utilities.clamp(missing_health / float(max_hp), 0, 1)
+            terms.append((heal_term, 10))
+            terms.append((help_term, 20))
+
+            closest_enemy_term = math.log(closest_enemy_distance)/4.
+            terms.append((closest_enemy_term, 5))
+
+            logger.info("Help: %s, Heal: %s", help_term, heal_term)
+            return utilities.process_terms(terms) / 2  # Divide by two to make it less likely to make this choice
+        else:
+            return 0
 
 class SecondaryAI():
     def __init__(self, unit, behaviour):

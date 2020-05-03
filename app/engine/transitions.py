@@ -48,3 +48,30 @@ class TransitionOutState(State):
 
     def finish(self):
         game.memory['transition_speed'] = None
+
+class TransitionPopState(TransitionOutState):
+    name = 'transition_pop'
+
+    def draw(self, surf):
+        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, self.bg)
+
+        self.counter -= self.transition_speed
+        if self.counter <= 0:
+            game.state.back()
+            game.state.back()
+        return surf
+
+class TransitionDoublePopState(TransitionPopState):
+    name = 'transition_double_pop'
+
+    def draw(self, surf):
+        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, self.bg)
+
+        self.counter -= self.transition_speed
+        if self.counter <= 0:
+            game.state.back()
+            game.state.back()
+            game.state.back()
+        return surf

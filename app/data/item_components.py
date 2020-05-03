@@ -317,7 +317,6 @@ item_components = Data([
     # ItemComponent('event_on_hit', ??)
 
     ItemComponent('no_ai', 'AI will not use', bool, False, requires_aspect),
-    ItemComponent('ai_item_priority', 'Custom AI Priority', int, 1, requires_aspect),
     # ItemComponent('ai_target', 'Restrict AI Targets', 'Eval', '', requires_aspect),
     # ItemComponent('warning', 'Show Warning', 'Eval', '', requires_spell_or_weapon),
 

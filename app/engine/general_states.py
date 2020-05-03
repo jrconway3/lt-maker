@@ -1,11 +1,12 @@
 from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.data.item_components import SpellTarget
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, combat, image_mods, banner
+from app.engine import engine, action, menus, interaction, combat, image_mods, banner, save
 from app.engine.targets import SelectionHelper
 
 import logging
@@ -991,10 +992,18 @@ class SpellState(MapState):
             game.highlight.display_possible_spells({attack_position})
         game.highlight.display_possible_spells(splash_positions)
 
-    def begin(self):
+    def start(self):
         game.cursor.combat_show()
         self.attacker = game.cursor.cur_unit
         self.spell = self.attacker.get_spell()
+
+        if self.spell.multiple_targets:
+            self.spell._multiple_target_index = 0
+
+        self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+
+    def begin(self):
+        # Selection
         targets = game.targets.get_valid_spell_targets(self.attacker, self.spell)
         self.selection = SelectionHelper(targets)
         if self.spell.heal:
@@ -1008,13 +1017,104 @@ class SpellState(MapState):
         game.ui_view.spell_info_disp = None
         self.display_single_attack()
 
-        self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+    def take_input(self, event):
+        self.fluid.update()
+        directions = self.fluid.get_directions()
+        if 'DOWN' in directions:
+            new_position = self.selection.get_down(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'UP' in directions:
+            new_position = self.selection.get_up(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        if 'LEFT' in directions:
+            new_position = self.selection.get_left(game.cursor.position)
+            game.cursor.set_pos(new_position)
+        elif 'RIGHT' in directions:
+            new_position = self.selection.get_right(game.cursor.position)
+            game.cursor.set_pos(new_position)
+
+        new_position = self.selection.handle_mouse()
+        if new_position:
+            game.cursor.set_pos(new_position)
+
+        if event == 'BACK':
+            # Go back to weapon choice no matter what
+            self.finish_multiple_targets(self.weapon)
+            game.state.back()
+
+        elif event == 'SELECT':
+            spell = self.weapon
+            target = spell.spell.targets
+            if target in (SpellTarget.Enemy, SpellTarget.Ally, SpellTarget.Unit):
+                if spell.multiple_targets and spell._multiple_target_index < len(spell.multiple_targets.value):
+                    self.handle_multiple_targets(spell)
+                    spell._multiple_targets_list.append(game.cursor.get_hover())
+                    self.end()  # Re-do state[]
+                    self.begin()
+                elif spell.repair:
+                    action.do(action.EquipItem(self.attacker, spell))
+                    game.state.change('repair')
+                else:
+                    self.finish_multiple_targets(spell)
+                    defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, spell)
+
+                    if spell.multiple_targets:
+                        splash += spell._multiple_targets_list
+                        spell._multiple_targets_list.clear()
+
+                    game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.weapon)
+                    game.state.change('combat')
+            # Targets are Tile or TileNoUnit
+            else:
+                if spell.multiple_targets and spell._multiple_target_index < len(spell.multiple_targets.value):
+                    self.handle_multiple_targets(spell)
+                    spell._multiple_targets_list.append(game.cursor.position)
+                    self.end()
+                    self.begin()
+                else:
+                    self.finish_multiple_targets(spell)
+                    defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, spell)
+
+                    if spell.multiple_targets:
+                        splash += spell._multiple_targets_list
+                        spell._multiple_targets_list.clear()
+
+                    game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.weapon)
+                    game.state.change('combat')
+
+        if directions:
+            self.display_single_attack()
+
+    def handle_multiple_targets(self, spell):
+        idx = spell._multiple_target_index
+        if idx == 0:
+            spell._true_target_type = spell.spell.target
+            spell._true_min_range = spell.min_range
+            spell._true_max_range = spell.max_range
+            spell._multiple_targets_list = []
+
+        spell.min_range = spell.multiple_targets.value[idx].min_range
+        spell.max_range = spell.multiple_targets.value[idx].max_range
+        spell.spell.value = (spell.spell.weapon_type, spell.multiple_targets.value[idx].target, spell.spell.affect)
+        spell._multiple_target_index += 1
+
+    def finish_multiple_targets(self, spell):
+        if spell.multiple_targets and spell._multiple_target_index > 0:  
+            # Reapply old value
+            spell._multiple_target_index = 0
+            spell.spell.value = (spell.spell.weapon_type, spell._true_target_type, spell.spell.affect)
+            spell.min_range = spell._true_min_range
+            spell.max_range = spell._true_max_range
 
     def draw(self, surf):
         surf = super().draw(surf)
         if self.attacker:
             surf = game.ui_view.draw_spell_info(surf, self.attacker, game.cursor.get_hover())
         return surf
+
+    def end(self):
+        game.highlight.remove_highlights()
+        game.ui_view.spell_info_disp = None
 
 class CombatState(MapState):
     name = 'combat'

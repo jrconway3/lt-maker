@@ -12,7 +12,9 @@ class Multiset(Counter):
 
 # Main unit object used by engine
 class UnitObject(Prefab):
-    def __init__(self, prefab):
+    @classmethod
+    def from_prefab(cls, prefab):
+        self = cls()
         self.nid = prefab.nid
         self.position = self.previous_position = prefab.starting_position
         self.team = prefab.team
@@ -57,7 +59,6 @@ class UnitObject(Prefab):
         self.status_effects = []
         self.status_bundle = Multiset()
 
-        # TODO -- change these to use equations
         self.current_hp = game.equations.hitpoints(self)
         if 'MANA' in DB.equations:
             self.current_mana = game.equations.mana(self)
@@ -80,6 +81,7 @@ class UnitObject(Prefab):
 
         self.current_move = None  # Holds the move action the unit last used
         # Maybe move to movement manager?
+        return self
 
     def get_hp(self):
         return self.current_hp
@@ -265,3 +267,88 @@ class UnitObject(Prefab):
         self._has_attacked = False
         self._has_traded = False
         self._has_moved = False
+
+    def serialize(self):
+        s_dict = {'nid': self.nid,
+                  'position': self.position,
+                  'team': self.team,
+                  'party': self.party,
+                  'klass': self.klass,
+                  'gender': self.gender,
+                  'faction': self.faction,
+                  'level': self.level,
+                  'exp': self.exp,
+                  'generic': self.generic,
+                  'ai': self.ai,
+                  'ai_group': self.ai_group,
+                  'items': [item.uid for item in self.items],
+                  'name': self.name,
+                  'desc': self.desc,
+                  'tags': self._tags,
+                  'stats': self.stats,
+                  'growths': self.growths,
+                  'growth_points': self.growth_points,
+                  'starting_position': self.starting_position,
+                  'wexp': self.wexp,
+                  'portrait_nid': self.portrait_nid,
+                  'status_effects': [status.uid for status in self.status_effects],
+                  'current_hp': self.current_hp,
+                  'current_mana': self.current_mana,
+                  'traveler': self.traveler,
+                  'dead': self.dead,
+                  'finished': self._finished,
+                  }
+        return s_dict
+
+    @classmethod
+    def deserialize(cls, s_dict):
+        self = cls()
+        self.nid = s_dict['nid']
+        self.position = self.previous_position = s_dict['nid']
+        self.team = s_dict['team']
+        self.party = s_dict['party']
+        self.klass = s_dict['klass']
+        self.gender = s_dict['gender']
+        self.level = s_dict['level']
+        self.exp = s_dict['exp']
+        self.generic = s_dict['generic']
+
+        self.ai = s_dict['ai']
+        self.ai_group = s_dict['ai_group']
+
+        self.items = [game.get_item(item_uid) for item_uid in s_dict['items']]
+
+        self.faction = s_dict['faction']
+        self.name = s_dict['name']
+        self.desc = s_dict['desc']
+        self._tags = s_dict['tags']
+        self.stats = s_dict['stats']
+        self.growths = s_dict['growths']
+        self.growth_points = s_dict['growth_points']
+        self.wexp = s_dict['wexp']
+        self.portrait_nid = s_dict['portrait_nid']
+        self.starting_position = self.position
+
+        self.status_effects = [game.get_status(status_uid) for status_uid in s_dict['status_effects']]
+        self.status_bundle = Multiset()
+
+        self.current_hp = s_dict['current_hp']
+        self.current_mana = s_dict['current_mana']
+        self.movement_left = game.equations.movement(self)
+
+        self.traveler = s_dict['traveler']
+
+        # -- Other properties
+        self.dead = s_dict['dead']
+        self.is_dying = False
+        self._finished = s_dict['finished']
+        self._has_attacked = False
+        self._has_traded = False
+        self._has_moved = False
+
+        self.sprite = None
+        self.battle_anim = None
+
+        self.current_move = None  # Holds the move action the unit last used
+        # Maybe move to movement manager?
+        return self

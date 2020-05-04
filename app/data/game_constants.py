@@ -59,6 +59,7 @@ constants = ConstantCatalog([
     Constant('attack_zero_hit', "Enemy AI attacks even if Hit is 0", bool, True),
     Constant('attack_zero_dam', "Enemy AI attacks even if Damage is 0", bool, True),
     Constant('zero_move', "Treat Movement as 0 if AI does not move", bool, False),
+    Constant('game_nid', "Game Unique Identifier", str, "LT"),
     Constant('title', "Game Title", str, "Lex Talionis Game"),
     Constant('kill_wexp', "Double weapon exp gained on kill", bool, True),
     Constant('double_wexp', "Each hit when doubling grants weapon exp", bool, True),

@@ -63,8 +63,8 @@ if __name__ == '__main__':
                         format='%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s')
     logger.info('*** Lex Talionis Engine Version %s ***' % VERSION)
     try:
-        # main()
-        test_play()
+        main()
+        # test_play()
     except Exception as e:
         logger.exception(e)
         inform_error()

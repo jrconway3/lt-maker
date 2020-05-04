@@ -23,19 +23,20 @@ class TitleStartState(State):
         self.logo = SPRITES.get('logo')
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
-        game.memory['transition_speed'] = 0.01
+        game.memory['title_bg'] = self.bg
+        game.memory['transition_speed'] = 0.5
 
         # Wait until saving thread has finished
-        if save.SAVING_THREAD:
-            save.SAVING_THREAD.join()
+        if save.SAVE_THREAD:
+            save.SAVE_THREAD.join()
 
         game.state.change('transition_in')
         return 'repeat'
 
     def take_input(self, event):
         if event:
-            game.state.change('title_main')
-            game.state.change('transition_out')
+            game.memory['next_state'] = 'title_main'
+            game.state.change('transition_to')
 
     def draw(self, surf):
         if self.bg:
@@ -56,15 +57,17 @@ class TitleMainState(State):
         if os.path.exists(save.SUSPEND_LOC):
             options.insert(0, 'Continue')
 
+        self.bg = game.memory['title_bg']
+
         self.state = 'transition_in'
         self.position_x = -WINWIDTH//2
 
         # For fading out to load suspend
-        self.background = SPRITES.get('black_background')
+        self.background = SPRITES.get('bg_black')
         self.transition = 100
 
         self.selection = None
-        self.menu = menus.Main(options, "menu_dark")
+        self.menu = menus.Main(options, "title_menu_dark")
         game.state.change('transition_in')
         return 'repeat'
 
@@ -176,7 +179,7 @@ class TitleLoadState(State):
             if save_slot.kind:
                 logger.info("Loading game...")
                 save.load_game(game, save_slot)
-                if save_slot.kind == 'Start':  # Restart
+                if save_slot.kind == 'start':  # Restart
                     # Restart level
                     game.start_level(game.level.nid)
                 game.memory['transition_from'] = 'Load Game'
@@ -304,7 +307,7 @@ class TitleExtrasState(TitleLoadState):
     def start(self):
         self.state = 'transition_in'
         options = ['Options', 'Credits']
-        self.menu = menus.Main(options, 'menu_dark')
+        self.menu = menus.Main(options, 'title_menu_dark')
 
     def take_input(self, event):
         if event == 'DOWN':

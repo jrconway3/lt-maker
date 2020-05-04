@@ -14,7 +14,10 @@ class TransitionInState(State):
     def start(self):
         self.bg = SPRITES.get('bg_black')
         self.counter = 0
-        self.transition_speed = game.memory.get('transition_speed', transition_speed)
+        if game.memory.get('transition_speed'):
+            self.transition_speed = game.memory['transition_speed']
+        else:
+            self.transition_speed = transition_speed
 
     def draw(self, surf):
         self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
@@ -34,7 +37,10 @@ class TransitionOutState(State):
 
     def start(self):
         self.bg = SPRITES.get('bg_black')
-        self.transition_speed = game.memory.get('transition_speed', transition_speed)
+        if game.memory.get('transition_speed'):
+            self.transition_speed = game.memory['transition_speed']
+        else:
+            self.transition_speed = transition_speed
         self.counter = transition_max
 
     def draw(self, surf):
@@ -74,4 +80,18 @@ class TransitionDoublePopState(TransitionPopState):
             game.state.back()
             game.state.back()
             game.state.back()
+        return surf
+
+class TransitionToState(TransitionOutState):
+    name = 'transition_to'
+    transparent = True
+
+    def draw(self, surf):
+        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, self.bg)
+
+        self.counter -= self.transition_speed
+        if self.counter <= 0:
+            game.state.back()
+            game.state.change(game.memory['next_state'])
         return surf

@@ -40,6 +40,7 @@ class StateMachine():
                            'transition_out': transitions.TransitionOutState,
                            'transition_pop': transitions.TransitionPopState,
                            'transition_double_pop': transitions.TransitionDoublePopState,
+                           'transition_to': transitions.TransitionToState,
                            'turn_change': general_states.TurnChangeState,
                            'free': general_states.FreeState,
                            'option_menu': general_states.OptionMenuState,
@@ -96,6 +97,8 @@ class StateMachine():
             return self.state[-1].name
 
     def process_temp_state(self):
+        if self.temp_state:
+            logger.debug("Temp State: %s", self.temp_state)
         for transition in self.temp_state:
             if transition == 'pop':
                 if self.state:

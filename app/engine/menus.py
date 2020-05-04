@@ -91,33 +91,33 @@ class TitleOption():
         font = FONT[self.color]
 
         text = self.display_text
-        text_size = self.font.size(text)
-        position = (x - text_size[0], y - text_size[1]//2)
+        text_size = font.size(text)
+        position = (x - text_size[0]//2, y - text_size[1]//2)
 
         # Handle outline
         t = math.sin(math.radians((engine.get_time()//10) % 180))
         color_transition = image_mods.blend_colors((192, 248, 248), (56, 48, 40), t)
-        outline_surf = engine.create_surface((text_size[0] + 2, text_size[1] + 2), transparent=True)
-        font.blit(text, outline_surf, (0, 0))
-        font.blit(text, outline_surf, (0, 2))
-        font.blit(text, outline_surf, (2, 0))
-        font.blit(text, outline_surf, (2, 2))
+        outline_surf = engine.create_surface((text_size[0] + 4, text_size[1] + 2), transparent=True)
+        font.blit(text, outline_surf, (1, 0))
+        font.blit(text, outline_surf, (0, 1))
+        font.blit(text, outline_surf, (1, 2))
+        font.blit(text, outline_surf, (2, 1))
         outline_surf = image_mods.change_color(outline_surf, color_transition)
 
         surf.blit(outline_surf, (position[0] - 1, position[1] - 1))
-        self.font.blit(text, surf, position)
+        font.blit(text, surf, position)
 
     def draw(self, surf, x, y):
         left = x - self.width()//2
         surf.blit(SPRITES.get(self.option_bg_name), (left, y))
 
-        self.draw_text(surf, left, y + self.height()//2)
+        self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
 
     def draw_highlight(self, surf, x, y):
         left = x - self.width()//2
         surf.blit(SPRITES.get(self.option_bg_name + '_highlight'), (left, y))
 
-        self.draw_text(surf, left, y + self.height()//2)
+        self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
 
 class ItemOption(BasicOption):
     def __init__(self, idx, item):
@@ -717,13 +717,13 @@ class Main(Simple):
         self.hard_limit = False
         self.scroll = 0
 
-        self.options = []
-        self.options = self.create_options(options)
-        self.current_index = 0
-
         self.cursor1 = Cursor(SPRITES.get('cursor_dragon'))
         self.cursor2 = Cursor(engine.flip_horiz(SPRITES.get('cursor_dragon')))
         self.option_bg = option_bg
+
+        self.options = []
+        self.options = self.create_options(options)
+        self.current_index = 0
 
         self.center = WINWIDTH//2, WINHEIGHT//2
 
@@ -732,6 +732,7 @@ class Main(Simple):
         for idx, option in enumerate(options):
             option = TitleOption(idx, option, self.option_bg)
             self.options.append(option)
+        return self.options
 
     def update(self):
         self.cursor1.update()
@@ -741,7 +742,7 @@ class Main(Simple):
         self.center = center
         num_options = len(self.options)
         for idx, option in enumerate(self.options):
-            top = center[1] - (num_options/2.0 - self.idx) * (option.height() + 1)
+            top = center[1] - (num_options/2.0 - idx) * (option.height() + 1)
             if self.current_index == idx:
                 option.draw_highlight(surf, center[0], top)
             else:
@@ -749,8 +750,8 @@ class Main(Simple):
                 
         if show_cursor:
             height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
-            self.cursor1.draw_vert(surf, (center[0] - option.width()//2 - 8 - 8, height))
-            self.cursor2.draw_vert(surf, (center[0] + option.width()//2 - 8 + 8, height))
+            self.cursor1.draw_vert(surf, center[0] - option.width()//2 - 8 - 8, height)
+            self.cursor2.draw_vert(surf, center[0] + option.width()//2 - 8 + 8, height)
 
     def get_rects(self):
         idxs, rects = [], []

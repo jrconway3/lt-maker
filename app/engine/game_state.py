@@ -98,7 +98,8 @@ class GameState():
         """
         from app.data.level_object import LevelObject
         level_prefab = DB.levels.get(level_nid)
-        self.tilemap = self.load_map(level_prefab.tilemap)
+        serialized_tilemap = level_prefab.tilemap.serialize()
+        self.tilemap = self.load_map(serialized_tilemap)
         self.current_level = LevelObject.from_prefab(level_prefab, self.tilemap)
 
         for unit in self.current_level.units:
@@ -108,11 +109,10 @@ class GameState():
         for unit in self.current_level.units:
             self.arrive(unit)
 
-    def load_map(self, tilemap):
-        from app.data.tilemap import TileMap
+    def load_map(self, serialized_tilemap):
         from app.engine import map_view, ui_view, boundary
-        s = tilemap.serialize()
-        tilemap = TileMap.deserialize(s)  # To make a copy
+        from app.data.tilemap import TileMap
+        tilemap = TileMap.deserialize(serialized_tilemap)  # To make a copy
         self.grid = a_star.GridManager(tilemap)
         self.boundary = boundary.BoundaryInterface(tilemap.width, tilemap.height)
         self.map_view = map_view.MapView(tilemap)
@@ -131,6 +131,7 @@ class GameState():
                   'level_constants': self.level_constants,
                   'parties': {nid: party.serialize() for nid, party in self.parties.values()},
                   'current_party': self.current_party,
+                  'state': self.state.serialize(),
                   'action_log': self.action_log.serialize()
                   }
         import time
@@ -156,8 +157,10 @@ class GameState():
         self.current_party = s_dict['current_party']
         self.turncount = int(s_dict['turncount'])
 
-        self.item_registry = {item['nid']: Item.deserialize(item, DB.items.get(item['nid'])) for item in s_dict['items']}
-        self.status_registry = {status['nid']: Status.deserialize(status, DB.status.get(status['nid'])) for status in s_dict['status']}
+        self.state.load_states(s_dict['state'][0], s_dict['state'][1])
+
+        self.item_registry = {item['uid']: Item.deserialize(item, DB.items.get_instance(item['nid'])) for item in s_dict['items']}
+        self.status_registry = {status['uid']: Status.deserialize(status, DB.status.get(status['nid'])) for status in s_dict['status']}
         self.unit_registry = {unit['nid']: UnitObject.deserialize(unit) for unit in s_dict['units']}
 
         self.action_log = turnwheel.ActionLog.deserialize(s_dict['action_log'])
@@ -167,6 +170,10 @@ class GameState():
         self.current_level = LevelObject.deserialize(s_dict['level'], self.tilemap, self)
 
         self.generic()
+
+        # Now have units actually arrive on map
+        for unit in self.current_level.units:
+            self.arrive(unit)
 
     @property
     def level(self):

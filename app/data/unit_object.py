@@ -304,7 +304,7 @@ class UnitObject(Prefab):
     def deserialize(cls, s_dict):
         self = cls()
         self.nid = s_dict['nid']
-        self.position = self.previous_position = s_dict['nid']
+        self.position = self.previous_position = s_dict['position']
         self.team = s_dict['team']
         self.party = s_dict['party']
         self.klass = s_dict['klass']

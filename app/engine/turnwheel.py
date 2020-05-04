@@ -327,7 +327,7 @@ class ActionLog():
         return ([action.serialize() for action in self.actions], self.first_free_action)
 
     @classmethod
-    def deserializee(cls, serial):
+    def deserialize(cls, serial):
         self = cls()
         actions, first_free_action = serial
         for name, action in actions:

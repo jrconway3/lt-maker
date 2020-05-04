@@ -40,6 +40,7 @@ class LevelObject(Prefab):
                   }
         return s_dict
 
+    @classmethod
     def deserialize(cls, s_dict, tilemap, game):
         level = cls()
         level.nid = s_dict['nid']
@@ -50,5 +51,5 @@ class LevelObject(Prefab):
         level.market_flag = s_dict['market_flag']
         level.objective = s_dict['objective']
 
-        level.units = Data(game.get_unit(unit_nid) for unit_nid in s_dict['units'])
+        level.units = Data([game.get_unit(unit_nid) for unit_nid in s_dict['units']])
         return level

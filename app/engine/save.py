@@ -21,12 +21,12 @@ SUSPEND_LOC = 'saves/' + GAME_NID + '-suspend.pmeta'
 class SaveSlot():
     no_name = '--NO DATA--'
 
-    def __init__(self, metadata_fn, num):
+    def __init__(self, metadata_fn, idx):
         self.name = self.no_name
         self.playtime = 0
         self.realtime = 0
         self.kind = None  # Prep, Base, Suspend, Battle, Start
-        self.number = num
+        self.idx = idx
 
         self.meta_loc = metadata_fn
         self.save_loc = metadata_fn[:-4]
@@ -41,8 +41,6 @@ class SaveSlot():
             self.playtime = save_metadata['playtime']
             self.realtime = save_metadata['realtime']
             self.kind = save_metadata['kind']
-            if self.number is None:
-                self.number = save_metadata['save_slot']
 
     def get_name(self):
         if self.kind:
@@ -100,7 +98,7 @@ def load_game(game_state, save_slot):
     """
     Load game state from file
     """
-    save_loc = save_slot.fn_loc
+    save_loc = save_slot.save_loc
     with open(save_loc, 'rb') as fp:
         s_dict = pickle.load(fp)
     game_state.load(s_dict)

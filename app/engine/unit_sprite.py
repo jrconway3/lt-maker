@@ -25,7 +25,7 @@ class MapSprite():
         self.resource = map_sprite
         if not map_sprite.standing_image:
             map_sprite.standing_image = engine.image_load(map_sprite.standing_full_path)
-            gray_stand = map_sprite.standing_image.copy()
+        gray_stand = map_sprite.standing_image.copy()
         if not map_sprite.moving_image:
             map_sprite.moving_image = engine.image_load(map_sprite.moving_full_path)
         stand, move = self.convert_to_team_colors(map_sprite)

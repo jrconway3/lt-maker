@@ -47,9 +47,9 @@ class Action():
 
     def deserialize_obj(self, value):
         if value[0] == 'unit':
-            return game.level.units.get(value[1])
+            return game.get_unit(value[1])
         elif value[0] == 'item':
-            return game.allitems.get(value[1])
+            return game.get_item(value[1])
         elif value[0] == 'list':
             return [self.deserialize_obj(v) for v in value[1]]
         elif value[0] == 'action':

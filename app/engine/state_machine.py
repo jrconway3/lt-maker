@@ -25,7 +25,7 @@ class StateMachine():
         self.state = []
         self.temp_state = []
 
-    def load_states(self, starting_states=None):
+    def load_states(self, starting_states=None, temp_state=None):
         from app.engine import title_screen, transitions, general_states, level_up, turnwheel
         self.all_states = {'title_start': title_screen.TitleStartState,
                            'title_main': title_screen.TitleMainState,
@@ -74,6 +74,8 @@ class StateMachine():
         if starting_states:
             for state_name in starting_states:
                 self.state.append(self.all_states[state_name](state_name))
+        if temp_state:
+            self.temp_state = temp_state
 
     def change(self, new_state):
         self.temp_state.append(new_state)
@@ -98,7 +100,7 @@ class StateMachine():
 
     def process_temp_state(self):
         if self.temp_state:
-            logger.debug("Temp State: %s", self.temp_state)
+            logger.info("Temp State: %s", self.temp_state)
         for transition in self.temp_state:
             if transition == 'pop':
                 if self.state:

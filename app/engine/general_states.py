@@ -131,6 +131,23 @@ class FreeState(MapState):
     def end(self):
         game.highlight.remove_highlights()
 
+def suspend():
+    game.state.back()
+    game.state.back()
+    game.state.process_temp_state()
+    logger.info('Suspending game...')
+    save.suspend_game(game, 'suspend')
+    game.state.clear()
+    game.state.change('title_start')
+
+def battle_save():
+    game.state.back()
+    game.state.back()
+    logger.info('Creating battle save...')
+    game.memory['save_kind'] = 'battle'
+    game.state.change('title_save')
+    game.state.change('transition_out')
+
 class OptionMenuState(MapState):
     name = 'option_menu'
 
@@ -180,19 +197,9 @@ class OptionMenuState(MapState):
                     game.state.change('option_child')
                 else:
                     if self.menu.owner == 'Suspend':
-                        game.state.back()
-                        game.state.back()
-                        logger.info('Suspending game...')
-                        save.suspend_game(game, 'suspend')
-                        game.state.clear()
-                        game.state.change('title_start')
+                        suspend()
                     elif self.menu.owner == 'Save':
-                        game.state.back()
-                        game.state.back()
-                        logger.info('Creating battle save...')
-                        game.memory['save_kind'] = 'battle'
-                        game.state.change('title_save')
-                        game.state.change('transition_out')
+                        battle_save()
             elif selection == 'Objective':
                 game.state.change('objective')
                 game.state.change('transition_out')
@@ -228,9 +235,14 @@ class OptionChildState(State):
     transparent = True
 
     def begin(self):
-        selection = game.memory['option_owner']
+        if 'option_owner' in game.memory:
+            selection = game.memory['option_owner']
+            topleft = game.memory['option_menu']
+        else:
+            selection = None
+            topleft = None
         options = ['Yes', 'No']
-        self.menu = menus.Choice(selection, options, game.memory['option_menu'])
+        self.menu = menus.Choice(selection, options, topleft)
 
     def take_input(self, event):
         self.menu.handle_mouse()
@@ -248,19 +260,9 @@ class OptionChildState(State):
                 if self.menu.owner == 'End':
                     game.state.change('ai')
                 elif self.menu.owner == 'Suspend':
-                    game.state.back()
-                    game.state.back()
-                    logger.info('Suspending game...')
-                    save.suspend_game(game, 'suspend')
-                    game.state.clear()
-                    game.state.change('title_start')
+                    suspend()
                 elif self.menu.owner == 'Save':
-                    game.state.back()
-                    game.state.back()
-                    logger.info('Creating battle save...')
-                    game.memory['save_kind'] = 'battle'
-                    game.state.change('title_save')
-                    game.state.change('transition_out')
+                    battle_save()
                 elif self.menu.owner == 'Discard' or self.menu.owner == 'Storage':
                     item = game.memory['option_item']
                     cur_unit = game.memory['option_unit']

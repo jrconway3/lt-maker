@@ -73,8 +73,8 @@ class Item(object):
         return serial_dict
 
     @classmethod
-    def deserialize(cls, s_dict, prefab):
-        item = cls.deserialize_prefab(prefab)
+    def deserialize(cls, s_dict, base_item):
+        item = base_item
         item.uid = s_dict['uid']
         item.owner_nid = s_dict['owner_nid']
         item.droppable = s_dict['droppable']

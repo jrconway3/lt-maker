@@ -102,7 +102,8 @@ class TitleMainState(State):
                     self.state = 'transition_out'
 
     def update(self):
-        self.menu.update()
+        if self.menu:
+            self.menu.update()
 
         if self.state == 'transition_in':
             self.position_x += 20

@@ -12,7 +12,9 @@ Editor:
 Suspending
     - Register items, statuses, and units with the save_state manager
     - Saving and loading
+    - New game
 Title Screen
+Game Over / Credits
 * Spells (w/ Multiple targets)
 * All remaining Item components
 Winning/Losing
@@ -20,16 +22,24 @@ SettingsMenu
 * UI View
 Add Sacred Stones Items
 
-Launcher
 Auto-update
+No need for launcher
+If using engine-solo, unlikely to be playing more than one game at a time. Even so, if multiple .ltproj files detected by engine, prompt you to choose before playing.
+editor doesn't need launcher -- just open projects from File Menu.
+Have the editor auto-check for updates on launch. It then spawns a process to download and install and closes itself.
+Maybe: Have any built games check for updates to the engine in the extras menu. Click Check for Updates, if so, will ask you to to proceed, if so, closes self and auto-updates. 
+Maybe: Executable versions of the editor and engine work the same way, they just check from a different source.
 
 Equations check their validity
 
 Sounds section of resources
 Music/Sounds into engine
 
-Map Editor with Tilemap manager
-Title Screen Editor
+Level Up / Promotion
+
+Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers
+
+Title Screen Editor -- How would this work?
 
 ---
 Minimap
@@ -45,6 +55,7 @@ Auras
 Event Script editor
 Event scripts
 Dialogue
+Dialogue Log
 
 ---
 PrepMenu
@@ -53,18 +64,11 @@ BaseMenu
     - Items, Market, Base Convos, Supports, World Map, Lore, Records
 Supports
 Overworld
+Summons
 
 ---
+Make the Lion Throne
 Make Sacred Stones
 
 ---
 Alternate GUI???
-
-Engine:
-Make Engine
-Make sure Dialogue is better -- Add Dialogue Log
-Make both ways of GUI available (maybe?)
-
-Both:
-Create Launcher
-Allow Launcher to auto-update engine, editor, and launcher

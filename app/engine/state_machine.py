@@ -69,7 +69,7 @@ class StateMachine():
                            'display_alerts': general_states.DisplayAlertsState,
                            'ai': general_states.AIState,
                            'exp': level_up.ExpState,
-                           'turnwheel': turnwheel.TurnwheelState
+                           'turnwheel': turnwheel.TurnwheelState,
                            }
         if starting_states:
             for state_name in starting_states:
@@ -120,8 +120,10 @@ class StateMachine():
             else:
                 new_state = self.all_states[transition](transition)
                 self.state.append(new_state)
+        if self.temp_state:
+            logger.info("State: %s", [s.name for s in self.state])
         self.temp_state.clear()
-
+        
     def update(self, event, surf):
         if not self.state:
             return None, False

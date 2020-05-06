@@ -119,6 +119,16 @@ class TitleOption():
 
         self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
 
+class ChapterSelectOption(TitleOption):
+    def __init__(self, idx, text, option_bg_name, bg_color):
+        self.idx = idx
+        self.text = text
+        self.display_text = text_funcs.translate(text)
+        self.bg_color = bg_color
+        self.option_bg_name = option_bg_name + '_' + bg_color
+
+        self.color = 'chapter_grey'
+
 class ItemOption(BasicOption):
     def __init__(self, idx, item):
         self.idx = idx
@@ -727,6 +737,10 @@ class Main(Simple):
 
         self.center = WINWIDTH//2, WINHEIGHT//2
 
+    @property
+    def cursor(self):
+        return self.cursor1
+
     def create_options(self, options):
         self.options.clear()
         for idx, option in enumerate(options):
@@ -757,8 +771,8 @@ class Main(Simple):
         idxs, rects = [], []
         num_options = len(self.options)
         for idx, option in enumerate(self.options):
-            top = self.center[1] - (num_options/2.0 - idx) * (option.get_height() + 1)
-            left = self.center[0] - option.get_width()//2
+            top = self.center[1] - (num_options/2.0 - idx) * (option.height() + 1)
+            left = self.center[0] - option.width()//2
             rect = (left, top, option.width(), option.height())
             rects.append(rect)
             idxs.append(self.scroll + idx)
@@ -766,19 +780,23 @@ class Main(Simple):
 
 class ChapterSelect(Main):
     def __init__(self, options, colors):
-        super().__init__(options, 'chapter_select')
         self.colors = colors
+        super().__init__(options, 'chapter_select')
         self.use_rel_y = len(options) > 3
         self.rel_pos_y = 0
 
     def set_color(self, idx, color):
         self.colors[idx] = color
 
+    def set_colors(self, colors):
+        self.colors = colors
+
     def create_options(self, options):
         self.options.clear()
         for idx, option in enumerate(options):
-            option = TitleOption(idx, option, self.option_bg)
+            option = ChapterSelectOption(idx, option, self.option_bg, self.colors[idx])
             self.options.append(option)
+        return self.options
 
     def move_down(self, first_push=True):
         super().move_down(first_push)
@@ -807,7 +825,7 @@ class ChapterSelect(Main):
             if self.use_rel_y:
                 top = center[1] + diff * (option.height() + 1) + self.rel_pos_y
             else:
-                top = center[1] + idx * (option.height() + 1) - ((num_options - 1) * 15 - 4)
+                top = center[1] + idx * (option.height() + 1) - (num_options * (option.height() + 1)//2)
             if self.current_index == idx:
                 option.draw_highlight(surf, center[0], top)
             else:
@@ -815,8 +833,8 @@ class ChapterSelect(Main):
                 
         if show_cursor:
             height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
-            self.cursor1.draw_vert(surf, (center[0] - option.width()//2 - 8 - 8, height))
-            self.cursor2.draw_vert(surf, (center[0] + option.width()//2 - 8 + 8, height))
+            self.cursor1.draw_vert(surf, center[0] - option.width()//2 - 8 - 8, height)
+            self.cursor2.draw_vert(surf, center[0] + option.width()//2 - 8 + 8, height)
 
     def get_rects(self):
         idxs, rects = [], []
@@ -827,8 +845,8 @@ class ChapterSelect(Main):
             if self.use_rel_y:
                 top = self.center[1] + diff * (option.height() + 1) + self.rel_pos_y
             else:
-                top = self.center[1] + idx * (option.height() + 1) - ((num_options - 1) * 15 - 4)
-            left = self.center[0] - option.get_width()//2
+                top = self.center[1] + idx * (option.height() + 1) - (num_options * (option.height() + 1)//2)
+            left = self.center[0] - option.width()//2
             rect = (left, top, option.width(), option.height())
             rects.append(rect)
             idxs.append(self.scroll + idx)

@@ -11,6 +11,7 @@ from app.engine.background import PanoramaBackground
 from app.engine import save, image_mods, banner, menus
 from app.engine.game_state import game
 
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,9 @@ class TitleMainState(State):
     in_level = False
     show_map = False
 
+    menu = None
+    bg = None
+
     def start(self):
         options = ['New Game', 'Extras']
         if any(ss.kind for ss in save.SAVE_SLOTS):
@@ -73,14 +77,15 @@ class TitleMainState(State):
 
     def take_input(self, event):
         if self.state == 'normal':
+            self.menu.handle_mouse()
             if event == 'DOWN':
                 self.menu.move_down()
             elif event == 'UP':
                 self.menu.move_up()
 
             elif event == 'BACK':
-                game.state.change('title_start')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'title_start'
+                game.state.change('transition_to')
 
             elif event == 'SELECT':
                 self.selection = self.menu.get_current()
@@ -156,16 +161,23 @@ class TitleLoadState(State):
     in_level = False
     show_map = False
 
+    menu = None
+    bg = None
+
     def start(self):
         self.state = 'transition_in'
         self.position_x = int(WINWIDTH * 1.5)
 
+        self.bg = game.memory['title_bg']
+
         options, colors = save.get_save_title(save.SAVE_SLOTS)
+        print(options, colors)
         self.menu = menus.ChapterSelect(options, colors)
         most_recent = save.SAVE_SLOTS.index(max(save.SAVE_SLOTS, key=lambda x: x.realtime))
         self.menu.move_to(most_recent)
 
     def take_input(self, event):
+        self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
         elif event == 'UP':
@@ -210,6 +222,8 @@ class TitleLoadState(State):
                 return 'repeat'
 
     def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
         if self.menu:
             self.menu.draw(surf, center=(self.position_x, WINHEIGHT//2))
         return surf
@@ -218,6 +232,7 @@ class TitleRestartState(TitleLoadState):
     name = 'title_restart'
 
     def take_input(self, event):
+        self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
         elif event == 'UP':
@@ -243,10 +258,23 @@ class TitleRestartState(TitleLoadState):
                 # TODO Error sound
                 pass
 
+def build_new_game(slot):
+    game.build_new()
+
+    game.state.clear()
+    game.state.change('turn_change')
+    game.state.process_temp_state()
+
+    game.start_level('DEBUG')
+
+    save.suspend_game(game, 'start', slot)
+    save.remove_suspend()
+
 class TitleNewState(TitleLoadState):
     name = 'title_new'
 
     def take_input(self, event):
+        self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
         elif event == 'UP':
@@ -259,10 +287,16 @@ class TitleNewState(TitleLoadState):
             selection = self.menu.current_index
             save_slot = save.SAVE_SLOTS[selection]
             if save_slot.kind:
+                game.memory['option_owner'] = selection
+                game.memory['option_menu'] = self.menu
                 game.state.change('title_new_child')
             else:
                 # TODO Save Sound
-                build_new_game()
+                build_new_game(selection)
+                options, color = save.get_save_title(save.SAVE_SLOTS)
+                self.menu.set_colors(color)
+                self.menu.update_options(options)
+                game.state.change('title_wait')
 
 class TitleNewChildState(State):
     name = 'title_new_child'
@@ -306,11 +340,16 @@ class TitleExtrasState(TitleLoadState):
     show_map = False
 
     def start(self):
+        self.position_x = int(WINWIDTH * 1.5)
         self.state = 'transition_in'
+
+        self.bg = game.memory['title_bg']
+
         options = ['Options', 'Credits']
         self.menu = menus.Main(options, 'title_menu_dark')
 
     def take_input(self, event):
+        self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
         elif event == 'UP':
@@ -373,6 +412,7 @@ class TitleSaveState(State):
         if self.wait_time > 0:
             return
 
+        self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
         elif event == 'UP':

@@ -51,7 +51,7 @@ class SaveSlot():
 def save_io(s_dict, meta_dict, slot=None, force_loc=None):
     if force_loc:
         save_loc = 'saves/' + GAME_NID + '-' + force_loc + '.p'
-    elif slot:
+    elif slot is not None:
         save_loc = 'saves/' + GAME_NID + '-' + str(slot) + '.p'
     meta_loc = save_loc + 'meta'
 
@@ -64,20 +64,14 @@ def save_io(s_dict, meta_dict, slot=None, force_loc=None):
         pickle.dump(meta_dict, fp)
 
     # For restart
-    # if slot:
-    #     r_save = 'saves/restart' + str(slot) + '.p'
-    #     r_save_meta = 'saves/restart' + str(slot) + '.pmeta'
-    #     # If the slot I'm overwriting is a start of map
-    #     if old_slot == 'start':
-    #         # Then rename it to restart file
-    #         if save_loc != r_save:
-    #             shutil.copy(save_loc, r_save)
-    #             shutil.copy(meta_loc, r_save_meta)
-    #     else:  # 
-    #         old_name = 'saves/restart' + str(old_slot) + '.p'
-    #         if old_name != r_save:
-    #             shutil.copy(old_name, r_save)
-    #             shutil.copy(old_name + 'meta', r_save_meta)
+    if meta_dict['kind'] == 'start':
+        r_save = 'saves/' + GAME_NID + '-restart' + str(slot) + '.p'
+        r_save_meta = 'saves/' + GAME_NID + '-restart' + str(slot) + '.pmeta'
+        # If the slot I'm overwriting is a start of map
+        # Then rename it to restart file
+        if save_loc != r_save:
+            shutil.copy(save_loc, r_save)
+            shutil.copy(meta_loc, r_save_meta)
 
 def suspend_game(game_state, kind, slot=None):
     """
@@ -137,6 +131,7 @@ def remove_suspend():
         os.remove(SUSPEND_LOC)
 
 def get_save_title(save_slots):
+    print(save_slots)
     options = [save_slot.get_name() for save_slot in save_slots]
     colors = ['green' for save_slot in save_slots]
     return options, colors

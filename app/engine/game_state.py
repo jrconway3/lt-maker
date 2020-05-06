@@ -124,7 +124,7 @@ class GameState():
         s_dict = {'units': [unit.serialize() for unit in self.unit_registry.values()],
                   'items': [item.serialize() for item in self.item_registry.values()],
                   'status': [status.serialize() for status in self.status_registry.values()],
-                  'level': self.current_level.serialize(),
+                  'level': self.current_level.serialize() if self.current_level else None,
                   'turncount': self.turncount,
                   'playtime': self.playtime,
                   'game_constants': self.game_constants,
@@ -165,15 +165,16 @@ class GameState():
 
         self.action_log = turnwheel.ActionLog.deserialize(s_dict['action_log'])
 
-        logger.info("Loading Map...")
-        self.tilemap = self.load_map(s_dict['level']['tilemap'])
-        self.current_level = LevelObject.deserialize(s_dict['level'], self.tilemap, self)
+        if s_dict['level']:
+            logger.info("Loading Map...")
+            self.tilemap = self.load_map(s_dict['level']['tilemap'])
+            self.current_level = LevelObject.deserialize(s_dict['level'], self.tilemap, self)
 
-        self.generic()
+            self.generic()
 
-        # Now have units actually arrive on map
-        for unit in self.current_level.units:
-            self.arrive(unit)
+            # Now have units actually arrive on map
+            for unit in self.current_level.units:
+                self.arrive(unit)
 
     @property
     def level(self):

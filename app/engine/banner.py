@@ -87,6 +87,7 @@ class Custom(Banner):
     def __init__(self, text):
         self.text = [text]
         self.font = ['text_white']
+        self.item = None
         self.figure_out_size()
 
 class Pennant():

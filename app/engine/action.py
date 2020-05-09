@@ -374,7 +374,7 @@ class PutItemInConvoy(Action):
     def do(self):
         game.convoy.append(self.item)
         game.alerts.append(banner.SentToConvoy(self.item))
-        game.state.change('alert_display')
+        game.state.change('alert')
 
     def execute(self):
         game.convoy.append(self.item)
@@ -396,7 +396,7 @@ class GiveItem(Action):
                 game.alerts.append(banner.AcquiredItem(self.unit, self.item))
             else:
                 game.alerts.append(banner.NoChoiceAcquiredItem(self.unit, self.item))
-            game.state.change('alert_display')
+            game.state.change('alert')
 
     # there shouldn't be any time this is called where the player has not already checked 
     # that there are less than cf.CONSTANTS['max_items'] items in their inventory
@@ -417,7 +417,7 @@ class DropItem(Action):
         self.item.droppable = False
         self.unit.add_item(self.item)
         game.alerts.append(banner.AcquiredItem(self.unit, self.item))
-        game.state.change('alert_display')
+        game.state.change('alert')
 
     def execute(self):
         self.item.droppable = False
@@ -565,7 +565,7 @@ class GainWexp(Action):
         for weapon_rank in DB.weapon_ranks:
             if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                 game.alerts.append(banner.GainWexp(weapon_rank, self.item))
-                game.state.change('alert_display')
+                game.state.change('alert')
                 break
 
     def execute(self):

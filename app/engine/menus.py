@@ -51,7 +51,7 @@ class BasicOption():
         return self.text
 
     def width(self):
-        return FONT[self.color].size(self.display_text)[0] + 24
+        return FONT[self.color].width(self.display_text) + 24
 
     def height(self):
         return 16
@@ -68,6 +68,10 @@ class BasicOption():
             top = y + 9
             surf.blit(highlight_surf, (left, top))
         return surf
+
+class HorizOption(BasicOption):
+    def width(self):
+        return FONT[self.color].width(self.display_text)
 
 class TitleOption():
     def __init__(self, idx, text, option_bg_name):
@@ -389,9 +393,8 @@ class Simple():
 
 class Choice(Simple):
     def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
-        super().__init__(owner, options, topleft, background, info)
-
         self.horizontal = False
+        super().__init__(owner, options, topleft, background, info)
 
         self.gem = True
         self.shimmer = 0
@@ -401,6 +404,7 @@ class Choice(Simple):
 
     def set_horizontal(self, val):
         self.horizontal = val
+        self.update_options()
 
     def set_total_uses(self, val):
         self.display_total_uses = val
@@ -420,7 +424,10 @@ class Choice(Simple):
                 option.help_box = option.get_help_box()
                 self.options.append(option)
             else:
-                option = BasicOption(idx, option)
+                if self.horizontal:
+                    option = HorizOption(idx, option)
+                else:
+                    option = BasicOption(idx, option)
                 if info_descs:
                     option.help_box = help_menu.HelpDialog(info_descs[idx])
                 self.options.append(option)
@@ -462,8 +469,10 @@ class Choice(Simple):
 
     def create_bg_surf(self):
         if self.horizontal:
-            width = sum(option.width() for option in self.options) + 16
-            return create_base_surf(width, 24, self.background)
+            width = sum(option.width() + 8 for option in self.options) + 16
+            surf = create_base_surf(width, 24, self.background)
+            surf = image_mods.make_translucent(surf, .5)
+            return surf
         else:
             bg_surf = create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
             surf = engine.create_surface((bg_surf.get_width() + 2, bg_surf.get_height() + 4), transparent=True)
@@ -533,6 +542,34 @@ class Choice(Simple):
         return surf
 
     def horiz_draw(self, surf):
+        topleft = self.get_topleft()
+
+        bg_surf = self.create_bg_surf()
+        surf.blit(bg_surf, topleft)
+
+        start_index = self.scroll
+        end_index = self.scroll + self.limit
+        choices = self.options[start_index:end_index]
+        running_width = 0
+        if choices:
+            for idx, choice in enumerate(choices):
+                top = topleft[1] + 4
+                left = topleft[0] + running_width
+                width = choice.width()
+
+                if idx == self.current_index and self.takes_input and self.draw_cursor:
+                    choice.draw_highlight(surf, left, top, width + 14)
+                if idx == self.fake_cursor_idx:
+                    choice.draw_highlight(surf, left, top, width + 14)
+                choice.draw(surf, left, top)
+                if idx == self.fake_cursor_idx:
+                    self.stationary_cursor.draw(surf, left, top)
+                if idx == self.current_index and self.takes_input and self.draw_cursor:
+                    self.cursor.draw(surf, left, top)
+                    
+                running_width += choice.width() + 8
+        else:
+            FONT['text_grey'].blit("Nothing", bg_surf, (self.topleft[0] + 8, self.topleft[1] + 4))
         return surf
 
     def draw_scroll_bar(self, surf):
@@ -540,6 +577,12 @@ class Choice(Simple):
 
     # For mouse handling
     def get_rects(self):
+        if self.horizontal:
+            return self.get_horiz_rects()
+        else:
+            return self.get_vert_rects()
+
+    def get_vert_rects(self):
         topleft = self.get_topleft()
         end_index = self.scroll + self.limit
         choices = self.options[self.scroll:end_index]
@@ -553,6 +596,21 @@ class Choice(Simple):
             idxs.append(self.scroll + idx)
 
             running_height += choice.height()
+        return idxs, rects
+
+    def get_horiz_rects(self):
+        topleft = self.get_topleft()
+        choices = self.options
+        running_width = 0
+        idxs, rects = [], []
+        for idx, choice in enumerate(choices):
+            top = topleft[1] + 4
+            left = topleft[0] + running_width
+            rect = (left, top, choice.width(), choice.height())
+            rects.append(rect)
+            idxs.append(idx)
+
+            running_width += choice.width() + 8
         return idxs, rects
 
 class Trade(Simple):

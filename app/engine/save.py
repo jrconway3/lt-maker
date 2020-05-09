@@ -78,6 +78,7 @@ def suspend_game(game_state, kind, slot=None):
     Saves game state to file
     """
     s_dict, meta_dict = game_state.save()
+    print(s_dict['state'])
     meta_dict['kind'] = kind
 
     if kind == 'suspend':

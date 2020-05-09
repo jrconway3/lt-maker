@@ -213,10 +213,10 @@ class OptionMenuState(MapState):
                 if cf.SETTINGS['debug'] or game.game_constants.get('current_turnwheel_uses', 1) > 0:
                     game.state.change('turnwheel')
                 else:
-                    alert = banner.custom("Turnwheel_empty")
+                    alert = banner.Custom("Turnwheel_empty")
                     # Add banner sound
                     game.alerts.append(alert)
-                    game.state.change('display_alerts')
+                    game.state.change('alert')
 
         elif event == 'INFO':
             self.menu.toggle_info()
@@ -1168,8 +1168,8 @@ class DyingState(MapState):
             game.state.back()
             return 'repeat'
 
-class DisplayAlertsState(State):
-    name = 'display_alerts'
+class AlertState(State):
+    name = 'alert'
     transparent = True
 
     def begin(self):

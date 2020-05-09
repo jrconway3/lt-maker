@@ -59,10 +59,10 @@ class Combat():
     def broken_item_alert(self, a_broke_item, d_broke_item):
         if a_broke_item and self.p1.team == 'player' and not self.p1.is_dying:
             game.alerts.append(banner.BrokenItem(self.p1, self.item))
-            game.state.change('display_alerts')
+            game.state.change('alert')
         if d_broke_item and self.p2.team == 'player' and not self.p2.is_dying:
             game.alerts.append(banner.BrokenItem(self.p2, self.p2.get_weapon()))
-            game.state.change('display_alerts')
+            game.state.change('alert')
 
     def handle_wexp(self, results, item):
         if not DB.constants.get('miss_wexp').value:

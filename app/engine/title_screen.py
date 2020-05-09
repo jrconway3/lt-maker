@@ -98,7 +98,7 @@ class TitleMainState(State):
                     else:
                         text = 'Loading a game will remove suspend!'
                     game.alerts.append(banner.Custom(text))
-                    game.state.change('alert_display')
+                    game.state.change('alert')
                 elif self.selection == 'New Game':
                     # game.state.change('title_mode')
                     game.state.change('title_new')
@@ -323,7 +323,7 @@ class TitleNewChildState(State):
         elif event == 'SELECT':
             selection = self.menu.get_current()
             if selection == 'Overwrite':
-                build_new_game()
+                build_new_game(self.menu.owner)  # game.memory['option_owner']
             elif selection == 'Back':
                 game.state.back()
 

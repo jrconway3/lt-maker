@@ -27,6 +27,8 @@ class GameState():
 
         self.playtime = 0
 
+        self.alerts = []
+
     def load_states(self, starting_states):
         self.state.load_states(starting_states)
 
@@ -86,8 +88,6 @@ class GameState():
         self.death = death.DeathManager()
         self.combat_instance = None
         self.ai = ai_controller.AIController()
-
-        self.alerts = []
 
         # Build registries
         self.map_sprite_registry = {}

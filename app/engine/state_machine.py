@@ -66,7 +66,7 @@ class StateMachine():
                            'attack': general_states.AttackState,
                            'spell': general_states.SpellState,
                            'combat': general_states.CombatState,
-                           'display_alerts': general_states.DisplayAlertsState,
+                           'alert': general_states.AlertState,
                            'ai': general_states.AIState,
                            'exp': level_up.ExpState,
                            'turnwheel': turnwheel.TurnwheelState,

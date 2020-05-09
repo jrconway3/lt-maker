@@ -11,7 +11,7 @@ def handle_booster(unit, item):
     action.do(action.UseItem(item))
     if item.uses and item.uses.value <= 0:
         game.alerts.append(banner.BrokenItem(unit, item))
-        game.state.change('alert_display')
+        game.state.change('alert')
         action.do(action.RemoveItem(unit, item))
 
     # Actually use item

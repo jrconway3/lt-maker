@@ -9,16 +9,17 @@ Editor:
 * Enemy AI
 * OptionsMenu
 * Turnwheel
-Suspending
+* Suspending
     - Register items, statuses, and units with the save_state manager
     - Saving and loading
     - New game
+Saving game between levels
 Title Screen
-Game Over / Credits
+Game Over
 * Spells (w/ Multiple targets)
+Test multiple target spells
 * All remaining Item components
 Winning/Losing
-SettingsMenu
 * UI View
 Add Sacred Stones Items
 
@@ -43,8 +44,9 @@ Title Screen Editor -- How would this work?
 
 ---
 Minimap
-UnitMenu
+SettingsMenu
 InfoMenu
+UnitMenu
 Animation Editor in Resources
 Combat Animations
 

@@ -128,6 +128,33 @@ class FreeState(MapState):
         super().update()
         game.highlight.handle_hover()
 
+        # If all units are dead TODO move to dialog
+        if not any(unit.team == 'player' for unit in game.level.units if unit.position):
+            logger.info("Player loses!")
+            game.state.clear()
+            game.state.change('title_start')
+            game.state.change('game_over')
+            return 'repeat'
+        # Win when rout
+        if not any(unit.team not in ('player', 'other') for unit in game.level.units if unit.position):
+            logger.info("Player wins!")
+            game.clean_up()
+            current_level_index = DB.levels.index(game.level.nid)
+            if len(DB.levels) > current_level_index + 1:
+                # ASSUMES NO OVERWORLD
+                next_level = DB.levels[current_level_index + 1]
+                game.start_level(next_level.nid)
+                game.state.clear()
+                game.state.change('turn_change')
+                logger.info('Creating save...')
+                game.memory['save_kind'] = 'start'
+                game.state.change('title_save')
+            else:
+                logger.info("No more levels!")
+                game.state.clear()
+                game.state.change('title_start')
+                return 'repeat'
+
     def end(self):
         game.highlight.remove_highlights()
 

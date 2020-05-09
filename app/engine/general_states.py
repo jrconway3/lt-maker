@@ -1173,7 +1173,8 @@ class AlertState(State):
     transparent = True
 
     def begin(self):
-        game.cursor.hide()
+        if game.cursor:
+            game.cursor.hide()
 
     def take_input(self, event):
         if game.alerts:
@@ -1187,12 +1188,12 @@ class AlertState(State):
 
     def update(self):
         if game.alerts:
-            alert = game.alerts
+            alert = game.alerts[-1]
             alert.update()
 
     def draw(self, surf):
         if game.alerts:
-            alert = game.alerts
+            alert = game.alerts[-1]
             alert.draw(surf)
         return surf
 

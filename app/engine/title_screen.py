@@ -70,6 +70,8 @@ class TitleMainState(State):
         self.background = SPRITES.get('bg_black')
         self.transition = 100
 
+        self.banner_flag = False
+
         self.selection = None
         self.menu = menus.Main(options, "title_menu_dark")
         game.state.change('transition_in')
@@ -91,7 +93,7 @@ class TitleMainState(State):
                 self.selection = self.menu.get_current()
                 if self.selection == 'Continue':
                     self.state = 'wait'
-                elif os.path.exists(save.SUSPEND_LOC) and \
+                elif os.path.exists(save.SUSPEND_LOC) and not self.banner_flag and \
                         self.selection in ('Load Game', 'Restart Level', 'New Game'):
                     if self.selection == 'New Game':
                         text = 'Starting a new game will remove suspend!'
@@ -99,6 +101,7 @@ class TitleMainState(State):
                         text = 'Loading a game will remove suspend!'
                     game.alerts.append(banner.Custom(text))
                     game.state.change('alert')
+                    self.banner_flag = True
                 elif self.selection == 'New Game':
                     # game.state.change('title_mode')
                     game.state.change('title_new')

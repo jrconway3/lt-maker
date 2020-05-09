@@ -3,14 +3,15 @@ from app.engine.sprites import SPRITES, FONT
 from app.engine import engine, base_surf, image_mods, icons, text_funcs
 
 class Banner():
+    update_flag = False
+    time_to_wait = 300
+    time_to_start = None
+    surf = None
+
     def __init__(self):
         self.text = []
         self.item = None
         self.font = []
-        self.update_flag = False
-        self.time_to_wait = 300
-        self.time_to_start = None
-        self.surf = None
 
     def figure_out_size(self):
         self.length = FONT['text_white'].width(''.join(self.text))
@@ -43,7 +44,7 @@ class Banner():
 
         if self.item:
             icons.draw_item(bg_surf, self.item, (self.size[0] - 24, 8), cooldown=False)
-        surf.blit(bg_surf)
+        engine.blit_center(surf, bg_surf)
         return surf
 
 class AcquiredItem(Banner):

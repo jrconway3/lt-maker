@@ -89,6 +89,8 @@ class GameState():
         self.combat_instance = None
         self.ai = ai_controller.AIController()
 
+        self.alerts.clear()
+        
         # Build registries
         self.map_sprite_registry = {}
 

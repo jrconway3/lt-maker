@@ -9,16 +9,16 @@ from app.engine import driver
 from app.engine import game_state
 
 def main():
-    RESOURCES.load('./default')
-    DB.deserialize('./default')
+    RESOURCES.load('./default.ltproj')
+    DB.deserialize('./default.ltproj')
     title = DB.constants.get('title').value
     driver.start(title)
     game = game_state.start_game()
     driver.run(game)
 
 def test_play():
-    RESOURCES.load('./default')
-    DB.deserialize('./default')
+    RESOURCES.load('./default.ltproj')
+    DB.deserialize('./default.ltproj')
     title = DB.constants.get('title').value
     driver.start(title, from_editor=True)
     game = game_state.start_level('DEBUG')

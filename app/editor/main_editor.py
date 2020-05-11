@@ -290,7 +290,7 @@ class MainEditor(QMainWindow):
             if not self.global_mode:
                 self.edit_global()
 
-            title = os.path.split(self.current_proj)[-1].split('.')[0]
+            title = os.path.split(self.current_proj)[-1]
             self.set_window_title(title)
 
             RESOURCES.load(self.current_proj)
@@ -308,7 +308,10 @@ class MainEditor(QMainWindow):
             fn, ok = QFileDialog.getSaveFileName(self, "Save Project", starting_path, 
                                                  "All Files (*)")
             if ok:
-                self.current_proj = fn.split('.')[0]
+                if fn.endswith('.ltproj'):
+                    self.current_proj = fn
+                else:
+                    self.current_proj = fn + '.ltproj'
             else:
                 return False
             new = True

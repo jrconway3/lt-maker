@@ -1,4 +1,4 @@
-import os
+import sys, os
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 from app.data.resources import RESOURCES
@@ -8,7 +8,7 @@ from app.engine import engine
 from app.engine.sprites import SPRITES
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
-from app.engine import save, image_mods, banner, menus
+from app.engine import save, image_mods, banner, menus, update
 from app.engine.game_state import game
 
 
@@ -60,6 +60,9 @@ class TitleMainState(State):
             options.insert(0, 'Load Game')
         if os.path.exists(save.SUSPEND_LOC):
             options.insert(0, 'Continue')
+        # Only check for updates in frozen version
+        if hasattr(sys, 'frozen') and update.check_for_update():
+            options.append('Update')
 
         self.bg = game.memory['title_bg']
 
@@ -106,6 +109,12 @@ class TitleMainState(State):
                     # game.state.change('title_mode')
                     game.state.change('title_new')
                     game.state.change('transition_out')
+                elif self.selection == 'Update':
+                    updating = update.update()
+                    if updating:
+                        engine.terminate()
+                    else:
+                        print("Failed to update?")
                 else:
                     self.state = 'transition_out'
 

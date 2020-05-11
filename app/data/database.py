@@ -30,6 +30,9 @@ class Database(object):
         # self.init_load()
         # self.deserialize()
 
+        # Needed to create an initial level
+        self.terrain.import_xml('./app/default_data/default_terrain.xml')
+
     def init_load(self):
         self.stats.import_xml('./app/default_data/default_stats.xml')
         self.equations.import_data('./app/default_data/default_equations.txt')
@@ -151,7 +154,7 @@ class Database(object):
         new_ai = ai.AIPreset(nid, 20)
         return new_ai
 
-    def serialize(self, proj_dir='./default'):
+    def serialize(self, proj_dir):
         # save_loc = os.path.join(proj_dir, title + ".ltdata")
         data_dir = os.path.join(proj_dir, 'game_data')
         if not os.path.exists(data_dir):
@@ -175,7 +178,7 @@ class Database(object):
 
         print("Done serializing!")
 
-    def deserialize(self, proj_dir='./default'):
+    def deserialize(self, proj_dir):
         data_dir = os.path.join(proj_dir, 'game_data')
         # save_loc = os.path.join(proj_dir, title + ".ltdata")
         print("Deserializing data from %s..." % data_dir)

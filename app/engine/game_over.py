@@ -4,7 +4,7 @@ from app.engine import background, image_mods
 
 from app.engine.game_state import game
 
-class GameOver(State):
+class GameOverState(State):
     name = 'game_over'
 
     def start(self):

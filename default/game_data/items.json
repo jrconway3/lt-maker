@@ -18,19 +18,19 @@
             ],
             [
                 "might",
-                5
+                3
             ],
             [
                 "hit",
-                90
+                95
             ],
             [
                 "crit",
-                0
+                5
             ],
             [
                 "weight",
-                5
+                2
             ],
             [
                 "level",
@@ -38,7 +38,50 @@
             ],
             [
                 "uses",
-                46
+                30
+            ]
+        ]
+    },
+    {
+        "nid": "Slim Sword",
+        "name": "Slim Sword",
+        "desc": "",
+        "value": 480,
+        "min_range": "1",
+        "max_range": "1",
+        "icon_nid": "Sword",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "weapon",
+                "Sword"
+            ],
+            [
+                "might",
+                3
+            ],
+            [
+                "hit",
+                95
+            ],
+            [
+                "crit",
+                5
+            ],
+            [
+                "weight",
+                2
+            ],
+            [
+                "level",
+                "E"
+            ],
+            [
+                "uses",
+                30
             ]
         ]
     },
@@ -384,6 +427,14 @@
         ],
         "components": [
             [
+                "spell",
+                [
+                    "Staff",
+                    1,
+                    1
+                ]
+            ],
+            [
                 "heal_on_hit",
                 10
             ],
@@ -394,6 +445,10 @@
             [
                 "uses",
                 30
+            ],
+            [
+                "exp",
+                11
             ]
         ]
     },

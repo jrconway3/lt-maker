@@ -4,7 +4,8 @@ from app.data.constants import WINWIDTH, WINHEIGHT, FRAMERATE
 from app.data.database import DB
 
 from app.engine import engine, image_mods, icons, unit_funcs, action
-from app.engine.sprites import SPRITES, FONT
+from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 from app.engine.state import State
 from app.engine.state_machine import SimpleStateMachine
 from app.engine.game_state import game

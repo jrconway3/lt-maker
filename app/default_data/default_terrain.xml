@@ -7,13 +7,4 @@
         
         <mtype>Normal</mtype>
     </terrain>
-
-    <terrain name="Forest">
-        <id>2</id>
-        <color>64,128,64</color>
-        <minimap>Forest</minimap>
-        <platform>Forest</platform>
-        
-        <mtype>Forest</mtype>
-    </terrain>
 </terrain_data>

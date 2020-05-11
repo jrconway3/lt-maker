@@ -88,6 +88,10 @@
         false
     ],
     [
+        "game_nid",
+        "LT"
+    ],
+    [
         "title",
         "Lex Talionis Game"
     ],

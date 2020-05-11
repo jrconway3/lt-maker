@@ -88,6 +88,7 @@ class IntItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QSpinBox(self)
         self.editor.setMaximumWidth(40)
+        self.editor.setRange(-255, 255)
         self.editor.setValue(self._data.value)
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -99,6 +100,7 @@ class HitItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QSpinBox(self)
         self.editor.setMaximumWidth(40)
+        self.editor.setRange(-255, 255)
         self.editor.setValue(self._data.value)
         self.editor.setSingleStep(5)
         self.editor.valueChanged.connect(self.on_value_changed)
@@ -173,20 +175,23 @@ class SpellItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor1 = ComboBox(self)
         self.editor1.setMaximumWidth(120)
-        for weapon_rank in DB.weapon_ranks.values():
-            self.editor1.addItem(weapon_rank.nid)
+        for weapon in DB.weapons.values():
+            self.editor1.addItem(weapon.nid)
+        self.editor1.setValue(self._data.weapon_type)
         self.editor1.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor1)
 
         self.editor2 = ComboBox(self)
         for spell_affect in item_components.SpellAffect:
             self.editor2.addItem(spell_affect.name)
+        self.editor2.setCurrentIndex(self._data.affect - 1)
         self.editor2.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor2)
 
         self.editor3 = ComboBox(self)
         for spell_target in item_components.SpellTarget:
             self.editor3.addItem(spell_target.name)
+        self.editor3.setCurrentIndex(self._data.target - 1)
         self.editor3.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor3)
 

@@ -1,5 +1,6 @@
 from app.data.constants import WINWIDTH, WINHEIGHT
-from app.engine.sprites import SPRITES, FONT
+from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 from app.engine import engine, base_surf, image_mods, icons, text_funcs
 
 class Banner():

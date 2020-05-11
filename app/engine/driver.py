@@ -5,7 +5,7 @@ def start(title, from_editor=False):
     if from_editor:
         engine.constants['standalone'] = False
     engine.init()
-    icon = engine.image_load('main_icon.png')
+    icon = engine.image_load('main_icon.ico')
     engine.set_icon(icon)
     engine.DISPLAYSURF = engine.build_display(engine.SCREENSIZE)
     engine.set_title(title + ' - v' + VERSION)

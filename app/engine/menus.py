@@ -4,7 +4,8 @@ from app.data.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data import items
 from app.data.database import DB
 from app import utilities
-from app.engine.sprites import SPRITES, FONT
+from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 
 from app.engine import engine, image_mods, icons, help_menu, text_funcs
 from app.engine.base_surf import create_base_surf

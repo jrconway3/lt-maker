@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from app.data.constants import WINWIDTH, WINHEIGHT
 
-from app.engine.sprites import SPRITES, FONT
+from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 
 from app.engine.game_state import game
 import app.engine.action as Action
@@ -370,7 +371,7 @@ class TurnwheelDisplay():
         if self.desc:
             font = FONT['text_white']
             num_lines = len(self.desc)
-            bg = base_surf.create_base_surf((WINWIDTH, 8 + font.height * num_lines), 'clear_menu_bg_base')
+            bg = base_surf.create_base_surf(WINWIDTH, 8 + font.height * num_lines, 'clear_menu_bg_base')
             for idx, line in enumerate(self.desc):
                 font.blit(line, bg, (4, 4 + font.height * idx))
             if self.transition != 0:

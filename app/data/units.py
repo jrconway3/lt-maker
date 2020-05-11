@@ -79,6 +79,11 @@ class GenericUnit(Prefab):
     desc: str = None
     generic: bool = True
 
+    def replace_item_nid(self, old_nid, new_nid):
+        for item in self.starting_items:
+            if item[0] == old_nid:
+                item[0] = new_nid
+
     def deserialize_attr(self, name, value):
         if name == 'starting_position':
             if value is not None:

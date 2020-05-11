@@ -124,14 +124,17 @@ class DatabaseEditor(QDialog):
 
     def accept(self):
         self.store_last_tab()
-        DB.serialize()
+        if not self.window.current_proj:
+            self.window.save_as()
+        DB.serialize(self.window.current_proj)
         DB.levels.restore_all_prefabs(DB)
         super().accept()
 
     def reject(self):
         self.restore()
         self.store_last_tab()
-        DB.serialize()
+        if self.window.current_proj:
+            DB.serialize(self.window.current_proj)
         DB.levels.restore_all_prefabs(DB)
         super().reject()
 

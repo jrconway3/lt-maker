@@ -10,14 +10,6 @@ from app.engine import engine, image_mods
 import app.engine.config as cf
 from app.engine.game_state import game
 
-def color_convert(image, conversion_dict):
-    image = image.convert()
-    px_array = engine.make_pixel_array(image)
-    for old_color, new_color in conversion_dict.items():
-        px_array.replace(old_color, new_color)
-    px_array.close()
-    return image
-
 class MapSprite():
     def __init__(self, map_sprite, team):
         self.nid = map_sprite.nid
@@ -49,11 +41,11 @@ class MapSprite():
         elif self.team == 'other':
             conversion_dict = other_colors
 
-        return color_convert(map_sprite.standing_image, conversion_dict), \
-            color_convert(map_sprite.moving_image, conversion_dict)
+        return image_mods.color_convert(map_sprite.standing_image, conversion_dict), \
+            image_mods.color_convert(map_sprite.moving_image, conversion_dict)
 
     def create_gray(self, imgs):
-        imgs = [color_convert(img, gray_colors) for img in imgs]
+        imgs = [image_mods.color_convert(img, gray_colors) for img in imgs]
         for img in imgs:
             engine.set_colorkey(img, COLORKEY, rleaccel=True)
         return imgs

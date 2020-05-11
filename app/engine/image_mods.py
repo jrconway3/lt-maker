@@ -1,6 +1,21 @@
 from app import utilities
 from app.engine import engine
 
+def color_convert(image, conversion_dict):
+    image = image.convert()
+    px_array = engine.make_pixel_array(image)
+    for old_color, new_color in conversion_dict.items():
+        px_array.replace(old_color, new_color)
+    px_array.close()
+    return image
+
+def color_convert_alpha(image, conversion_dict):
+    px_array = engine.make_pixel_array(image)
+    for old_color, new_color in conversion_dict.items():
+        px_array.replace(old_color, new_color)
+    px_array.close()
+    return image
+
 def make_translucent(image, t):
     """
     transparency measured from 0.0 to 1.0, where 0.0 is fully opaque

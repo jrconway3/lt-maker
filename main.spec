@@ -3,15 +3,14 @@
 block_cipher = None
 
 
-a = Analysis(['main.py'],
+a = Analysis(['run_engine.py'],
              pathex=['.'],
              binaries=[],
-             datas=[('Data', 'Data'),
-                    ('Audio', 'Audio'),
-                    ('Saves/save_storage.txt', 'Saves'),
-                    ('Sprites', 'Sprites'),
-                    ('Code', 'Code')],
-             hiddenimports=['Code/*.pyd'],
+             datas=[('saves/save_storage.txt', 'saves'),
+                    ('resources', 'resources')
+                    ('sprites', 'sprites'),
+                    ('app', 'app')],
+             hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
@@ -35,12 +34,12 @@ def remove_from_list(input, keys):
             outlist.append(item)
     return outlist
 
-a.binaries = remove_from_list(a.binaries, Key)
+# a.binaries = remove_from_list(a.binaries, Key)
 
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name='lion_throne',
+          name='lt_engine',
           debug=False,
           strip=False,
           upx=True,
@@ -52,4 +51,4 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=True,
-               name='the_lion_throne')
+               name='lt_engine')

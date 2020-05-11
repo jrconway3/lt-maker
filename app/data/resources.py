@@ -21,6 +21,10 @@ class Resources(object):
         
         self.init_load()
 
+        # Need to load a default map
+        default_map = ImageResource('default', './app/default_data/default_tilemap_image.png')
+        self.maps.append(default_map)
+
     def init_load(self):
         # Grab project resources
         # self.load()
@@ -118,7 +122,7 @@ class Resources(object):
         self.music = data.Data()
         self.sfx = data.Data()
 
-    def load(self, proj_dir='./default'):
+    def load(self, proj_dir):
         self.main_folder = os.path.join(proj_dir, 'resources')
         self.populate_database(self.icons16, 'icons/icons_16x16', '.png', ImageResource)
         self.populate_database(self.icons32, 'icons/icons_32x32', '.png', ImageResource)
@@ -136,7 +140,7 @@ class Resources(object):
         self.clear()
         self.load()
 
-    def serialize(self, proj_dir='./default'):
+    def serialize(self, proj_dir):
         print("Starting Resource Serialization...")
 
         def move_image(image, parent_dir):

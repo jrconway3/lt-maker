@@ -9,16 +9,16 @@ from app.engine import driver
 from app.engine import game_state
 
 def main():
-    RESOURCES.load()
-    DB.deserialize()
+    RESOURCES.load('./default')
+    DB.deserialize('./default')
     title = DB.constants.get('title').value
     driver.start(title)
     game = game_state.start_game()
     driver.run(game)
 
 def test_play():
-    RESOURCES.load()
-    DB.deserialize()
+    RESOURCES.load('./default')
+    DB.deserialize('./default')
     title = DB.constants.get('title').value
     driver.start(title, from_editor=True)
     game = game_state.start_level('DEBUG')
@@ -59,8 +59,8 @@ if __name__ == '__main__':
         print("Error! Debug logs in use -- Another instance of this is already running!")
         engine.terminate()
     logging_level = logging.DEBUG if cf.SETTINGS['debug'] else logging.WARNING
-    logging.basicConfig(filename='saves/debug.log.1', filemode='w', level=logging_level, 
-                        format='%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s')
+    logging.basicConfig(handlers=[logging.FileHandler('saves/debug.log.1', 'w', 'utf-8')],
+                        level=logging_level, format='%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s')
     logger.info('*** Lex Talionis Engine Version %s ***' % VERSION)
     try:
         main()

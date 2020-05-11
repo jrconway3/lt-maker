@@ -1,21 +1,21 @@
-from enum import Enum
+from enum import IntEnum
 
 from app.data.data import Data, Prefab
 
 # Custom Types
-class SpellAffect(Enum):
+class SpellAffect(IntEnum):
     Helpful = 1
     Neutral = 2
     Harmful = 3
 
-class SpellTarget(Enum):
+class SpellTarget(IntEnum):
     Ally = 1
     Enemy = 2
     Unit = 3
     Tile = 4
     TileWithoutUnit = 5
 
-class AOEMode(Enum):
+class AOEMode(IntEnum):
     Normal = 1
     All = 2
     CrossCleave = 3
@@ -27,7 +27,7 @@ class AOEMode(Enum):
     Line = 9
     ThickLine = 10
 
-class ForcedMovement(Enum):
+class ForcedMovement(IntEnum):
     Shove = 1
     Swap = 2
     Warp = 3
@@ -228,11 +228,11 @@ class ItemComponent():
         if isinstance(self.value, Data):
             return self.nid, self.value.save()
         elif isinstance(self.value, list):
-            return self.nid, [v.serialize() for v in self.value]
+            return self.nid, self.value
         else:
             return (self.nid, self.value)
 
-class SpellComponent(ItemComponent):
+    # For spell component only
     @property
     def weapon_type(self):
         return self.value[0]
@@ -248,9 +248,9 @@ class SpellComponent(ItemComponent):
 item_components = Data([
     ItemComponent('weapon', 'Weapon', 'WeaponType', None,
                   lambda x: 'spell' not in x),
-    SpellComponent('spell', 'Spell', ('WeaponType', SpellAffect, SpellTarget),
-                   (None, SpellAffect.Neutral, SpellTarget.Unit),
-                   lambda x: 'weapon' not in x),
+    ItemComponent('spell', 'Spell', ('WeaponType', SpellAffect, SpellTarget),
+                  (None, SpellAffect.Neutral, SpellTarget.Unit),
+                  lambda x: 'weapon' not in x),
     ItemComponent('usable', 'Usable'),
     ItemComponent('might', 'Might', int, 0, requires_spell_or_weapon),
     ItemComponent('hit', 'Hit Rate', int, 0, requires_spell_or_weapon),

@@ -2,10 +2,10 @@
 *.py[co]
 
 # Save States
-Saves/*.p
-Saves/*.pmeta
-Saves/*.ini
-Saves/progress_log.txt
+saves/*.p
+saves/*.pmeta
+saves/*.ini
+saves/progress_log.txt
 debug.log.*
 
 # Large Audio Files
@@ -14,8 +14,8 @@ Audio/
 # Builds
 build/
 dist/
-LevelEditor/
 *.exe
+venv/
 
 # Windows image file caches
 Thumbs.db

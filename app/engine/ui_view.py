@@ -4,7 +4,8 @@ from app.data.item_components import SpellTarget
 from app.data import unit_object
 from app.data.database import DB
 
-from app.engine.sprites import SPRITES, FONT
+from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 from app.engine import engine, base_surf, image_mods, text_funcs, icons, combat_calcs
 import app.engine.config as cf
 from app.engine.game_state import game

@@ -1,7 +1,8 @@
 from app.data.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
 from app import utilities
 from app.data import unit_object
-from app.engine.sprites import SPRITES, FONT
+from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 from app.engine import engine, combat_calcs, icons
 from app.engine.game_state import game
 

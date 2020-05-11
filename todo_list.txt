@@ -14,12 +14,12 @@ Editor:
     - Saving and loading
     - New game
 Saving game between levels
-Title Screen
-Game Over
+* Title Screen
+* Game Over - Test
 * Spells (w/ Multiple targets)
 Test multiple target spells
 * All remaining Item components
-Winning/Losing
+* Winning/Losing
 * UI View
 Add Sacred Stones Items
 
@@ -40,8 +40,6 @@ Level Up / Promotion
 
 Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers
 
-Title Screen Editor -- How would this work?
-
 ---
 Minimap
 SettingsMenu
@@ -58,6 +56,7 @@ Event Script editor
 Event scripts
 Dialogue
 Dialogue Log
+Title Screen Editor -- How would this work?
 
 ---
 PrepMenu

@@ -14,7 +14,7 @@ class BmpFont():
         self.transrgb = (0, 0, 0)
         self.memory = {}
 
-        with open(self.idx_path, 'r') as fp:
+        with open(self.idx_path, 'r', encoding='utf-8') as fp:
             for x in fp.readlines():
                 words = x.strip().split()
                 if words[0] == 'alluppercase':

@@ -382,7 +382,7 @@ class ConstantDatabase(DatabaseTab):
         battle_constants = ('num_items', 'num_accessories', 'min_damage', 'enemy_leveling', 'rng')
         battle_section = self.create_section(battle_constants)
         battle_section.setTitle("Battle Constants")
-        misc_constants = ('title', 'steal', 'num_save_slots')
+        misc_constants = ('game_nid', 'title', 'steal', 'num_save_slots')
         misc_section = self.create_section(misc_constants)
         misc_section.setTitle("Miscellaneous Constants")
 

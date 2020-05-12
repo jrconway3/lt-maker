@@ -1,5 +1,18 @@
 [
     {
+        "nid": "0",
+        "name": "--",
+        "color": [
+            0,
+            0,
+            0,
+            255
+        ],
+        "minimap": "Wall",
+        "platform": "Wall",
+        "mtype": "Fence"
+    },
+    {
         "nid": "1",
         "name": "Plain",
         "color": [
@@ -115,5 +128,57 @@
         "minimap": "Mountain",
         "platform": "Mountain",
         "mtype": "Mountain"
+    },
+    {
+        "nid": "22",
+        "name": "Cliff",
+        "color": [
+            136,
+            136,
+            104,
+            255
+        ],
+        "minimap": "Cliff",
+        "platform": "Cliff",
+        "mtype": "Cliff"
+    },
+    {
+        "nid": "30",
+        "name": "House",
+        "color": [
+            168,
+            88,
+            80,
+            255
+        ],
+        "minimap": "House",
+        "platform": "House",
+        "mtype": "Normal"
+    },
+    {
+        "nid": "31",
+        "name": "Fort",
+        "color": [
+            168,
+            80,
+            168,
+            255
+        ],
+        "minimap": "Fort",
+        "platform": "Fort",
+        "mtype": "Fort"
+    },
+    {
+        "nid": "32",
+        "name": "Gate",
+        "color": [
+            32,
+            96,
+            216,
+            255
+        ],
+        "minimap": "Throne",
+        "platform": "Gate",
+        "mtype": "Throne"
     }
 ]

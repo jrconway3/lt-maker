@@ -56,7 +56,7 @@ class TerrainPainterMenu(QWidget):
         return int(self.alpha_slider.value())
 
     def import_new_map(self):
-        res, ok = ResourceEditor.get(self, "Maps")
+        res, ok = ResourceEditor.get(self.main_editor, "Maps")
         if ok:
             nid = res.nid
             if not res.pixmap:
@@ -73,7 +73,7 @@ class TerrainPainterMenu(QWidget):
         self.main_editor.update_view()
 
     def edit_terrain(self):
-        dialog = DatabaseEditor(self, "Terrain")
+        dialog = DatabaseEditor(self.main_editor, "Terrain")
         dialog.exec_()
         self.main_editor.update_view()
 

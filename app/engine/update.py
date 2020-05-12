@@ -22,7 +22,11 @@ def download_url(url, save_path):
 # Check
 def check_for_update() -> bool:
     metadata = 'metadata.txt.tmp'
-    download_url(remote_metadata, metadata)
+    try:
+        download_url(remote_metadata, metadata)
+    except:
+        print("Could not access internet!")
+        return False
     if os.path.exists(metadata):
         with open(metadata) as fp:
             lines = [l.strip() for l in fp.readlines()]

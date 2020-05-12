@@ -143,6 +143,7 @@ class MultiComboBoxListWithCheckbox(MultiComboBoxList):
 
     def set_current(self, items):
         self.clear()
+        print(items, flush=True)
         for (item_nid, droppable) in items:
             self.add_item(item_nid, droppable)
         self.item_changed.emit()

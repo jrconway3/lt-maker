@@ -72,7 +72,7 @@ class ResourceEditor(QDialog):
         self.current_tab.reset()
 
     def accept(self):
-        RESOURCES.serialize()
+        RESOURCES.serialize(self.window.current_proj)
         self.music_player.quit()
         super().accept()
 

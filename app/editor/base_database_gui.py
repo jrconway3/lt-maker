@@ -6,6 +6,7 @@ from PyQt5.QtCore import QAbstractListModel
 import copy
 
 from app.data.data import Prefab
+from app.data import items
 from app.extensions.custom_gui import RightClickListView
 
 from app import utilities
@@ -153,6 +154,10 @@ class CollectionModel(QAbstractListModel):
             print("Duplication!")
             print(serialized_obj, flush=True)
             new_obj = self._data.datatype.deserialize(serialized_obj)
+        elif isinstance(obj, items.Item):
+            serialized_obj = obj.serialize_prefab()
+            print("Duplication of Item!")
+            new_obj = self._data.datatype.deserialize_prefab(serialized_obj)
         else:
             new_obj = copy.copy(obj)
         new_obj.nid = new_nid

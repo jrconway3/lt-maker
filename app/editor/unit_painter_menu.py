@@ -320,7 +320,7 @@ class GenericUnitDialog(Dialog):
                                                   example.starting_items, example.team, example.ai)
         else:
             new_nid = utilities.get_next_generic_nid(101, units.keys())
-            self.current = DB.create_unit_generic(new_nid, 0, 1, DB.classes[0].nid, DB.factions[0].nid, [DB.items[0].nid], 'player', DB.ai[0].nid)
+            self.current = DB.create_unit_generic(new_nid, 0, 1, DB.classes[0].nid, DB.factions[0].nid, [(DB.items[0].nid, False)], 'player', DB.ai[0].nid)
 
         self.team_box = PropertyBox("Team", ComboBox, self)
         self.team_box.edit.addItems(DB.teams)

@@ -49,7 +49,8 @@ class PushableIcon16(QPushButton):
         self.render()
 
     def onIconSourcePicker(self):
-        res, ok = ResourceEditor.get(self, "Icons " + str(self.width) + 'x' + str(self.height))
+        main_editor = self.window.window.main_editor
+        res, ok = ResourceEditor.get(main_editor, "Icons " + str(self.width) + 'x' + str(self.height))
         if ok:
             if res.parent_image:
                 nid = res.parent_image.nid
@@ -149,7 +150,8 @@ class UnitPortrait(QPushButton):
             self.window.window.update_list()
 
     def onIconSourcePicker(self):
-        res, ok = ResourceEditor.get(self, "Portraits")
+        main_editor = self.window.window.main_editor
+        res, ok = ResourceEditor.get(main_editor, "Portraits")
         if ok:
             nid = res.nid
             self.change_icon(nid)

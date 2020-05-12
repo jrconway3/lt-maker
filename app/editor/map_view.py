@@ -96,7 +96,7 @@ class MapView(QGraphicsView):
             current_unit = self.main_editor.unit_painter_menu.get_current()
             if current_unit and current_unit.starting_position:
                 coord = current_unit.starting_position
-                cursor_sprite = SPRITES.get('cursor')
+                cursor_sprite = SPRITES['cursor']
                 if cursor_sprite:
                     if not cursor_sprite.pixmap:
                         cursor_sprite.pixmap = QPixmap(cursor_sprite.full_path)

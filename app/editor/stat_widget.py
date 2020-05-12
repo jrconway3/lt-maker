@@ -146,13 +146,15 @@ class StatAverageDialog(QDialog):
 
         column_titles = DB.stats.keys()
         self.setup(column_titles, "Average Stats", model)
+        if title == 'Generic':
+            self.view.verticalHeader().setFixedWidth(20)  
 
     def setup(self, column_titles, title, model):
         self.model = model(column_titles, self.current, parent=self)
         self.view = QTableView(self)
         self.view.setModel(self.model)
         for col in range(len(column_titles)):
-            self.view.resizeColumnToContents(col)
+            self.view.resizeColumnToContents(col)          
 
         layout = QGridLayout(self)
         layout.setSpacing(0)
@@ -298,6 +300,32 @@ class ClassStatAveragesModel(VirtualListModel):
     def flags(self, index):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
         return basic_flags
+
+class GenericStatAveragesModel(ClassStatAveragesModel):
+    def __init__(self, columns, current, parent=None):
+        VirtualListModel.__init__(self, parent)
+        self.window = parent
+        self._columns = self._headers = columns
+        self.current = current  
+        self._rows = [current.level]
+
+    def set_current(self, current):
+        self.current = current
+        self._rows = [current.level]
+        self.layoutChanged.emit()
+
+    def determine_average(self, obj, stat_nid, level_ups):
+        klass = DB.classes.get(obj.klass)
+        stat_base = klass.bases.get(stat_nid).value
+        stat_growth = klass.growths.get(stat_nid).value
+        stat_max = klass.max_stats.get(stat_nid).value
+
+        average = int(stat_base + 0.5 + (stat_growth/100) * level_ups)
+
+        # average = quantile(.5, level_ups, stat_growth/100) + stat_base
+        quantile10 = Binomial.quantile(.1, level_ups, stat_growth/100) + stat_base
+        quantile90 = Binomial.quantile(.9, level_ups, stat_growth/100) + stat_base
+        return stat_max, average, quantile10, quantile90
 
 class UnitStatAveragesModel(ClassStatAveragesModel):
     def __init__(self, columns, current, parent=None):

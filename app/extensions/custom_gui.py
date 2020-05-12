@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
     QLineEdit, QPushButton, QAction, QMenu, QSizePolicy, QFrame, \
-    QDialogButtonBox, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout
+    QDialogButtonBox, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout, QApplication
 from PyQt5.QtCore import Qt, QSize, QItemSelectionModel
 
 class SimpleDialog(QDialog):
@@ -192,12 +192,14 @@ class RightClickView(object):
     def new(self, index):
         idx = index.row()
         self.model().new(idx)
-        self.setCurrentIndex(index)
+        new_index = self.model().index(idx + 1)
+        self.setCurrentIndex(new_index)
 
     def duplicate(self, index):
         idx = index.row()
         self.model().duplicate(idx)
-        self.setCurrentIndex(index)
+        new_index = self.model().index(idx + 1)
+        self.setCurrentIndex(new_index)
 
     def delete(self, index):
         idx = index.row()
@@ -210,6 +212,11 @@ class RightClickView(object):
             for index in indices:
                 if not self.can_delete or self.can_delete(self.model(), index):
                     self.delete(index)
+        elif event.key() == Qt.Key_D and (QApplication.keyboardModifiers() & Qt.ControlModifier):
+            indices = self.selectionModel().selectedIndexes()
+            for index in indices:
+                if not self.can_duplicate or self.can_duplicate(self.model(), index):
+                    self.duplicate(index)
 
     def mousePressEvent(self, event):
         index = self.indexAt(event.pos())

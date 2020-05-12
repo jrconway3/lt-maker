@@ -165,6 +165,7 @@ class MultiAttrListModel(VirtualListModel):
         self.create_new()
         self._data.move_index(len(self._data) - 1, idx + 1)
         self.layoutChanged.emit()
+
         self.update_watchers(idx + 1)
 
     def duplicate(self, idx):
@@ -180,6 +181,7 @@ class MultiAttrListModel(VirtualListModel):
         new_obj.nid = new_nid
         self._data.insert(idx + 1, new_obj)
         self.layoutChanged.emit()
+
         self.update_watchers(idx + 1)
 
     def update_watchers(self, idx):

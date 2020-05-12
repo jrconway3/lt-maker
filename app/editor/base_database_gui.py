@@ -142,11 +142,15 @@ class CollectionModel(QAbstractListModel):
 
     def new(self, idx):
         self.create_new()
+        view = self.window.view
         self._data.move_index(len(self._data) - 1, idx + 1)
         self.layoutChanged.emit()
+        new_index = self.index(idx + 1)
+        view.setCurrentIndex(new_index)
         self.update_watchers(idx + 1)
 
     def duplicate(self, idx):
+        view = self.window.view
         obj = self._data[idx]
         new_nid = utilities.get_next_name(obj.nid, self._data.keys())
         if isinstance(obj, Prefab):
@@ -163,6 +167,8 @@ class CollectionModel(QAbstractListModel):
         new_obj.nid = new_nid
         self._data.insert(idx + 1, new_obj)
         self.layoutChanged.emit()
+        new_index = self.index(idx + 1)
+        view.setCurrentIndex(new_index)
         self.update_watchers(idx + 1)
 
     def update_watchers(self, idx):

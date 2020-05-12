@@ -15,6 +15,7 @@ from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox, AIBox
 from app.editor import class_database, item_database
 from app.editor.database_editor import DatabaseEditor
+from app.editor.stat_widget import StatAverageDialog, GenericStatAveragesModel
 from app.editor.unit_database import GenderGroup
 from app.editor.item_database import ItemListWidget
 from app.editor.helper_funcs import can_wield
@@ -195,6 +196,7 @@ class AllUnitModel(DragDropCollectionModel):
         if ok:
             self._data.move_index(len(self._data) - 1, idx + 1)
             self.layoutChanged.emit()
+
             self.update_watchers(idx + 1)
 
     def duplicate(self, idx):
@@ -207,6 +209,7 @@ class AllUnitModel(DragDropCollectionModel):
             new_obj.starting_position = None
             self._data.insert(idx + 1, new_obj)
             self.layoutChanged.emit()
+
             self.update_watchers(idx + 1)
         else:
             QMessageBox.critical(self.window, "Error!", "Cannot duplicate unique unit!")
@@ -311,6 +314,8 @@ class GenericUnitDialog(Dialog):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
+        self.averages_dialog = None
+
         units = self.window._data
         if unit:
             self.current = unit
@@ -336,6 +341,9 @@ class GenericUnitDialog(Dialog):
         self.level_box.edit.setRange(1, 255)
         self.level_box.edit.setAlignment(Qt.AlignRight)
         self.level_box.edit.valueChanged.connect(self.level_changed)
+        self.level_box.add_button(QPushButton("..."))
+        self.level_box.button.clicked.connect(self.display_averages)
+        self.level_box.button.setMaximumWidth(40)
 
         self.gender_box = PropertyBox("Gender", GenderGroup, self)
         self.gender_box.edit.toggled.connect(self.gender_changed)
@@ -369,9 +377,15 @@ class GenericUnitDialog(Dialog):
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()
         self.level_box.edit.setMaximum(DB.classes.get(self.current.klass).max_level)
+        self.check_color()
+        if self.averages_dialog:
+            self.averages_dialog.update()
 
     def level_changed(self, val):
         self.current.level = val
+        if self.averages_dialog:
+            self.averages_dialog.set_current(self.current)
+            self.averages_dialog.update()
 
     def gender_changed(self, male):
         if male:
@@ -389,8 +403,7 @@ class GenericUnitDialog(Dialog):
     def ai_changed(self, val):
         self.current.ai = self.ai_box.edit.currentText()
 
-    def items_changed(self):
-        self.current.starting_items = self.item_widget.get_items()
+    def check_color(self):
         # See which ones can actually be wielded
         color_list = []
         for item_nid, droppable in self.current.starting_items:
@@ -403,6 +416,23 @@ class GenericUnitDialog(Dialog):
                 color_list.append(Qt.black)
         self.item_widget.set_color(color_list)
 
+    def items_changed(self):
+        self.current.starting_items = self.item_widget.get_items()
+        self.check_color()
+
+    def display_averages(self):
+        # Modeless dialog
+        if not self.averages_dialog:
+            self.averages_dialog = StatAverageDialog(self.current, "Generic", GenericStatAveragesModel, self)
+        self.averages_dialog.show()
+        self.averages_dialog.raise_()
+        self.averages_dialog.activateWindow()
+
+    def close_averages(self):
+        if self.averages_dialog:
+            self.averages_dialog.done(0)
+            self.averages_dialog = None
+
     def set_current(self, current):
         self.current = current
         self.team_box.edit.setValue(current.team)
@@ -412,6 +442,8 @@ class GenericUnitDialog(Dialog):
         self.faction_box.edit.setValue(current.faction)
         self.ai_box.edit.setValue(current.ai)
         self.item_widget.set_current(current.starting_items)
+        if self.averages_dialog:
+            self.averages_dialog.set_current(current)
 
     @classmethod
     def get_unit(cls, parent, last_touched_generic=None, unit=None):
@@ -422,3 +454,6 @@ class GenericUnitDialog(Dialog):
             return unit, True
         else:
             return None, False
+
+    def hideEvent(self, event):
+        self.close_averages()

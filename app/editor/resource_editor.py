@@ -77,7 +77,7 @@ class ResourceEditor(QDialog):
         super().accept()
 
     def reject(self):
-        RESOURCES.reload()
+        RESOURCES.reload(self.window.current_proj)
         self.music_player.quit()
         super().reject()
 

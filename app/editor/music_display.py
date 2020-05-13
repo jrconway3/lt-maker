@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, QToolButton, \
-    QLabel, QStyle, QVBoxLayout, QSlider
+    QLabel, QStyle, QVBoxLayout, QSlider, QAbstractItemView, QCheckBox, QPushButton
 from PyQt5.QtCore import Qt, QDir, QSettings
 
 import os
@@ -9,6 +9,7 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import ResourceListView, DeletionDialog
+from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 
 from app import utilities
@@ -78,8 +79,7 @@ class MusicModel(ResourceCollectionModel):
                     level.music[key] = new_nid
 
 class MusicProperties(QWidget):
-    default_text = "Nothing Playing"
-    playing_text = "%s"
+    default_text = "Stopped"
 
     def __init__(self, parent, current=None):
         super().__init__(parent)
@@ -88,15 +88,12 @@ class MusicProperties(QWidget):
         self.resource_editor = self.window.window
         self.main_editor = self.resource_editor.window
 
-        # Music Properties is set up different than most resource tabs
-        # Music Properties ALWAYS shows the currently playing song
-        # TODO: Need to add Double Click on a song to play it
-
         self.current = current
 
-        self.currently_playing = None
+        self.playing: bool = False
+        self.paused: bool = False
 
-        self.currently_playing_label = QLabel(self.default_text)
+        self.status_label = QLabel(self.default_text)
 
         self.play_button = QToolButton(self)
         self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
@@ -122,13 +119,13 @@ class MusicProperties(QWidget):
         hbox_layout.setAlignment(Qt.AlignTop)
         self.setLayout(layout)
 
-        hbox_layout.addWidget(self.currently_playing_label)
+        hbox_layout.addWidget(self.status_label)
         hbox_layout.addWidget(self.play_button)
         hbox_layout.addWidget(self.stop_button)
 
-        title_label = QLabel("Currently Playing")
-        title_label.setStyleSheet("font-weight: bold")
-        layout.addWidget(title_label)
+        self.nid_label = QLabel("Nothing is here yet")
+        self.nid_label.setStyleSheet("font-weight: bold")
+        layout.addWidget(self.nid_label)
         layout.addLayout(hbox_layout)
 
         time_layout = QHBoxLayout()
@@ -139,8 +136,36 @@ class MusicProperties(QWidget):
 
         layout.addLayout(time_layout)
 
+        battle_section = QVBoxLayout()
+
+        self.battle_label = QLabel("Battle Variant -- None")
+        self.battle_label.setStyleSheet("font-weight: bold")
+        battle_section.addWidget(self.battle_label)
+
+        battle_load_section = QHBoxLayout()
+        self.battle_check = QCheckBox("Battle Mode")
+        self.battle_check.setEnabled(False)
+        self.battle_check.toggled.connect(self.on_battle_toggled)
+        battle_load_section.addWidget(self.battle_check)
+        battle_button = QPushButton("Load Battle Variant")
+        battle_button.clicked.connect(self.load_battle_variant)
+        battle_load_section.addWidget(battle_button)
+
+        battle_section.addLayout(battle_load_section)
+
+        layout.addLayout(battle_section)
+
+        # Double-click vagaries
+        view = self.window.left_frame.view
+        view.doubleClicked.connect(self.on_double_click)
+        view.setEditTriggers(QAbstractItemView.NoEditTriggers)  # Remove edit on double click
+
+        TIMER.tick_elapsed.connect(self.tick)
+
     def tick(self):
-        if self.currently_playing:
+        if self.paused:
+            pass  # No changes
+        elif self.playing:
             val = self.resource_editor.music_player.get_position()
             self.duration = self.resource_editor.music_player.duration
             val %= self.duration
@@ -156,18 +181,41 @@ class MusicProperties(QWidget):
             self.time_slider.setValue(0)
             self.time_label.setText("00:00 / 00:00")
 
+    def on_double_click(self, index):
+        new_music = RESOURCES.music[index.row()]
+        self.set_current(new_music)
+        self.play_music(self.current.nid)
+        self.stop_button.setEnabled(True)
+        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
+
     def set_current(self, current):
+        self.stop_clicked()
         self.current = current
+        self.nid_label.setText(self.current.nid)
+
+        # Handle battle variant
+        self.battle_check.setChecked(False)
+        if self.current.battle_full_path:
+            print(self.current.battle_full_path, flush=True)
+            name = os.path.split(self.current.battle_full_path[:-4])[-1]
+            self.battle_label.setText("Battle Variant -- %s" % name)
+            self.battle_check.setEnabled(True)
+        else:
+            self.battle_label.setText("Battle Variant -- None")
+            self.battle_check.setEnabled(False)
 
     def slider_pressed(self):
         self.resource_editor.music_player.pause()
+        self.paused = True
 
     def slider_released(self):
-        self.resource_editor.music_player.set_position(self.time_slider.value())
+        cur = int(self.time_slider.value())
+        self.resource_editor.music_player.set_position(cur)
         self.resource_editor.music_player.unpause()
+        self.paused = False
 
     def play_clicked(self):
-        if self.currently_playing:
+        if self.playing:
             self.pause_music()
             self.stop_button.setEnabled(False)
             self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
@@ -190,17 +238,57 @@ class MusicProperties(QWidget):
 
         if new_song:
             self.time_slider.setRange(0, self.resource_editor.music_player.duration)
-            print(self.time_slider.maximum())
+            print("Time Slider Maximum: %d" % self.time_slider.maximum())
             self.time_slider.setValue(0)
         
-        self.currently_playing = nid
-        self.currently_playing_label.setText(self.playing_text % nid)
+        self.playing = True
+        self.paused = False
+        self.status_label.setText("Playing")
 
     def pause_music(self):
-        self.currently_playing = None
+        self.playing = False
+        self.paused = True
         self.resource_editor.music_player.pause()
+        self.status_label.setText("Paused")
         
     def stop_music(self):
-        self.currently_playing = None
-        self.currently_playing_label.setText(self.default_text)
+        self.playing = False
+        self.paused = False
+        self.status_label.setText(self.default_text)
         self.resource_editor.music_player.stop()
+
+    def on_battle_toggled(self, checked):
+        print(self.current)
+        print(self.current.battle_full_path)
+        if checked and self.current and self.current.battle_full_path:
+            # Stop current music
+            self.resource_editor.music_player.stop()
+            fn = self.current.battle_full_path
+            self.resource_editor.music_player.play(fn)
+            # And play battle variant from where we left off
+            cur = int(self.time_slider.value())
+            self.resource_editor.music_player.set_position(cur)
+        elif not checked and self.current:
+            # Stop current music
+            self.resource_editor.music_player.stop()
+            fn = self.current.full_path
+            self.resource_editor.music_player.play(fn)
+            # And play regular variant from where we left off
+            cur = int(self.time_slider.value())
+            self.resource_editor.music_player.set_position(cur)
+
+    def load_battle_variant(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fn, ok = QFileDialog.getOpenFileName(self.window, "Select Music File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
+        if ok:
+            if fn.endswith('.ogg'):
+                self.current.set_battle_full_path(fn)
+                name = os.path.split(fn[:-4])[-1]
+                self.battle_label.setText("Battle Variant -- %s" % name)
+                self.battle_check.setEnabled(True)
+                print(self.current.battle_full_path)
+            else:
+                QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
+            parent_dir = os.path.split(fn)[0]
+            settings.setValue("last_open_path", parent_dir)

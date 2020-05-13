@@ -40,11 +40,15 @@ class PygameAudioPlayer(object):
     def pause(self):
         pygame.mixer.music.pause()
 
+    def unpause(self):
+        pygame.mixer.music.unpause()
+
     def stop(self):
-        pygame.mixer.music.stop()
-        self.current_position = 0
-        self.current = None
-        self.duration = 0
+        if self.initiated:
+            pygame.mixer.music.stop()
+            self.current_position = 0
+            self.current = None
+            self.duration = 0
 
     def quit(self):
         if self.initiated:
@@ -64,5 +68,9 @@ class PygameAudioPlayer(object):
 
     def set_position(self, val):
         if self.current:
-            pygame.mixer.music.set_pos(val)
+            # Must stop and restart in order to
+            # preserve get position working correctly
+            pygame.mixer.music.stop()
+            pygame.mixer.music.play(-1)
+            pygame.mixer.music.set_pos(val / 1000.)
             self.current_position = val

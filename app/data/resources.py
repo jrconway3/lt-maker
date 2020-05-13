@@ -44,6 +44,23 @@ class Resources(object):
                         new_resource = obj(name[:-4], full_path)
                     d.append(new_resource)
 
+    def populate_music(self, d, folder, fn):
+        loc = os.path.join(self.main_folder, fn)
+        data = ET.parse(loc)
+        music_dict = {}
+        for music in data.getroot().findall('song'):
+            music_dict[music.get('nid')] = {'full_path': music.find('full_path').text,
+                                            'battle_path': music.find('battle_path').text,
+                                            'intro_path': music.find('intro_path').text}
+        for song_nid, paths in music_dict.items():
+            new_song = Song(song_nid, os.path.join(self.main_folder, folder, paths['full_path']))
+            if paths['battle_path']:
+                new_song.set_battle_full_path(os.path.join(self.main_folder, folder, paths['battle_path']))
+            if paths['intro_path']:
+                new_song.set_intro_full_path(os.path.join(self.main_folder, folder, paths['intro_path']))
+            print(new_song)
+            d.append(new_song)
+
     def set_up_portrait_coords(self, fn):
         loc = os.path.join(self.main_folder, fn)
         data = ET.parse(loc)
@@ -134,11 +151,11 @@ class Resources(object):
 
         self.populate_database(self.maps, 'maps', '.png', ImageResource)
 
-        self.populate_database(self.music, 'music', '.ogg', Song)
+        self.populate_music(self.music, 'music', 'music/music_manifest.xml')
 
-    def reload(self):
+    def reload(self, proj_dir):
         self.clear()
-        self.load()
+        self.load(proj_dir)
 
     def serialize(self, proj_dir):
         print("Starting Resource Serialization...")
@@ -270,18 +287,50 @@ class Resources(object):
         music_dir = os.path.join(resource_dir, 'music')
         if not os.path.exists(music_dir):
             os.mkdir(music_dir)
+        root = ET.Element('music_info')
         for music in self.music:
+            # Handle regular music
             new_full_path = os.path.join(music_dir, music.nid + '.ogg')
             if os.path.abspath(music.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(music.full_path, new_full_path)
                 music.set_full_path(new_full_path)
-        # Delete unused music
-        nids = set(d.nid for d in self.music)
-        for fn in os.listdir(music_dir):
-            if not fn.endswith('.ogg') or fn[:-4] not in nids:
-                full_path = os.path.join(music_dir, fn)
-                print("Deleting %s" % full_path)
-                os.remove(full_path)
+            elem = ET.SubElement(root, 'song', {'nid': music.nid})
+            full_path = ET.SubElement(elem, 'full_path')
+            full_path.text = os.path.split(new_full_path)[-1]
+            # Handle battle variant
+            if music.battle_full_path:
+                battle_full_path = os.path.join(music_dir, os.path.split(music.battle_full_path)[-1])
+                if os.path.abspath(music.battle_full_path) != os.path.abspath(battle_full_path):
+                    shutil.copy(music.battle_full_path, battle_full_path)
+                    music.set_battle_full_path(battle_full_path)
+                battle_path = ET.SubElement(elem, 'battle_path')
+                battle_path.text = os.path.split(battle_full_path)[-1]
+            else:
+                battle_path = ET.SubElement(elem, 'battle_path')
+                battle_path.text = ''
+            # Handle intro section
+            if music.intro_full_path:
+                intro_full_path = os.path.join(music_dir, os.path.split(music.intro_full_path)[-1])
+                if os.path.abspath(music.intro_full_path) != os.path.abspath(intro_full_path):
+                    shutil.copy(music.intro_full_path, intro_full_path)
+                    music.set_intro_full_path(intro_full_path)
+                intro_path = ET.SubElement(elem, 'intro_path')
+                intro_path.text = os.path.split(intro_full_path)[-1]
+            else:
+                intro_path = ET.SubElement(elem, 'intro_path')
+                intro_path.text = ''
+        tree = ET.ElementTree(root)
+        tree.write(os.path.join(music_dir, 'music_manifest.xml'))
+        # Delete unused music -- no need with music manifest in future
+        # Because this takes a LOT of time
+        # full_paths = {os.path.split(m.full_path)[-1] for m in self.music} | \
+        #              {os.path.split(m.battle_path)[-1] for m in self.music if m.battle_full_path} | \
+        #              {os.path.split(m.intro_full_path)[-1] for m in self.music if m.intro_full_path}
+        # for fn in os.listdir(music_dir):
+        #     if not (fn.endswith('.ogg') or fn.endswith('.xml')) or fn not in full_paths:
+        #         full_path = os.path.join(music_dir, fn)
+        #         print("Deleting %s" % full_path)
+        #         os.remove(full_path)
 
         print('Done Resource Serializing!')
 
@@ -418,8 +467,18 @@ class Song(object):
         self.nid = nid
         self.full_path = full_path
 
+        # Mutually exclusive. Can't have both start and battle versions
+        self.intro_full_path = None
+        self.battle_full_path = None
+
     def set_full_path(self, full_path):
         self.full_path = full_path
+
+    def set_intro_full_path(self, full_path):
+        self.intro_full_path = full_path
+
+    def set_battle_full_path(self, full_path):
+        self.battle_full_path = full_path
 
 class Font(object):
     def __init__(self, nid, png_path, idx_path):

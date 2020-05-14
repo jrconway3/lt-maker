@@ -337,6 +337,8 @@ class ActionLog():
         return self
 
 class TurnwheelDisplay():
+    # locked_sprite = engine.image_load(SPRITES['focus_fade_red'].full_path, convert_alpha=True)
+    # unlocked_sprite = engine.image_load(SPRITES['focus_fade_green'].full_path, convert_alpha=True)
     locked_sprite = SPRITES.get('focus_fade_red')
     unlocked_sprite = SPRITES.get('focus_fade_green')
 
@@ -382,12 +384,12 @@ class TurnwheelDisplay():
         golden_words_surf = SPRITES.get('golden_words')
         # Get turn
         turn_surf = engine.subsurface(golden_words_surf, (0, 17, 26, 10))
-        turn_bg = base_surf.create_base_surf((48, 24), 'trans_menu_bg_base')
+        turn_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
         turn_bg.blit(turn_surf, (4, 6))
         FONT['text_blue'].blit_right(str(self.turn), turn_bg, (44, 3))
-        surf.blit(turn_bg, WINWIDTH - 44, 4 + self.transition)
+        surf.blit(turn_bg, (WINWIDTH - 52, 4 + self.transition))
         # Unit Count
-        count_bg = base_surf.create_base_surf((48, 24), 'trans_menu_bg_base')
+        count_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
         player_units = [unit for unit in game.level.units if unit.team == 'player' and unit.position]
         unused_units = [unit for unit in player_units if not unit.finished]
         count_str = str(len(unused_units)) + "/" + str(len(player_units))
@@ -396,7 +398,7 @@ class TurnwheelDisplay():
         surf.blit(count_bg, (4, WINHEIGHT - 28 - self.transition))
         # Num uses
         if game.game_constants.get('max_turnwheel_uses', -1) > 0:
-            uses_bg = base_surf.create_base_surf((48, 24), 'trans_menu_bg_base')
+            uses_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
             uses_text = str(game.game_constants['current_turnwheel_uses']) + ' Left'
             x = 48 - FONT['text_blue'].width(uses_text) - 8
             FONT['text_blue'].blit(uses_text, uses_bg, (x, 4))
@@ -500,10 +502,14 @@ class TurnwheelState(MapState):
         self.target_dark -= 4
 
     def draw(self, surf):
+        surf = super().draw(surf)
+        if self.bg:
+            self.bg.draw(surf)
         if self.display:
             self.display.draw(surf)
 
         if self.darken_background or self.target_dark:
+            # Only used by Turnwheel flash
             bg = image_mods.make_translucent(SPRITES.get('bg_black'), 1 - self.darken_background/8.)
             surf.blit(bg, (0, 0))
             if self.target_dark > self.darken_background:

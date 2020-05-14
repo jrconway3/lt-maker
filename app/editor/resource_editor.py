@@ -8,6 +8,7 @@ from app.editor.portrait_display import PortraitDisplay
 from app.editor.map_sprite_display import MapSpriteDisplay
 from app.editor.panorama_display import PanoramaDisplay
 from app.editor.map_display import MapDisplay
+from app.editor.sfx_display import SFXDisplay
 from app.editor.music_display import MusicDisplay
 
 from app.data.resources import RESOURCES
@@ -26,7 +27,7 @@ class ResourceEditor(QDialog):
         self.setLayout(self.grid)
 
         self.music_player = PygameAudioPlayer()
-        self.music_player.setVolume(.5)
+        self.music_player.set_volume(.5)
 
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         self.grid.addWidget(self.buttonbox, 1, 1)
@@ -62,8 +63,8 @@ class ResourceEditor(QDialog):
         # self.tabs['Combat Effects'] = CombatEffectDisplay.create()
         # self.tabs['Map Effects'] = MapEffectDisplay.create()
         self.tabs['Maps'] = MapDisplay.create(self)
+        self.tabs['SFX'] = SFXDisplay.create(self)
         self.tabs['Music'] = MusicDisplay.create(self)
-        # self.tabs['SFX'] = SFXDisplay.create()
 
     def on_tab_changed(self, index):
         new_tab = self.tab_bar.currentWidget()

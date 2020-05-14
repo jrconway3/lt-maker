@@ -9,6 +9,9 @@ class PygameAudioPlayer(object):
         self.current_position = 0  # In milliseconds
         self.duration = 0  # In milliseconds
 
+        # For sfx
+        self.current_sfx = None
+
     def initiate(self):
         pygame.mixer.pre_init(44100, -16, 2, 256 * 2**4)
         pygame.init()
@@ -57,7 +60,7 @@ class PygameAudioPlayer(object):
             pygame.mixer.quit()
             pygame.quit()
 
-    def setVolume(self, vol):
+    def set_volume(self, vol):
         self.volume = vol
 
     def get_position(self):
@@ -74,3 +77,14 @@ class PygameAudioPlayer(object):
             pygame.mixer.music.play(-1)
             pygame.mixer.music.set_pos(val / 1000.)
             self.current_position = val
+
+    def play_sfx(self, fn, loop=False):
+        self.current_sfx = pygame.mixer.Sound(fn)
+        if loop:
+            self.current_sfx.play(-1)
+        else:
+            self.current_sfx.play(0)
+
+    def stop_sfx(self):
+        if self.current_sfx:
+            self.current_sfx.stop()

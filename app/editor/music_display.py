@@ -184,7 +184,7 @@ class MusicProperties(QWidget):
     def on_double_click(self, index):
         new_music = RESOURCES.music[index.row()]
         self.set_current(new_music)
-        self.play_music(self.current.nid)
+        self.play_music(self.current)
         self.stop_button.setEnabled(True)
         self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
@@ -220,7 +220,7 @@ class MusicProperties(QWidget):
             self.stop_button.setEnabled(False)
             self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         elif self.current:
-            self.play_music(self.current.nid)
+            self.play_music(self.current)
             self.stop_button.setEnabled(True)
             self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
@@ -229,10 +229,8 @@ class MusicProperties(QWidget):
         self.stop_button.setEnabled(False)
         self.stop_music()
 
-    def play_music(self, nid):
-        music_resource = self._data.get(nid)
-        print(music_resource.full_path)
-        fn = music_resource.full_path
+    def play_music(self, music):
+        fn = music.full_path
 
         new_song = self.resource_editor.music_player.play(fn)
 

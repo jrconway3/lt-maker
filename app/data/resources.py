@@ -151,6 +151,7 @@ class Resources(object):
 
         self.populate_database(self.maps, 'maps', '.png', ImageResource)
 
+        self.populate_database(self.sfx, 'sfx', '.wav', SFX)
         self.populate_music(self.music, 'music', 'music/music_manifest.xml')
 
     def reload(self, proj_dir):
@@ -282,6 +283,23 @@ class Resources(object):
         for map_image in self.maps:
             move_image(map_image, map_dir)
         delete_unused_images(map_dir, self.maps)
+
+        # === Save SFX ===
+        sfx_dir = os.path.join(resource_dir, 'sfx')
+        if not os.path.exists(sfx_dir):
+            os.mkdir(sfx_dir)
+        for sfx in self.sfx:
+            new_full_path = os.path.join(sfx_dir, sfx.nid + '.wav')
+            if os.path.abspath(sfx.full_path) != os.path.abspath(new_full_path):
+                shutil.copy(sfx.full_path, new_full_path)
+                sfx.set_full_path(new_full_path)
+        # Delete unused sfx
+        full_paths = {os.path.split(sfx.full_path)[-1] for sfx in self.sfx}
+        for fn in os.listdir(sfx_dir):
+            if not fn.endswith('.wav') or fn not in full_paths:
+                full_path = os.path.join(sfx_dir, fn)
+                print("Deleting %s" % full_path)
+                os.remove(full_path)
 
         # === Save Music ===
         music_dir = os.path.join(resource_dir, 'music')
@@ -479,6 +497,14 @@ class Song(object):
 
     def set_battle_full_path(self, full_path):
         self.battle_full_path = full_path
+
+class SFX(object):
+    def __init__(self, nid, full_path=None):
+        self.nid = nid
+        self.full_path = full_path
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
 
 class Font(object):
     def __init__(self, nid, png_path, idx_path):

@@ -44,6 +44,27 @@ class Resources(object):
                         new_resource = obj(name[:-4], full_path)
                     d.append(new_resource)
 
+    def populate_database_with_tags(self, d, folder, ftype, obj):
+        base = os.path.join(self.main_folder, folder)
+        temp_list = []
+        for root, dirs, files in os.walk(base):
+            tag = os.path.relpath(root, base)
+            # print(tag, files, flush=True)
+            for name in files:
+                if name.endswith(ftype):
+                    full_path = os.path.join(root, name)
+                    print(full_path)
+                    if ftype == '.png':
+                        new_resource = obj(name[:-4], full_path)
+                    elif ftype == '.ogg':
+                        new_resource = obj(name[:-4], full_path)
+                    if tag != '.':
+                        new_resource.tag = tag
+                    temp_list.append(new_resource)
+        temp_list = sorted(temp_list, key=lambda x: x.tag if x.tag else '____')
+        for l in temp_list:
+            d.append(l)
+
     def populate_music(self, d, folder, fn):
         loc = os.path.join(self.main_folder, fn)
         data = ET.parse(loc)
@@ -58,7 +79,6 @@ class Resources(object):
                 new_song.set_battle_full_path(os.path.join(self.main_folder, folder, paths['battle_path']))
             if paths['intro_path']:
                 new_song.set_intro_full_path(os.path.join(self.main_folder, folder, paths['intro_path']))
-            print(new_song)
             d.append(new_song)
 
     def set_up_portrait_coords(self, fn):
@@ -151,7 +171,7 @@ class Resources(object):
 
         self.populate_database(self.maps, 'maps', '.png', ImageResource)
 
-        self.populate_database(self.sfx, 'sfx', '.wav', SFX)
+        self.populate_database_with_tags(self.sfx, 'sfx', '.ogg', SFX)
         self.populate_music(self.music, 'music', 'music/music_manifest.xml')
 
     def reload(self, proj_dir):
@@ -289,17 +309,24 @@ class Resources(object):
         if not os.path.exists(sfx_dir):
             os.mkdir(sfx_dir)
         for sfx in self.sfx:
-            new_full_path = os.path.join(sfx_dir, sfx.nid + '.wav')
+            if sfx.tag:
+                if not os.path.exists(os.path.join(sfx_dir, sfx.tag)):
+                    os.mkdir(os.path.join(sfx_dir, sfx.tag))
+                new_full_path = os.path.join(sfx_dir, sfx.tag, sfx.nid + '.ogg')
+            else:
+                new_full_path = os.path.join(sfx_dir, sfx.nid + '.ogg')
             if os.path.abspath(sfx.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(sfx.full_path, new_full_path)
                 sfx.set_full_path(new_full_path)
         # Delete unused sfx
-        full_paths = {os.path.split(sfx.full_path)[-1] for sfx in self.sfx}
-        for fn in os.listdir(sfx_dir):
-            if not fn.endswith('.wav') or fn not in full_paths:
-                full_path = os.path.join(sfx_dir, fn)
-                print("Deleting %s" % full_path)
-                os.remove(full_path)
+        full_paths = {sfx.full_path for sfx in self.sfx}
+        for root, dirs, files in os.walk(sfx_dir, topdown=False):
+            for name in files:
+                fn = os.path.join(root, name)
+                if not fn.endswith('.ogg') or fn not in full_paths:
+                    full_path = os.path.join(root, fn)
+                    print("Deleting %s" % full_path)
+                    os.remove(full_path)
 
         # === Save Music ===
         music_dir = os.path.join(resource_dir, 'music')
@@ -394,6 +421,11 @@ class Resources(object):
         new_music = Song(nid, full_path)
         self.music.append(new_music)
         return new_music
+
+    def create_new_sfx(self, nid, full_path):
+        new_sfx = SFX(nid, full_path)
+        self.sfx.append(new_sfx)
+        return new_sfx
 
 class ImageResource(object):
     def __init__(self, nid, full_path=None, pixmap=None):
@@ -501,6 +533,7 @@ class Song(object):
 class SFX(object):
     def __init__(self, nid, full_path=None):
         self.nid = nid
+        self.tag = None
         self.full_path = full_path
 
     def set_full_path(self, full_path):

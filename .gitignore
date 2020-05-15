@@ -8,9 +8,6 @@ saves/*.ini
 saves/progress_log.txt
 debug.log.*
 
-# Large Audio Files
-Audio/
-
 # Builds
 build/
 dist/

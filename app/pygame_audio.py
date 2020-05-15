@@ -79,12 +79,18 @@ class PygameAudioPlayer(object):
             self.current_position = val
 
     def play_sfx(self, fn, loop=False):
+        if not self.initiated:
+            self.initiate()
         self.current_sfx = pygame.mixer.Sound(fn)
         if loop:
             self.current_sfx.play(-1)
         else:
             self.current_sfx.play(0)
+        return self.current_sfx.get_length() * 1000
 
     def stop_sfx(self):
         if self.current_sfx:
             self.current_sfx.stop()
+
+    def get_time(self):
+        return pygame.get_time()

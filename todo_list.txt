@@ -1,27 +1,26 @@
 # TO DO List
 
 Editor:
-* Items
-* Mouse Cursor
-* Attacking
-* Trading
 * Rescuing/Dropping/etc.
-* Enemy AI
-* OptionsMenu
-* Turnwheel
+* Enemy AI (Secondary)
+OptionsMenu
+* Turnwheel (More testing)
 * Suspending
     - Register items, statuses, and units with the save_state manager
     - Saving and loading
     - New game
 Saving game between levels
-* Title Screen
-* Game Over - Test
+* Winning/Losing
 * Spells (w/ Multiple targets)
 Test multiple target spells
-* All remaining Item components
-* Winning/Losing
-* UI View
+All remaining Item components
 Add Sacred Stones Items
+Auto-update editor
+Level-up
+Level-up animations
+Promotion
+Music/Sounds in engine
+
 
 Auto-update
 No need for launcher
@@ -32,11 +31,6 @@ Maybe: Have any built games check for updates to the engine in the extras menu. 
 Maybe: Executable versions of the editor and engine work the same way, they just check from a different source.
 
 Equations check their validity
-
-Sounds section of resources
-Music/Sounds into engine
-
-Level Up / Promotion
 
 Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers
 

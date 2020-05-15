@@ -53,7 +53,6 @@ class Resources(object):
             for name in files:
                 if name.endswith(ftype):
                     full_path = os.path.join(root, name)
-                    print(full_path)
                     if ftype == '.png':
                         new_resource = obj(name[:-4], full_path)
                     elif ftype == '.ogg':

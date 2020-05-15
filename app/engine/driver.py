@@ -1,6 +1,8 @@
 from app.data.constants import WINWIDTH, WINHEIGHT, VERSION
 from app.engine import engine
 
+import app.engine.config as cf
+
 def start(title, from_editor=False):
     if from_editor:
         engine.constants['standalone'] = False
@@ -12,6 +14,8 @@ def start(title, from_editor=False):
     print("Version: %s" % VERSION)
 
 def run(game):
+    from app.engine.sound import SOUNDTHREAD
+    SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
     surf = engine.create_surface((WINWIDTH, WINHEIGHT))
     # import time
     while True:
@@ -26,6 +30,8 @@ def run(game):
         surf, repeat = game.state.update(event, surf)
         while repeat:  # Let's the game traverse through state chains
             surf, repeat = game.state.update([], surf)
+
+        SOUNDTHREAD.update(raw_events)
 
         engine.push_display(surf, engine.SCREENSIZE, engine.DISPLAYSURF)
         engine.update_display()

@@ -6,6 +6,7 @@ from app.data.database import DB
 
 from app.engine import engine
 from app.engine.sprites import SPRITES
+from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
 from app.engine import save, image_mods, banner, menus, update
@@ -26,6 +27,8 @@ class TitleStartState(State):
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
         game.memory['transition_speed'] = 0.5
+
+        SOUNDTHREAD.fade_in('Chapter Sound')
 
         # Wait until saving thread has finished
         if save.SAVE_THREAD:

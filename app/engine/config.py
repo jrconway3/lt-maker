@@ -42,7 +42,7 @@ def read_config_file():
         if os.path.exists('data/config.ini'):
             parse_ini('data/config.ini')
 
-    float_vals = ('music_volumne', 'sound_volume')
+    float_vals = ('music_volume', 'sound_volume')
     string_vals = ('animation', 'hp_map_team', 'hp_map_cull')
     for k, v in lines.items():
         if k in float_vals:

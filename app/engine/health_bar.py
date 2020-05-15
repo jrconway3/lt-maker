@@ -211,7 +211,7 @@ class MapCombatInfo():
                 elif bottom_gap > top_gap and bottom_gap > middle_gap:
                     y_pos = (bottom_gap + 1) * TILEHEIGHT + 12
                 else:
-                    y_pos = WINHEIGHT//4 - height//2 - 13//2 if rel_1 < TILEY else 3*WINHEIGHT//4 - height//2 - 13//2
+                    y_pos = WINHEIGHT//4 - height//2 - 13//2 if rel_1 < TILEY//2 else 3*WINHEIGHT//4 - height//2 - 13//2
                     x_pos = WINWIDTH//4 - width//2 if pos1[0] - camera_pos[0] > TILEX//2 else 3*WINWIDTH//4 - width//2
                     self.ordering = 'middle'
             self.true_position = (x_pos, y_pos)

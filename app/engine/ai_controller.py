@@ -579,7 +579,7 @@ class SecondaryAI():
                 if self.behaviour.target_spec == ["Starting"]:
                     self.all_targets = [self.unit.starting_position]
                 else:
-                    self.all_targets = [self.behaviour.target_spec]
+                    self.all_targets = [tuple(self.behaviour.target_spec)]
             elif self.behaviour.target == "Ally":
                 self.all_targets = [u for u in game.level.units if u.position and game.targets.check_ally(self.unit, u)]
                 if self.behaviour.target_spec:
@@ -608,13 +608,13 @@ class SecondaryAI():
         self.best_path = None
 
         if self.view_range == -3:
-            self.available_targets = [u for u in self.all_targets if utilities.calculate_distance(self.unit.position, u.position) <= self.double_move]
+            self.available_targets = [t for t in self.all_targets if utilities.calculate_distance(self.unit.position, t) <= self.double_move]
         elif self.view_range == -2:
-            self.available_targets = [u for u in self.all_targets if utilities.calculate_distance(self.unit.position, u.position) <= self.single_move]
+            self.available_targets = [t for t in self.all_targets if utilities.calculate_distance(self.unit.position, t) <= self.single_move]
         elif self.view_range == -1:
             self.available_targets = []
         else:
-            self.available_targets = [u for u in self.all_targets if utilities.calculate_distance(self.unit.position, u.position) <= self.view_range]
+            self.available_targets = [t for t in self.all_targets if utilities.calculate_distance(self.unit.position, t) <= self.view_range]
 
         self.best_position = None
 
@@ -622,13 +622,13 @@ class SecondaryAI():
         if self.available_targets:
             target = self.available_targets.pop()
             # Find a path to the target
-            path = self.get_path(target.position)
+            path = self.get_path(target)
             if not path:
-                logger.info("No valid path to %s.", target.nid)
+                logger.info("No valid path to %s.", target)
                 return False, None
             # We found a path
             tp = self.compute_priority(target, len(path))
-            logger.info("Path to %s. -- %s", target.nid, tp)
+            logger.info("Path to %s. -- %s", target, tp)
             if tp > self.max_tp:
                 self.max_tp = tp
                 self.best_target = target
@@ -643,7 +643,7 @@ class SecondaryAI():
                 logger.info("Widening search!")
                 self.widen_flag = True
                 self.view_range = -4
-                self.available_targets = [u for u in self.all_targets if u not in self.available_targets]
+                self.available_targets = [t for t in self.all_targets if t not in self.available_targets]
             else:
                 return True, None
         return False, None
@@ -659,13 +659,14 @@ class SecondaryAI():
         if distance:
             distance_term = 1 - math.log(distance)/4.
         else:
-            target_distance = utilities.calculate_distance(self.unit.position, target.position)
+            target_distance = utilities.calculate_distance(self.unit.position, target)
             distance_term = 1 - math.log(target_distance)/4.
         terms.append((distance_term, 60))
 
-        if isinstance(target, unit_object.UnitObject) and game.targets.check_enemy(self.unit, target):
-            hp_max = game.equations.hitpoints(target)
-            weakness_term = float(hp_max - target.get_hp()) / hp_max
+        enemy = game.grid.get_unit(target)
+        if self.behaviour.action == "Attack" and enemy and game.targets.check_enemy(self.unit, enemy):
+            hp_max = game.equations.hitpoints(enemy)
+            weakness_term = float(hp_max - enemy.get_hp()) / hp_max
 
             max_damage = 0
             status_term = 0
@@ -674,8 +675,8 @@ class SecondaryAI():
                 if item.status:
                     status_term = 1
                 if item.weapon or item.spell:
-                    raw_damage = combat_calcs.compute_damage(self.unit, target, item)
-                    hit = utilities.clamp(combat_calcs.compute_hit(self.unit, target, item)/100., 0, 1)
+                    raw_damage = combat_calcs.compute_damage(self.unit, enemy, item)
+                    hit = utilities.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
                     true_damage = raw_damage * hit
                     if true_damage > max_damage:
                         max_damage = true_damage

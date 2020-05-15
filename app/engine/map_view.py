@@ -38,6 +38,8 @@ class MapView():
                 unit.sprite = unit_sprite.UnitSprite(unit)
             unit.sprite.update()
             surf = unit.sprite.draw(surf)
+        for unit in draw_units:
+            surf = unit.sprite.draw_hp(surf)
 
     def draw(self):
         surf = engine.copy_surface(self.map_image)

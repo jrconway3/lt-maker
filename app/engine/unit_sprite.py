@@ -6,6 +6,7 @@ from app.data.database import DB
 
 from app import utilities
 
+from app.engine.sprites import SPRITES
 from app.engine import engine, image_mods
 import app.engine.config as cf
 from app.engine.game_state import game
@@ -274,4 +275,24 @@ class UnitSprite():
         # left and right of it, to handle any off tile spriting
         topleft = left - max(0, (image.get_width() - 16)//2), top - 24
         surf.blit(image, topleft)
+        return surf
+
+    def draw_hp(self, surf):
+        current_time = engine.get_time()
+        x, y = self.unit.position
+        left = x * TILEWIDTH + self.offset[0]
+        top = y * TILEHEIGHT + self.offset[1]
+
+        if 'Boss' in self.unit.tags and self.image_state in ('gray', 'passive') and int((current_time%450) // 150) in (1, 2):
+            boss_icon = SPRITES.get('boss_icon')
+            surf.blit(boss_icon, (left - 8, top - 8))
+
+        if self.unit.traveler:
+            if game.level.units.get(self.unit.traveler).team == 'player':
+                rescue_icon = SPRITES.get('rescue_icon_blue')
+            else:
+                rescue_icon = SPRITES.get('rescue_icon_green')
+            topleft = (left - 8, top - 8)
+            surf.blit(rescue_icon, topleft)
+
         return surf

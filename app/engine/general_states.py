@@ -494,7 +494,7 @@ class MenuState(MapState):
                     options.append("Drop")
                     break
         if adj_allies:
-            # If the unit does not have a travler
+            # If the unit does not have a traveler
             if not self.cur_unit.traveler and not self.cur_unit.has_attacked:
                 # If Rescue AID is higher than Rescue Weight
                 if any(not ally.traveler and game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(ally) for ally in adj_allies):

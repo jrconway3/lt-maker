@@ -27,6 +27,19 @@ class MusicDict(dict):
 
 MUSIC = MusicDict()
 
+class SoundDict(dict):
+    def get(self, val):
+        if val not in self:
+            sfx = RESOURCES.sfx.get(val)
+            if sfx:
+                self[val] = pygame.mixer.Sound(sfx.full_path)
+                return self[val]
+            else:
+                return None
+        return self[val]
+
+SFX = SoundDict()
+
 class Channel():
     fade_in_time = 400
     fade_out_time = 400
@@ -223,18 +236,20 @@ class ChannelPair():
 class SoundController():
     def __init__(self):
         pygame.mixer.set_num_channels(16)
+        pygame.mixer.set_reserved(8)  # Reserve the first 8 channels for music
         self.global_music_volume = 1.0
         self.global_sfx_volume = 1.0
 
-        self.channel1 = ChannelPair(1)
-        self.channel2 = ChannelPair(3)  # Skip each time because battle channel
-        self.channel3 = ChannelPair(5)
-        self.channel4 = ChannelPair(7)
+        self.channel1 = ChannelPair(0)
+        self.channel2 = ChannelPair(2)  # Skip each time because battle channel
+        self.channel3 = ChannelPair(4)
+        self.channel4 = ChannelPair(6)
 
         self.channel_stack = [self.channel1, self.channel2, self.channel3, self.channel4]
         self.song_stack = []
 
         self.fade_out_start = 0
+        self.fade_out_stop = 0
 
     @property
     def current_channel(self):
@@ -247,8 +262,13 @@ class SoundController():
         self.song_stack.clear()
 
     def fade_clear(self):
-        self.fade_out()
+        self.current_channel.fade_out()
+        self.fade_out_stop = engine.get_time()
         self.song_stack.clear()
+
+    def fade_to_stop(self):
+        self.current_channel.fade_out()
+        self.fade_out_stop = engine.get_time()
 
     def pause(self):
         self.current_channel.pause()
@@ -266,6 +286,12 @@ class SoundController():
         self.global_music_volume = volume
         for channel in self.channel_stack:
             channel.set_volume(self.global_music_volume)
+
+    def get_sfx_volume(self):
+        return self.global_sfx_volume
+
+    def set_sfx_volume(self, volume):
+        self.global_sfx_volume = volume
 
     def is_playing(self):
         return self.current_channel.is_playing()
@@ -352,5 +378,27 @@ class SoundController():
             self.fade_out_start = 0
             self.current_channel.set_volume(self.global_music_volume)
             self.current_channel.fade_in()
+        elif self.fade_out_stop and any_changes:
+            self.fade_out_stop = 0
+            self.stop()
+
+    def play_sfx(self, sound):
+        sfx = SFX.get(sound)
+        if sfx:
+            if sound == 'Select 5':
+                # Cursor sound is muted
+                sfx.set_volume(self.global_sfx_volume * .5)
+            else:
+                sfx.set_volume(self.global_sfx_volume)
+            sfx.play()
+            return sfx
+        return None
+
+    def stop_sfx(self, sound):
+        sfx = SFX.get(sound)
+        if sfx:
+            sfx.stop()
+            return sfx
+        return None
 
 SOUNDTHREAD = SoundController()

@@ -3,10 +3,11 @@ from app.data.item_components import SpellTarget
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
+from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, combat, image_mods, banner, save
+from app.engine import engine, action, menus, interaction, combat, image_mods, banner, save, phase
 from app.engine.targets import SelectionHelper
 
 import logging
@@ -71,6 +72,7 @@ class PhaseChangeState(MapState):
 
     def end(self):
         logger.info("Phase Change End")
+        phase.fade_in_phase_music()
 
     def save_state(self):
         if game.phase.get_current() == 'player':
@@ -89,6 +91,7 @@ class FreeState(MapState):
         game.cursor.show()
         game.boundary.show()
         # The turnwheel will not be able to go before this moment
+        phase.fade_in_phase_music()
         if game.turncount == 1:
             game.action_log.set_first_free_action()
 
@@ -100,6 +103,7 @@ class FreeState(MapState):
                 # info_menu.start()
                 pass
             else:
+                SOUNDTHREAD.play_sfx('Select 3')
                 game.boundary.toggle_all_enemy_attacks()
 
         elif event == 'AUX':
@@ -111,18 +115,23 @@ class FreeState(MapState):
             if cur_unit:
                 game.cursor.cur_unit = cur_unit
                 if cur_unit.team == 'player' and 'un_selectable' not in cur_unit.status_bundle:
+                    SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
                 else:
                     if cur_unit.team == 'enemy' or cur_unit.team == 'enemy2':
+                        SOUNDTHREAD.play_sfx('Select 3')
                         game.boundary.toggle_unit(cur_unit)
+                    else:
+                        SOUNDTHREAD.play_sfx('Error')
             else:
+                SOUNDTHREAD.play_sfx('Select 2')
                 game.state.change('option_menu')
 
         elif event == 'BACK':
             pass
 
         elif event == 'START':
-            pass
+            SOUNDTHREAD.play_sfx('Select 5')
 
     def update(self):
         super().update()
@@ -154,6 +163,15 @@ class FreeState(MapState):
                 game.state.clear()
                 game.state.change('title_start')
                 return 'repeat'
+
+        # Auto-end turn
+        # Check to see if all ally units have completed their turns and no unit is active and the game is in the free state.
+        if cf.SETTINGS['autoend_turn'] and any(unit.position for unit in game.level.units) and \
+                all(unit.finished for unit in game.level.units if unit.position and unit.team == 'player'):
+            # End the turn
+            logger.info('Autoending turn.')
+            game.state.change('turn_change')
+            return 'repeat'
 
     def end(self):
         game.highlight.remove_highlights()
@@ -201,14 +219,18 @@ class OptionMenuState(MapState):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
         elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
 
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'End':
                 if cf.SETTINGS['confirm_end']:
@@ -274,16 +296,20 @@ class OptionChildState(State):
     def take_input(self, event):
         self.menu.handle_mouse()
         if event == 'DOWN':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
         elif event == 'UP':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
             selection = self.menu.get_current()
             if selection == 'Yes':
+                SOUNDTHREAD.play_sfx('Select 1')
                 if self.menu.owner == 'End':
                     game.state.change('ai')
                 elif self.menu.owner == 'Suspend':
@@ -303,6 +329,7 @@ class OptionChildState(State):
                         game.state.back()
                         game.state.back()
             else:
+                SOUNDTHREAD.play_sfx('Select 4')
                 game.state.back()
 
     def update(self):
@@ -334,6 +361,7 @@ class MoveState(MapState):
             pass
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.clear()
             game.state.change('free')
             if cur_unit.has_attacked:
@@ -343,6 +371,7 @@ class MoveState(MapState):
 
         elif event == 'SELECT':
             if game.cursor.position == cur_unit.position:
+                SOUNDTHREAD.play_sfx('Select 2')
                 if cur_unit.has_attacked:
                     game.state.clear()
                     game.state.change('free')
@@ -355,9 +384,9 @@ class MoveState(MapState):
 
             elif game.cursor.position in self.valid_moves:
                 if game.grid.get_unit(game.cursor.position):
-                    # ERROR!
-                    pass
+                    SOUNDTHREAD.play_sfx('Error')
                 else:
+                    # Sound -- ADD FOOTSTEP SOUNDS
                     if cur_unit.has_attacked:
                         cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
                         game.state.change('canto_wait')
@@ -367,8 +396,7 @@ class MoveState(MapState):
                     game.state.change('movement')
                     action.do(cur_unit.current_move)
             else:
-                # Error!
-                pass
+                SOUNDTHREAD.play_sfx('Error')
 
     def end(self):
         game.cursor.remove_arrows()
@@ -443,6 +471,8 @@ class MenuState(MapState):
     normal_options = {'Item', 'Wait', 'Take', 'Give', 'Rescue', 'Trade', 'Drop', 'Visit', 'Armory', 'Vendor', 'Spells', 'Attack', 'Steal', 'Shove'}
 
     def begin(self):
+        # Play this here because there's a gap in sound while unit is moving
+        SOUNDTHREAD.play_sfx('Select 2')
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
 
@@ -523,12 +553,15 @@ class MenuState(MapState):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
         elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
 
         # Back, put unit back to where he/she started
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             if self.cur_unit.has_traded:
                 if self.cur_unit.has_canto():
                     game.cursor.set_pos(self.cur_unit.position)
@@ -548,6 +581,7 @@ class MenuState(MapState):
             pass
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             print(selection)
             logger.info("Player selected %s", selection)
@@ -604,14 +638,18 @@ class ItemState(MapState):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
         elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
 
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             game.memory['parent_menu'] = self.menu
             game.state.change('item_child')
 
@@ -655,14 +693,18 @@ class ItemChildState(MapState):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
         elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
 
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             item = self.menu.owner
             if selection == 'Use':
@@ -735,15 +777,19 @@ class SelectState(MapState):
         directions = self.fluid.get_directions()
 
         if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_down(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_up(game.cursor.position)
             game.cursor.set_pos(new_position)
         if 'LEFT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_left(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'RIGHT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_right(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -752,9 +798,11 @@ class SelectState(MapState):
             game.cursor.set_pos(new_position)
 
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             if self.name == 'rescue_select':
                 unit = game.grid.get_unit(game.cursor.position)
                 action.do(action.Rescue(self.cur_unit, unit))
@@ -830,19 +878,20 @@ class TradeState(MapState):
         self.menu.handle_mouse()
         if 'DOWN' in directions:
             if self.menu.move_down(first_push):
-                pass
+                SOUNDTHREAD.play_sfx('Select 6')
         elif 'UP' in directions:
             if self.menu.move_up(first_push):
-                pass
+                SOUNDTHREAD.play_sfx('Select 6')
 
         if event == 'RIGHT':
             if self.menu.move_right():
-                pass
+                SOUNDTHREAD.play_sfx('TradeRight')
         elif event == 'LEFT':
             if self.menu.move_left():
-                pass
+                SOUNDTHREAD.play_sfx('TradeRight')
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             if self.menu.selected_option():
                 self.menu.unset_selected_option()
             else:
@@ -851,6 +900,7 @@ class TradeState(MapState):
                 game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             if self.menu.selected_option():
                 self.do_trade()
             else:
@@ -899,17 +949,21 @@ class WeaponChoiceState(MapState):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
             game.highlight.remove_highlights()
             self.disp_attacks(self.cur_unit, self.menu.get_current())
         elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
             game.highlight.remove_highlights()
 
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             action.do(action.EquipItem(self.cur_unit, selection))
             self.proceed()
@@ -990,14 +1044,17 @@ class AttackState(MapState):
             game.cursor.set_pos(new_position)
 
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 2')
             game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, self.weapon)
             game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.weapon)
             game.state.change('combat')
 
         if directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.display_single_attack()
 
     def draw(self, surf):
@@ -1067,11 +1124,13 @@ class SpellState(MapState):
             game.cursor.set_pos(new_position)
 
         if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             # Go back to weapon choice no matter what
             self.finish_multiple_targets(self.weapon)
             game.state.back()
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             spell = self.weapon
             target = spell.spell.targets
             if target in (SpellTarget.Enemy, SpellTarget.Ally, SpellTarget.Unit):
@@ -1112,6 +1171,7 @@ class SpellState(MapState):
                     game.state.change('combat')
 
         if directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             self.display_single_attack()
 
     def handle_multiple_targets(self, spell):

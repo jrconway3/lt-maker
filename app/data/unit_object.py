@@ -77,6 +77,7 @@ class UnitObject(Prefab):
         self._has_moved = False
 
         self.sprite = None
+        self.sound = None
         self.battle_anim = None
 
         self.current_move = None  # Holds the move action the unit last used
@@ -347,6 +348,7 @@ class UnitObject(Prefab):
         self._has_moved = False
 
         self.sprite = None
+        self.sound = None
         self.battle_anim = None
 
         self.current_move = None  # Holds the move action the unit last used

@@ -2,6 +2,7 @@ from app.counters import generic3counter
 from app import utilities
 from app.data.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
 from app.engine.sprites import SPRITES
+from app.engine.sound import SOUNDTHREAD
 from app.engine import engine
 from app.engine import config as cf
 from app.engine.game_state import game
@@ -52,6 +53,9 @@ class Cursor():
     def move(self, dx, dy, mouse=False):
         x, y = self.position
         self.position = x + dx, y + dy
+
+        SOUNDTHREAD.stop_sfx('Select 5')
+        SOUNDTHREAD.play_sfx('Select 5')
 
         if game.highlight.check_in_move(self.position):
             self.border_position = self.position

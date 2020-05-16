@@ -4,12 +4,11 @@ from app.data.constants import WINWIDTH, WINHEIGHT
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.engine import engine
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
-from app.engine import save, image_mods, banner, menus, update
+from app.engine import engine, save, image_mods, banner, menus, update
 from app.engine.game_state import game
 
 

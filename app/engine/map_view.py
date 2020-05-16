@@ -3,7 +3,7 @@ from app.data.resources import RESOURCES
 
 from app.counters import generic3counter, simplecounter
 
-from app.engine import engine, unit_sprite
+from app.engine import engine, unit_sprite, unit_sound
 from app.engine.game_state import game
 
 class MapView():
@@ -36,7 +36,10 @@ class MapView():
         for unit in draw_units:
             if not unit.sprite:
                 unit.sprite = unit_sprite.UnitSprite(unit)
+            if not unit.sound:
+                unit.sound = unit_sound.UnitSound(unit)
             unit.sprite.update()
+            unit.sound.update()
             surf = unit.sprite.draw(surf)
         for unit in draw_units:
             surf = unit.sprite.draw_hp(surf)

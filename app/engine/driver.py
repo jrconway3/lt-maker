@@ -16,6 +16,8 @@ def start(title, from_editor=False):
 def run(game):
     from app.engine.sound import SOUNDTHREAD
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
+    SOUNDTHREAD.set_sfx_volume(cf.SETTINGS['sound_volume'])
+    
     surf = engine.create_surface((WINWIDTH, WINHEIGHT))
     # import time
     while True:

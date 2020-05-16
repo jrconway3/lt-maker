@@ -24,6 +24,7 @@ class MovementManager():
         self.add(unit, path, event)
         unit.sprite.change_state('moving')
         game.leave(unit)
+        unit.sound.play()
 
     def __len__(self):
         return len(self.moving_units)
@@ -106,6 +107,8 @@ class MovementManager():
                 else: # Path is empty, so we are done
                     del self.moving_units[unit_nid]
                     game.arrive(unit)
+                    if unit.sound:
+                        unit.sound.stop()
                     if data.event:
                         unit.sprite.change_state('normal')
                     else:

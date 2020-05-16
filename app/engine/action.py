@@ -232,13 +232,16 @@ class Wait(Action):
 class Reset(Action):
     def __init__(self, unit):
         self.unit = unit
+        self.movement_left = self.unit.movement_left
         self.action_state = self.unit.get_action_state()
 
     def do(self):
         self.unit.reset()
+        self.unit.movement_left = game.equations.movement(self.unit)
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)
+        self.unit.movement_left = self.movement_left
 
 class ResetAll(Action):
     def __init__(self, units):

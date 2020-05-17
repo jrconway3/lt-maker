@@ -83,6 +83,8 @@ class TitleMainState(State):
         return 'repeat'
 
     def take_input(self, event):
+        if self.state == 'alert':
+            self.state = 'transition_out'
         if self.state == 'normal':
             self.menu.handle_mouse()
             if event == 'DOWN':
@@ -102,23 +104,14 @@ class TitleMainState(State):
                         self.selection in ('Load Game', 'Restart Level', 'New Game'):
                     if self.selection == 'New Game':
                         text = 'Starting a new game will remove suspend!'
-                        game.state.change('title_new')
-                        game.state.change('transition_out')
                     elif self.selection == 'Load Game':
                         text = 'Loading a game will remove suspend!'
-                        game.state.change('title_load')
-                        game.state.change('transition_out')
                     else:
-                        text = 'Loading a game will remove suspend!'
-                        game.state.change('title_restart')
-                        game.state.change('transition_out')
+                        text = 'Restarting a game will remove suspend!'
                     game.alerts.append(banner.Custom(text))
                     game.state.change('alert')
+                    self.state = 'alert'
                     self.banner_flag = True
-                elif self.selection == 'New Game':
-                    # game.state.change('title_mode')
-                    game.state.change('title_new')
-                    game.state.change('transition_out')
                 elif self.selection == 'Update':
                     updating = update.update()
                     if updating:
@@ -144,16 +137,13 @@ class TitleMainState(State):
                 self.position_x = -WINWIDTH//2
                 if self.selection == 'Load Game':
                     game.state.change('title_load')
-                    # game.state.change('transition_out')
                 elif self.selection == 'Restart Level':
                     game.state.change('title_restart')
-                    # game.state.change('transition_out')
                 elif self.selection == 'Extras':
                     game.state.change('title_extras')
                 elif self.selection == 'New Game':
                     # game.state.change('title_mode')
                     game.state.change('title_new')
-                    # game.state.change('transition_out')
                 self.state = 'transition_in'
                 return 'repeat'
 
@@ -201,6 +191,10 @@ class TitleLoadState(State):
         self.menu.move_to(most_recent)
 
     def take_input(self, event):
+        # Only take input in normal state
+        if self.state != 'normal':
+            return
+
         self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
@@ -256,6 +250,10 @@ class TitleRestartState(TitleLoadState):
     name = 'title_restart'
 
     def take_input(self, event):
+        # Only take input in normal state
+        if self.state != 'normal':
+            return
+
         self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
@@ -298,6 +296,10 @@ class TitleNewState(TitleLoadState):
     name = 'title_new'
 
     def take_input(self, event):
+        # Only take input in normal state
+        if self.state != 'normal':
+            return
+
         self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()
@@ -373,6 +375,10 @@ class TitleExtrasState(TitleLoadState):
         self.menu = menus.Main(options, 'title_menu_dark')
 
     def take_input(self, event):
+        # Only take input in normal state
+        if self.state != 'normal':
+            return
+
         self.menu.handle_mouse()
         if event == 'DOWN':
             self.menu.move_down()

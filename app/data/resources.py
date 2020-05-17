@@ -1,14 +1,11 @@
 import os, glob, shutil
 
-try:
-    import xml.etree.cElementTree as ET
-except ImportError:
-    import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 
 from app.data import data
 import app.utilities as utilities
 
-class Resources(object):
+class Resources():
     def __init__(self):
         self.main_folder = None
 
@@ -82,6 +79,8 @@ class Resources(object):
 
     def set_up_portrait_coords(self, fn):
         loc = os.path.join(self.main_folder, fn)
+        if not os.path.exists(loc):
+            return
         data = ET.parse(loc)
         portrait_dict = {}
         for portrait in data.getroot().findall('portrait'):
@@ -90,8 +89,30 @@ class Resources(object):
         for portrait in self.portraits:
             offsets = portrait_dict.get(portrait.nid)
             if offsets:
-                portrait.blinking_offset = portrait_dict[portrait.nid]['blink']
-                portrait.smiling_offset = portrait_dict[portrait.nid]['mouth']
+                portrait.blinking_offset = offsets['blink']
+                portrait.smiling_offset = offsets['mouth']
+
+    def set_up_animations(self, fn):
+        loc = os.path.join(self.main_folder, fn)
+        if not os.path.exists(loc):
+            return
+        data = ET.parse(loc)
+        anim_dict = {}
+        for anim in data.getroot().findall('animation'):
+            anim_dict[anim.get('nid')] = {'frame_x': int(anim.find('frame_x').text),
+                                          'frame_y': int(anim.find('frame_y').text),
+                                          'num_frames': int(anim.find('num_frames').text),
+                                          'speed': anim.find('speed').text}
+        for anim in self.animations:
+            stats = anim_dict.get(anim.nid)
+            if stats:
+                anim.frame_x = stats['frame_x']
+                anim.frame_y = stats['frame_y']
+                anim.num_frames = stats['num_frames']
+                if utilities.is_int(stats['speed']):
+                    anim.speed = int(stats['speed'])
+                else:
+                    anim.speed = [int(_) for _ in stats['speed'].split(',')]
 
     def populate_map_sprites(self, folder):
         for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
@@ -151,7 +172,7 @@ class Resources(object):
         self.map_sprites = data.Data()
         self.combat_anims = data.Data()
         self.combat_effects = data.Data()
-        self.map_effects = data.Data()
+        self.animations = data.Data()
 
         self.maps = data.Data()
 
@@ -165,6 +186,10 @@ class Resources(object):
         self.populate_database(self.icons80, 'icons/icons_80x72', '.png', ImageResource)
         self.populate_database(self.portraits, 'portraits', '.png', Portrait)
         self.set_up_portrait_coords('portraits/portrait_coords.xml')
+
+        self.populate_database(self.animations, 'animations', '.png', Animation)
+        self.set_up_animations('animations/animation_manifest.xml')
+
         self.populate_map_sprites('map_sprites')
         self.populate_panoramas('panoramas')
 
@@ -294,6 +319,34 @@ class Resources(object):
                 full_path = os.path.join(map_sprites_dir, fn)
                 print("Deleting %s" % full_path)
                 os.remove(full_path)
+
+        # === Save Animations ===
+        animation_dir = os.path.join(resource_dir, 'animations')
+        if not os.path.exists(animation_dir):
+            os.mkdir(animation_dir)
+        root = ET.Element('animation_info')
+        for anim in self.animations:
+            new_full_path = os.path.join(animation_dir, anim.nid + '.png')
+            if os.path.abspath(anim.full_path) != os.path.abspath(new_full_path):
+                shutil.copy(anim.full_path, new_full_path)
+                anim.set_full_path(new_full_path)
+            elem = ET.SubElement(root, 'animation', {'nid': anim.nid})
+            full_path = ET.SubElement(elem, 'full_path')
+            full_path.text = os.path.split(new_full_path)[-1]
+            frame_x = ET.SubElement(elem, 'frame_x')
+            frame_x.text = str(anim.frame_x)
+            frame_y = ET.SubElement(elem, 'frame_y')
+            frame_y.text = str(anim.frame_y)
+            num_frames = ET.SubElement(elem, 'num_frames')
+            num_frames.text = str(anim.num_frames)
+            speed = ET.SubElement(elem, 'speed')
+            if utilities.is_int(anim.speed):
+                speed.text = str(anim.speed)
+            else:
+                speed.text = ','.join([str(_) for _ in anim.speed])
+        tree = ET.ElementTree(root)
+        tree.write(os.path.join(animation_dir, 'animation_manifest.xml'))
+        delete_unused_images(animation_dir, self.animations)
 
         # === Save Maps ===
         map_dir = os.path.join(resource_dir, 'maps')
@@ -426,7 +479,12 @@ class Resources(object):
         self.sfx.append(new_sfx)
         return new_sfx
 
-class ImageResource(object):
+    def create_new_animation(self, nid, full_path, pixmap):
+        new_animation = Animation(nid, full_path, pixmap)
+        self.animations.append(new_animation)
+        return new_animation
+
+class ImageResource():
     def __init__(self, nid, full_path=None, pixmap=None):
         self.nid = nid
         self.full_path = full_path
@@ -446,7 +504,7 @@ class ImageResource(object):
             self.parent_image = None
         self.sub_images = []
 
-class Portrait(object):
+class Portrait():
     def __init__(self, nid, full_path=None, pixmap=None):
         self.nid = nid
         self.full_path = full_path
@@ -459,7 +517,21 @@ class Portrait(object):
     def set_full_path(self, full_path):
         self.full_path = full_path
 
-class MapSprite(object):
+class Animation():
+    def __init__(self, nid, full_path=None, pixmap=None):
+        self.nid = nid
+        self.full_path = full_path
+        self.pixmap = pixmap
+        self.sprite = None
+
+        self.frame_x, self.frame_y = 1, 1
+        self.num_frames = 1
+        self.speed = 75
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
+
+class MapSprite():
     def __init__(self, nid, stand_full_path=None, move_full_path=None, standing_pixmap=None, moving_pixmap=None):
         self.nid = nid
         self.standing_full_path = stand_full_path
@@ -475,7 +547,7 @@ class MapSprite(object):
     def set_moving_full_path(self, full_path):
         self.moving_full_path = full_path
 
-class Panorama(object):
+class Panorama():
     def __init__(self, nid, full_path=None, pixmaps=None, num_frames=0):
         self.nid = nid
         self.full_path = full_path  # Ignores numbers at the end
@@ -511,7 +583,7 @@ class Panorama(object):
         elif self.images:
             self.idx = (self.idx + 1) % len(self.images)  # Wrap around
 
-class Song(object):
+class Song():
     def __init__(self, nid, full_path=None):
         self.nid = nid
         self.full_path = full_path
@@ -529,7 +601,7 @@ class Song(object):
     def set_battle_full_path(self, full_path):
         self.battle_full_path = full_path
 
-class SFX(object):
+class SFX():
     def __init__(self, nid, full_path=None):
         self.nid = nid
         self.tag = None
@@ -538,7 +610,7 @@ class SFX(object):
     def set_full_path(self, full_path):
         self.full_path = full_path
 
-class Font(object):
+class Font():
     def __init__(self, nid, png_path, idx_path):
         self.nid = nid
         self.png_path = png_path

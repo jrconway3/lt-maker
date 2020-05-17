@@ -39,6 +39,10 @@ class GameState():
         logger.info("Building New Game")
         self.playtime = 0
 
+        self.unit_registry = {}
+        self.item_registry = {}
+        self.status_registry = {}
+
         self.parties = {}
         self.current_party = None
         self.current_level = None
@@ -68,9 +72,6 @@ class GameState():
         Cleans up variables that need to be reset at the end of each level
         """
         from app.engine import turnwheel
-        self.unit_registry = {}
-        self.item_registry = {}
-        self.status_registry = {}
         self.level_constants = Counter()
         self.turncount = 0
         self.action_log = turnwheel.ActionLog()
@@ -179,6 +180,38 @@ class GameState():
             # Now have units actually arrive on map
             for unit in self.current_level.units:
                 self.arrive(unit)
+
+    def clean_up(self):
+        for unit in self.unit_registry.values():
+            game.leave(unit)
+            unit.position = None
+        for unit in self.unit_registry.values():
+            unit.clean_up()
+        # Items with chapter counts should be reset
+        for item in self.item_registry.values():
+            if item.c_uses:
+                prefab = DB.items.get(item.nid)
+                item.c_uses.value = prefab.c_uses.value
+
+        # Remove non-player team units and all generics
+        self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.team == 'player' and not v.generic}
+
+        # Handle player death
+        for unit in self.unit_registry.values():
+            if unit.dead:
+                if not DB.constants.get('permadeath').value:
+                    unit.dead = False  # Resurrect unit
+                elif DB.constants.get('convoy_on_death').value:
+                    for item in unit.items:
+                        if not item.locked:
+                            unit.remove_item(item)
+                            # Put the item in the unit's party's convoy
+                            self.parties[unit.party].convoy.append(item)
+
+        # Remove unnecessary information between levels
+        self.sweep()
+        self.tilemap = None
+        self.current_level = None
 
     @property
     def level(self):

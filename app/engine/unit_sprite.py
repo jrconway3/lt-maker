@@ -283,11 +283,12 @@ class UnitSprite():
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
 
-        if 'Boss' in self.unit.tags and self.image_state in ('gray', 'passive') and int((current_time%450) // 150) in (1, 2):
+        if 'Boss' in self.unit.tags and self.transition_state == 'normal' and \
+                self.image_state in ('gray', 'passive') and int((current_time%450) // 150) in (1, 2):
             boss_icon = SPRITES.get('boss_icon')
             surf.blit(boss_icon, (left - 8, top - 8))
 
-        if self.unit.traveler:
+        if self.unit.traveler and self.transition_state == 'normal':
             if game.level.units.get(self.unit.traveler).team == 'player':
                 rescue_icon = SPRITES.get('rescue_icon_blue')
             else:

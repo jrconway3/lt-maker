@@ -5,7 +5,7 @@ from app.engine import static_random
 import logging
 logger = logging.getLogger(__name__)
 
-def get_next_level_up(self, unit) -> dict:
+def get_next_level_up(unit) -> dict:
     # TODO Implement support for negative growths
     if unit.team == 'player':
         method = DB.constants.get('player_leveling').value

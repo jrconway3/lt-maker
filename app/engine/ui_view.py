@@ -221,11 +221,11 @@ class UIView():
         crit = DB.constants.get('crit').value
 
         if grandmaster:
-            surf = SPRITES.get('attack_info_grandmaster')
+            surf = SPRITES.get('attack_info_grandmaster').copy()
         elif crit:
-            surf = SPRITES.get('attack_info_crit')
+            surf = SPRITES.get('attack_info_crit').copy()
         else:
-            surf = SPRITES.get('attack_info')
+            surf = SPRITES.get('attack_info').copy()
 
         # Name
         width = FONT['text_white'].width(attacker.name)

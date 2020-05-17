@@ -1,13 +1,16 @@
-import math
+import math, random
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app import utilities
 from app.data import unit_object
 from app.data.item_components import SpellAffect
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
+from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, banner, action, combat_calcs, gui, solver
 from app.engine.health_bar import MapCombatInfo
+from app.engine.animations import MapAnimation
 from app.engine.game_state import game
 
 import logging
@@ -315,6 +318,12 @@ class MapCombat(Combat):
                     game.cursor.hide()
                     game.highlight.remove_highlights()
                     # AOE Anim
+                    if self.item.map_anim:
+                        anim = RESOURCES.animations.get(self.item.map_anim.value)
+                        pos = game.cursor.position
+                        if anim:
+                            anim = MapAnimation(animation, pos)  # Speed 32
+                            self.animations.append(anim)
                     # Weapons get extra time, spells and item do not need it, since they are one sided
                     if not self.item.weapon:
                         self.additional_time -= self.combat_length//5
@@ -416,22 +425,85 @@ class MapCombat(Combat):
                 item = self.item
             else:
                 item = result.attacker.get_weapon()
+
+            # Color
             if isinstance(result.defender, unit_object.UnitObject):
                 color = item.map_hit_color.value if item.map_hit_color else (255, 255, 255)  # default to white
                 result.defender.sprite.begin_flicker(self.combat_length//5, color)
+            
             # Sound and Shake
-            pass
-            # Animations
-            # Self Anim
-            # Other Anim
-            # Heal Anim
-            # No Damage
+            if item.custom_sfx:
+                SOUNDTHREAD.play_sfx(item.custom_sfx.value)
+            elif result.defender.get_hp() - result.def_damage <= 0:  # Lethal
+                SOUNDTHREAD.play_sfx('Final Hit')
+                if result.outcome == 2:  # Critical
+                    for health_bar in self.health_bars.values():
+                        health_bar.shake(3)
+                else:
+                    for health_bar in self.health_bars.values():
+                        health_bar.shake(2)
+            elif result.def_damage < 0:  # Heal
+                SOUNDTHREAD.play_sfx('MapHeal')
+            elif result.def_damage == 0 and item.might:
+                SOUNDTHREAD.play_sfx('No Damage')
+            else:
+                if result.outcome == 2:  # Critical
+                    sound_to_play = 'Critical Hit ' + str(random.randint(1, 2))
+                else:
+                    sound_to_play = 'Attack Hit ' + str(random.randint(1, 5))
+                SOUNDTHREAD.play_sfx(sound_to_play)
+                if result.outcome == 2:  # TODO or attacker proc used
+                    for health_bar in self.health_bars.values():
+                        health_bar.shake(3)
+                else:
+                    for health_bar in self.health_bars.values():
+                        health_bar.shake(1)
+
+            # Animation
+            if item.self_anim:
+                anim = RESOURCES.animations.get(item.self_anim.value)
+                if anim:
+                    pos = result.attacker.position
+                    anim = MapAnimation(anim, pos)  # Speed 24
+                    self.animations.append(anim)
+            if item.target_anim:
+                anim = RESOURCES.animations.get(item.target_anim.value)
+                if anim:
+                    pos = result.defender.position
+                    anim = MapAnimation(anim, pos)  # Speed 24
+                    self.animations.append(anim)
+            if result.def_damage < 0:
+                pos = result.defender.position
+                if result.def_damage <= -30:
+                    name = 'MapBigHealTrans'
+                elif result.def_damage <= -15:
+                    name = 'MapMediumHealTrans'
+                else:
+                    name = 'MapSmallHealTrans'
+                anim = RESOURCES.animations.get(name)
+                if anim:
+                    anim = MapAnimation(anim, pos)  # Speed 24
+                    self.animations.append(anim)
+            elif result.def_damage == 0 and item.might:
+                pos = result.defender.position
+                anim = RESOURCES.animations.get('MapNoDamage')
+                if anim:
+                    anim = MapAnimation(anim, pos)
+                    self.animations.append(anim)
+
+            # Damage Numbers
             self._start_damage_num_animation(result)
 
         else:  # Miss
             # Miss Sound
+            SOUNDTHREAD.play_sfx('Attack Miss 2')
             # Miss Animation
-            pass
+            pos = result.defender.position
+            anim = RESOURCES.animations.get('MapMiss')
+            if anim:
+                anim = MapAnimation(anim, pos)
+                self.animations.append(anim)
+
         # Status Effects
 
     def _start_damage_num_animation(self, result):

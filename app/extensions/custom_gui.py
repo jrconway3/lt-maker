@@ -112,6 +112,7 @@ class LineSearch(QWidget):
 class PropertyBox(QWidget):
     def __init__(self, label, widget, parent=None):
         super().__init__(parent)
+        self.window = parent
 
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 

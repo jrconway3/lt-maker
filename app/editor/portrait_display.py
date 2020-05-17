@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
-    QSpinBox, QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, \
-    QSplitter
-from PyQt5.QtCore import Qt, QDir, pyqtSignal, QSettings
+    QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter
+from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 
 import os
@@ -11,6 +10,7 @@ from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
+from app.extensions.spinbox_xy import SpinBoxXY
 from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
 from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
@@ -90,58 +90,6 @@ class PortraitModel(ResourceCollectionModel):
             if unit.portrait_nid == old_nid:
                 unit.portrait_nid = new_nid
 
-class SpinBoxXY(QWidget):
-    coordsChanged = pyqtSignal(int, int)
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.window = parent
-
-        hbox = QHBoxLayout()
-        self.setLayout(hbox)
-        hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.setSpacing(1)
-
-        self._x = 0
-        self._y = 0
-
-        self.x_spinbox = QSpinBox()
-        self.y_spinbox = QSpinBox()
-        self.x_spinbox.setMinimumWidth(40)
-        self.y_spinbox.setMinimumWidth(40)
-        x_label = QLabel("X:")
-        y_label = QLabel("Y:")
-        hbox.addWidget(x_label)
-        hbox.addWidget(self.x_spinbox)
-        hbox.addWidget(y_label)
-        hbox.addWidget(self.y_spinbox)
-        self.x_spinbox.setRange(0, 128 - 16)
-        self.y_spinbox.setRange(0, 112 - 16)
-        self.x_spinbox.setSingleStep(8)
-        self.y_spinbox.setSingleStep(8)
-        self.x_spinbox.valueChanged.connect(self.change_x)
-        self.y_spinbox.valueChanged.connect(self.change_y)
-        self.x_spinbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.y_spinbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        x_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        y_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.setFixedWidth(140)
-        # hbox.setAlignment(Qt.AlignLeft)
-
-    def set_current(self, x, y):
-        self.change_x(x)
-        self.change_y(y)
-
-    def change_x(self, value):
-        self._x = value
-        self.x_spinbox.setValue(self._x)
-        self.coordsChanged.emit(self._x, self._y)
-
-    def change_y(self, value):
-        self._y = value
-        self.y_spinbox.setValue(self._y)
-        self.coordsChanged.emit(self._x, self._y)
-
 class PortraitProperties(QWidget):
     width, height = 128, 112
 
@@ -199,8 +147,10 @@ class PortraitProperties(QWidget):
 
         right_section = QVBoxLayout()
         self.blinking_offset = PropertyBox("Blinking Offset", SpinBoxXY, self)
+        self.blinking_offset.edit.setSingleStep(8)
         self.blinking_offset.edit.coordsChanged.connect(self.blinking_changed)
         self.smiling_offset = PropertyBox("Smiling Offset", SpinBoxXY, self)
+        self.smiling_offset.edit.setSingleStep(8)
         self.smiling_offset.edit.coordsChanged.connect(self.smiling_changed)
         right_section.addWidget(self.blinking_offset)
         right_section.addWidget(self.smiling_offset)

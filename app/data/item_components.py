@@ -321,9 +321,11 @@ item_components = Data([
     # ItemComponent('warning', 'Show Warning', 'Eval', '', requires_spell_or_weapon),
 
     ItemComponent('map_hit_color', 'Map Hit Color', 'Color', (255, 255, 255, 120), requires_aspect),
-    # ItemComponent('map_anim', 'Custom Map Animation', 'Animation', None, requires_aspect),
+    # ItemComponent('aoe_anim', 'Custom AOE Map Animation', 'Animation', None, requires_aspect),
+    # ItemComponent('target_anim', 'Custom Map Animation on target', 'Animation', None, requires_aspect),
+    # ItemComponent('self_anim', 'Custom Map Animation on user', 'Animation', None, requires_aspect),
     # ItemComponent('custom_sfx', 'Custom Sound', 'Sound', None, requires_aspect),
-    # ItemComponent('combat_effect', 'Custom Effect in Combat', 'Effect', None, requires_weapon),
+    # ItemComponent('combat_effect', 'Custom Effect in Animation Combat', 'Effect', None, requires_weapon),
 
 ])
 

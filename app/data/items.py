@@ -1,7 +1,4 @@
-try:
-    import xml.etree.cElementTree as ET
-except ImportError:
-    import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 
 from app.data.data import Data
 import app.data.weapons as weapons

@@ -213,8 +213,26 @@ class UnitObject(Prefab):
         # Status effects
 
     def get_internal_level(self):
-        # TODO -- Figure this out
-        return self.level
+        klass = DB.classes.get(self.klass)
+        if klass.tier == 0:
+            return self.level - klass.max_level
+        elif klass.tier == 1:
+            return self.level
+        else:
+            running_total = self.level
+            # Need do while
+            counter = 5
+            while counter > 0:
+                counter -= 1  # Just to make sure no infinte loop
+                promotes_from = klass.promotes_from
+                if promotes_from:
+                    klass = DB.classes.get(promotes_from)
+                    running_total += klass.max_level
+                else:
+                    return running_total
+                if klass.tier <= 0:
+                    return running_total
+            return running_total 
 
     def has_canto(self):
         return 'canto' in self.status_bundle or 'canto_plus' in self.status_bundle
@@ -268,6 +286,19 @@ class UnitObject(Prefab):
         self._has_attacked = False
         self._has_traded = False
         self._has_moved = False
+
+    def clean_up(self):
+        if self.traveler:
+            self.traveler = None
+            # Remove rescue penalty
+
+        self.set_hp(1000)  # Set to full health
+
+        # TODO remove temporary statuses
+        self.position = None
+        if self.sprite:
+            self.sprite.change_state('normal')
+        self.reset()
 
     def serialize(self):
         s_dict = {'nid': self.nid,

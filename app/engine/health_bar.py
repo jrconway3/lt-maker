@@ -47,7 +47,7 @@ class HealthBar():
                 self.transition_flag = False
 
     def draw(self, surf):
-        fraction_hp = self.unit.get_hp() / game.equations.hitpoints(self.unit)
+        fraction_hp = self.displayed_hp / self.total_hp
         index_pixel = int(50 * fraction_hp)
         position = 25, 22
         surf.blit(engine.subsurface(SPRITES.get('health_bar'), (0, 0, index_pixel, 2)), position)

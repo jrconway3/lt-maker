@@ -382,7 +382,7 @@ class SoundController():
             self.fade_out_stop = 0
             self.stop()
 
-    def play_sfx(self, sound):
+    def play_sfx(self, sound, loop=False):
         sfx = SFX.get(sound)
         if sfx:
             if sound == 'Select 5':
@@ -390,7 +390,10 @@ class SoundController():
                 sfx.set_volume(self.global_sfx_volume * .5)
             else:
                 sfx.set_volume(self.global_sfx_volume)
-            sfx.play()
+            if loop:
+                sfx.play(-1)
+            else:
+                sfx.play()
             return sfx
         return None
 

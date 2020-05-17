@@ -1,7 +1,7 @@
 from app import utilities
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 
-from app.engine import engine
+from app.engine import engine, image_mods
 
 # Generic Animation Object
 # Used, for instance, for miss and no damage animations
@@ -20,6 +20,7 @@ class Animation():
         self.hold = hold
         self.enabled = True
         self.tint = False
+        self.tint_after_delay = None
 
         self.width = self.sprite.get_width() // self.frame_x
         self.height = self.sprite.get_height() // self.frame_y
@@ -27,6 +28,7 @@ class Animation():
         self.image = engine.subsurface(self.sprite, (0, 0, self.width, self.height))
 
         self.counter = 0
+        self.frames_held = 0
         self.first_update = engine.get_time()
 
     def use_center(self):
@@ -34,6 +36,18 @@ class Animation():
 
     def is_ready(self, current_time):
         return self.enabled and (current_time - self.first_update >= self.delay)
+
+    def get_position(self, offset):
+        if offset:
+            return self.position[0] + offset[0], self.position[1] + offset[1]
+        else:
+            return self.position
+
+    def set_tint(self, val):
+        self.tint = val
+
+    def set_tint_after_delay(self, i):
+        self.tint_after_delay = i
 
     def update(self):
         current_time = engine.get_time()
@@ -53,7 +67,26 @@ class Animation():
                 else:
                     self.counter = self.num_frames - 1
                     done = True
+        else:  # Frame by frame timing
+            num_frames = self.speed[self.counter]
+            self.frames_held += 1
+            if self.frames_held > num_frames:
+                self.frames_held = 0
+                self.counter += 1
+            if self.counter >= min(len(self.speed), self.num_frames):
+                if self.loop:
+                    self.counter = 0
+                    self.frames_held = 0
+                    self.delay = 0
+                elif self.hold:
+                    self.counter = self.num_frames - 1
+                else:
+                    self.counter = self.num_frames - 1
+                    done = True
 
+        if self.tint_after_delay == self.counter:
+            self.tint = True
+            
         # Now actually create image
         left = (self.counter % self.frame_x) * self.width
         top = (self.counter // self.frame_x) * self.height
@@ -61,19 +94,32 @@ class Animation():
 
         return done
 
-    def draw(self, surf):
+    def draw(self, surf, offset=None, blend=None):
         current_time = engine.get_time()
         if not self.is_ready(current_time):
             return surf
-        x, y = self.position
-        surf.blit(self.image, (x, y))
+        x, y = self.get_position(offset)
+        if blend:
+            image = image_mods.change_color(self.image, blend)
+        else:
+            image = self.image
+        if self.tint:
+            engine.blit(surf, image, (x, y), image.get_rect(), engine.BLEND_RGB_ADD)
+        else:
+            surf.blit(image, (x, y))
         return surf
 
 class MapAnimation(Animation):
     def __init__(self, anim, position, speed=75, delay=0, loop=0, hold=False):
-        super().__init__(anim, position, speed, delay, loop, hold)
+        super().__init__(anim, position, delay, loop, hold)
         self.position = self.position[0] * TILEWIDTH, self.position[1] * TILEHEIGHT
         self.use_center()
 
     def use_center(self):
         self.position = self.position[0] + TILEWIDTH//2 - self.width//2, self.position[1] + TILEHEIGHT//2 - self.height//2
+
+    def get_position(self, offset):
+        if offset:
+            return self.position[0] + offset[0] * TILEWIDTH, self.position[1] + offset[1] * TILEHEIGHT
+        else:
+            return self.position

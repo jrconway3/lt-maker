@@ -102,8 +102,16 @@ class TitleMainState(State):
                         self.selection in ('Load Game', 'Restart Level', 'New Game'):
                     if self.selection == 'New Game':
                         text = 'Starting a new game will remove suspend!'
+                        game.state.change('title_new')
+                        game.state.change('transition_out')
+                    elif self.selection == 'Load Game':
+                        text = 'Loading a game will remove suspend!'
+                        game.state.change('title_load')
+                        game.state.change('transition_out')
                     else:
                         text = 'Loading a game will remove suspend!'
+                        game.state.change('title_restart')
+                        game.state.change('transition_out')
                     game.alerts.append(banner.Custom(text))
                     game.state.change('alert')
                     self.banner_flag = True
@@ -136,14 +144,16 @@ class TitleMainState(State):
                 self.position_x = -WINWIDTH//2
                 if self.selection == 'Load Game':
                     game.state.change('title_load')
+                    # game.state.change('transition_out')
                 elif self.selection == 'Restart Level':
                     game.state.change('title_restart')
+                    # game.state.change('transition_out')
                 elif self.selection == 'Extras':
                     game.state.change('title_extras')
                 elif self.selection == 'New Game':
                     # game.state.change('title_mode')
                     game.state.change('title_new')
-                    game.state.change('transition_out')
+                    # game.state.change('transition_out')
                 self.state = 'transition_in'
                 return 'repeat'
 

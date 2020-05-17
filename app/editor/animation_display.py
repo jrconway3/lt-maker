@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMes
     QSizePolicy, QFrame, QSplitter, QRadioButton, QLineEdit, QLabel, QSpinBox, \
     QStyle, QToolButton
 from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
+from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor, QPen
 
 from app.data.data import Data
 from app.data.resources import RESOURCES
@@ -140,11 +140,11 @@ class SpeedSpecification(QWidget):
         if utilities.is_int(speed):
             self.int_speed_box.setValue(speed)
             self.int_speed.setChecked(True)
-            # self.int_speed_toggled(True)
+            self.int_speed_toggled(True)
         else:
-            self.list_speed_box.setText(','.join(speed))
+            self.list_speed_box.setText(self.set_speed(speed))
             self.int_speed.setChecked(False)
-            # self.int_speed_toggled(False)
+            self.int_speed_toggled(False)
 
     def int_speed_toggled(self, checked):
         if checked:
@@ -173,7 +173,7 @@ class SpeedSpecification(QWidget):
                 icon = self.style().standardIcon(QStyle.SP_DialogApplyButton)
                 self.list_speed_label.setPixmap(icon.pixmap(32, 32))
                 if self.window.current:
-                    self.window.current.speed = [int(_) for _ in text.split(',')]
+                    self.window.current.speed = self.get_speed(text)
             else:
                 icon = self.style().standardIcon(QStyle.SP_DialogCancelButton)
                 self.list_speed_label.setPixmap(icon.pixmap(32, 32))
@@ -184,10 +184,45 @@ class SpeedSpecification(QWidget):
             if self.window.current:
                 self.window.current.speed = int(self.int_speed_box.value())
 
+    def get_speed(self, text):
+        frame_numbers = text.replace(' ', '').split(',')
+        # Split '*' symbol
+        new_frame_numbers = []
+        for num in frame_numbers:
+            if '*' in num:
+                a, b = num.split('*')
+                new_frame_numbers += [a] * int(b)
+            else:
+                new_frame_numbers.append(num)
+        frame_numbers = [int(_) for _ in new_frame_numbers]
+        return frame_numbers
+
+    def set_speed(self, speed_list):
+        print(speed_list, flush=True)
+        a = []
+        current_speed_int = speed_list[0]
+        total = 1
+        for speed_int in speed_list[1:]:
+            if speed_int == current_speed_int:
+                total += 1
+            elif total > 1:
+                a.append(str(current_speed_int) + '*' + str(total))
+                total = 1
+            else:
+                a.append(str(current_speed_int))
+                total = 1
+            current_speed_int = speed_int
+
+        if total > 1:
+            a.append(str(current_speed_int) + '*' + str(total))
+        else:
+            a.append(str(current_speed_int))
+
+        return ','.join(a)
+
     def text_valid(self, text):
         try:
-            frame_numbers = text.replace(' ', '').split(',')
-            frame_numbers = [int(_) for _ in frame_numbers]
+            frame_numbers = self.get_speed(text)
             print(frame_numbers)
             return all(i > 0 for i in frame_numbers) and len(frame_numbers) == self.window.current.num_frames
         except:
@@ -236,6 +271,7 @@ class AnimationProperties(QWidget):
 
         self.frame_box = PropertyBox("Frames", SpinBoxXY, self)
         self.frame_box.edit.coordsChanged.connect(self.frames_changed)
+        self.frame_box.edit.setMinimum(1)
         right_section.addWidget(self.frame_box)
 
         self.total_num_box = PropertyBox("Total Frames", QSpinBox, self)
@@ -277,8 +313,9 @@ class AnimationProperties(QWidget):
 
     def set_current(self, current):
         self.current = current
+        old_num_frames = self.current.num_frames
         self.frame_box.edit.set_current(current.frame_x, current.frame_y)
-        self.total_num_box.edit.setValue(current.num_frames)
+        self.total_num_box.edit.setValue(old_num_frames)
         self.speed_box.edit.set_current(current.speed)
         self.draw_raw()
         self.draw_frame()
@@ -290,6 +327,15 @@ class AnimationProperties(QWidget):
         painter = QPainter()
         painter.begin(base_image)
         painter.drawImage(0, 0, self.current.pixmap.toImage())
+        # Draw grid lines
+        painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
+        width = self.current.pixmap.width() // self.current.frame_x
+        height = self.current.pixmap.height() // self.current.frame_y
+        for x in range(self.current.frame_x + 1):
+            painter.drawLine(x * width, 0, x * width, self.current.pixmap.height())
+        for y in range(self.current.frame_y + 1):
+            painter.drawLine(0, y * height, self.current.pixmap.width(), y * height)
+
         painter.end()
 
         self.raw_view.edit.set_image(QPixmap.fromImage(base_image))
@@ -347,11 +393,12 @@ class AnimationProperties(QWidget):
             self.loop = False
 
     def frames_changed(self, x, y):
-        self.current.frame_x = x
-        self.current.frame_y = y
-        minim = x * y - x + 1
-        self.total_num_box.edit.setRange(minim, x * y)
-        self.total_num_box.edit.setValue(utilities.clamp(self.current.num_frames, minim, x * y))
+        if self.current:
+            self.current.frame_x = x
+            self.current.frame_y = y
+            minim = x * y - x + 1
+            self.total_num_box.edit.setRange(minim, x * y)
+            self.total_num_box.edit.setValue(utilities.clamp(self.current.num_frames, minim, x * y))
 
     def num_frames_changed(self, val):
         self.current.num_frames = val

@@ -1,13 +1,17 @@
 import math
 
-from app.data.constants import WINWIDTH, WINHEIGHT, FRAMERATE
+from app import utilities
+from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine import engine, image_mods, icons, unit_funcs, action
 from app.engine.sprites import SPRITES
+from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
 from app.engine.state import State
 from app.engine.state_machine import SimpleStateMachine
+from app.engine.animations import Animation
 from app.engine.game_state import game
 
 class ExpState(State):
@@ -47,12 +51,30 @@ class ExpState(State):
             game.state.back()
             return 'repeat'
 
+        self.level_up_sound_played = False
+
     def begin(self):
         game.cursor.hide()
 
     def create_level_up_logo(self):
-        pass
-        # TODO Animation for Level Up logo
+        if self.combat_object:
+            anim = RESOURCES.animations.get('LevelUpBattle')
+            if anim:
+                anim = Animation(anim, (0, 6))
+                anim.set_tint_after_delay(40)
+                self.level_up_animation = anim
+        else:
+            if self.unit.position:
+                x, y = self.unit.position
+                left = (x - game.camera.get_x() - 2) * TILEWIDTH
+                top = (y - game.camera.get_y() - 1) * TILEHEIGHT
+                pos = (left, top)
+            else:
+                pos = (WINWIDTH//2, WINHEIGHT//2)
+            anim = RESOURCES.animations.get('LevelUpMap')
+            if anim:
+                anim = Animation(anim, pos)
+                self.level_up_animation = anim
 
     def update(self):
         super().update()
@@ -70,7 +92,7 @@ class ExpState(State):
             if current_time - self.start_time > 400:
                 self.state.change('exp0')
                 self.start_time = current_time
-                # GC.SOUNDDICT['Experience Gain'].play(-1)
+                SOUNDTHREAD.play_sfx('Experience Gain', True)
 
         # Increment exp until done or 100 exp is reached
         elif self.state.get_state() == 'exp0':
@@ -79,19 +101,18 @@ class ExpState(State):
             exp_set = int(min(self.old_exp + self.exp_gain, exp_set))
             self.exp_bar.update(exp_set)
 
-            # transition
-            # if exp_set >= self.old_exp + self.exp_gain:
-            #     GC.SOUNDDICT['Experience Gain'].stop()
+            if exp_set >= self.old_exp + self.exp_gain:
+                SOUNDTHREAD.stop_sfx('Experience Gain')
 
             if exp_set >= 100:
                 max_level = self.unit_klass.max_level
                 if self.unit.level >= max_level:  # Do I promote?
-                    # GC.SOUNDDICT['Experience Gain'].stop()
+                    SOUNDTHREAD.stop_sfx('Experience Gain')
                     if DB.constants.get('auto_promote').value and \
                             self.unit_klass.turns_into and \
                             'NoAutoPromote' not in self.unit.tags:
                         self.exp_bar.update(100)
-                        # GC.SOUNDDICT['Level Up'].play()
+                        SOUNDTHREAD.play_sfx('Level Up')
                     else:
                         self.exp_bar.update(99)
                     self.state.clear()
@@ -125,8 +146,8 @@ class ExpState(State):
             exp_set = int(min(self.old_exp + self.exp_gain - 100, exp_set))
             self.exp_bar.update(exp_set)
 
-            # if exp_set >= self.old_exp + self.exp_gain - 100:
-            #     GC.SOUNDDICT['Experience Gain'].stop()
+            if exp_set >= self.old_exp + self.exp_gain - 100:
+                SOUNDTHREAD.stop_sfx('Experience Gain')
 
             # Extra time to account for pause at end
             if current_time - self.start_time >= self.total_time_for_exp + 500:
@@ -141,9 +162,9 @@ class ExpState(State):
                 self.start_time = current_time
 
         elif self.state.get_state() == 'level_up':
-            # if not self.level_up_sound_played:
-            #     GC.SOUNDDICT['Level Up'].play()
-            #     self.level_up_sound_played = True
+            if not self.level_up_sound_played:
+                SOUNDTHREAD.play_sfx('Level Up')
+                self.level_up_sound_played = True
 
             if self.level_up_animation.update():
                 if self.combat_object:
@@ -264,14 +285,14 @@ class ExpState(State):
                 game.state.back()
 
     def draw(self, surf):
-        # surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
-
         if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
             if self.exp_bar:
                 self.exp_bar.draw(surf)
 
         elif self.state.get_state() == 'level_up':
-            pass
+            if self.level_up_animation:
+                self.level_up_animation.update()
+                self.level_up_animation.draw(surf)
 
         elif self.state.get_state() == 'level_screen':
             if self.level_screen:
@@ -287,10 +308,7 @@ class LevelUpScreen():
     spark_time = 320
     level_up_wait = 1960
 
-    spark = SPRITES.get('stat_up_spark')
     underline = SPRITES.get('stat_underline')
-    uparrow = SPRITES.get('level_up_arrow')
-    numbers = SPRITES.get('level_up_numbers')
 
     def __init__(self, unit, stat_changes, old_level, new_level):
         self.unit = unit
@@ -312,11 +330,10 @@ class LevelUpScreen():
         self.start_time = 0
 
     def make_spark(self, topleft):
+        anim = RESOURCES.animations.get('StatUpSpark')
+        if anim:
+            return Animation(anim, topleft)
         return None
-        # TODO
-        # return CustomObjects.Animation(
-        #     self.spark, topleft, (11, 1), animation_speed=32,
-        #     ignore_map=True)
 
     def get_position(self, i):
         if i >= 4:
@@ -349,7 +366,7 @@ class LevelUpScreen():
                     self.state = 'first_spark'
                     topleft = (87, 27)
                     self.animations.append(self.make_spark(topleft))
-                    # GC.SOUNDDICT['Level_Up_Level'].play()                
+                    SOUNDTHREAD.play_sfx('Level_Up_Level')
                 self.start_time = current_time
 
         elif self.state == 'scroll_out':
@@ -370,23 +387,26 @@ class LevelUpScreen():
                 self.start_time = current_time
             else:
                 pos = self.get_position(self.current_spark)
-                # TODO Animations
-                """
-                arrow_animation = CustomObjects.Animation(
-                    self.uparrow, (pos[0] + 45, pos[1] - 11), (10, 1), animation_speed=32,
-                    ignore_map=True, hold=True)
-                self.arrow_animations.append(arrow_animation)
+                # Animations
+                # Arrow
+                anim = RESOURCES.animations.get('LevelUpArrow')
+                if anim:
+                    arrow_animation = Animation(anim, (pos[0] + 45, pos[1] - 11), hold=True)
+                    self.arrow_animations.append(arrow_animation)
+                # Spark
                 spark_pos = pos[0] + 14, pos[1] + 26
-                self.animations.append(self.make_spark(spark_pos))
-                increase = Utility.clamp(self.levelup_list[self.current_spark], 1, 7)
-                row = Engine.subsurface(self.numbers, (0, (increase - 1)*24, 10*28, 24))
-                number_animation = CustomObjects.Animation(
-                    row, (pos[0] + 43, pos[1] + 49), (10, 1), animation_speed=32, 
-                    ignore_map=True, hold=True)
-                number_animation.frameCount = -5  # delay this animation for 5 frames
-                self.animations.append(number_animation)
-                GC.SOUNDDICT['Stat Up'].play()
-                """
+                spark_anim = self.make_spark(spark_pos)
+                if spark_anim:
+                    self.animations.append(spark_anim)
+
+                # Number
+                increase = utilities.clamp(self.stat_list[self.current_spark], 1, 7)
+                anim = RESOURCES.get('LevelUpNumber' + str(increase))
+                if anim:
+                    number_animation = Animation(anim, (pos[0] + 43, pos[1] + 49), delay=80, hold=True)
+                    self.animations.append(number_animation)
+
+                SOUNDTHREAD.play_sfx('Stat Up')
                 self.underline_offset = 36 # for underline growing
                 self.state = 'spark_wait'
                 self.start_time = current_time
@@ -461,6 +481,7 @@ class LevelUpScreen():
 
         # Update and draw animations
         self.animations = [a for a in self.animations if not a.update()]
+        # offset = game.camera.get_x() * TILEWIDTH, game.camera.get_y() * TILEHEIGHT
         for animation in self.animations:
             animation.draw(surf)
 

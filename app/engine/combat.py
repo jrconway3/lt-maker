@@ -250,6 +250,7 @@ class MapCombat(Combat):
         self.additional_time = 0
         self.state = 'pre_init'
 
+        self.animations = []
         self.damage_numbers = []
         self.health_bars = {}
 
@@ -322,7 +323,7 @@ class MapCombat(Combat):
                         anim = RESOURCES.animations.get(self.item.map_anim.value)
                         pos = game.cursor.position
                         if anim:
-                            anim = MapAnimation(animation, pos)  # Speed 32
+                            anim = MapAnimation(anim, pos)  # Speed 32
                             self.animations.append(anim)
                     # Weapons get extra time, spells and item do not need it, since they are one sided
                     if not self.item.weapon:
@@ -539,6 +540,11 @@ class MapCombat(Combat):
         # Hp Bars
         for hp_bar in self.health_bars.values():
             surf = hp_bar.draw(surf)
+
+        # Animations
+        self.animations = [anim for anim in self.animations if not anim.update()]
+        for anim in self.animations:
+            surf = anim.draw(surf)
 
         # Damage Nums
         for damage_num in self.damage_numbers:

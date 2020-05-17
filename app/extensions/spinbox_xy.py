@@ -41,6 +41,10 @@ class SpinBoxXY(QWidget):
         self.x_spinbox.setSingleStep(i)
         self.y_spinbox.setSingleStep(i)
 
+    def setMinimum(self, i):
+        self.x_spinbox.setMinimum(i)
+        self.y_spinbox.setMinimum(i)
+
     def set_current(self, x, y):
         self.change_x(x)
         self.change_y(y)

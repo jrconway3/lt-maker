@@ -79,6 +79,7 @@ class PhaseIn():
 
     def begin(self):
         self.starting_time = engine.get_time()
+        SOUNDTHREAD.play_sfx('Next Turn')
         if self.name == 'player':
             if cf.SETTINGS['autocursor']:
                 game.cursor.autocursor()

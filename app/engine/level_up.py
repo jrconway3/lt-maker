@@ -124,6 +124,7 @@ class ExpState(State):
                     self.state.change('exp100')
 
             elif current_time - self.start_time >= self.total_time_for_exp + 500:
+                SOUNDTHREAD.stop_sfx('Experience Gain')  # Just in case
                 self.state.clear()
                 self.state.change('exp_leave')
                 self.exp_bar.fade_out()

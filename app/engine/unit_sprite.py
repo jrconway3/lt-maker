@@ -59,7 +59,7 @@ class UnitSprite():
         self.transition_state = 'normal'
 
         self.transition_counter = 0
-        self.transition_time = 400
+        self.transition_time = 450
 
         self.net_position = None
         self.offset = [0, 0]
@@ -102,7 +102,7 @@ class UnitSprite():
 
     def set_transition(self, new_state):
         self.transition_state = new_state
-        self.transition_counter = self.transition_time  # 400
+        self.transition_counter = self.transition_time  # 450
 
         if self.transition_state == 'fake_in':
             self.change_state('fake_transition_in')
@@ -283,12 +283,12 @@ class UnitSprite():
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
 
-        if 'Boss' in self.unit.tags and self.transition_state == 'normal' and \
+        if 'Boss' in self.unit.tags and self.transition_state == 'normal' and not self.unit.is_dying and \
                 self.image_state in ('gray', 'passive') and int((current_time%450) // 150) in (1, 2):
             boss_icon = SPRITES.get('boss_icon')
             surf.blit(boss_icon, (left - 8, top - 8))
 
-        if self.unit.traveler and self.transition_state == 'normal':
+        if self.unit.traveler and self.transition_state == 'normal' and not self.unit.is_dying:
             if game.level.units.get(self.unit.traveler).team == 'player':
                 rescue_icon = SPRITES.get('rescue_icon_blue')
             else:

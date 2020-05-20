@@ -17,10 +17,13 @@ All remaining Item components
 Add Sacred Stones Items
 Auto-update editor
 Level-up
-Level-up animations
+* Level-up animations
 Promotion
-Music/Sounds in engine
+* Music/Sounds in engine
 
+Equations check their validity
+
+Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers, autotile layer
 
 Auto-update
 No need for launcher
@@ -30,17 +33,13 @@ Have the editor auto-check for updates on launch. It then spawns a process to do
 Maybe: Have any built games check for updates to the engine in the extras menu. Click Check for Updates, if so, will ask you to to proceed, if so, closes self and auto-updates. 
 Maybe: Executable versions of the editor and engine work the same way, they just check from a different source.
 
-Equations check their validity
-
-Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers
-
 ---
 Minimap
 SettingsMenu
 InfoMenu
-UnitMenu
-Animation Editor in Resources
+Combat Animation Editor in Resources
 Combat Animations
+Combat Effects
 
 ---
 Status editor in database
@@ -59,6 +58,7 @@ BaseMenu
     - Items, Market, Base Convos, Supports, World Map, Lore, Records
 Supports
 Overworld
+UnitMenu
 Summons
 
 ---

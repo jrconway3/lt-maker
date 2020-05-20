@@ -21,6 +21,9 @@ class EmptyOption():
     def get(self):
         return None
 
+    def set_text(self):
+        pass
+
     def width(self):
         return 104
 
@@ -50,6 +53,10 @@ class BasicOption():
 
     def get(self):
         return self.text
+
+    def set_text(self, text):
+        self.text = text
+        self.display_text = text_funcs.translate(text)
 
     def width(self):
         return FONT[self.color].width(self.display_text) + 24
@@ -85,6 +92,10 @@ class TitleOption():
 
     def get(self):
         return self.text
+
+    def set_text(self, text):
+        self.text = text
+        self.display_text = text_funcs.translate(text)
 
     def width(self):
         return SPRITES.get(self.option_bg_name).get_width()
@@ -134,6 +145,12 @@ class ChapterSelectOption(TitleOption):
 
         self.color = 'chapter_grey'
 
+    def draw_flicker(self, surf, x, y):
+        left = x - self.width()//2
+        surf.blit(SPRITES.get(self.option_bg_name + '_flicker'), (left, y))
+
+        self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
+
 class ItemOption(BasicOption):
     def __init__(self, idx, item):
         self.idx = idx
@@ -144,6 +161,12 @@ class ItemOption(BasicOption):
 
     def get(self):
         return self.item
+
+    def set_text(self, text):
+        pass
+
+    def set_item(self, item):
+        self.item = item
 
     def width(self):
         return 104
@@ -275,6 +298,9 @@ class Simple():
     def set_hard_limit(self, val):
         self.hard_limit = val
         self.update_options()
+
+    def set_text(self, idx, text):
+        self.options[idx].set_text(text)
 
     def toggle_info(self):
         self.info_flag = not self.info_flag
@@ -875,7 +901,7 @@ class ChapterSelect(Main):
             elif self.rel_pos_y < 0:
                 self.rel_pos_y = min(0, self.rel_pos_y + 4)
 
-    def draw(self, surf, center=(WINWIDTH//2, WINHEIGHT//2), show_cursor=True):
+    def draw(self, surf, center=(WINWIDTH//2, WINHEIGHT//2), show_cursor=True, flicker=False):
         self.center = center
         num_options = len(self.options)
         start_index = max(0, self.current_index - 3)
@@ -886,7 +912,10 @@ class ChapterSelect(Main):
             else:
                 top = center[1] + idx * (option.height() + 1) - (num_options * (option.height() + 1)//2)
             if self.current_index == idx:
-                option.draw_highlight(surf, center[0], top)
+                if flicker:
+                    option.draw_flicker(surf, center[0], top)
+                else:
+                    option.draw_highlight(surf, center[0], top)
             else:
                 option.draw(surf, center[0], top)
                 

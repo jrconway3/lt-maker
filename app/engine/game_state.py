@@ -101,6 +101,8 @@ class GameState():
         """
         Done at the beginning of a new level to start the level up
         """
+        self.generic()
+        
         from app.data.level_object import LevelObject
         level_prefab = DB.levels.get(level_nid)
         serialized_tilemap = level_prefab.tilemap.serialize()

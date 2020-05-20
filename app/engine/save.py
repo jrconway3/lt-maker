@@ -137,7 +137,7 @@ def get_save_title(save_slots):
     colors = ['green' for save_slot in save_slots]
     return options, colors
 
-def check_save_slots(self):
+def check_save_slots():
     global SAVE_SLOTS, RESTART_SLOTS
     SAVE_SLOTS = load_saves()
     RESTART_SLOTS = load_restarts()

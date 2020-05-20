@@ -27,7 +27,7 @@ class TitleStartState(State):
         game.memory['title_bg'] = self.bg
         game.memory['transition_speed'] = 0.5
 
-        SOUNDTHREAD.fade_in('Chapter Sound')
+        # SOUNDTHREAD.fade_in('Chapter Sound')
 
         # Wait until saving thread has finished
         if save.SAVE_THREAD:
@@ -429,6 +429,11 @@ class TitleSaveState(State):
     show_map = False
 
     def start(self):
+        imgs = RESOURCES.panoramas.get('title_background')
+        self.bg = PanoramaBackground(imgs) if imgs else None
+        game.memory['title_bg'] = self.bg
+        game.memory['transition_speed'] = 0.5
+
         self.leave_flag = False
         self.wait_time = 0
 
@@ -437,6 +442,9 @@ class TitleSaveState(State):
         self.menu = menus.ChapterSelect(options, colors)
         most_recent = save.SAVE_SLOTS.index(max(save.SAVE_SLOTS, key=lambda x: x.realtime))
         self.menu.move_to(most_recent)
+
+        game.state.change('transition_in')
+        return 'repeat'
 
     def take_input(self, event):
         if self.wait_time > 0:
@@ -459,9 +467,9 @@ class TitleSaveState(State):
                 name = 'overworld'
                 self.menu.set_name(self.menu.current_index, name)
             else:
-                next_level_nid = game.memory['next_level_nid']
+                next_level_nid = game.game_constants['next_level_nid']
                 name = DB.levels.get(next_level_nid).title
-                self.menu.set_name(self.menu.current_index, name)
+                self.menu.set_text(self.menu.current_index, name)
             self.menu.set_color(self.menu.current_index, 'green')
             
     def update(self):
@@ -471,14 +479,24 @@ class TitleSaveState(State):
         if self.wait_time and engine.get_time() - self.wait_time > 1250 and not self.leave_flag:
             self.leave_flag = True
 
-            current_state = game.state.state
+            current_state = game.state.state[-1]
+            print(game.state.state, flush=True)
+
+            next_level_nid = game.game_constants['next_level_nid']
+            game.load_states(['turn_change'])
+            game.start_level(next_level_nid)
+            print(game.state.state, flush=True)
+
             save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
-            game.state.state = current_state
+            game.state.state.append(current_state)
             game.state.change('transition_pop')
+            print(game.state.state, flush=True)
 
     def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
         if self.menu:
-            if 100 < engine.get_time() - self.wait_time > 200:
+            if 100 < engine.get_time() - self.wait_time < 200:
                 self.menu.draw(surf, flicker=True)
             else:
                 self.menu.draw(surf)

@@ -121,6 +121,7 @@ class BoundaryInterface():
 
             # Update ranges of other units that might be affected by my arrival
             x, y = unit.position
+            # print(self.grids['movement'][x * self.height + y])
             other_units = {game.level.units.get(nid) for nid in self.grids['movement'][x * self.height + y]}
             other_units = {other_unit for other_unit in other_units if not utilities.compare_teams(unit.team, other_unit.team)}
 

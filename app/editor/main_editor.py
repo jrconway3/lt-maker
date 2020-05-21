@@ -1,7 +1,8 @@
 import os
 
 from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, \
-    QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget
+    QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget, \
+    QToolButton, QWidgetAction
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
 
@@ -118,6 +119,7 @@ class MainEditor(QMainWindow):
 
     def set_current_level(self, level):
         self.current_level = level
+        self.test_current_act.setEnabled(True)
         self.map_view.set_current_map(level.tilemap)
         self.unit_painter_menu.set_current_level(level)
         self.update_view()
@@ -137,23 +139,31 @@ class MainEditor(QMainWindow):
         self.open_act = QAction(QIcon('icons/folder.png'), "&Open Project...", self, shortcut="Ctrl+O", triggered=self.open)
         self.save_act = QAction(QIcon('icons/save.png'), "&Save Project", self, shortcut="Ctrl+S", triggered=self.save)
         self.save_as_act = QAction(QIcon('icons/save.png'), "Save Project As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
+        # self.build_act = QAction(QIcon(), "Build Project...", self, shortcut="Ctrl+B", triggered=self.build_project)
         self.quit_act = QAction(QIcon('icons/x.png'), "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
 
         self.undo_act = QAction(QIcon('icons/corner-up-left.png'), "Undo", self, shortcut="Ctrl+Z", triggered=self.undo)
         self.redo_act = QAction(QIcon('icons/corner-up-right.png'), "Redo", self, triggered=self.redo)
         self.redo_act.setShortcuts(["Ctrl+Y", "Ctrl+Shift+Z"])
 
+        self.zoom_in_act = QAction(QIcon('icons/zoom_in.png'), "Zoom in", self, shortcut="Ctrl++", triggered=self.map_view.zoom_in)
+        self.zoom_out_act = QAction(QIcon('icons/zoom_out.png'), "Zoom out", self, shortcut="Ctrl+-", triggered=self.map_view.zoom_out)
+
         self.preferences_act = QAction("&Preferences...", self, triggered=self.edit_preferences)
         self.about_act = QAction("&About", self, triggered=self.about)
+
+        # Test actions
+        self.test_current_act = QAction(QIcon('icons/play.png'), "Test Current Chapter...", self, shortcut="F5", triggered=self.test_play_current)
+        self.test_current_act.setEnabled(False)
+        self.test_full_act = QAction(QIcon('icons/play_all.png'), "Test Full Game...", self, shortcut="Ctrl+F5", triggered=self.test_play)
+        # self.balance_act = QAction("Preload Units...", self, triggered=self.edit_preload_units)
 
         # Toolbar actions
         self.modify_level_act = QAction(QIcon('icons/map.png'), "Edit Level", self, shortcut="E", triggered=self.edit_level)
         self.back_to_main_act = QAction(QIcon('icons/left_arrow.png'), "Back", self, shortcut="E", triggered=self.edit_global)
         self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, shortcut="D", triggered=self.edit_database)
         self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
-        self.test_play_act = QAction(QIcon('icons/play.png'), "Test Play", self, shortcut="T", triggered=self.test_play)
-
-        self.modify_resources_act = QAction("Edit Resources...", self, shortcut="R", triggered=self.edit_resources)
+        self.modify_resources_act = QAction("Edit Resources...", self, shortcut="Ctrl+R", triggered=self.edit_resources)
         self.modify_translations_act = QAction("Edit Translations...", self, triggered=self.edit_translations)
 
     def create_menus(self):
@@ -172,6 +182,13 @@ class MainEditor(QMainWindow):
         # edit_menu.addAction(self.redo_act)
         edit_menu.addAction(self.modify_resources_act)
         edit_menu.addAction(self.modify_translations_act)
+        edit_menu.addSeparator()
+        edit_menu.addAction(self.zoom_in_act)
+        edit_menu.addAction(self.zoom_out_act)
+
+        test_menu = QMenu("Test", self)
+        test_menu.addAction(self.test_current_act)
+        test_menu.addAction(self.test_full_act)
 
         help_menu = QMenu("Help", self)
         help_menu.addAction(self.about_act)
@@ -179,6 +196,7 @@ class MainEditor(QMainWindow):
 
         self.menuBar().addMenu(file_menu)
         self.menuBar().addMenu(edit_menu)
+        self.menuBar().addMenu(test_menu)
         self.menuBar().addMenu(help_menu)
 
     def create_toolbar(self):
@@ -186,7 +204,19 @@ class MainEditor(QMainWindow):
         self.toolbar.addAction(self.modify_level_act)
         self.toolbar.addAction(self.modify_database_act)
         self.toolbar.addAction(self.modify_events_act)
-        self.toolbar.addAction(self.test_play_act)
+
+        self.test_button = QToolButton(self)
+        self.test_button.setIcon(QIcon('icons/play.png'))
+        self.test_button.setPopupMode(QToolButton.InstantPopup)
+        test_menu = QMenu("Test", self)
+        test_menu.addAction(self.test_current_act)
+        test_menu.addAction(self.test_full_act)
+        self.test_button.setMenu(test_menu)
+        self.test_button_action = QWidgetAction(self)
+        self.test_button_action.setDefaultWidget(self.test_button)
+
+        # self.toolbar.addToolButton(self.test_button)
+        self.toolbar.addAction(self.test_button_action)
 
     def create_statusbar(self):
         self.status_bar = self.statusBar()
@@ -436,10 +466,14 @@ class MainEditor(QMainWindow):
         from app.engine import driver, game_state
         title = DB.constants.get('title').value
         driver.start(title, from_editor=True)
-        if self.current_level:
-            game = game_state.start_level(self.current_level.nid)
-        else:
-            game = game_state.start_game()
+        game = game_state.start_game()
+        driver.run(game)
+
+    def test_play_current(self):
+        from app.engine import driver, game_state
+        title = DB.constants.get('title').value
+        driver.start(title, from_editor=True)
+        game = game_state.start_level(self.current_level.nid)
         driver.run(game)
 
     def edit_preferences(self):

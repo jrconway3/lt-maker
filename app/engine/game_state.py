@@ -18,6 +18,9 @@ class Status():
 
 class GameState():
     def __init__(self):
+        self.clear()
+
+    def clear(self):
         self.game_constants = Counter()
         self.memory = {}
 
@@ -271,13 +274,20 @@ game = None
 
 def start_game():
     global game
-    game = GameState()
+    if not game:
+        game = GameState()
+    else:
+        game.clear()  # Need to use old game if called twice in a row
     game.load_states(['title_start'])
     return game
 
 def start_level(level_nid):
     global game
-    game = GameState()
+    print("Start Level %s" % level_nid)
+    if not game:
+        game = GameState()
+    else:
+        game.clear()  # Need to use old game if called twice in a row
     game.load_states(['turn_change'])
     game.build_new()
     game.start_level(level_nid)

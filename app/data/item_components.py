@@ -277,6 +277,7 @@ item_components = Data([
     ItemComponent('locked', 'Cannot be removed from Unit'),
     ItemComponent('brave', 'Brave', 'BraveChoice', 0, requires_spell_or_weapon),
     ItemComponent('reverse', 'Reverses Weapon Triangle', bool, False, requires_spell_or_weapon),
+    ItemComponent('double_triangle', 'Doubles Effect of Weapon Triangle', bool, False, requires_spell_or_weapon),
     ItemComponent('cannot_be_countered', 'Cannot be Countered', bool, False, requires_weapon),
     ItemComponent('no_double', 'Cannot Double', bool, False, requires_weapon),
     ItemComponent('ignore_triangle', 'Ignores Weapon Triangle', bool, False, requires_spell_or_weapon),

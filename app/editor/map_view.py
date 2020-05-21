@@ -195,13 +195,21 @@ class MapView(QGraphicsView):
                     if isinstance(last_command, commands.ChangeTileTerrain):
                         last_command.can_merge = False
 
-    def wheelEvent(self, event):
-        if event.angleDelta().y() > 0 and self.screen_scale < self.max_scale:
+    def zoom_in(self):
+        if self.screen_scale < self.max_scale:
             self.screen_scale += 1
             self.scale(2, 2)
-        elif event.angleDelta().y() < 0 and self.screen_scale > self.min_scale:
+
+    def zoom_out(self):
+        if self.screen_scale > self.min_scale:
             self.screen_scale -= 1
             self.scale(0.5, 0.5)
+
+    def wheelEvent(self, event):
+        if event.angleDelta().y() > 0:
+            self.zoom_in()
+        elif event.angleDelta().y() < 0:
+            self.zoom_out()
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)

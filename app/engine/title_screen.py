@@ -212,6 +212,7 @@ class TitleLoadState(State):
                 save.load_game(game, save_slot)
                 if save_slot.kind == 'start':  # Restart
                     # Restart level
+                    game.load_states(['turn_change'])
                     game.start_level(game.level.nid)
                 game.memory['transition_from'] = 'Load Game'
                 game.state.change('title_wait')

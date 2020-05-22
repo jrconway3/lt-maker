@@ -21,7 +21,7 @@ class TerrainDatabase(DatabaseTab):
         right_frame = TerrainProperties
 
         def deletion_func(model, index):
-            return model.rowCount() > 1 
+            return model._data[index.row()].nid != "0"
 
         collection_model = TerrainModel
         dialog = cls(data, title, right_frame, (deletion_func, None, None), collection_model, parent)

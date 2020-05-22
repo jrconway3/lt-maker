@@ -19,7 +19,7 @@ class Resources():
         self.init_load()
 
         # Need to load a default map
-        default_map = ImageResource('default', './app/default_data/default_tilemap_image.png')
+        default_map = Tilemap('default', './app/default_data/default_tilemap_image.png')
         self.maps.append(default_map)
 
     def init_load(self):
@@ -546,6 +546,60 @@ class MapSprite():
 
     def set_moving_full_path(self, full_path):
         self.moving_full_path = full_path
+
+class Tilemap():
+    def __init__(self, nid):
+        self.nid = nid
+        self.width, self.height = TILEX, TILEY
+        self.layers = data.Data()
+        self.tilesets = data.Data()
+
+    def clear(self):
+        self.width, self.height = TILEX, TILEY
+        self.layers.clear()
+
+    def set_pixmap(self, pixmap):
+        new_tileset = TileSet('base')
+        new_tileset.set_pixmap(pixmap)
+        self.width = new_tileset.width
+        self.height = new_tileset.height
+
+        new_layer = LayerGrid('base', self)
+        for x in range(self.width):
+            for y in range(self.height):
+                new_layer.set((x, y), ('base', (x, y)))
+        self.layers.append(new_layer)
+
+class TileSet():
+    def __init__(self, nid):
+        self.nid = nid
+        self.width, self.height = 0, 0
+        self.pixmap = None
+        self.pixmaps = {}
+
+    def set_pixmap(self, pixmap):
+        self.pixmap = pixmap
+        self.width = self.pixmap.width() // TILEWIDTH
+        self.height = self.pixmap.height() // TILEHEIGHT
+        # Subsurface
+        self.pixmaps.clear()
+        for x in range(self.width):
+            for y in range(self.height):
+                p = self.pixmap.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                self.pixmaps[(x, y)] = p
+
+class LayerGrid():
+    def __init__(self, nid: str, parent):
+        self.nid: str = nid
+        self.parent = parent
+        self.visible: bool = True
+        self.grid = {}
+
+    def set(self, coord, val):
+        self.grid[coord] = val
+
+    def get(self, coord):
+        return self.grid[coord]
 
 class Panorama():
     def __init__(self, nid, full_path=None, pixmaps=None, num_frames=0):

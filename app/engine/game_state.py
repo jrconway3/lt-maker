@@ -4,6 +4,7 @@ from collections import Counter
 from app.data.constants import VERSION
 from app.data.party import Party
 from app.data.items import Item
+from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine import state_machine, input_manager, static_random, a_star, equations
@@ -108,8 +109,7 @@ class GameState():
         
         from app.data.level_object import LevelObject
         level_prefab = DB.levels.get(level_nid)
-        serialized_tilemap = level_prefab.tilemap.serialize()
-        self.tilemap = self.load_map(serialized_tilemap)
+        self.tilemap = self.load_map(RESOURCES.tilemaps.get(level_prefab.tilemap))
         self.current_level = LevelObject.from_prefab(level_prefab, self.tilemap)
 
         for unit in self.current_level.units:
@@ -119,10 +119,10 @@ class GameState():
         for unit in self.current_level.units:
             self.arrive(unit)
 
-    def load_map(self, serialized_tilemap):
+    def load_map(self, tilemap_prefab):
         from app.engine import map_view, ui_view, boundary
-        from app.data.tilemap import TileMap
-        tilemap = TileMap.deserialize(serialized_tilemap)  # To make a copy
+        from app.engine.tilemap_object import TileMapObject
+        tilemap = TileMapObject.from_prefab(tilemap_prefab)
         self.grid = a_star.GridManager(tilemap)
         self.boundary = boundary.BoundaryInterface(tilemap.width, tilemap.height)
         self.map_view = map_view.MapView(tilemap)

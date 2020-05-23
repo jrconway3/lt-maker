@@ -7,11 +7,21 @@ class TileMapPrefab(Prefab):
         self.nid = nid
         self.width, self.height = TILEX, TILEY
         self.layers = Data()
+        self.layers.append(LayerGrid('base'), self)
         self.tilesets = []  # Opened tilesets associated with this tilemap, nothing more
+        self.pixmap = None  # Icon used for drawing in resource editor
 
     def clear(self):
         self.width, self.height = TILEX, TILEY
         self.layers.clear()
+
+    def check_bounds(self, pos):
+        return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
+
+    def get_terrain(self, pos):
+        for layer in reversed(self.layers):
+            if layer.visible and pos in layer.terrain_grid:
+                return layer.terrain_grid[pos]
 
     def serialize(self):
         s_dict = {}
@@ -41,8 +51,7 @@ class TileSet(Prefab):
         self.pixmaps = {}
         self.image = None  # For use with engine
 
-    def set_pixmap(self, pixmap, pixmap_path):
-        self.full_path = pixmap_path
+    def set_pixmap(self, pixmap):
         self.pixmap = pixmap
         self.width = self.pixmap.width() // TILEWIDTH
         self.height = self.pixmap.height() // TILEHEIGHT

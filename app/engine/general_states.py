@@ -516,8 +516,8 @@ class MenuState(MapState):
         if self.cur_unit.traveler and not self.cur_unit.has_attacked:
             for adj_pos in adj_positions:
                 # If at least one adjacent, passable position is free of units
-                tile = game.tilemap.tiles[adj_pos]
-                terrain = DB.terrain.get(tile.terrain_nid)
+                terrain_nid = game.tilemap.get_terrain(adj_pos)
+                terrain = DB.terrain.get(terrain_nid)
                 traveler = game.level.units.get(self.cur_unit.traveler)
                 mgroup = DB.classes.get(traveler.klass).movement_group
                 if not game.grid.get_unit(adj_pos) and DB.mcost.get_mcost(mgroup, terrain.mtype) < game.equations.movement(traveler):

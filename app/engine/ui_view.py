@@ -165,14 +165,15 @@ class UIView():
         return surf
 
     def create_tile_info(self, coord):
-        tile = game.tilemap.tiles[coord]
-        terrain = DB.terrain.get(tile.terrain_nid)
-        if tile.current_hp > 0:
+        terrain_nid = game.tilemap.get_terrain(coord)
+        terrain = DB.terrain.get(terrain_nid)
+        current_hp = 0
+        if current_hp > 0:
             self.expected_coord = None
             bg_surf = SPRITES.get('tile_info_destructible').copy()
             at_icon = SPRITES.get('icon_attackable_terrain')
             bg_surf.blit(at_icon, (7, bg_surf.get_height() - 7 - at_icon.get_height()))
-            cur = str(tile.current_hp)
+            cur = str(current_hp)
             FONT['small_white'].blit_right(cur, bg_surf, bg_surf.get_width() - 9, 24)
         else:
             self.expected_coord = coord

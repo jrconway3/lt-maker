@@ -92,8 +92,8 @@ class GridManager(object):
         cells = []
         for x in range(self.width):
             for y in range(self.height):
-                tile = tilemap.tiles[(x, y)]
-                terrain = DB.terrain.get(tile.terrain_nid)
+                terrain_nid = tilemap.get_terrain((x, y))
+                terrain = DB.terrain.get(terrain_nid)
                 tile_cost = DB.mcost.get_mcost(mode, terrain.mtype)
                 cells.append(Node(x, y, tile_cost != 99, tile_cost))
         return cells

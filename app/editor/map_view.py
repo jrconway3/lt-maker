@@ -132,7 +132,7 @@ class MapView(QGraphicsView):
         # pixmap = self.scene.itemAt(scene_pos, self.transform())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if self.current_map and pos in self.current_map.tiles:
+        if self.current_map and self.current_map.check_bounds(pos):
             # Terrain
             if self.main_editor.dock_visibility['Terrain']:
                 if event.button() == self.settings.value('place_button', Qt.RightButton):
@@ -174,7 +174,7 @@ class MapView(QGraphicsView):
         # pixmap = self.scene.itemAt(scene_pos, self.transform())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if self.current_map and pos in self.current_map.tiles:
+        if self.current_map and self.current_map.check_bounds(pos):
             self.main_editor.set_position_bar(pos)
             if self.main_editor.dock_visibility['Terrain']:
                 if (event.buttons() & self.settings.value('place_button', Qt.RightButton)):

@@ -7,7 +7,7 @@ from app.editor.icon_display import Icon16Display, Icon32Display, Icon80Display
 from app.editor.portrait_display import PortraitDisplay
 from app.editor.map_sprite_display import MapSpriteDisplay
 from app.editor.panorama_display import PanoramaDisplay
-from app.editor.map_display import MapDisplay
+from app.editor.tile_display import TileSetDisplay, TileMapDisplay
 from app.editor.animation_display import AnimationDisplay
 from app.editor.sfx_display import SFXDisplay
 from app.editor.music_display import MusicDisplay
@@ -63,11 +63,12 @@ class ResourceEditor(QDialog):
         # self.tabs['Combat Animations'] = AnimationDisplay.create()
         # self.tabs['Combat Effects'] = CombatEffectDisplay.create()
         self.tabs['Map Animations'] = AnimationDisplay.create()
-        self.tabs['Maps'] = MapDisplay.create(self)
+        self.tabs['Tilesets'] = TileSetDisplay.create(self)
+        self.tabs['Tilemaps'] = TileMapDisplay.create(self)
         self.tabs['SFX'] = SFXDisplay.create(self)
         self.tabs['Music'] = MusicDisplay.create(self)
 
-    def on_tab_changed(self, index):
+    def on_tab_changed(self, idx):
         new_tab = self.tab_bar.currentWidget()
         self.current_tab = new_tab
         self.current_tab.update_list()

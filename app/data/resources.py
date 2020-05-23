@@ -1,9 +1,12 @@
 import os, glob, shutil
 
 import xml.etree.ElementTree as ET
+import json
 
 from app.data import data
 import app.utilities as utilities
+
+from app.data.tilemap_prefab import TileSet, TileMapPrefab
 
 class Resources():
     def __init__(self):
@@ -17,10 +20,6 @@ class Resources():
         self.fonts = {}
         
         self.init_load()
-
-        # Need to load a default map
-        default_map = Tilemap('default', './app/default_data/default_tilemap_image.png')
-        self.maps.append(default_map)
 
     def init_load(self):
         # Grab project resources
@@ -163,6 +162,28 @@ class Resources():
                     s[name[:-4]] = Font(nid, full_name, idx_full_name)
         return s
 
+    def create_tilesets(self, folder, fn):
+        save_loc = os.path.join(folder, fn)
+        tileset_dict = {}
+        if os.path.exists(save_loc):
+            print("Deserializing tilesets from %s" % save_loc)
+            with open(save_loc) as load_file:
+                tileset_dict = json.load(load_file)
+        for s_dict in tileset_dict:
+            new_tileset = TileSet.deserialize(s_dict)
+            self.tilesets.append(new_tileset)
+
+    def create_tilemaps(self, folder, fn):
+        save_loc = os.path.join(folder, fn)
+        tilemap_dict = {}
+        if os.path.exists(save_loc):
+            print("Deserializing tilemaps from %s" % save_loc)
+            with open(save_loc) as load_file:
+                tilemap_dict = json.load(load_file)
+        for s_dict in tilemap_dict:
+            new_tilemap = TileMapPrefab.deserialize(s_dict)
+            self.tilemaps.append(new_tilemap)
+
     def clear(self):
         self.icons16 = data.Data()
         self.icons32 = data.Data()
@@ -174,7 +195,8 @@ class Resources():
         self.combat_effects = data.Data()
         self.animations = data.Data()
 
-        self.maps = data.Data()
+        self.tilesets = data.Data()
+        self.tilemaps = data.Data()
 
         self.music = data.Data()
         self.sfx = data.Data()
@@ -193,7 +215,8 @@ class Resources():
         self.populate_map_sprites('map_sprites')
         self.populate_panoramas('panoramas')
 
-        self.populate_database(self.maps, 'maps', '.png', ImageResource)
+        self.create_tilesets('tilesets', 'tilesets.json')
+        self.create_tilemaps('tilesets', 'tilemaps.json')
 
         self.populate_database_with_tags(self.sfx, 'sfx', '.ogg', SFX)
         self.populate_music(self.music, 'music', 'music/music_manifest.xml')
@@ -348,13 +371,27 @@ class Resources():
         tree.write(os.path.join(animation_dir, 'animation_manifest.xml'))
         delete_unused_images(animation_dir, self.animations)
 
-        # === Save Maps ===
-        map_dir = os.path.join(resource_dir, 'maps')
-        if not os.path.exists(map_dir):
-            os.mkdir(map_dir)
-        for map_image in self.maps:
-            move_image(map_image, map_dir)
-        delete_unused_images(map_dir, self.maps)
+        # === Save TileSets & TileMaps === 
+        tileset_dir = os.path.join(resource_dir, 'tilesets')
+        if not os.path.exists(tileset_dir):
+            os.mkdir(tileset_dir)
+        for tileset in self.tilesets:
+            move_image(tileset, tileset_dir)
+        delete_unused_images(tileset_dir, self.tilesets)
+
+        # Also save terrain information
+        tileset_save = self.tilesets.serialize()
+        save_loc = os.path.join(tileset_dir, 'tilesets.json')
+        print("Serializing tilesets to %s" % save_loc)
+        with open(save_loc, 'w') as serialize_file:
+            json.dump(tileset_save, serialize_file, indent=4)
+
+        # Also save tilemap information
+        tilemap_save = self.tilemaps.serialize()
+        save_loc = os.path.join(tileset_dir, 'tilemaps.json')
+        print("Serializing tilemaps to %s" % save_loc)
+        with open(save_loc, 'w') as serialize_file:
+            json.dump(tilemap_save, serialize_file, indent=4)
 
         # === Save SFX ===
         sfx_dir = os.path.join(resource_dir, 'sfx')
@@ -546,60 +583,6 @@ class MapSprite():
 
     def set_moving_full_path(self, full_path):
         self.moving_full_path = full_path
-
-class Tilemap():
-    def __init__(self, nid):
-        self.nid = nid
-        self.width, self.height = TILEX, TILEY
-        self.layers = data.Data()
-        self.tilesets = data.Data()
-
-    def clear(self):
-        self.width, self.height = TILEX, TILEY
-        self.layers.clear()
-
-    def set_pixmap(self, pixmap):
-        new_tileset = TileSet('base')
-        new_tileset.set_pixmap(pixmap)
-        self.width = new_tileset.width
-        self.height = new_tileset.height
-
-        new_layer = LayerGrid('base', self)
-        for x in range(self.width):
-            for y in range(self.height):
-                new_layer.set((x, y), ('base', (x, y)))
-        self.layers.append(new_layer)
-
-class TileSet():
-    def __init__(self, nid):
-        self.nid = nid
-        self.width, self.height = 0, 0
-        self.pixmap = None
-        self.pixmaps = {}
-
-    def set_pixmap(self, pixmap):
-        self.pixmap = pixmap
-        self.width = self.pixmap.width() // TILEWIDTH
-        self.height = self.pixmap.height() // TILEHEIGHT
-        # Subsurface
-        self.pixmaps.clear()
-        for x in range(self.width):
-            for y in range(self.height):
-                p = self.pixmap.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
-                self.pixmaps[(x, y)] = p
-
-class LayerGrid():
-    def __init__(self, nid: str, parent):
-        self.nid: str = nid
-        self.parent = parent
-        self.visible: bool = True
-        self.grid = {}
-
-    def set(self, coord, val):
-        self.grid[coord] = val
-
-    def get(self, coord):
-        return self.grid[coord]
 
 class Panorama():
     def __init__(self, nid, full_path=None, pixmaps=None, num_frames=0):

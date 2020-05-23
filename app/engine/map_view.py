@@ -9,8 +9,6 @@ from app.engine.game_state import game
 class MapView():
     def __init__(self, tilemap):
         self.tilemap = tilemap
-        map_full_path = RESOURCES.maps.get(self.tilemap.base_image_nid).full_path
-        self.map_image = engine.image_load(map_full_path)
 
         self.passive_sprite_counter = generic3counter(32 * FRAMERATE, 4 * FRAMERATE)
         self.active_sprite_counter = generic3counter(13 * FRAMERATE, 6 * FRAMERATE)
@@ -45,7 +43,7 @@ class MapView():
             surf = unit.sprite.draw_hp(surf)
 
     def draw(self):
-        surf = engine.copy_surface(self.map_image)
+        surf = engine.copy_surface(self.tilemap.get_full_image())
         surf = surf.convert_alpha()
         surf = game.boundary.draw(surf, (surf.get_width(), surf.get_height()))
         surf = game.highlight.draw(surf)

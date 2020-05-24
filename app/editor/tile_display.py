@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, \
-    QMessageBox, QDialog, QPushButton
+    QMessageBox, QPushButton
 from PyQt5.QtCore import QDir, QSettings
 from PyQt5.QtGui import QPixmap, QImage, QPainter
 
@@ -14,7 +14,6 @@ from app.data.database import DB
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, DeletionDialog
 from app.editor.icon_display import IconView
-from app.editor.tilemap_editor import MapEditor
 
 from app import utilities
 
@@ -192,5 +191,6 @@ class TileMapProperties(QWidget):
         self.view.show_image()
 
     def on_edit(self):
+        from app.editor.tilemap_editor import MapEditor
         map_editor = MapEditor(self, self.current)
         map_editor.exec_()

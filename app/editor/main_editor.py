@@ -120,7 +120,8 @@ class MainEditor(QMainWindow):
     def set_current_level(self, level):
         self.current_level = level
         self.test_current_act.setEnabled(True)
-        self.map_view.set_current_map(level.tilemap)
+        tilemap = RESOURCES.tilemaps.get(level.tilemap)
+        self.map_view.set_current_map(tilemap)
         self.unit_painter_menu.set_current_level(level)
         self.update_view()
 

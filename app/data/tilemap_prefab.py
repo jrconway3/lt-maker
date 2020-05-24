@@ -23,6 +23,26 @@ class TileMapPrefab(Prefab):
             if layer.visible and pos in layer.terrain_grid:
                 return layer.terrain_grid[pos]
 
+    def resize(self, width, height, x_offset, y_offset):
+        self.width = width
+        self.height = height
+
+        for layer in self.layers:
+            # Terrain
+            new_terrain_grid = {}
+            for coord, terrain_nid in layer.terrain_grid.items():
+                new_coord = coord[0] + x_offset, coord[1] + y_offset
+                if self.check_bounds(new_coord):
+                    new_terrain_grid[new_coord] = terrain_nid
+            layer.terrain_grid = new_terrain_grid
+            # Tile Sprites
+            new_sprite_grid = {}
+            for coord, tile_sprite in layer.sprite_grid.items():
+                new_coord = coord[0] + x_offset, coord[1] + y_offset
+                if self.check_bounds(new_coord):
+                    new_sprite_grid[new_coord] = tile_sprite
+            layer.sprite_grid = new_sprite_grid
+
     def serialize(self):
         s_dict = {}
         s_dict['nid'] = self.nid

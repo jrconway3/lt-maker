@@ -82,7 +82,7 @@ class LevelModel(CollectionModel):
             return text
         elif role == Qt.DecorationRole:
             level = self._data[index.row()]
-            res = RESOURCES.maps.get(level.tilemap.base_image_nid)
+            res = RESOURCES.tilemaps.get(level.tilemap)
             if res:
                 if not res.pixmap:
                     res.pixmap = QPixmap(res.full_path)

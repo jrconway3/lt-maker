@@ -313,7 +313,7 @@ class Icon80Model(Icon16Model):
                 klass.icon_nid = new_nid
 
 class IconView(QGraphicsView):
-    min_scale = 1
+    min_scale = 0.5
     max_scale = 5
 
     def __init__(self, parent=None):

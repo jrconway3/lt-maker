@@ -62,11 +62,11 @@ class TileMapPrefab(Prefab):
         return self
 
 class TileSet(Prefab):
-    def __init__(self, nid):
+    def __init__(self, nid, full_path=None):
         self.nid = nid
         self.width, self.height = 0, 0
         self.terrain_grid = {}
-        self.full_path = None
+        self.full_path = full_path
         self.pixmap = None
         self.pixmaps = {}
         self.image = None  # For use with engine
@@ -88,16 +88,15 @@ class TileSet(Prefab):
     def serialize(self):
         s_dict = {}
         s_dict['nid'] = self.nid
-        s_dict['full_path'] = self.full_path
         s_dict['terrain_grid'] = {}
         for coord, terrain_nid in self.terrain_grid.items():
             s_dict['terrain_grid'][coord] = terrain_nid
         return s_dict
 
     @classmethod
-    def deserialize(cls, s_dict):
+    def deserialize(cls, s_dict, full_path):
         self = cls(s_dict['nid'])
-        self.full_path = s_dict['full_path']
+        self.full_path = full_path
         for coord, terrain_nid in s_dict['terrain_grid'].items():
             self.terrain_grid[coord] = terrain_nid
         return self

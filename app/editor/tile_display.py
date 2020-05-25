@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, \
-    QMessageBox, QPushButton
-from PyQt5.QtCore import QDir, QSettings
-from PyQt5.QtGui import QPixmap, QImage, QPainter
+    QMessageBox, QPushButton, QVBoxLayout
+from PyQt5.QtCore import QDir, QSettings, Qt
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
 
 import os
 
@@ -14,6 +14,7 @@ from app.data.database import DB
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, DeletionDialog
 from app.editor.icon_display import IconView
+from app.editor.tilemap_editor import MapEditor
 
 from app import utilities
 
@@ -43,39 +44,20 @@ class TileMapDisplay(DatabaseTab):
                      view_type=ResourceListView)
         return dialog
 
-class TileMapModel(ResourceCollectionModel):
-    def create_new(self):
-        new_nid = utilities.next_name('New Tilemap', self._data.keys())
-        new_tilemap = TileMapPrefab(new_nid)
-        map_editor = MapEditor(self, new_tilemap)
-        map_editor.exec_()
-        RESOURCES.tilemaps.append(new_tilemap)
-        
-    def delete(self, idx):
-        # Check to see what is using me?
-        res = self._data[idx]
-        nid = res.nid
-        affected_levels = [level for level in DB.levels if level.tilemap == nid]
-        if affected_levels:
-            affected = Data(affected_levels)
-            from app.editor.level_menu import LevelModel
-            model = LevelModel
-            msg = "Deleting Tilemap <b>%s</b> would affect these levels."
-            ok = DeletionDialog.inform(affected, model, msg, self.window)
-            if ok:
-                pass
-            else:
-                return
-        super().delete(idx)
-
-    def nid_change_watchers(self, icon, old_nid, new_nid):
-        # What uses tilemaps
-        # Levels use tilemaps
-        for level in DB.levels:
-            if level.tilemap == old_nid:
-                level.tilemap = new_nid
-
 class TileSetModel(ResourceCollectionModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            tileset = self._data[index.row()]
+            text = tileset.nid
+            return text
+        elif role == Qt.DecorationRole:
+            tileset = self._data[index.row()]
+            pixmap = tileset.pixmap
+            return QIcon(pixmap)
+        return None
+        
     def create_new(self):
         settings = QSettings("rainlash", "Lex Talionis")
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
@@ -85,7 +67,7 @@ class TileSetModel(ResourceCollectionModel):
                 if fn.endswith('.png'):
                     nid = os.path.split(fn)[-1][:-4]
                     pix = QPixmap(fn)
-                    nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.maps])
+                    nid = utilities.get_next_name(nid, RESOURCES.tilesets.keys())
                     if pix.width() % TILEWIDTH != 0:
                         QMessageBox.critical(self, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
                         continue
@@ -125,6 +107,52 @@ class TileSetModel(ResourceCollectionModel):
                 for coord, tile_sprite in layer.sprite_grid.items():
                     if tile_sprite.tileset_nid == old_nid:
                         tile_sprite.tileset_nid = new_nid
+
+class TileMapModel(ResourceCollectionModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            tilemap = self._data[index.row()]
+            text = tilemap.nid
+            return text
+        elif role == Qt.DecorationRole:
+            tilemap = self._data[index.row()]
+            pixmap = tilemap.pixmap
+            if pixmap:
+                return QIcon(pixmap)
+        return None
+
+    def create_new(self):
+        new_nid = utilities.next_name('New Tilemap', self._data.keys())
+        new_tilemap = TileMapPrefab(new_nid)
+        map_editor = MapEditor(self, new_tilemap)
+        map_editor.exec_()
+        RESOURCES.tilemaps.append(new_tilemap)
+        
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_levels = [level for level in DB.levels if level.tilemap == nid]
+        if affected_levels:
+            affected = Data(affected_levels)
+            from app.editor.level_menu import LevelModel
+            model = LevelModel
+            msg = "Deleting Tilemap <b>%s</b> would affect these levels."
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        super().delete(idx)
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        # What uses tilemaps
+        # Levels use tilemaps
+        for level in DB.levels:
+            if level.tilemap == old_nid:
+                level.tilemap = new_nid
 
 class TileSetProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -179,14 +207,18 @@ class TileMapProperties(QWidget):
 
         self.edit_button = QPushButton("Edit Tilemap...")
         self.edit_button.clicked.connect(self.on_edit)
+        if not self.current:
+            self.edit_button.setEnabled(False)
 
-        layout = QHBoxLayout()
+        layout = QVBoxLayout()
         self.setLayout(layout)
         layout.addWidget(self.view)
         layout.addWidget(self.edit_button)
 
     def set_current(self, current):
         self.current = current
+        if self.current:
+            self.edit_button.setEnabled(True)
         self.view.set_image(self.current.pixmap)
         self.view.show_image()
 

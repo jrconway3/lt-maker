@@ -163,18 +163,20 @@ class Resources():
         return s
 
     def create_tilesets(self, folder, fn):
-        save_loc = os.path.join(folder, fn)
+        save_loc = os.path.join(self.main_folder, folder, fn)
+        print("Save Loc %s" % save_loc)
         tileset_dict = {}
         if os.path.exists(save_loc):
             print("Deserializing tilesets from %s" % save_loc)
             with open(save_loc) as load_file:
                 tileset_dict = json.load(load_file)
         for s_dict in tileset_dict:
-            new_tileset = TileSet.deserialize(s_dict)
+            full_path = os.path.join(self.main_folder, folder, s_dict['nid'] + '.png')
+            new_tileset = TileSet.deserialize(s_dict, full_path)
             self.tilesets.append(new_tileset)
 
     def create_tilemaps(self, folder, fn):
-        save_loc = os.path.join(folder, fn)
+        save_loc = os.path.join(self.main_folder, folder, fn)
         tilemap_dict = {}
         if os.path.exists(save_loc):
             print("Deserializing tilemaps from %s" % save_loc)
@@ -380,14 +382,14 @@ class Resources():
         delete_unused_images(tileset_dir, self.tilesets)
 
         # Also save terrain information
-        tileset_save = self.tilesets.serialize()
+        tileset_save = [t.serialize() for t in self.tilesets]
         save_loc = os.path.join(tileset_dir, 'tilesets.json')
         print("Serializing tilesets to %s" % save_loc)
         with open(save_loc, 'w') as serialize_file:
             json.dump(tileset_save, serialize_file, indent=4)
 
         # Also save tilemap information
-        tilemap_save = self.tilemaps.serialize()
+        tilemap_save = [t.serialize() for t in self.tilemaps]
         save_loc = os.path.join(tileset_dir, 'tilemaps.json')
         print("Serializing tilemaps to %s" % save_loc)
         with open(save_loc, 'w') as serialize_file:
@@ -520,6 +522,12 @@ class Resources():
         new_animation = Animation(nid, full_path, pixmap)
         self.animations.append(new_animation)
         return new_animation
+
+    def create_new_tileset(self, nid, full_path, pixmap):
+        new_tileset = TileSet(nid, full_path)
+        new_tileset.set_pixmap(pixmap)
+        self.tilesets.append(new_tileset)
+        return new_tileset
 
 class ImageResource():
     def __init__(self, nid, full_path=None, pixmap=None):

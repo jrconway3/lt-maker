@@ -10,7 +10,6 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.resources import RESOURCES
 
 from app.editor.icon_display import IconView
-from app.editor.resource_editor import ResourceEditor
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, Dialog
 
@@ -471,7 +470,7 @@ class TileSetMenu(QWidget):
         self.view.set_image(tileset.pixmap)
         self.view.show_image()
 
-    def create_action(self):
+    def create_actions(self):
         self.new_action = QAction(QIcon("icons/file-plus.png"), "New", triggered=self.new)
         self.delete_action = QAction(QIcon("icons/x-circle.png"), "Delete", triggered=self.delete)
 
@@ -481,6 +480,7 @@ class TileSetMenu(QWidget):
         self.toolbar.addAction(self.delete_action)
 
     def new(self):
+        from app.editor.resource_editor import ResourceEditor
         res, ok = ResourceEditor.get(self, "Tilesets")
         if ok:
             nid = res.nid

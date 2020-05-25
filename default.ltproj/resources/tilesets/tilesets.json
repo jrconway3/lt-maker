@@ -1,0 +1,10 @@
+[
+    {
+        "nid": "Chpt1",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "MapSprite",
+        "terrain_grid": {}
+    }
+]

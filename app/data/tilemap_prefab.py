@@ -7,7 +7,7 @@ class TileMapPrefab(Prefab):
         self.nid = nid
         self.width, self.height = TILEX, TILEY
         self.layers = Data()
-        self.layers.append(LayerGrid('base'), self)
+        self.layers.append(LayerGrid('base', self))
         self.tilesets = []  # Opened tilesets associated with this tilemap, nothing more
         self.pixmap = None  # Icon used for drawing in resource editor
 
@@ -70,6 +70,9 @@ class TileSet(Prefab):
         self.pixmap = None
         self.pixmaps = {}
         self.image = None  # For use with engine
+
+    def check_bounds(self, pos):
+        return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
     def set_pixmap(self, pixmap):
         self.pixmap = pixmap

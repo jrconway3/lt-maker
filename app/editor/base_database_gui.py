@@ -118,9 +118,10 @@ class CollectionModel(QAbstractListModel):
     def delete(self, idx):
         print("delete", flush=True)
         self._data.pop(idx)
-        new_item = self._data[min(idx, len(self._data) - 1)]
-        if self.window.display:
-            self.window.display.set_current(new_item)
+        if len(self._data) > 0:
+            new_item = self._data[min(idx, len(self._data) - 1)]
+            if self.window.display:
+                self.window.display.set_current(new_item)
         self.layoutChanged.emit()
         print("done delete", flush=True)
 

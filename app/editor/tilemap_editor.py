@@ -2,8 +2,8 @@ from enum import IntEnum
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
-    QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt
+    QGraphicsView, QGraphicsScene, QAbstractItemView
+from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
@@ -38,7 +38,8 @@ class MapEditorView(QGraphicsView):
         self.screen_scale = 1
 
         self.tilemap = None
-        self.tile_pixmap = None
+
+        self.current_mouse_position = (0, 0)
 
         self.left_selecting = False
         self.right_selecting = False
@@ -46,9 +47,6 @@ class MapEditorView(QGraphicsView):
     def set_current(self, current):
         self.tilemap = current
         self.update_view()
-
-    def set_current_tile_pixmap(self, tile_pixmap):
-        self.tile_pixmap = tile_pixmap
 
     def clear_scene(self):
         self.scene.clear()
@@ -59,7 +57,8 @@ class MapEditorView(QGraphicsView):
     def show_map(self):
         image = QImage(self.tilemap.width * TILEWIDTH,
                        self.tilemap.height * TILEHEIGHT,
-                       QImage.Format_RGB32)
+                       QImage.Format_ARGB32)
+        image.fill(QColor(0, 0, 0, 0))
 
         painter = QPainter()
         painter.begin(image)
@@ -69,6 +68,33 @@ class MapEditorView(QGraphicsView):
                     painter.drawImage(coord[0] * TILEWIDTH,
                                       coord[1] * TILEHEIGHT,
                                       tile_image)
+        # Draw grid lines
+        painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
+        for x in range(self.tilemap.width):
+            painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tilemap.height * TILEHEIGHT)
+        for y in range(self.tilemap.height):
+            painter.drawLine(0, y * TILEHEIGHT, self.tilemap.width * TILEWIDTH, y * TILEHEIGHT)
+
+        # Draw cursor...
+        tileset, coords = self.window.get_tileset_coords()
+        if tileset:
+            mouse_pos = self.current_mouse_position
+            topleft = min(coords)
+            for coord in coords:
+                im = tileset.pixmaps[coord].toImage()
+                rel_coord = coord[0] - topleft[0], coord[1] - topleft[1]
+                true_pos = mouse_pos[0] + rel_coord[0], mouse_pos[1] + rel_coord[1]                
+                painter.drawImage(true_pos[0] * TILEWIDTH, 
+                                  true_pos[1] * TILEHEIGHT,
+                                  im)
+                rect = QRect(true_pos[0] * TILEWIDTH, true_pos[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                if self.tilemap.check_bounds(true_pos):
+                    # Fill with blue    
+                    painter.fillRect(rect, QColor(0, 255, 255, 128))
+                else:
+                    # Fill with red
+                    painter.fillRect(rect, QColor(255, 0, 0, 128))
+
         painter.end()
         self.clear_scene()
         self.pixmap = QPixmap.fromImage(image)
@@ -82,8 +108,8 @@ class MapEditorView(QGraphicsView):
         if self.tilemap.check_bounds(tile_pos):
             if event.button() == Qt.LeftButton:
                 if self.window.current_tool == PaintTool.Brush:
-                    tile = self.window.current_tile
-                    self.paint_tile(tile, tile_pos)
+                    im = self.window.get_current_tileset_image()
+                    self.paint_tile(im, tile_pos)
                     self.left_selecting = True
                 elif self.window.current_tool == PaintTool.Eraser:
                     self.erase_tile(tile_pos)
@@ -100,6 +126,8 @@ class MapEditorView(QGraphicsView):
         scene_pos = self.mapToScene(event.pos())
         tile_pos = int(scene_pos.x() // TILEWIDTH), \
             int(scene_pos.y() // TILEHEIGHT)
+
+        self.current_mouse_position = tile_pos
 
         if self.left_selecting and self.tilemap.check_bounds(tile_pos):
             tile = self.window.current_tile
@@ -138,17 +166,19 @@ class MapEditor(QDialog):
     def __init__(self, parent=None, current=None):
         super().__init__(parent)
         self.window = parent
-
-        self.view = MapEditorView(self)
+        self.setWindowTitle("Tilemap Editor")
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.current = current
         self.current_tool = PaintTool.NoTool
 
+        self.tileset_menu = TileSetMenu(self, self.current)
+        self.layer_menu = LayerMenu(self, self.current)
+        self.view = MapEditorView(self)
+        self.view.set_current(current)
+
         self.create_actions()
         self.create_toolbar()
-
-        self.tileset_menu = TileSetMenu(self)
-        self.layer_menu = LayerMenu(self)
 
         right_splitter = QSplitter(self)
         right_splitter.setOrientation(Qt.Vertical)
@@ -181,7 +211,7 @@ class MapEditor(QDialog):
     def create_actions(self):
         self.brush_action = QAction(QIcon("icons/brush.png"), "&Brush", self, shortcut="B", triggered=self.set_brush)
         self.brush_action.setCheckable(True)
-        self.paint_action = QAction(QIcon("icons/paint.png"), "&Fill", self, shortcut="F", triggered=self.set_fill)
+        self.paint_action = QAction(QIcon("icons/fill.png"), "&Fill", self, shortcut="F", triggered=self.set_fill)
         self.paint_action.setCheckable(True)
         self.eraser_action = QAction(QIcon("icons/eraser.png"), "&Eraser", self, shortcut="E", triggered=self.set_eraser)
         self.eraser_action.setCheckable(True)
@@ -221,6 +251,12 @@ class MapEditor(QDialog):
 
     def resize(self):
         ResizeDialog.get_new_size(self.current, self)
+
+    def update_view(self):
+        self.view.update_view()
+
+    def get_tileset_coords(self):
+        return self.tileset_menu.current_tileset, self.tileset_menu.get_selection_coords()
 
 class ResizeDialog(Dialog):
     def __init__(self, current, parent=None):
@@ -294,7 +330,7 @@ class ResizeDialog(Dialog):
         base_image.fill(QColor(200, 200, 200, 255))
         painter = QPainter()
         painter.begin(base_image)
-        painter.setPen(QPen(Qt.black, 1, Qt.Line))
+        painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))
         # Draw regular square around
         highest_dim = max([self.width_box.value(), self.height_box.value(), 
                            self.current.width, self.current.height])
@@ -343,31 +379,36 @@ class LayerModel(ResourceCollectionModel):
     # def setData(self, index, value, role):
     #     if not index.isValid():
     #         return False
+    #     print(index, value, role)
     #     if role == Qt.CheckStateRole:
     #         layer = self._data[index.row()]
+    #         print(layer.nid)
     #         if value == Qt.Checked:
     #             layer.visible = True
     #         else:
     #             layer.visible = False
+    #         print(layer.visible)
     #         self.dataChanged.emit(index, index)
-    #         # self.window.update_view()
+    #         self.window.update_view()
     #     return super().setData(index, value, role)
 
 class LayerMenu(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, current=None):
         super().__init__(parent)
         self.window = parent
         self.title = "Layers"
-        self._data = None
-        self.current = None
+        self.current = current
+        self._data = current.layers
 
-        deletion_criteria = (self.deletion_func, self.deletion_func, None)
+        deletion_criteria = (self.deletion_func, None, self.deletion_func)
 
         self.model = LayerModel(self._data, self)
 
         self.view = ResourceListView(deletion_criteria, self)
         self.view.setModel(self.model)
+        self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)  # Remove edit on double click
         self.view.clicked.connect(self.on_click)
+        self.view.currentChanged = self.on_item_changed
 
         self.create_actions()
         self.create_toolbar()
@@ -378,6 +419,7 @@ class LayerMenu(QWidget):
         self.setLayout(layout)
 
     def deletion_func(self, model, index):
+        print(model._data[index.row()].nid)
         return model._data[index.row()].nid != "base"
 
     def update_view(self):
@@ -390,6 +432,7 @@ class LayerMenu(QWidget):
 
     def on_item_changed(self, curr, prev):
         # Turn off delete action if layer should not be deletable
+        print("On item changed!")
         if self.deletion_func(self.model, curr):
             self.delete_action.setEnabled(True)
         else:
@@ -403,16 +446,19 @@ class LayerMenu(QWidget):
             self.window.update_view()
 
     def create_actions(self):
-        last_index = self.model.index(len(self._data) - 1)
-        self.new_action = QAction(QIcon("icons/file-plus.png"), "New", triggered=lambda: self.view.new(last_index))
-        self.duplicate_action = QAction(QIcon("icons/duplicate.png", "Duplicate", triggered=self.duplicate))
-        self.delete_action = QAction(QIcon("icons/x-circle.png", "Delete", triggered=self.delete))
+        self.new_action = QAction(QIcon("icons/file-plus.png"), "New Layer", triggered=self.new)
+        self.duplicate_action = QAction(QIcon("icons/duplicate.png"), "Duplicate Layer", triggered=self.duplicate)
+        self.delete_action = QAction(QIcon("icons/x-circle.png"), "Delete Layer", triggered=self.delete)
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
         self.toolbar.addAction(self.new_action)
         self.toolbar.addAction(self.duplicate_action)
-        self.toolbar.addAction(self.eraser_action)
+        self.toolbar.addAction(self.delete_action)
+
+    def new(self):
+        last_index = self.model.index(len(self._data) - 1)
+        self.view.new(last_index)
 
     def duplicate(self):
         current_index = self.view.currentIndex()
@@ -424,16 +470,16 @@ class LayerMenu(QWidget):
             self.view.delete(current_index)
 
 class TileSetMenu(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, current=None):
         super().__init__(parent)
         self.window = parent
 
-        self.current = None
+        self.current = current
 
         self.tab_bar = QTabBar(self)
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
-        self.view = IconView(self)
+        self.view = TileSetView(self)
 
         self.create_actions()
         self.create_toolbar()
@@ -444,6 +490,8 @@ class TileSetMenu(QWidget):
         layout.addWidget(self.toolbar)
         self.setLayout(layout)
 
+        self.current_tileset = None
+
     def on_tab_changed(self, idx):
         tileset_nid = self.current.tilesets[idx]
         self.load_tileset(tileset_nid)
@@ -452,6 +500,9 @@ class TileSetMenu(QWidget):
         for idx in range(self.tab_bar.count()):
             i = self.tab_bar.count() - idx - 1
             self.tab_bar.removeTab(i)
+
+    def get_selection_coords(self):
+        return self.view.get_selection_coords()
 
     def set_current(self, current):
         self.current = current
@@ -467,12 +518,15 @@ class TileSetMenu(QWidget):
         tileset = RESOURCES.tilesets.get(tileset_nid)
         if not tileset.pixmap:
             tileset.set_pixmap(QPixmap(tileset.full_path))
-        self.view.set_image(tileset.pixmap)
-        self.view.show_image()
+        self.current_tileset = tileset
+        self.delete_action.setEnabled(True)
+        self.view.set_current(tileset)
+        self.view.update_view()
 
     def create_actions(self):
-        self.new_action = QAction(QIcon("icons/file-plus.png"), "New", triggered=self.new)
-        self.delete_action = QAction(QIcon("icons/x-circle.png"), "Delete", triggered=self.delete)
+        self.new_action = QAction(QIcon("icons/file-plus.png"), "Load Tileset", triggered=self.new)
+        self.delete_action = QAction(QIcon("icons/x-circle.png"), "Unload Tileset", triggered=self.delete)
+        self.delete_action.setEnabled(False)
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
@@ -481,18 +535,123 @@ class TileSetMenu(QWidget):
 
     def new(self):
         from app.editor.resource_editor import ResourceEditor
-        res, ok = ResourceEditor.get(self, "Tilesets")
+        resource_editor = self.window.window.window.window
+        res, ok = ResourceEditor.get(resource_editor.window, "Tilesets")
         if ok:
             nid = res.nid
             self.current.tilesets.append(nid)
             self.tab_bar.addTab(nid)
-            self.load_tileset(nid)
+            self.tab_bar.setCurrentIndex(len(self.current.tilesets) - 1)
+            # self.load_tileset(nid)
 
     def delete(self):
         idx = self.tab_bar.currentIndex()
-        if idx < len(self.current.tilesets):
+        if 0 <= idx < len(self.current.tilesets):
             self.current.tilesets.pop(idx)
             self.tab_bar.removeTab(idx)
 
         new_idx = self.tab_bar.currentIndex()
         self.load_tileset(self.current.tilesets[new_idx])
+
+class TileSetView(MapEditorView):
+    tilewidth = TILEWIDTH + 1
+    tileheight = TILEHEIGHT + 1
+
+    def __init__(self, parent=None):
+        QGraphicsView.__init__(self, parent)
+        self.window = parent
+
+        self.scene = QGraphicsScene(self)
+        self.setScene(self.scene)
+        self.setMouseTracking(True)
+
+        self.setStyleSheet("background-color:rgb(248, 248, 248);")
+
+        self.screen_scale = 1
+
+        self.tileset = None
+        self.current_mouse_position = (0, 0)
+        self.left_selecting = None
+        self.current_coords = set()
+
+    def get_selection_coords(self):
+        return self.current_coords
+
+    def set_current(self, current):
+        self.tileset = current
+        self.left_selecting = None
+        self.current_coords.clear()
+        self.update_view()
+
+    def show_map(self):
+        image = QImage(self.tileset.width * self.tilewidth,
+                       self.tileset.height * self.tileheight,
+                       QImage.Format_ARGB32)
+        image.fill(QColor(255, 255, 255, 0))
+
+        painter = QPainter()
+        painter.begin(image)
+        for coord, pixmap in self.tileset.pixmaps.items():
+            im = pixmap.toImage()
+            painter.drawImage(coord[0] * self.tilewidth, coord[1] * self.tileheight, im)
+            if coord in self.current_coords:
+                print("Current Coord: ", coord)
+                # painter.setCompositionMode(mode)
+                color = QColor(0, 255, 255, 128)
+                rect = QRect(coord[0] * self.tilewidth, coord[1] * self.tileheight, TILEWIDTH, TILEHEIGHT)
+                painter.fillRect(rect, color)
+                # painter.setCompositionMode()
+            
+        # Draw grid lines
+        painter.setPen(QPen(Qt.white, 1, Qt.SolidLine))
+        for x in range(self.tileset.width):
+            painter.drawLine(x * self.tilewidth, 0, x * self.tilewidth, self.tileset.height * self.tileheight)
+        for y in range(self.tileset.height):
+            painter.drawLine(0, y * self.tileheight, self.tileset.width * self.tilewidth, y * self.tileheight)
+
+        painter.end()
+        self.clear_scene()
+        self.pixmap = QPixmap.fromImage(image)
+        self.scene.addPixmap(self.pixmap)
+
+    def mousePressEvent(self, event):
+        scene_pos = self.mapToScene(event.pos())
+        tile_pos = int(scene_pos.x() // self.tilewidth), \
+            int(scene_pos.y() // self.tileheight)
+
+        print("Tileset View Mouse Press")
+        print(self.tileset, self.tileset.check_bounds(tile_pos))
+        if self.tileset and self.tileset.check_bounds(tile_pos):
+            if event.button() == Qt.LeftButton:
+                self.left_selecting = tile_pos
+                self.current_coords.clear()
+            
+    def mouseMoveEvent(self, event):
+        scene_pos = self.mapToScene(event.pos())
+        tile_pos = int(scene_pos.x() // self.tilewidth), \
+            int(scene_pos.y() // self.tileheight)
+
+        if self.left_selecting and self.tileset and self.tileset.check_bounds(tile_pos):
+            self.current_mouse_position = tile_pos
+            self.update_view()
+            
+    def mouseReleaseEvent(self, event):
+        scene_pos = self.mapToScene(event.pos())
+        tile_pos = int(scene_pos.x() // self.tilewidth), \
+            int(scene_pos.y() // self.tileheight)
+        self.current_mouse_position = tile_pos
+
+        print("Tileset View Release")
+        print(self.left_selecting)
+        print(self.current_mouse_position)
+        if self.left_selecting:
+            if event.button() == Qt.LeftButton:
+                left = min(self.left_selecting[0], self.current_mouse_position[0])
+                width = max(self.left_selecting[0], self.current_mouse_position[0]) - left
+                top = min(self.left_selecting[1], self.current_mouse_position[1])
+                height = max(self.left_selecting[1], self.current_mouse_position[1]) - top
+                for x in range(width + 1):
+                    for y in range(height + 1):
+                        self.current_coords.add((x + left, y + top))
+                self.left_selecting = False
+                self.update_view()

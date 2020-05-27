@@ -35,7 +35,7 @@ class TileMapDisplay(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
         data = RESOURCES.tilemaps
-        title = "Tilemaps"
+        title = "Tilemap"
         right_frame = TileMapProperties
         collection_model = TileMapModel
         
@@ -124,10 +124,11 @@ class TileMapModel(ResourceCollectionModel):
         return None
 
     def create_new(self):
-        new_nid = utilities.next_name('New Tilemap', self._data.keys())
+        new_nid = utilities.get_next_name('New Tilemap', self._data.keys())
         new_tilemap = TileMapPrefab(new_nid)
-        map_editor = MapEditor(self, new_tilemap)
+        map_editor = MapEditor(self.window, new_tilemap)
         map_editor.exec_()
+        create_tilemap_pixmap(new_tilemap)
         RESOURCES.tilemaps.append(new_tilemap)
         
     def delete(self, idx):
@@ -178,6 +179,21 @@ class TileSetProperties(QWidget):
         self.view.set_image(self.current.pixmap)
         self.view.show_image()
 
+def create_tilemap_pixmap(tilemap):
+    base_layer = tilemap.layers.get('base')
+    image = QImage(tilemap.width * TILEWIDTH,
+                   tilemap.height * TILEHEIGHT,
+                   QImage.Format_ARGB32)
+
+    painter = QPainter()
+    painter.begin(image)
+    for coord, tile_image in base_layer.sprite_grid.items():
+        painter.drawImage(coord[0] * TILEWIDTH,
+                          coord[1] * TILEHEIGHT,
+                          tile_image)
+    painter.end()
+    tilemap.pixmap = QPixmap.fromImage(image)
+
 class TileMapProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
@@ -187,19 +203,7 @@ class TileMapProperties(QWidget):
 
         # Populate resources
         for resource in self._data:
-            base_layer = resource.layers.get('base')
-            image = QImage(resource.width * TILEWIDTH,
-                           resource.height * TILEHEIGHT,
-                           QImage.Format_RGB32)
-
-            painter = QPainter()
-            painter.begin(image)
-            for coord, tile_image in base_layer.sprite_grid.items():
-                painter.drawImage(coord[0] * TILEWIDTH,
-                                  coord[1] * TILEHEIGHT,
-                                  tile_image)
-            painter.end()
-            resource.pixmap = QPixmap.fromImage(image)
+            create_tilemap_pixmap(resource)
 
         self.current = current
 
@@ -226,3 +230,4 @@ class TileMapProperties(QWidget):
         from app.editor.tilemap_editor import MapEditor
         map_editor = MapEditor(self, self.current)
         map_editor.exec_()
+        create_tilemap_pixmap(self.current)

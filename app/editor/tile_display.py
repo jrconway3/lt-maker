@@ -187,10 +187,13 @@ def create_tilemap_pixmap(tilemap):
 
     painter = QPainter()
     painter.begin(image)
-    for coord, tile_image in base_layer.sprite_grid.items():
-        painter.drawImage(coord[0] * TILEWIDTH,
-                          coord[1] * TILEHEIGHT,
-                          tile_image)
+    for coord, tile_sprite in base_layer.sprite_grid.items():
+        tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+        pix = tileset.get_pixmap(tile_sprite.tileset_position)
+        if pix:
+            painter.drawImage(coord[0] * TILEWIDTH,
+                              coord[1] * TILEHEIGHT,
+                              pix.toImage())
     painter.end()
     tilemap.pixmap = QPixmap.fromImage(image)
 
@@ -223,8 +226,10 @@ class TileMapProperties(QWidget):
         self.current = current
         if self.current:
             self.edit_button.setEnabled(True)
-        self.view.set_image(self.current.pixmap)
-        self.view.show_image()
+            if not self.current.pixmap:
+                create_tilemap_pixmap(self.current)
+                self.view.set_image(self.current.pixmap)
+                self.view.show_image()
 
     def on_edit(self):
         from app.editor.tilemap_editor import MapEditor

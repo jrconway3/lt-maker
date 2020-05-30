@@ -2,13 +2,14 @@ from enum import IntEnum
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
-    QGraphicsView, QGraphicsScene, QAbstractItemView
+    QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.resources import RESOURCES
 
+from app.editor.timer import TIMER
 from app.editor.icon_display import IconView
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, Dialog
@@ -17,7 +18,7 @@ class PaintTool(IntEnum):
     NoTool = 0
     Brush = 1
     Fill = 2
-    Eraser = 3
+    Erase = 3
 
 class MapEditorView(QGraphicsView):
     min_scale = 0.5
@@ -44,6 +45,12 @@ class MapEditorView(QGraphicsView):
         self.left_selecting = False
         self.right_selecting = False
 
+        TIMER.tick_elapsed.connect(self.tick)
+
+    def tick(self):
+        if self.tilemap:
+            self.update_view()
+
     def set_current(self, current):
         self.tilemap = current
         self.update_view()
@@ -64,10 +71,13 @@ class MapEditorView(QGraphicsView):
         painter.begin(image)
         for layer in self.tilemap.layers:
             if layer.visible:
-                for coord, tile_image in layer.sprite_grid.items():
-                    painter.drawImage(coord[0] * TILEWIDTH,
-                                      coord[1] * TILEHEIGHT,
-                                      tile_image)
+                for coord, tile_sprite in layer.sprite_grid.items():
+                    tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+                    pix = tileset.get_pixmap(tile_sprite.tileset_position)
+                    if pix:
+                        painter.drawImage(coord[0] * TILEWIDTH,
+                                          coord[1] * TILEHEIGHT,
+                                          pix.toImage())
         # Draw grid lines
         painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
         for x in range(self.tilemap.width):
@@ -77,50 +87,124 @@ class MapEditorView(QGraphicsView):
 
         # Draw cursor...
         tileset, coords = self.window.get_tileset_coords()
-        if tileset:
+        print("Tileset!!!! COOORDS!!!!")
+        print(tileset, coords)
+        if tileset and coords:
             mouse_pos = self.current_mouse_position
             topleft = min(coords)
             for coord in coords:
                 im = tileset.pixmaps[coord].toImage()
                 rel_coord = coord[0] - topleft[0], coord[1] - topleft[1]
                 true_pos = mouse_pos[0] + rel_coord[0], mouse_pos[1] + rel_coord[1]                
-                painter.drawImage(true_pos[0] * TILEWIDTH, 
+                painter.drawImage(true_pos[0] * TILEWIDTH,
                                   true_pos[1] * TILEHEIGHT,
                                   im)
                 rect = QRect(true_pos[0] * TILEWIDTH, true_pos[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
                 if self.tilemap.check_bounds(true_pos):
                     # Fill with blue    
-                    painter.fillRect(rect, QColor(0, 255, 255, 128))
+                    painter.fillRect(rect, QColor(0, 255, 255, 96))
                 else:
                     # Fill with red
-                    painter.fillRect(rect, QColor(255, 0, 0, 128))
+                    painter.fillRect(rect, QColor(255, 0, 0, 96))
 
         painter.end()
         self.clear_scene()
         self.pixmap = QPixmap.fromImage(image)
         self.scene.addPixmap(self.pixmap)
 
+    def get_current_layer(self):
+        current_layer_index = self.window.layer_menu.view.currentIndex()
+        idx = current_layer_index.row()
+        return self.tilemap.layers[idx]
+
+    def paint_tile(self, tile_pos):
+        current_layer = self.get_current_layer()
+
+        tileset, coords = self.window.get_tileset_coords()
+        if tileset and coords:
+            topleft = min(coords)
+            for coord in coords:
+                rel_coord = coord[0] - topleft[0], coord[1] - topleft[1]
+                true_pos = tile_pos[0] + rel_coord[0], tile_pos[1] + rel_coord[1]
+                if self.tilemap.check_bounds(true_pos):
+                    current_layer.set_sprite(true_pos, tileset, coord)
+
+    def erase_tile(self, tile_pos):
+        current_layer = self.get_current_layer()
+
+        if self.tilemap.check_bounds(tile_pos):
+            current_layer.erase_sprite(tile_pos)
+
+    def flood_fill(self, tile_pos):
+        if not self.tilemap.check_bounds(tile_pos):
+            return 
+
+        coords_to_replace = set()
+
+        def find_similar(x, y, sprite):
+            if not self.tilemap.check_bounds((x, y)):
+                return
+            if (x, y) in coords_to_replace:
+                return
+            tile = current_layer.get_sprite((x, y))
+            if tile:
+                nid = tile.tileset_nid
+                coord = tile.tileset_position
+            else:
+                nid, coord = None, None
+            if sprite:
+                if nid != sprite.tileset_nid or coord != sprite.tileset_position:
+                    return
+            elif tile:
+                return
+
+            coords_to_replace.add((x, y))
+
+            # Now recur for all directions
+            find_similar(x + 1, y, sprite)
+            find_similar(x - 1, y, sprite)
+            find_similar(x, y + 1, sprite)
+            find_similar(x, y - 1, sprite)
+
+        current_layer = self.get_current_layer()
+        tileset, coords = self.window.get_tileset_coords()
+
+        # Get coords like current coord in current_layer
+        current_tile = current_layer.get_sprite(tile_pos)
+        # Determine which coords should be flood-filled
+        find_similar(tile_pos[0], tile_pos[1], current_tile)
+
+        topleft = min(coords)
+        w = max(coord[0] for coord in coords) - topleft[0]
+        h = max(coord[1] for coord in coords) - topleft[1]
+
+        # Do the deed
+        for x in range(self.tilemap.width):
+            for y in range(self.tilemap.height):
+                if (x, y) in coords_to_replace:
+                    new_coord_x = x%w + topleft[0]
+                    new_coord_y = y%h + topleft[1]
+                    if (new_coord_x, new_coord_y) in coords:
+                        current_layer.set_sprite(
+                            (x, y), tileset, (new_coord_x, new_coord_y))
+
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         tile_pos = int(scene_pos.x() // TILEWIDTH), \
             int(scene_pos.y() // TILEHEIGHT)
 
-        if self.tilemap.check_bounds(tile_pos):
-            if event.button() == Qt.LeftButton:
-                if self.window.current_tool == PaintTool.Brush:
-                    im = self.window.get_current_tileset_image()
-                    self.paint_tile(im, tile_pos)
-                    self.left_selecting = True
-                elif self.window.current_tool == PaintTool.Eraser:
-                    self.erase_tile(tile_pos)
-                elif self.window.current_tool == PaintTool.Fill:
-                    tile = self.window.current_tile
-                    all_positions = self.flood_fill(tile_pos)
-                    for pos in all_positions:
-                        self.paint_tile(tile, pos)
-            elif event.button() == Qt.RightButton:
-                if self.window.current_tool == PaintTool.Brush:
-                    self.right_selecting = tile_pos
+        if event.button() == Qt.LeftButton:
+            if self.window.current_tool == PaintTool.Brush:
+                self.paint_tile(tile_pos)
+                self.left_selecting = True
+            elif self.window.current_tool == PaintTool.Erase:
+                self.erase_tile(tile_pos)
+                self.left_selecting = True
+            elif self.window.current_tool == PaintTool.Fill:
+                self.flood_fill(tile_pos)
+        elif event.button() == Qt.RightButton and self.tilemap.check_bounds(tile_pos):
+            if self.window.current_tool == PaintTool.Brush:
+                self.right_selecting = tile_pos
 
     def mouseMoveEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -130,8 +214,10 @@ class MapEditorView(QGraphicsView):
         self.current_mouse_position = tile_pos
 
         if self.left_selecting and self.tilemap.check_bounds(tile_pos):
-            tile = self.window.current_tile
-            self.paint_tile(tile, tile_pos)
+            if self.window.current_tool == PaintTool.Brush:
+                self.paint_tile(tile_pos)
+            elif self.window.current_tool == PaintTool.Erase:
+                self.erase_tile(tile_pos)
 
     def mouseReleaseEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -143,8 +229,12 @@ class MapEditorView(QGraphicsView):
                 self.left_selecting = False
             elif event.button() == Qt.RightButton:
                 if self.right_selecting:
-                    tile_pixmap = self.tilemap.get_tile_pixmap(tile_pos)
-                    self.set_current_tile_pixmap(tile_pixmap)
+                    pass
+                    # tile_pixmap = self.tilemap.get_tile_pixmap(tile_pos)
+                    # self.set_current_tile_pixmap(tile_pixmap)
+        elif self.window.current_tool == PaintTool.Erase:
+            if event.button() == Qt.LeftButton:
+                self.left_selecting = False
 
     def zoom_in(self):
         if self.screen_scale < self.max_scale:
@@ -209,37 +299,37 @@ class MapEditor(QDialog):
         self.view.update_view()
 
     def create_actions(self):
+        paint_group = QActionGroup(self)
         self.brush_action = QAction(QIcon("icons/brush.png"), "&Brush", self, shortcut="B", triggered=self.set_brush)
         self.brush_action.setCheckable(True)
+        paint_group.addAction(self.brush_action)
         self.paint_action = QAction(QIcon("icons/fill.png"), "&Fill", self, shortcut="F", triggered=self.set_fill)
         self.paint_action.setCheckable(True)
-        self.eraser_action = QAction(QIcon("icons/eraser.png"), "&Eraser", self, shortcut="E", triggered=self.set_eraser)
-        self.eraser_action.setCheckable(True)
+        paint_group.addAction(self.paint_action)
+        self.erase_action = QAction(QIcon("icons/eraser.png"), "&Erase", self, shortcut="E", triggered=self.set_erase)
+        self.erase_action.setCheckable(True)
+        paint_group.addAction(self.erase_action)
         self.resize_action = QAction(QIcon("icons/resize.png"), "&Resize", self, shortcut="R", triggered=self.resize)
 
+    def check_brush(self):
+        self.brush_action.setChecked(True)
+        self.set_brush(True)
+
     def set_brush(self, val):
-        if val:
-            self.current_tool = PaintTool.Brush
-        else:
-            self.current_tool = PaintTool.NoTool
+        self.current_tool = PaintTool.Brush
 
     def set_fill(self, val):
-        if val:
-            self.current_tool = PaintTool.Fill
-        else:
-            self.current_tool = PaintTool.NoTool
+        self.current_tool = PaintTool.Fill
 
-    def set_eraser(self, val):
-        if val:
-            self.current_tool = PaintTool.Eraser
-        else:
-            self.current_tool = PaintTool.NoTool
+    def set_erase(self, val):
+        self.tileset_menu.reset_selection()
+        self.current_tool = PaintTool.Erase
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
         self.toolbar.addAction(self.brush_action)
         self.toolbar.addAction(self.paint_action)
-        self.toolbar.addAction(self.eraser_action)
+        self.toolbar.addAction(self.erase_action)
         self.toolbar.addAction(self.resize_action)
 
     def set_current(self, current):  # Current is a TileMapPrefab
@@ -449,6 +539,7 @@ class LayerMenu(QWidget):
         self.new_action = QAction(QIcon("icons/file-plus.png"), "New Layer", triggered=self.new)
         self.duplicate_action = QAction(QIcon("icons/duplicate.png"), "Duplicate Layer", triggered=self.duplicate)
         self.delete_action = QAction(QIcon("icons/x-circle.png"), "Delete Layer", triggered=self.delete)
+        self.delete_action.setEnabled(False)
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
@@ -493,8 +584,9 @@ class TileSetMenu(QWidget):
         self.current_tileset = None
 
     def on_tab_changed(self, idx):
-        tileset_nid = self.current.tilesets[idx]
-        self.load_tileset(tileset_nid)
+        if self.current.tilesets:
+            tileset_nid = self.current.tilesets[idx]
+            self.load_tileset(tileset_nid)
 
     def tab_clear(self):
         for idx in range(self.tab_bar.count()):
@@ -503,6 +595,9 @@ class TileSetMenu(QWidget):
 
     def get_selection_coords(self):
         return self.view.get_selection_coords()
+
+    def reset_selection(self):
+        self.view.reset_selection()
 
     def set_current(self, current):
         self.current = current
@@ -513,6 +608,8 @@ class TileSetMenu(QWidget):
 
         if self.current.tilesets:
             self.load_tileset(self.current.tilesets[0])
+        else:
+            self.empty_tileset()
 
     def load_tileset(self, tileset_nid):
         tileset = RESOURCES.tilesets.get(tileset_nid)
@@ -521,6 +618,11 @@ class TileSetMenu(QWidget):
         self.current_tileset = tileset
         self.delete_action.setEnabled(True)
         self.view.set_current(tileset)
+        self.view.update_view()
+
+    def empty_tileset(self):
+        self.delete_action.setEnabled(False)
+        self.view.set_current(None)
         self.view.update_view()
 
     def create_actions(self):
@@ -551,7 +653,10 @@ class TileSetMenu(QWidget):
             self.tab_bar.removeTab(idx)
 
         new_idx = self.tab_bar.currentIndex()
-        self.load_tileset(self.current.tilesets[new_idx])
+        if self.current.tilesets:
+            self.load_tileset(self.current.tilesets[new_idx])
+        else:
+            self.empty_tileset()
 
 class TileSetView(MapEditorView):
     tilewidth = TILEWIDTH + 1
@@ -576,6 +681,17 @@ class TileSetView(MapEditorView):
 
     def get_selection_coords(self):
         return self.current_coords
+
+    def reset_selection(self):
+        self.left_selecting = None
+        self.current_coords.clear()
+        self.update_view()
+
+    def update_view(self):
+        if self.tileset:
+            self.show_map()
+        else:
+            self.clear_scene()
 
     def set_current(self, current):
         self.tileset = current
@@ -625,6 +741,16 @@ class TileSetView(MapEditorView):
             if event.button() == Qt.LeftButton:
                 self.left_selecting = tile_pos
                 self.current_coords.clear()
+
+    def find_coords(self):
+        self.current_coords.clear()
+        left = min(self.left_selecting[0], self.current_mouse_position[0])
+        width = max(self.left_selecting[0], self.current_mouse_position[0]) - left
+        top = min(self.left_selecting[1], self.current_mouse_position[1])
+        height = max(self.left_selecting[1], self.current_mouse_position[1]) - top
+        for x in range(width + 1):
+            for y in range(height + 1):
+                self.current_coords.add((x + left, y + top))
             
     def mouseMoveEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -633,6 +759,7 @@ class TileSetView(MapEditorView):
 
         if self.left_selecting and self.tileset and self.tileset.check_bounds(tile_pos):
             self.current_mouse_position = tile_pos
+            self.find_coords()
             self.update_view()
             
     def mouseReleaseEvent(self, event):
@@ -646,12 +773,8 @@ class TileSetView(MapEditorView):
         print(self.current_mouse_position)
         if self.left_selecting:
             if event.button() == Qt.LeftButton:
-                left = min(self.left_selecting[0], self.current_mouse_position[0])
-                width = max(self.left_selecting[0], self.current_mouse_position[0]) - left
-                top = min(self.left_selecting[1], self.current_mouse_position[1])
-                height = max(self.left_selecting[1], self.current_mouse_position[1]) - top
-                for x in range(width + 1):
-                    for y in range(height + 1):
-                        self.current_coords.add((x + left, y + top))
+                self.find_coords()
                 self.left_selecting = False
+                if self.window.window.current_tool not in (PaintTool.Brush, PaintTool.Fill):
+                    self.window.window.check_brush()
                 self.update_view()

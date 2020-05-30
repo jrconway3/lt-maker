@@ -85,6 +85,11 @@ class TileSet(Prefab):
                 p = self.pixmap.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
                 self.pixmaps[(x, y)] = p
 
+    def get_pixmap(self, pos):
+        if pos in self.pixmaps:
+            return self.pixmaps[pos]
+        return None
+
     def set_full_path(self, full_path):
         self.full_path = full_path
 
@@ -121,6 +126,14 @@ class LayerGrid(Prefab):
 
     def get_sprite(self, coord):
         return self.sprite_grid[coord]
+
+    def set_sprite(self, self_coord, tileset, tileset_coord):
+        tile_sprite = TileSprite(tileset.nid, tileset_coord, self)
+        self.sprite_grid[self_coord] = tile_sprite
+
+    def erase_sprite(self, coord):
+        if coord in self.sprite_grid:
+            del self.sprite_grid[coord]
 
     def serialize(self):
         s_dict = {}

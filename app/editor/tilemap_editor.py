@@ -19,6 +19,28 @@ from app.extensions.custom_gui import ResourceListView, Dialog
 
 from app import utilities
 
+def draw_tilemap(tilemap):
+    image = QImage(tilemap.width * TILEWIDTH,
+                   tilemap.height * TILEHEIGHT,
+                   QImage.Format_ARGB32)
+    image.fill(QColor(0, 0, 0, 0))
+
+    painter = QPainter()
+    painter.begin(image)
+    for layer in tilemap.layers:
+        if layer.visible:
+            for coord, tile_sprite in layer.sprite_grid.items():
+                tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+                if not tileset.pixmap:
+                    tileset.set_pixmap(QPixmap(tileset.full_path))
+                pix = tileset.get_pixmap(tile_sprite.tileset_position)
+                if pix:
+                    painter.drawImage(coord[0] * TILEWIDTH,
+                                      coord[1] * TILEHEIGHT,
+                                      pix.toImage())
+    painter.end()
+    return image
+
 class PaintTool(IntEnum):
     NoTool = 0
     Brush = 1
@@ -75,22 +97,9 @@ class MapEditorView(QGraphicsView):
         self.show_map()
 
     def get_map_image(self):
-        image = QImage(self.tilemap.width * TILEWIDTH,
-                       self.tilemap.height * TILEHEIGHT,
-                       QImage.Format_ARGB32)
-        image.fill(QColor(0, 0, 0, 0))
-
+        image = draw_tilemap(self.tilemap)
         painter = QPainter()
         painter.begin(image)
-        for layer in self.tilemap.layers:
-            if layer.visible:
-                for coord, tile_sprite in layer.sprite_grid.items():
-                    tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
-                    pix = tileset.get_pixmap(tile_sprite.tileset_position)
-                    if pix:
-                        painter.drawImage(coord[0] * TILEWIDTH,
-                                          coord[1] * TILEHEIGHT,
-                                          pix.toImage())
         # Draw grid lines
         painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
         for x in range(self.tilemap.width):

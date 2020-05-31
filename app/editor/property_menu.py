@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.extensions.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox
+from app.extensions.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
 from app.editor.resource_editor import ResourceEditor
 import app.utilities as utilities
 
@@ -80,6 +80,8 @@ class PropertiesMenu(QWidget):
         self.currently_playing_label = QLabel("")
         form.addWidget(self.currently_playing_label)
 
+        form.addWidget(QHLine())
+
         self.quick_display = PropertyBox("Objective Display", QLineEdit, self)
         self.quick_display.edit.editingFinished.connect(lambda: self.set_objective('simple'))
         form.addWidget(self.quick_display)
@@ -91,6 +93,12 @@ class PropertiesMenu(QWidget):
         self.loss_condition = PropertyBox("Loss Condition", QLineEdit, self)
         self.loss_condition.edit.editingFinished.connect(lambda: self.set_objective('loss'))
         form.addWidget(self.loss_condition)
+
+        form.addWidget(QHLine())
+
+        self.map_box = QPushButton("Select Tilemap...")
+        self.map_box.clicked.connect(self.select_tilemap)
+        form.addWidget(self.map_box)
 
         if self.main_editor.current_level:
             self.set_current(self.main_editor.current_level)
@@ -140,3 +148,11 @@ class PropertiesMenu(QWidget):
             self.current.objective[key] = self.win_condition.edit.text()
         elif key == 'loss':
             self.current.objective[key] = self.loss_condition.edit.text()
+
+    def select_tilemap(self):
+        res, ok = ResourceEditor.get(self.main_editor, "Tilemaps")
+        if ok:
+            nid = res.nid
+            self.current.tilemap = nid
+            self.main_editor.set_current_tilemap(nid)
+            self.main_editor.update_view()

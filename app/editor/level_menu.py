@@ -8,6 +8,7 @@ from app.data.levels import Level
 
 from app.extensions.custom_gui import RightClickListView
 from app.editor.base_database_gui import CollectionModel
+import app.editor.tilemap_editor as tilemap_editor
 import app.utilities as utilities
 
 class LevelDatabase(QWidget):
@@ -84,9 +85,8 @@ class LevelModel(CollectionModel):
             level = self._data[index.row()]
             res = RESOURCES.tilemaps.get(level.tilemap)
             if res:
-                if not res.pixmap:
-                    res.pixmap = QPixmap(res.full_path)
-                img = QIcon(res.pixmap)
+                image = tilemap_editor.draw_tilemap(res)
+                img = QIcon(QPixmap.fromImage(image))
                 return img
         return None 
 

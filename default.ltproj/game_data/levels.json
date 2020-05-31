@@ -2,7 +2,7 @@
     {
         "nid": "DEBUG",
         "title": "Prologue",
-        "tilemap": null,
+        "tilemap": "Prologue",
         "music": {
             "player_phase": null,
             "enemy_phase": null,

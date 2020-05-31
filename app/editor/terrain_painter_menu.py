@@ -59,6 +59,6 @@ class TerrainPainterMenu(QWidget):
         self.list_view.setCurrentIndex(idx)
 
     def get_current_nid(self):
-        idx = self.list_view.currentIndex()
-        terrain = DB.terrain[idx]
+        index = self.list_view.currentIndex()
+        terrain = DB.terrain[index.row()]
         return terrain.nid

@@ -138,7 +138,7 @@ class MapEditorView(QGraphicsView):
                         color = DB.terrain.get(terrain_nid).color
                         write_color = QColor(color[0], color[1], color[2])
                         write_color.setAlpha(alpha)
-                        painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                        painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
             painter.end()
 
     def show_map(self):
@@ -351,7 +351,10 @@ class MapEditorView(QGraphicsView):
         tile_pos = int(scene_pos.x() // TILEWIDTH), \
             int(scene_pos.y() // TILEHEIGHT)
 
-        if self.window.current_tool == PaintTool.Brush:
+        if self.window.terrain_mode:
+            if event.button() == Qt.LeftButton:
+                self.left_selecting = False
+        elif self.window.current_tool == PaintTool.Brush:
             if event.button() == Qt.LeftButton:
                 self.left_selecting = False
             elif event.button() == Qt.RightButton:
@@ -757,6 +760,7 @@ class TileSetMenu(QWidget):
         self.setLayout(layout)
 
         self.current_tileset = None
+        self.set_current(self.current)
 
     def on_tab_changed(self, idx):
         if self.current.tilesets:

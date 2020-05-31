@@ -128,7 +128,8 @@ class UIView():
         if unit.generic:
             icons.draw_faction(surf, DB.factions.get(unit.faction), (left + 1, top + 4))
         else:
-            icons.draw_chibi(surf, unit.nid, (left + 1, top + 4))
+            portrait_nid = unit.portrait_nid
+            icons.draw_chibi(surf, portrait_nid, (left + 1, top + 4))
 
         name = unit.name
         if unit.generic:

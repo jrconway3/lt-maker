@@ -116,6 +116,8 @@ class InputManager():
                 if rmb:
                     self.key_down_events.append('BACK')
                 mmb = event.button == 2
+                if mmb:
+                    self.key_down_events.append('INFO')
                 wheel_up = event.button == 4
                 wheel_down = event.button == 5
                 if wheel_up:
@@ -134,7 +136,7 @@ class InputManager():
 
         # Check game pad
         if self.joystick:
-            self.check_joystick()
+            self.handle_joystick()
 
         # Return the correct event for this frame
         # Gives priority to later inputs

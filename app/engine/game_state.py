@@ -109,7 +109,9 @@ class GameState():
         
         from app.data.level_object import LevelObject
         level_prefab = DB.levels.get(level_nid)
-        self.tilemap = self.load_map(RESOURCES.tilemaps.get(level_prefab.tilemap))
+        tilemap_nid = level_prefab.tilemap
+        tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
+        self.tilemap = self.load_map(tilemap_prefab)
         self.current_level = LevelObject.from_prefab(level_prefab, self.tilemap)
 
         for unit in self.current_level.units:
@@ -177,7 +179,11 @@ class GameState():
 
         if s_dict['level']:
             logger.info("Loading Map...")
-            self.tilemap = self.load_map(s_dict['level']['tilemap'])
+            tilemap_dict = s_dict['level']['tilemap']
+            tilemap_nid = tilemap_dict['nid']
+            tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
+            self.tilemap = self.load_map(tilemap_prefab)
+            self.tilemap.deserialize_layers(tilemap_dict['layers'])
             self.current_level = LevelObject.deserialize(s_dict['level'], self.tilemap, self)
 
             self.generic()

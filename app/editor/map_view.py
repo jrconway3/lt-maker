@@ -9,6 +9,7 @@ from app.data.database import DB
 
 from app.editor.timer import TIMER
 from app.editor import class_database
+import app.editor.tilemap_editor as tilemap_editor
 
 class MapView(QGraphicsView):
     min_scale = 1
@@ -42,29 +43,10 @@ class MapView(QGraphicsView):
     def clear_scene(self):
         self.scene.clear()
 
-    def get_map_image(self):
-        image = QImage(self.current_map.width * TILEWIDTH,
-                       self.current_map.height * TILEHEIGHT,
-                       QImage.Format_ARGB32)
-        image.fill(QColor(0, 0, 0, 0))
-
-        painter = QPainter()
-        painter.begin(image)
-        for layer in self.current_map.layers:
-            if layer.visible:
-                for coord, tile_sprite in layer.sprite_grid.items():
-                    tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
-                    pix = tileset.get_pixmap(tile_sprite.tileset_position)
-                    if pix:
-                        painter.drawImage(coord[0] * TILEWIDTH,
-                                          coord[1] * TILEHEIGHT,
-                                          pix.toImage())
-        painter.end()
-        return image
-
     def update_view(self):
         if self.current_map:
-            pixmap = QPixmap.fromImage(self.get_map_image())
+            image = tilemap_editor.draw_tilemap(self.current_map)
+            pixmap = QPixmap.fromImage(image)
             self.working_image = pixmap
         else:
             return

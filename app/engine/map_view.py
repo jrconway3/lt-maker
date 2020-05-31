@@ -43,7 +43,8 @@ class MapView():
             surf = unit.sprite.draw_hp(surf)
 
     def draw(self):
-        surf = engine.copy_surface(self.tilemap.get_full_image())
+        map_image = self.tilemap.get_full_image()
+        surf = engine.copy_surface(map_image)
         surf = surf.convert_alpha()
         surf = game.boundary.draw(surf, (surf.get_width(), surf.get_height()))
         surf = game.highlight.draw(surf)

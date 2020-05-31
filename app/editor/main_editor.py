@@ -18,7 +18,6 @@ from app.editor.level_menu import LevelDatabase
 from app.editor.database_editor import DatabaseEditor
 from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
-from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
 from app.editor.translation_widget import TranslationDialog
 
@@ -232,6 +231,12 @@ class MainEditor(QMainWindow):
         else:
             self.position_bar.setText("")
 
+    def set_terrain(self, terrain):
+        if terrain:
+            self.status_bar.showMessage("Terrain")
+        else:
+            self.status_bar.clearMessage()
+
     def create_level_dock(self):
         print("Create Level Dock")
         self.level_dock = QDockWidget("Levels", self)
@@ -252,9 +257,9 @@ class MainEditor(QMainWindow):
         # self.tiles_menu = TileMenu(self)
         # self.docks['Tiles'].setWidget(self.tiles_menu)
 
-        self.docks['Terrain'] = Dock("Terrain", self)
-        self.terrain_painter_menu = TerrainPainterMenu(self)
-        self.docks['Terrain'].setWidget(self.terrain_painter_menu)
+        # self.docks['Terrain'] = Dock("Terrain", self)
+        # self.terrain_painter_menu = TerrainPainterMenu(self)
+        # self.docks['Terrain'].setWidget(self.terrain_painter_menu)
 
         # self.docks['Triggers'] = Dock("Triggers", self)
         # self.trigger_region_menu = TriggerRegionMenu(self)
@@ -418,8 +423,8 @@ class MainEditor(QMainWindow):
                 self.addDockWidget(Qt.RightDockWidgetArea, dock)
 
             # Order is REALLY IMPORTANT. Must tabify before show.
-            self.tabifyDockWidget(self.docks['Properties'], self.docks['Terrain'])
-            self.tabifyDockWidget(self.docks['Terrain'], self.docks['Event Tiles'])
+            self.tabifyDockWidget(self.docks['Properties'], self.docks['Event Tiles'])
+            # self.tabifyDockWidget(self.docks['Terrain'], self.docks['Event Tiles'])
             self.tabifyDockWidget(self.docks['Event Tiles'], self.docks['Units'])
             # self.tabifyDockWidget(self.docks['Units'], self.docks['Reinforcements'])
 

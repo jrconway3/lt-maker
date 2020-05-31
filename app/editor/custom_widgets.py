@@ -7,8 +7,6 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox
 
-from app.editor.faction_database import FactionModel
-
 class ObjBox(PropertyBox):
     def __init__(self, title, model, database, parent=None, button=False):
         super().__init__(title, ComboBox, parent)
@@ -41,6 +39,7 @@ class ClassBox(ObjBox):
 
 class FactionBox(ObjBox):
     def __init__(self, parent=None, button=False):
+        from app.editor.faction_database import FactionModel
         super().__init__("Faction", FactionModel, DB.factions, parent, button)
 
 class ItemBox(ObjBox):

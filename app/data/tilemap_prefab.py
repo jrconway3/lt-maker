@@ -49,7 +49,7 @@ class TileMapPrefab(Prefab):
         s_dict['size'] = self.width, self.height
         if self.width == 0 or self.height == 0:
             print("Width or Height == 0!!!")
-        s_dict['layers'] = self.layers.serialize()
+        s_dict['layers'] = [layer.serialize() for layer in self.layers]
         s_dict['tilesets'] = self.tilesets
         return s_dict
 
@@ -98,14 +98,16 @@ class TileSet(Prefab):
         s_dict['nid'] = self.nid
         s_dict['terrain_grid'] = {}
         for coord, terrain_nid in self.terrain_grid.items():
-            s_dict['terrain_grid'][coord] = terrain_nid
+            str_coord = "%d,%d" % (coord[0], coord[1])
+            s_dict['terrain_grid'][str_coord] = terrain_nid
         return s_dict
 
     @classmethod
     def deserialize(cls, s_dict, full_path):
         self = cls(s_dict['nid'])
         self.full_path = full_path
-        for coord, terrain_nid in s_dict['terrain_grid'].items():
+        for str_coord, terrain_nid in s_dict['terrain_grid'].items():
+            coord = tuple(int(_) for _ in str_coord.split(','))
             self.terrain_grid[coord] = terrain_nid
         return self
 
@@ -122,13 +124,13 @@ class LayerGrid(Prefab):
         self.sprite_grid[coord] = tile_sprite
 
     def get_terrain(self, coord):
-        return self.terrain_grid[coord]
+        return self.terrain_grid.get(coord)
 
     def get_sprite(self, coord):
-        return self.sprite_grid[coord]
+        return self.sprite_grid.get(coord)
 
-    def set_sprite(self, self_coord, tileset, tileset_coord):
-        tile_sprite = TileSprite(tileset.nid, tileset_coord, self)
+    def set_sprite(self, self_coord, tileset_nid, tileset_coord):
+        tile_sprite = TileSprite(tileset_nid, tileset_coord, self)
         self.sprite_grid[self_coord] = tile_sprite
 
     def erase_sprite(self, coord):
@@ -141,20 +143,25 @@ class LayerGrid(Prefab):
         s_dict['visible'] = self.visible
         s_dict['terrain_grid'] = {}
         for coord, terrain_nid in self.terrain_grid.items():
-            s_dict['terrain_grid'][coord] = terrain_nid
+            str_coord = "%d,%d" % (coord[0], coord[1])
+            s_dict['terrain_grid'][str_coord] = terrain_nid
         s_dict['sprite_grid'] = {}
         for coord, tile_sprite in self.sprite_grid.items():
-            s_dict['sprite_grid'][coord] = tile_sprite.serialize()
+            str_coord = "%d,%d" % (coord[0], coord[1])
+            s_dict['sprite_grid'][str_coord] = tile_sprite.serialize()
         return s_dict
 
     @classmethod
     def deserialize(cls, s_dict, parent):
         self = cls(s_dict['nid'], parent)
         self.visible = s_dict['visible']
-        for coord, terrain_nid in s_dict['terrain_grid'].items():
+        for str_coord, terrain_nid in s_dict['terrain_grid'].items():
+            coord = tuple(int(_) for _ in str_coord.split(','))
             self.terrain_grid[coord] = terrain_nid
-        for coord, data in s_dict['sprite_grid'].items():
+        for str_coord, data in s_dict['sprite_grid'].items():
+            coord = tuple(int(_) for _ in str_coord.split(','))
             self.sprite_grid[coord] = TileSprite.deserialize(*data, self)
+        return self
 
 class TileSprite(Prefab):
     def __init__(self, tileset_nid, tileset_position, parent):
@@ -167,5 +174,5 @@ class TileSprite(Prefab):
 
     @classmethod
     def deserialize(cls, tileset_nid, tileset_position, parent):
-        new_tile_sprite = cls(tileset_nid, tileset_position, parent)
+        new_tile_sprite = cls(tileset_nid, tuple(tileset_position), parent)
         return new_tile_sprite

@@ -228,8 +228,8 @@ class TileMapProperties(QWidget):
             self.edit_button.setEnabled(True)
             if not self.current.pixmap:
                 create_tilemap_pixmap(self.current)
-                self.view.set_image(self.current.pixmap)
-                self.view.show_image()
+            self.view.set_image(self.current.pixmap)
+            self.view.show_image()
 
     def on_edit(self):
         from app.editor.tilemap_editor import MapEditor

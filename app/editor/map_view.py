@@ -8,7 +8,6 @@ from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.timer import TIMER
-from app.editor import commands
 from app.editor import class_database
 
 class MapView(QGraphicsView):
@@ -43,37 +42,39 @@ class MapView(QGraphicsView):
     def clear_scene(self):
         self.scene.clear()
 
+    def get_map_image(self):
+        image = QImage(self.current_map.width * TILEWIDTH,
+                       self.current_map.height * TILEHEIGHT,
+                       QImage.Format_ARGB32)
+        image.fill(QColor(0, 0, 0, 0))
+
+        painter = QPainter()
+        painter.begin(image)
+        for layer in self.current_map.layers:
+            if layer.visible:
+                for coord, tile_sprite in layer.sprite_grid.items():
+                    tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+                    pix = tileset.get_pixmap(tile_sprite.tileset_position)
+                    if pix:
+                        painter.drawImage(coord[0] * TILEWIDTH,
+                                          coord[1] * TILEHEIGHT,
+                                          pix.toImage())
+        painter.end()
+        return image
+
     def update_view(self):
         if self.current_map:
-            default_map_image = RESOURCES.maps.get('default')
-            res = RESOURCES.maps.get(self.current_map.base_image_nid, default_map_image)
-            if not res.pixmap:
-                res.pixmap = QPixmap(res.full_path)
-            pixmap = res.pixmap
-            self.working_image = pixmap.copy()
+            pixmap = QPixmap.fromImage(self.get_map_image())
+            self.working_image = pixmap
         else:
             return
         if self.main_editor.dock_visibility['Properties']:
             self.paint_units()
-        elif self.main_editor.dock_visibility['Terrain']:
-            self.paint_terrain()
         elif self.main_editor.dock_visibility['Units']:
             self.paint_units()
         else:
             self.paint_units()
         self.show_map()
-
-    def paint_terrain(self):
-        if self.working_image:
-            painter = QPainter()
-            painter.begin(self.working_image)
-            alpha = self.main_editor.terrain_painter_menu.get_alpha()
-            for coord, tile in self.current_map.tiles.items():
-                color = DB.terrain.get(tile.terrain_nid).color
-                write_color = QColor(color[0], color[1], color[2])
-                write_color.setAlpha(alpha)
-                painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
-            painter.end()
 
     def paint_units(self):
         if self.working_image:
@@ -109,39 +110,14 @@ class MapView(QGraphicsView):
             self.clear_scene()
             self.scene.addPixmap(self.working_image)
 
-    def show_map_from_individual_sprites(self):
-        if self.current_map:
-            image = QImage(self.current_map.width * TILEWIDTH, 
-                           self.current_map.height * TILEHEIGHT, 
-                           QImage.Format_RGB32)
-
-            painter = QPainter()
-            painter.begin(image)
-            for coord, tile_image in self.current_map.get_tile_sprites():
-                painter.drawImage(coord[0] * TILEWIDTH, 
-                                  coord[1] * TILEHEIGHT, tile_image)
-            painter.end()
-
-            self.clear_scene()
-            self.pixmap = QPixmap.fromImage(image)
-            self.scene.addPixmap(self.pixmap)
-
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
         scene_pos = self.mapToScene(event.pos())
-        # pixmap = self.scene.itemAt(scene_pos, self.transform())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and self.current_map.check_bounds(pos):
-            # Terrain
-            if self.main_editor.dock_visibility['Terrain']:
-                if event.button() == self.settings.value('place_button', Qt.RightButton):
-                    self.main_editor.terrain_painter_menu.paint_tile(pos)
-                elif event.button() == self.settings.value('select_button', Qt.LeftButton):
-                    current_nid = self.current_map.tiles[pos].terrain_nid
-                    self.main_editor.terrain_painter_menu.set_current_nid(current_nid)
             # Units
-            elif self.main_editor.dock_visibility['Units']:
+            if self.main_editor.dock_visibility['Units']:
                 if event.button() == self.settings.value('place_button', Qt.RightButton):
                     current_unit = self.main_editor.unit_painter_menu.get_current()
                     if current_unit:
@@ -171,29 +147,18 @@ class MapView(QGraphicsView):
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
         scene_pos = self.mapToScene(event.pos())
-        # pixmap = self.scene.itemAt(scene_pos, self.transform())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and self.current_map.check_bounds(pos):
             self.main_editor.set_position_bar(pos)
-            if self.main_editor.dock_visibility['Terrain']:
-                if (event.buttons() & self.settings.value('place_button', Qt.RightButton)):
-                    self.main_editor.terrain_painter_menu.paint_tile(pos)
+            self.main_editor.set_terrain(self.current_map.get_terrain(pos))
         else:
             self.main_editor.set_position_bar(None)
+            self.main_editor.set_terrain(None)
 
     def mouseReleaseEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
-
-        if self.current_map and pos in self.current_map.tiles:
-            if self.main_editor.dock_visibility['Terrain']:
-                if event.button() == self.settings.value('place_button', Qt.RightButton):
-                    # Force no merge when you've lifted up your pen...
-                    last_index = self.main_editor.undo_stack.count() - 1
-                    last_command = self.main_editor.undo_stack.command(last_index)
-                    if isinstance(last_command, commands.ChangeTileTerrain):
-                        last_command.can_merge = False
 
     def zoom_in(self):
         if self.screen_scale < self.max_scale:

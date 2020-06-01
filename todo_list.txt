@@ -23,7 +23,7 @@ Promotion
 
 Equations check their validity
 
-Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers, autotile layer
+Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers, *autotile layer
 
 Auto-update
 No need for launcher

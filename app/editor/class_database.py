@@ -388,6 +388,8 @@ class ClassProperties(QWidget):
     #         pass
 
     def display_averages(self):
+        if not self.current:
+            return
         # Modeless dialog
         if not self.averages_dialog:
             self.averages_dialog = StatAverageDialog(self.current, "Class", ClassStatAveragesModel, self)

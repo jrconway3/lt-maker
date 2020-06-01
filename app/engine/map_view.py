@@ -1,5 +1,4 @@
 from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
-from app.data.resources import RESOURCES
 
 from app.counters import generic3counter, simplecounter
 

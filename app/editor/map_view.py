@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, QSettings
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
+from PyQt5.QtGui import QPixmap, QPainter
 
 from app.sprites import SPRITES
 from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
-from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.timer import TIMER

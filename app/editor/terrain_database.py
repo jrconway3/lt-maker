@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QSpacerItem, QPushButton, QDialog, \
-    QLineEdit, QColorDialog, QHBoxLayout, QVBoxLayout, \
+from PyQt5.QtWidgets import QWidget, QSpacerItem, QDialog, \
+    QLineEdit, QHBoxLayout, QVBoxLayout, \
     QMessageBox, QSizePolicy
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
-from PyQt5.QtCore import Qt, QSize, pyqtSignal
+from PyQt5.QtCore import Qt, QSize
 
 from app.data.resources import RESOURCES
 from app.data.database import DB
@@ -11,6 +11,7 @@ from app.extensions.custom_gui import ComboBox, PropertyBox
 from app.editor.custom_widgets import MovementCostBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.mcost_dialog import McostDialog
+from app.editor.color_icon import ColorIcon
 from app import utilities
 
 class TerrainDatabase(DatabaseTab):
@@ -48,41 +49,6 @@ class TerrainModel(DragDropCollectionModel):
         nid = name = utilities.get_next_name("New Terrain", nids)
         DB.create_new_terrain(nid, name)
 
-class TerrainIcon(QPushButton):
-    colorChanged = pyqtSignal(QColor)
-
-    def __init__(self, color, parent):
-        super().__init__(parent)
-        self._color = None
-        self.change_color(color)
-
-        self.setMinimumHeight(64)
-        self.setMaximumHeight(64)
-        self.setMinimumWidth(64)
-        self.setMaximumWidth(64)
-        self.resize(64, 64)
-        self.pressed.connect(self.onColorPicker)
-
-    def change_color(self, color):
-        if color != self._color:
-            self._color = color
-            self.colorChanged.emit(QColor(color))
-
-        if self._color:
-            self.setStyleSheet("background-color: %s;" % self._color)
-        else:
-            self.setStyleSheet("")
-
-    def color(self):
-        return self._color
-
-    def onColorPicker(self):
-        dlg = QColorDialog()
-        if self._color:
-            dlg.setCurrentColor(QColor(self._color))
-        if dlg.exec_():
-            self.change_color(dlg.currentColor().name())
-
 class TerrainProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
@@ -96,7 +62,7 @@ class TerrainProperties(QWidget):
 
         top_section = QHBoxLayout()
 
-        self.icon_edit = TerrainIcon(QColor(0, 0, 0).name(), self)
+        self.icon_edit = ColorIcon(QColor(0, 0, 0).name(), self)
         self.icon_edit.colorChanged.connect(self.on_color_change)
         top_section.addWidget(self.icon_edit)
 

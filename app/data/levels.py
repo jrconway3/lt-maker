@@ -8,6 +8,7 @@ class Level(Prefab):
         self.nid = nid
         self.title = title
         self.tilemap = None  # Just a nid
+        self.party = None
         self.music = OrderedDict()
         music_keys = ['player_phase', 'enemy_phase', 'other_phase',
                       'player_battle', 'enemy_battle', 'other_battle',

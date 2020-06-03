@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.extensions.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
+from app.extensions.custom_gui import ComboBox, SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
 from app.editor.resource_editor import ResourceEditor
 import app.utilities as utilities
 
@@ -68,6 +68,13 @@ class PropertiesMenu(QWidget):
         self.title_box.edit.textChanged.connect(self.title_changed)
         form.addWidget(self.title_box)
 
+        self.party_box = PropertyBox("Party", ComboBox, self)
+        self.party_box.edit.addItem("None")
+        for party in DB.parties:
+            self.party_box.edit.addItem(party.nid)
+        self.party_box.edit.currentIndexChanged.connect(self.party_changed)
+        form.addWidget(self.party_box)
+
         self.market_box = PropertyCheckBox("Market Available?", QCheckBox, self)
         self.market_box.edit.stateChanged.connect(self.market_changed)
         form.addWidget(self.market_box)
@@ -108,6 +115,10 @@ class PropertiesMenu(QWidget):
 
         self.title_box.edit.setText(current.title)
         self.nid_box.edit.setText(current.nid)
+        if current.party:
+            self.party_box.edit.setValue(current.party)
+        else:
+            self.party_box.edit.setValue("None")
         self.market_box.edit.setChecked(current.market_flag)
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
@@ -133,6 +144,12 @@ class PropertiesMenu(QWidget):
     def title_changed(self, text):
         self.current.title = text
         self.main_editor.update_view()
+
+    def party_changed(self, idx):
+        if idx == 0:
+            self.current.party = None
+        else:
+            self.current.party = self.party_box.edit.currentText()
 
     def market_changed(self, state):
         self.current.market_flag = bool(state)

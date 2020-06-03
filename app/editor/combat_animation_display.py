@@ -1,124 +1,157 @@
-class CombatCommand(QWidget):
-    def __init__(self, data, parent):
-        super().__init__(parent)
-        self._data = data
+class CombatAnimDisplay(DatabaseTab):
+    @classmethod
+    def create(cls, parent=None):
+        title = "Combat Animation"
+        right_frame = CombatAnimProperties
+        collection_model = CombatAnimModel
+        deletion_criteria = None
+
+        dialog = cls(data, title, right_frame, deletion_criteria,
+                     collection_model, parent, button_text="Add New %s...",
+                     view_type=ResourceListView)
+        return dialog
+
+class CombatAnimModel(ResourceCollectionModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            animation = self._data[index.row()]
+            text = animation.nid
+            return text
+        elif role == Qt.DecorationRole:
+            # TODO create icon out of standing image
+            return None
+        return None
+
+    def create_new(self):
+        nid = utilities.get_next_name('New Combat Anim', self._data.keys())
+        new_anim = CombatAnimation(nid)
+        self._data.append(new_anim)
+
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_classes = [klass for klass in DB.classes if klass.male_combat_anim_nid == nid or klass.female_combat_anim_nid == nid]
+
+        if affected_classes:
+            affected = Data(affected_classes)
+            from app.editor.class_database import ClassModel
+            model = ClassModel
+            msg = "Deleting Combat Animation <b>%s</b> would affect these classes"
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        super().delete(idx)
+
+    def nid_change_watchers(self, combat_anim, old_nid, new_nid):
+        # What uses combat animations
+        # Classes
+        for klass in DB.classes:
+            if klass.male_combat_anim_nid == old_nid:
+                klass.male_combat_anim_nid = new_nid
+            if klass.female_combat_anim_nid == old_nid:
+                klass.female_combat_anim_nid = new_nid
+
+class CombatAnimProperties(QWidget):
+    def __init__(self, parent, current=None):
+        QWidget.__init__(self, parent)
         self.window = parent
+        self._data = self.window._data
+        self.resource_editor = self.window.window
 
-        hbox = QHBoxLayout()
-        hbox.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(hbox)
+        # Populate resources
+        for combat_anim in self._data:
+            for weapon_anim in combat_anim.weapon_anims:
+                for frame in weapon_anim.frames:
+                    frame.pixmap = QPixmap(frame.full_path)
 
-        name_label = QLabel(self._data.name)
-        hbox.addWidget(name_label)
+        self.current = current
+        self.playing = False
+        self.loop = False
+        self.counter = 0
+        self.frames_passed = 0
 
-        self.create_editor(hbox)
+        self.anim_view = AnimView(self)
 
-        x_button = QToolButton(self)
-        x_button.setIcon(QIcon("icons/x.png"))
-        x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
-        x_button.clicked.connect(partial(self.window.remove_component, self))
-        hbox.addWidget(x_button, Qt.AlignRight)
+        view_section = QVBoxLayout()
 
-    def create_editor(self, hbox):
-        raise NotImplementedError
+        button_section = QHBoxLayout()
+        button_section.setAlignment(Qt.AlignTop)
 
-    def on_value_changed(self, val):
-        self._data.value = val
+        self.play_button = QToolButton(self)
+        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.play_button.clicked.connect(self.play_clicked)
 
-    @property
-    def data(self):
-        return self._data
+        self.stop_button = QToolButton(self)
+        self.stop_button.setICon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.stop_button.clicked.connect(self.stop_clicked)
 
-class BasicCommand(CombatCommand):
-    def create_editor(self, hbox):
-        pass
+        self.loop_button = QToolButton(self)
+        self.loop_button.setIcon(self.style().standardIcon(QStyle.SP_BrowserReload))
+        self.loop_button.clicked.connect(self.loop_clicked)
+        self.loop_button.setCheckable(True)
 
-    def on_value_changed(self, val):
-        pass
+        label = QLabel("FPS ")
 
-class IntCommand(CombatCommand):
-    def create_editor(self, hbox):
-        label = QLabel("# Frames: ")
-        hbox.addWidget(label)
+        self.speed_box = QSpinBox(self)
+        self.speed_box.setValue(60)
+        self.speed_box.setRange(1, 240)
+        self.speed_box.valueChanged.connect(self.speed_changed)
 
-        self.editor = QSpinBox(self)
-        self.editor.setMaximumWidth(40)
-        self.editor.setRange(0, 1024)
-        self.editor.setValue(self._data.value)
-        self.editor.valueChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor)
+        button_section.addWidget(self.play_button)
+        button_section.addWidget(self.stop_button)
+        button_section.addWidget(self.loop_button)
+        button_section.addWidget(label)
+        button_section.addWidget(self.speed_box)
 
-    def on_value_changed(self, val):
-        self._data.value = int(val)
+        info_form = QFormLayout()
 
-class SimpleFrameCommand(CombatCommand):
-    def create_editor(self, hbox):
-        self.editor = QLineEdit(self)
-        self.editor.setEmptyText('Image to be displayed')
-        self.editor.setEditable(False)
-        self.editor.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor)
+        self.nid_box = QLineEdit()
+        self.nid_box.textChanged.connect(self.nid_changed)
+        self.nid_box.editingFinished.connect(self.nid_done_editing)
 
-        self.button = QPushButton('...')
-        self.button.setMaximumWidth(40)
-        self.button.triggered.connect(self.select_frame)
-        hbox.addWidget(self.button)
+        weapon_row = QHBoxLayout()
+        self.weapon_box = ComboBox()
+        self.weapon_box.currentTextChanged.connect(self.weapon_changed)
+        self.new_weapon_button = QPushButton("+", self)
+        self.new_weapon_button.clicked.connect(self.add_new_weapon)
+        weapon_row.addWidget(self.weapon_box)
+        weapon_row.addWidget(self.new_weapon_button)
 
-    def select_frame(self):
-        res, ok = FrameSelector.get()
-        if ok:
-            self.editor.setText(res)
+        pose_row = QHBoxLayout()
+        self.pose_box = ComboBox()
+        self.pose_box.currentTextChanged.connect(self.pose_changed)
+        self.new_pose_button = QPushButton("+", self)
+        self.new_pose_button.clicked.connect(self.add_new_pose)
+        pose_row.addWidget(self.pose_box)
+        pose_row.addWidget(self.new_pose_button)
 
-class FrameCommand(CombatCommand):
-    def create_editor(self, hbox):
-        label = QLabel("# Frames: ")
-        hbox.addWidget(label)
+        info_form.addRow("Unique ID", self.nid_box)
+        info_form.addRow("Weapon", weapon_row)
+        info_form.addRow("Pose", pose_row)
 
-        self.num_frames = QSpinBox(self)
-        self.num_frames.setMaximumWidth(40)
-        self.num_frames.setRange(0, 1024)
-        self.num_frames.setValue(self._data.value[0])
-        self.num_frames.valueChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.num_frames)
+        view_section.addWidget(self.anim_view)
+        view_section.addLayout(button_section)
 
-        self.frame = QLineEdit(self)
-        self.frame.setEmptyText('Image to be displayed')
-        self.frame.setEditable(False)
-        self.frame.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.frame)
+        main_splitter = QSplitter(self)
+        main_splitter.setChildrenCollapsible(False)
 
-        self.button = QPushButton('...')
-        self.button.setMaximumWidth(40)
-        self.button.triggered.connect(self.select_frame)
-        hbox.addWidget(self.button)
+        right_splitter = QSplitter(self)
+        right_splitter.setOrientation(Qt.Vertical)
+        right_splitter.setChilrenCollapsible(False)
+        right_splitter.addWidget(self.palette_menu)
+        right_splitter.addWidget(self.timeline_menu)
 
-    def on_value_changed(self, val):
-        num_frames = int(self.num_frames.value())
-        frame = self.frame.text()
-        self._data.value = (num_frames, frame)
+        main_splitter.addWidget(view_frame)
+        main_splitter.addWidget(right_splitter)
 
-    def select_frame(self):
-        res, ok = FrameSelector.get()
-        if ok:
-            self.frame.setText(res)
+        final_section = QHBoxLayout()
+        self.setLayout(final_section)
+        final_section.addWidget(main_splitter)
 
-class ColorTimeCommand(CombatCommand):
-    def create_editor(self, hbox):
-        label = QLabel("# Frames: ")
-        hbox.addWidget(label)
+        TIMER.tick_elapsed.connect(self.tick)
 
-        self.num_frames = QSpinBox(self)
-        self.num_frames.setMaximumWidth(40)
-        self.num_frames.setRange(0, 1024)
-        self.num_frames.setValue(self._data.value[0])
-        self.num_frames.valueChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.num_frames)
-
-        self.color = ColorIcon(QColor(248, 248, 248).name(), self)
-        self.color.colorChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.color)
-
-    def on_value_changed(self, val):
-        num_frames = int(self.num_frame.value())
-        color = self.color.color().getRgb()
-        self._data.value(num_frames, color)

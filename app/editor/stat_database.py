@@ -16,11 +16,8 @@ class StatTypeDatabase(DatabaseTab):
         title: str = "Stat Types"
         right_frame = StatTypeProperties
 
-        def deletion_func(model, index):
-            return model._data[index].nid not in ("HP", "MOV")
-
         collection_model = StatTypeModel
-        return cls(data, title, right_frame, (deletion_func, None, deletion_func), collection_model, parent)
+        return cls(data, title, right_frame, None, collection_model, parent)
 
 class StatTypeModel(DragDropCollectionModel):
     def data(self, index, role):
@@ -106,11 +103,6 @@ class StatTypeProperties(QWidget):
         name_section.setAlignment(Qt.AlignTop)
 
     def nid_changed(self, text):
-        # Also change name if they are identical
-        if self.current.nid in ('MOV', 'HP') and text != self.current.nid:
-            QMessageBox.warning(self.window, 'Warning', 'Cannot change ID of HP or MOV stat types')
-            self.nid_box.edit.setText(self.current.nid)
-            return
         if self.current.name == self.current.nid:
             self.name_box.edit.setText(text)
         self.current.nid = text
@@ -128,7 +120,7 @@ class StatTypeProperties(QWidget):
         # Check validity of nid!
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
-            QMessageBox.warning(self.window, 'Warning', 'Faction ID %s already in use' % self.current.nid)
+            QMessageBox.warning(self.window, 'Warning', 'Stat Type ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
         self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)

@@ -1,3 +1,6 @@
+from PyQt5.QtWidgets import QStyle
+from PyQt5.QtCore import Qt
+
 from app.data.data import Data
 from app.data.database import DB
 
@@ -6,6 +9,26 @@ from app.extensions.list_dialogs import MultiAttrListDialog
 from app.extensions.list_models import DragDropMultiAttrListModel
 
 class EquationMultiModel(DragDropMultiAttrListModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if index.column() == 1 and role == Qt.DecorationRole:
+            equation = self._data[index.row()]
+            good = self.test_equation(equation)
+            if good:
+                icon = self.style().standardIcon(QStyle.SP_DialogApplyButton)
+            else:
+                icon = self.style().standardIcon(QStyle.SP_DialogCancelButton)
+            return icon
+        elif role == Qt.DisplayRole or role == Qt.EditRole:
+            data = self._data[index.row()]
+            attr = self._headers[index.column()]
+            return getattr(data, attr)
+        return None
+
+    def test_equation(self, equation) -> bool:
+        return True
+
     def delete(self, idx):
         element = self._data[idx]
         affected_items = [item for item in DB.items if item.min_range == element.nid or item.max_range == element.nid]
@@ -42,7 +65,7 @@ class EquationMultiModel(DragDropMultiAttrListModel):
                     item.max_range = new_value
 
 class EquationDialog(MultiAttrListDialog):
-    locked_vars = {"ATTACKSPEED", "HIT", "AVOID", "CRIT_HIT", "CRIT_AVOID", 
+    locked_vars = {"HIT", "AVOID", "CRIT_HIT", "CRIT_AVOID", 
                    "DAMAGE", "DEFENSE", "MAGIC_DAMAGE", "MAGIC_DEFENSE", 
                    "HITPOINTS", "MOVEMENT", "CRIT_ADD", "CRIT_MULT",
                    "DOUBLE_ATK", "DOUBLE_DEF", "STEAL_ATK", "STEAL_DEF", 
@@ -53,6 +76,6 @@ class EquationDialog(MultiAttrListDialog):
         def deletion_func(model, index):
             return model._data[index.row()].nid not in cls.locked_vars
 
-        dlg = cls(DB.equations, "Equation", ("nid", "expression"), 
+        dlg = cls(DB.equations, "Equation", ("nid", "?", "expression"), 
                   EquationMultiModel, (deletion_func, None, deletion_func), cls.locked_vars)
         return dlg

@@ -293,6 +293,10 @@ class CombatAnimProperties(QWidget):
         frames = weapon_anim.frames
         self.timeline_menu.set_current(current_pose, frames)
 
+    def modify_for_palette(self, pixmap: QPixmap) -> QPixmap:
+        current_palette = self.palette_menu.get_current_palette()
+        return pixmap
+
     def draw_frame(self):
         if self.playing:
             current_frame = self.timeline_menu.get_current_frame()

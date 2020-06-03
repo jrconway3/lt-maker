@@ -316,9 +316,12 @@ class AIProperties(QWidget):
 
         main_section = QVBoxLayout()
 
-        self.behaviour1 = PropertyBox("Behaviour 1", BehaviourBox, self)
-        self.behaviour2 = PropertyBox("Behaviour 2", BehaviourBox, self)
-        self.behaviour3 = PropertyBox("Behaviour 3", BehaviourBox, self)
+        self.behaviour1 = BehaviourBox(self)
+        self.behaviour1.setTitle("Behaviour 1")
+        self.behaviour2 = BehaviourBox(self)
+        self.behaviour2.setTitle("Behaviour 2")
+        self.behaviour3 = BehaviourBox(self)
+        self.behaviour3.setTitle("Behaviour 3")
         self.behaviour_boxes = [self.behaviour1, self.behaviour2, self.behaviour3]
 
         main_section.addWidget(self.behaviour1)
@@ -352,7 +355,7 @@ class AIProperties(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.priority_box.edit.setValue(current.priority)
         for idx, behaviour in enumerate(current.behaviours):
-            self.behaviour_boxes[idx].edit.set_current(behaviour)
+            self.behaviour_boxes[idx].set_current(behaviour)
 
 # Testing
 # Run "python -m app.editor.ai_database" from main directory

@@ -3,35 +3,20 @@ from functools import partial
 from app import utilities
 
 from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, QDoubleSpinBox, \
-    QSpinBox, QHBoxLayout, QListWidget, QListWidgetItem, \
+    QSpinBox, QHBoxLayout, QListWidgetItem, \
     QDialog, QTreeView, QDialogButtonBox, QVBoxLayout, QItemDelegate, QComboBox
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex, pyqtSignal
+from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
 
 from app.data.database import DB
 from app.data import item_components
 
+from app.extensions.color_icon import ColorIcon
 from app.extensions.custom_gui import ComboBox
+from app.extensions.widget_list import WidgetList
 from app.extensions.list_widgets import AppendMultiListWidget
 
-class ComponentList(QListWidget):
-    order_swapped = pyqtSignal(int, int)
-    
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.window = parent
-        self.index_list = []
-
-        self.setDragEnabled(True)
-        self.setAcceptDrops(True)
-        self.setDragDropMode(4)  # Internal Move
-
-        self.model().rowsMoved.connect(self.row_moved)
-
-    def clear(self):
-        super().clear()
-        self.index_list.clear()
-
+class ComponentList(WidgetList):
     def add_component(self, component):
         item = QListWidgetItem()
         item.setSizeHint(component.sizeHint())
@@ -46,12 +31,6 @@ class ComponentList(QListWidget):
             self.index_list.remove(component.data.nid)
             return self.takeItem(idx)
         return None
-
-    def row_moved(self, parent, start, end, destination, row):
-        # print(start, end, row, flush=True)
-        elem = self.index_list.pop(start)
-        self.index_list.insert(row, elem)
-        self.order_swapped.emit(start, row)
 
 class BoolItemComponent(QWidget):
     def __init__(self, data, parent):
@@ -231,25 +210,26 @@ class AOEItemComponent(BoolItemComponent):
 
 class ColorItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
-        self.red = QSpinBox(self)
-        self.green = QSpinBox(self)
-        self.blue = QSpinBox(self)
+        color = self._data.value[:3]
+        self.color = ColorIcon(QColor(*color).name(), self)
+        self.color.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color)
+
+        # Alpha
+        label = QLabel("Alpha (0 - 255)")
+        hbox.addWidget(label)
         self.alpha = QSpinBox(self)
-        boxes = (self.red, self.green, self.blue, self.alpha)
-        for idx, box in enumerate(boxes):
-            box.setMaximumWidth(40)
-            box.setRange(0, 255)
-            box.setSingleStep(8)
-            box.setValue(int(self._data.value[idx]))
-            box.valueChanged.connect(self.on_value_changed)
-            hbox.addWidget(box)
+        self.alpha.setMaximumWidth(40)
+        self.alpha.setRange(0, 255)
+        self.alpha.setSingleStep(8)
+        self.alpha.setValue(int(self._data.value[3]))
+        self.alpha.valueChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.alpha)
 
     def on_value_changed(self, val):
-        v1 = int(self.red.value())
-        v2 = int(self.green.value())
-        v3 = int(self.blue.value())
-        v4 = int(self.alpha.value())
-        self._data.value = (v1, v2, v3, v4)
+        color = self.color.color().getRgb()
+        alpha = int(self.alpha.value())
+        self._data.value = (*color, alpha)
 
 class UnitDelegate(QItemDelegate):
     data = DB.units

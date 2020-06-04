@@ -24,10 +24,9 @@ class Palette():
     def __init__(self, nid, colors=None):
         self.nid = nid
         if colors:
-            colors = sorted(colors, key=lambda rgb: colorsys.rgb_to_hsv(*rgb))
-            self.colors = Data(colors)
+            self.colors = sorted(colors, key=lambda rgb: colorsys.rgb_to_hsv(*rgb))
         else:
-            self.colors = Data()
+            self.colors = []
 
 class WeaponAnimation(Prefab):
     def __init__(self, nid):
@@ -35,8 +34,13 @@ class WeaponAnimation(Prefab):
         self.poses = Data()
         self.frames = Data()
 
-class CombatAnimation(Prefab):
+class CombatVariant(Prefab):
     def __init__(self, nid):
         self.nid = nid
         self.weapon_anims = Data()
+
+class CombatAnimation(Prefab):
+    def __init__(self, nid):
+        self.nid = nid
+        self.variants = Data()
         self.palettes = Data()

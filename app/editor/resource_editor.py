@@ -9,6 +9,7 @@ from app.editor.map_sprite_display import MapSpriteDisplay
 from app.editor.panorama_display import PanoramaDisplay
 from app.editor.tile_display import TileSetDisplay, TileMapDisplay
 from app.editor.animation_display import AnimationDisplay
+from app.editor.combat_animation_display import CombatAnimDisplay
 from app.editor.sfx_display import SFXDisplay
 from app.editor.music_display import MusicDisplay
 
@@ -60,7 +61,7 @@ class ResourceEditor(QDialog):
         self.tabs['Portraits'] = PortraitDisplay.create(self)
         self.tabs['Panoramas'] = PanoramaDisplay.create(self)
         self.tabs['Map Sprites'] = MapSpriteDisplay.create(self)
-        # self.tabs['Combat Animations'] = AnimationDisplay.create()
+        self.tabs['Combat Anims'] = CombatAnimDisplay.create()
         # self.tabs['Combat Effects'] = CombatEffectDisplay.create()
         self.tabs['Map Animations'] = AnimationDisplay.create()
         self.tabs['Tilesets'] = TileSetDisplay.create(self)

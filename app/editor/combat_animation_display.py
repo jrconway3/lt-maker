@@ -1,6 +1,7 @@
 class CombatAnimDisplay(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
+        data = RESOURCES.combat_anims
         title = "Combat Animation"
         right_frame = CombatAnimProperties
         collection_model = CombatAnimModel
@@ -95,7 +96,7 @@ class CombatAnimProperties(QWidget):
         self.play_button.clicked.connect(self.play_clicked)
 
         self.stop_button = QToolButton(self)
-        self.stop_button.setICon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.stop_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.stop_button.clicked.connect(self.stop_clicked)
 
         self.loop_button = QToolButton(self)
@@ -121,6 +122,15 @@ class CombatAnimProperties(QWidget):
         self.nid_box = QLineEdit()
         self.nid_box.textChanged.connect(self.nid_changed)
         self.nid_box.editingFinished.connect(self.nid_done_editing)
+
+        variant_row = QHBoxLayout()
+        self.variant_box = ComboBox()
+        self.variant_box.currentTextChanged.connect(self.variant_changed)
+        self.new_variant_button = QPushButton("+")
+        self.new_variant_button.setMaximumWidth(30)
+        self.new_variant_button.clicked.connect(self.add_new_variant)
+        variant_row.addWidget(self.variant_box)
+        variant_row.addWidget(self.new_variant_button)
 
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
@@ -227,6 +237,12 @@ class CombatAnimProperties(QWidget):
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
+    def variant_changed(self, text):
+        pass
+
+    def add_new_variant(self):
+        pass
+
     def weapon_changed(self, text):
         weapon_anim = self.get_current_weapon_anim()
         poses = self.reset_pose_box(weapon_anim)
@@ -261,9 +277,14 @@ class CombatAnimProperties(QWidget):
     def import_png(self):
         pass
 
+    def get_current_variant(self):
+        variant_nid = self.variant_box.currentText()
+        return self.current.variants.get(variant_nid)
+
     def get_current_weapon_anim(self):
+        variant = self.get_current_variant()
         weapon_nid = self.weapon_box.currentText()
-        return self.current.weapon_anims.get(weapon_nid)
+        return variant.get(weapon_nid)
 
     def reset_pose_box(self, weapon_anim):
         self.pose_box.clear()
@@ -278,8 +299,15 @@ class CombatAnimProperties(QWidget):
         self.current = current
         self.nid_box.setText(self.current.nid)
 
+        self.variant_box.clear()
+        variants = self.current.variants
+        self.variant_box.addItems([d.nid for d in variants])
+        self.variant_box.setValue(variants[0].nid)
+
+        variant = self.get_current_variant()
+
         self.weapon_box.clear()
-        weapon_anims = self.current.weapon_anims
+        weapon_anims = variant.weapon_anims
         self.weapon_box.addItems([d.nid for d in weapon_anims])
         self.weapon_box.setValue(weapon_anims[0].nid)
 
@@ -294,12 +322,13 @@ class CombatAnimProperties(QWidget):
         self.timeline_menu.set_current(current_pose, frames)
 
     def modify_for_palette(self, pixmap: QPixmap) -> QPixmap:
-        current_palette = self.palette_menu.get_current_palette()
+        # TODO
+        current_palette = self.palette_menu.get_palette()
         return pixmap
 
     def draw_frame(self):
         if self.playing:
-            current_frame = self.timeline_menu.get_current_frame()
+            num_frames, current_frame = self.timeline_menu.get_current_frame()
             current_time = time.time() * 1000
             milliseconds_past = current_time - self.last_update
             fps = self.speed_box.value()
@@ -310,10 +339,10 @@ class CombatAnimProperties(QWidget):
                 self.last_update = current_time - unspent_time
                 next_frame = self.timeline_menu.get_next_frame()
                 if next_frame:
-                    self.timeline_menu.set_current_frame(next_frame)
+                    pass
                 elif self.loop:
-                    first_frame = self.timeline_menu.reset()
-                    self.timeline_menu.set_current_frame(first_frame)
+                    self.timeline_menu.reset()
+                    next_frame = self.timeline_menu.get_next_frame()
                 else:
                     self.stop()
         elif self.paused:
@@ -326,3 +355,5 @@ class CombatAnimProperties(QWidget):
             pix = self.modify_for_palette(current_frame.pixmap)
             self.anim_view.set_image(pix)
             self.anim_view.show_image()
+
+

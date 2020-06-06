@@ -117,7 +117,7 @@ class MapSpriteModel(ResourceCollectionModel):
         # Check to see what is using me?
         res = self._data[idx]
         nid = res.nid
-        affected_classes = [klass for klass in DB.classes if nid in (klass.male_map_sprite_nid, klass.female_map_sprite_nid)]
+        affected_classes = [klass for klass in DB.classes if nid == klass.map_sprite_nid]
         if affected_classes:
             affected = Data(affected_classes)
             from app.editor.class_database import ClassModel
@@ -135,10 +135,8 @@ class MapSpriteModel(ResourceCollectionModel):
         # What uses map sprites
         # Classes
         for klass in DB.classes:
-            if klass.male_map_sprite_nid == old_nid:
-                klass.male_map_sprite_nid = new_nid
-            if klass.female_map_sprite_nid == old_nid:
-                klass.female_map_sprite_nid = new_nid
+            if klass.map_sprite_nid == old_nid:
+                klass.map_sprite_nid = new_nid
 
 class MapSpriteProperties(QWidget):
     standing_width, standing_height = 192, 144

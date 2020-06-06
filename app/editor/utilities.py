@@ -18,7 +18,8 @@ def convert_colorkey(image):
     image.convertTo(QtGui.QImage.Format_Indexed8)
     for i in range(image.colorCount()):
         if image.color(i) == qCOLORKEY:
-            image.setColor(0, qAlpha)
+            image.setColor(i, qAlpha)
+            break
     return image
 
 enemy_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_colors.items()}
@@ -40,3 +41,12 @@ def color_convert(image, conversion_dict):
             if image.color(i) == old_color:
                 image.setColor(i, new_color)
     return image
+
+def find_palette(image):
+    palette = []
+    for x in range(image.width()):
+        for y in range(image.height()):
+            current_color = image.pixel(x, y)
+            if current_color not in palette:
+                palette.append(current_color)
+    return palette

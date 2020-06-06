@@ -15,6 +15,31 @@ class CombatAnimationCommand():
     def serialize(self):
         return self.nid, self.value
 
+def parse_attr(attr, text: str):
+    if attr is None:
+        return None
+    elif attr is int:
+        return int(text)
+    elif attr == 'color':
+        return tuple(int(_) for _ in text.split(','))
+    elif attr == 'frame':
+        return text
+
+def parse_text(split_text: list) -> CombatAnimationCommand:
+    command_nid = split_text[0]
+    command = get_command(command_nid)
+    values = []
+    for idx, attr in enumerate(command.attr):
+        value = parse_text(attr, split_text[idx])
+        values.append(value)
+    if len(values) == 0:
+        pass
+    elif len(values) == 1:
+        command.value = values[0]
+    elif len(values) > 1:
+        command.value = tuple(values)
+    return command
+
 anim_commands = Data([
     CombatAnimationCommand('frame', '<b>Display Frame</b>', (int, 'frame'), (0, None), 'frame'),
     CombatAnimationCommand('wait', '<b>Wait</b>', int, 0, 'frame'),

@@ -113,14 +113,20 @@ class Resources():
                 else:
                     anim.speed = [int(_) for _ in stats['speed'].split(',')]
 
-    def populate_map_sprites(self, folder):
-        for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
-            for name in files:
-                if name.endswith('-stand.png'):
-                    stand_full_path = os.path.join(root, name)
-                    move_full_path = os.path.join(root, name[:-10] + '-move.png')
-                    new_map_sprite = MapSprite(name[:-10], stand_full_path, move_full_path)
-                    self.map_sprites.append(new_map_sprite)
+    def create_map_sprite(self, folder, fn):
+        save_loc = os.path.join(self.main_folder, folder, fn)
+        print("Save Loc %s" % save_loc)
+        map_sprite_dict = {}
+        if os.path.exists(save_loc):
+            print("Deserializing map sprites from %s" % save_loc)
+            with open(save_loc) as load_file:
+                map_sprite_dict = json.load(load_file)
+        for s_dict in map_sprite_dict:
+            new_map_sprite = MapSprite.deserialize(s_dict)
+            for variant in new_map_sprite.variants:
+                variant.set_standing_full_path(os.path.join(self.main_folder, folder, variant.standing_full_path))
+                variant.set_moving_full_path(os.path.join(self.main_folder, folder, variant.moving_full_path))
+            self.map_sprites.append(new_map_sprite)
 
     def populate_panoramas(self, folder):
         for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
@@ -214,7 +220,7 @@ class Resources():
         self.populate_database(self.animations, 'animations', '.png', Animation)
         self.set_up_animations('animations/animation_manifest.xml')
 
-        self.populate_map_sprites('map_sprites')
+        self.create_map_sprites('map_sprites', 'map_sprites.json')
         self.populate_panoramas('panoramas')
 
         self.create_tilesets('tilesets', 'tilesets.json')
@@ -321,29 +327,39 @@ class Resources():
                 full_path = os.path.join(panoramas_dir, fn)
                 print("Deleting %s" % full_path)
                 os.remove(full_path)
-                
+
         # === Save Map Sprites ===
         map_sprites_dir = os.path.join(resource_dir, 'map_sprites')
         if not os.path.exists(map_sprites_dir):
             os.mkdir(map_sprites_dir)
+
         for map_sprite in self.map_sprites:
-            # Standing sprite
-            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-stand.png')
-            if os.path.abspath(map_sprite.standing_full_path) != os.path.abspath(new_full_path):
-                shutil.copy(map_sprite.standing_full_path, new_full_path)
-                map_sprite.set_standing_full_path(new_full_path)
-            # Moving sprite
-            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-move.png')
-            if os.path.abspath(map_sprite.moving_full_path) != os.path.abspath(new_full_path):
-                shutil.copy(map_sprite.moving_full_path, new_full_path)
-                map_sprite.set_moving_full_path(new_full_path)
+            for variant in map_sprite.variants:
+                # Standing sprite
+                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + variant.nid + '-stand.png')
+                if os.path.abspath(variant.standing_full_path) != os.path.abspath(new_full_path):
+                    shutil.copy(variant.standing_full_path, new_full_path)
+                    variant.set_standing_full_path(new_full_path)
+                # Moving sprite
+                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + variant.nid + '-move.png')
+                if os.path.abspath(variant.moving_full_path) != os.path.abspath(new_full_path):
+                    shutil.copy(variant.moving_full_path, new_full_path)
+                    variant.set_moving_full_path(new_full_path)
+
+        map_sprite_save = [m.serialize() for m in self.map_sprites]
+        save_loc = os.path.join(map_sprites_dir, 'map_sprites.json')
+        print("Serializing map sprites to %s" % save_loc)
+        with open(save_loc, 'w') as serialize_file:
+            json.dump(map_sprite_save, serialize_file, indent=4) 
+
         # Deleting unused map sprites
-        nids = set(d.nid for d in self.map_sprites)
+        all_paths = set()
+        for map_sprite in self.map_sprites:
+            all_paths |= map_sprite.get_all_paths()
         for fn in os.listdir(map_sprites_dir):
-            if fn.endswith('.png') and fn.split('-')[0] not in nids:
-                full_path = os.path.join(map_sprites_dir, fn)
-                print("Deleting %s" % full_path)
-                os.remove(full_path)
+            if fn.endswith('.png') and fn not in all_paths:
+                print("Deleting %s" % fn)
+                os.remove(fn)
 
         # === Save Animations ===
         animation_dir = os.path.join(resource_dir, 'animations')
@@ -577,6 +593,11 @@ class Animation():
         self.full_path = full_path
 
 class MapSprite():
+    def __init__(self, nid):
+        self.nid = nid
+        self.variants = data.Data()
+
+class MapSpriteVariant():
     def __init__(self, nid, stand_full_path=None, move_full_path=None, standing_pixmap=None, moving_pixmap=None):
         self.nid = nid
         self.standing_full_path = stand_full_path

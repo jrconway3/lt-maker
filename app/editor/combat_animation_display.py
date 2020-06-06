@@ -125,30 +125,42 @@ class CombatAnimProperties(QWidget):
 
         variant_row = QHBoxLayout()
         self.variant_box = ComboBox()
-        self.variant_box.currentTextChanged.connect(self.variant_changed)
+        self.variant_box.currentIndexChanged.connect(self.variant_changed)
         self.new_variant_button = QPushButton("+")
         self.new_variant_button.setMaximumWidth(30)
         self.new_variant_button.clicked.connect(self.add_new_variant)
+        self.delete_variant_button = QPushButton()
+        self.delete_variant_button.setIcon(QIcon("icons/x.png"))
+        self.delete_variant_button.clicked.connect(self.delete_variant)
         variant_row.addWidget(self.variant_box)
         variant_row.addWidget(self.new_variant_button)
+        variant_row.addWidget(self.delete_variant_button)
 
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
-        self.weapon_box.currentTextChanged.connect(self.weapon_changed)
+        self.weapon_box.currentIndexChanged.connect(self.weapon_changed)
         self.new_weapon_button = QPushButton("+")
         self.new_weapon_button.setMaximumWidth(30)
         self.new_weapon_button.clicked.connect(self.add_new_weapon)
+        self.delete_weapon_button = QPushButton()
+        self.delete_weapon_button.setIcon(QIcon("icons/x.png"))
+        self.delete_weapon_button.clicked.connect(self.delete_weapon)
         weapon_row.addWidget(self.weapon_box)
         weapon_row.addWidget(self.new_weapon_button)
+        weapon_row.addWidget(self.delete_weapon_button)
 
         pose_row = QHBoxLayout()
         self.pose_box = ComboBox()
-        self.pose_box.currentTextChanged.connect(self.pose_changed)
+        self.pose_box.currentIndexChanged.connect(self.pose_changed)
         self.new_pose_button = QPushButton("+")
         self.new_pose_button.setMaximumWidth(30)
         self.new_pose_button.clicked.connect(self.add_new_pose)
+        self.delete_pose_button = QPushButton()
+        self.delete_pose_button.setIcon(QIcon("icons/x.png"))
+        self.delete_pose_button.clicked.connect(self.delete_pose)
         pose_row.addWidget(self.pose_box)
         pose_row.addWidget(self.new_pose_button)
+        pose_row.addWidget(self.delete_pose_button)
 
         info_form.addRow("Unique ID", self.nid_box)
         info_form.addRow("Weapon", weapon_row)
@@ -158,9 +170,9 @@ class CombatAnimProperties(QWidget):
         frame_group_box.setTitle("Add Image Frames")
         frame_layout = QVBoxLayout()
         frame_group_box.setLayout(frame_layout)
-        self.import_from_lt_button = QPushButton("Import Lion Throne Animation...")
+        self.import_from_lt_button = QPushButton("Import Lion Throne Weapon Animation...")
         self.import_from_lt_button.clicked.connect(self.import_lion_throne)
-        self.import_from_gba_button = QPushButton("Import GBA Animation...")
+        self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
         self.import_png_button = QPushButton("Import PNG Images...")
         self.import_png_button.clicked.connect(self.import_png)
@@ -237,13 +249,40 @@ class CombatAnimProperties(QWidget):
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
+    def ask_permission(self, obj, text: str) -> bool:
+        ret = QMessageBox.warning(self, "Deletion Warning", 
+                                  "Really delete %s <b>%s</b>?" % (text, obj.nid),
+                                  QMessageBox.Ok | QMessageBox.Cancel)
+        if ret == QMessageBox.Ok:
+            return True
+        else:
+            return False
+
     def variant_changed(self, text):
-        pass
+        variant = self.get_current_variant()
+        self.reset_weapon_box(variant)
+        weapon_anim = self.get_current_weapon_anim()
+        poses = self.reset_pose_box(weapon_anim)
+
+        current_pose_nid = self.pose_box.currentText()
+        current_pose = poses.get(current_pose_nid)
+        frames = weapon_anim.frames
+        self.timeline_menu.set_current(current_pose, frames)
 
     def add_new_variant(self):
-        pass
+        new_nid = utilities.get_next_name('Variant', self.current.variants.keys())
+        new_variant = combat_animation.CombatVariant(new_nid)
+        self.current.variants.append(new_variant)
+        self.variant_box.addItem(new_nid)
+        self.variant_box.setValue(new_nid)
 
-    def weapon_changed(self, text):
+    def delete_variant(self):
+        variant = self.get_current_variant()
+        if self.ask_permission(variant, 'Variant'):
+            self.current.variants.delete(variant)
+            self.set_current(self.current)
+
+    def weapon_changed(self, idx):
         weapon_anim = self.get_current_weapon_anim()
         poses = self.reset_pose_box(weapon_anim)
 
@@ -253,9 +292,22 @@ class CombatAnimProperties(QWidget):
         self.timeline_menu.set_current(current_pose, frames)
 
     def add_new_weapon(self):
-        pass
+        variant = get_current_variant()
+        new_nid = utilities.get_next_name('Weapon', variant.weapon_anims.keys())
+        new_weapon = combat_animation.WeaponAnimation(new_nid)
+        variant.append(new_weapon)
+        self.weapon_box.addItem(new_nid)
+        self.weapon_box.setValue(new_nid)
 
-    def pose_changed(self, text):
+    def delete_weapon(self):
+        weapon = self.get_current_weapon_anim()
+        if self.ask_permission(weapon, 'Weapon Animation'):
+            variant = self.get_current_variant()
+            variant.delete(weapon)
+            self.reset_weapon_box()
+            self.reset_pose_box()
+
+    def pose_changed(self, idx):
         current_pose_nid = self.pose_box.currentText()
         weapon_anim = self.get_current_weapon_anim()
         poses = weapon_anim.poses
@@ -263,13 +315,97 @@ class CombatAnimProperties(QWidget):
         self.timeline_menu.set_current_pose(current_pose)
 
     def add_new_pose(self):
-        pass
+        weapon_anim = self.get_current_weapon_anim()
+        new_nid = utilities.get_next_name('Pose', weapon_anim.poses.keys())
+        new_pose = combat_animation.Pose(new_nid)
+        weapon_anim.append(new_pose)
+        self.pose_box.addItem(new_nid)
+        self.pose_box.setValue(new_nid)
+
+    def delete_pose(self):
+        weapon_anim = self.get_current_weapon_anim()
+        pose = weapon_anim.poses.get(self.pose_box.currentText())
+        if self.ask_permission(pose, 'Pose'):
+            weapon_anim.poses.delete(pose)
+            self.reset_pose_box()
 
     def palette_changed(self, palette):
         pass
 
     def import_lion_throne(self):
-        pass
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
+        if ok:
+            for fn in fns:
+                if fn.endswith('-Script.txt'):
+                    kind = os.path.split(fn)[-1].replace('-Script.txt', '')
+                    nid, weapon = kind.split('-')[0]
+                    variant_nid = int(nid[-1])
+                    if variant_nid == 0:
+                        variant_nid = "Male"
+                    elif variant_nid == 5:
+                        variant_nid = "Female"
+                    else:
+                        variant_nid = "?"
+                    nid = nid[:-1]
+                    index_fn = fn.replace('-Script.txt', '-Index.txt')
+                    if not os.path.exists(index_fn):
+                        QMessageBox.error("Could not find associated index file: %s" % index_fn)
+                        continue
+                    palettes = glob.glob(fn.replace('-Script.txt', '-*.png'))
+                    if not palettes:
+                        QMessageBox.error("Could not find any associated palettes")
+                        continue
+                    palette_nids = []
+                    for palette_fn in palettes:
+                        palette_nid = os.path.split(palette_fn)[-1][:-4].split('-')[-1]
+                        palette_nids.append(palette_nid)
+                        print(palette_nid)
+                        if palette_nid not in self.current.palettes:
+                            palette_colors = editor_utilities.find_palette(QImage(palette_fn))
+                            new_palette = combat_animation.Palette(palette_nid, palette_colors)
+                            self.current.palettes.append(new_palette)
+                    # Get the current variant_nid
+                    if variant_nid not in self.current.variants:
+                        variant = combat_animation.CombatVariant(variant_nid)
+                        self.current.variants.append(variant)
+                    else:
+                        variant = self.current.variants.get(variant_nid)
+                    new_weapon = combat_animation.WeaponAnimation(weapon)
+                    # Now add frames to weapon animation
+                    with open(index_fn, encoding='utf-8') as index_fp:
+                        index_lines = [line.strip() for line in index_fp.readlines()]
+                        index_lines = [l.split(';') for l in index_lines]
+                    # Use the first palette
+                    main_pixmap = QPixmap(palettes[0])
+                    for i in index_lines:
+                        nid = i[0]
+                        x, y = [int(_) for _ in i[1].split(',')]
+                        width, height = [int(_) for _ in i[2].split(',')]
+                        offset_x, offset_y = [int(_) for _ in i[3].split(',')]
+                        new_pixmap = main_pixmap.copy(x, y, width, height)
+                        # Need to convert to universal base palette
+                        im = new_pixmap.toImage()
+                        im = editor_utilities.color_convert(im, self.current.palettes[0].colors, combat_animation.base_palette)
+                        new_pixmap = QPixmap.fromImage(im)
+                        new_frame = Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)
+                        new_weapon.frames.append(new_frame)
+                    # Now add poses to the weapon anim
+                    with open(fn, encoding='utf-8') as script_fp:
+                        script_lines = [line.strip() for line in script_fp.readlines()]
+                        script_lines = [line.split(';') for line in script_lines if line and not line.startswith('#')]
+                    current_pose = None
+                    for line in script_lines:
+                        if line[0] == 'pose':
+                            current_pose = combat_animation.Pose(line[1])
+                            new_weapon.poses.append(current_pose)
+                        else:
+                            command = combat_animation_command.parse_text(line)
+                            current_pose.timeline.append(command)
+                    print("Done!!! %s" % fn)
+            # Reset
+            self.set_current(self.current)
 
     def import_gba(self):
         pass
@@ -285,6 +421,13 @@ class CombatAnimProperties(QWidget):
         variant = self.get_current_variant()
         weapon_nid = self.weapon_box.currentText()
         return variant.get(weapon_nid)
+
+    def reset_weapon_box(self, variant):
+        self.weapon_box.clear()
+        weapon_anims = variant.weapon_anims
+        self.weapon_box.addItem([d.nid for d in weapon_anims])
+        self.weapon_box.setValue(weapon_anims[0].nid)
+        return weapon_anims
 
     def reset_pose_box(self, weapon_anim):
         self.pose_box.clear()
@@ -322,38 +465,70 @@ class CombatAnimProperties(QWidget):
         self.timeline_menu.set_current(current_pose, frames)
 
     def modify_for_palette(self, pixmap: QPixmap) -> QPixmap:
-        # TODO
         current_palette = self.palette_menu.get_palette()
+        im = pixmap.toImage()
+        im_palette = combat_animation.base_palette
+        im = editor_utilities.convert_colorkey(im)
+        conv_dict = {qRgb(*a): qRgb(*b) for a, b in zip(im_palette.colors, current_palette.colors)}
+        im = editor_utilities.color_convert(im, conv_dict)
+        pixmap = QPixmap.fromImage(im)
         return pixmap
 
-    def draw_frame(self):
+    def process(self):
+        def proceed():
+            self.last_update = current_time - unspent_time
+            next_command = self.timeline_menu.inc_current_idx()
+            if next_command:
+                pass
+            elif self.loop:
+                self.timeline_menu.reset()
+                next_command = self.timeline_menu.inc_current_idx()
+            else:
+                self.stop()
+                return None
+            return next_command
+
         if self.playing:
-            num_frames, current_frame = self.timeline_menu.get_current_frame()
             current_time = time.time() * 1000
+            framerate = 1000 / self.speed_box.value()
             milliseconds_past = current_time - self.last_update
-            fps = self.speed_box.value()
-            framerate = 1000 / fps
             num_frames = int(milliseconds_past / framerate)
             unspent_time = milliseconds_past % framerate
-            if num_frames >= current_frame.num_frames:
-                self.last_update = current_time - unspent_time
-                next_frame = self.timeline_menu.get_next_frame()
-                if next_frame:
-                    pass
-                elif self.loop:
-                    self.timeline_menu.reset()
-                    next_frame = self.timeline_menu.get_next_frame()
+
+            current_command = self.timeline_menu.get_current_command()
+
+            while current_command:
+                if current_command.nid == 'frame':
+                    time_to_display, image = current_command.value
+                    if num_frames >= time_to_display:
+                        current_command = proceed()
+                    else:
+                        break  # No need to proceed anyfurther
+                elif current_command.nid == 'wait':
+                    time_to_display = current_command.value
+                    if num_frames >= time_to_display:
+                        current_command = proceed()
+                    else:
+                        break
                 else:
-                    self.stop()
+                    current_command = proceed()
+
         elif self.paused:
-            current_frame = self.timeline_menu.get_current_frame()
+            current_command = self.timeline_menu.get_current_command()
         else:
-            current_frame = self.timeline_menu.get_first_frame()
+            current_command = self.timeline_menu.get_first_command_frame()
+        return current_command
+
+    def draw_frame(self):
+        current_command = self.process()
 
         # Actually show current frame
-        if current_frame:
-            pix = self.modify_for_palette(current_frame.pixmap)
-            self.anim_view.set_image(pix)
-            self.anim_view.show_image()
-
-
+        if current_command.nid == 'frame':
+            frame = current_command.value[1]
+            actor_pix = self.modify_for_palette(frame.pixmap)
+        elif current_command.nid == 'wait':
+            actor_pix = None
+        else:
+            return
+        self.anim_view.set_image(actor_pix)
+        self.anim_view.show_image()

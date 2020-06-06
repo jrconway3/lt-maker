@@ -1,9 +1,7 @@
-import colorsys
-
 from app.data.data import Data, Prefab
 
-required_poses = ('Stand', 'Hit', 'Miss')
-other_poses = ('RangedStand', 'Critical')
+required_poses = ('Stand', 'Hit', 'Miss', 'Dodge')
+other_poses = ('RangedStand', 'RangedDodge', 'Critical')
 
 class Pose(Prefab):
     def __init__(self, nid):
@@ -11,11 +9,12 @@ class Pose(Prefab):
         self.timeline = []
 
 class Frame():
-    def __init__(self, nid, full_path=None, pixmap=None):
+    def __init__(self, nid, offset, full_path=None, pixmap=None):
         self.nid = nid
         self.full_path = full_path
         self.pixmap = pixmap
         self.image = None
+        self.offset = offset
 
     def set_full_path(self, full_path):
         self.full_path = full_path
@@ -23,10 +22,7 @@ class Frame():
 class Palette():
     def __init__(self, nid, colors=None):
         self.nid = nid
-        if colors:
-            self.colors = sorted(colors, key=lambda rgb: colorsys.rgb_to_hsv(*rgb))
-        else:
-            self.colors = []
+        self.colors = colors or []
 
 class WeaponAnimation(Prefab):
     def __init__(self, nid):
@@ -44,3 +40,5 @@ class CombatAnimation(Prefab):
         self.nid = nid
         self.variants = Data()
         self.palettes = Data()
+
+base_palette = Palette('base', [(248, 248, 248)] + [(0, 0, x*8) for x in range(15)])

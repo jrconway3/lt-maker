@@ -297,6 +297,15 @@ class UnitProperties(QWidget):
         self.item_widget.items_updated.connect(self.items_changed)
         item_section.addWidget(self.item_widget)
 
+        self.variant_box = PropertyBox("Animation Variant", QLineEdit, self)
+        self.variant_box.edit.textChanged.connect(self.variant_changed)
+        self.variant_box.edit.setPlaceholderText("Variant Animation ID")
+
+        self.alternate_class_box = PropertyBox("Alternate Classes", MultiSelectComboBox, self)
+        self.alternate_class_box.edit.setPlaceholderText("Class Change Options...")
+        self.alternate_class_box.edit.addItems(DB.classes.keys())
+        self.alternate_class_box.edit.updated.connect(self.alternate_class_changed)
+
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)
         total_section.addLayout(main_section)
@@ -310,6 +319,9 @@ class UnitProperties(QWidget):
         right_section.addLayout(item_section)
         right_section.addWidget(QHLine())
         right_section.addLayout(skill_section)
+        right_section.addWidget(QHLine())
+        right_section.addWidget(self.variant_box)
+        right_section.addWidget(self.alternate_class_box)
         right_widget = QWidget()
         right_widget.setLayout(right_section)
 
@@ -435,6 +447,12 @@ class UnitProperties(QWidget):
         else:
             pass
 
+    def variant_changed(self, text):
+        self.current.variant = text
+
+    def alternate_class_changed(self):
+        self.current.alternate_classes = self.alternate_class_box.edit.currentText()
+
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
@@ -459,6 +477,16 @@ class UnitProperties(QWidget):
         # print(current.nid)
         # print(current.starting_items, flush=True)
         self.item_widget.set_current(current.starting_items)
+
+        if current.variant:
+            self.variant_box.edit.setText(current.variant)
+        else:
+            self.variant_box.edit.clear()
+
+        alternate_classes = current.alternate_classes[:]
+        self.alternate_class_box.edit.clear()
+        self.alternate_class_box.edit.addItems(DB.classes.keys())
+        self.alternate_class_box.edit.setCurrentTexts(alternate_classes)
 
         self.icon_edit.set_current(current.portrait_nid)
 

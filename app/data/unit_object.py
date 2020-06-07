@@ -21,6 +21,7 @@ class UnitObject(Prefab):
         self.party = 0
         self.klass = prefab.klass
         self.gender = prefab.gender
+        self.variant = prefab.variant
         self.level = prefab.level
         self.exp = 0
         self.generic = prefab.generic

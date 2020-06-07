@@ -61,9 +61,12 @@ class MapSpriteModel(ResourceCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             map_sprite = self._data[index.row()]
-            if not map_sprite.standing_pixmap:
-                map_sprite.standing_pixmap = QPixmap(map_sprite.standing_full_path)
-            pixmap = map_sprite.standing_pixmap
+            if not map_sprite.variants:
+                return None
+            first_variant = map_sprite.variants[0]
+            if not first_variant.standing_pixmap:
+                first_variant.standing_pixmap = QPixmap(first_variant.standing_full_path)
+            pixmap = first_variant.standing_pixmap
             # num = TIMER.passive_counter.count
             num = 0
             pixmap = get_basic_icon(pixmap, num, index == self.window.view.currentIndex())
@@ -72,46 +75,8 @@ class MapSpriteModel(ResourceCollectionModel):
         return None
 
     def create_new(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
-        nid = None
-        standing_full_path, moving_full_path = None, None
-        standing_pix, moving_pix = None, None
-        fn, sok = QFileDialog.getOpenFileName(self.window, "Choose Standing Map Sprite", starting_path)
-        if sok:
-            if fn.endswith('.png'):
-                nid = os.path.split(fn)[-1][:-4]
-                standing_pix = QPixmap(fn)
-                nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.map_sprites])
-                standing_full_path = fn
-                if standing_pix.width() == 192 and standing_pix.height() == 144:
-                    pass
-                else:
-                    QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size (192x144 px)")
-                    return
-            else:
-                QMessageBox.critical(self.window, "Error", "Image must be PNG format")
-                return
-            parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
-        fn, mok = QFileDialog.getOpenFileName(self.window, "Choose Moving Map Sprite", starting_path)
-        if mok:
-            if fn.endswith('.png'):
-                moving_pix = QPixmap(fn)
-                moving_full_path = fn
-                if moving_pix.width() == 192 and moving_pix.height() == 160:
-                    pass
-                else:
-                    QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size (192x160 px)")
-                    return
-            else:
-                QMessageBox.critical(self.window, "Error", "Image must be png format")
-                return
-        if sok and mok and nid:
-            RESOURCES.create_new_map_sprite(nid, standing_full_path, moving_full_path, standing_pix, moving_pix)
-            parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+        nid = utilities.get_next_name("New Map Sprite", self._data.keys())
+        RESOURCES.create_new_map_sprite(nid)
 
     def delete(self, idx):
         # Check to see what is using me?
@@ -150,17 +115,35 @@ class MapSpriteProperties(QWidget):
 
         # Populate resources
         for resource in self._data:
-            if resource.standing_full_path:
-                resource.standing_pixmap = QPixmap(resource.standing_full_path)
-            if resource.moving_full_path:
-                resource.moving_pixmap = QPixmap(resource.moving_full_path)
+            for variant in resource.variants:
+                if variant.standing_full_path:
+                    variant.standing_pixmap = QPixmap(variant.standing_full_path)
+                if variant.moving_full_path:
+                    variant.moving_pixmap = QPixmap(variant.moving_full_path)
 
         self.current = current
 
-        left_section = QHBoxLayout()
+        left_section = QVBoxLayout()
 
         self.frame_view = IconView(self)
         left_section.addWidget(self.frame_view)
+
+        label = QLabel("Variant")
+        variant_row = QHBoxLayout()
+        self.variant_box = ComboBox()
+        self.variant_box.currentIndexChanged.connect(self.variant_changed)
+        self.new_variant_button = QPushButton("+")
+        self.new_variant_button.setMaximumWidth(30)
+        self.new_variant_button.clicked.connect(self.add_new_variant)
+        self.delete_variant_button = QPushButton()
+        self.delete_variant_button.setIcon(QIcon("icons/x.png"))
+        self.delete_variant_button.clicked.connect(self.delete_variant)
+        variant_row.addWidget(self.variant_box)
+        variant_row.addWidget(self.new_variant_button)
+        variant_row.addWidget(self.delete_variant_button)
+
+        left_section.addWidget(label)
+        left_section.addLayout(variant_row)
 
         right_section = QVBoxLayout()
 
@@ -233,8 +216,7 @@ class MapSpriteProperties(QWidget):
 
         TIMER.tick_elapsed.connect(self.tick)
 
-    def set_current(self, current):
-        self.current = current
+    def paint_variant(self, variant):
         # Painting
         base_image = QImage(self.standing_width + self.moving_width, 
                             max(self.standing_height, self.moving_height),
@@ -242,14 +224,23 @@ class MapSpriteProperties(QWidget):
         base_image.fill(QColor(0, 0, 0, 0))
         painter = QPainter()
         painter.begin(base_image)
-        if self.current.standing_pixmap:
-            painter.drawImage(0, 8, self.current.standing_pixmap.toImage())
-        if self.current.moving_pixmap:
-            painter.drawImage(self.standing_width, 0, self.current.moving_pixmap.toImage())
+        if variant.standing_pixmap:
+            painter.drawImage(0, 8, variant.standing_pixmap.toImage())
+        if variant.moving_pixmap:
+            painter.drawImage(self.standing_width, 0, variant.moving_pixmap.toImage())
         painter.end()
+        return base_image
 
-        self.raw_view.edit.set_image(QPixmap.fromImage(base_image))
-        self.raw_view.edit.show_image()
+    def set_current(self, current):
+        self.current = current
+        if self.current.variants:
+            variant = self.current.variant[0]
+            base_image = self.paint_variant(variant)
+            self.raw_view.edit.set_image(QPixmap.fromImage(base_image))
+            self.raw_view.edit.show_image()
+        else:
+            self.raw_view.edit.set_image(None)
+            self.raw_view.edit.show_image()
 
         self.draw_frame()
 
@@ -258,24 +249,28 @@ class MapSpriteProperties(QWidget):
         self.draw_frame()
 
     def draw_frame(self):
+        variant_nid = self.variant_box.currentText()
+        variant = self.current.variants.get(variant_nid)
+        if not variant:
+            return
         if self.left_arrow.isChecked():
             num = TIMER.active_counter.count
-            frame = self.current.moving_pixmap.copy(num*48, 40, 48, 40)
+            frame = variant.moving_pixmap.copy(num*48, 40, 48, 40)
         elif self.right_arrow.isChecked():
             num = TIMER.active_counter.count
-            frame = self.current.moving_pixmap.copy(num*48, 80, 48, 40)
+            frame = variant.moving_pixmap.copy(num*48, 80, 48, 40)
         elif self.up_arrow.isChecked():
             num = TIMER.active_counter.count
-            frame = self.current.moving_pixmap.copy(num*48, 120, 48, 40)
+            frame = variant.moving_pixmap.copy(num*48, 120, 48, 40)
         elif self.down_arrow.isChecked():
             num = TIMER.active_counter.count
-            frame = self.current.moving_pixmap.copy(num*48, 0, 48, 40)
+            frame = variant.moving_pixmap.copy(num*48, 0, 48, 40)
         elif self.focus.isChecked():
             num = TIMER.passive_counter.count
-            frame = self.current.standing_pixmap.copy(num*64, 96, 64, 48)
+            frame = variant.standing_pixmap.copy(num*64, 96, 64, 48)
         else:
             num = TIMER.passive_counter.count
-            frame = self.current.standing_pixmap.copy(num*64, 0, 64, 48)
+            frame = variant.standing_pixmap.copy(num*64, 0, 64, 48)
         frame = frame.toImage()
         frame = editor_utilities.convert_colorkey(frame)
         if self.current_color == 0:
@@ -304,3 +299,68 @@ class MapSpriteProperties(QWidget):
     def color_clicked(self, spec_button):
         self.current_color = self.colors.index(spec_button)
         self.draw_frame()
+
+    def variant_changed(self, idx):
+        variant_nid = self.variant_box.currentText()
+        variant = self.current.variants.get(variant_nid)
+        base_image = self.paint_variant(variant)
+        self.raw_view.edit.set_image(QPixmap.fromImage(base_image))
+        self.raw_view.edit.show_image()
+
+    def add_variant(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        nid = None
+        standing_full_path, moving_full_path = None, None
+        standing_pix, moving_pix = None, None
+        fn, sok = QFileDialog.getOpenFileName(self.window, "Choose Standing Map Sprite", starting_path)
+        if sok:
+            if fn.endswith('.png'):
+                nid = os.path.split(fn)[-1][:-4]
+                standing_pix = QPixmap(fn)
+                nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.map_sprites])
+                standing_full_path = fn
+                if standing_pix.width() == 192 and standing_pix.height() == 144:
+                    pass
+                else:
+                    QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size (192x144 px)")
+                    return
+            else:
+                QMessageBox.critical(self.window, "Error", "Image must be PNG format")
+                return
+            parent_dir = os.path.split(fn)[0]
+            settings.setValue("last_open_path", parent_dir)
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fn, mok = QFileDialog.getOpenFileName(self.window, "Choose Moving Map Sprite", starting_path)
+        if mok:
+            if fn.endswith('.png'):
+                moving_pix = QPixmap(fn)
+                moving_full_path = fn
+                if moving_pix.width() == 192 and moving_pix.height() == 160:
+                    pass
+                else:
+                    QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size (192x160 px)")
+                    return
+            else:
+                QMessageBox.critical(self.window, "Error", "Image must be png format")
+                return
+        if sok and mok and nid:
+            RESOURCES.create_new_map_sprite_variant(nid, self.current, standing_full_path, moving_full_path, standing_pix, moving_pix)
+            parent_dir = os.path.split(fn)[0]
+            settings.setValue("last_open_path", parent_dir)
+
+    def delete_variant(self):
+        variant_nid = self.variant_box.currentText()
+        variant = self.current.variants.get(variant_nid)
+        if self.ask_permission(variant, 'Variant'):
+            self.current.variants.delete(variant)
+            self.set_current(self.current)
+
+    def ask_permission(self, obj, text: str) -> bool:
+        ret = QMessageBox.warning(self, "Deletion Warning", 
+                                  "Really delete %s <b>%s</b>?" % (text, obj.nid),
+                                  QMessageBox.Ok | QMessageBox.Cancel)
+        if ret == QMessageBox.Ok:
+            return True
+        else:
+            return False

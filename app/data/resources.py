@@ -509,10 +509,15 @@ class Resources():
         self.portraits.append(new_portrait)
         return new_portrait
 
-    def create_new_map_sprite(self, nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap):
-        new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap)
+    def create_new_map_sprite(self, nid):
+        new_map_sprite = MapSprite(nid)
         self.map_sprites.append(new_map_sprite)
         return new_map_sprite
+
+    def create_new_map_sprite_variant(self, map_sprite, nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap):
+        new_variant = MapSpriteVariant(nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap)
+        map_sprite.variants.append(new_variant)
+        return new_variant
 
     def create_new_panorama(self, nid, full_path, pixmaps):
         new_panorama = Panorama(nid, full_path, pixmaps)

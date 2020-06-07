@@ -45,18 +45,47 @@ class ClassDatabase(DatabaseTab):
     def tick(self):
         self.update_list()
 
-def get_map_sprite_icon(klass, num=0, current=False, team='player', gender=0):
-    if gender >= 5:
-        res = RESOURCES.map_sprites.get(klass.female_map_sprite_nid)
-    else:
-        res = RESOURCES.map_sprites.get(klass.male_map_sprite_nid)
+def get_map_sprite_icon(klass, num=0, current=False, team='player', gender=0, variant=None):
+    res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
     if not res:
         return None
+    if not res.variants:
+        return None
+    if variant and variant in res.variants:
+        res = res.variants.get(variant)
+    elif gender >= 5 and 'Female' in res.variants:
+        res = res.variants.get('Female')
+    elif 'Male' in res.variants:
+        res = res.variants.get('Male')
+    else:
+        res = res.variants[0]
     if not res.standing_pixmap:
         res.standing_pixmap = QPixmap(res.standing_full_path)
     pixmap = res.standing_pixmap
     pixmap = map_sprite_display.get_basic_icon(pixmap, num, current, team)
     return pixmap
+
+def get_combat_anim_icon(klass):
+    res = RESOURCES.combat_anims.get(klass.combat_anim_nid)
+    if not res:
+        return None
+    if not res.variants:
+        return None
+    res = res.variants[0]
+    res = res.weapon_anims.get('Unarmed', res.weapon_anims[0])
+    if 'Stand' not in res.poses:
+        return None
+    pose = res.poses.get('Stand')
+    for command in pose.timeline:
+        if command.nid == 'frame':
+            frame_nid = command.value[1]
+            if frame_nid in res.frames:
+                frame = res.frames.get(frame_nid)
+                if not frame.pixmap:
+                    frame.pixmap = QPixmap(frame.full_path)
+                pixmap = frame.pixmap
+                return pixmap
+    return None
 
 class ClassModel(DragDropCollectionModel):
     display_team = 'player'
@@ -267,15 +296,15 @@ class ClassProperties(QWidget):
         self.opp_exp_mult_box.edit.valueChanged.connect(self.opp_exp_mult_changed)
         exp_section.addWidget(self.opp_exp_mult_box)
 
-        self.male_map_sprite_label = QLabel()
-        self.male_map_sprite_label.setMaximumWidth(32)
-        self.male_map_sprite_box = QPushButton("Choose Male Map Sprite...")
-        self.male_map_sprite_box.clicked.connect(self.select_male_map_sprite)
+        self.map_sprite_label = QLabel()
+        self.map_sprite_label.setMaximumWidth(32)
+        self.map_sprite_box = QPushButton("Choose Map Sprite...")
+        self.map_sprite_box.clicked.connect(self.select_map_sprite)
 
-        self.female_map_sprite_label = QLabel()
-        self.female_map_sprite_label.setMaximumWidth(32)
-        self.female_map_sprite_box = QPushButton("Choose Female Map Sprite...")
-        self.female_map_sprite_box.clicked.connect(self.select_female_map_sprite)
+        self.combat_anim_label = QLabel()
+        self.combat_anim_label.setMaximumWidth(64)
+        self.combat_anim_box = QPushButton("Choose Combat Animation...")
+        self.combat_anim_box.clicked.connect(self.select_combat_anim)
 
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)
@@ -291,14 +320,14 @@ class ClassProperties(QWidget):
         right_section.addLayout(weapon_section)
         right_section.addWidget(QHLine())
         right_section.addLayout(skill_section)
-        male_section = QHBoxLayout()
-        male_section.addWidget(self.male_map_sprite_label)
-        male_section.addWidget(self.male_map_sprite_box)
-        right_section.addLayout(male_section)
-        female_section = QHBoxLayout()
-        female_section.addWidget(self.female_map_sprite_label)
-        female_section.addWidget(self.female_map_sprite_box)
-        right_section.addLayout(female_section)
+        map_sprite_section = QHBoxLayout()
+        map_sprite_section.addWidget(self.map_sprite_label)
+        map_sprite_section.addWidget(self.map_sprite_box)
+        right_section.addLayout(map_sprite_section)
+        combat_anim_section = QHBoxLayout()
+        combat_anim_section.addWidget(self.combat_anim_label)
+        combat_anim_section.addWidget(self.combat_anim_box)
+        right_section.addLayout(combat_anim_section)
         right_widget = QWidget()
         right_widget.setLayout(right_section)
 
@@ -406,22 +435,22 @@ class ClassProperties(QWidget):
         if self.averages_dialog:
             self.averages_dialog.update()
 
-    def select_male_map_sprite(self):
+    def select_map_sprite(self):
         res, ok = ResourceEditor.get(self, "Map Sprites")
         if ok:
             nid = res.nid
-            self.current.male_map_sprite_nid = nid
+            self.current.map_sprite_nid = nid
             pix = get_map_sprite_icon(self.current, num=0, gender=0)
-            self.male_map_sprite_label.setPixmap(pix)
+            self.map_sprite_label.setPixmap(pix)
             self.window.update_list()
 
-    def select_female_map_sprite(self):
-        res, ok = ResourceEditor.get(self, "Map Sprites")
+    def select_combat_anim(self):
+        res, ok = ResourceEditor.get(self, "Combat Anims")
         if ok:
             nid = res.nid
-            self.current.female_map_sprite_nid = nid
-            pix = get_map_sprite_icon(self.current, num=0, gender=5)
-            self.female_map_sprite_label.setPixmap(pix)
+            self.current.combat_anim_nid = nid
+            pix = get_combat_anim_icon(self.current)
+            self.combat_anim_label.setPixmap(pix)
             self.window.update_list()
 
     def set_current(self, current):
@@ -462,14 +491,14 @@ class ClassProperties(QWidget):
         self.icon_edit.set_current(current.icon_nid, current.icon_index)
         pix = get_map_sprite_icon(self.current, num=0, gender=0)
         if pix:
-            self.male_map_sprite_label.setPixmap(pix)
+            self.map_sprite_label.setPixmap(pix)
         else:
-            self.male_map_sprite_label.clear()
-        pix = get_map_sprite_icon(self.current, num=0, gender=5)
+            self.map_sprite_label.clear()
+        pix = get_combat_anim_icon(self.current)
         if pix:
-            self.female_map_sprite_label.setPixmap(pix)
+            self.combat_anim_label.setPixmap(pix)
         else:
-            self.female_map_sprite_label.clear()
+            self.combat_anim_label.clear()
 
     def hideEvent(self, event):
         self.close_averages()

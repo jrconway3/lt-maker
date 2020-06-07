@@ -13,6 +13,7 @@ class UnitPrefab(Prefab):
     name: str = None
     desc: str = None
     gender: int = None
+    variant: str = None
 
     level: int = None
     klass: str = None
@@ -24,6 +25,8 @@ class UnitPrefab(Prefab):
 
     learned_skills: LearnedSkillList = None
     wexp_gain: weapons.WexpGainData = None
+
+    alternate_classes: list = None
 
     portrait_nid: str = None
 
@@ -59,6 +62,7 @@ class UnitPrefab(Prefab):
 class GenericUnit(Prefab):
     nid: str = None
     gender: int = None
+    variant: str = None
 
     level: int = None
     klass: str = None
@@ -165,7 +169,10 @@ class UnitCatalog(Data):
 
             starting_items = unit.find('inventory').text.split(',')  # List of nids
             # items = [i for i in items if i]
+            variant = None
+            alternate_classes = []
 
-            new_unit = UnitPrefab(nid, name, desc, gender, level, klass, tags,
-                                  bases, growths, starting_items, learned_skills, wexp_gain, nid)
+            new_unit = UnitPrefab(nid, name, desc, gender, variant, level, klass, tags,
+                                  bases, growths, starting_items, learned_skills, wexp_gain,
+                                  alternate_classes, nid)
             self.append(new_unit)

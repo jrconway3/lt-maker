@@ -1,3 +1,13 @@
+import functools
+
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QToolButton, \
+    QSpinBox, QLineEdit, QPushButton
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QColor
+
+from app.editor.frame_selector import FrameSelector
+from app.extensions.color_icon import ColorIcon
+
 class CombatCommand(QWidget):
     def __init__(self, data, parent):
         super().__init__(parent)
@@ -16,7 +26,7 @@ class CombatCommand(QWidget):
         x_button = QToolButton(self)
         x_button.setIcon(QIcon("icons/x.png"))
         x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
-        x_button.clicked.connect(partial(self.window.remove_component, self))
+        x_button.clicked.connect(functools.partial(self.window.remove_component, self))
         hbox.addWidget(x_button, Qt.AlignRight)
 
     def create_editor(self, hbox):
@@ -65,6 +75,7 @@ class SoundCommand(CombatCommand):
         hbox.addWidget(self.button)
 
     def select_sound(self):
+        from app.editor.resource_editor import ResourceEditor
         res, ok = ResourceEditor.get(self, "SFX")
         if ok:
             self.editor.setText(res.nid)
@@ -83,7 +94,7 @@ class SimpleFrameCommand(CombatCommand):
         hbox.addWidget(self.button)
 
     def select_frame(self):
-        res, ok = FrameSelector.get()
+        res, ok = FrameSelector.get(self.window.current_frames, self.window)
         if ok:
             self.editor.setText(res)
 
@@ -116,7 +127,7 @@ class FrameCommand(CombatCommand):
         self._data.value = (num_frames, frame)
 
     def select_frame(self):
-        res, ok = FrameSelector.get()
+        res, ok = FrameSelector.get(self.window.current_frames, self.window)
         if ok:
             self.frame.setText(res)
 

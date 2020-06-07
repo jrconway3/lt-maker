@@ -1,3 +1,13 @@
+import functools
+
+from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
+    QListWidgetItem, QLineEdit, QToolButton, QApplication, QMenu, QToolBar
+from PyQt5.QtCore import Qt
+
+from app.data.data import Data
+from app.data import combat_animation_command
+
+from app.editor import combat_command_widgets
 from app.extensions.widget_list import WidgetList
 
 class TimelineList(WidgetList):
@@ -22,7 +32,7 @@ class TimelineMenu(QWidget):
         self.window = parent
 
         self.current_pose = None
-        self.curent_frames = None
+        self.current_frames = None
 
         self.current_idx = 0
 
@@ -61,8 +71,9 @@ class TimelineMenu(QWidget):
         self.highlight(self.current_idx)
 
     def add_command(self, command):
-        command_widget = combat_command_widgets.get_command_widget(command, self)
-        self.view.add_command(command)
+        command_widget = \
+            combat_command_widgets.get_command_widget(command, self)
+        self.view.add_command(command_widget)
 
     def add_text(self):
         try:
@@ -79,9 +90,10 @@ class TimelineMenu(QWidget):
     def create_actions(self):
         self.actions = Data()
         for command in combat_animation_command.anim_commands:
+            new_func = functools.partial(self.add_command, command)
             self.actions[command.nid] = \
                 QAction(command.name,
-                        triggered=functools.partial(self.add_command, command))
+                        triggered=new_func)
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
@@ -92,6 +104,7 @@ class TimelineMenu(QWidget):
                 new_menu = QMenu(self)
                 self.menus[command.tag] = new_menu
                 toolbutton = QToolButton(self)
+                toolbutton.setIcon("icons/command_%s.png" % command.tag)
                 toolbutton.setMenu(new_menu)
                 toolbutton.setPopupMode(QToolButton.InstantPopup)
                 toolbutton_action = QWidgetAction(self)

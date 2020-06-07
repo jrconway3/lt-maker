@@ -113,7 +113,7 @@ class Resources():
                 else:
                     anim.speed = [int(_) for _ in stats['speed'].split(',')]
 
-    def create_map_sprite(self, folder, fn):
+    def create_map_sprites(self, folder, fn):
         save_loc = os.path.join(self.main_folder, folder, fn)
         print("Save Loc %s" % save_loc)
         map_sprite_dict = {}
@@ -127,6 +127,22 @@ class Resources():
                 variant.set_standing_full_path(os.path.join(self.main_folder, folder, variant.standing_full_path))
                 variant.set_moving_full_path(os.path.join(self.main_folder, folder, variant.moving_full_path))
             self.map_sprites.append(new_map_sprite)
+
+    def create_combat_anims(self, folder, fn):
+        save_loc = os.path.join(self.main_folder, folder, fn)
+        print("Save Loc %s" % save_loc)
+        combat_anim_dict = {}
+        if os.path.exists(save_loc):
+            print("Deserializing map sprites from %s" % save_loc)
+            with open(save_loc) as load_file:
+                combat_anim_dict = json.load(load_file)
+        for s_dict in combat_anim_dict:
+            new_combat_anim = CombatAnim.deserialize()
+            for variant in new_combat_anim.variants:
+                for weapon_anim in variant.weapon_anims:
+                    for frame in weapon_anim.frames:
+                        frame.set_full_path(os.path.join(self.main_folder, folder, frame.full_path))
+            self.combat_anims.append(new_combat_anim)
 
     def populate_panoramas(self, folder):
         for root, dirs, files in os.walk(os.path.join(self.main_folder, folder)):
@@ -225,6 +241,8 @@ class Resources():
 
         self.create_tilesets('tilesets', 'tilesets.json')
         self.create_tilemaps('tilesets', 'tilemaps.json')
+
+        self.create_combat_anims('combat_anims', 'combat_anims.json')
 
         self.populate_database_with_tags(self.sfx, 'sfx', '.ogg', SFX)
         self.populate_music(self.music, 'music', 'music/music_manifest.xml')
@@ -410,6 +428,30 @@ class Resources():
         print("Serializing tilemaps to %s" % save_loc)
         with open(save_loc, 'w') as serialize_file:
             json.dump(tilemap_save, serialize_file, indent=4)
+
+        # === Save Combat Animations ===
+        combat_anim_dir = os.path.join(resource_dir, 'combat_anims')
+        if not os.path.exists(combat_anim_dir):
+            os.mkdir(combat_anim_dir)
+        # Save images
+        for combat_anim in self.combat_anims:
+            folder = os.path.join(combat_anim_dir, combat_anim.nid)
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+            for variant in combat_anim.variant:
+                for weapon_anim in variant.weapon_anims:
+                    for frame in weapon_anim.frames:
+                        new_full_path = os.path.join(
+                            folder, "%s-%s-%s.png" % (variant.nid, weapon_anim.nid, frame.nid))
+                        if os.path.abspath(frame.full_path) != os.path.abspath(new_full_path):
+                            shutil.copy(frame.full_path, new_full_path)
+                            frame.set_full_path(new_full_path)
+        # Now actually save data
+        combat_anim_save = [d.serialize() for d in self.combat_anims]
+        save_loc = os.path.join(combat_anim_dir, 'combat_anims.json')
+        print("Serializing combat anims to %s" % save_loc)
+        with open(save_loc, 'w') as serialize_file:
+            json.dump(combat_anim_save, serialize_file)
 
         # === Save SFX ===
         sfx_dir = os.path.join(resource_dir, 'sfx')

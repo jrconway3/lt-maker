@@ -1,3 +1,12 @@
+import functools
+
+from PyQt5.QtWidgets import QWidget, QButtonGroup, \
+    QListWidgetItem, QRadioButton, QHBoxLayout, QLabel, QListWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
+
+from app.extensions.color_icon import ColorIcon
+
 class PaletteWidget(QWidget):
     def __init__(self, idx, palette, parent=None):
         super().__init__(parent)

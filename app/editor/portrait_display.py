@@ -1,10 +1,10 @@
+import os
+import time, random
+
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
     QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter
 from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
-
-import os
-import time, random
 
 from app.data.data import Data
 from app.data.resources import RESOURCES

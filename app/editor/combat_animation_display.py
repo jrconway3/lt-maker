@@ -1,3 +1,27 @@
+import os, glob, time
+
+from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
+    QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
+    QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
+    QLabel, QToolButton
+from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb
+
+from app.data.data import Data
+from app.data.resources import RESOURCES
+from app.data.database import DB
+from app.data import combat_animation, combat_animation_command
+
+from app.editor.timer import TIMER
+from app.editor.icon_display import IconView
+from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
+from app.editor.palette_display import PaletteMenu
+from app.editor.timeline_menu import TimelineMenu
+from app.extensions.custom_gui import ResourceListView, ComboBox, DeletionDialog
+
+import app.editor.utilities as editor_utilities
+from app import utilities
+
 class CombatAnimDisplay(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
@@ -27,7 +51,7 @@ class CombatAnimModel(ResourceCollectionModel):
 
     def create_new(self):
         nid = utilities.get_next_name('New Combat Anim', self._data.keys())
-        new_anim = CombatAnimation(nid)
+        new_anim = combat_animation.CombatAnimation(nid)
         self._data.append(new_anim)
 
     def delete(self, idx):
@@ -292,7 +316,7 @@ class CombatAnimProperties(QWidget):
         self.timeline_menu.set_current(current_pose, frames)
 
     def add_new_weapon(self):
-        variant = get_current_variant()
+        variant = self.get_current_variant()
         new_nid = utilities.get_next_name('Weapon', variant.weapon_anims.keys())
         new_weapon = combat_animation.WeaponAnimation(new_nid)
         variant.append(new_weapon)
@@ -389,7 +413,7 @@ class CombatAnimProperties(QWidget):
                         im = new_pixmap.toImage()
                         im = editor_utilities.color_convert(im, self.current.palettes[0].colors, combat_animation.base_palette)
                         new_pixmap = QPixmap.fromImage(im)
-                        new_frame = Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)
+                        new_frame = combat_animation.Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)
                         new_weapon.frames.append(new_frame)
                     # Now add poses to the weapon anim
                     with open(fn, encoding='utf-8') as script_fp:

@@ -77,31 +77,16 @@ class WeaponAnimation(Prefab):
             self.poses.append(Pose.deserialize(pose_save))
         return self
 
-class CombatVariant(Prefab):
-    def __init__(self, nid):
-        self.nid = nid
-        self.weapon_anims = Data()
-
-    def serialize(self):
-        return (self.nid, [weapon_anim.serialize() for weapon_anim in self.weapon_anims])
-
-    @classmethod
-    def deserialize(cls, s_tuple):
-        self = cls(s_tuple[0])
-        for weapon_anim_save in s_tuple[1]:
-            self.weapon_anims.append(WeaponAnimation.deserialize(weapon_anim_save))
-        return self
-
 class CombatAnimation(Prefab):
     def __init__(self, nid):
         self.nid = nid
-        self.variants = Data()
+        self.weapon_anims = Data()
         self.palettes = Data()
 
     def serialize(self):
         s_dict = {}
         s_dict['nid'] = self.nid
-        s_dict['variants'] = [variant.serialize() for variant in self.variants]
+        s_dict['weapon_anims'] = [weapon_anim.serialize() for weapon_anim in self.weapon_anims]
         s_dict['palettes'] = [palette.serialize() for palette in self.palettes]
         return s_dict
 
@@ -110,8 +95,8 @@ class CombatAnimation(Prefab):
         self = cls(s_dict['nid'])
         for palette_save in s_dict['palettes']:
             self.palettes.append(Palette.deserialize(palette_save))
-        for variant_save in s_dict['variants']:
-            self.variants.append(CombatVariant.deserialize(variant_save))
+        for weapon_anim_save in s_dict['weapon_anims']:
+            self.weapon_anims.append(WeaponAnimation.deserialize(weapon_anim_save))
         return self
 
 base_palette = Palette('base', [(248, 248, 248)] + [(0, 0, x*8) for x in range(15)])

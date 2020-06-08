@@ -273,8 +273,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": "citizenM",
-        "female_map_sprite_nid": null,
+        "map_sprite_nid": null,
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -554,8 +554,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": null,
-        "female_map_sprite_nid": "lordF",
+        "map_sprite_nid": "Eirika_Lord",
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -833,8 +833,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": null,
-        "female_map_sprite_nid": null,
+        "map_sprite_nid": null,
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1122,8 +1122,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": "cavalierM",
-        "female_map_sprite_nid": null,
+        "map_sprite_nid": "Cavalier",
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1404,8 +1404,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": "paladinM",
-        "female_map_sprite_nid": null,
+        "map_sprite_nid": "Paladin",
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1685,8 +1685,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": "knightM",
-        "female_map_sprite_nid": "knightM",
+        "map_sprite_nid": "Knight",
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -1964,8 +1964,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": "FighterM",
-        "female_map_sprite_nid": null,
+        "map_sprite_nid": "Fighter",
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     },
@@ -2243,8 +2243,8 @@
             0,
             0
         ],
-        "male_map_sprite_nid": "soldierM",
-        "female_map_sprite_nid": null,
+        "map_sprite_nid": "Soldier",
+        "combat_anim_nid": null,
         "exp_mult": 1.0,
         "opponent_exp_mult": 1.0
     }

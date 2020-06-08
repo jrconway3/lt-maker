@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QTabWidget, QDialogButtonBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 
 from collections import OrderedDict
 
@@ -76,12 +76,16 @@ class ResourceEditor(QDialog):
         self.current_tab.reset()
 
     def accept(self):
-        RESOURCES.serialize(self.window.current_proj)
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        RESOURCES.serialize(current_proj)
         self.music_player.quit()
         super().accept()
 
     def reject(self):
-        RESOURCES.reload(self.window.current_proj)
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        RESOURCES.reload(current_proj)
         self.music_player.quit()
         super().reject()
 

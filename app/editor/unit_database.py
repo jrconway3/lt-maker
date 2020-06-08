@@ -483,10 +483,11 @@ class UnitProperties(QWidget):
         else:
             self.variant_box.edit.clear()
 
-        alternate_classes = current.alternate_classes[:]
         self.alternate_class_box.edit.clear()
         self.alternate_class_box.edit.addItems(DB.classes.keys())
-        self.alternate_class_box.edit.setCurrentTexts(alternate_classes)
+        if current.alternate_classes:
+            alternate_classes = current.alternate_classes[:]
+            self.alternate_class_box.edit.setCurrentTexts(alternate_classes)
 
         self.icon_edit.set_current(current.portrait_nid)
 

@@ -3,6 +3,7 @@
         "nid": "DEBUG",
         "title": "Prologue",
         "tilemap": "Prologue",
+        "party": null,
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -45,6 +46,7 @@
             {
                 "nid": 101,
                 "gender": 0,
+                "variant": null,
                 "level": 1,
                 "klass": "Fighter",
                 "faction": "Soldier",
@@ -67,6 +69,7 @@
             {
                 "nid": "102",
                 "gender": 0,
+                "variant": null,
                 "level": 2,
                 "klass": "Fighter",
                 "faction": "Soldier",
@@ -103,6 +106,7 @@
         "nid": "1",
         "title": "Chapter 1",
         "tilemap": "Chapter1",
+        "party": null,
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -178,6 +182,7 @@
             {
                 "nid": 101,
                 "gender": 0,
+                "variant": null,
                 "level": 2,
                 "klass": "Soldier",
                 "faction": "Soldier",
@@ -200,6 +205,7 @@
             {
                 "nid": "102",
                 "gender": 0,
+                "variant": null,
                 "level": 2,
                 "klass": "Soldier",
                 "faction": "Soldier",
@@ -222,6 +228,7 @@
             {
                 "nid": "103",
                 "gender": 0,
+                "variant": null,
                 "level": 2,
                 "klass": "Fighter",
                 "faction": "Soldier",
@@ -244,6 +251,7 @@
             {
                 "nid": "104",
                 "gender": 0,
+                "variant": null,
                 "level": 2,
                 "klass": "Fighter",
                 "faction": "Soldier",
@@ -266,6 +274,7 @@
             {
                 "nid": "105",
                 "gender": 0,
+                "variant": null,
                 "level": 2,
                 "klass": "Fighter",
                 "faction": "Soldier",
@@ -288,6 +297,7 @@
             {
                 "nid": "106",
                 "gender": 0,
+                "variant": null,
                 "level": 3,
                 "klass": "Soldier",
                 "faction": "Soldier",

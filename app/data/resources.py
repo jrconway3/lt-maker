@@ -6,7 +6,9 @@ import json
 from app.data import data
 import app.utilities as utilities
 
+from app.data.map_sprite import MapSprite
 from app.data.tilemap_prefab import TileSet, TileMapPrefab
+from app.data.combat_animation import CombatAnimation
 
 class Resources():
     def __init__(self):
@@ -123,9 +125,8 @@ class Resources():
                 map_sprite_dict = json.load(load_file)
         for s_dict in map_sprite_dict:
             new_map_sprite = MapSprite.deserialize(s_dict)
-            for variant in new_map_sprite.variants:
-                variant.set_standing_full_path(os.path.join(self.main_folder, folder, variant.standing_full_path))
-                variant.set_moving_full_path(os.path.join(self.main_folder, folder, variant.moving_full_path))
+            new_map_sprite.set_standing_full_path(os.path.join(self.main_folder, folder, new_map_sprite.standing_full_path))
+            new_map_sprite.set_moving_full_path(os.path.join(self.main_folder, folder, new_map_sprite.moving_full_path))
             self.map_sprites.append(new_map_sprite)
 
     def create_combat_anims(self, folder, fn):
@@ -137,11 +138,10 @@ class Resources():
             with open(save_loc) as load_file:
                 combat_anim_dict = json.load(load_file)
         for s_dict in combat_anim_dict:
-            new_combat_anim = CombatAnim.deserialize()
-            for variant in new_combat_anim.variants:
-                for weapon_anim in variant.weapon_anims:
-                    for frame in weapon_anim.frames:
-                        frame.set_full_path(os.path.join(self.main_folder, folder, frame.full_path))
+            new_combat_anim = CombatAnimation.deserialize(s_dict)
+            for weapon_anim in new_combat_anim.weapon_anims:
+                for frame in weapon_anim.frames:
+                    frame.set_full_path(os.path.join(self.main_folder, folder, frame.full_path))
             self.combat_anims.append(new_combat_anim)
 
     def populate_panoramas(self, folder):
@@ -343,8 +343,9 @@ class Resources():
         for fn in os.listdir(panoramas_dir):
             if fn.endswith('.png') and utilities.get_prefix(fn) not in nids:
                 full_path = os.path.join(panoramas_dir, fn)
-                print("Deleting %s" % full_path)
-                os.remove(full_path)
+                if os.path.exists(full_path):
+                    print("Deleting %s" % full_path)
+                    os.remove(full_path)
 
         # === Save Map Sprites ===
         map_sprites_dir = os.path.join(resource_dir, 'map_sprites')
@@ -352,32 +353,22 @@ class Resources():
             os.mkdir(map_sprites_dir)
 
         for map_sprite in self.map_sprites:
-            for variant in map_sprite.variants:
-                # Standing sprite
-                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + variant.nid + '-stand.png')
-                if os.path.abspath(variant.standing_full_path) != os.path.abspath(new_full_path):
-                    shutil.copy(variant.standing_full_path, new_full_path)
-                    variant.set_standing_full_path(new_full_path)
-                # Moving sprite
-                new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + variant.nid + '-move.png')
-                if os.path.abspath(variant.moving_full_path) != os.path.abspath(new_full_path):
-                    shutil.copy(variant.moving_full_path, new_full_path)
-                    variant.set_moving_full_path(new_full_path)
+            # Standing sprite
+            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + map_sprite.nid + '-stand.png')
+            if os.path.abspath(map_sprite.standing_full_path) != os.path.abspath(new_full_path):
+                shutil.copy(map_sprite.standing_full_path, new_full_path)
+                map_sprite.set_standing_full_path(new_full_path)
+            # Moving sprite
+            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + map_sprite.nid + '-move.png')
+            if os.path.abspath(map_sprite.moving_full_path) != os.path.abspath(new_full_path):
+                shutil.copy(map_sprite.moving_full_path, new_full_path)
+                map_sprite.set_moving_full_path(new_full_path)
 
         map_sprite_save = [m.serialize() for m in self.map_sprites]
         save_loc = os.path.join(map_sprites_dir, 'map_sprites.json')
         print("Serializing map sprites to %s" % save_loc)
         with open(save_loc, 'w') as serialize_file:
             json.dump(map_sprite_save, serialize_file, indent=4) 
-
-        # Deleting unused map sprites
-        all_paths = set()
-        for map_sprite in self.map_sprites:
-            all_paths |= map_sprite.get_all_paths()
-        for fn in os.listdir(map_sprites_dir):
-            if fn.endswith('.png') and fn not in all_paths:
-                print("Deleting %s" % fn)
-                os.remove(fn)
 
         # === Save Animations ===
         animation_dir = os.path.join(resource_dir, 'animations')
@@ -438,14 +429,13 @@ class Resources():
             folder = os.path.join(combat_anim_dir, combat_anim.nid)
             if not os.path.exists(folder):
                 os.mkdir(folder)
-            for variant in combat_anim.variant:
-                for weapon_anim in variant.weapon_anims:
-                    for frame in weapon_anim.frames:
-                        new_full_path = os.path.join(
-                            folder, "%s-%s-%s.png" % (variant.nid, weapon_anim.nid, frame.nid))
-                        if os.path.abspath(frame.full_path) != os.path.abspath(new_full_path):
-                            shutil.copy(frame.full_path, new_full_path)
-                            frame.set_full_path(new_full_path)
+            for weapon_anim in combat_anim.weapon_anims:
+                for frame in weapon_anim.frames:
+                    new_full_path = os.path.join(
+                        folder, "%s-%s.png" % (weapon_anim.nid, frame.nid))
+                    if os.path.abspath(frame.full_path) != os.path.abspath(new_full_path):
+                        shutil.copy(frame.full_path, new_full_path)
+                        frame.set_full_path(new_full_path)
         # Now actually save data
         combat_anim_save = [d.serialize() for d in self.combat_anims]
         save_loc = os.path.join(combat_anim_dir, 'combat_anims.json')
@@ -551,15 +541,10 @@ class Resources():
         self.portraits.append(new_portrait)
         return new_portrait
 
-    def create_new_map_sprite(self, nid):
-        new_map_sprite = MapSprite(nid)
+    def create_new_map_sprite(self, nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap):
+        new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap)
         self.map_sprites.append(new_map_sprite)
         return new_map_sprite
-
-    def create_new_map_sprite_variant(self, map_sprite, nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap):
-        new_variant = MapSpriteVariant(nid, standing_full_path, moving_full_path, standing_pixmap, moving_pixmap)
-        map_sprite.variants.append(new_variant)
-        return new_variant
 
     def create_new_panorama(self, nid, full_path, pixmaps):
         new_panorama = Panorama(nid, full_path, pixmaps)
@@ -638,27 +623,6 @@ class Animation():
 
     def set_full_path(self, full_path):
         self.full_path = full_path
-
-class MapSprite():
-    def __init__(self, nid):
-        self.nid = nid
-        self.variants = data.Data()
-
-class MapSpriteVariant():
-    def __init__(self, nid, stand_full_path=None, move_full_path=None, standing_pixmap=None, moving_pixmap=None):
-        self.nid = nid
-        self.standing_full_path = stand_full_path
-        self.moving_full_path = move_full_path
-        self.standing_pixmap = standing_pixmap
-        self.moving_pixmap = moving_pixmap
-        self.standing_image = None
-        self.moving_image = None
-
-    def set_standing_full_path(self, full_path):
-        self.standing_full_path = full_path
-
-    def set_moving_full_path(self, full_path):
-        self.moving_full_path = full_path
 
 class Panorama():
     def __init__(self, nid, full_path=None, pixmaps=None, num_frames=0):

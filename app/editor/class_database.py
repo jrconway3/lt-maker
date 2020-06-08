@@ -49,16 +49,6 @@ def get_map_sprite_icon(klass, num=0, current=False, team='player', gender=0, va
     res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
     if not res:
         return None
-    if not res.variants:
-        return None
-    if variant and variant in res.variants:
-        res = res.variants.get(variant)
-    elif gender >= 5 and 'Female' in res.variants:
-        res = res.variants.get('Female')
-    elif 'Male' in res.variants:
-        res = res.variants.get('Male')
-    else:
-        res = res.variants[0]
     if not res.standing_pixmap:
         res.standing_pixmap = QPixmap(res.standing_full_path)
     pixmap = res.standing_pixmap
@@ -69,9 +59,6 @@ def get_combat_anim_icon(klass):
     res = RESOURCES.combat_anims.get(klass.combat_anim_nid)
     if not res:
         return None
-    if not res.variants:
-        return None
-    res = res.variants[0]
     res = res.weapon_anims.get('Unarmed', res.weapon_anims[0])
     if 'Stand' not in res.poses:
         return None
@@ -436,7 +423,7 @@ class ClassProperties(QWidget):
             self.averages_dialog.update()
 
     def select_map_sprite(self):
-        res, ok = ResourceEditor.get(self, "Map Sprites")
+        res, ok = ResourceEditor.get(self.window, "Map Sprites")
         if ok:
             nid = res.nid
             self.current.map_sprite_nid = nid
@@ -445,7 +432,7 @@ class ClassProperties(QWidget):
             self.window.update_list()
 
     def select_combat_anim(self):
-        res, ok = ResourceEditor.get(self, "Combat Anims")
+        res, ok = ResourceEditor.get(self.window, "Combat Anims")
         if ok:
             nid = res.nid
             self.current.combat_anim_nid = nid

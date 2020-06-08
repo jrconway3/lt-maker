@@ -239,6 +239,8 @@ class PortraitProperties(QWidget):
 
     def draw_portrait(self):
         self.update_talk()
+        if not self.current:
+            return
         portrait = self.current.pixmap.copy(0, 0, 96, 80).toImage()
         # For smile image
         if self.smile_on:

@@ -328,8 +328,12 @@ class IconView(QGraphicsView):
         self.screen_scale = 1
 
     def set_image(self, pixmap):
-        self.image = pixmap
-        self.setSceneRect(0, 0, self.image.width(), self.image.height())
+        if pixmap:
+            self.image = pixmap
+            self.setSceneRect(0, 0, self.image.width(), self.image.height())
+        else:
+            self.image = None
+            self.clear_scene()
 
     def clear_scene(self):
         self.scene.clear()

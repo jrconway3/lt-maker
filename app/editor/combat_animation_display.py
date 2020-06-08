@@ -3,8 +3,8 @@ import os, glob, time
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
-    QLabel, QToolButton
-from PyQt5.QtCore import Qt, QSettings
+    QLabel, QToolButton, QInputDialog
+from PyQt5.QtCore import Qt, QSettings, QDir
 from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb
 
 from app.data.data import Data
@@ -76,10 +76,8 @@ class CombatAnimModel(ResourceCollectionModel):
         # What uses combat animations
         # Classes
         for klass in DB.classes:
-            if klass.male_combat_anim_nid == old_nid:
-                klass.male_combat_anim_nid = new_nid
-            if klass.female_combat_anim_nid == old_nid:
-                klass.female_combat_anim_nid = new_nid
+            if klass.combat_anim_nid == old_nid:
+                klass.combat_anim_nid = new_nid
 
     def nid_change_watchers(self, combat_anim, old_nid, new_nid):
         self.change_nid(old_nid, new_nid)
@@ -120,7 +118,7 @@ class CombatAnimProperties(QWidget):
         self.play_button.clicked.connect(self.play_clicked)
 
         self.stop_button = QToolButton(self)
-        self.stop_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.stop_button.setIcon(self.style().standardIcon(QStyle.SP_MediaStop))
         self.stop_button.clicked.connect(self.stop_clicked)
 
         self.loop_button = QToolButton(self)
@@ -138,27 +136,14 @@ class CombatAnimProperties(QWidget):
         button_section.addWidget(self.play_button)
         button_section.addWidget(self.stop_button)
         button_section.addWidget(self.loop_button)
-        button_section.addWidget(label)
-        button_section.addWidget(self.speed_box)
+        button_section.addWidget(label, Qt.AlignRight)
+        button_section.addWidget(self.speed_box, Qt.AlignRight)
 
         info_form = QFormLayout()
 
         self.nid_box = QLineEdit()
         self.nid_box.textChanged.connect(self.nid_changed)
         self.nid_box.editingFinished.connect(self.nid_done_editing)
-
-        variant_row = QHBoxLayout()
-        self.variant_box = ComboBox()
-        self.variant_box.currentIndexChanged.connect(self.variant_changed)
-        self.new_variant_button = QPushButton("+")
-        self.new_variant_button.setMaximumWidth(30)
-        self.new_variant_button.clicked.connect(self.add_new_variant)
-        self.delete_variant_button = QPushButton()
-        self.delete_variant_button.setIcon(QIcon("icons/x.png"))
-        self.delete_variant_button.clicked.connect(self.delete_variant)
-        variant_row.addWidget(self.variant_box)
-        variant_row.addWidget(self.new_variant_button)
-        variant_row.addWidget(self.delete_variant_button)
 
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
@@ -167,10 +152,16 @@ class CombatAnimProperties(QWidget):
         self.new_weapon_button.setMaximumWidth(30)
         self.new_weapon_button.clicked.connect(self.add_new_weapon)
         self.delete_weapon_button = QPushButton()
+        self.delete_weapon_button.setMaximumWidth(30)
         self.delete_weapon_button.setIcon(QIcon("icons/x.png"))
         self.delete_weapon_button.clicked.connect(self.delete_weapon)
+        self.duplicate_weapon_button = QPushButton()
+        self.duplicate_weapon_button.setMaximumWidth(30)
+        self.duplicate_weapon_button.setIcon(QIcon("icons/duplicate.png"))
+        self.duplicate_weapon_button.clicked.connect(self.duplicate_weapon)
         weapon_row.addWidget(self.weapon_box)
         weapon_row.addWidget(self.new_weapon_button)
+        weapon_row.addWidget(self.duplicate_weapon_button)
         weapon_row.addWidget(self.delete_weapon_button)
 
         pose_row = QHBoxLayout()
@@ -180,10 +171,16 @@ class CombatAnimProperties(QWidget):
         self.new_pose_button.setMaximumWidth(30)
         self.new_pose_button.clicked.connect(self.add_new_pose)
         self.delete_pose_button = QPushButton()
+        self.delete_pose_button.setMaximumWidth(30)
         self.delete_pose_button.setIcon(QIcon("icons/x.png"))
         self.delete_pose_button.clicked.connect(self.delete_pose)
+        self.duplicate_pose_button = QPushButton()
+        self.duplicate_pose_button.setMaximumWidth(30)
+        self.duplicate_pose_button.setIcon(QIcon("icons/duplicate.png"))
+        self.duplicate_pose_button.clicked.connect(self.duplicate_pose)
         pose_row.addWidget(self.pose_box)
         pose_row.addWidget(self.new_pose_button)
+        pose_row.addWidget(self.duplicate_pose_button)
         pose_row.addWidget(self.delete_pose_button)
 
         info_form.addRow("Unique ID", self.nid_box)
@@ -200,6 +197,9 @@ class CombatAnimProperties(QWidget):
         self.import_from_gba_button.clicked.connect(self.import_gba)
         self.import_png_button = QPushButton("Import PNG Images...")
         self.import_png_button.clicked.connect(self.import_png)
+        frame_layout.addWidget(self.import_from_lt_button)
+        frame_layout.addWidget(self.import_from_gba_button)
+        frame_layout.addWidget(self.import_png_button)
 
         view_section.addWidget(self.anim_view)
         view_section.addLayout(button_section)
@@ -285,54 +285,52 @@ class CombatAnimProperties(QWidget):
         else:
             return False
 
-    def variant_changed(self, text):
-        variant = self.get_current_variant()
-        self.reset_weapon_box(variant)
-        weapon_anim = self.get_current_weapon_anim()
-        poses = self.reset_pose_box(weapon_anim)
-
-        current_pose_nid = self.pose_box.currentText()
-        current_pose = poses.get(current_pose_nid)
-        frames = weapon_anim.frames
-        self.timeline_menu.set_current(current_pose, frames)
-
-    def add_new_variant(self):
-        new_nid = utilities.get_next_name('Variant', self.current.variants.keys())
-        new_variant = combat_animation.CombatVariant(new_nid)
-        self.current.variants.append(new_variant)
-        self.variant_box.addItem(new_nid)
-        self.variant_box.setValue(new_nid)
-
-    def delete_variant(self):
-        variant = self.get_current_variant()
-        if self.ask_permission(variant, 'Variant'):
-            self.current.variants.delete(variant)
-            self.set_current(self.current)
-
     def weapon_changed(self, idx):
-        weapon_anim = self.get_current_weapon_anim()
-        poses = self.reset_pose_box(weapon_anim)
-
-        current_pose_nid = self.pose_box.currentText()
-        current_pose = poses.get(current_pose_nid)
-        frames = weapon_anim.frames
-        self.timeline_menu.set_current(current_pose, frames)
+        weapon_nid = self.weapon_box.currentText()
+        weapon_anim = self.current.weapon_anims.get(weapon_nid)
+        if weapon_anim.poses:
+            poses = self.reset_pose_box(weapon_anim)
+            current_pose_nid = self.pose_box.currentText()
+            current_pose = poses.get(current_pose_nid)
+            frames = weapon_anim.frames
+            self.timeline_menu.set_current(current_pose, frames)
+        else:
+            self.pose_box.clear()
+            self.timeline_menu.clear()
 
     def add_new_weapon(self):
-        variant = self.get_current_variant()
-        new_nid = utilities.get_next_name('Weapon', variant.weapon_anims.keys())
+        items = []
+        for weapon in DB.weapon_types:
+            if weapon.magic:
+                items.append("Magic" + weapon.nid)
+            else:
+                items.append(weapon.nid)
+                items.append("Ranged" + weapon.nid)
+                items.append("Magic" + weapon.nid)
+        items.append("Custom")
+        for weapon_nid in self.current.weapon_anims.keys():
+            if weapon_nid in items:
+                items.remove(weapon_nid)
+
+        new_nid = QInputDialog.getItem(self, "New Weapon Animation", "Select Weapon Type", items, 0, False)
+        if not new_nid:
+            return
+        if new_nid == "Custom":
+            new_nid = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
+            if not new_nid:
+                return
+            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
         new_weapon = combat_animation.WeaponAnimation(new_nid)
-        variant.append(new_weapon)
+        self.current.weapon_anims.append(new_weapon)
         self.weapon_box.addItem(new_nid)
         self.weapon_box.setValue(new_nid)
 
     def delete_weapon(self):
         weapon = self.get_current_weapon_anim()
         if self.ask_permission(weapon, 'Weapon Animation'):
-            variant = self.get_current_variant()
-            variant.delete(weapon)
+            self.current.weapon_anims.delete(weapon)
             self.reset_weapon_box()
-            self.reset_pose_box()
+            self.reset_pose_box(weapon)
 
     def pose_changed(self, idx):
         current_pose_nid = self.pose_box.currentText()
@@ -343,7 +341,22 @@ class CombatAnimProperties(QWidget):
 
     def add_new_pose(self):
         weapon_anim = self.get_current_weapon_anim()
-        new_nid = utilities.get_next_name('Pose', weapon_anim.poses.keys())
+
+        items = [_ for _ in combat_animation.required_poses] + ['Critical']
+        items.append("Custom")
+
+        for pose_nid in weapon_anim.pose.keys():
+            if pose_nid in items:
+                items.remove(pose_nid)
+
+        new_nid = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
+        if not new_nid:
+            return
+        if new_nid == "Custom":
+            new_nid = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
+            if not new_nid:
+                return
+            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
         new_pose = combat_animation.Pose(new_nid)
         weapon_anim.append(new_pose)
         self.pose_box.addItem(new_nid)
@@ -354,7 +367,27 @@ class CombatAnimProperties(QWidget):
         pose = weapon_anim.poses.get(self.pose_box.currentText())
         if self.ask_permission(pose, 'Pose'):
             weapon_anim.poses.delete(pose)
-            self.reset_pose_box()
+            self.reset_pose_box(weapon_anim)
+
+    def get_current_weapon_anim(self):
+        weapon_nid = self.weapon_box.currentText()
+        return self.current.weapon_anims.get(weapon_nid)
+
+    def reset_weapon_box(self):
+        self.weapon_box.clear()
+        weapon_anims = self.current.weapon_anims
+        if weapon_anims:
+            self.weapon_box.addItems([d.nid for d in weapon_anims])
+            self.weapon_box.setValue(weapon_anims[0].nid)
+        return weapon_anims
+
+    def reset_pose_box(self, weapon_anim):
+        self.pose_box.clear()
+        poses = weapon_anim.poses
+        if poses:
+            self.pose_box.addItems([d.nid for d in poses])
+            self.pose_box.setValue(poses[0].nid)
+        return poses
 
     def palette_changed(self, palette):
         pass
@@ -368,14 +401,6 @@ class CombatAnimProperties(QWidget):
                 if fn.endswith('-Script.txt'):
                     kind = os.path.split(fn)[-1].replace('-Script.txt', '')
                     nid, weapon = kind.split('-')[0]
-                    variant_nid = int(nid[-1])
-                    if variant_nid == 0:
-                        variant_nid = "Male"
-                    elif variant_nid == 5:
-                        variant_nid = "Female"
-                    else:
-                        variant_nid = "?"
-                    nid = nid[:-1]
                     index_fn = fn.replace('-Script.txt', '-Index.txt')
                     if not os.path.exists(index_fn):
                         QMessageBox.error("Could not find associated index file: %s" % index_fn)
@@ -393,12 +418,6 @@ class CombatAnimProperties(QWidget):
                             palette_colors = editor_utilities.find_palette(QImage(palette_fn))
                             new_palette = combat_animation.Palette(palette_nid, palette_colors)
                             self.current.palettes.append(new_palette)
-                    # Get the current variant_nid
-                    if variant_nid not in self.current.variants:
-                        variant = combat_animation.CombatVariant(variant_nid)
-                        self.current.variants.append(variant)
-                    else:
-                        variant = self.current.variants.get(variant_nid)
                     new_weapon = combat_animation.WeaponAnimation(weapon)
                     # Now add frames to weapon animation
                     with open(index_fn, encoding='utf-8') as index_fp:
@@ -440,56 +459,33 @@ class CombatAnimProperties(QWidget):
     def import_png(self):
         pass
 
-    def get_current_variant(self):
-        variant_nid = self.variant_box.currentText()
-        return self.current.variants.get(variant_nid)
-
-    def get_current_weapon_anim(self):
-        variant = self.get_current_variant()
-        weapon_nid = self.weapon_box.currentText()
-        return variant.get(weapon_nid)
-
-    def reset_weapon_box(self, variant):
-        self.weapon_box.clear()
-        weapon_anims = variant.weapon_anims
-        self.weapon_box.addItem([d.nid for d in weapon_anims])
-        self.weapon_box.setValue(weapon_anims[0].nid)
-        return weapon_anims
-
-    def reset_pose_box(self, weapon_anim):
-        self.pose_box.clear()
-        poses = weapon_anim.poses
-        self.pose_box.addItems([d.nid for d in poses])
-        self.pose_box.setValue(poses[0].nid)
-        return poses
-
     def set_current(self, current):
         self.stop()
 
         self.current = current
         self.nid_box.setText(self.current.nid)
 
-        self.variant_box.clear()
-        variants = self.current.variants
-        self.variant_box.addItems([d.nid for d in variants])
-        self.variant_box.setValue(variants[0].nid)
-
-        variant = self.get_current_variant()
-
         self.weapon_box.clear()
-        weapon_anims = variant.weapon_anims
+        weapon_anims = self.current.weapon_anims
         self.weapon_box.addItems([d.nid for d in weapon_anims])
-        self.weapon_box.setValue(weapon_anims[0].nid)
+        if weapon_anims:
+            self.weapon_box.setValue(weapon_anims[0].nid)
 
-        weapon_anim = self.get_current_weapon_anim()
-        poses = self.reset_pose_box(weapon_anim)
+            weapon_anim = self.get_current_weapon_anim()
+            poses = self.reset_pose_box(weapon_anim)
+        else:
+            self.clear_pose_box()
+            weapon_anim, poses = None, None
 
         self.palette_menu.set_current(self.current.palettes)
 
-        current_pose_nid = self.pose_box.currentText()
-        current_pose = poses.get(current_pose_nid)
-        frames = weapon_anim.frames
-        self.timeline_menu.set_current(current_pose, frames)
+        if weapon_anim and poses:
+            current_pose_nid = self.pose_box.currentText()
+            current_pose = poses.get(current_pose_nid)
+            frames = weapon_anim.frames
+            self.timeline_menu.set_current(current_pose, frames)
+        else:
+            self.timeline_menu.clear()
 
     def modify_for_palette(self, pixmap: QPixmap) -> QPixmap:
         current_palette = self.palette_menu.get_palette()

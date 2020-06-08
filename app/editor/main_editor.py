@@ -309,6 +309,7 @@ class MainEditor(QMainWindow):
             fn = QFileDialog.getExistingDirectory(self, "Open Project Directory", starting_path)
             if fn:
                 self.current_proj = fn
+                self.settings.setValue("current_proj", self.current_proj)
                 self.load()
             else:
                 return False
@@ -319,6 +320,7 @@ class MainEditor(QMainWindow):
 
         if path and os.path.exists(path):
             self.current_proj = path
+            self.settings.setValue("current_proj", self.current_proj)
             self.load()
             return True
         else:
@@ -351,6 +353,7 @@ class MainEditor(QMainWindow):
                     self.current_proj = fn
                 else:
                     self.current_proj = fn + '.ltproj'
+                self.settings.setValue("current_proj", self.current_proj)
             else:
                 return False
             new = True

@@ -60,6 +60,11 @@ class TimelineMenu(QWidget):
 
         self.highlight(self.current_idx)
 
+    def clear(self):
+        self.current_frames = None
+        self.current_pose = None
+        self.current_idx = 0
+
     def highlight(self, idx):
         self.view.item(idx).setBackground(Qt.yellow, Qt.SolidPattern)
 

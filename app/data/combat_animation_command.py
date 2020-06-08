@@ -41,8 +41,8 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
     return command
 
 anim_commands = Data([
-    CombatAnimationCommand('frame', '<b>Display Frame</b>', (int, 'frame'), (0, None), 'frame'),
-    CombatAnimationCommand('wait', '<b>Wait</b>', int, 0, 'frame'),
+    CombatAnimationCommand('frame', 'Display Frame', (int, 'frame'), (0, None), 'frame'),
+    CombatAnimationCommand('wait', 'Wait', int, 0, 'frame'),
     
     CombatAnimationCommand('sound', 'Play Sound', 'sound', None, 'sound'),
 

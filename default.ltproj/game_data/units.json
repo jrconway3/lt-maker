@@ -4,6 +4,7 @@
         "name": "Eirika",
         "desc": "The princess of the Kingdom of Renais. She's elegant and kind.",
         "gender": 5,
+        "variant": null,
         "level": 1,
         "klass": "Eirika_Lord",
         "tags": [
@@ -151,6 +152,7 @@
                 0
             ]
         ],
+        "alternate_classes": null,
         "portrait_nid": "Eirika"
     },
     {
@@ -158,6 +160,7 @@
         "name": "Seth",
         "desc": "A young commander of Renais. He's calm, composed, and skilled.",
         "gender": 0,
+        "variant": null,
         "level": 1,
         "klass": "Paladin",
         "tags": [],
@@ -307,6 +310,7 @@
                 0
             ]
         ],
+        "alternate_classes": null,
         "portrait_nid": "Seth"
     },
     {
@@ -314,6 +318,7 @@
         "name": "Franz",
         "desc": "An earnest and compassionate cavalier from Renais.",
         "gender": 0,
+        "variant": null,
         "level": 1,
         "klass": "Cavalier",
         "tags": [],
@@ -467,6 +472,7 @@
                 0
             ]
         ],
+        "alternate_classes": null,
         "portrait_nid": "Franz"
     },
     {
@@ -474,6 +480,7 @@
         "name": "Gilliam",
         "desc": "An armoured knight from Frelia. He's quiet yet dependable.",
         "gender": 0,
+        "variant": null,
         "level": 4,
         "klass": "Knight",
         "tags": [],
@@ -615,6 +622,7 @@
                 0
             ]
         ],
+        "alternate_classes": null,
         "portrait_nid": "Gilliam"
     },
     {
@@ -622,6 +630,7 @@
         "name": "O'Neill",
         "desc": "A troop leader in Grado's army.",
         "gender": 0,
+        "variant": null,
         "level": 4,
         "klass": "Fighter",
         "tags": [
@@ -765,6 +774,7 @@
                 0
             ]
         ],
+        "alternate_classes": null,
         "portrait_nid": "Mercenary1"
     },
     {
@@ -772,6 +782,7 @@
         "name": "Breguet",
         "desc": "??",
         "gender": 0,
+        "variant": null,
         "level": 4,
         "klass": "Knight",
         "tags": [],
@@ -913,6 +924,7 @@
                 0
             ]
         ],
+        "alternate_classes": null,
         "portrait_nid": "Breguet"
     }
 ]

@@ -57,7 +57,7 @@ class AnimationModel(ResourceCollectionModel):
     def create_new(self):
         settings = QSettings("rainlash", "Lex Talionis")
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
-        fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Animation PNG", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
             for fn in fns:
                 if fn.endswith('.png'):

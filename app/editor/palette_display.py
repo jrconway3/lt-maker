@@ -83,9 +83,8 @@ class PaletteMenu(QListWidget):
         return self.palettes[self.current_idx]
 
     def clear(self):
-        self.radio_button_group.clear()
+        # self.radio_button_group.clear()
         self.palettes.clear()
-        self.frames.clear()
 
         # for idx, l in reversed(list(enumerate(self.palette_widgets))):
         #     self.takeItem(idx)

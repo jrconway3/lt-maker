@@ -107,7 +107,7 @@ class CombatAnimProperties(QWidget):
         self.anim_view = IconView(self)
 
         self.palette_menu = PaletteMenu(self)
-        self.palette_menu.palette_changed.connect(self.palette_changed)
+        # self.palette_menu.palette_changed.connect(self.palette_changed)
         self.timeline_menu = TimelineMenu(self)
 
         view_section = QVBoxLayout()
@@ -226,6 +226,9 @@ class CombatAnimProperties(QWidget):
         final_section.addWidget(main_splitter)
 
         TIMER.tick_elapsed.connect(self.tick)
+
+    def tick(self):
+        self.draw_frame()
 
     def play(self):
         self.playing = True
@@ -545,6 +548,8 @@ class CombatAnimProperties(QWidget):
 
     def draw_frame(self):
         current_command = self.process()
+        if not current_command:
+            return
 
         # Actually show current frame
         if current_command.nid == 'frame':

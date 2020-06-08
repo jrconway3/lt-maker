@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, \
-    QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter, QButtonGroup
+    QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter, QButtonGroup, QLabel
 from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
 
@@ -9,7 +9,8 @@ from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
+from app.extensions.custom_gui import ComboBox, PropertyBox, ResourceListView, \
+    DeletionDialog
 
 from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
@@ -134,7 +135,7 @@ class MapSpriteProperties(QWidget):
         self.variant_box.currentIndexChanged.connect(self.variant_changed)
         self.new_variant_button = QPushButton("+")
         self.new_variant_button.setMaximumWidth(30)
-        self.new_variant_button.clicked.connect(self.add_new_variant)
+        self.new_variant_button.clicked.connect(self.add_variant)
         self.delete_variant_button = QPushButton()
         self.delete_variant_button.setIcon(QIcon("icons/x.png"))
         self.delete_variant_button.clicked.connect(self.delete_variant)
@@ -233,7 +234,7 @@ class MapSpriteProperties(QWidget):
 
     def set_current(self, current):
         self.current = current
-        if self.current.variants:
+        if self.current and self.current.variants:
             variant = self.current.variant[0]
             base_image = self.paint_variant(variant)
             self.raw_view.edit.set_image(QPixmap.fromImage(base_image))
@@ -249,6 +250,8 @@ class MapSpriteProperties(QWidget):
         self.draw_frame()
 
     def draw_frame(self):
+        if not self.current:
+            return
         variant_nid = self.variant_box.currentText()
         variant = self.current.variants.get(variant_nid)
         if not variant:

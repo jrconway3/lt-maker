@@ -3,6 +3,7 @@ import functools
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
     QListWidgetItem, QLineEdit, QToolButton, QApplication, QMenu, QToolBar
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 
 from app.data.data import Data
 from app.data import combat_animation_command
@@ -88,12 +89,11 @@ class TimelineMenu(QWidget):
             QApplication.beep()
 
     def create_actions(self):
-        self.actions = Data()
+        self.actions = {}
         for command in combat_animation_command.anim_commands:
             new_func = functools.partial(self.add_command, command)
-            self.actions[command.nid] = \
-                QAction(command.name,
-                        triggered=new_func)
+            new_action = QAction(QIcon(), command.name, self, triggered=new_func)
+            self.actions[command.nid] = new_action
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
@@ -104,7 +104,7 @@ class TimelineMenu(QWidget):
                 new_menu = QMenu(self)
                 self.menus[command.tag] = new_menu
                 toolbutton = QToolButton(self)
-                toolbutton.setIcon("icons/command_%s.png" % command.tag)
+                toolbutton.setIcon(QIcon("icons/command_%s.png" % command.tag))
                 toolbutton.setMenu(new_menu)
                 toolbutton.setPopupMode(QToolButton.InstantPopup)
                 toolbutton_action = QWidgetAction(self)
@@ -119,6 +119,8 @@ class TimelineMenu(QWidget):
         self.entry.returnPressed.connect(self.add_text)
 
     def get_command(self, idx):
+        if not self.current_pose:
+            return None
         command = self.current_pose.timeline[idx]
         while command.tag not in ('frame', 'wait'):
             idx += 1

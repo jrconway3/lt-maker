@@ -29,7 +29,7 @@ class HelpDialog():
 
         greater_line_len = max([self.font.width(line) for line in self.lines])
         if self.name:
-            greater_line_len = max(greater_line_len, self.font.size(self.name)[0])
+            greater_line_len = max(greater_line_len, self.font.width(self.name))
 
         self.width = greater_line_len + 24
         if self.name:

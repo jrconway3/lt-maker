@@ -57,11 +57,12 @@ class TimelineMenu(QWidget):
         layout.addWidget(self.entry)
         self.setLayout(layout)
 
-    def set_current(self, pose, frames):
+    def set_current_frames(self, frames):
+        print("Set Current Frames: ", frames)
         self.current_frames = frames
-        self.set_current_pose(pose)
 
     def set_current_pose(self, pose):
+        print("Set Current Pose: ", pose)
         self.current_pose = pose
         self.current_idx = 0
 
@@ -72,7 +73,11 @@ class TimelineMenu(QWidget):
         self.highlight(self.current_idx)
 
     def clear(self):
+        print("Timeline Menu Clear!")
         self.current_frames = None
+        self.clear_pose()
+
+    def clear_pose(self):
         self.current_pose = None
         self.current_idx = 0
 
@@ -88,8 +93,8 @@ class TimelineMenu(QWidget):
         self.current_idx = 0
         self.highlight(self.current_idx)
 
-    def remove_command(self, command_widget):
-        self.view.remove_commmand_widget(command_widget)
+    def remove_command(self, command):
+        self.view.remove_command(command)
 
     def add_command(self, command):
         command_widget = \

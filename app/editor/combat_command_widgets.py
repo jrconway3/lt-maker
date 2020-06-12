@@ -53,7 +53,7 @@ class IntCommand(CombatCommand):
 
         self.editor = QSpinBox(self)
         self.editor.setMaximumWidth(40)
-        self.editor.setRange(0, 1024)
+        self.editor.setRange(1, 1024)
         self.editor.setValue(self._data.value)
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -107,7 +107,7 @@ class FrameCommand(CombatCommand):
 
         self.num_frames = QSpinBox(self)
         self.num_frames.setMaximumWidth(40)
-        self.num_frames.setRange(0, 1024)
+        self.num_frames.setRange(1, 1024)
         self.num_frames.setValue(self._data.value[0])
         self.num_frames.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.num_frames)
@@ -130,9 +130,11 @@ class FrameCommand(CombatCommand):
         self._data.value = (num_frames, frame)
 
     def select_frame(self):
+        print(self.window)
+        print(self.window.current_frames, flush=True)
         res, ok = FrameSelector.get(self.window.current_frames, self.window)
         if ok:
-            self.frame.setText(res)
+            self.frame.setText(res.nid)
 
 class ColorTimeCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -141,7 +143,7 @@ class ColorTimeCommand(CombatCommand):
 
         self.num_frames = QSpinBox(self)
         self.num_frames.setMaximumWidth(40)
-        self.num_frames.setRange(0, 1024)
+        self.num_frames.setRange(1, 1024)
         self.num_frames.setValue(self._data.value[0])
         self.num_frames.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.num_frames)

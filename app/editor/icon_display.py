@@ -315,6 +315,7 @@ class Icon80Model(Icon16Model):
 class IconView(QGraphicsView):
     min_scale = 0.5
     max_scale = 5
+    static_size = None
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -330,7 +331,8 @@ class IconView(QGraphicsView):
     def set_image(self, pixmap):
         if pixmap:
             self.image = pixmap
-            self.setSceneRect(0, 0, self.image.width(), self.image.height())
+            if not self.static_size:
+                self.setSceneRect(0, 0, self.image.width(), self.image.height())
         else:
             self.image = None
             self.clear_scene()

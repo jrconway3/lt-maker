@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import json
 
 from app.data import data
+from app import sprites
 import app.utilities as utilities
 
 from app.data.map_sprite import MapSprite
@@ -227,6 +228,7 @@ class Resources():
 
     def load(self, proj_dir):
         self.main_folder = os.path.join(proj_dir, 'resources')
+        sprites.load_sprites(os.path.join(self.main_folder, 'custom_sprites'))
         self.populate_database(self.icons16, 'icons/icons_16x16', '.png', ImageResource)
         self.populate_database(self.icons32, 'icons/icons_32x32', '.png', ImageResource)
         self.populate_database(self.icons80, 'icons/icons_80x72', '.png', ImageResource)
@@ -354,15 +356,21 @@ class Resources():
 
         for map_sprite in self.map_sprites:
             # Standing sprite
-            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + map_sprite.nid + '-stand.png')
+            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-stand.png')
+            print(new_full_path)
             if os.path.abspath(map_sprite.standing_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(map_sprite.standing_full_path, new_full_path)
-                map_sprite.set_standing_full_path(new_full_path)
+            new_full_path = map_sprite.nid + '-stand.png'
+            print(new_full_path)
+            map_sprite.set_standing_full_path(new_full_path)
             # Moving sprite
-            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-' + map_sprite.nid + '-move.png')
+            new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-move.png')
+            print(new_full_path)
             if os.path.abspath(map_sprite.moving_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(map_sprite.moving_full_path, new_full_path)
-                map_sprite.set_moving_full_path(new_full_path)
+            new_full_path = map_sprite.nid + '-move.png'
+            print(new_full_path)
+            map_sprite.set_moving_full_path(new_full_path)
 
         map_sprite_save = [m.serialize() for m in self.map_sprites]
         save_loc = os.path.join(map_sprites_dir, 'map_sprites.json')

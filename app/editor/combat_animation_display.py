@@ -308,16 +308,17 @@ class CombatAnimProperties(QWidget):
             self.has_pose(False)
             return
         self.has_weapon(True)
+        print(weapon_anim.frames, flush=True)
+        self.timeline_menu.set_current_frames(weapon_anim.frames)
         if weapon_anim.poses:
             poses = self.reset_pose_box(weapon_anim)
             current_pose_nid = self.pose_box.currentText()
             current_pose = poses.get(current_pose_nid)
-            frames = weapon_anim.frames
             self.has_pose(True)
-            self.timeline_menu.set_current(current_pose, frames)
+            self.timeline_menu.set_current_pose(current_pose)
         else:
             self.pose_box.clear()
-            self.timeline_menu.clear()
+            self.timeline_menu.clear_pose()
             self.has_pose(False)
 
     def get_available_weapon_types(self) -> list:
@@ -391,7 +392,7 @@ class CombatAnimProperties(QWidget):
             self.has_pose(True)
             self.timeline_menu.set_current_pose(current_pose)
         else:
-            self.timeline_menu.clear()
+            self.timeline_menu.clear_pose()
             self.has_pose(False)
 
     def get_available_pose_types(self, weapon_anim) -> float:
@@ -553,6 +554,7 @@ class CombatAnimProperties(QWidget):
             self.weapon_box.setValue(weapon_anims[0].nid)
             weapon_anim = self.get_current_weapon_anim()
             poses = self.reset_pose_box(weapon_anim)
+            self.timeline_menu.set_current_frames(weapon_anim.frames)
         else:
             self.pose_box.clear()
             weapon_anim, poses = None, None
@@ -562,10 +564,9 @@ class CombatAnimProperties(QWidget):
         if weapon_anim and poses:
             current_pose_nid = self.pose_box.currentText()
             current_pose = poses.get(current_pose_nid)
-            frames = weapon_anim.frames
-            self.timeline_menu.set_current(current_pose, frames)
+            self.timeline_menu.set_current_pose(current_pose)
         else:
-            self.timeline_menu.clear()
+            self.timeline_menu.clear_pose()
 
     def modify_for_palette(self, pixmap: QPixmap) -> QPixmap:
         current_palette = self.palette_menu.get_palette()

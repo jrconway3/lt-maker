@@ -21,7 +21,10 @@ def split(font, string, num_lines):
         if new_line and character == ' ':
             which_line += 1
             new_line = False
-            continue
+            if which_line >= len(lines):
+                break
+            else:
+                continue
 
         lines[which_line].append(character)
         length_so_far = font.width(''.join(lines[which_line]))

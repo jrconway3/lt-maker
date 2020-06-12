@@ -49,7 +49,7 @@ Event Script editor
 Event scripts
 Dialogue
 Dialogue Log
-Title Screen Editor -- How would this work?
+Title Screen Editor -- How would this work? (Nah, just tell the user what sprites need to be changed)
 
 ---
 PrepMenu

@@ -1,37 +1,37 @@
 [
     [
         "Soldier",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Soldier-Soldier-stand.png",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Soldier-Soldier-move.png"
+        "Soldier-stand.png",
+        "Soldier-move.png"
     ],
     [
         "Archer",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Archer-Archer-stand.png",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Archer-Archer-move.png"
+        "Archer-stand.png",
+        "Archer-move.png"
     ],
     [
         "Fighter",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Fighter-Fighter-stand.png",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Fighter-Fighter-move.png"
+        "Fighter-stand.png",
+        "Fighter-move.png"
     ],
     [
         "Cavalier",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Cavalier-Cavalier-stand.png",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Cavalier-Cavalier-move.png"
+        "Cavalier-stand.png",
+        "Cavalier-move.png"
     ],
     [
         "Eirika_Lord",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Eirika_Lord-Eirika_Lord-stand.png",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Eirika_Lord-Eirika_Lord-move.png"
+        "Eirika_Lord-stand.png",
+        "Eirika_Lord-move.png"
     ],
     [
         "Knight",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Knight-Knight-stand.png",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Knight-Knight-move.png"
+        "Knight-stand.png",
+        "Knight-move.png"
     ],
     [
         "Paladin",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Paladin-Paladin-stand.png",
-        "C:/Users/pbradley/Documents/Github/lt-maker/default.ltproj\\resources\\map_sprites\\Paladin-Paladin-move.png"
+        "Paladin-stand.png",
+        "Paladin-move.png"
     ]
 ]

@@ -26,7 +26,7 @@ class CombatCommand(QWidget):
         x_button = QToolButton(self)
         x_button.setIcon(QIcon("icons/x.png"))
         x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
-        x_button.clicked.connect(functools.partial(self.window.remove_component, self))
+        x_button.clicked.connect(functools.partial(self.window.remove_command, self._data))
         hbox.addWidget(x_button, Qt.AlignRight)
 
     def create_editor(self, hbox):
@@ -48,7 +48,7 @@ class BasicCommand(CombatCommand):
 
 class IntCommand(CombatCommand):
     def create_editor(self, hbox):
-        label = QLabel("# Frames: ")
+        label = QLabel("#")
         hbox.addWidget(label)
 
         self.editor = QSpinBox(self)
@@ -65,13 +65,14 @@ class SoundCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = QLineEdit(self)
         self.editor.setPlaceholderText('Sound to play')
-        self.editor.setEditable(False)
-        self.editor.currentTextChanged.connect(self.on_value_changed)
+        self.editor.setMaximumWidth(100)
+        self.editor.setReadOnly(True)
+        self.editor.textChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
         self.button = QPushButton('...')
         self.button.setMaximumWidth(40)
-        self.button.triggered.connect(self.select_sound)
+        self.button.clicked.connect(self.select_sound)
         hbox.addWidget(self.button)
 
     def select_sound(self):
@@ -84,13 +85,14 @@ class SimpleFrameCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = QLineEdit(self)
         self.editor.setPlaceholderText('Image to be displayed')
-        self.editor.setEditable(False)
-        self.editor.currentTextChanged.connect(self.on_value_changed)
+        self.editor.setMaximumWidth(100)
+        self.editor.setReadOnly(True)
+        self.editor.textChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
         self.button = QPushButton('...')
         self.button.setMaximumWidth(40)
-        self.button.triggered.connect(self.select_frame)
+        self.button.clicked.connect(self.select_frame)
         hbox.addWidget(self.button)
 
     def select_frame(self):
@@ -100,7 +102,7 @@ class SimpleFrameCommand(CombatCommand):
 
 class FrameCommand(CombatCommand):
     def create_editor(self, hbox):
-        label = QLabel("# Frames: ")
+        label = QLabel("#")
         hbox.addWidget(label)
 
         self.num_frames = QSpinBox(self)
@@ -111,14 +113,15 @@ class FrameCommand(CombatCommand):
         hbox.addWidget(self.num_frames)
 
         self.frame = QLineEdit(self)
-        self.frame.setPlaceholderText('Image to be displayed')
-        self.frame.setEditable(False)
-        self.frame.currentTextChanged.connect(self.on_value_changed)
+        self.frame.setMaximumWidth(100)
+        self.frame.setPlaceholderText('Frame')
+        self.frame.setReadOnly(True)
+        self.frame.textChanged.connect(self.on_value_changed)
         hbox.addWidget(self.frame)
 
         self.button = QPushButton('...')
         self.button.setMaximumWidth(40)
-        self.button.triggered.connect(self.select_frame)
+        self.button.clicked.connect(self.select_frame)
         hbox.addWidget(self.button)
 
     def on_value_changed(self, val):

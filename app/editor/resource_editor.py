@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QGridLayout, QTabWidget, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QGridLayout, QTabWidget, QDialogButtonBox, QSizePolicy
 from PyQt5.QtCore import Qt, QSettings
 
 from collections import OrderedDict
@@ -36,6 +36,17 @@ class ResourceEditor(QDialog):
         self.buttonbox.accepted.connect(self.accept)
         self.buttonbox.rejected.connect(self.reject)
 
+        # self.buttonbox.setFocusPolicy(Qt.NoFocus)
+
+        # self.buttonbox = QHBoxLayout()
+        # self.button_ok = QPushButton("Ok", self)
+        # self.button_cancel = QPushButton("Cancel", self)
+        # self.buttonbox.addWidget(self.button_ok)
+        # self.buttonbox.addWidget(self.button_cancel)
+        # self.button_ok.clicked.connect(self.accept)
+        # self.button_cancel.clicked.connect(self.reject)
+        # self.grid.addLayout(self.buttonbox, 1, 1)
+
         self.tab_bar = QTabWidget(self)
 
         self.grid.addWidget(self.tab_bar, 0, 0, 1, 2)
@@ -52,6 +63,14 @@ class ResourceEditor(QDialog):
 
         self.current_tab = self.tab_bar.currentWidget()
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
+
+    def keyPressEvent(self, event):
+        key = event.key()
+        # Don't have Enter close the entire resource editor
+        if key == Qt.Key_Return or key == Qt.Key_Enter:
+            event.ignore()
+        else:
+            super().keyPressEvent(event)
 
     def create_sub_widgets(self):
         self.tabs = OrderedDict()
@@ -70,6 +89,13 @@ class ResourceEditor(QDialog):
         self.tabs['Music'] = MusicDisplay.create(self)
 
     def on_tab_changed(self, idx):
+        # Make each tab individually resizable
+        for i in range(self.tab_bar.count()):
+            if i == idx:
+                self.tab_bar.widget(i).setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            else:
+                self.tab_bar.widget(i).setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
         new_tab = self.tab_bar.currentWidget()
         self.current_tab = new_tab
         self.current_tab.update_list()

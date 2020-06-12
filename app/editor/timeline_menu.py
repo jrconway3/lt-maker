@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
-from app.data.data import Data
 from app.data import combat_animation_command
 
 from app.editor import combat_command_widgets
@@ -17,13 +16,20 @@ class TimelineList(WidgetList):
         item.setSizeHint(command_widget.sizeHint())
         self.addItem(item)
         self.setItemWidget(item, command_widget)
-        self.index_list.append(command_widget.data)
+        self.index_list.append(command_widget._data)
         return item
 
     def remove_command(self, command):
         if command in self.index_list:
             idx = self.index_list.index(command)
             self.index_list.remove(command)
+            return self.takeItem(idx)
+        return None
+
+    def remove_command_widget(self, command_widget):
+        if command_widget._data in self.index_list:
+            idx = self.index_list.index(command_widget._data)
+            self.index_list.remove(command_widget._data)
             return self.takeItem(idx)
         return None
 
@@ -38,6 +44,7 @@ class TimelineMenu(QWidget):
         self.current_idx = 0
 
         self.view = TimelineList(self)
+        self.view.order_swapped.connect(self.command_moved)
 
         self.create_actions()
         self.create_toolbar()
@@ -52,9 +59,13 @@ class TimelineMenu(QWidget):
 
     def set_current(self, pose, frames):
         self.current_frames = frames
+        self.set_current_pose(pose)
+
+    def set_current_pose(self, pose):
         self.current_pose = pose
         self.current_idx = 0
 
+        self.view.clear()
         for idx, command in enumerate(self.current_pose.timeline):
             self.add_command(command)
 
@@ -66,7 +77,8 @@ class TimelineMenu(QWidget):
         self.current_idx = 0
 
     def highlight(self, idx):
-        self.view.item(idx).setBackground(Qt.yellow, Qt.SolidPattern)
+        pass
+        # self.view.item(idx).setBackground(Qt.yellow, Qt.SolidPattern)
 
     def inc_current_idx(self):
         self.current_idx += 1
@@ -76,10 +88,16 @@ class TimelineMenu(QWidget):
         self.current_idx = 0
         self.highlight(self.current_idx)
 
+    def remove_command(self, command_widget):
+        self.view.remove_commmand_widget(command_widget)
+
     def add_command(self, command):
         command_widget = \
             combat_command_widgets.get_command_widget(command, self)
-        self.view.add_command(command_widget)
+        self.view.add_command_widget(command_widget)
+
+    def command_moved(self, start, end):
+        self.current_pose.timeline.move_index(start, end)
 
     def add_text(self):
         try:
@@ -126,6 +144,10 @@ class TimelineMenu(QWidget):
     def get_command(self, idx):
         if not self.current_pose:
             return None
+        if not self.current_pose.timeline:
+            return None
+        if idx >= len(self.current_pose.timeline):
+            return None
         command = self.current_pose.timeline[idx]
         while command.tag not in ('frame', 'wait'):
             idx += 1
@@ -136,7 +158,10 @@ class TimelineMenu(QWidget):
         return command
 
     def get_current_command(self):
-        return self.current_pose.timeline[self.current_idx]
+        if self.current_pose:
+            return self.current_pose.timeline[self.current_idx]
+        else:
+            return None
 
     def get_first_command_frame(self):
         """

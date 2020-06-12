@@ -101,6 +101,7 @@ class CombatAnimProperties(QWidget):
         self.loop = False
         self.counter = 0
         self.frames_passed = 0
+        self.last_update = 0
 
         self.anim_view = IconView(self)
 
@@ -268,11 +269,12 @@ class CombatAnimProperties(QWidget):
         self.window.update_list()
 
     def nid_done_editing(self):
-        other_nids = [d.nid for d in self._data.value() if d is not self.current]
+        other_nids = [d.nid for d in self._data if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
-        self.model.change_nid(self._data.find_key(self.current), self.current.nid)
+        model = self.window.left_frame.model
+        model.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
@@ -285,22 +287,42 @@ class CombatAnimProperties(QWidget):
         else:
             return False
 
+    def has_weapon(self, b: bool):
+        self.duplicate_weapon_button.setEnabled(b)
+        self.delete_weapon_button.setEnabled(b)
+        self.new_pose_button.setEnabled(b)
+
+    def has_pose(self, b: bool):
+        self.timeline_menu.setEnabled(b)
+        self.duplicate_pose_button.setEnabled(b)
+        self.delete_pose_button.setEnabled(b)
+
     def weapon_changed(self, idx):
+        print("weapon_changed", idx)
         weapon_nid = self.weapon_box.currentText()
         weapon_anim = self.current.weapon_anims.get(weapon_nid)
+        if not weapon_anim:
+            self.pose_box.clear()
+            self.timeline_menu.clear()
+            self.has_weapon(False)
+            self.has_pose(False)
+            return
+        self.has_weapon(True)
         if weapon_anim.poses:
             poses = self.reset_pose_box(weapon_anim)
             current_pose_nid = self.pose_box.currentText()
             current_pose = poses.get(current_pose_nid)
             frames = weapon_anim.frames
+            self.has_pose(True)
             self.timeline_menu.set_current(current_pose, frames)
         else:
             self.pose_box.clear()
             self.timeline_menu.clear()
+            self.has_pose(False)
 
-    def add_new_weapon(self):
+    def get_available_weapon_types(self) -> list:
         items = []
-        for weapon in DB.weapon_types:
+        for weapon in DB.weapons:
             if weapon.magic:
                 items.append("Magic" + weapon.nid)
             else:
@@ -311,19 +333,46 @@ class CombatAnimProperties(QWidget):
         for weapon_nid in self.current.weapon_anims.keys():
             if weapon_nid in items:
                 items.remove(weapon_nid)
+        return items
 
-        new_nid = QInputDialog.getItem(self, "New Weapon Animation", "Select Weapon Type", items, 0, False)
-        if not new_nid:
+    def add_new_weapon(self):
+        items = self.get_available_weapon_types()
+
+        new_nid, ok = QInputDialog.getItem(self, "New Weapon Animation", "Select Weapon Type", items, 0, False)
+        if not new_nid or not ok:
             return
         if new_nid == "Custom":
-            new_nid = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
-            if not new_nid:
+            new_nid, ok = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
+            if not new_nid or not ok:
                 return
             new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
         new_weapon = combat_animation.WeaponAnimation(new_nid)
         self.current.weapon_anims.append(new_weapon)
         self.weapon_box.addItem(new_nid)
         self.weapon_box.setValue(new_nid)
+
+    def duplicate_weapon(self):
+        items = self.get_available_weapon_types()
+
+        new_nid, ok = QInputDialog.getItem(self, "New Weapon Animation", "Select Weapon Type", items, 0, False)
+        if not new_nid or not ok:
+            return
+        if new_nid == "Custom":
+            new_nid, ok = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
+            if not new_nid or not ok:
+                return
+            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+
+        current_weapon_nid = self.weapon_box.currentText()
+        current_weapon = self.current.weapon_anims.get(current_weapon_nid)
+        # Make a copy
+        ser = current_weapon.serialize()
+        new_weapon = combat_animation.WeaponAnimation.deserialize(ser)
+        new_weapon.nid = new_nid
+        self.current.weapon_anims.append(new_weapon)
+        self.weapon_box.addItem(new_nid)
+        self.weapon_box.setValue(new_nid)
+        return new_weapon
 
     def delete_weapon(self):
         weapon = self.get_current_weapon_anim()
@@ -333,34 +382,66 @@ class CombatAnimProperties(QWidget):
             self.reset_pose_box(weapon)
 
     def pose_changed(self, idx):
+        print("pose changed", idx)
         current_pose_nid = self.pose_box.currentText()
         weapon_anim = self.get_current_weapon_anim()
         poses = weapon_anim.poses
         current_pose = poses.get(current_pose_nid)
-        self.timeline_menu.set_current_pose(current_pose)
+        if current_pose:
+            self.has_pose(True)
+            self.timeline_menu.set_current_pose(current_pose)
+        else:
+            self.timeline_menu.clear()
+            self.has_pose(False)
+
+    def get_available_pose_types(self, weapon_anim) -> float:
+        items = [_ for _ in combat_animation.required_poses] + ['Critical']
+        items.append("Custom")
+        for pose_nid in weapon_anim.poses.keys():
+            if pose_nid in items:
+                items.remove(pose_nid)
+        return items
 
     def add_new_pose(self):
         weapon_anim = self.get_current_weapon_anim()
+        items = self.get_available_pose_types(weapon_anim)
 
-        items = [_ for _ in combat_animation.required_poses] + ['Critical']
-        items.append("Custom")
-
-        for pose_nid in weapon_anim.pose.keys():
-            if pose_nid in items:
-                items.remove(pose_nid)
-
-        new_nid = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
-        if not new_nid:
+        new_nid, ok = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
+        if not new_nid or not ok:
             return
         if new_nid == "Custom":
-            new_nid = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
-            if not new_nid:
+            new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
+            if not new_nid or not ok:
                 return
             new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
         new_pose = combat_animation.Pose(new_nid)
-        weapon_anim.append(new_pose)
+        weapon_anim.poses.append(new_pose)
         self.pose_box.addItem(new_nid)
         self.pose_box.setValue(new_nid)
+
+    def duplicate_pose(self):
+        weapon_anim = self.get_current_weapon_anim()
+        items = self.get_available_pose_types(weapon_anim)
+
+        new_nid, ok = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
+        if not new_nid or not ok:
+            return
+        if new_nid == "Custom":
+            new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
+            if not new_nid or not ok:
+                return
+            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+
+        current_pose_nid = self.pose_box.currentText()
+        current_pose = weapon_anim.poses.get(current_pose_nid)
+        # Make a copy
+        ser = current_pose.serialize()
+        new_pose = combat_animation.Pose.deserialize(ser)
+        new_pose.nid = new_nid
+        weapon_anim.poses.append(new_pose)
+        self.pose_box.addItem(new_nid)
+        self.pose_box.setValue(new_nid)
+        return new_pose
 
     def delete_pose(self):
         weapon_anim = self.get_current_weapon_anim()
@@ -470,11 +551,10 @@ class CombatAnimProperties(QWidget):
         self.weapon_box.addItems([d.nid for d in weapon_anims])
         if weapon_anims:
             self.weapon_box.setValue(weapon_anims[0].nid)
-
             weapon_anim = self.get_current_weapon_anim()
             poses = self.reset_pose_box(weapon_anim)
         else:
-            self.clear_pose_box()
+            self.pose_box.clear()
             weapon_anim, poses = None, None
 
         self.palette_menu.set_current(self.current.palettes)

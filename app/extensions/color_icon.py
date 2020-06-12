@@ -4,18 +4,23 @@ from PyQt5.QtCore import pyqtSignal
 
 class ColorIcon(QPushButton):
     colorChanged = pyqtSignal(QColor)
+    size = 64
 
     def __init__(self, color, parent):
         super().__init__(parent)
         self._color = None
         self.change_color(color)
 
-        self.setMinimumHeight(64)
-        self.setMaximumHeight(64)
-        self.setMinimumWidth(64)
-        self.setMaximumWidth(64)
-        self.resize(64, 64)
+        self.set_size(self.size)
         self.pressed.connect(self.onColorPicker)
+
+    def set_size(self, size):
+        self.size = size
+        self.setMinimumHeight(self.size)
+        self.setMaximumHeight(self.size)
+        self.setMinimumWidth(self.size)
+        self.setMaximumWidth(self.size)
+        self.resize(self.size, self.size)
 
     def change_color(self, color):
         if color != self._color:

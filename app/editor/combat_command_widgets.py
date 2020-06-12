@@ -116,6 +116,8 @@ class FrameCommand(CombatCommand):
         self.frame.setMaximumWidth(100)
         self.frame.setPlaceholderText('Frame')
         self.frame.setReadOnly(True)
+        if self._data.value[1]:
+            self.frame.setText(self._data.value[1])
         self.frame.textChanged.connect(self.on_value_changed)
         hbox.addWidget(self.frame)
 

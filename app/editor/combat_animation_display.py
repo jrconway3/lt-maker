@@ -481,23 +481,24 @@ class CombatAnimProperties(QWidget):
         if ok:
             for fn in fns:
                 if fn.endswith('-Script.txt'):
+                    print(fn)
                     kind = os.path.split(fn)[-1].replace('-Script.txt', '')
-                    nid, weapon = kind.split('-')[0]
+                    print(kind)
+                    nid, weapon = kind.split('-')
                     index_fn = fn.replace('-Script.txt', '-Index.txt')
                     if not os.path.exists(index_fn):
                         QMessageBox.error("Could not find associated index file: %s" % index_fn)
                         continue
-                    palettes = glob.glob(fn.replace('-Script.txt', '-*.png'))
-                    if not palettes:
+                    images = glob.glob(fn.replace('-Script.txt', '-*.png'))
+                    if not images:
                         QMessageBox.error("Could not find any associated palettes")
                         continue
                     palette_nids = []
-                    for palette_fn in palettes:
-                        palette_nid = os.path.split(palette_fn)[-1][:-4].split('-')[-1]
+                    for image_fn in images:
+                        palette_nid = os.path.split(image_fn)[-1][:-4].split('-')[-1]
                         palette_nids.append(palette_nid)
-                        print(palette_nid)
                         if palette_nid not in self.current.palettes:
-                            palette_colors = editor_utilities.find_palette(QImage(palette_fn))
+                            palette_colors = editor_utilities.find_palette(QImage(image_fn))
                             new_palette = combat_animation.Palette(palette_nid, palette_colors)
                             self.current.palettes.append(new_palette)
                     new_weapon = combat_animation.WeaponAnimation(weapon)
@@ -506,7 +507,11 @@ class CombatAnimProperties(QWidget):
                         index_lines = [line.strip() for line in index_fp.readlines()]
                         index_lines = [l.split(';') for l in index_lines]
                     # Use the first palette
-                    main_pixmap = QPixmap(palettes[0])
+                    my_colors = self.current.palettes[0].colors
+                    base_colors = combat_animation.base_palette.colors
+                    assert len(my_colors) == len(base_colors)
+                    convert_dict = {a: b for a, b in zip(my_colors, base_colors)}
+                    main_pixmap = QPixmap(images[0])
                     for i in index_lines:
                         nid = i[0]
                         x, y = [int(_) for _ in i[1].split(',')]
@@ -515,7 +520,7 @@ class CombatAnimProperties(QWidget):
                         new_pixmap = main_pixmap.copy(x, y, width, height)
                         # Need to convert to universal base palette
                         im = new_pixmap.toImage()
-                        im = editor_utilities.color_convert(im, self.current.palettes[0].colors, combat_animation.base_palette)
+                        im = editor_utilities.color_convert(im, convert_dict)
                         new_pixmap = QPixmap.fromImage(im)
                         new_frame = combat_animation.Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)
                         new_weapon.frames.append(new_frame)
@@ -531,9 +536,15 @@ class CombatAnimProperties(QWidget):
                         else:
                             command = combat_animation_command.parse_text(line)
                             current_pose.timeline.append(command)
+                    # Actually add weapon to current
+                    if new_weapon.nid in self.current.weapon_anims.keys():
+                        self.current.weapon_anims.remove_key(new_weapon.nid)
+                    self.current.weapon_anims.append(new_weapon)
                     print("Done!!! %s" % fn)
             # Reset
             self.set_current(self.current)
+            if self.current.weapon_anims:
+                self.weapon_box.setValue(self.current.weapon_anims[-1].nid)
 
     def import_gba(self):
         pass

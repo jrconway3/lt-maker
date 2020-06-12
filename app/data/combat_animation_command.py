@@ -24,13 +24,21 @@ def parse_attr(attr, text: str):
         return tuple(int(_) for _ in text.split(','))
     elif attr == 'frame':
         return text
+    elif attr == 'sound':
+        return text
 
 def parse_text(split_text: list) -> CombatAnimationCommand:
     command_nid = split_text[0]
+    if command_nid == 'f' or command_nid == 'of': 
+        command_nid = 'frame'
     command = get_command(command_nid)
     values = []
-    for idx, attr in enumerate(command.attr):
-        value = parse_text(attr, split_text[idx])
+    if isinstance(command.attr, tuple):
+        for idx, attr in enumerate(command.attr):
+            value = parse_attr(attr, split_text[idx + 1])
+            values.append(value)
+    else:
+        value = parse_attr(command.attr, split_text[1])
         values.append(value)
     if len(values) == 0:
         pass
@@ -61,5 +69,6 @@ anim_commands = Data([
     
 
 def get_command(nid):
+    print(nid)
     base = anim_commands.get(nid)
     return CombatAnimationCommand.copy(base)

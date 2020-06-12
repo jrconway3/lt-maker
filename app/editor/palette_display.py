@@ -32,9 +32,10 @@ class PaletteWidget(QWidget):
 
         self.color_icons = []
 
-        for idx, color in self.palette.colors:
+        for idx, color in enumerate(self.palette.colors):
             qcolor = QColor(*color).name()
             icon = ColorIcon(qcolor, self)
+            icon.set_size(16)
             icon.colorChanged.connect(functools.partial(self.on_color_change, idx))
             self.palette_display.addWidget(icon, 0, Qt.AlignCenter)
             self.color_icons.append(icon)
@@ -65,15 +66,16 @@ class PaletteMenu(QListWidget):
         self.clear()
 
         for idx, palette in enumerate(palettes):
-            self.palettes = palette
+            self.palettes.append(palette)
+            print(palette)
 
             item = QListWidgetItem(self)
-            pf = PaletteWidget(idx ,palette, self)
+            pf = PaletteWidget(idx, palette, self)
             self.palette_widgets.append(pf)
             item.setSizeHint(pf.minimumSizeHint())
             self.addItem(item)
             self.setItemWidget(item, pf)
-            self.setMininumWidth(self.sizeHintForColumn(0))
+            self.setMinimumWidth(self.sizeHintForColumn(0))
 
     def set_palette(self, idx):
         self.current_idx = idx

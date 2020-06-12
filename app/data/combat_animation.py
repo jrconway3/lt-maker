@@ -47,6 +47,9 @@ class Palette():
         self.nid = nid
         self.colors = colors or []
 
+    def __repr__(self):
+        return self.nid + ": " + str(self.colors)
+
     def serialize(self):
         return (self.nid, self.colors)
 

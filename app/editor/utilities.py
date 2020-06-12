@@ -49,4 +49,6 @@ def find_palette(image):
             current_color = image.pixel(x, y)
             if current_color not in palette:
                 palette.append(current_color)
-    return palette
+    color_palette = [QtGui.QColor(p) for p in palette]
+    true_palette = [(c.red(), c.green(), c.blue()) for c in color_palette]
+    return true_palette

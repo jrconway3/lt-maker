@@ -441,6 +441,9 @@ class Resources():
                 for frame in weapon_anim.frames:
                     new_full_path = os.path.join(
                         folder, "%s-%s.png" % (weapon_anim.nid, frame.nid))
+                    if not frame.full_path:
+                        frame.full_path = new_full_path
+                        frame.pixmap.save(frame.full_path)
                     if os.path.abspath(frame.full_path) != os.path.abspath(new_full_path):
                         shutil.copy(frame.full_path, new_full_path)
                         frame.set_full_path(new_full_path)

@@ -510,7 +510,7 @@ class CombatAnimProperties(QWidget):
                     my_colors = self.current.palettes[0].colors
                     base_colors = combat_animation.base_palette.colors
                     assert len(my_colors) == len(base_colors)
-                    convert_dict = {a: b for a, b in zip(my_colors, base_colors)}
+                    convert_dict = {qRgb(*a): qRgb(*b) for a, b in zip(my_colors, base_colors)}
                     main_pixmap = QPixmap(images[0])
                     for i in index_lines:
                         nid = i[0]
@@ -520,6 +520,7 @@ class CombatAnimProperties(QWidget):
                         new_pixmap = main_pixmap.copy(x, y, width, height)
                         # Need to convert to universal base palette
                         im = new_pixmap.toImage()
+                        im = editor_utilities.convert_colorkey(im)
                         im = editor_utilities.color_convert(im, convert_dict)
                         new_pixmap = QPixmap.fromImage(im)
                         new_frame = combat_animation.Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)

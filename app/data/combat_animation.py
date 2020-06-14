@@ -56,6 +56,7 @@ class Palette():
     @classmethod
     def deserialize(cls, s_tuple):
         self = cls(*s_tuple)
+        self.colors = [tuple(c) for c in self.colors]
         return self
 
 class WeaponAnimation(Prefab):

@@ -3,11 +3,6 @@
         "nid": "Archer",
         "weapon_anims": [
             {
-                "nid": "RangedBow",
-                "poses": [],
-                "frames": []
-            },
-            {
                 "nid": "Unarmed",
                 "poses": [
                     [

@@ -23,13 +23,16 @@ class TimelineList(WidgetList):
         if command in self.index_list:
             idx = self.index_list.index(command)
             self.index_list.remove(command)
+            self.window.current_pose.timeline.remove(command)
             return self.takeItem(idx)
         return None
 
     def remove_command_widget(self, command_widget):
-        if command_widget._data in self.index_list:
-            idx = self.index_list.index(command_widget._data)
-            self.index_list.remove(command_widget._data)
+        command = command_widget._data
+        if command in self.index_list:
+            idx = self.index_list.index(command)
+            self.index_list.remove(command)
+            self.window.current_pose.timeline.remove(command)
             return self.takeItem(idx)
         return None
 
@@ -83,12 +86,17 @@ class TimelineMenu(QWidget):
         self.view.clear()
 
     def highlight(self, idx):
-        pass
-        # self.view.item(idx).setBackground(Qt.yellow, Qt.SolidPattern)
+        for i in range(self.view.count()):
+            self.view.item(i).setBackground(Qt.white)
+        self.view.item(idx).setBackground(Qt.yellow)
 
     def inc_current_idx(self):
         self.current_idx += 1
-        self.highlight(self.current_idx)
+        if self.current_idx >= len(self.current_pose.timeline):
+            return None
+        else:
+            self.highlight(self.current_idx)
+            return self.current_pose.timeline[self.current_idx]
 
     def reset(self):
         self.current_idx = 0
@@ -165,7 +173,7 @@ class TimelineMenu(QWidget):
         return command
 
     def get_current_command(self):
-        if self.current_pose and self.current_pose.timeline:
+        if self.current_pose and self.current_pose.timeline and self.current_idx < len(self.current_pose.timeline):
             return self.current_pose.timeline[self.current_idx]
         else:
             return None

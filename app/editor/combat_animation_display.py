@@ -300,6 +300,7 @@ class CombatAnimProperties(QWidget):
     def weapon_changed(self, idx):
         print("weapon_changed", idx)
         weapon_nid = self.weapon_box.currentText()
+        print(weapon_nid)
         weapon_anim = self.current.weapon_anims.get(weapon_nid)
         if not weapon_anim:
             self.pose_box.clear()
@@ -308,9 +309,13 @@ class CombatAnimProperties(QWidget):
             self.has_pose(False)
             return
         self.has_weapon(True)
+        print("Weapon Animation Frames")
         print(weapon_anim.frames, flush=True)
         self.timeline_menu.set_current_frames(weapon_anim.frames)
         if weapon_anim.poses:
+            print("We have poses!")
+            print(weapon_anim.poses)
+            print(weapon_anim.nid)
             poses = self.reset_pose_box(weapon_anim)
             current_pose_nid = self.pose_box.currentText()
             current_pose = poses.get(current_pose_nid)
@@ -380,12 +385,14 @@ class CombatAnimProperties(QWidget):
         if self.ask_permission(weapon, 'Weapon Animation'):
             self.current.weapon_anims.delete(weapon)
             self.reset_weapon_box()
-            self.reset_pose_box(weapon)
 
     def pose_changed(self, idx):
-        print("pose changed", idx)
         current_pose_nid = self.pose_box.currentText()
         weapon_anim = self.get_current_weapon_anim()
+        if not weapon_anim:
+            self.timeline_menu.clear_pose()
+            self.has_pose(False)
+            return
         poses = weapon_anim.poses
         current_pose = poses.get(current_pose_nid)
         if current_pose:
@@ -556,6 +563,7 @@ class CombatAnimProperties(QWidget):
         pass
 
     def set_current(self, current):
+        print("Set Current!")
         self.stop()
 
         self.current = current
@@ -594,7 +602,6 @@ class CombatAnimProperties(QWidget):
 
     def process(self):
         def proceed():
-            self.last_update = current_time - unspent_time
             next_command = self.timeline_menu.inc_current_idx()
             if next_command:
                 pass
@@ -602,6 +609,7 @@ class CombatAnimProperties(QWidget):
                 self.timeline_menu.reset()
                 next_command = self.timeline_menu.inc_current_idx()
             else:
+                self.timeline_menu.reset()
                 self.stop()
                 return None
             return next_command
@@ -614,29 +622,28 @@ class CombatAnimProperties(QWidget):
             unspent_time = milliseconds_past % framerate
 
             current_command = self.timeline_menu.get_current_command()
-
-            while current_command:
-                if current_command.nid == 'frame':
-                    time_to_display, image = current_command.value
-                    if num_frames >= time_to_display:
-                        current_command = proceed()
-                    else:
-                        break  # No need to proceed anyfurther
-                elif current_command.nid == 'wait':
-                    time_to_display = current_command.value
-                    if num_frames >= time_to_display:
-                        current_command = proceed()
-                    else:
-                        break
-                else:
+            if not current_command:
+                return None
+            if current_command.nid == 'frame':
+                time_to_display, image = current_command.value
+                if num_frames >= time_to_display:
+                    self.last_update = current_time - unspent_time
+                    current_command = proceed()
+            elif current_command.nid == 'wait':
+                time_to_display = current_command.value
+                if num_frames >= time_to_display:
+                    self.last_update = current_time - unspent_time
+                    current_command = proceed()
+            else:
+                while current_command and current_command.tag != 'frame':
                     current_command = proceed()
 
         elif self.paused:
             current_command = self.timeline_menu.get_current_command()
         else:
-            print("First command")
+            # print("First command")
             current_command = self.timeline_menu.get_first_command_frame()
-        print("current_command", current_command, flush=True)
+        # print("current_command", current_command, flush=True)
         return current_command
 
     def draw_frame(self):

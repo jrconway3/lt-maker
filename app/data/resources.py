@@ -357,19 +357,15 @@ class Resources():
         for map_sprite in self.map_sprites:
             # Standing sprite
             new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-stand.png')
-            print(new_full_path)
             if os.path.abspath(map_sprite.standing_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(map_sprite.standing_full_path, new_full_path)
             new_full_path = map_sprite.nid + '-stand.png'
-            print(new_full_path)
             map_sprite.set_standing_full_path(new_full_path)
             # Moving sprite
             new_full_path = os.path.join(map_sprites_dir, map_sprite.nid + '-move.png')
-            print(new_full_path)
             if os.path.abspath(map_sprite.moving_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(map_sprite.moving_full_path, new_full_path)
             new_full_path = map_sprite.nid + '-move.png'
-            print(new_full_path)
             map_sprite.set_moving_full_path(new_full_path)
 
         map_sprite_save = [m.serialize() for m in self.map_sprites]
@@ -446,13 +442,15 @@ class Resources():
                         frame.pixmap.save(frame.full_path)
                     if os.path.abspath(frame.full_path) != os.path.abspath(new_full_path):
                         shutil.copy(frame.full_path, new_full_path)
-                        frame.set_full_path(new_full_path)
+                    new_full_path = os.path.join(
+                        combat_anim.nid, "%s-%s.png" % (weapon_anim.nid, frame.nid))
+                    frame.set_full_path(new_full_path)
         # Now actually save data
         combat_anim_save = [d.serialize() for d in self.combat_anims]
         save_loc = os.path.join(combat_anim_dir, 'combat_anims.json')
         print("Serializing combat anims to %s" % save_loc)
         with open(save_loc, 'w') as serialize_file:
-            json.dump(combat_anim_save, serialize_file)
+            json.dump(combat_anim_save, serialize_file, indent=4)
 
         # === Save SFX ===
         sfx_dir = os.path.join(resource_dir, 'sfx')

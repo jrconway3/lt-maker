@@ -80,6 +80,7 @@ class TimelineMenu(QWidget):
     def clear_pose(self):
         self.current_pose = None
         self.current_idx = 0
+        self.view.clear()
 
     def highlight(self, idx):
         pass
@@ -151,10 +152,11 @@ class TimelineMenu(QWidget):
             return None
         if not self.current_pose.timeline:
             return None
+        print(idx, len(self.current_pose.timeline))
         if idx >= len(self.current_pose.timeline):
             return None
         command = self.current_pose.timeline[idx]
-        while command.tag not in ('frame', 'wait'):
+        while command.tag != 'frame':
             idx += 1
             if idx < len(self.current_pose.timeline):
                 command = self.current_pose.timeline[idx]
@@ -163,7 +165,7 @@ class TimelineMenu(QWidget):
         return command
 
     def get_current_command(self):
-        if self.current_pose:
+        if self.current_pose and self.current_pose.timeline:
             return self.current_pose.timeline[self.current_idx]
         else:
             return None

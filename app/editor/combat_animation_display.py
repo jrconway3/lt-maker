@@ -498,7 +498,8 @@ class CombatAnimProperties(QWidget):
                         palette_nid = os.path.split(image_fn)[-1][:-4].split('-')[-1]
                         palette_nids.append(palette_nid)
                         if palette_nid not in self.current.palettes:
-                            palette_colors = editor_utilities.find_palette(QImage(image_fn))
+                            pix = QPixmap(image_fn)
+                            palette_colors = editor_utilities.find_palette(pix.toImage())
                             new_palette = combat_animation.Palette(palette_nid, palette_colors)
                             self.current.palettes.append(new_palette)
                     new_weapon = combat_animation.WeaponAnimation(weapon)
@@ -520,7 +521,8 @@ class CombatAnimProperties(QWidget):
                         new_pixmap = main_pixmap.copy(x, y, width, height)
                         # Need to convert to universal base palette
                         im = new_pixmap.toImage()
-                        im = editor_utilities.convert_colorkey(im)
+                        # im = editor_utilities.convert_colorkey(im)
+                        im.convertTo(QImage.Format_Indexed8)
                         im = editor_utilities.color_convert(im, convert_dict)
                         new_pixmap = QPixmap.fromImage(im)
                         new_frame = combat_animation.Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)
@@ -632,7 +634,9 @@ class CombatAnimProperties(QWidget):
         elif self.paused:
             current_command = self.timeline_menu.get_current_command()
         else:
+            print("First command")
             current_command = self.timeline_menu.get_first_command_frame()
+        print("current_command", current_command, flush=True)
         return current_command
 
     def draw_frame(self):
@@ -642,8 +646,13 @@ class CombatAnimProperties(QWidget):
 
         # Actually show current frame
         if current_command.nid == 'frame':
-            frame = current_command.value[1]
-            actor_pix = self.modify_for_palette(frame.pixmap)
+            frame_nid = current_command.value[1]
+            weapon_anim = self.get_current_weapon_anim()
+            frame = weapon_anim.frames.get(frame_nid)
+            if frame:
+                actor_pix = self.modify_for_palette(frame.pixmap)
+            else:
+                actor_pix = None
         elif current_command.nid == 'wait':
             actor_pix = None
         else:

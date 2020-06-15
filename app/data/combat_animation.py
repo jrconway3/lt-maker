@@ -103,4 +103,4 @@ class CombatAnimation(Prefab):
             self.weapon_anims.append(WeaponAnimation.deserialize(weapon_anim_save))
         return self
 
-base_palette = Palette('base', [(248, 248, 248)] + [(0, 0, x*8) for x in range(15)])
+base_palette = Palette('base', [(128, 160, 128)] + [(0, 0, x*8) for x in range(15)])

@@ -10,7 +10,7 @@ class CombatAnimationCommand():
 
     @classmethod
     def copy(cls, other):
-        return cls(other.nid, other.name, other.attr, other.value)
+        return cls(other.nid, other.name, other.attr, other.value, other.tag)
 
     def serialize(self):
         return self.nid, self.value

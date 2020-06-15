@@ -2,7 +2,7 @@ import functools
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
     QListWidgetItem, QLineEdit, QToolButton, QApplication, QMenu, QToolBar
-from PyQt5.QtCore import Qt
+# from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
 from app.data import combat_animation_command
@@ -45,8 +45,10 @@ class TimelineMenu(QWidget):
         self.current_frames = None
 
         self.current_idx = 0
+        self._finished = False
 
         self.view = TimelineList(self)
+        self.view.setStyleSheet("QListWidget::item:selected {background-color: yellow;}")
         self.view.order_swapped.connect(self.command_moved)
 
         self.create_actions()
@@ -68,12 +70,13 @@ class TimelineMenu(QWidget):
         print("Set Current Pose: ", pose)
         self.current_pose = pose
         self.current_idx = 0
+        self._finished = False
 
         self.view.clear()
         for idx, command in enumerate(self.current_pose.timeline):
             self.add_command(command)
 
-        self.highlight(self.current_idx)
+        self.select(self.current_idx)
 
     def clear(self):
         print("Timeline Menu Clear!")
@@ -83,24 +86,16 @@ class TimelineMenu(QWidget):
     def clear_pose(self):
         self.current_pose = None
         self.current_idx = 0
+        self._finished = False
         self.view.clear()
 
-    def highlight(self, idx):
-        for i in range(self.view.count()):
-            self.view.item(i).setBackground(Qt.white)
-        self.view.item(idx).setBackground(Qt.yellow)
-
-    def inc_current_idx(self):
-        self.current_idx += 1
-        if self.current_idx >= len(self.current_pose.timeline):
-            return None
-        else:
-            self.highlight(self.current_idx)
-            return self.current_pose.timeline[self.current_idx]
+    def select(self, idx):
+        self.view.setCurrentRow(idx)
 
     def reset(self):
         self.current_idx = 0
-        self.highlight(self.current_idx)
+        self._finished = False
+        self.select(self.current_idx)
 
     def remove_command(self, command):
         self.view.remove_command(command)
@@ -155,31 +150,20 @@ class TimelineMenu(QWidget):
         self.entry.setPlaceholderText("Enter command here")
         self.entry.returnPressed.connect(self.add_text)
 
-    def get_command(self, idx):
-        if not self.current_pose:
-            return None
-        if not self.current_pose.timeline:
-            return None
-        print(idx, len(self.current_pose.timeline))
-        if idx >= len(self.current_pose.timeline):
-            return None
-        command = self.current_pose.timeline[idx]
-        while command.tag != 'frame':
-            idx += 1
-            if idx < len(self.current_pose.timeline):
-                command = self.current_pose.timeline[idx]
-            else:
-                return None
-        return command
-
     def get_current_command(self):
-        if self.current_pose and self.current_pose.timeline and self.current_idx < len(self.current_pose.timeline):
+        if self.current_pose and self.current_pose.timeline and \
+                self.current_idx < len(self.current_pose.timeline):
             return self.current_pose.timeline[self.current_idx]
-        else:
-            return None
+        return None
 
-    def get_first_command_frame(self):
-        """
-        Returns the first frame that would be shown to the user in an animation
-        """
-        return self.get_command(0)
+    def inc_current_idx(self):
+        self.current_idx += 1
+        if self.current_idx >= len(self.current_pose.timeline):
+            self.current_idx = len(self.current_pose.timeline)
+            self._finished = True
+            self.select(self.current_idx - 1)
+        else:
+            self.select(self.current_idx - 1)
+
+    def finished(self) -> bool:
+        return self._finished

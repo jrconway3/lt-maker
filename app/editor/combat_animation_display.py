@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
 from PyQt5.QtCore import Qt, QSettings, QDir
 from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb
 
+from app.data.constants import WINWIDTH, WINHEIGHT
 from app.data.data import Data
 from app.data.resources import RESOURCES
 from app.data.database import DB
@@ -99,11 +100,17 @@ class CombatAnimProperties(QWidget):
         self.playing = False
         self.paused = False
         self.loop = False
-        self.counter = 0
-        self.frames_passed = 0
+
         self.last_update = 0
+        self.num_frames = 0
+        self.processing = False
+        self.frame_nid = None
+        self.over_frame_nid = None
+        self.under_frame_nid = None
 
         self.anim_view = IconView(self)
+        self.anim_view.static_size = True
+        self.anim_view.setSceneRect(0, 0, WINWIDTH, WINHEIGHT)
 
         self.palette_menu = PaletteMenu(self)
         # self.palette_menu.palette_changed.connect(self.palette_changed)
@@ -600,69 +607,59 @@ class CombatAnimProperties(QWidget):
         pixmap = QPixmap.fromImage(im)
         return pixmap
 
-    def process(self):
-        def proceed():
-            next_command = self.timeline_menu.inc_current_idx()
-            if next_command:
-                pass
-            elif self.loop:
-                self.timeline_menu.reset()
-                next_command = self.timeline_menu.inc_current_idx()
-            else:
-                self.timeline_menu.reset()
-                self.stop()
-                return None
-            return next_command
-
+    def update(self):
         if self.playing:
             current_time = time.time() * 1000
             framerate = 1000 / self.speed_box.value()
             milliseconds_past = current_time - self.last_update
-            num_frames = int(milliseconds_past / framerate)
+            num_frames_passed = int(milliseconds_past / framerate)
             unspent_time = milliseconds_past % framerate
-
-            current_command = self.timeline_menu.get_current_command()
-            if not current_command:
-                return None
-            if current_command.nid == 'frame':
-                time_to_display, image = current_command.value
-                if num_frames >= time_to_display:
-                    self.last_update = current_time - unspent_time
-                    current_command = proceed()
-            elif current_command.nid == 'wait':
-                time_to_display = current_command.value
-                if num_frames >= time_to_display:
-                    self.last_update = current_time - unspent_time
-                    current_command = proceed()
-            else:
-                while current_command and current_command.tag != 'frame':
-                    current_command = proceed()
-
+            self.next_update = current_time - unspent_time
+            if num_frames_passed >= self.num_frames:
+                self.processing = True
+                self.read_script()
         elif self.paused:
-            current_command = self.timeline_menu.get_current_command()
+            pass
         else:
-            # print("First command")
-            current_command = self.timeline_menu.get_first_command_frame()
-        # print("current_command", current_command, flush=True)
-        return current_command
+            pass
+
+    def read_script(self):
+        if self.timeline_menu.finished():
+            if self.loop:
+                self.timeline_menu.reset()
+            else:
+                self.timeline_menu.reset()
+                self.stop()
+            return
+
+        while not self.timeline_menu.finished() and self.processing:
+            current_command = self.timeline_menu.get_current_command()
+            self.do_command(current_command)
+            self.timeline_menu.inc_current_idx()
+
+    def do_command(self, command):
+        if command.nid == 'frame':
+            num_frames, image = command.value
+            self.num_frames = num_frames
+            self.last_update = self.next_update
+            self.processing = False
+            self.frame_nid = image
+        else:
+            pass
 
     def draw_frame(self):
-        current_command = self.process()
-        if not current_command:
-            return
+        self.update()
 
         # Actually show current frame
-        if current_command.nid == 'frame':
-            frame_nid = current_command.value[1]
+        # Need to draw 240x160 area
+        # And place in space according to offset
+        actor_pix = None
+        if self.frame_nid:
             weapon_anim = self.get_current_weapon_anim()
-            frame = weapon_anim.frames.get(frame_nid)
+            frame = weapon_anim.frames.get(self.frame_nid)
             if frame:
                 actor_pix = self.modify_for_palette(frame.pixmap)
-            else:
-                actor_pix = None
-        elif current_command.nid == 'wait':
-            actor_pix = None
-        else:
-            return
-        self.anim_view.set_image(actor_pix)
-        self.anim_view.show_image()
+        
+        if actor_pix:
+            self.anim_view.set_image(actor_pix)
+            self.anim_view.show_image()

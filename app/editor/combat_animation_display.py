@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
     QLabel, QToolButton, QInputDialog
 from PyQt5.QtCore import Qt, QSettings, QDir
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb
+from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 from app.data.data import Data
@@ -597,15 +597,14 @@ class CombatAnimProperties(QWidget):
         else:
             self.timeline_menu.clear_pose()
 
-    def modify_for_palette(self, pixmap: QPixmap) -> QPixmap:
+    def modify_for_palette(self, pixmap: QPixmap) -> QImage:
         current_palette = self.palette_menu.get_palette()
         im = pixmap.toImage()
         im_palette = combat_animation.base_palette
         im = editor_utilities.convert_colorkey(im)
         conv_dict = {qRgb(*a): qRgb(*b) for a, b in zip(im_palette.colors, current_palette.colors)}
         im = editor_utilities.color_convert(im, conv_dict)
-        pixmap = QPixmap.fromImage(im)
-        return pixmap
+        return im
 
     def update(self):
         if self.playing:
@@ -653,13 +652,21 @@ class CombatAnimProperties(QWidget):
         # Actually show current frame
         # Need to draw 240x160 area
         # And place in space according to offset
-        actor_pix = None
+        actor_im = None
+        offset_x, offset_y = 0, 0
         if self.frame_nid:
             weapon_anim = self.get_current_weapon_anim()
             frame = weapon_anim.frames.get(self.frame_nid)
             if frame:
-                actor_pix = self.modify_for_palette(frame.pixmap)
+                offset_x, offset_y = frame.offset
+                actor_im = self.modify_for_palette(frame.pixmap)
         
-        if actor_pix:
-            self.anim_view.set_image(actor_pix)
-            self.anim_view.show_image()
+        base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+        base_image.fill(editor_utilities.qCOLORKEY)
+        if actor_im:
+            painter = QPainter()
+            painter.begin(base_image)
+            painter.drawImage(offset_x, offset_y, actor_im)
+            painter.end()
+        self.anim_view.set_image(QPixmap.fromImage(base_image))
+        self.anim_view.show_image()

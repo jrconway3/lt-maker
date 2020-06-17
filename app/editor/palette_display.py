@@ -45,10 +45,8 @@ class PaletteWidget(QWidget):
         layout.addLayout(self.palette_display)
 
     def on_color_change(self, idx, color):
-        print(color)
-        color = color.color().getRgb()
-        print(color)
-        self.palette.colors[idx] = color
+        color = color.getRgb()
+        self.palette.colors[idx] = color[:3]
 
 class PaletteMenu(QListWidget):
     def __init__(self, parent=None):

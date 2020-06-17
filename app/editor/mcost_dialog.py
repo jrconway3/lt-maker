@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialogButtonBox, QTableView, QInputDialog, QHeaderView, \
     QGridLayout, QPushButton, QLineEdit, QStyledItemDelegate, QAction, QMenu, QMessageBox, \
     QDialog
-from PyQt5.QtGui import QIntValidator, QFontMetrics, QBrush, QColor
+from PyQt5.QtGui import QDoubleValidator, QFontMetrics, QBrush, QColor
 from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt, QSize
@@ -244,7 +244,9 @@ class RowHeaderView(QHeaderView):
 class McostDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         editor = QLineEdit(parent)
-        editor.setValidator(QIntValidator(1, 99))
+        validator = QDoubleValidator(0.1, 99, 2)
+        validator.setNotation(QDoubleValidator.StandardNotation)
+        editor.setValidator(validator)
         return editor
 
 class GridModel(QAbstractTableModel):

@@ -14,7 +14,7 @@ class McostGrid(object):
             self.column_headers = [l.strip() for l in mcost_data.readline().split('-')[1:]]
             for line in mcost_data.readlines()[1:]:
                 s_line = line.strip().split()
-                mcost_dict[s_line[0]] = [int(s) if s != '-' else 99 for s in s_line[1:]]
+                mcost_dict[s_line[0]] = [float(s) if s != '-' else 99 for s in s_line[1:]]
         self.row_headers = list(mcost_dict.keys())
 
         # Now convert to grid

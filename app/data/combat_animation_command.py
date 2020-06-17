@@ -31,6 +31,15 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
     command_nid = split_text[0]
     if command_nid == 'f' or command_nid == 'of': 
         command_nid = 'frame'
+    elif command_nid == 'self_flash_white':
+        command_nid = 'self_tint'
+        split_text.append('248,248,248')
+    elif command_nid == 'enemy_flash_white':
+        command_nid = 'enemy_tint'
+        split_text.append('248,248,248')
+    elif command_nid == 'screen_flash_white':
+        command_nid = 'screen_blend'
+        split_text.append('248,248,248')
     command = get_command(command_nid)
     values = []
     if isinstance(command.attr, tuple):
@@ -49,22 +58,47 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
     return command
 
 anim_commands = Data([
-    CombatAnimationCommand('frame', 'Display Frame', (int, 'frame'), (0, None), 'frame'),
+    CombatAnimationCommand('frame', 'Display Frame', (int, 'frame', 'frame', 'frame'), (0, None), 'frame'),
     CombatAnimationCommand('wait', 'Wait', int, 0, 'frame'),
     
     CombatAnimationCommand('sound', 'Play Sound', 'sound', None, 'sound'),
+    CombatAnimationCommand('stop_sound', 'Stop Sound', 'sound', None, 'sound'),
 
-    CombatAnimationCommand('start_hit', 'Start Hit Routine', None, None, 'process'),
-    CombatAnimationCommand('wait_for_hit', 'Wait for End of Hit Routine', 'frame', None, 'process'),
+    CombatAnimationCommand('start_hit', 'Start Normal Hit Routine', None, None, 'process'),
+    CombatAnimationCommand('wait_for_hit', 'Wait for End of Normal Hit Routine', ('frame', 'frame', 'frame'), None, 'process'),
     CombatAnimationCommand('miss', 'Miss', None, None, 'process'),
+    CombatAnimationCommand('spell', 'Cast Spell', 'effect', None, 'process'),
+    CombatAnimationCommand('spell_hit', 'Spell Hit Routine', None, None, 'process'),
 
-    CombatAnimationCommand('enemy_flash_white', 'Flash Enemy White', int, 0, 'aesthetic1'),
-    CombatAnimationCommand('screen_flash_white', 'Flash Screen White', int, 0, 'aesthetic1'),
-    CombatAnimationCommand('foreground_blend', 'Blend Foreground', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('self_tint', 'Tint Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
+    CombatAnimationCommand('enemy_tint', 'Tint Enemy', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
+    CombatAnimationCommand('background_blend', 'Tint Background', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('foreground_blend', 'Tint Foreground', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('screen_blend', 'Tint Entire Screen', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('opacity', 'Set Opacity', int, 0, 'aesthetic1'),
+
     CombatAnimationCommand('platform_shake', 'Shake Platform', None, None, 'aesthetic2'),
     CombatAnimationCommand('screen_shake', 'Shake Screen', None, None, 'aesthetic2'),
     CombatAnimationCommand('hit_spark', 'Show Hit Spark', None, None, 'aesthetic2'),
     CombatAnimationCommand('crit_spark', 'Show Crit Spark', None, None, 'aesthetic2'),
+    CombatAnimationCommand('darken', 'Darken Background', None, None, 'aesthetic2'),
+    CombatAnimationCommand('lighten', 'Lighten Background', None, None, 'aesthetic2'),
+
+    CombatAnimationCommand('effect', 'Show Effect On Self', 'effect', None, 'effect'),
+    CombatAnimationCommand('under_effect', 'Show Effect Under Self', 'effect', None, 'effect'),
+    CombatAnimationCommand('enemy_effect', 'Show Effect On Enemy', 'effect', None, 'effect'),
+    CombatAnimationCommand('enemy_under_effect', 'Show Effect Under Enemy', 'effect', None, 'effect'),
+    CombatAnimationCommand('clear_all_effects', 'Clear All Effects', None, None, 'effect'),
+
+    CombatAnimationCommand('pan', 'Pan Screen', None, None, 'aesthetic3'),
+    CombatAnimationCommand('blend', 'Set Frame Blending', bool, True, 'aesthetic3'),
+    CombatAnimationCommand('static', 'Set Static Position', bool, True, 'aesthetic3'),
+    CombatAnimationCommand('ignore_pan', 'Set Ignore Pan', bool, True, 'aesthetic3'),
+    
+    CombatAnimationCommand('start_loop', 'Start Loop', None, None, 'loop'),
+    CombatAnimationCommand('end_loop', 'End Loop', None, None, 'loop'),
+    CombatAnimationCommand('end_parent_loop', 'Break Parent Loop', None, None, 'loop'),
+    CombatAnimationCommand('end_child_loop', 'Break All Effect Loops', None, None, 'loop')
 ])
     
 

@@ -14,7 +14,7 @@ def compare_teams(t1: str, t2: str) -> bool:
 class Node():
     __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f']
 
-    def __init__(self, x: int, y: int, reachable: bool, cost: int):
+    def __init__(self, x: int, y: int, reachable: bool, cost: float):
         """
         Initialize new cell
         reachable - is cell reachable? is not a wall?
@@ -95,7 +95,7 @@ class GridManager(object):
                 terrain_nid = tilemap.get_terrain((x, y))
                 terrain = DB.terrain.get(terrain_nid)
                 tile_cost = DB.mcost.get_mcost(mode, terrain.mtype)
-                cells.append(Node(x, y, tile_cost != 99, tile_cost))
+                cells.append(Node(x, y, tile_cost < 99, tile_cost))
         return cells
 
     def get_grid(self, mode):
@@ -284,4 +284,3 @@ class AStar():
                         else:
                             self.update_cell(adj, cell)
                             heapq.heappush(self.open, (adj.f, adj))
-                            # 

@@ -1,9 +1,9 @@
 import os
 
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QListView, QDialog, \
-    QPushButton, QFileDialog, QMessageBox
+    QPushButton, QFileDialog, QMessageBox, QGroupBox, QFormLayout, QSpinBox
 from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 
@@ -13,6 +13,7 @@ from app.data import combat_animation
 from app.extensions.custom_gui import Dialog
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.editor.icon_display import IconView
+import app.editor.utilities as editor_utilities
 
 class FrameModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -47,6 +48,21 @@ class FrameSelector(Dialog):
         self.display.static_size = WINWIDTH, WINHEIGHT
         self.display.setSceneRect(0, 0, WINWIDTH, WINHEIGHT)
 
+        offset_section = QGroupBox(self)
+        offset_section.setTitle("Offset")
+        offset_layout = QFormLayout()
+        self.x_box = QSpinBox()
+        self.x_box.setValue(0)
+        self.x_box.setRange(0, WINWIDTH)
+        self.x_box.valueChanged.connect(self.on_x_changed)
+        offset_layout.addRow("X:", self.x_box)
+        self.y_box = QSpinBox()
+        self.y_box.setValue(0)
+        self.y_box.setRange(0, WINHEIGHT)
+        self.y_box.valueChanged.connect(self.on_y_changed)
+        offset_layout.addRow("Y:", self.y_box)
+        offset_section.setLayout(offset_layout)
+
         self.view = QListView(self)
         self.view.currentChanged = self.on_item_changed
 
@@ -61,8 +77,11 @@ class FrameSelector(Dialog):
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.view)
         left_layout.addWidget(self.add_button)
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(self.display)
+        right_layout.addWidget(offset_section)
         main_layout.addLayout(left_layout)
-        main_layout.addWidget(self.display)
+        main_layout.addLayout(right_layout)
         layout.addLayout(main_layout)
         layout.addWidget(self.buttonbox)
         self.setLayout(layout)
@@ -95,11 +114,30 @@ class FrameSelector(Dialog):
                 new_data = self.frames[curr.row()]
             self.set_current(new_data)
 
+    def on_x_changed(self, val):
+        self.current.offset = (val, self.current.offset[1])
+        self.draw()
+
+    def on_y_changed(self, val):
+        self.current.offset = (self.current.offset[0], val)
+        self.draw()
+
     def set_current(self, frame):
         self.current = frame
         if self.current:
-            self.display.set_image(self.current.pixmap)
-            self.display.show_image()
+            self.x_box.setValue(self.current.offset[0])
+            self.y_box.setValue(self.current.offset[1])
+            self.draw()
+
+    def draw(self):
+        base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+        base_image.fill(editor_utilities.qCOLORKEY)
+        painter = QPainter()
+        painter.begin(base_image)
+        painter.drawImage(self.current.offset[0], self.current.offset[1], self.current.pixmap.toImage())
+        painter.end()
+        self.display.set_image(QPixmap.fromImage(base_image))
+        self.display.show_image()
 
     @classmethod
     def get(cls, frames, parent=None):

@@ -18,6 +18,8 @@ class CombatAnimationCommand():
 def parse_attr(attr, text: str):
     if attr is None:
         return None
+    elif attr is bool:
+        return True
     elif attr is int:
         return int(text)
     elif attr == 'color':
@@ -29,8 +31,18 @@ def parse_attr(attr, text: str):
 
 def parse_text(split_text: list) -> CombatAnimationCommand:
     command_nid = split_text[0]
-    if command_nid == 'f' or command_nid == 'of': 
-        command_nid = 'frame'
+    if command_nid == 'f':
+        if len(split_text) == 3: 
+            command_nid = 'frame'
+        elif len(split_text) == 4:
+            command_nid = 'dual_frame'
+        elif len(split_text) == 5:
+            command_nid = 'frame_with_offset'
+            split_text = [split_text[0], split_text[1], split_text[2], split_text[4].split(',')]
+    elif command_nid == 'of':
+        command_nid = 'over_frame'
+    elif command_nid == 'uf':
+        command_nid = 'under_frame'
     elif command_nid == 'self_flash_white':
         command_nid = 'self_tint'
         split_text.append('248,248,248')
@@ -58,14 +70,18 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
     return command
 
 anim_commands = Data([
-    CombatAnimationCommand('frame', 'Display Frame', (int, 'frame', 'frame', 'frame'), (0, None), 'frame'),
+    CombatAnimationCommand('frame', 'Display Frame', (int, 'frame'), (0, None), 'frame'),
     CombatAnimationCommand('wait', 'Wait', int, 0, 'frame'),
+    CombatAnimationCommand('over_frame', 'Display Over Frame', (int, 'frame'), (0, None), 'frame'),
+    CombatAnimationCommand('under_frame', 'Display Under Frame', (int, 'frame'), (0, None), 'frame'),
+    CombatAnimationCommand('dual_frame', 'Display Dual Frame', (int, 'frame', 'frame'), (0, None, None), 'frame'),
+    CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame'),
     
     CombatAnimationCommand('sound', 'Play Sound', 'sound', None, 'sound'),
     CombatAnimationCommand('stop_sound', 'Stop Sound', 'sound', None, 'sound'),
 
     CombatAnimationCommand('start_hit', 'Start Normal Hit Routine', None, None, 'process'),
-    CombatAnimationCommand('wait_for_hit', 'Wait for End of Normal Hit Routine', ('frame', 'frame', 'frame'), None, 'process'),
+    CombatAnimationCommand('wait_for_hit', 'Wait for End of Normal Hit Routine', ('frame', 'frame'), (None, None), 'process'),
     CombatAnimationCommand('miss', 'Miss', None, None, 'process'),
     CombatAnimationCommand('spell', 'Cast Spell', 'effect', None, 'process'),
     CombatAnimationCommand('spell_hit', 'Spell Hit Routine', None, None, 'process'),

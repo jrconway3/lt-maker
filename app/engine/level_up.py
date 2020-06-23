@@ -33,6 +33,9 @@ class ExpState(State):
 
         self.old_exp = self.unit.exp
         self.old_level = self.unit.level
+        self.unit_klass = DB.classes.get(self.unit.klass)
+        self.auto_promote = (DB.constants.get('auto_promote') or 'AutoPromote' in self.unit.tags) and \
+            self.unit_klass.turns_into and 'NoAutoPromote' not in self.unit.tags
 
         self.state = SimpleStateMachine(self.starting_state)
         self.start_time = engine.get_time()
@@ -41,12 +44,15 @@ class ExpState(State):
         self.level_up_animation = None
         self.level_up_screen = None
 
+        if not self.auto_promote:
+            max_exp = 100 * (self.unit_klass.max_level - self.old_level) - self.old_exp
+            self.exp_gain = min(self.exp_gain, max_exp)
+
         self.total_time_for_exp = self.exp_gain * FRAMERATE  # 1 frame per exp
 
         self.stat_changes = None
 
-        self.unit_klass = DB.classes.get(self.unit.klass)
-        if self.unit.level >= self.unit_klass.max_level and not self.unit_klass.turns_into:
+        if self.unit.level >= self.unit_klass.max_level and not self.auto_promote:
             # We're done here
             game.state.back()
             return 'repeat'
@@ -108,9 +114,7 @@ class ExpState(State):
                 max_level = self.unit_klass.max_level
                 if self.unit.level >= max_level:  # Do I promote?
                     SOUNDTHREAD.stop_sfx('Experience Gain')
-                    if DB.constants.get('auto_promote').value and \
-                            self.unit_klass.turns_into and \
-                            'NoAutoPromote' not in self.unit.tags:
+                    if self.auto_promote:
                         self.exp_bar.update(100)
                         SOUNDTHREAD.play_sfx('Level Up')
                     else:
@@ -210,8 +214,7 @@ class ExpState(State):
             self.exp_bar.update()
             if current_time - self.start_time > 100:
                 class_options = self.unit_klass.turns_into
-                if DB.constants.get('auto_promote').value and class_options and \
-                        'NoAutoPromote' not in self.unit.tags:
+                if self.auto_promote:
                     self.exp_bar.update(0)
                     if len(class_options) > 1:
                         game.cursor.cur_unit = self.unit

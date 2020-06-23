@@ -406,6 +406,11 @@ class TurnwheelDisplay():
 
 class TurnwheelState(MapState):
     def begin(self):
+        # Kill off any units who are currently dying
+        for unit in game.level.units:
+            if unit.is_dying:
+                game.death.force_death(unit)
+
         game.action_log.record = False
 
         # Lower volume
@@ -462,14 +467,18 @@ class TurnwheelState(MapState):
                 self.turnwheel_effect()
                 self.bg.fade_out()
                 game.game_constants['current_turnwheel_uses'] -= 1
-            elif not game.action_log.locked:
+            elif self.name != 'force_turnwheel' and not game.action_log.locked:
                 self.back_out()
             else:
                 # ERROR SOUND
                 pass
 
         elif event == 'BACK':
-            self.back_out()
+            if self.name != 'force_turnwheel':
+                self.back_out()
+            else:
+                # Error SOUND
+                pass
 
     def back_out(self):
         game.action_log.reset()

@@ -113,7 +113,7 @@ class DefenderState(AttackerState):
         if solver.event_combat and solver.event_combat[-1] == 'quit':
             return 'Done'
         if solver.attacker.get_hp() > 0 and solver.defender.get_hp() > 0:
-            ditem = solver.defender.get_weapon()
+            ditem = solver.p2_item
             if solver.item_uses(ditem) and self.check_brave(solver, solver.defender, ditem) and solver.defender_brave < 1:
                 solver.defender_brave += 1
                 return 'Defender'
@@ -133,7 +133,7 @@ class DefenderState(AttackerState):
         return 'Done'
 
     def process(self, solver):
-        ditem = solver.defender.get_weapon()
+        ditem = solver.p2_item
         action.do(action.UseItem(ditem))
         result = solver.generate_result(solver.defender, solver.attacker, ditem, 'Defense')
         return result
@@ -216,6 +216,7 @@ class Solver():
         # Have splash damage spiral out from position it started on...
         self.splash = sorted(splash, key=lambda s_unit: utilities.calculate_distance(self.def_pos, s_unit.position))
         self.item = item
+        self.p2_item = self.defender.get_weapon() if self.defender else None
         self.skill_used = skill_used
         if event_combat:
             # Must make a copy, because we'll be modifying this list
@@ -252,7 +253,7 @@ class Solver():
         return True
 
     def defender_can_counterattack(self):
-        weapon = self.defender.get_weapon()
+        weapon = self.p2_item
         if weapon and self.item_uses(weapon) and \
                 utilities.calculate_distance(self.attacker.position, self.defender.position) in \
                 game.equations.get_range(weapon, self.defender):
@@ -265,7 +266,7 @@ class Solver():
 
     def def_double(self):
         return DB.constants.get('def_double').value and \
-            self.def_rounds < 2 and combat_calcs.outspeed(self.defender, self.attacker, self.defender.get_weapon(), "Defense")
+            self.def_rounds < 2 and combat_calcs.outspeed(self.defender, self.attacker, self.p2_item, "Defense")
 
     def allow_counterattack(self):
         return isinstance(self.defender, unit_object.UnitObject) and \

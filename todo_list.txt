@@ -20,6 +20,7 @@ Level-up
 * Level-up animations
 Promotion
 * Music/Sounds in engine
+Remove Gender
 
 Equations check their validity
 

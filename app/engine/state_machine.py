@@ -70,6 +70,7 @@ class StateMachine():
                            'ai': general_states.AIState,
                            'exp': level_up.ExpState,
                            'turnwheel': turnwheel.TurnwheelState,
+                           'force_turnwheel': turnwheel.TurnwheelState,
                            'game_over': game_over.GameOverState,
                            }
         if starting_states:

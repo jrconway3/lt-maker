@@ -128,7 +128,27 @@ class UnitObject(Prefab):
                 requirement = DB.weapon_ranks.get(item.level.value).requirement
                 self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
 
-    def can_wield(self, item):
+    def has_uses(self, item) -> bool:
+        if item.uses and item.uses.value <= 0:
+            return False
+        if item.c_uses and item.c_uses.value <= 0:
+            return False
+        if item.hp_cost and self.get_hp() <= item.hp_cost.value:
+            return False
+        if item.mana_cost and self.get_mana() <= item.mana_cost.value:
+            return False
+        return True
+
+    def could_wield(self, item) -> bool:
+        if item.prf_unit:
+            if self.nid not in item.prf_unit.value.keys():
+                return False
+        if item.prf_class:
+            if self.klass not in item.prf_class.value.keys():
+                return False
+        if item.prf_tag:
+            if not any(tag in item.prf_tag.value.keys() for tag in self.tags):
+                return False
         if (item.weapon or item.spell) and item.level:
             weapon_rank = DB.weapon_ranks.get(item.level.value)
             req = weapon_rank.requirement
@@ -139,20 +159,12 @@ class UnitObject(Prefab):
             if klass_usable and spec_wexp >= req:
                 return True
             return False
-        elif item.prf_self:
-            if self.nid in item.prf_unit.value.keys():
-                return True
-            else:
-                return False
-        elif item.prf_class:
-            if self.klass in item.prf_class.value.keys():
-                return True
-            else:
-                return False
-        else:
-            return True
+        return True
 
-    def can_use(self, item):
+    def can_wield(self, item) -> bool:
+        return self.could_wield(item) and self.has_uses(item)
+
+    def could_use(self, item):
         if item.heal:
             if self.get_hp() < game.equations.hitpoints(self):
                 return True
@@ -176,6 +188,9 @@ class UnitObject(Prefab):
             return True
         return False
 
+    def can_use(self, item) -> bool:
+        return self.could_use(item) and self.has_uses(item)
+
     def get_weapon(self):
         for item in self.items:
             if item.weapon and self.can_wield(item):
@@ -197,21 +212,45 @@ class UnitObject(Prefab):
         index = len(self.items)
         self.insert_item(index, item)
 
+    def unequip_item(self, item):
+        # handle status on equip
+        pass
+
+    def equip_item(self, item):
+        # handle status on equip
+        pass
+
     def insert_item(self, index, item):
+        def handle_equip(item):
+            if self.get_weapon() == item:
+                # You unequipped a different item, so remove its status
+                if len(self.items) > 1 and self.could_wield(self.items[1]):
+                    self.unequip_item(self.items[1])
+                # Now add yours
+                if self.can_wield(item):
+                    self.equip_item(item)
+
         if item in self.items:
             self.items.remove(item)
             self.items.insert(index, item)
-            # Statuses here
+            handle_equip(item)
         else:
             self.items.insert(index, item)
             item.owner_nid = self.nid
             # Statuses here
+            handle_equip(item)
 
     def remove_item(self, item):
-        was_weapon = self.get_weapon() == item
+        next_weapon = next((item for item in self.items if item.weapon and self.could_wield(item)), None)
+        was_main_weapon = next_weapon == item
         self.items.remove(item)
         item.owner_nid = None
+        if was_main_weapon:
+            self.unequip_item(item)
         # Status effects
+        # There may be a new item equipped
+        if was_main_weapon and self.get_weapon():
+            self.equip_item(self.get_weapon())
 
     def get_internal_level(self):
         klass = DB.classes.get(self.klass)

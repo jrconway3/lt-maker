@@ -466,6 +466,39 @@ class EquipItem(Action):
     def reverse(self):
         self.unit.insert_item(self.old_idx, self.item)
 
+class UnequipItem(Action):
+    """
+    Used when an item should not be equipped any more
+    Ex. If an item with per-chapter uses has no more uses
+    """
+    def __init__(self, unit, item):
+        self.unit = unit
+        self.item = item
+        self.was_main_weapon = False
+        self.equip_item = None
+
+    def _get_old_weapon(self, unit):
+        for item in self.items:
+            if item.weapon and self.could_wield(item):
+                return item
+        return None
+
+    def do(self):
+        self.was_main_weapon = self._get_old_weapon() == self.item
+        if self.was_main_weapon:
+            if self.unit.get_weapon():
+                self.equip_item = EquipItem(self.unit, self.unit.get_weapon())
+                self.equip_item.do()
+            else:
+                self.unit.unequip_item(self.item)
+
+    def reverse(self):
+        if self.was_main_weapon:
+            if self.equip_item:
+                self.equip_item.reverse()
+            else:
+                self.unit.equip_item(self.item)
+
 class TradeItem(Action):
     def __init__(self, unit1, unit2, item1, item2):
         self.unit1 = unit1

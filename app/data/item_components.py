@@ -193,6 +193,18 @@ class PrfClassData(Data):
             nid = DB.classes[0].nid
         self.append(self.datatype(nid))
 
+class PrfTagData(Data):
+    datatype = BasicSubComponent
+
+    def add_new_default(self, DB):
+        for tag in DB.tags:
+            if tag.nid not in self.keys():
+                nid = tag.nid
+                break
+        else:
+            nid = DB.tags[0].nid
+        self.append(self.datatype(nid))
+
 class PromoteData(PrfClassData):
     pass
 
@@ -273,6 +285,7 @@ item_components = Data([
     ItemComponent('effective', 'Effective Against', EffectiveSubComponent, EffectiveData(), requires_spell_or_weapon),
     ItemComponent('prf_unit', 'Restricted to (Unit)', BasicSubComponent, PrfUnitData(), requires_aspect),
     ItemComponent('prf_class', 'Restricted to (Class)', BasicSubComponent, PrfClassData(), requires_aspect),
+    ItemComponent('prf_tag', 'Restricted to (Tag)', BasicSubComponent, PrfTagData(), requires_aspect),
 
     ItemComponent('locked', 'Cannot be removed from Unit'),
     ItemComponent('brave', 'Brave', 'BraveChoice', 0, requires_spell_or_weapon),

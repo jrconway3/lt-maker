@@ -239,8 +239,9 @@ class PrimaryAI():
         self.behaviour = behaviour
 
         if self.behaviour.action == "Attack":
-            self.items = [item for item in self.unit.items if self.unit.can_wield(item) and
-                (item.weapon or item.spell or item.usable) and not item.no_ai]
+            self.items = [item for item in self.unit.items if 
+                          self.unit.can_wield(item) and
+                          (item.weapon or item.spell or item.usable) and not item.no_ai]
 
         self.all_targets = self.get_all_targets(self.unit)
 

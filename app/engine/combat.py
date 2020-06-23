@@ -43,28 +43,32 @@ class Combat():
             else:
                 action.do(action.ChangeTileHp(result.defender.position, -result.def_damage))
 
+    def handle_unusable_items(self):
+        if not self.p1.has_uses(self.item):
+            action.do(action.UnequipItem(self.p1, self.item))
+        if self.p2 and not self.p2.has_uses(self.p2_item):
+            action.do(action.UnequipItem(self.p2, self.p2_item))
+
     def find_broken_items(self):
         a_broke_item, d_broke_item = False, False
         if self.item.uses and self.item.uses.value <= 0:
             a_broke_item = True
-        if self.p2:
-            weapon = self.p2.get_weapon()
-            if weapon and weapon.uses and weapon.uses.value <= 0:
-                d_broke_item = True
+        if self.p2 and self.p2_item and self.p2_item.uses and self.p2_item.uses.value <= 0:
+            d_broke_item = True
         return a_broke_item, d_broke_item
 
-    def remove_broken_items(self, a_broke_item, d_broke_item):
+    def remove_broken_items(self, a_broke_item: bool, d_broke_item: bool):
         if a_broke_item:
-            action.do(action.RemoveItem(self.p1, a_broke_item))
+            action.do(action.RemoveItem(self.p1, self.item))
         if d_broke_item:
-            action.do(action.RemoveItem(self.p2, d_broke_item))
+            action.do(action.RemoveItem(self.p2, self.p2_item))
 
     def broken_item_alert(self, a_broke_item, d_broke_item):
         if a_broke_item and self.p1.team == 'player' and not self.p1.is_dying:
             game.alerts.append(banner.BrokenItem(self.p1, self.item))
             game.state.change('alert')
         if d_broke_item and self.p2.team == 'player' and not self.p2.is_dying:
-            game.alerts.append(banner.BrokenItem(self.p2, self.p2.get_weapon()))
+            game.alerts.append(banner.BrokenItem(self.p2, self.p2_item))
             game.state.change('alert')
 
     def handle_wexp(self, results, item):
@@ -236,6 +240,7 @@ class MapCombat(Combat):
         self.def_pos = def_pos
         self.splash = splash
         self.item = item
+        self.p2_item = self.p2.get_weapon() if self.p2 else None
         self.skill_used = skill_used
         self.event_combat = event_combat
         self.ai_combat = ai_combat
@@ -338,6 +343,8 @@ class MapCombat(Combat):
                     for result in self.results:
                         if result.attacker is self.p1:
                             item = self.item
+                        elif result.attacker is self.p2:
+                            item = self.p2_item
                         else:
                             item = result.attacker.get_weapon()
                         # Sound
@@ -396,12 +403,12 @@ class MapCombat(Combat):
                     p1_health = MapCombatInfo('p1', self.p1, self.item, self.p2, (hit, mt))
                     self.health_bars[self.p1] = p1_health
                 if self.item.weapon and self.solver.defender_can_counterattack():
-                    hit = combat_calcs.compute_hit(self.p2, self.p1, self.p2.get_weapon(), 'Defense')
-                    mt = combat_calcs.compute_damage(self.p2, self.p1, self.p2.get_weapon(), 'Defense')
+                    hit = combat_calcs.compute_hit(self.p2, self.p1, self.p2_item, 'Defense')
+                    mt = combat_calcs.compute_damage(self.p2, self.p1, self.p2_item, 'Defense')
                 else:
                     hit, mt = None, None
                 if self.p2 not in self.health_bars:
-                    p2_health = MapCombatInfo('p2', self.p2, self.p2.get_weapon(), self.p1, (hit, mt))
+                    p2_health = MapCombatInfo('p2', self.p2, self.p2_item, self.p1, (hit, mt))
                     self.health_bars[self.p2] = p2_health
 
             # P1 on single splash
@@ -424,6 +431,8 @@ class MapCombat(Combat):
         if result.outcome:
             if result.attacker is self.p1:
                 item = self.item
+            elif result.attacker is self.p2:
+                item = self.p2_item
             else:
                 item = result.attacker.get_weapon()
 
@@ -582,7 +591,7 @@ class MapCombat(Combat):
         a_broke_item, d_broke_item = self.find_broken_items()
 
         all_units = [unit for unit in self.splash] + [self.p1]
-        if self.p2:
+        if self.p2 and self.p2 is not self.p1:
             all_units.append(self.p2)
 
         for unit in all_units:
@@ -637,7 +646,7 @@ class MapCombat(Combat):
                 # WEXP and Skills
                 if defender_results:
                     # Action.do(Action.ChargeAllSkills(self.p2), gameStateObj)
-                    self.handle_wexp(defender_results, self.p2.get_weapon())
+                    self.handle_wexp(defender_results, self.p2_item)
                 # EXP and Records
                 if self.p2.team == 'player':  
                     my_exp, records = self.calc_init_exp_p2(defender_results)
@@ -648,6 +657,7 @@ class MapCombat(Combat):
 
         self.handle_death(all_units)
         # Actually remove items
+        self.handle_unusable_items()
         self.remove_broken_items(a_broke_item, d_broke_item)
 
 class AnimationCombat(Combat):

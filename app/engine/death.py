@@ -10,6 +10,12 @@ class DeathManager():
         unit.is_dying = True
         self.dying_units[unit.nid] = 0
 
+    def force_death(self, unit):
+        unit.is_dying = False
+        action.do(action.Die(unit))
+        if unit.nid in self.dying_units:
+            del self.dying_units[unit.nid]
+
     def update(self) -> bool:
         for unit_nid in list(self.dying_units.keys()):
             death_counter = self.dying_units[unit_nid]
@@ -22,9 +28,7 @@ class DeathManager():
             self.dying_units[unit_nid] += 1
 
             if death_counter >= 27:
-                unit.is_dying = False
-                action.do(action.Die(unit))
-                del self.dying_units[unit_nid]
+                self.force_death(unit)
 
         return not self.dying_units  # Done when no dying units left
 

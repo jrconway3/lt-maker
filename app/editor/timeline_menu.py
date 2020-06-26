@@ -50,6 +50,7 @@ class TimelineMenu(QWidget):
         self.view = TimelineList(self)
         self.view.setStyleSheet("QListWidget::item:selected {background-color: yellow;}")
         self.view.order_swapped.connect(self.command_moved)
+        self.view.currentChanged = self.on_new_selection
 
         self.create_actions()
         self.create_toolbar()
@@ -91,6 +92,10 @@ class TimelineMenu(QWidget):
 
     def select(self, idx):
         self.view.setCurrentRow(idx)
+
+    def on_new_selection(self, curr, prev):
+        print("On New Selection: %s" % curr.row())
+        self.current_idx = curr.row()
 
     def reset(self):
         self.current_idx = 0
@@ -153,7 +158,7 @@ class TimelineMenu(QWidget):
     def get_current_command(self):
         if self.current_pose and self.current_pose.timeline and \
                 self.current_idx < len(self.current_pose.timeline):
-            return self.current_pose.timeline[self.current_idx]
+            return self.current_pose.timeline[max(0, self.current_idx)]
         return None
 
     def inc_current_idx(self):

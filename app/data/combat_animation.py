@@ -30,16 +30,19 @@ class Frame():
         self.pixmap = pixmap
         self.image = None
         self.offset = offset
+        self.location = None
 
     def set_full_path(self, full_path):
         self.full_path = full_path
 
     def serialize(self):
-        return (self.nid, self.full_path, self.offset)
+        return (self.nid, self.full_path, self.offset, self.location)
 
     @classmethod
     def deserialize(cls, s_tuple):
         self = cls(s_tuple[0], s_tuple[2], s_tuple[1])
+        if len(s_tuple) > 3 and s_tuple[3] is not None:
+            self.location = tuple(s_tuple[3])
         return self
 
 class Palette():

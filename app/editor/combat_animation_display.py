@@ -3,9 +3,9 @@ import os, glob, time
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
-    QLabel, QToolButton, QInputDialog
+    QLabel, QToolButton, QInputDialog, QColorDialog
 from PyQt5.QtCore import Qt, QSettings, QDir
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter
+from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter, QColor
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 from app.data.data import Data
@@ -83,6 +83,51 @@ class CombatAnimModel(ResourceCollectionModel):
     def nid_change_watchers(self, combat_anim, old_nid, new_nid):
         self.change_nid(old_nid, new_nid)
 
+class AnimView(IconView):
+    def get_color_at_pos(self, pixmap, pos):
+        image = pixmap.toImage()
+        current_color = image.pixel(*pos)
+        color = QColor(current_color)
+        return (color.red(), color.green(), color.blue())
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x()), int(scene_pos.y())
+
+        # Need to get original frame with base palette
+        frame_nid = self.window.frame_nid
+        if not frame_nid:
+            return
+        weapon_anim = self.window.get_current_weapon_anim()
+        frame = weapon_anim.frames.get(frame_nid)
+        if not frame:
+            return
+        offset_x, offset_y = frame.offset
+        pos = pos[0] - offset_x, pos[1] - offset_y
+        pixmap = frame.pixmap
+
+        if event.button() == Qt.LeftButton:
+            base_color = self.get_color_at_pos(pixmap, pos)
+            palette = self.window.get_current_palette()
+            base_colors = combat_animation.base_palette.colors
+            if base_color not in base_colors:
+                print("Cannot find color: %s in %s" % (base_color, base_colors))
+                return
+            idx = base_colors.index(base_color)
+            dlg = QColorDialog()
+            c = palette.colors[idx]
+            print(c, flush=True)
+            dlg.setCurrentColor(QColor(*c))
+            if dlg.exec_():
+                new_color = QColor(dlg.currentColor())
+                print(new_color, flush=True)
+                color = new_color.getRgb()
+                print(color, flush=True)
+                palette_widget = self.window.palette_menu.get_palette_widget()
+                icon = palette_widget.color_icons[idx]
+                icon.change_color(new_color.name())
+                
 class CombatAnimProperties(QWidget):
     def __init__(self, parent, current=None):
         QWidget.__init__(self, parent)
@@ -102,13 +147,14 @@ class CombatAnimProperties(QWidget):
         self.loop = False
 
         self.last_update = 0
+        self.next_update = 0
         self.num_frames = 0
         self.processing = False
         self.frame_nid = None
         self.over_frame_nid = None
         self.under_frame_nid = None
 
-        self.anim_view = IconView(self)
+        self.anim_view = AnimView(self)
         self.anim_view.static_size = True
         self.anim_view.setSceneRect(0, 0, WINWIDTH, WINHEIGHT)
 
@@ -135,6 +181,7 @@ class CombatAnimProperties(QWidget):
         self.loop_button.setCheckable(True)
 
         label = QLabel("FPS ")
+        label.setAlignment(Qt.AlignRight)
 
         self.speed_box = QSpinBox(self)
         self.speed_box.setValue(60)
@@ -144,6 +191,7 @@ class CombatAnimProperties(QWidget):
         button_section.addWidget(self.play_button)
         button_section.addWidget(self.stop_button)
         button_section.addWidget(self.loop_button)
+        button_section.addSpacing(40)
         button_section.addWidget(label, Qt.AlignRight)
         button_section.addWidget(self.speed_box, Qt.AlignRight)
 
@@ -597,8 +645,11 @@ class CombatAnimProperties(QWidget):
         else:
             self.timeline_menu.clear_pose()
 
+    def get_current_palette(self):
+        return self.palette_menu.get_palette()
+
     def modify_for_palette(self, pixmap: QPixmap) -> QImage:
-        current_palette = self.palette_menu.get_palette()
+        current_palette = self.get_current_palette()
         im = pixmap.toImage()
         im_palette = combat_animation.base_palette
         im = editor_utilities.convert_colorkey(im)
@@ -620,7 +671,9 @@ class CombatAnimProperties(QWidget):
         elif self.paused:
             pass
         else:
-            pass
+            # Get selected frame
+            current_command = self.timeline_menu.get_current_command()
+            self.do_command(current_command)
 
     def read_script(self):
         if self.timeline_menu.finished():

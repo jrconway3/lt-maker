@@ -333,6 +333,6 @@ def get_command_widget(command, parent):
         c = FrameWithOffsetCommand(command, parent)
     elif command.attr[0] is int and command.attr[1] == 'color':
         c = ColorTimeCommand(command, parent)
-    else:  # TODO
+    else:
         c = BasicCommand(command, parent)
     return c

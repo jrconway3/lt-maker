@@ -22,6 +22,12 @@ Promotion
 * Music/Sounds in engine
 Remove Gender
 
+# For interaction
+* Add New, Duplicate, Delete to Palettes
+Bug when 1. Open Resource Editor 2. Click OK saving resources 3. Re-open REsource Editor
+Unit does not appear ^
+Add in-game Animation interaction combat
+
 Equations check their validity
 
 Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers, *autotile layer

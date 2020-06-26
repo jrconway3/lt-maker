@@ -1,9 +1,12 @@
 import functools
 
-from PyQt5.QtWidgets import QWidget, QButtonGroup, \
-    QListWidgetItem, QRadioButton, QHBoxLayout, QLabel, QListWidget
+from PyQt5.QtWidgets import QWidget, QButtonGroup, QInputDialog, QMenu, \
+    QListWidgetItem, QRadioButton, QHBoxLayout, QLabel, QListWidget, QAction
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
+
+from app import utilities
+from app.data import combat_animation
 
 from app.extensions.color_icon import ColorIcon
 
@@ -60,6 +63,27 @@ class PaletteMenu(QListWidget):
 
         self.current_idx = 0
 
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.customMenuRequested)
+
+    def customMenuRequested(self, pos):
+        index = self.indexAt(pos)
+        menu = QMenu(self)
+
+        new_action = QAction("New", self, triggered=lambda: self.new(index))
+        menu.addAction(new_action)
+        if index.isValid():
+            rename_action = QAction("Rename", self, triggered=lambda: self.rename(index))
+            menu.addAction(rename_action)
+            duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index))
+            menu.addAction(duplicate_action)
+            delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
+            menu.addAction(delete_action)
+            if len(self.palettes) <= 1:  # Can't delete when only one palette left
+                delete_action.setEnabled(False)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
     def set_current(self, palettes):
         self.clear()
 
@@ -75,12 +99,19 @@ class PaletteMenu(QListWidget):
             self.setItemWidget(item, pf)
             self.setMinimumWidth(self.sizeHintForColumn(0))
 
+        if self.palettes:
+            self.set_palette(0)
+
     def set_palette(self, idx):
+        print("Set Palette: %s" % idx)
         self.current_idx = idx
         self.radio_button_group.button(idx).setChecked(True)
 
     def get_palette(self):
         return self.palettes[self.current_idx]
+
+    def get_palette_widget(self):
+        return self.palette_widgets[self.current_idx]
 
     def clear(self):
         # self.radio_button_group.clear()
@@ -90,4 +121,43 @@ class PaletteMenu(QListWidget):
         #     self.takeItem(idx)
         #     l.deleteLater()
         super().clear()
+        self.palette_widgets.clear()
         self.current_idx = 0
+
+    def new(self, index):
+        palettes = self.window.current.palettes
+        new_nid = utilities.get_next_name("Palette", [p.nid for p in self.palettes])
+        colors = combat_animation.base_palette.colors
+        new_palette = combat_animation.Palette(new_nid, colors)
+        palettes.insert(index.row() + 1, new_palette)
+
+        self.set_current(palettes)
+        self.set_palette(self.current_idx)
+
+    def duplicate(self, index):
+        palettes = self.window.current.palettes
+        parent_palette = self.palettes[index.row()]
+        new_nid = utilities.get_next_name(parent_palette.nid, [p.nid for p in self.palettes])
+        colors = parent_palette.colors
+        new_palette = combat_animation.Palette(new_nid, colors)
+        palettes.insert(index.row() + 1, new_palette)
+
+        self.set_current(palettes)
+        self.set_palette(self.current_idx)
+
+    def delete(self, index):
+        palettes = self.window.current.palettes
+        to_delete = self.palettes[index.row()]
+        palettes.remove(to_delete)
+
+        self.set_current(palettes)
+        self.set_palette(self.current_idx)
+
+    def rename(self, index):
+        palette = self.palettes[index.row()]
+        new_nid, ok = QInputDialog.getText(self, "Rename", "Enter New Name: ")
+        if not new_nid or not ok:
+            return
+        palette.nid = utilities.get_next_name(new_nid, [p.nid for p in self.palettes if p is not palette])
+        palette_widget = self.palette_widgets[index.row()]
+        palette_widget.name_label.setText(palette.nid)

@@ -673,7 +673,8 @@ class CombatAnimProperties(QWidget):
         else:
             # Get selected frame
             current_command = self.timeline_menu.get_current_command()
-            self.do_command(current_command)
+            if current_command:
+                self.do_command(current_command)
 
     def read_script(self):
         if self.timeline_menu.finished():

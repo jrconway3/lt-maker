@@ -298,7 +298,7 @@ class MainEditor(QMainWindow):
             if not self.global_mode:
                 self.edit_global()
 
-            DB.deserialize()
+            DB.deserialize('default.ltproj')
             self.undo_stack.setClean()
             self.set_window_title('Untitled')
             self.update_view()
@@ -466,7 +466,7 @@ class MainEditor(QMainWindow):
         dialog.exec_()
 
     def edit_translations(self):
-        DB.deserialize()
+        DB.deserialize(self.current_proj)
         dialog = TranslationDialog.create()
         dialog.exec_()
         DB.serialize()

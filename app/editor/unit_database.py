@@ -459,7 +459,7 @@ class UnitProperties(QWidget):
         self.name_box.edit.setText(current.name)
         self.gender_box.edit.setValue(current.gender)
         self.desc_box.edit.setText(current.desc)
-        self.level_box.edit.setValue(current.level)
+        self.level_box.edit.setValue(int(current.level))
         self.class_box.edit.setValue(current.klass)
         tags = current.tags[:]
         self.tag_box.edit.clear()

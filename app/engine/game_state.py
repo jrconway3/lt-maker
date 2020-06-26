@@ -2,7 +2,7 @@ import random
 from collections import Counter
 
 from app.data.constants import VERSION
-from app.data.party import Party
+from app.data.party import PartyObject
 from app.data.items import Item
 from app.data.resources import RESOURCES
 from app.data.database import DB
@@ -165,7 +165,7 @@ class GameState():
         self.game_constants = Counter(s_dict.get('game_constants', {}))
         self.level_constants = Counter(s_dict.get('level_constants', {}))
         self.playtime = float(s_dict['playtime'])
-        self.parties = {nid: Party.deserialize(party) for nid, party in s_dict['parties'].items()}
+        self.parties = {nid: PartyObject.deserialize(party) for nid, party in s_dict['parties'].items()}
         self.current_party = s_dict['current_party']
         self.turncount = int(s_dict['turncount'])
 

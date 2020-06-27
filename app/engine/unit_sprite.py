@@ -70,11 +70,10 @@ class UnitSprite():
 
     def load_sprites(self):
         klass = DB.classes.get(self.unit.klass)
-        gender = self.unit.gender
-        if gender >= 5 and klass.female_map_sprite_nid:
-            res = RESOURCES.map_sprites.get(klass.female_map_sprite_nid)
-        else:
-            res = RESOURCES.map_sprites.get(klass.male_map_sprite_nid)
+        nid = klass.map_sprite_nid
+        if self.unit.variant:
+            nid += self.unit.variant
+        res = RESOURCES.map_sprites.get(nid)
         if res:
             team = self.unit.team
             map_sprite = game.map_sprite_registry.get(res.nid + '_' + team)

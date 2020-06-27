@@ -4,8 +4,10 @@ from PyQt5.QtCore import Qt, QDir, QSettings
 
 import os
 
+from app.resources.sounds import Song
+from app.resources.resources import RESOURCES
+
 from app.data.data import Data
-from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import ResourceListView, DeletionDialog
@@ -47,7 +49,8 @@ class MusicModel(ResourceCollectionModel):
                 if fn.endswith('.ogg'):
                     nid = os.path.split(fn)[-1][:-4]
                     nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.music])
-                    RESOURCES.create_new_music(nid, fn)
+                    new_music = Song(nid, fn)
+                    RESOURCES.music.append(new_music)
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
             parent_dir = os.path.split(fns[-1])[0]

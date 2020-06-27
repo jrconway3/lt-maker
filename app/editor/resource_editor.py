@@ -13,7 +13,7 @@ from app.editor.combat_animation_display import CombatAnimDisplay
 from app.editor.sfx_display import SFXDisplay
 from app.editor.music_display import MusicDisplay
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 
 from app.pygame_audio import PygameAudioPlayer
 
@@ -80,11 +80,11 @@ class ResourceEditor(QDialog):
         self.tabs['Portraits'] = PortraitDisplay.create(self)
         self.tabs['Panoramas'] = PanoramaDisplay.create(self)
         self.tabs['Map Sprites'] = MapSpriteDisplay.create(self)
-        self.tabs['Combat Anims'] = CombatAnimDisplay.create()
-        # self.tabs['Combat Effects'] = CombatEffectDisplay.create()
-        self.tabs['Map Animations'] = AnimationDisplay.create()
+        self.tabs['Map Animations'] = AnimationDisplay.create(self)
         self.tabs['Tilesets'] = TileSetDisplay.create(self)
         self.tabs['Tilemaps'] = TileMapDisplay.create(self)
+        self.tabs['Combat Anims'] = CombatAnimDisplay.create(self)
+        # self.tabs['Combat Effects'] = CombatEffectDisplay.create(self)
         self.tabs['SFX'] = SFXDisplay.create(self)
         self.tabs['Music'] = MusicDisplay.create(self)
 

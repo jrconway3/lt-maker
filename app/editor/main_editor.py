@@ -58,8 +58,10 @@ class MainEditor(QMainWindow):
         super().__init__()
         self.window_title = 'LT Maker'
         self.setWindowTitle(self.window_title)
+        QSettings.setDefaultFormat(QSettings.IniFormat)
         self.settings = QSettings("rainlash", "Lex Talionis")
-        self.settings.setDefaultFormat(QSettings.IniFormat)
+        # self.settings.setDefaultFormat(QSettings.IniFormat)
+        print(self.settings.fileName())
         # Will be overwritten by auto-open
         desktop = QDesktopWidget()
         main_screen_size = desktop.availableGeometry(desktop.primaryScreen())

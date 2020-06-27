@@ -6,9 +6,10 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
 import os
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.resources.resources import RESOURCES
+from app.resources.tiles import TileSet, TileMapPrefab
+
 from app.data.data import Data
-from app.data.tilemap_prefab import TileMapPrefab
-from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
@@ -74,7 +75,9 @@ class TileSetModel(ResourceCollectionModel):
                     elif pix.height() % TILEHEIGHT != 0:
                         QMessageBox.critical(self, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
                         continue
-                    RESOURCES.create_new_tileset(nid, fn, pix)
+                    new_tileset = TileSet(nid, fn)
+                    new_tileset.set_pixmap(pix)
+                    RESOURCES.tilesets.append(new_tileset)
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!") 
             parent_dir = os.path.split(fns[-1])[0]

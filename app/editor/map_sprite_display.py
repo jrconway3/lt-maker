@@ -5,8 +5,10 @@ from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
 
 import os
 
+from app.resources.map_sprites import MapSprite
+from app.resources.resources import RESOURCES
+
 from app.data.data import Data
-from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
@@ -109,7 +111,8 @@ class MapSpriteModel(ResourceCollectionModel):
                 QMessageBox.critical(self.window, "Error", "Image must be png format")
                 return
         if sok and mok and nid:
-            RESOURCES.create_new_map_sprite(nid, standing_full_path, moving_full_path, standing_pix, moving_pix)
+            new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pix, moving_pix)
+            RESOURCES.map_sprites.append(new_map_sprite)
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)
 

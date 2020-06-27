@@ -1,6 +1,9 @@
+import os
+
 from app.data.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 
 from app.data.data import Data, Prefab
+from app.resources.base_catalog import ManifestCatalog
 
 class TileMapPrefab(Prefab):
     def __init__(self, nid):
@@ -48,7 +51,7 @@ class TileMapPrefab(Prefab):
         s_dict['nid'] = self.nid
         s_dict['size'] = self.width, self.height
         if self.width == 0 or self.height == 0:
-            print("Width or Height == 0!!!")
+            print("TileMap: Width or Height == 0!!!")
         s_dict['layers'] = [layer.serialize() for layer in self.layers]
         s_dict['tilesets'] = self.tilesets
         return s_dict
@@ -96,6 +99,7 @@ class TileSet(Prefab):
     def serialize(self):
         s_dict = {}
         s_dict['nid'] = self.nid
+        s_dict['full_path'] = os.path.split(self.full_path)[-1]
         s_dict['terrain_grid'] = {}
         for coord, terrain_nid in self.terrain_grid.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
@@ -103,9 +107,8 @@ class TileSet(Prefab):
         return s_dict
 
     @classmethod
-    def deserialize(cls, s_dict, full_path):
-        self = cls(s_dict['nid'])
-        self.full_path = full_path
+    def deserialize(cls, s_dict):
+        self = cls(s_dict['nid'], s_dict['full_path'])
         for str_coord, terrain_nid in s_dict['terrain_grid'].items():
             coord = tuple(int(_) for _ in str_coord.split(','))
             self.terrain_grid[coord] = terrain_nid
@@ -176,3 +179,27 @@ class TileSprite(Prefab):
     def deserialize(cls, tileset_nid, tileset_position, parent):
         new_tile_sprite = cls(tileset_nid, tuple(tileset_position), parent)
         return new_tile_sprite
+
+class TileSetCatalog(ManifestCatalog):
+    manifest = 'tileset.json'
+
+    def load(self, loc):
+        tileset_dict = self.read_manifest(os.path.join(loc, self.manifest))
+        for s_dict in tileset_dict:
+            new_tileset = TileSet.deserialize(s_dict)
+            new_tileset.set_full_path(os.path.join(loc, new_tileset.full_path))
+            self.append(new_tileset)
+
+class TileMapCatalog(ManifestCatalog):
+    manifest = 'tilemap.json'
+    title = 'tilemaps'
+
+    def load(self, loc):
+        tilemap_dict = self.read_manifest(os.path.join(loc, self.manifest))
+        for s_dict in tilemap_dict:
+            new_tilemap = TileMapPrefab.deserialize(s_dict)
+            self.append(new_tilemap)
+
+    def save(self, loc):
+        # No need to finagle with full paths
+        self.dump(loc)

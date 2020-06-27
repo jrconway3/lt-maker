@@ -4,7 +4,8 @@ from PyQt5.QtCore import Qt, QDir, QSettings
 
 import os
 
-from app.data.resources import RESOURCES
+from app.resources.sounds import SFX
+from app.resources.resources import RESOURCES
 
 from app.extensions.custom_gui import PropertyBox, ResourceListView
 from app.editor.timer import TIMER
@@ -46,7 +47,8 @@ class SFXModel(ResourceCollectionModel):
                 if fn.endswith('.ogg'):
                     nid = os.path.split(fn)[-1][:-4]
                     nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.sfx])
-                    RESOURCES.create_new_sfx(nid, fn)
+                    new_sfx = SFX(nid, fn)
+                    RESOURCES.sfx.append(new_sfx)
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Sound Effect must be in OGG format!")
             parent_dir = os.path.split(fns[-1])[0]

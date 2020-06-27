@@ -1,11 +1,14 @@
-from app.data.data import Data, Prefab
+import os
+import shutil
 
-from app.data import combat_animation_command
+from app.resources.base_catalog import ManifestCatalog
+from app.resources import combat_commands
+from app.data.data import Data
 
 required_poses = ('Stand', 'Hit', 'Miss', 'Dodge')
 other_poses = ('RangedStand', 'RangedDodge', 'Critical')
 
-class Pose(Prefab):
+class Pose():
     def __init__(self, nid):
         self.nid = nid
         self.timeline = []
@@ -18,7 +21,7 @@ class Pose(Prefab):
         self = cls(s_tuple[0])
         for command_save in s_tuple[1]:
             nid, value = command_save
-            command = combat_animation_command.get_command(nid)
+            command = combat_commands.get_command(nid)
             command.value = value
             self.timeline.append(command)
         return self
@@ -62,7 +65,7 @@ class Palette():
         self.colors = [tuple(c) for c in self.colors]
         return self
 
-class WeaponAnimation(Prefab):
+class WeaponAnimation():
     def __init__(self, nid):
         self.nid = nid
         self.poses = Data()
@@ -84,7 +87,7 @@ class WeaponAnimation(Prefab):
             self.poses.append(Pose.deserialize(pose_save))
         return self
 
-class CombatAnimation(Prefab):
+class CombatAnimation():
     def __init__(self, nid):
         self.nid = nid
         self.weapon_anims = Data()
@@ -105,5 +108,36 @@ class CombatAnimation(Prefab):
         for weapon_anim_save in s_dict['weapon_anims']:
             self.weapon_anims.append(WeaponAnimation.deserialize(weapon_anim_save))
         return self
+
+class CombatCatalog(ManifestCatalog):
+    manifest = 'combat_anims.json'
+    title = 'Combat Animations'
+
+    def load(self, loc):
+        combat_dict = self.read_manifest(os.path.join(loc, self.manifest))
+        for s_dict in combat_dict:
+            new_combat_anim = CombatAnimation.deserialize(s_dict)
+            # new_map_sprite.set_standing_full_path(os.path.join(loc, new_map_sprite.standing_full_path))
+            # new_map_sprite.set_moving_full_path(os.path.join(loc, new_map_sprite.moving_full_path))
+            for weapon_anim in new_combat_anim.weapon_anims:
+                for frame in weapon_anim.frames:
+                    frame.set_full_path(os.path.join(loc, frame.full_path))
+            self.append(new_combat_anim)
+
+    def save(self, loc):
+        for combat_anim in self:
+            folder = os.path.join(loc, combat_anim.nid)
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+            for weapon_anim in combat_anim.weapon_anims:
+                for frame in weapon_anim.frames:
+                    new_full_path = os.path.join(loc, folder, "%s-%s.png" % (weapon_anim.nid, frame.nid))
+                    if not frame.full_path:
+                        frame.full_path = new_full_path
+                        frame.pixmap.save(frame.pull_path)
+                    if os.path.abspath(frame.full_path) != new_full_path:
+                        shutil.copy(frame.full_path, new_full_path)
+                        frame.set_full_path(new_full_path)
+        self.dump(loc)
 
 base_palette = Palette('base', [(128, 160, 128)] + [(0, 0, x*8) for x in range(15)])

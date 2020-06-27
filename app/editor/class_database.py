@@ -380,10 +380,10 @@ class ClassProperties(QWidget):
         self.current.tags = self.tag_box.edit.currentText()
 
     def exp_mult_changed(self):
-        self.current.exp_mult = float(self.exp_mult_box.edit.text())
+        self.current.exp_mult = float(self.exp_mult_box.edit.value())
 
     def opp_exp_mult_changed(self):
-        self.current.opponent_exp_mult = float(self.opp_exp_mult_box.edit.text())
+        self.current.opponent_exp_mult = float(self.opp_exp_mult_box.edit.value())
 
     def access_tags(self):
         dlg = TagDialog.create(self)

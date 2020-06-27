@@ -6,8 +6,10 @@ from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox, \
 from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 
+from app.resources.portraits import Portrait
+from app.resources.resources import RESOURCES
+
 from app.data.data import Data
-from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.spinbox_xy import SpinBoxXY
@@ -58,7 +60,8 @@ class PortraitModel(ResourceCollectionModel):
                     pix = QPixmap(fn)
                     nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.portraits])
                     if pix.width() == 128 and pix.height() == 112:
-                        RESOURCES.create_new_portrait(nid, fn, pix)
+                        new_portrait = Portrait(nid, fn, pix)
+                        RESOURCES.portraits.append(new_portrait)
                     else:
                         QMessageBox.critical(self.window, "Error", "Image is not correct size (128x112 px)")
                 else:

@@ -6,8 +6,10 @@ from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMes
 from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor, QPen
 
+from app.resources.animations import Animation
+from app.resources.resources import RESOURCES
+
 from app.data.data import Data
-from app.data.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
@@ -64,7 +66,8 @@ class AnimationModel(ResourceCollectionModel):
                     nid = os.path.split(fn)[-1][:-4]
                     pix = QPixmap(fn)
                     nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.animations])
-                    RESOURCES.create_new_animation(nid, fn, pix)
+                    new_animation = Animation(nid, fn, pix)
+                    RESOURCES.animations.append(new_animation)
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Map Animation must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]

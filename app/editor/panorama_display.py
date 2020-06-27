@@ -5,7 +5,9 @@ from PyQt5.QtGui import QPixmap, QIcon
 import os, glob
 
 from app.data.constants import WINWIDTH, WINHEIGHT
-from app.data.resources import RESOURCES
+
+from app.resources.panoramas import Panorama
+from app.resources.resources import RESOURCES
 
 from app.extensions.custom_gui import ResourceListView
 from app.editor.timer import TIMER
@@ -67,7 +69,8 @@ class PanoramaModel(ResourceCollectionModel):
                     pixs = [QPixmap(i) for i in ims]
                     movie_prefix = utilities.get_next_name(movie_prefix, [d.nid for d in RESOURCES.panoramas])
                     if all(pix.width() >= WINWIDTH and pix.height() >= WINHEIGHT for pix in pixs):
-                        RESOURCES.create_new_panorama(movie_prefix, full_path, pixs)
+                        new_panorama = Panorama(movie_prefix, full_path, pixs)
+                        RESOURCES.panoramas.append(new_panorama)
                     else:
                         QMessageBox.critical(self.window, "Error", "Image must be at least %dx%d pixels in size" % (WINWIDTH, WINHEIGHT))
                 else:

@@ -5,8 +5,9 @@ from PyQt5.QtGui import QPixmap, QIcon
 
 import os
 
+from app.resources.icons import Icon
+from app.resources.resources import RESOURCES
 from app.data.data import Data
-from app.data.resources import RESOURCES, ImageResource
 from app.data.database import DB
 from app.extensions.custom_gui import ResourceTreeView, DeletionDialog
 from app.editor.base_database_gui import DatabaseTab
@@ -178,7 +179,6 @@ class IconTreeModel(QAbstractItemModel):
         pass
 
 class Icon16Model(IconTreeModel):
-    creation_func = RESOURCES.create_new_16x16_icon
     database = RESOURCES.icons16
     width, height = 16, 16
 
@@ -193,7 +193,8 @@ class Icon16Model(IconTreeModel):
                     pix = QPixmap(fn)
                     if pix.width() % self.width == 0 and pix.height() % self.height == 0:
                         nid = utilities.get_next_name(nid, [d.nid for d in self.database])
-                        icon = self.creation_func(nid, fn, pix)
+                        icon = Icon(nid, fn, pix)
+                        self.database.append(icon)
                         icon_slice(icon, self.width, self.height)
                     else:
                         QMessageBox.critical(self.window, "File Size Error!", "Icon width and height must be exactly divisible by %dx%d pixels!" % (self.width, self.height))
@@ -243,7 +244,6 @@ class Icon16Model(IconTreeModel):
                 weapon.icon_nid = new_nid
 
 class Icon32Model(Icon16Model):
-    creation_func = RESOURCES.create_new_32x32_icon
     database = RESOURCES.icons32
     width, height = 32, 32
 
@@ -278,7 +278,6 @@ class Icon32Model(Icon16Model):
                 faction.icon_nid = new_nid
 
 class Icon80Model(Icon16Model):
-    creation_func = RESOURCES.create_new_80x72_icon
     database = RESOURCES.icons80
     width, height = 80, 72
 
@@ -363,7 +362,7 @@ def icon_slice(resource, base_width, base_height):
         for y in range(height//base_height):
             region = sheet.copy(x*base_width, y*base_height, base_width, base_height)
             new_nid = resource.nid + " " + str(x) + ',' + str(y)
-            new_image = ImageResource(new_nid, resource.full_path, region)
+            new_image = Icon(new_nid, resource.full_path, region)
             new_image.icon_index = (x, y)
             resource.sub_images.append(new_image)
             new_image.parent_image = resource

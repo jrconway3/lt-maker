@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
 # from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
-from app.data import combat_animation_command
+from app.resources import combat_commands
 
 from app.editor import combat_command_widgets
 from app.extensions.widget_list import WidgetList
@@ -117,7 +117,7 @@ class TimelineMenu(QWidget):
         try:
             text = self.entry.text()
             split_text = text.split(';')
-            command = combat_animation_command.parse_text(split_text)
+            command = combat_commands.parse_text(split_text)
             self.add_command(command)                
             self.entry.clear()
         except Exception:
@@ -127,7 +127,7 @@ class TimelineMenu(QWidget):
 
     def create_actions(self):
         self.actions = {}
-        for command in combat_animation_command.anim_commands:
+        for command in combat_commands.anim_commands:
             new_func = functools.partial(self.add_command, command)
             new_action = QAction(QIcon(), command.name, self, triggered=new_func)
             self.actions[command.nid] = new_action
@@ -136,7 +136,7 @@ class TimelineMenu(QWidget):
         self.toolbar = QToolBar(self)
         self.menus = {}
 
-        for command in combat_animation_command.anim_commands:
+        for command in combat_commands.anim_commands:
             if command.tag not in self.menus:
                 new_menu = QMenu(self)
                 self.menus[command.tag] = new_menu

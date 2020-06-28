@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
 from app import utilities
-from app.data import combat_animation
+from app.resources import combat_anims
 
 from app.extensions.color_icon import ColorIcon
 
@@ -127,8 +127,8 @@ class PaletteMenu(QListWidget):
     def new(self, index):
         palettes = self.window.current.palettes
         new_nid = utilities.get_next_name("Palette", [p.nid for p in self.palettes])
-        colors = combat_animation.base_palette.colors
-        new_palette = combat_animation.Palette(new_nid, colors)
+        colors = combat_anims.base_palette.colors
+        new_palette = combat_anims.Palette(new_nid, colors)
         palettes.insert(index.row() + 1, new_palette)
 
         self.set_current(palettes)
@@ -139,7 +139,7 @@ class PaletteMenu(QListWidget):
         parent_palette = self.palettes[index.row()]
         new_nid = utilities.get_next_name(parent_palette.nid, [p.nid for p in self.palettes])
         colors = parent_palette.colors
-        new_palette = combat_animation.Palette(new_nid, colors)
+        new_palette = combat_anims.Palette(new_nid, colors)
         palettes.insert(index.row() + 1, new_palette)
 
         self.set_current(palettes)

@@ -1,0 +1,26 @@
+[
+    {
+        "nid": "Chapter Sound",
+        "full_path": "Chapter Sound.ogg",
+        "intro_full_path": null,
+        "battle_full_path": null
+    },
+    {
+        "nid": "Distant Roads",
+        "full_path": "Distant Roads.ogg",
+        "intro_full_path": null,
+        "battle_full_path": null
+    },
+    {
+        "nid": "Quiet Burn",
+        "full_path": "Quiet Burn.ogg",
+        "intro_full_path": null,
+        "battle_full_path": "Quiet Burn_battle.ogg"
+    },
+    {
+        "nid": "Shadow of the Enemy",
+        "full_path": "Shadow of the Enemy.ogg",
+        "intro_full_path": null,
+        "battle_full_path": null
+    }
+]

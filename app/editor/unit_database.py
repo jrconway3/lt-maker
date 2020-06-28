@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QItemSelection, QItemSelectionModel
 
 from app.data.weapons import WexpGainData
 from app.data.skills import LearnedSkillList
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, QHLine, DeletionDialog

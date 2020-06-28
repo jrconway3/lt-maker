@@ -15,6 +15,8 @@ class BaseResourceCatalog(Data):
                     self.append(new_resource)
 
 class ManifestCatalog(Data):
+    filetype = '.png'
+
     def read_manifest(self, fn) -> dict:
         datum_dict = {}
         if os.path.exists(fn):
@@ -31,7 +33,7 @@ class ManifestCatalog(Data):
 
     def save(self, loc):
         for datum in self:
-            new_full_path = os.path.join(loc, datum.nid + '.png')
+            new_full_path = os.path.join(loc, datum.nid + self.filetype)
             if os.path.abspath(datum.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(datum.full_path, new_full_path)
                 datum.set_full_path(new_full_path)

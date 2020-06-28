@@ -4,7 +4,7 @@ from collections import Counter
 from app.data.constants import VERSION
 from app.data.party import PartyObject
 from app.data.items import Item
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine import state_machine, input_manager, static_random, a_star, equations

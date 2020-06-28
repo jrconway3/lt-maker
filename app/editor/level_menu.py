@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.data.levels import Level
 

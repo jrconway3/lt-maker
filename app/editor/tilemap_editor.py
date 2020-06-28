@@ -7,9 +7,9 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
+from app.resources.tiles import LayerGrid
 from app.data.database import DB
-from app.data.tilemap_prefab import LayerGrid
 
 from app.editor.timer import TIMER
 from app.editor.icon_display import IconView

@@ -2,7 +2,7 @@ import math
 
 from app import utilities
 from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine import engine, image_mods, icons, unit_funcs, action

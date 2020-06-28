@@ -1,7 +1,7 @@
 import sys, os
 
 from app.data.constants import WINWIDTH, WINHEIGHT
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES

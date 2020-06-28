@@ -1,7 +1,7 @@
 import pygame
 
 from app import utilities
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.engine import engine
 
 import logging

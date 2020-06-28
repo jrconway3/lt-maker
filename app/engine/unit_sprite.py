@@ -1,7 +1,7 @@
 from app.data.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
 from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app import utilities

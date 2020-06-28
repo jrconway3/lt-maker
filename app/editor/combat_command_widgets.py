@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor
 
 from app.data.constants import WINWIDTH, WINHEIGHT
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 
 from app.editor.frame_selector import FrameSelector
 from app.extensions.color_icon import ColorIcon

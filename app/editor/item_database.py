@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.data import Data
 from app.data.database import DB
 import app.data.item_components as IC

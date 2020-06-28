@@ -105,7 +105,7 @@
     {
         "nid": "1",
         "title": "Chapter 1",
-        "tilemap": "Chapter1",
+        "tilemap": "Chapter 1",
         "party": null,
         "music": {
             "player_phase": null,

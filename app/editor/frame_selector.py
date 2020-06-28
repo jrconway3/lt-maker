@@ -8,7 +8,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter
 from app.data.constants import WINWIDTH, WINHEIGHT
 
 from app import utilities
-from app.data import combat_animation
+from app.resources import combat_anims
 
 from app.extensions.custom_gui import Dialog
 from app.editor.base_database_gui import ResourceCollectionModel
@@ -98,7 +98,7 @@ class FrameSelector(Dialog):
                     nid = os.path.split(fn)[-1][:-4]
                     pix = QPixmap(fn)
                     nid = utilities.get_next_name(nid, self.frames.keys())
-                    new_frame = combat_animation.Frame(nid, (0, 0), fn, pix)
+                    new_frame = combat_anims.Frame(nid, (0, 0), fn, pix)
                     self.frames.append(new_frame)
                     self.model.layoutChanged.emit()
                     self.set_current(new_frame)

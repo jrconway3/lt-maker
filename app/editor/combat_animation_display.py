@@ -9,9 +9,9 @@ from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter, QColor
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 from app.data.data import Data
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
-from app.data import combat_animation, combat_animation_command
+from app.resources import combat_anims, combat_commands
 
 from app.editor.timer import TIMER
 from app.editor.icon_display import IconView
@@ -52,7 +52,7 @@ class CombatAnimModel(ResourceCollectionModel):
 
     def create_new(self):
         nid = utilities.get_next_name('New Combat Anim', self._data.keys())
-        new_anim = combat_animation.CombatAnimation(nid)
+        new_anim = combat_anims.CombatAnimation(nid)
         self._data.append(new_anim)
 
     def delete(self, idx):
@@ -110,7 +110,7 @@ class AnimView(IconView):
         if event.button() == Qt.LeftButton:
             base_color = self.get_color_at_pos(pixmap, pos)
             palette = self.window.get_current_palette()
-            base_colors = combat_animation.base_palette.colors
+            base_colors = combat_anims.base_palette.colors
             if base_color not in base_colors:
                 print("Cannot find color: %s in %s" % (base_color, base_colors))
                 return
@@ -407,7 +407,7 @@ class CombatAnimProperties(QWidget):
             if not new_nid or not ok:
                 return
             new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
-        new_weapon = combat_animation.WeaponAnimation(new_nid)
+        new_weapon = combat_anims.WeaponAnimation(new_nid)
         self.current.weapon_anims.append(new_weapon)
         self.weapon_box.addItem(new_nid)
         self.weapon_box.setValue(new_nid)
@@ -428,7 +428,7 @@ class CombatAnimProperties(QWidget):
         current_weapon = self.current.weapon_anims.get(current_weapon_nid)
         # Make a copy
         ser = current_weapon.serialize()
-        new_weapon = combat_animation.WeaponAnimation.deserialize(ser)
+        new_weapon = combat_anims.WeaponAnimation.deserialize(ser)
         new_weapon.nid = new_nid
         self.current.weapon_anims.append(new_weapon)
         self.weapon_box.addItem(new_nid)
@@ -458,7 +458,7 @@ class CombatAnimProperties(QWidget):
             self.has_pose(False)
 
     def get_available_pose_types(self, weapon_anim) -> float:
-        items = [_ for _ in combat_animation.required_poses] + ['Critical']
+        items = [_ for _ in combat_anims.required_poses] + ['Critical']
         items.append("Custom")
         for pose_nid in weapon_anim.poses.keys():
             if pose_nid in items:
@@ -477,7 +477,7 @@ class CombatAnimProperties(QWidget):
             if not new_nid or not ok:
                 return
             new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
-        new_pose = combat_animation.Pose(new_nid)
+        new_pose = combat_anims.Pose(new_nid)
         weapon_anim.poses.append(new_pose)
         self.pose_box.addItem(new_nid)
         self.pose_box.setValue(new_nid)
@@ -499,7 +499,7 @@ class CombatAnimProperties(QWidget):
         current_pose = weapon_anim.poses.get(current_pose_nid)
         # Make a copy
         ser = current_pose.serialize()
-        new_pose = combat_animation.Pose.deserialize(ser)
+        new_pose = combat_anims.Pose.deserialize(ser)
         new_pose.nid = new_nid
         weapon_anim.poses.append(new_pose)
         self.pose_box.addItem(new_nid)
@@ -562,16 +562,16 @@ class CombatAnimProperties(QWidget):
                         if palette_nid not in self.current.palettes:
                             pix = QPixmap(image_fn)
                             palette_colors = editor_utilities.find_palette(pix.toImage())
-                            new_palette = combat_animation.Palette(palette_nid, palette_colors)
+                            new_palette = combat_anims.Palette(palette_nid, palette_colors)
                             self.current.palettes.append(new_palette)
-                    new_weapon = combat_animation.WeaponAnimation(weapon)
+                    new_weapon = combat_anims.WeaponAnimation(weapon)
                     # Now add frames to weapon animation
                     with open(index_fn, encoding='utf-8') as index_fp:
                         index_lines = [line.strip() for line in index_fp.readlines()]
                         index_lines = [l.split(';') for l in index_lines]
                     # Use the first palette
                     my_colors = self.current.palettes[0].colors
-                    base_colors = combat_animation.base_palette.colors
+                    base_colors = combat_anims.base_palette.colors
                     assert len(my_colors) == len(base_colors)
                     convert_dict = {qRgb(*a): qRgb(*b) for a, b in zip(my_colors, base_colors)}
                     main_pixmap = QPixmap(images[0])
@@ -587,7 +587,7 @@ class CombatAnimProperties(QWidget):
                         im.convertTo(QImage.Format_Indexed8)
                         im = editor_utilities.color_convert(im, convert_dict)
                         new_pixmap = QPixmap.fromImage(im)
-                        new_frame = combat_animation.Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)
+                        new_frame = combat_anims.Frame(nid, (offset_x, offset_y), pixmap=new_pixmap)
                         new_weapon.frames.append(new_frame)
                     # Now add poses to the weapon anim
                     with open(fn, encoding='utf-8') as script_fp:
@@ -596,10 +596,10 @@ class CombatAnimProperties(QWidget):
                     current_pose = None
                     for line in script_lines:
                         if line[0] == 'pose':
-                            current_pose = combat_animation.Pose(line[1])
+                            current_pose = combat_anims.Pose(line[1])
                             new_weapon.poses.append(current_pose)
                         else:
-                            command = combat_animation_command.parse_text(line)
+                            command = combat_commands.parse_text(line)
                             current_pose.timeline.append(command)
                     # Actually add weapon to current
                     if new_weapon.nid in self.current.weapon_anims.keys():
@@ -651,7 +651,7 @@ class CombatAnimProperties(QWidget):
     def modify_for_palette(self, pixmap: QPixmap) -> QImage:
         current_palette = self.get_current_palette()
         im = pixmap.toImage()
-        im_palette = combat_animation.base_palette
+        im_palette = combat_anims.base_palette
         im = editor_utilities.convert_colorkey(im)
         conv_dict = {qRgb(*a): qRgb(*b) for a, b in zip(im_palette.colors, current_palette.colors)}
         im = editor_utilities.color_convert(im, conv_dict)

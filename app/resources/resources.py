@@ -11,7 +11,7 @@ from app.resources.panoramas import PanoramaCatalog
 from app.resources.map_sprites import MapSpriteCatalog
 from app.resources.tiles import TileSetCatalog, TileMapCatalog
 from app.resources.sounds import SFXCatalog, MusicCatalog
-from app.data.combat_anims import CombatCatalog
+from app.resources.combat_anims import CombatCatalog
 
 class Resources():
     def __init__(self):
@@ -77,7 +77,7 @@ class Resources():
         self.combat_anims.load(os.path.join(self.main_folder, 'combat_anims'))
 
         self.sfx.load(os.path.join(self.main_folder, 'sfx'))
-        self.music.load(os.path.join(self.main_folder, 'music'), 'music_manifest.xml')
+        self.music.load(os.path.join(self.main_folder, 'music'))
 
     def reload(self, proj_dir):
         self.clear()

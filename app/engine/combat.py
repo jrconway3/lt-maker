@@ -4,7 +4,7 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app import utilities
 from app.data import unit_object
 from app.data.item_components import SpellAffect
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.sound import SOUNDTHREAD

@@ -182,6 +182,7 @@ class TileSprite(Prefab):
 
 class TileSetCatalog(ManifestCatalog):
     manifest = 'tileset.json'
+    title = 'tilesets'
 
     def load(self, loc):
         tileset_dict = self.read_manifest(os.path.join(loc, self.manifest))

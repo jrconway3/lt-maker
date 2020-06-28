@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QSpacerItem, QDialog, \
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QSize
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, PropertyBox

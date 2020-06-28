@@ -1,0 +1,98 @@
+[
+    {
+        "nid": "Amelia",
+        "full_path": "Amelia.png",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    },
+    {
+        "nid": "Artur",
+        "full_path": "Artur.png",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
+        "nid": "Breguet",
+        "full_path": "Breguet.png",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
+        "nid": "Eirika",
+        "full_path": "Eirika.png",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    },
+    {
+        "nid": "Franz",
+        "full_path": "Franz.png",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    },
+    {
+        "nid": "Gilliam",
+        "full_path": "Gilliam.png",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
+        "nid": "Mercenary1",
+        "full_path": "Mercenary1.png",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
+        "nid": "Seth",
+        "full_path": "Seth.png",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    }
+]

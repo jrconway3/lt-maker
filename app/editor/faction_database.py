@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxL
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox

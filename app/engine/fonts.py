@@ -1,4 +1,4 @@
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.engine import bmpfont, image_mods
 
 class FontType():

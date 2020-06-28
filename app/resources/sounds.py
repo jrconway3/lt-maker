@@ -25,8 +25,8 @@ class Song():
         s_dict = {}
         s_dict['nid'] = self.nid
         s_dict['full_path'] = os.path.split(self.full_path)[-1]
-        s_dict['intro_full_path'] = os.path.split(self.intro_full_path)[-1]
-        s_dict['battle_full_path'] = os.path.split(self.battle_full_path)[-1]
+        s_dict['intro_full_path'] = os.path.split(self.intro_full_path)[-1] if self.intro_full_path else None
+        s_dict['battle_full_path'] = os.path.split(self.battle_full_path)[-1] if self.battle_full_path else None
         return s_dict
 
     @classmethod
@@ -39,6 +39,7 @@ class Song():
 class MusicCatalog(ManifestCatalog):
     manifest = 'music.json'
     title = 'music'
+    filetype = '.ogg'
 
     def load(self, loc):
         music_dict = self.read_manifest(os.path.join(loc, self.manifest))
@@ -54,18 +55,18 @@ class MusicCatalog(ManifestCatalog):
     def save(self, loc):
         for song in self:
             # Full Path
-            new_full_path = os.path.join(loc, song.nid + '.png')
+            new_full_path = os.path.join(loc, song.nid + '.ogg')
             if os.path.abspath(song.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(song.full_path, new_full_path)
                 song.set_full_path(new_full_path)
             # Battle Full Path
-            new_full_path = os.path.join(loc, song.nid + '_battle.png')
-            if os.path.abspath(song.battle_full_path) != os.path.abspath(new_full_path):
+            new_full_path = os.path.join(loc, song.nid + '_battle.ogg')
+            if song.battle_full_path and os.path.abspath(song.battle_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(song.battle_full_path, new_full_path)
                 song.set_battle_full_path(new_full_path)
             # Intro Full Path
-            new_full_path = os.path.join(loc, song.nid + '_intro.png')
-            if os.path.abspath(song.intro_full_path) != os.path.abspath(new_full_path):
+            new_full_path = os.path.join(loc, song.nid + '_intro.ogg')
+            if song.intro_full_path and os.path.abspath(song.intro_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(song.intro_full_path, new_full_path)
                 song.set_intro_full_path(new_full_path)
         self.dump(loc)
@@ -91,6 +92,7 @@ class SFX():
 class SFXCatalog(ManifestCatalog):
     manifest = 'sfx.json'
     title = 'sfx'
+    filetype = '.ogg'
 
     def load(self, loc):
         sfx_dict = self.read_manifest(os.path.join(loc, self.manifest))

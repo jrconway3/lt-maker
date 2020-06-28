@@ -32,6 +32,7 @@ class Portrait():
 
 class PortraitCatalog(ManifestCatalog):
     manifest = 'portraits.json'
+    title = 'portraits'
 
     def load(self, loc):
         portrait_dict = self.read_manifest(os.path.join(loc, self.manifest))

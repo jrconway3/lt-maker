@@ -1,7 +1,7 @@
 import os
 
 from app.data.constants import VERSION
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.engine import engine
 from app.engine import config as cf

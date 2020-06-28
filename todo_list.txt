@@ -22,15 +22,20 @@ Promotion
 * Music/Sounds in engine
 Remove Gender
 
+Set Enabled to False when no current object is present
+
+Music won't play if reloaded
+
 # For interaction
 * Add New, Duplicate, Delete to Palettes
-Bug when 1. Open Resource Editor 2. Click OK saving resources 3. Re-open REsource Editor
-Unit does not appear ^
 Add in-game Animation interaction combat
 
 Equations check their validity
 
-Map Editor with Tilemap manager -- Basically just copy tiled. Multiple layers, multiple tilemap layers, *autotile layer
+Tilemap Editor
+-- Autotile layer
+-- Let Eraser and Fill work in terrain
+-- Remove Edit Terrain -- Make Reset Terrain work
 
 Auto-update
 No need for launcher

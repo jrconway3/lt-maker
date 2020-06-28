@@ -5,7 +5,7 @@ import json
 from app.data import game_constants, stats, equations, tags, weapons, factions, terrain, mcost_grid, \
     minimap, items, klass, units, party, ai, translations, skills, levels
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 
 class Database(object):
     def __init__(self):

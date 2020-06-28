@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
 
 from app.data.constants import VERSION
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.timer import TIMER

@@ -1,7 +1,7 @@
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.data import Data, Prefab
 
-from app.data.resources import RESOURCES
+from app.resources.resources import RESOURCES
 
 from app.engine import engine
 

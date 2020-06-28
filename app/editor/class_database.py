@@ -4,9 +4,10 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
+from app.resources.resources import RESOURCES
+
 from app.data.weapons import WexpGainData
 from app.data.skills import LearnedSkillList
-from app.data.resources import RESOURCES
 from app.data.data import Data
 from app.data.database import DB
 

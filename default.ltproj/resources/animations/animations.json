@@ -1,0 +1,146 @@
+[
+    {
+        "nid": "CritSpark",
+        "full_path": "CritSpark.png",
+        "frame_x": 3,
+        "frame_y": 5,
+        "num_frames": 15,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+    },
+    {
+        "nid": "HitSpark",
+        "full_path": "HitSpark.png",
+        "frame_x": 3,
+        "frame_y": 5,
+        "num_frames": 14,
+        "speed": "2,2,2,2,2,2,1,1,1,1,1,1,1,1"
+    },
+    {
+        "nid": "LevelUpArrow",
+        "full_path": "LevelUpArrow.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelUpBattle",
+        "full_path": "LevelUpBattle.png",
+        "frame_x": 5,
+        "frame_y": 11,
+        "num_frames": 52,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,10,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1"
+    },
+    {
+        "nid": "LevelUpMap",
+        "full_path": "LevelUpMap.png",
+        "frame_x": 5,
+        "frame_y": 5,
+        "num_frames": 25,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,44"
+    },
+    {
+        "nid": "LevelUpNumber1",
+        "full_path": "LevelUpNumber1.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelUpNumber2",
+        "full_path": "LevelUpNumber2.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelUpNumber3",
+        "full_path": "LevelUpNumber3.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelupNumber4",
+        "full_path": "LevelupNumber4.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelUpNumber5",
+        "full_path": "LevelUpNumber5.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelUpNumber6",
+        "full_path": "LevelUpNumber6.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelUpNumber7",
+        "full_path": "LevelUpNumber7.png",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "MapBigHealTrans",
+        "full_path": "MapBigHealTrans.png",
+        "frame_x": 5,
+        "frame_y": 4,
+        "num_frames": 16,
+        "speed": "24"
+    },
+    {
+        "nid": "MapMediumHealTrans",
+        "full_path": "MapMediumHealTrans.png",
+        "frame_x": 5,
+        "frame_y": 4,
+        "num_frames": 16,
+        "speed": "24"
+    },
+    {
+        "nid": "MapMiss",
+        "full_path": "MapMiss.png",
+        "frame_x": 1,
+        "frame_y": 13,
+        "num_frames": 13,
+        "speed": "1,1,1,1,1,1,1,1,1,10,3,3,3"
+    },
+    {
+        "nid": "MapNoDamage",
+        "full_path": "MapNoDamage.png",
+        "frame_x": 1,
+        "frame_y": 12,
+        "num_frames": 12,
+        "speed": "1,1,1,1,1,1,1,1,10,3,3,3"
+    },
+    {
+        "nid": "MapSmallHealTrans",
+        "full_path": "MapSmallHealTrans.png",
+        "frame_x": 5,
+        "frame_y": 4,
+        "num_frames": 16,
+        "speed": "24"
+    },
+    {
+        "nid": "StatUpSpark",
+        "full_path": "StatUpSpark.png",
+        "frame_x": 11,
+        "frame_y": 1,
+        "num_frames": 11,
+        "speed": "32"
+    }
+]

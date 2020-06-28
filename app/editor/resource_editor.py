@@ -104,7 +104,7 @@ class ResourceEditor(QDialog):
     def accept(self):
         settings = QSettings("rainlash", "Lex Talionis")
         current_proj = settings.value("current_proj", None)
-        RESOURCES.serialize(current_proj)
+        RESOURCES.save(current_proj)
         self.music_player.quit()
         super().accept()
 

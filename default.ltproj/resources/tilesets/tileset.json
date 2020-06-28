@@ -1,10 +1,12 @@
 [
     {
         "nid": "Chpt1",
+        "full_path": "Chpt1.png",
         "terrain_grid": {}
     },
     {
         "nid": "Prologue",
+        "full_path": "Prologue.png",
         "terrain_grid": {}
     }
 ]

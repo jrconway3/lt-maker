@@ -39,7 +39,10 @@ class Frame():
         self.full_path = full_path
 
     def serialize(self):
-        return (self.nid, self.full_path, self.offset, self.location)
+        full_path, tail = os.path.split(self.full_path)
+        full_path, f = os.path.split(full_path)
+        full_path = os.path.join(f, tail)
+        return (self.nid, full_path, self.offset, self.location)
 
     @classmethod
     def deserialize(cls, s_tuple):
@@ -135,7 +138,7 @@ class CombatCatalog(ManifestCatalog):
                     if not frame.full_path:
                         frame.full_path = new_full_path
                         frame.pixmap.save(frame.pull_path)
-                    if os.path.abspath(frame.full_path) != new_full_path:
+                    if os.path.abspath(frame.full_path) != os.path.abspath(new_full_path):
                         shutil.copy(frame.full_path, new_full_path)
                         frame.set_full_path(new_full_path)
         self.dump(loc)

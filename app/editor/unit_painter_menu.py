@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QPushButton, \
+from PyQt5.QtWidgets import QPushButton, QLineEdit, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
     QVBoxLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import QSize, Qt
@@ -16,7 +16,6 @@ from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox, AIBox
 from app.editor import class_database, item_database
 from app.editor.database_editor import DatabaseEditor
 from app.editor.stat_widget import StatAverageDialog, GenericStatAveragesModel
-from app.editor.unit_database import GenderGroup
 from app.editor.item_database import ItemListWidget
 from app.editor.helper_funcs import can_wield
 
@@ -174,7 +173,7 @@ class AllUnitModel(DragDropCollectionModel):
             num = TIMER.passive_counter.count
             klass = DB.classes.get(klass_nid)
             active = self.window.view.selectionModel().isSelected(index)
-            pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team, unit.gender)
+            pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team, unit.variant)
             if pixmap:
                 return QIcon(pixmap)
             else:
@@ -322,12 +321,15 @@ class GenericUnitDialog(Dialog):
             self.current = unit
         elif example:
             new_nid = utilities.get_next_generic_nid(example.nid, units.keys())
-            self.current = DB.create_unit_generic(new_nid, example.gender, example.level, example.klass, example.faction,
-                                                  example.starting_items, example.team, example.ai)
+            self.current = units.GenericUnit(
+                new_nid, example.variant, example.level, example.klass, example.faction,
+                example.starting_items, example.team, example.ai)
         else:
             new_nid = utilities.get_next_generic_nid(101, units.keys())
             assert len(DB.classes) > 0 and len(DB.factions) > 0 and len(DB.items) > 0 and len(DB.ai) > 0
-            self.current = DB.create_unit_generic(new_nid, 0, 1, DB.classes[0].nid, DB.factions[0].nid, [(DB.items[0].nid, False)], 'player', DB.ai[0].nid)
+            self.current = units.GenericUnit(
+                new_nid, None, 1, DB.classes[0].nid, DB.factions[0].nid,
+                [(DB.items[0].nid, False)], 'player', DB.ai[0].nid)
 
         self.team_box = PropertyBox("Team", ComboBox, self)
         self.team_box.edit.addItems(DB.teams)
@@ -347,11 +349,12 @@ class GenericUnitDialog(Dialog):
         self.level_box.button.clicked.connect(self.display_averages)
         self.level_box.button.setMaximumWidth(40)
 
-        self.gender_box = PropertyBox("Gender", GenderGroup, self)
-        self.gender_box.edit.toggled.connect(self.gender_changed)
+        self.variant_box = PropertyBox("Animation Variant", QLineEdit, self)
+        self.variant_box.edit.setPlaceholderText("No Variant")
+        self.variant_box.edit.textChanged.connect(self.variant_changed)
 
         mini_layout = QHBoxLayout()
-        mini_layout.addWidget(self.gender_box)
+        mini_layout.addWidget(self.variant_box)
         mini_layout.addWidget(self.level_box)
         layout.addLayout(mini_layout)
 
@@ -389,11 +392,8 @@ class GenericUnitDialog(Dialog):
             self.averages_dialog.set_current(self.current)
             self.averages_dialog.update()
 
-    def gender_changed(self, male):
-        if male:
-            self.current.gender = 0
-        else:
-            self.current.gender = 5
+    def variant_changed(self, text):
+        self.current.variant = text
 
     def faction_changed(self, index):
         faction_nid = self.faction_box.edit.currentText()
@@ -440,7 +440,10 @@ class GenericUnitDialog(Dialog):
         self.team_box.edit.setValue(current.team)
         self.level_box.edit.setValue(current.level)
         self.class_box.edit.setValue(current.klass)
-        self.gender_box.edit.setValue(current.gender)
+        if current.variant:
+            self.variant_box.edit.setText(current.variant)
+        else:
+            self.variant_box.edit.clear()
         self.faction_box.edit.setValue(current.faction)
         self.ai_box.edit.setValue(current.ai)
         self.item_widget.set_current(current.starting_items)

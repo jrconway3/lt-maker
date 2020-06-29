@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QTableView, QRadioButton, QStyledItemDelegate
+    QVBoxLayout, QSizePolicy, QSpacerItem, QTableView, QStyledItemDelegate
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt, pyqtSignal, QItemSelection, QItemSelectionModel
+from PyQt5.QtCore import Qt, QItemSelection, QItemSelectionModel
 
 from app.data.weapons import WexpGainData
 from app.data.skills import LearnedSkillList
@@ -173,33 +173,6 @@ class UnitModel(DragDropCollectionModel):
         nid = name = utilities.get_next_name("New Unit", nids)
         DB.create_new_unit(nid, name)
 
-class GenderGroup(QWidget):
-    toggled = pyqtSignal(bool)
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.window = parent
-
-        self.male = QRadioButton('M', self)
-        self.male.toggled.connect(self.male_toggled)
-        self.female = QRadioButton('F', self)
-
-        layout = QHBoxLayout()
-        self.setLayout(layout)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.male)
-        layout.addWidget(self.female)
-
-    def male_toggled(self, checked):
-        self.toggled.emit(checked)
-
-    def setValue(self, gender):
-        if gender < 5:
-            self.male.setChecked(True)
-        else:
-            self.female.setChecked(True)
-
 class UnitProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
@@ -235,9 +208,10 @@ class UnitProperties(QWidget):
 
         main_section = QGridLayout()
 
-        self.gender_box = PropertyBox("Gender", GenderGroup, self)
-        self.gender_box.edit.toggled.connect(self.gender_changed)
-        main_section.addWidget(self.gender_box, 0, 0)
+        self.variant_box = PropertyBox("Animation Variant", QLineEdit, self)
+        self.variant_box.edit.textChanged.connect(self.variant_changed)
+        self.variant_box.edit.setPlaceholderText("No Variant")
+        main_section.addWidget(self.variant_box, 0, 0)
 
         self.desc_box = PropertyBox("Description", QLineEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
@@ -297,10 +271,6 @@ class UnitProperties(QWidget):
         self.item_widget.items_updated.connect(self.items_changed)
         item_section.addWidget(self.item_widget)
 
-        self.variant_box = PropertyBox("Animation Variant", QLineEdit, self)
-        self.variant_box.edit.textChanged.connect(self.variant_changed)
-        self.variant_box.edit.setPlaceholderText("Variant Animation ID")
-
         self.alternate_class_box = PropertyBox("Alternate Classes", MultiSelectComboBox, self)
         self.alternate_class_box.edit.setPlaceholderText("Class Change Options...")
         self.alternate_class_box.edit.addItems(DB.classes.keys())
@@ -320,7 +290,6 @@ class UnitProperties(QWidget):
         right_section.addWidget(QHLine())
         right_section.addLayout(skill_section)
         right_section.addWidget(QHLine())
-        right_section.addWidget(self.variant_box)
         right_section.addWidget(self.alternate_class_box)
         right_widget = QWidget()
         right_widget.setLayout(right_section)
@@ -354,12 +323,6 @@ class UnitProperties(QWidget):
 
     def name_changed(self, text):
         self.current.name = text
-
-    def gender_changed(self, male):
-        if male:
-            self.current.gender = 0
-        else:
-            self.current.gender = 5
 
     def desc_changed(self, text):
         self.current.desc = text
@@ -457,7 +420,6 @@ class UnitProperties(QWidget):
         self.current = current
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
-        self.gender_box.edit.setValue(current.gender)
         self.desc_box.edit.setText(current.desc)
         self.level_box.edit.setValue(int(current.level))
         self.class_box.edit.setValue(current.klass)

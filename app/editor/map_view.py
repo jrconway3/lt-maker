@@ -68,7 +68,7 @@ class MapView(QGraphicsView):
                 klass_nid = unit.klass
                 num = TIMER.passive_counter.count
                 klass = DB.classes.get(klass_nid)
-                pixmap = class_database.get_map_sprite_icon(klass, num, False, unit.team, unit.gender)
+                pixmap = class_database.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
                 coord = unit.starting_position
                 if pixmap:
                     painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())

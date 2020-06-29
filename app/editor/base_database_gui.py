@@ -25,6 +25,7 @@ class DatabaseTab(QWidget):
         self.left_frame = Collection(deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
         self.right_frame = right_frame(self)
         self.left_frame.set_display(self.right_frame)
+        self.right_frame.setEnabled(False)
 
         self.splitter = QSplitter(self)
         self.splitter.setChildrenCollapsible(False)
@@ -49,7 +50,10 @@ class DatabaseTab(QWidget):
         Makes sure that current is what is being displayed
         """
         if self.right_frame.current:
+            self.right_frame.setEnabled(True)
             self.right_frame.set_current(self.right_frame.current)
+        else:
+            self.right_frame.setEnabled(False)
 
     @classmethod
     def edit(cls, parent=None):
@@ -94,6 +98,7 @@ class Collection(QWidget):
                 new_data = self._data[curr.row()]
             if self.display:
                 self.display.set_current(new_data)
+                self.display.setEnabled(True)
 
     def set_display(self, disp):
         self.display = disp

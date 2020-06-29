@@ -243,13 +243,54 @@ class MapEditorView(QGraphicsView):
                     if self.tilemap.check_bounds(true_pos):
                         current_layer.set_sprite(true_pos, tileset.nid, coord)
 
+    def erase_terrain(self, tile_pos):
+        current_layer = self.get_current_layer()
+
+        if self.tilemap.check_bounds(tile_pos):
+            current_layer.erase_terrain(tile_pos)
+
     def erase_tile(self, tile_pos):
         current_layer = self.get_current_layer()
 
         if self.tilemap.check_bounds(tile_pos):
             current_layer.erase_sprite(tile_pos)
 
-    def flood_fill(self, tile_pos):
+    def flood_fill_terrain(self, tile_pos):
+        if not self.tilemap.check_bounds(tile_pos):
+            return 
+
+        coords_to_replace = set()
+
+        def find_similar(x, y, terrain_nid):
+            if not self.tilemap.check_bounds((x, y)):
+                return
+            if (x, y) in coords_to_replace:
+                return
+            other_nid = current_layer.get_terrain((x, y))
+            if terrain_nid != other_nid:
+                return
+
+            coords_to_replace.add((x, y))
+
+            # Now recur for all directions
+            find_similar(x + 1, y, terrain_nid)
+            find_similar(x - 1, y, terrain_nid)
+            find_similar(x, y + 1, terrain_nid)
+            find_similar(x, y - 1, terrain_nid)
+
+        current_layer = self.get_current_layer()
+
+        # Get coords like current coord in current_layer
+        terrain_nid = current_layer.get_terrain(tile_pos)
+        # Determine which coords should be flood-filled
+        find_similar(tile_pos[0], tile_pos[1], terrain_nid)
+
+        # Do the deed
+        for coord in coords_to_replace:
+            current_nid = self.window.terrain_painter_menu.get_current_nid()
+            current_layer.terrain_grid[coord] = current_nid
+
+    def flood_fill_tile(self, tile_pos):
         if not self.tilemap.check_bounds(tile_pos):
             return 
 
@@ -308,17 +349,20 @@ class MapEditorView(QGraphicsView):
             int(scene_pos.y() // TILEHEIGHT)
 
         if event.button() == Qt.LeftButton:
-            if self.window.terrain_mode:
-                self.paint_terrain(tile_pos)
-                self.left_selecting = True
-            elif self.window.current_tool == PaintTool.Brush:
-                self.paint_tile(tile_pos)
+            if self.window.current_tool == PaintTool.Brush:
+                if self.window.terrain_mode:
+                    self.paint_terrain(tile_pos)
+                else:
+                    self.paint_tile(tile_pos)
                 self.left_selecting = True
             elif self.window.current_tool == PaintTool.Erase:
-                self.erase_tile(tile_pos)
+                if self.window.terrain_mode:
+                    self.erase_terrain(tile_pos)
+                else:
+                    self.erase_tile(tile_pos)
                 self.left_selecting = True
             elif self.window.current_tool == PaintTool.Fill:
-                self.flood_fill(tile_pos)
+                self.flood_fill_tile(tile_pos)
         elif event.button() == Qt.RightButton and self.tilemap.check_bounds(tile_pos):
             if self.window.terrain_mode:
                 current_nid = self.tilemap.get_terrain(tile_pos)
@@ -337,12 +381,16 @@ class MapEditorView(QGraphicsView):
         self.current_mouse_position = tile_pos
 
         if self.left_selecting and self.tilemap.check_bounds(tile_pos):
-            if self.window.terrain_mode:
-                self.paint_terrain(tile_pos)
-            elif self.window.current_tool == PaintTool.Brush:
-                self.paint_tile(tile_pos)
+            if self.window.current_tool == PaintTool.Brush:
+                if self.window.terrain_mode:
+                    self.paint_terrain(tile_pos)
+                else:
+                    self.paint_tile(tile_pos)
             elif self.window.current_tool == PaintTool.Erase:
-                self.erase_tile(tile_pos)
+                if self.window.terrain_mode:
+                    self.erase_terrain(tile_pos)
+                else:
+                    self.erase_tile(tile_pos)
         elif self.right_selecting:
             self.find_coords()
 
@@ -497,6 +545,12 @@ class MapEditor(QDialog):
 
     def update_view(self):
         self.view.update_view()
+
+    def reset_terrain(self):
+        current_layer_index = self.layer_menu.view.currentIndex()
+        idx = current_layer_index.row()
+        current_layer = self.current.layers[idx]
+        current_layer.terrain_grid.clear()
 
     def get_tileset_coords(self):
         return self.tileset_menu.current_tileset, self.tileset_menu.get_selection_coords()

@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+import json
 
 from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, \
     QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget, \
@@ -384,6 +386,14 @@ class MainEditor(QMainWindow):
         # Actually save project
         RESOURCES.serialize(self.current_proj)
         DB.serialize(self.current_proj)
+
+        # Save metadata
+        metadata_loc = os.path.join(self.current_proj, 'metadata.json')
+        metadata = {}
+        metadata['date'] = str(datetime.now())
+        metadata['version'] = VERSION
+        with open(metadata_loc, 'w') as serialize_file:
+            json.dump(metadata, serialize_file, indent=4)
         
         self.status_bar.showMessage('Saved project to %s' % self.current_proj)
         self.undo_stack.setClean()

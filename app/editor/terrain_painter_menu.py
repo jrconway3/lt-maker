@@ -32,10 +32,10 @@ class TerrainPainterMenu(QWidget):
 
         self.reset_button = QPushButton('Reset Terrain')
         self.reset_button.clicked.connect(self.reset_terrain)
-        self.edit_button = QPushButton('Edit Terrain...')
-        self.edit_button.clicked.connect(self.edit_terrain)
-        grid.addWidget(self.reset_button, 4, 0)
-        grid.addWidget(self.edit_button, 4, 1)
+        # self.edit_button = QPushButton('Edit Terrain...')
+        # self.edit_button.clicked.connect(self.edit_terrain)
+        grid.addWidget(self.reset_button, 4, 0, 1, 2)
+        # grid.addWidget(self.edit_button, 4, 1)
 
     def on_visibility_changed(self, state):
         pass
@@ -46,13 +46,8 @@ class TerrainPainterMenu(QWidget):
     def reset_terrain(self):
         # command = commands.ResetTerrain(self.map_editor.current_level)
         # self.map_editor.undo_stack.push(command)
+        self.map_editor.reset_terrain()
         self.map_editor.update_view()
-
-    def edit_terrain(self):
-        # dialog = DatabaseEditor(self.map_editor, "Terrain")
-        # dialog.exec_()
-        # self.map_editor.update_view()
-        pass
 
     def set_current_nid(self, nid):
         idx = self.model.index(DB.terrain.index(nid))

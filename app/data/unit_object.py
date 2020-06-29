@@ -20,7 +20,6 @@ class UnitObject(Prefab):
         self.team = prefab.team
         self.party = 0
         self.klass = prefab.klass
-        self.gender = prefab.gender
         self.variant = prefab.variant
         self.level = prefab.level
         self.exp = 0
@@ -346,7 +345,7 @@ class UnitObject(Prefab):
                   'team': self.team,
                   'party': self.party,
                   'klass': self.klass,
-                  'gender': self.gender,
+                  'variant': self.variant
                   'faction': self.faction,
                   'level': self.level,
                   'exp': self.exp,
@@ -380,7 +379,7 @@ class UnitObject(Prefab):
         self.team = s_dict['team']
         self.party = s_dict['party']
         self.klass = s_dict['klass']
-        self.gender = s_dict['gender']
+        self.variant = s_dict['variant']
         self.level = s_dict['level']
         self.exp = s_dict['exp']
         self.generic = s_dict['generic']

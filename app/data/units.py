@@ -12,7 +12,6 @@ class UnitPrefab(Prefab):
     nid: str = None
     name: str = None
     desc: str = None
-    gender: int = None
     variant: str = None
 
     level: int = None
@@ -61,7 +60,6 @@ class UnitPrefab(Prefab):
 @dataclass 
 class GenericUnit(Prefab):
     nid: str = None
-    gender: int = None
     variant: str = None
 
     level: int = None
@@ -144,7 +142,6 @@ class UnitCatalog(Data):
             nid = unit.find('id').text
             name = unit.get('name')
             desc = unit.find('desc').text
-            gender = int(unit.find('gender').text)
             level = int(unit.find('level').text)
             klass = unit.find('class').text
             if unit.find('tags').text is not None:
@@ -172,7 +169,7 @@ class UnitCatalog(Data):
             variant = None
             alternate_classes = []
 
-            new_unit = UnitPrefab(nid, name, desc, gender, variant, level, klass, tags,
+            new_unit = UnitPrefab(nid, name, desc, variant, level, klass, tags,
                                   bases, growths, starting_items, learned_skills, wexp_gain,
                                   alternate_classes, nid)
             self.append(new_unit)

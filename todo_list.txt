@@ -9,7 +9,7 @@ OptionsMenu
     - Register items, statuses, and units with the save_state manager
     - Saving and loading
     - New game
-Saving game between levels
+* Saving game between levels
 * Winning/Losing
 * Spells (w/ Multiple targets)
 Test multiple target spells
@@ -20,9 +20,9 @@ Level-up
 * Level-up animations
 Promotion
 * Music/Sounds in engine
-Remove Gender
+* Remove Gender
 
-Set Enabled to False when no current object is present
+*Set Enabled to False when no current object is present
 
 Music won't play if reloaded
 
@@ -34,8 +34,8 @@ Equations check their validity
 
 Tilemap Editor
 -- Autotile layer
--- Let Eraser and Fill work in terrain
--- Remove Edit Terrain -- Make Reset Terrain work
+-- Let *Eraser and *Fill work in terrain
+-- *Remove Edit Terrain -- *Make Reset Terrain work
 
 Auto-update
 No need for launcher

@@ -140,6 +140,10 @@ class LayerGrid(Prefab):
         if coord in self.sprite_grid:
             del self.sprite_grid[coord]
 
+    def erase_terrain(self, coord):
+        if coord in self.terrain_grid:
+            del self.terrain_grid[coord]
+
     def serialize(self):
         s_dict = {}
         s_dict['nid'] = self.nid

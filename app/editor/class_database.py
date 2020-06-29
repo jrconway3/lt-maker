@@ -46,8 +46,12 @@ class ClassDatabase(DatabaseTab):
     def tick(self):
         self.update_list()
 
-def get_map_sprite_icon(klass, num=0, current=False, team='player', gender=0, variant=None):
-    res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+def get_map_sprite_icon(klass, num=0, current=False, team='player', variant=None):
+    res = None
+    if variant:
+        res = RESOURCES.map_sprites.get(klass.map_sprite_nid + variant)
+    if not variant or not res:
+        res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
     if not res:
         return None
     if not res.standing_pixmap:
@@ -93,9 +97,6 @@ class ClassModel(DragDropCollectionModel):
             else:
                 active = False
             pixmap = get_map_sprite_icon(klass, num, active, self.display_team)
-            # Fallback to female map sprite nid
-            if not pixmap:
-                pixmap = get_map_sprite_icon(klass, num, active, self.display_team, gender=5)
             if pixmap:
                 return QIcon(pixmap)
             else:
@@ -428,7 +429,7 @@ class ClassProperties(QWidget):
         if ok:
             nid = res.nid
             self.current.map_sprite_nid = nid
-            pix = get_map_sprite_icon(self.current, num=0, gender=0)
+            pix = get_map_sprite_icon(self.current, num=0)
             self.map_sprite_label.setPixmap(pix)
             self.window.update_list()
 
@@ -477,7 +478,7 @@ class ClassProperties(QWidget):
         self.wexp_gain_widget.set_current(current.wexp_gain)
 
         self.icon_edit.set_current(current.icon_nid, current.icon_index)
-        pix = get_map_sprite_icon(self.current, num=0, gender=0)
+        pix = get_map_sprite_icon(self.current, num=0)
         if pix:
             self.map_sprite_label.setPixmap(pix)
         else:

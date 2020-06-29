@@ -28,9 +28,6 @@ class Database(object):
         self.ai = ai.AICatalog()
         self.translations = translations.TranslationCatalog()
 
-        # self.init_load()
-        # self.deserialize()
-
         # Needed to create an initial level
         self.terrain.import_xml('./app/default_data/default_terrain.xml')
 
@@ -148,17 +145,11 @@ class Database(object):
         new_unit = units.UniqueUnit(nid, prefab, team, ai)
         return new_unit
 
-    def create_unit_generic(self, nid, gender, level, klass, faction, starting_items, team, ai):
-        new_generic = units.GenericUnit(nid, gender, level, klass, faction,
-                                        starting_items, team, ai)
-        return new_generic
-
     def create_new_ai(self, nid, name=None):
         new_ai = ai.AIPreset(nid, 20)
         return new_ai
 
     def serialize(self, proj_dir):
-        # save_loc = os.path.join(proj_dir, title + ".ltdata")
         data_dir = os.path.join(proj_dir, 'game_data')
         if not os.path.exists(data_dir):
             os.mkdir(data_dir)
@@ -172,23 +163,12 @@ class Database(object):
             with open(save_loc, 'w') as serialize_file:
                 json.dump(value, serialize_file, indent=4)
 
-        # # with open(save_loc, 'wb') as serialize_file:
-        # with open(save_loc, 'w') as serialize_file:
-        #     # Remove the -1 here if you want to interrogate the pickled save file
-        #     # pickle.dump(to_save, serialize_file, -1)
-        #     # pickle.dump(to_save, serialize_file)
-        #     json.dump(to_save, serialize_file)
-
         print("Done serializing!")
 
     def deserialize(self, proj_dir):
         data_dir = os.path.join(proj_dir, 'game_data')
-        # save_loc = os.path.join(proj_dir, title + ".ltdata")
         print("Deserializing data from %s..." % data_dir)
 
-        # with open(save_loc, 'rb') as load_file:
-        # with open(save_loc, 'r') as load_file:
-        #     save_obj = json.load(load_file)
         game_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                            "weapons", "factions", "items", "tags", "classes", 
                            "units", "ai", "parties", "translations", "levels")

@@ -373,7 +373,7 @@ class TurnwheelDisplay():
         if self.desc:
             font = FONT['text_white']
             num_lines = len(self.desc)
-            bg = base_surf.create_base_surf(WINWIDTH, 8 + font.height * num_lines, 'clear_menu_bg_base')
+            bg = base_surf.create_base_surf(WINWIDTH, 8 + font.height * num_lines, 'menu_bg_clear')
             for idx, line in enumerate(self.desc):
                 font.blit(line, bg, (4, 4 + font.height * idx))
             if self.transition != 0:

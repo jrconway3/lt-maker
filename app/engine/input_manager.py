@@ -21,6 +21,7 @@ class InputManager():
 
         self.key_up_events = []
         self.key_down_events = []
+        self.change_keymap_mode = False
         self.current_mouse_position = None
 
         self.unavailable_button = None
@@ -36,6 +37,9 @@ class InputManager():
         else:
             self.joystick = None
             self.joystick_name = None
+
+    def set_change_keymap(self, val):
+        self.change_keymap_mode = val
 
     def is_pressed(self, button):
         return self.keys_pressed[button] or self.joys_pressed[button]
@@ -104,38 +108,42 @@ class InputManager():
                         self.key_up_events.append(button)
                     else:
                         self.key_down_events.append(button)
+                elif self.change_keymap_mode and event.type == engine.KEYDOWN:
+                    self.unavailable_button = event.key
+                    return 'NEW'
 
         # Check mouse
-        self.current_mouse_position = None
-        for event in events:
-            if event.type == engine.MOUSEBUTTONDOWN:
-                lmb = event.button == 1
-                if lmb:
-                    self.key_down_events.append('SELECT')
-                rmb = event.button == 3
-                if rmb:
-                    self.key_down_events.append('BACK')
-                mmb = event.button == 2
-                if mmb:
-                    self.key_down_events.append('INFO')
-                wheel_up = event.button == 4
-                wheel_down = event.button == 5
-                if wheel_up:
-                    self.key_down_events.append('UP')
-                else:
-                    self.key_up_events.append('UP')
-                if wheel_down:
-                    self.key_down_events.append('DOWN')
-                else:
-                    self.key_up_events.append('DOWN')
-                position = event.pos
-                self.current_mouse_position = position
-            elif event.type == engine.MOUSEMOTION:
-                position = event.pos
-                self.current_mouse_position = position
+        if not self.change_keymap_mode:
+            self.current_mouse_position = None
+            for event in events:
+                if event.type == engine.MOUSEBUTTONDOWN:
+                    lmb = event.button == 1
+                    if lmb:
+                        self.key_down_events.append('SELECT')
+                    rmb = event.button == 3
+                    if rmb:
+                        self.key_down_events.append('BACK')
+                    mmb = event.button == 2
+                    if mmb:
+                        self.key_down_events.append('INFO')
+                    wheel_up = event.button == 4
+                    wheel_down = event.button == 5
+                    if wheel_up:
+                        self.key_down_events.append('UP')
+                    else:
+                        self.key_up_events.append('UP')
+                    if wheel_down:
+                        self.key_down_events.append('DOWN')
+                    else:
+                        self.key_up_events.append('DOWN')
+                    position = event.pos
+                    self.current_mouse_position = position
+                elif event.type == engine.MOUSEMOTION:
+                    position = event.pos
+                    self.current_mouse_position = position
 
         # Check game pad
-        if self.joystick:
+        if self.joystick and not self.change_keymap_mode:
             self.handle_joystick()
 
         # Return the correct event for this frame

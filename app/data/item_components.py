@@ -70,6 +70,9 @@ def repair_requires(other_components):
     must_not_have = set('might', 'hit', 'crit', 'hit_status', 'heal_on_hit', 'aoe', 'multiple_targets')
     return ('spell' in other_components and not other_components & must_not_have)
 
+def requires_multiple_targets(other_components):
+    return 'multiple_targets' in other_components
+
 class BasicSubComponent(Prefab):
     def __init__(self, nid):
         self.nid: str = nid
@@ -301,9 +304,9 @@ item_components = Data([
     ItemComponent('aoe', 'Area of Effect', (AOEMode, SpellTarget, int), (AOEMode.Normal, SpellTarget.Unit, 0), requires_spell_or_weapon),
 
     ItemComponent('promotion', 'Promotes (Class)', BasicSubComponent, PromoteData(), requires_usable),
-    ItemComponent('class_change', 'Change (Class)', BasicSubComponent, ClassChangeData(), requires_usable),
-    ItemComponent('permanent_stat_increase', 'Permanent Increase (Stat)', StatChangeSubComponent, StatChangeData(), requires_usable),
-    ItemComponent('permanent_growth_increase', 'Permanent Increase (Growth)', GrowthChangeSubComponent, GrowthChangeData(), requires_usable),
+    ItemComponent('class_change', 'Changes (Class)', BasicSubComponent, ClassChangeData(), requires_usable),
+    ItemComponent('permanent_stat_increase', 'Permanently Increases (Stat)', StatChangeSubComponent, StatChangeData(), requires_usable),
+    ItemComponent('permanent_growth_increase', 'Permanently Increases (Growth)', GrowthChangeSubComponent, GrowthChangeData(), requires_usable),
 
     ItemComponent('custom_damage_equation', 'Custom Damage Equation', 'Equation', None, requires_might),
     ItemComponent('custom_defense_equation', 'Custom Defense Equation', 'Equation', None, requires_might),
@@ -311,8 +314,8 @@ item_components = Data([
     ItemComponent('custom_avoid_equation', 'Custom Avoid Equation', 'Equation', None, requires_hit),
     ItemComponent('custom_crit_equation', 'Custom Crit Equation', 'Equation', None, requires_crit),
     ItemComponent('custom_dodge_equation', 'Custom Crit Avoid Equation', 'Equation', None, requires_crit),
-    ItemComponent('custom_double_atk_equation', 'Custom Double Attack Equation', 'Equation', None, requires_spell_or_weapon),
-    ItemComponent('custom_double_def_equation', 'Custom Double Defense Equation', 'Equation', None, requires_spell_or_weapon),
+    ItemComponent('custom_double_atk_equation', 'Custom Double Attack Equation', 'Equation', None, requires_weapon),
+    ItemComponent('custom_double_def_equation', 'Custom Double Defense Equation', 'Equation', None, requires_weapon),
 
     # ItemComponent('hit_status', 'Applies Status on hit', 'Status', None, requires_spell_or_weapon),
     # ItemComponent('use_status', 'Applies Status on use', 'Status', None, requires_usable),
@@ -323,14 +326,15 @@ item_components = Data([
     # ItemComponent('movement_self_hit', 'Applies Movement to self on hit', 'Movement', None, requires_spell_or_weapon),
     # ItemComponent('movement_use', 'Applies Movement on use', 'Movement', None, requires_usable),
 
-    ItemComponent('repair', 'Repairs Items', bool, False, lambda x: repair_requires),
+    ItemComponent('repair', 'Repairs Items', bool, True, repair_requires),
     # ItemComponent('target_restrict', 'Restrict Targets', 'Eval', '', requires_aspect),
     ItemComponent('multiple_targets', 'Multiple Targets', TargetSubComponent, TargetData(), requires_spell),
+    # ItemComponent('multiple_target_restrict', 'Restrict Multiple Targets', 'Eval', '', requires_multiple_targets)
     # ItemComponent('interact', 'Interact with Event Tile', ??, None, requires_spell),
     # ItemComponent('event_on_use', ??)
     # ItemComponent('event_on_hit', ??)
 
-    ItemComponent('no_ai', 'AI will not use', bool, False, requires_aspect),
+    ItemComponent('no_ai', 'AI will not use', bool, True, requires_aspect),
     # ItemComponent('ai_target', 'Restrict AI Targets', 'Eval', '', requires_aspect),
     # ItemComponent('warning', 'Show Warning', 'Eval', '', requires_spell_or_weapon),
 
@@ -340,6 +344,7 @@ item_components = Data([
     # ItemComponent('self_anim', 'Custom Map Animation on user', 'Animation', None, requires_aspect),
     # ItemComponent('custom_sfx', 'Custom Sound', 'Sound', None, requires_aspect),
     # ItemComponent('combat_effect', 'Custom Effect in Animation Combat', 'Effect', None, requires_weapon),
+    # ItemComponent('custom_anim', 'Custom Combat Animation', 'Combat Anim', None, requires_aspect)
 
 ])
 

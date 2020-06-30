@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QToolButton, \
     QSpinBox, QLineEdit, QPushButton, QCheckBox, QVBoxLayout, \
     QGroupBox, QFormLayout
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QColor
+from PyQt5.QtGui import QIcon, QColor, QPixmap
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
@@ -22,6 +22,12 @@ class CombatCommand(QWidget):
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
         self.setLayout(hbox)
+
+        icon_label = QLabel()
+        pixmap = QPixmap("icons/command_%s.png" % self._data.tag)
+        pixmap = pixmap.scaled(32, 32)
+        icon_label.setPixmap(pixmap)
+        hbox.addWidget(icon_label)
 
         name_label = QLabel(self._data.name)
         hbox.addWidget(name_label)

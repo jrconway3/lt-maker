@@ -108,7 +108,7 @@ anim_commands = Data([
 
     CombatAnimationCommand('pan', 'Pan Screen', None, None, 'aesthetic3'),
     CombatAnimationCommand('blend', 'Set Frame Blending', bool, True, 'aesthetic3'),
-    CombatAnimationCommand('static', 'Set Static Position', bool, True, 'aesthetic3'),
+    CombatAnimationCommand('static', 'Set Has Static Position', bool, True, 'aesthetic3'),
     CombatAnimationCommand('ignore_pan', 'Set Ignore Pan', bool, True, 'aesthetic3'),
     
     CombatAnimationCommand('start_loop', 'Start Loop', None, None, 'loop'),

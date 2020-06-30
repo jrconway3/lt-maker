@@ -392,6 +392,13 @@ class Simple():
                 return (WINWIDTH - self.get_menu_width() - 8, 8)
         elif self.topleft == 'center':
             return (WINWIDTH//2 - self.get_menu_width()//2, WINHEIGHT//2 - self.get_menu_height()//2)
+        elif isinstance(self.topleft, tuple):
+            if self.topleft[0] == 'center':
+                return (WINWIDTH//2 - self.get_menu_width()//2, self.topleft[1])
+            elif self.topleft[1] == 'center':
+                return (self.topleft[0], WINHEIGHT//2 - self.get_menu_height()//2)
+            else:
+                return self.topleft
         elif isinstance(self.topleft, Simple):
             if game.cursor.position[0] > TILEX//2 + game.camera.get_x():
                 return (24 + self.topleft.get_menu_width(), self.topleft.current_index * 16 + 8)

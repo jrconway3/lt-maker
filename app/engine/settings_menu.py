@@ -2,7 +2,7 @@ from app.engine import config as cf
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import text_funcs, menus, image_mods, \
-    gui_objects, base_surf, help_menu
+    gui, base_surf, help_menu
 
 class ControlOption(menus.BasicOption):
     def __init__(self, idx, name, icon):
@@ -79,8 +79,8 @@ class SliderOption(ConfigOption):
 class ChoiceOption(ConfigOption):
     def __init__(self, idx, name, values, icon):
         super().__init__(idx, name, values, icon)
-        self.left_arrow = gui_objects.ScrollArrow('left', (0, 0), 0)
-        self.right_arrow = gui_objects.ScrollArrow('right', (0, 0), 0.5)
+        self.left_arrow = gui.ScrollArrow('left', (0, 0), 0)
+        self.right_arrow = gui.ScrollArrow('right', (0, 0), 0.5)
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))

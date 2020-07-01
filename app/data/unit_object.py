@@ -345,7 +345,7 @@ class UnitObject(Prefab):
                   'team': self.team,
                   'party': self.party,
                   'klass': self.klass,
-                  'variant': self.variant
+                  'variant': self.variant,
                   'faction': self.faction,
                   'level': self.level,
                   'exp': self.exp,

@@ -60,6 +60,35 @@ class PanoramaBackground():
                 return True
         return False
 
+class ScrollingBackground(PanoramaBackground):
+    scroll_speed = 25
+
+    def __init__(self, panorama, speed=125, loop=True, fade_out=False):
+        super().__init__(panorama, speed, loop, fade_out)
+        self.x_index = 0
+        self.scroll_counter = 0
+        self.last_scroll_update = 0
+
+    def draw(self, surf):
+        current_time = engine.get_time()
+        image = self.panorama.get_img_frame()
+    
+        if image:
+            # Handle scroll
+            width = image.get_width()
+            self.scroll_counter = (current_time / self.scroll_speed) % width
+            x_counter = -self.scroll_counter
+            while x_counter < WINWIDTH:
+                surf.blit(image, (x_counter, 0))
+                x_counter += width
+
+        if current_time - self.last_update > self.speed:
+            self.panorama.increment_frame()
+            self.last_update += self.speed
+            if self.panorama.idx == 0 and not self.loop:
+                return True
+        return False
+
 class TransitionBackground():
     speed = 25
     fade_speed = 4
@@ -71,6 +100,7 @@ class TransitionBackground():
         self.last_update = engine.get_time()
         self.width = image.get_width()
         self.height = image.get_height()
+        self.y_movement = True
 
         if self.fade:
             self.fade = 100
@@ -78,6 +108,9 @@ class TransitionBackground():
         else:
             self.fade = 0
             self.state = 'normal'
+
+    def set_y_movement(self, val):
+        self.y_movement = val
 
     def update(self):
         current_time = engine.get_time()
@@ -95,7 +128,10 @@ class TransitionBackground():
     def draw(self, surf):
         xindex = -self.counter
         while xindex < WINWIDTH:
-            yindex = -self.counter
+            if self.y_movement:
+                yindex = -self.counter
+            else:
+                yindex = 0
             while yindex < WINHEIGHT:
                 # left = self.counter if xindex < 0 else 0
                 # top = self.counter if yindex < 0 else 0

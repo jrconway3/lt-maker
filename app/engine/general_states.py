@@ -253,8 +253,8 @@ class OptionMenuState(MapState):
                 game.state.change('objective')
                 game.state.change('transition_out')
             elif selection == 'Options':
-                game.state.change('config_menu')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'settings_menu'
+                game.state.change('transition_to')
             elif selection == 'Unit':
                 game.state.change('unit_menu')
                 game.state.change('transition_out')

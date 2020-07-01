@@ -34,22 +34,22 @@ config = [('Animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 'Animat
           ('Confirm End', bool, 'Confirm End_desc', 14),
           ('Display Hints', bool, 'Display Hints_desc', 3)]
 
-config_icons = [engine.subsurface(SPRITES.get('settings'), (0, c[3] * 16, 16, 16))]
+config_icons = [engine.subsurface(SPRITES.get('settings_icons'), (0, c[3] * 16, 16, 16)) for c in config]
 
-class SettingsState(State):
-    name = 'settings'
+class SettingsMenuState(State):
+    name = 'settings_menu'
     in_level = False
     show_map = False
 
     def create_background(self):
-        bg_img = RESOURCES.panoramas.get('settings_background')
-        if not bg_img:
-            bg_img = RESOURCES.panoramas.get('default_background')
-        if bg_img:
-            if bg_img.num_frames > 1:
-                self.bg = background.PanoramaBackground(bg_img)
+        panorama = RESOURCES.panoramas.get('settings_background')
+        if not panorama:
+            panorama = RESOURCES.panoramas.get('default_background')
+        if panorama:
+            if panorama.num_frames > 1:
+                self.bg = background.PanoramaBackground(panorama)
             else:
-                self.bg = background.TransitionBackground(bg_img)
+                self.bg = background.ScrollingBackground(panorama)
         else:
             self.bg = None
 

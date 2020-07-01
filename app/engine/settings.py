@@ -23,16 +23,16 @@ config = [('Animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 'Animat
           ('Unit Speed', list(reversed(range(15, 180, 15))), 'Unit Speed_desc', 1),
           ('Text Speed', cf.text_speed_options, 'Text Speed_desc', 2),
           ('Cursor Speed', list(reversed(range(32, 160, 16))), 'Cursor Speed_desc', 8),
-          ('Show Terrain', ['ON', 'OFF'], 'Show Terrain_desc', 7),
-          ('Show Objective', ['ON', 'OFF'], 'Show Objective_desc', 6),
-          ('Autocursor', ['ON', 'OFF'], 'Autocursor_desc', 13),
+          ('Show Terrain', bool, 'Show Terrain_desc', 7),
+          ('Show Objective', bool, 'Show Objective_desc', 6),
+          ('Autocursor', bool, 'Autocursor_desc', 13),
           ('HP Map Team', ['All', 'Ally', 'Enemy'], 'HP Map Team_desc', 10),
           ('HP Map Cull', ['None', 'Wounded', 'All'], 'HP Map Cull_desc', 10),
           ('Music Volume', [x/10.0 for x in range(0, 11, 1)], 'Music Volume_desc', 15),
           ('Sound Volume', [x/10.0 for x in range(0, 11, 1)], 'Sound Volume_desc', 16),
-          ('Autoend Turn', ['ON', 'OFF'], 'Autoend Turn_desc', 14),
-          ('Confirm End', ['ON', 'OFF'], 'Confirm End_desc', 14),
-          ('Display Hints', ['ON', 'OFF'], 'Display Hints_desc', 3)]
+          ('Autoend Turn', bool, 'Autoend Turn_desc', 14),
+          ('Confirm End', bool, 'Confirm End_desc', 14),
+          ('Display Hints', bool, 'Display Hints_desc', 3)]
 
 config_icons = [engine.subsurface(SPRITES.get('settings'), (0, c[3] * 16, 16, 16))]
 
@@ -63,12 +63,12 @@ class SettingsState(State):
         self.top_menu.set_horizontal(True)
 
         control_options = control_order
-        control_icons = [control[c] for c in control_options]
-        self.control_menu = settings_menu.ControlsMenu(None, control_options, 'menu_bg_clear', control_icons)
+        control_icons = [controls[c] for c in control_options]
+        self.control_menu = settings_menu.Controls(None, control_options, 'menu_bg_clear', control_icons)
 
         config_options = [(c[0], c[1]) for c in config]
         config_info = [c[2] for c in config]
-        self.config_menu = settings_menu.ConfigMenu(None, config_options, 'menu_bg_clear', config_icons, config_info)
+        self.config_menu = settings_menu.Config(None, config_options, 'menu_bg_clear', config_icons, config_info)
         
         self.current_menu = self.top_menu
 
@@ -146,11 +146,9 @@ class SettingsState(State):
 
         if self.state == 'config':
             self.top_menu.draw(surf)
-            # self.top_menu.draw(surf, show_cursor=(self.current_menu is self.top_menu))
             self.config_menu.draw(surf)
         else:
             self.top_menu.draw(surf)
-            # self.top_menu.draw(surf, show_cursor=(self.current_menu is self.top_menu))
             self.controls_menu.draw(surf)
 
         return surf

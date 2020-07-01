@@ -25,7 +25,6 @@ class DatabaseTab(QWidget):
         self.left_frame = Collection(deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
         self.right_frame = right_frame(self)
         self.left_frame.set_display(self.right_frame)
-        self.right_frame.setEnabled(False)
 
         self.splitter = QSplitter(self)
         self.splitter.setChildrenCollapsible(False)
@@ -37,6 +36,9 @@ class DatabaseTab(QWidget):
         self.setLayout(self.layout)
 
         self.layout.addWidget(self.splitter)
+
+        # Check this on startup
+        self.reset()
 
     def update_list(self):
         self.left_frame.update_list()

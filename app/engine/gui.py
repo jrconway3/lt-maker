@@ -1,4 +1,5 @@
 import math
+from app import counters
 from app.engine.sprites import SPRITES
 from app.engine import engine, image_mods
 
@@ -68,3 +69,34 @@ class DamageNumber():
             else:
                 true_pos = pos[0] - 7*self.length + 14*self.idx, pos[1] - self.top_pos
             surf.blit(self.image, true_pos)
+
+class ScrollArrow():
+    images = {'up': SPRITES.get('scroll_arrows'),
+              'down': engine.flip_horiz(engine.flip_vert(SPRITES.get('scroll_arrows'))),
+              'left': SPRITES.get('page_arrows'),
+              'right': engine.flip_horiz(engine.flip_vert(SPRITES.get('page_arrows')))}
+
+    def __init__(self, direction, topleft, offset=0):
+        self.x, self.y = topleft
+        self.direction = direction
+        self.arrow_counter = counters.arrow_counter(offset)
+        self.offset = []
+
+    def pulse(self):
+        self.arrow_counter.pulse()
+        self.offset = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 1, 1]
+
+    def draw(self, surf):
+        self.arrow_counter.update()
+        if self.direction == 'up':
+            pos = (self.x, self.y - (self.offset.pop() if self.offset else 0))
+            surf.blit(engine.subsurface(self.images['up'], (0, self.arrow_counter.get() * 8, 14, 8)), pos)
+        elif self.direction == 'down':
+            pos = (self.x, self.y + (self.offset.pop() if self.offset else 0))
+            surf.blit(engine.subsurface(self.images['down'], (0, self.arrow_counter.get() * 8, 14, 8)), pos)
+        elif self.direction == 'left':
+            pos = (self.x - (self.offset.pop() if self.offset else 0), self.y)
+            surf.blit(engine.subsurface(self.images['left'], (self.arrow_counter.get() * 8, 0, 8, 14)), pos)
+        elif self.direction == 'right':
+            pos = (self.x - (self.offset.pop() if self.offset else 0), self.y)
+            surf.blit(engine.subsurface(self.images['right'], (self.arrow_counter.get() * 8, 0, 8, 14)), pos)

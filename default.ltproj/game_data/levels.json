@@ -45,7 +45,6 @@
             },
             {
                 "nid": 101,
-                "gender": 0,
                 "variant": null,
                 "level": 1,
                 "klass": "Fighter",
@@ -68,7 +67,6 @@
             },
             {
                 "nid": "102",
-                "gender": 0,
                 "variant": null,
                 "level": 2,
                 "klass": "Fighter",
@@ -181,7 +179,6 @@
             },
             {
                 "nid": 101,
-                "gender": 0,
                 "variant": null,
                 "level": 2,
                 "klass": "Soldier",
@@ -204,7 +201,6 @@
             },
             {
                 "nid": "102",
-                "gender": 0,
                 "variant": null,
                 "level": 2,
                 "klass": "Soldier",
@@ -227,7 +223,6 @@
             },
             {
                 "nid": "103",
-                "gender": 0,
                 "variant": null,
                 "level": 2,
                 "klass": "Fighter",
@@ -250,7 +245,6 @@
             },
             {
                 "nid": "104",
-                "gender": 0,
                 "variant": null,
                 "level": 2,
                 "klass": "Fighter",
@@ -273,7 +267,6 @@
             },
             {
                 "nid": "105",
-                "gender": 0,
                 "variant": null,
                 "level": 2,
                 "klass": "Fighter",
@@ -296,7 +289,6 @@
             },
             {
                 "nid": "106",
-                "gender": 0,
                 "variant": null,
                 "level": 3,
                 "klass": "Soldier",

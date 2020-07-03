@@ -112,7 +112,7 @@ class BmpFont():
         width = self.width(string)
         self.blit(string, surf, (pos[0] - width, pos[1]))
 
-    def center_blit(self, string, surf, pos):
+    def blit_center(self, string, surf, pos):
         width = self.width(string)
         self.blit(string, surf, (pos[0] - width//2, pos[1]))
 

@@ -1,8 +1,10 @@
+from app import utilities
+
 from app.engine import config as cf
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import text_funcs, menus, image_mods, \
-    gui, base_surf, help_menu
+    gui, base_surf, help_menu, engine
 
 class ControlOption(menus.BasicOption):
     def __init__(self, idx, name, icon):
@@ -16,7 +18,7 @@ class ControlOption(menus.BasicOption):
         return self.name
 
     def width(self):
-        return 216
+        return 224
 
     def height(self):
         return 16
@@ -26,13 +28,16 @@ class ControlOption(menus.BasicOption):
         key_font = 'text_blue'
         surf.blit(self.icon, (x + 16, y))
         FONT[name_font].blit(self.display_name, surf, (x + 56, y))
-        FONT[key_font].blit(cf.SETTINGS[self.name], surf, (x + 128, y))
+        key_name = engine.get_key_name(cf.SETTINGS[self.name])
+        FONT[key_font].blit(key_name, surf, (x + 128, y))
 
 class ConfigOption(menus.BasicOption):
     def __init__(self, idx, name, values, icon):
         self.idx = idx
         self.name = name
-        self.display_name = text_funcs.translate(name)
+        if name.startswith('temp_'):
+            name = name[5:]
+        self.display_name = text_funcs.translate(name).replace('_', ' ').capitalize()
         self.icon = icon
         self.help_box = None
         self.values = values
@@ -41,10 +46,28 @@ class ConfigOption(menus.BasicOption):
         return self.name
 
     def width(self):
-        return 216
+        return 224
 
     def height(self):
         return 16
+
+    def move_left(self):
+        value = cf.SETTINGS[self.name]
+        if value in self.values:
+            idx = self.values.index(value)
+            idx = utilities.clamp(idx - 1, 0, len(self.values))
+            cf.SETTINGS[self.name] = self.values[idx]
+        else:
+            cf.SETTINGS[self.name] = self.values[0]
+
+    def move_right(self):
+        value = cf.SETTINGS[self.name]
+        if value in self.values:
+            idx = self.values.index(value)
+            idx = utilities.clamp(idx + 1, 0, len(self.values))
+            cf.SETTINGS[self.name] = self.values[idx]
+        else:
+            cf.SETTINGS[self.name] = self.values[-1]
 
 class SliderOption(ConfigOption):
     def __init__(self, idx, name, values, icon):
@@ -82,6 +105,14 @@ class ChoiceOption(ConfigOption):
         self.left_arrow = gui.ScrollArrow('left', (0, 0), 0)
         self.right_arrow = gui.ScrollArrow('right', (0, 0), 0.5)
 
+    def move_left(self):
+        super().move_left()
+        self.left_arrow.pulse()
+
+    def move_right(self):
+        super().move_right()
+        self.right_arrow.pulse()
+
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
         name_font = FONT['text_white']
@@ -89,7 +120,7 @@ class ChoiceOption(ConfigOption):
         value_font = FONT['text_blue']
         value = cf.SETTINGS[self.name]
         display_value = text_funcs.translate(value)
-        value_font.center_blit(display_value, surf, (x + 164, y))
+        value_font.blit_center(display_value, surf, (x + 164, y))
         self.draw_side_arrows(surf, x, y, active)
 
     def draw_side_arrows(self, surf, x, y, active):
@@ -105,33 +136,50 @@ class SimpleOption(ConfigOption):
         name_font = FONT['text_white']
         name_font.blit(self.display_name, surf, (x + 32, y))
         value = cf.SETTINGS[self.name]
-        if isinstance(self.values, bool):
-            if value:
-                on_font = FONT['text_blue']
-                off_font = FONT['text_grey']
+        
+        running_width = 0
+        for choice in self.values:
+            if choice == value:
+                font = FONT['text_blue']
             else:
-                on_font = FONT['text_grey']
-                off_font = FONT['text_blue']
-                on_str = text_funcs.translate('ON') + '    '
-            on_font.blit(on_str, surf, (x + 112, y))
-            off_font.blit(text_funcs.translate('OFF'), surf, (x + 112 + on_font.width(on_str)))
-        else:
-            running_width = 0
-            for choice in self.values:
-                if choice == value:
-                    font = FONT['text_blue']
-                else:
-                    font = FONT['text_grey']
-                text = text_funcs.translate(choice) + '    '
-                font.blit(text, surf, (x + 112 + running_width, y))
-                width = font.width(text)
-                running_width += width
+                font = FONT['text_grey']
+            text = text_funcs.translate(choice) + '    '
+            font.blit(text, surf, (x + 112 + running_width, y))
+            width = font.width(text)
+            running_width += width
 
+class BoolOption(ConfigOption):
+    def move_left(self):
+        value = cf.SETTINGS[self.name]
+        if not value:
+            cf.SETTINGS[self.name] = 1
+
+    def move_right(self):
+        value = cf.SETTINGS[self.name]
+        if value:
+            cf.SETTINGS[self.name] = 0
+
+    def draw(self, surf, x, y, active=False):
+        surf.blit(self.icon, (x + 16, y))
+        name_font = FONT['text_white']
+        name_font.blit(self.display_name, surf, (x + 32, y))
+        value = cf.SETTINGS[self.name]
+        
+        if value:
+            on_font = FONT['text_blue']
+            off_font = FONT['text_grey']
+        else:
+            on_font = FONT['text_grey']
+            off_font = FONT['text_blue']
+        on_str = text_funcs.translate('ON') + '    '
+        on_font.blit(on_str, surf, (x + 112, y))
+        off_font.blit(text_funcs.translate('OFF'), surf, (x + 112 + on_font.width(on_str), y))
+    
 class Controls(menus.Simple):
     def __init__(self, owner, options, background, icons, info=None):
-        super().__init__(owner, options, None, background, info)
         self.icons = icons
-        self.set_limit(5)
+        super().__init__(owner, options, None, background, info)
+        self.set_limit(6)
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
@@ -141,14 +189,20 @@ class Controls(menus.Simple):
                 option.help_box = help_menu.HelpDialog(info_descs[idx])
             self.options.append(option)
 
+    def move_left(self):
+        pass
+
+    def move_right(self):
+        pass
+
     def draw(self, surf):
-        topleft = (0, 32)
+        topleft = (8, 32)
         bg_surf = base_surf.create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
         bg_surf = image_mods.make_translucent(bg_surf, .1)
         surf.blit(bg_surf, topleft)
 
-        if len(self.options) > self.limit:
-            self.draw_scroll_bar(surf)
+        # if len(self.options) > self.limit:
+        #     self.draw_scroll_bar(surf)
 
         end_index = self.scroll + self.limit
         choices = self.options[self.scroll:end_index]
@@ -158,17 +212,17 @@ class Controls(menus.Simple):
             top = topleft[1] + 4 + running_height
             left = topleft[0]
 
-            active = (idx == self.current_index and self.takes_input)
+            active = (idx + self.scroll == self.current_index and self.takes_input)
             choice.draw(surf, left, top, active)
             if active:
-                self.cursor.draw(surf, left, top)
+                self.cursor.draw(surf, left + 8, top)
 
             running_height += choice.height()
 
         return surf
 
     def get_rects(self):
-        topleft = (0, 32)
+        topleft = (8, 32)
         end_index = self.scroll + self.limit
         choices = self.options[self.scroll:end_index]
         running_height = 0
@@ -184,15 +238,17 @@ class Controls(menus.Simple):
         return idxs, rects
 
 class Config(Controls):
-    def __init__(self, owner, options, background, icons, info):
-        super().__init__(self, owner, options, None, background, info)
+    def __init__(self, owner, options, background, icons, info=None):
+        super().__init__(owner, options, background, icons, info)
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
-            if isinstance(option[1][0], int) or isinstance(option[1][0], float):
+            if option[1] is bool:
+                option = BoolOption(idx, option[0], option[1], self.icons[idx])
+            elif isinstance(option[1][0], int) or isinstance(option[1][0], float):
                 option = SliderOption(idx, option[0], option[1], self.icons[idx])
-            else:  # Is a list of options
+            else:  # Is a list of text options or bool
                 if len(' '.join([text_funcs.translate(o) for o in option[1]])) > 16:  # Long list
                     option = ChoiceOption(idx, option[0], option[1], self.icons[idx])
                 else:  # Short list
@@ -200,3 +256,11 @@ class Config(Controls):
             if info_descs:
                 option.help_box = help_menu.HelpDialog(info_descs[idx])
             self.options.append(option)
+
+    def move_left(self):
+        option = self.get_current_option()
+        option.move_left()
+
+    def move_right(self):
+        option = self.get_current_option()
+        option.move_right()

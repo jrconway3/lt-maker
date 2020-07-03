@@ -20,6 +20,7 @@ def read_config_file():
                          ('confirm_end', 1),
                          ('hp_map_team', 'All'),
                          ('hp_map_cull', 'All'),
+                         ('display_hints', 0),
                          ('key_SELECT', 120),
                          ('key_BACK', 122),
                          ('key_INFO', 99),

@@ -50,5 +50,33 @@
     {
         "nid": "trade_select",
         "text": "Select a unit to trade with."
+    },
+    {
+        "nid": "Config_desc",
+        "text": "Change your settings."
+    },
+    {
+        "nid": "Controls_desc",
+        "text": "Change key mappings."
+    },
+    {
+        "nid": "Get_Input_desc",
+        "text": "Press a new key (or BACK to quit)"
+    },
+    {
+        "nid": "unit_speed_desc",
+        "text": "Set unit movement speed."
+    },
+    {
+        "nid": "text_speed_desc",
+        "text": "Set text speed."
+    },
+    {
+        "nid": "cursor_speed_desc",
+        "text": "Set cursor speed."
+    },
+    {
+        "nid": "show_terrain_desc",
+        "text": "Show Terrain Info window."
     }
 ]

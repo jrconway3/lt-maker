@@ -316,6 +316,9 @@ class Simple():
     def get_current(self):
         return self.options[self.current_index].get()
 
+    def get_current_option(self):
+        return self.options[self.current_index]
+
     def get_current_index(self):
         return self.current_index
 
@@ -330,11 +333,11 @@ class Simple():
     def move_down(self, first_push=True):
         if first_push:
             self.current_index += 1
-            if self.current_index > self.scroll + self.limit - 2:
-                self.scroll += 1
             if self.current_index > len(self.options) - 1:
                 self.current_index = 0
                 self.scroll = 0
+            elif self.current_index > self.scroll + self.limit - 2:
+                self.scroll += 1
             else:
                 self.cursor.y_offset -= 1
         else:
@@ -351,11 +354,11 @@ class Simple():
     def move_up(self, first_push=True):
         if first_push:
             self.current_index -= 1
-            if self.current_index < self.scroll + 1:
-                self.scroll -=1
             if self.current_index < 0:
                 self.current_index = len(self.options) - 1
                 self.scroll = self.current_index - self.limit + 1
+            elif self.current_index < self.scroll + 1:
+                self.scroll -= 1
             else:
                 self.cursor.y_offset += 1
         else:
@@ -560,14 +563,14 @@ class Choice(Simple):
                 top = topleft[1] + 4 + running_height
                 left = topleft[0]
 
-                if idx == self.current_index and self.takes_input and self.draw_cursor:
+                if idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
                     choice.draw_highlight(surf, left, top, menu_width)
-                if idx == self.fake_cursor_idx:
+                if idx + self.scroll == self.fake_cursor_idx:
                     choice.draw_highlight(surf, left, top, menu_width)
                 choice.draw(surf, left, top)
-                if idx == self.fake_cursor_idx:
+                if idx + self.scroll == self.fake_cursor_idx:
                     self.stationary_cursor.draw(surf, left, top)
-                if idx == self.current_index and self.takes_input and self.draw_cursor:
+                if idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
                     self.cursor.draw(surf, left, top)
                     
                 running_height += choice.height()

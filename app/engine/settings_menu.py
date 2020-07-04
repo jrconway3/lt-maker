@@ -26,7 +26,7 @@ class ControlOption(menus.BasicOption):
     def draw(self, surf, x, y, active=False):
         name_font = 'text_white'
         key_font = 'text_blue'
-        surf.blit(self.icon, (x + 16, y))
+        surf.blit(self.icon, (x + 32 - self.icon.get_height()//2, y + 8 - self.icon.get_height()//2))
         FONT[name_font].blit(self.display_name, surf, (x + 56, y))
         key_name = engine.get_key_name(cf.SETTINGS[self.name])
         FONT[key_font].blit(key_name, surf, (x + 128, y))
@@ -52,19 +52,31 @@ class ConfigOption(menus.BasicOption):
         return 16
 
     def move_left(self):
-        value = cf.SETTINGS[self.name]
+        value = str(cf.SETTINGS[self.name])
         if value in self.values:
             idx = self.values.index(value)
-            idx = utilities.clamp(idx - 1, 0, len(self.values))
+            idx = utilities.clamp(idx - 1, 0, len(self.values) - 1)
             cf.SETTINGS[self.name] = self.values[idx]
         else:
             cf.SETTINGS[self.name] = self.values[0]
 
     def move_right(self):
-        value = cf.SETTINGS[self.name]
+        value = str(cf.SETTINGS[self.name])
         if value in self.values:
             idx = self.values.index(value)
-            idx = utilities.clamp(idx + 1, 0, len(self.values))
+            idx = utilities.clamp(idx + 1, 0, len(self.values) - 1)
+            cf.SETTINGS[self.name] = self.values[idx]
+        else:
+            cf.SETTINGS[self.name] = self.values[-1]
+
+    def move_next(self):
+        """
+        Always move to the next one, even if it has to backwards
+        """
+        value = str(cf.SETTINGS[self.name])
+        if value in self.values:
+            idx = self.values.index(value)
+            idx = (idx + 1) % len(self.values)
             cf.SETTINGS[self.name] = self.values[idx]
         else:
             cf.SETTINGS[self.name] = self.values[-1]
@@ -106,11 +118,23 @@ class ChoiceOption(ConfigOption):
         self.right_arrow = gui.ScrollArrow('right', (0, 0), 0.5)
 
     def move_left(self):
-        super().move_left()
+        value = cf.SETTINGS[self.name]
+        if value in self.values:
+            idx = self.values.index(value)
+            idx = (idx - 1) % len(self.values)
+            cf.SETTINGS[self.name] = self.values[idx]
+        else:
+            cf.SETTINGS[self.name] = self.values[0]
         self.left_arrow.pulse()
 
     def move_right(self):
-        super().move_right()
+        value = cf.SETTINGS[self.name]
+        if value in self.values:
+            idx = self.values.index(value)
+            idx = (idx + 1) % len(self.values)
+            cf.SETTINGS[self.name] = self.values[idx]
+        else:
+            cf.SETTINGS[self.name] = self.values[-1]
         self.right_arrow.pulse()
 
     def draw(self, surf, x, y, active=False):
@@ -135,7 +159,7 @@ class SimpleOption(ConfigOption):
         surf.blit(self.icon, (x + 16, y))
         name_font = FONT['text_white']
         name_font.blit(self.display_name, surf, (x + 32, y))
-        value = cf.SETTINGS[self.name]
+        value = str(cf.SETTINGS[self.name])
         
         running_width = 0
         for choice in self.values:
@@ -158,6 +182,13 @@ class BoolOption(ConfigOption):
         value = cf.SETTINGS[self.name]
         if value:
             cf.SETTINGS[self.name] = 0
+
+    def move_next(self):
+        value = cf.SETTINGS[self.name]
+        if value:
+            cf.SETTINGS[self.name] = 0
+        else:
+            cf.SETTINGS[self.name] = 1
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
@@ -195,14 +226,17 @@ class Controls(menus.Simple):
     def move_right(self):
         pass
 
+    def move_next(self):
+        pass
+
     def draw(self, surf):
-        topleft = (8, 32)
+        topleft = (8, 34)
         bg_surf = base_surf.create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
         bg_surf = image_mods.make_translucent(bg_surf, .1)
         surf.blit(bg_surf, topleft)
 
-        # if len(self.options) > self.limit:
-        #     self.draw_scroll_bar(surf)
+        if len(self.options) > self.limit:
+            self.draw_scroll_bar(surf, topleft)
 
         end_index = self.scroll + self.limit
         choices = self.options[self.scroll:end_index]
@@ -210,7 +244,7 @@ class Controls(menus.Simple):
 
         for idx, choice in enumerate(choices):
             top = topleft[1] + 4 + running_height
-            left = topleft[0]
+            left = topleft[0] - 4
 
             active = (idx + self.scroll == self.current_index and self.takes_input)
             choice.draw(surf, left, top, active)
@@ -222,14 +256,14 @@ class Controls(menus.Simple):
         return surf
 
     def get_rects(self):
-        topleft = (8, 32)
+        topleft = (8, 34)
         end_index = self.scroll + self.limit
         choices = self.options[self.scroll:end_index]
         running_height = 0
         idxs, rects = [], []
         for idx, choice in enumerate(choices):
             top = topleft[1] + 4 + running_height
-            left = topleft[0]
+            left = topleft[0] - 4
             rect = (left, top, choice.width(), choice.height())
             rects.append(rect)
             idxs.append(self.scroll + idx)
@@ -264,3 +298,8 @@ class Config(Controls):
     def move_right(self):
         option = self.get_current_option()
         option.move_right()
+
+    def move_next(self):
+        option = self.get_current_option()
+        option.move_next()
+

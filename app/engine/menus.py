@@ -8,6 +8,7 @@ from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 
 from app.engine import engine, image_mods, icons, help_menu, text_funcs
+from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
 from app.engine.game_state import game
 
@@ -276,6 +277,7 @@ class Simple():
         self.create_options(options, info)
 
         self.cursor = Cursor()
+        self.scroll_bar = ScrollBar()
         self.draw_cursor = 1  # 0 No draw, 1 Regular, 2 Draw but no move
 
         self.takes_input = True
@@ -414,6 +416,11 @@ class Simple():
         if self.draw_cursor == 1:
             self.cursor.update()
 
+    def draw_scroll_bar(self, surf, topleft):
+        right = topleft[0] + self.get_menu_width()
+        topright = (right, topleft[1])
+        self.scroll_bar.draw(surf, topright, self.scroll, self.limit, len(self.options))
+
     # For mouse handling
     def get_rects(self):
         return NotImplementedError
@@ -551,7 +558,7 @@ class Choice(Simple):
         surf.blit(bg_surf, (topleft[0] - 2, topleft[1] - 4))
 
         if len(self.options) > self.limit:
-            self.draw_scroll_bar(surf)
+            self.draw_scroll_bar(surf, topleft)
 
         start_index = self.scroll
         end_index = self.scroll + self.limit
@@ -607,9 +614,6 @@ class Choice(Simple):
                 running_width += choice.width() + 8
         else:
             FONT['text_grey'].blit("Nothing", bg_surf, (self.topleft[0] + 8, self.topleft[1] + 4))
-        return surf
-
-    def draw_scroll_bar(self, surf):
         return surf
 
     # For mouse handling

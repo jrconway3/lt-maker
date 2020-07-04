@@ -100,3 +100,49 @@ class ScrollArrow():
         elif self.direction == 'right':
             pos = (self.x - (self.offset.pop() if self.offset else 0), self.y)
             surf.blit(engine.subsurface(self.images['right'], (self.arrow_counter.get() * 8, 0, 8, 14)), pos)
+
+class ScrollBar():
+    top = engine.subsurface(SPRITES.get('scroll_bar'), (0, 0, 7, 1))
+    bottom = engine.subsurface(SPRITES.get('scroll_bar'), (0, 2, 7, 1))
+    middle = engine.subsurface(SPRITES.get('scroll_bar'), (0, 1, 7, 1))
+    fill = engine.subsurface(SPRITES.get('scroll_bar'), (0, 3, 7, 1))
+
+    def __init__(self):
+        self.arrow_counter = counters.arrow_counter()
+
+    def draw(self, surf, topright, scroll, limit, num_options):
+        """
+        surf -- Surface to draw the scroll bar on
+        topright -- Topright coordinate to display scroll bar
+        scroll -- How far down the menu has scrolled
+        limit -- How many options can be displayed at once
+        num_options -- Total number of options in menu
+        """
+        self.arrow_counter.update()
+
+        # Get properties
+        x = topright[0] - 10
+        y = topright[1] + 12
+        height = limit * 16 - 20
+        start_fraction = scroll / num_options
+        end_fraction = min(1, (scroll + limit) / num_options)
+
+        # Draw parts
+        surf.blit(self.top, (x, y))
+        surf.blit(self.bottom, (x, y + height + 2))
+        for num in range(1, height + 2):
+            surf.blit(self.middle, (x, y + num))
+
+        # Draw bar
+        start_pos = int(start_fraction * height)
+        end_pos = int(end_fraction * height)
+        for num in range(start_pos, end_pos + 1):
+            surf.blit(self.fill, (x, y + num + 1))
+
+        # Draw arrows
+        if start_pos > 0:
+            top_arrow = engine.subsurface(SPRITES.get('scroll_bar'), (8, 4 + self.arrow_counter.get() * 6, 8, 6))
+            surf.blit(top_arrow, (x - 1, y - 7))
+        if end_pos < height:
+            bottom_arrow = engine.subsurface(SPRITES.get('scroll_bar'), (0, 4 + self.arrow_counter.get() * 6, 8, 6))
+            surf.blit(bottom_arrow, (x - 1, y + height + 4))

@@ -65,18 +65,62 @@
     },
     {
         "nid": "unit_speed_desc",
-        "text": "Set unit movement speed."
+        "text": "Change unit movement speed."
     },
     {
         "nid": "text_speed_desc",
-        "text": "Set text speed."
+        "text": "Change text speed."
     },
     {
         "nid": "cursor_speed_desc",
-        "text": "Set cursor speed."
+        "text": "Change cursor speed."
     },
     {
         "nid": "show_terrain_desc",
         "text": "Show Terrain Info window."
+    },
+    {
+        "nid": "show_objective_desc",
+        "text": "Show Chapter Goal window."
+    },
+    {
+        "nid": "display_hints_desc",
+        "text": "Show tutorial popups."
+    },
+    {
+        "nid": "confirm_end_desc",
+        "text": "Ask again before manually ending turn?."
+    },
+    {
+        "nid": "autoend_desc",
+        "text": "End turn when no moves are available."
+    },
+    {
+        "nid": "sound_volume_desc",
+        "text": "Change sound effect volume."
+    },
+    {
+        "nid": "music_volume_desc",
+        "text": "Change music volume."
+    },
+    {
+        "nid": "hp_map_cull_desc",
+        "text": "Change what kind of units should display HP."
+    },
+    {
+        "nid": "hp_map_team_desc",
+        "text": "Change which teams should display HP bars."
+    },
+    {
+        "nid": "autocursor_desc",
+        "text": "Set cursor to start on main hero."
+    },
+    {
+        "nid": "temp_screen_size_desc",
+        "text": "Restart for change to take effect."
+    },
+    {
+        "nid": "keymap_desc",
+        "text": "Change keyboard bindings."
     }
 ]

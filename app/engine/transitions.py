@@ -20,8 +20,8 @@ class TransitionInState(State):
             self.transition_speed = transition_speed
 
     def draw(self, surf):
-        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, self.bg)
+        bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, bg)
 
         self.counter += self.transition_speed
         if self.counter >= transition_max:
@@ -44,8 +44,8 @@ class TransitionOutState(State):
         self.counter = transition_max
 
     def draw(self, surf):
-        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, self.bg)
+        bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, bg)
 
         self.counter -= self.transition_speed
         if self.counter <= 0:
@@ -59,8 +59,8 @@ class TransitionPopState(TransitionOutState):
     name = 'transition_pop'
 
     def draw(self, surf):
-        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, self.bg)
+        bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, bg)
 
         self.counter -= self.transition_speed
         if self.counter <= 0:
@@ -72,8 +72,8 @@ class TransitionDoublePopState(TransitionPopState):
     name = 'transition_double_pop'
 
     def draw(self, surf):
-        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, self.bg)
+        bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, bg)
 
         self.counter -= self.transition_speed
         if self.counter <= 0:
@@ -87,8 +87,8 @@ class TransitionToState(TransitionOutState):
     transparent = True
 
     def draw(self, surf):
-        self.bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, self.bg)
+        bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, bg)
 
         self.counter -= self.transition_speed
         if self.counter <= 0:

@@ -7,7 +7,7 @@ from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
-from app.engine import engine, background, banner, settings_menu, base_surf, text_funcs
+from app.engine import engine, background, banner, menus, settings_menu, base_surf, text_funcs
 from app.engine.game_state import game
 
 controls = {'key_SELECT': engine.subsurface(SPRITES.get('buttons'), (0, 66, 14, 13)),
@@ -53,6 +53,7 @@ class SettingsMenuState(State):
                 self.bg = background.PanoramaBackground(panorama)
             else:
                 self.bg = background.ScrollingBackground(panorama)
+                self.bg.scroll_speed = 50  # Make it move slower
         else:
             self.bg = None
 
@@ -64,9 +65,13 @@ class SettingsMenuState(State):
         control_options = control_order
         control_icons = [controls[c] for c in control_options]
         self.controls_menu = settings_menu.Controls(None, control_options, 'menu_bg_base', control_icons)
+        self.controls_menu.takes_input = False
 
         config_options = [(c[0], c[1]) for c in config]
         self.config_menu = settings_menu.Config(None, config_options, 'menu_bg_base', config_icons)
+        self.config_menu.takes_input = False
+
+        self.top_cursor = menus.Cursor()
 
         game.state.change('transition_in')
         return 'repeat'
@@ -77,6 +82,36 @@ class SettingsMenuState(State):
             return self.config_menu
         else:
             return self.controls_menu
+
+    def handle_mouse(self):
+        mouse_position = game.input_manager.get_mouse_position()
+        if mouse_position:
+            mouse_x, mouse_y = mouse_position
+            top_left_rect = (4, 4, 112, 24)
+            top_right_rect = (WINWIDTH//2 + 4, 4, 112, 24)
+            # Test left rect
+            x, y, width, height = top_left_rect
+            if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                self.current_menu.takes_input = False
+                self.state = 'top_menu_left'
+                return
+            # Test right rect
+            x, y, width, height = top_right_rect
+            if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                self.current_menu.takes_input = False
+                self.state = 'top_menu_right'
+                return
+            current_idxs, current_option_rects = self.current_menu.get_rects()
+            for idx, option_rect in zip(current_idxs, current_option_rects):
+                x, y, width, height = option_rect
+                if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                    if self.state in ('top_menu_left', 'config'):
+                        self.state = 'config'
+                    else:
+                        self.state = 'controls'
+                    self.current_menu.takes_input = True
+                    self.current_menu.move_to(idx)
+                    return
 
     def take_input(self, event):
         if self.state == 'get_input':
@@ -99,12 +134,14 @@ class SettingsMenuState(State):
                 game.alerts.append(banner.Custom(text))
                 game.state.change('alert')
         elif self.state in ('top_menu_left', 'top_menu_right'):
+            self.handle_mouse()
             if event == 'DOWN':
                 SOUNDTHREAD.play_sfx('Select 6')
                 if self.state == 'top_menu_left':
                     self.state = 'config'
                 else:
                     self.state = 'controls'
+                self.current_menu.takes_input = True
             elif event == 'LEFT':
                 if self.state == 'top_menu_right':
                     SOUNDTHREAD.play_sfx('Select 6')
@@ -116,13 +153,14 @@ class SettingsMenuState(State):
             elif event == 'BACK':
                 self.back()
         else:
-            self.current_menu.handle_mouse()
+            self.handle_mouse()
             if event == 'DOWN':
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.current_menu.move_down()
             elif event == 'UP':
                 SOUNDTHREAD.play_sfx('Select 6')
                 if self.current_menu.get_current_index() <= 0:
+                    self.current_menu.takes_input = False
                     if self.state == 'config':
                         self.state = 'top_menu_left'
                     else:
@@ -140,17 +178,19 @@ class SettingsMenuState(State):
                 self.back()
 
             elif event == 'SELECT':
-                selection = self.current_menu.get_current()
-                if self.current_menu is self.top_menu:
+                if self.state in ('top_menu_left', 'top_menu_right'):
                     SOUNDTHREAD.play_sfx('Select 1')
-                    if selection == 'config':
-                        # Transition to config menu state
+                    if self.state == 'top_menu_left':
                         self.state = 'config'
-                    elif selection == 'controls':
+                    else:
                         self.state = 'controls'
+                    self.current_menu.takes_input = True
                 elif self.state == 'controls':
                     self.state = 'get_input'
                     game.input_manager.set_change_keymap(True)
+                elif self.state == 'config':
+                    SOUNDTHREAD.play_sfx('Select 6')
+                    self.current_menu.move_next()
 
     def back(self):
         SOUNDTHREAD.play_sfx('Select 4')
@@ -159,17 +199,22 @@ class SettingsMenuState(State):
 
     def update(self):
         self.current_menu.update()
+        self.top_cursor.update()
 
     def draw_top_menu(self, surf):
         bg = base_surf.create_base_surf(112, 24, 'menu_bg_clear')
         surf.blit(bg, (4, 4))
         surf.blit(bg, (WINWIDTH//2 + 4, 4))
         if self.current_menu is self.config_menu:
-            FONT['text_yellow'].blit_center('Config', surf, (4 + 112/2, 8))
-            FONT['text_grey'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112/2, 8))
+            FONT['text_yellow'].blit_center('Config', surf, (4 + 112//2, 8))
+            FONT['text_grey'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112//2, 8))
+            if self.state in ('top_menu_left', 'top_menu_right'):
+                self.top_cursor.draw(surf, 112//2 - 16, 8)
         else:
             FONT['text_grey'].blit_center('Config', surf, (4 + 112/2, 8))
-            FONT['text_yellow'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112/2, 8))
+            FONT['text_yellow'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112//2, 8))
+            if self.state in ('top_menu_left', 'top_menu_right'):
+                self.top_cursor.draw(surf, WINWIDTH//2 + 2 + 112//2 - 16, 8)
 
     def draw_info_banner(self, surf):
         height = 16

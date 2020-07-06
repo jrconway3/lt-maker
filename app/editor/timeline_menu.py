@@ -2,7 +2,7 @@ import functools
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
     QListWidgetItem, QLineEdit, QToolButton, QApplication, QMenu, QToolBar
-# from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
 from app.resources import combat_commands
@@ -11,12 +11,50 @@ from app.editor import combat_command_widgets
 from app.extensions.widget_list import WidgetList
 
 class TimelineList(WidgetList):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.CustomContextMenuRequested.connect(self.customMenuRequested)
+
+    def customMenuRequested(self, pos):
+        index = self.indexAt(pos)
+        menu = QMenu(self)
+
+        if index.isValid():
+            duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index))
+            menu.addAction(duplicate_action)
+            delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
+            menu.addAction(delete_action)
+            if len(self.index_list) <= 1:
+                delete_action.setEnabled(False)
+
+            menu.popup(self.viewport().mapToGlobal(pos))
+
+    def duplicate(self, index):
+        idx = index.row()
+        command = self.index_list[idx]
+        self.window.current_pose.timeline.insert_command(idx + 1, command)
+
+    def delete(self, index):
+        idx = index.row()
+        command = self.index_list[idx]
+        self.remove_command(command)
+
     def add_command_widget(self, command_widget):
         item = QListWidgetItem()
         item.setSizeHint(command_widget.sizeHint())
         self.addItem(item)
         self.setItemWidget(item, command_widget)
         self.index_list.append(command_widget._data)
+        return item
+
+    def insert_command_widget(self, idx, command_widget):
+        item = QListWidgetItem()
+        item.setSizeHint(command_widget.sizeHint())
+        self.insertItem(idx, item)
+        self.setItemWidget(item, command_widget)
+        self.index_list.insert(idx, command_widget._data)
         return item
 
     def remove_command(self, command):
@@ -75,7 +113,7 @@ class TimelineMenu(QWidget):
 
         self.view.clear()
         for idx, command in enumerate(self.current_pose.timeline):
-            self.add_command(command)
+            self.add_command_widget(command)
 
         self.select(self.current_idx)
 
@@ -106,12 +144,26 @@ class TimelineMenu(QWidget):
         self.view.remove_command(command)
 
     def add_command(self, command):
+        self.current_pose.timeline.append(command)
+        self.add_command_widget(command)
+
+    def insert_command(self, idx, command):
+        self.current_pose.timeline.insert(idx, command)
+        command_widget = \
+            combat_command_widgets.get_command_widget(command, self)
+        self.view.insert_command_widget(idx, command_widget)
+
+    def add_command_widget(self, command):
         command_widget = \
             combat_command_widgets.get_command_widget(command, self)
         self.view.add_command_widget(command_widget)
 
     def command_moved(self, start, end):
-        self.current_pose.timeline.move_index(start, end)
+        # self.current_pose.timeline.move_index(start, end)
+        if start == end:
+            return
+        obj = self.current_pose.timeline.pop(start)
+        self.current_pose.timeline.insert(end, obj)
 
     def add_text(self):
         try:

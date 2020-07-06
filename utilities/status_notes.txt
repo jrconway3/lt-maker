@@ -1,0 +1,41 @@
+# Status Plugin Slots
+Player Upkeep
+Enemy Upkeep
+Stat Change (Additive, Multiplicative)
+Compute Check (compute_damage, compute_hit, etc.)
+Regular Check (Damage, Resist, Hit, Avoid, etc.)
+Solver Check (Lifelink, Status, Evasion, Devil Axe)
+Post-Combat Check (Status After Battle, Status After Kill)
+Unselectable
+Weapon Wield Change
+On Status Add
+    AI Change
+    Team Change
+    Flying
+    Acrobat
+On Status Remove
+    Ephemeral
+    Raging
+Status Reflect
+Status Immune
+Movement Immune
+Conditional Child Statuses (Always check for these)
+Hidden
+Feat
+Shop Check (Silver Card)
+Exp/Weapon Exp Check (Paragon)
+Canto, Canto Plus, Canto Sharp
+Pass
+Time
+Lost on Attack, Lost on Interact, Lost on Endstep
+Stack
+Steal
+Charge Meter
+Combat Art (Allows New Option from Menu which applies conditional status until combat is over) (Determines what kind of weapons are allowed to be used)
+Activated Item (Allows New Option from Menu which gives access to an item to be used)
+Automatic Combat Art (Combination of Upkeep Check, Charge Meter, and Weapon/Exp Check)
+Attack Proc/Defense Proc/Adept Proc (Solver check?)
+Defense Pre Proc, Attack Pre Proc (Pre-Solver Check?)
+Combat Round Check
+Item Mod (Longshot, Slayer)
+Aura (has target)

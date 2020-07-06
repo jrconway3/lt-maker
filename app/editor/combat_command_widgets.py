@@ -34,11 +34,11 @@ class CombatCommand(QWidget):
 
         self.create_editor(hbox)
 
-        x_button = QToolButton(self)
-        x_button.setIcon(QIcon("icons/x.png"))
-        x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
-        x_button.clicked.connect(functools.partial(self.window.remove_command, self._data))
-        hbox.addWidget(x_button, Qt.AlignRight)
+        # x_button = QToolButton(self)
+        # x_button.setIcon(QIcon("icons/x.png"))
+        # x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
+        # x_button.clicked.connect(functools.partial(self.window.remove_command, self._data))
+        # hbox.addWidget(x_button, Qt.AlignRight)
 
     def create_editor(self, hbox):
         raise NotImplementedError

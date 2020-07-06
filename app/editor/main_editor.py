@@ -1,4 +1,4 @@
-import os
+import os, sys
 from datetime import datetime
 import json
 
@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox
     QToolButton, QWidgetAction
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
+
+from app import update
 
 from app.data.constants import VERSION
 from app.resources.resources import RESOURCES
@@ -158,6 +160,7 @@ class MainEditor(QMainWindow):
 
         self.preferences_act = QAction("&Preferences...", self, triggered=self.edit_preferences)
         self.about_act = QAction("&About", self, triggered=self.about)
+        self.check_for_updates_act = QAction("Check for updates...", self, triggered=self.check_for_updates)
 
         # Test actions
         self.test_current_act = QAction(QIcon('icons/play.png'), "Test Current Chapter...", self, shortcut="F5", triggered=self.test_play_current)
@@ -200,6 +203,7 @@ class MainEditor(QMainWindow):
         help_menu = QMenu("Help", self)
         help_menu.addAction(self.about_act)
         help_menu.addAction(self.preferences_act)
+        help_menu.addAction(self.check_for_updates_act)
 
         self.menuBar().addMenu(file_menu)
         self.menuBar().addMenu(edit_menu)
@@ -511,6 +515,27 @@ class MainEditor(QMainWindow):
             "for more information and helpful tutorials.</p>"
             "<p>This program has been freely distributed under the MIT License.</p>"
             "<p>Copyright 2014-2020 rainlash.</p>")
+
+    def check_for_updates(self):
+        # Only check for updates in frozen version
+        if hasattr(sys, 'frozen'):
+            if update.check_for_update():
+                ret = QMessageBox.information(self, "Update Available", "A new update to LT-maker is available!\n"
+                                              "Do you want to download and install now?",
+                                              QMessageBox.Yes | QMessageBox.No)
+                if ret == QMessageBox.Yes:
+                    if self.maybe_save():
+                        updating = update.update()
+                        if updating:
+                            # Force quit!!!
+                            sys.exit()
+                        else:
+                            QMessageBox.critical(self, "Error", "Failed to update?")
+            else:
+                QMessageBox.information(self, "Update not found", "No updates found.")
+        else:
+            QMessageBox.warning(self, "Update unavailable", "<p>LT-maker can only automatically update the executable version.</p>"
+                                      "<p>Use <b>git fetch</b> and <b>git pull</b> to download the latest git repo updates instead.</p>")
 
 # Testing
 # Run "python -m app.editor.main_editor" from main directory

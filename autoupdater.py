@@ -32,7 +32,7 @@ def autoupdate(local, remote_lnk):
             print("Extracting...")
             z.extractall(remote_dir)
         print("Done extracting to %s" % remote_dir)
-        shutil.copytree(os.path.join(remote_dir, 'lt_engine/lt_engine'), tmp)
+        shutil.copytree(os.path.join(remote_dir, 'lt-maker/lt-maker'), tmp)
     except OSError as e:
         print("Failed to fully unzip remote %s! %s" % (remote_dir, e))
         return
@@ -47,7 +47,7 @@ def autoupdate(local, remote_lnk):
         print("Failed to copy saves or project files to tmp directory %s! %s" % (tmp, e))
         return
 
-    print("Your new engine is located here: %s" % tmp)
+    print("Your new editor is located here: %s" % tmp)
     print("Your saves have been copied.")
     print("All .ltproj files have been copied as well.")
     print("You can delete the current directory, and then")

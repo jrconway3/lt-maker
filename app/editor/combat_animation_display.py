@@ -153,6 +153,7 @@ class CombatAnimProperties(QWidget):
         self.frame_nid = None
         self.over_frame_nid = None
         self.under_frame_nid = None
+        self.custom_frame_offset = None
 
         self.anim_view = AnimView(self)
         self.anim_view.static_size = True
@@ -691,12 +692,32 @@ class CombatAnimProperties(QWidget):
             self.timeline_menu.inc_current_idx()
 
     def do_command(self, command):
-        if command.nid == 'frame':
+        self.custom_frame_offset = None
+        if command.nid in ('frame', 'over_frame', 'under_frame'):
             num_frames, image = command.value
             self.num_frames = num_frames
             self.last_update = self.next_update
             self.processing = False
             self.frame_nid = image
+        elif command.nid == 'wait':
+            self.num_frames = command.value
+            self.last_update = self.next_update
+            self.processing = False
+            self.frame_nid = None
+        elif command.nid == 'dual_frame':
+            num_frames, image1, image2 = command.value
+            self.num_frames = num_frames
+            self.last_update = self.next_update
+            self.processing = False
+            self.frame_nid = image1
+            self.under_frame_nid = image2
+        elif command.nid == 'frame_with_offset':
+            num_frames, image, x, y = command.value
+            self.num_frames = num_frames
+            self.last_update = self.next_update
+            self.processing = False
+            self.frame_nid = image
+            self.custom_frame_offset = (x, y)
         else:
             pass
 
@@ -708,18 +729,32 @@ class CombatAnimProperties(QWidget):
         # And place in space according to offset
         actor_im = None
         offset_x, offset_y = 0, 0
+        under_actor_im = None
+        under_offset_x, under_offset_y = 0, 0
+
         if self.frame_nid:
             weapon_anim = self.get_current_weapon_anim()
             frame = weapon_anim.frames.get(self.frame_nid)
             if frame:
-                offset_x, offset_y = frame.offset
+                if self.custom_frame_offset:
+                    offset_x, offset_y = self.frame_offset
+                else:
+                    offset_x, offset_y = frame.offset
                 actor_im = self.modify_for_palette(frame.pixmap)
-        
+        if self.under_frame_nid:
+            weapon_anim = self.get_current_weapon_anim()
+            frame = weapon_anim.frames.get(self.frame_nid)
+            if frame:
+                under_offset_x, under_offset_y = frame.offset
+                under_actor_im = self.modify_for_palette(frame.pixmap)
+
         base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
         base_image.fill(editor_utilities.qCOLORKEY)
         if actor_im:
             painter = QPainter()
             painter.begin(base_image)
+            if under_actor_im:
+                painter.drawImage(under_offset_x, under_offset_y, under_actor_im)
             painter.drawImage(offset_x, offset_y, actor_im)
             painter.end()
         self.anim_view.set_image(QPixmap.fromImage(base_image))

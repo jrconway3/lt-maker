@@ -152,7 +152,7 @@ class PropertyCheckBox(QWidget):
         # layout.addWidget(self.label)
         # layout.setAlignment(self.label, Qt.AlignLeft)
 
-class RightClickView(object):
+class RightClickView():
     def __init__(self, action_funcs=None, parent=None):
         super().__init__(parent)
         self.window = parent

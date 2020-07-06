@@ -26,7 +26,7 @@ class ControlOption(menus.BasicOption):
     def draw(self, surf, x, y, active=False):
         name_font = 'text_white'
         key_font = 'text_blue'
-        surf.blit(self.icon, (x + 32 - self.icon.get_height()//2, y + 8 - self.icon.get_height()//2))
+        surf.blit(self.icon, (x + 32 - self.icon.get_width()//2, y + 8 - self.icon.get_height()//2))
         FONT[name_font].blit(self.display_name, surf, (x + 56, y))
         key_name = engine.get_key_name(cf.SETTINGS[self.name])
         FONT[key_font].blit(key_name, surf, (x + 128, y))

@@ -3,7 +3,7 @@
 Editor:
 * Rescuing/Dropping/etc.
 * Enemy AI (Secondary)
-OptionsMenu
+* Settings Menu -- get input testing
 * Turnwheel (More testing)
 * Suspending
     - Register items, statuses, and units with the save_state manager
@@ -20,24 +20,28 @@ Level-up
 * Level-up animations
 Promotion
 * Music/Sounds in engine
-* Remove Gender
-
-*Set Enabled to False when no current object is present
 
 Music won't play if reloaded
 
 # For interaction
 * Add New, Duplicate, Delete to Palettes
-Add in-game Animation interaction combat
 
 Equations check their validity
+
+Load GBA map sprites
+
+Combat Editor
+-- Combat Effects
+-- Load from GBA
+-- Load from Image Files
+-- Interaction in game
 
 Tilemap Editor
 -- Autotile layer
 -- Let *Eraser and *Fill work in terrain
 -- *Remove Edit Terrain -- *Make Reset Terrain work
 
-Auto-update
+Auto-update -- TEST
 No need for launcher
 If using engine-solo, unlikely to be playing more than one game at a time. Even so, if multiple .ltproj files detected by engine, prompt you to choose before playing.
 editor doesn't need launcher -- just open projects from File Menu.

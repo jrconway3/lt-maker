@@ -3,7 +3,7 @@ import urllib.request
 
 from app.data.constants import VERSION
 
-remote_repo = r"https://www.dropbox.com/s/lil6j8mf6dclz6f/lt_engine.zip?dl=1"
+remote_repo = r"https://www.dropbox.com/s/lil6j8mf6dclz6f/lt_maker.zip?dl=1"
 remote_metadata = r"https://www.dropbox.com/s/3kilsxojvdiogvb/metadata.txt?dl=1"
 
 def check_version(a: str, b: str) -> bool:

@@ -58,7 +58,7 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
         for idx, attr in enumerate(command.attr):
             value = parse_attr(attr, split_text[idx + 1])
             values.append(value)
-    else:
+    elif command.attr:
         value = parse_attr(command.attr, split_text[1])
         values.append(value)
     if len(values) == 0:

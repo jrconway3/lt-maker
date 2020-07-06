@@ -278,6 +278,7 @@ class Simple():
 
         self.cursor = Cursor()
         self.scroll_bar = ScrollBar()
+        self.next_scroll_time = 0
         self.draw_cursor = 1  # 0 No draw, 1 Regular, 2 Draw but no move
 
         self.takes_input = True
@@ -330,7 +331,15 @@ class Simple():
                 self.current_index = idx
 
     def move_to(self, idx):
-        self.current_index = idx
+        if engine.get_time() > self.next_scroll_time:
+            scroll = self.scroll
+            while self.current_index < idx:
+                self.move_down()
+            while self.current_index > idx:
+                self.move_up()
+            # If we did scroll
+            if scroll != self.scroll:  # Wait 50 milliseconds
+                self.next_scroll_time = engine.get_time() + 50
 
     def move_down(self, first_push=True):
         if first_push:

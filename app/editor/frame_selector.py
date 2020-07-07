@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QListView, QDialog, \
     QPushButton, QFileDialog, QMessageBox, QGroupBox, QFormLayout, QSpinBox
 from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter
+from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, QColor
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 
@@ -31,14 +31,13 @@ class FrameModel(ResourceCollectionModel):
         return None
 
 class FrameSelector(Dialog):
-    def __init__(self, frames, parent=None):
+    def __init__(self, weapon_anim, parent=None):
         super().__init__(parent)
         self.window = parent
         self.setWindowTitle("Animation Frames")
 
-        self.frames = frames
-        for frame in self.frames:
-            frame.pixmap = QPixmap(frame.full_path)
+        self.weapon_anim = weapon_anim
+        self.frames = weapon_anim.frames
         if self.frames:
             self.current = self.frames[0]
         else:
@@ -104,8 +103,39 @@ class FrameSelector(Dialog):
                     self.set_current(new_frame)
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Portrait must be PNG format!")
+            self.update_weapon_anim_pixmap()
             parent_dir = os.path.split(fns[-1])[0]
             settings.setValue("last_open_path", parent_dir)
+
+    def update_weapon_anim_pixmap(self):
+        width_limit = 1200
+        left = 0
+        heights = []
+        max_heights = []
+        for frame in self.frames:
+            x, y, width, height = frame.rect
+            if left + width > width_limit:
+                max_heights.append(max(heights))
+                frame.rect = (0, sum(max_heights), width, height)
+                heights = [height]
+                left = width
+            else:
+                frame.rect = (left, sum(max_heights), width, height)
+                left += width
+                heights.append(height)
+
+        total_width = min(width_limit, sum(frame.rect[2] for frame in self.frames))
+        total_height = sum(max_heights)
+        print(total_width, total_height)
+        new_pixmap = QPixmap(total_width, total_height)
+        new_pixmap.fill(QColor(editor_utilities.qCOLORKEY))
+        painter = QPainter()
+        painter.begin(new_pixmap)
+        for frame in self.frames:
+            x, y, width, height = frame.rect
+            painter.drawPixmap(frame.pixmap, (x, y, width, height))
+        painter.end()
+        self.weapon_anim.pixmap = new_pixmap
 
     def on_item_changed(self, curr, prev):
         if self.frames:
@@ -140,8 +170,8 @@ class FrameSelector(Dialog):
         self.display.show_image()
 
     @classmethod
-    def get(cls, frames, parent=None):
-        dlg = cls(frames, parent)
+    def get(cls, weapon_anim, parent=None):
+        dlg = cls(weapon_anim, parent)
         result = dlg.exec_()
         if result == QDialog.Accepted:
             return dlg.current, True

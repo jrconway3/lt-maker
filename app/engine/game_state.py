@@ -7,7 +7,8 @@ from app.data.items import Item
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
-from app.engine import state_machine, input_manager, static_random, a_star, equations
+from app.parsers import equations
+from app.engine import state_machine, input_manager, static_random, a_star
 from app.engine import config as cf
 
 import logging
@@ -107,7 +108,7 @@ class GameState():
         """
         self.generic()
         
-        from app.data.level_object import LevelObject
+        from app.engine.level_object import LevelObject
         level_prefab = DB.levels.get(level_nid)
         tilemap_nid = level_prefab.tilemap
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
@@ -158,8 +159,8 @@ class GameState():
 
     def load(self, s_dict):
         from app.engine import turnwheel
-        from app.data.unit_object import UnitObject
-        from app.data.level_object import LevelObject
+        from app.engine.unit_object import UnitObject
+        from app.engine.level_object import LevelObject
 
         logger.info("Loading Game...")
         self.game_constants = Counter(s_dict.get('game_constants', {}))

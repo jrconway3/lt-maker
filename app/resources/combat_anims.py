@@ -1,6 +1,7 @@
 import os
 import shutil
 
+from app.data.constants import COLORKEY
 from app.resources.base_catalog import ManifestCatalog
 from app.resources import combat_commands
 from app.data.data import Data
@@ -27,28 +28,21 @@ class Pose():
         return self
 
 class Frame():
-    def __init__(self, nid, offset, full_path=None, pixmap=None):
+    def __init__(self, nid, rect, offset, full_path=None, pixmap=None):
         self.nid = nid
-        self.full_path = full_path
+
+        self.rect = rect
+        self.offset = offset
+
         self.pixmap = pixmap
         self.image = None
-        self.offset = offset
-        self.location = None
-
-    def set_full_path(self, full_path):
-        self.full_path = full_path
 
     def serialize(self):
-        full_path, tail = os.path.split(self.full_path)
-        full_path, f = os.path.split(full_path)
-        full_path = os.path.join(f, tail)
-        return (self.nid, full_path, self.offset, self.location)
+        return (self.nid, self.rect, self.offset)
 
     @classmethod
     def deserialize(cls, s_tuple):
-        self = cls(s_tuple[0], s_tuple[2], s_tuple[1])
-        if len(s_tuple) > 3 and s_tuple[3] is not None:
-            self.location = tuple(s_tuple[3])
+        self = cls(*s_tuple)
         return self
 
 class Palette():
@@ -71,12 +65,19 @@ class Palette():
 class WeaponAnimation():
     def __init__(self, nid):
         self.nid = nid
+        self.full_path = None
         self.poses = Data()
         self.frames = Data()
+
+        self.pixmap = None
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
 
     def serialize(self):
         s_dict = {}
         s_dict['nid'] = self.nid
+        s_dict['full_path'] = self.full_path
         s_dict['poses'] = [pose.serialize() for pose in self.poses]
         s_dict['frames'] = [frame.serialize() for frame in self.frames]
         return s_dict
@@ -84,6 +85,7 @@ class WeaponAnimation():
     @classmethod
     def deserialize(cls, s_dict):
         self = cls(s_dict['nid'])
+        self.full_path = s_dict['full_path']
         for frame_save in s_dict['frames']:
             self.frames.append(Frame.deserialize(frame_save))
         for pose_save in s_dict['poses']:
@@ -120,27 +122,20 @@ class CombatCatalog(ManifestCatalog):
         combat_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in combat_dict:
             new_combat_anim = CombatAnimation.deserialize(s_dict)
-            # new_map_sprite.set_standing_full_path(os.path.join(loc, new_map_sprite.standing_full_path))
-            # new_map_sprite.set_moving_full_path(os.path.join(loc, new_map_sprite.moving_full_path))
             for weapon_anim in new_combat_anim.weapon_anims:
-                for frame in weapon_anim.frames:
-                    frame.set_full_path(os.path.join(loc, frame.full_path))
+                weapon_anim.set_full_path(os.path.join(loc, weapon_anim.full_path))
             self.append(new_combat_anim)
 
     def save(self, loc):
         for combat_anim in self:
-            folder = os.path.join(loc, combat_anim.nid)
-            if not os.path.exists(folder):
-                os.mkdir(folder)
             for weapon_anim in combat_anim.weapon_anims:
-                for frame in weapon_anim.frames:
-                    new_full_path = os.path.join(loc, folder, "%s-%s.png" % (weapon_anim.nid, frame.nid))
-                    if not frame.full_path:
-                        frame.full_path = new_full_path
-                        frame.pixmap.save(frame.full_path)
-                    if os.path.abspath(frame.full_path) != os.path.abspath(new_full_path):
-                        shutil.copy(frame.full_path, new_full_path)
-                        frame.set_full_path(new_full_path)
+                new_full_path = os.path.join(loc, "%s-%s.png" % (combat_anim.nid, weapon_anim.nid))
+                if not weapon_anim.full_path:
+                    weapon_anim.full_path = new_full_path
+                    weapon_anim.pixmap.save(weapon_anim.full_path)
+                if os.path.abspath(weapon_anim.full_path) != os.path.abspath(new_full_path):
+                    shutil.copy(weapon_anim.full_path, new_full_path)
+                    weapon_anim.set_full_path(new_full_path)
         self.dump(loc)
 
-base_palette = Palette('base', [(128, 160, 128)] + [(0, 0, x*8) for x in range(15)])
+base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(15)])

@@ -1,7 +1,6 @@
 from app import utilities
-from app.data import unit_object
 from app.data.database import DB
-from app.engine import static_random, action, combat_calcs
+from app.engine import static_random, action, combat_calcs, unit_object
 from app.engine.game_state import game
 
 class Result():

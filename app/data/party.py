@@ -24,6 +24,7 @@ class PartyObject(Prefab):
         self.units = units or []  # Unit nids
         self.money = 0
         self.convoy = []
+        self.bexp = 0
 
     def serialize(self):
         return {'nid': self.nid, 
@@ -31,9 +32,10 @@ class PartyObject(Prefab):
                 'leader_nid': self.leader_nid,
                 'units': self.units,
                 'money': self.money,
-                'convoy': self.convoy}
+                'convoy': self.convoy,
+                'bexp': self.bexp}
 
     @classmethod
     def deserialize(cls, s_dict):
-        party = cls(s_dict['nid'], s_dict['name'], s_dict['leader_nid'], s_dict['units'], s_dict['money'], s_dict['convoy'])
+        party = cls(s_dict['nid'], s_dict['name'], s_dict['leader_nid'], s_dict['units'], s_dict['money'], s_dict['convoy'], s_dict['bexp'])
         return party

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, \
     QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter, QButtonGroup
 from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor
+from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor, QTransform
 
 import os
 
@@ -79,6 +79,7 @@ class MapSpriteModel(ResourceCollectionModel):
         nid = None
         standing_full_path, moving_full_path = None, None
         standing_pix, moving_pix = None, None
+        lion_throne_mode = True
         fn, sok = QFileDialog.getOpenFileName(self.window, "Choose Standing Map Sprite", starting_path)
         if sok:
             if fn.endswith('.png'):
@@ -87,9 +88,11 @@ class MapSpriteModel(ResourceCollectionModel):
                 nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.map_sprites])
                 standing_full_path = fn
                 if standing_pix.width() == 192 and standing_pix.height() == 144:
-                    pass
-                else:
-                    QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size (192x144 px)")
+                    lion_throne_mode = True
+                elif standing_pix.width() >= 16 and standing_pix.height() % 3 == 0:  # Try for GBA mode
+                    lion_throne_mode = False
+                else:   
+                    QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size for Lion Throne import (192x144 px)")
                     return
             else:
                 QMessageBox.critical(self.window, "Error", "Image must be PNG format")
@@ -102,16 +105,28 @@ class MapSpriteModel(ResourceCollectionModel):
             if fn.endswith('.png'):
                 moving_pix = QPixmap(fn)
                 moving_full_path = fn
-                if moving_pix.width() == 192 and moving_pix.height() == 160:
-                    pass
+                if lion_throne_mode:
+                    if moving_pix.width() == 192 and moving_pix.height() == 160:
+                        pass
+                    else:
+                        QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size for Lion Throne import (192x160 px)")
+                        return
                 else:
-                    QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size (192x160 px)")
-                    return
+                    if moving_pix.width() == 32 and moving_pix.height() == 32 * 15:
+                        pass
+                    else:
+                        QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size for GBA import (32x480 px)")
+                        return
+
             else:
                 QMessageBox.critical(self.window, "Error", "Image must be png format")
                 return
         if sok and mok and nid:
-            new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pix, moving_pix)
+            if lion_throne_mode: 
+                new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pix, moving_pix)
+            else:
+                standing_pix, moving_pix = self.import_gba_map_sprite(standing_pix, moving_pix)
+                new_map_sprite = MapSprite(nid, None, None, standing_pix, moving_pix)
             RESOURCES.map_sprites.append(new_map_sprite)
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)
@@ -140,6 +155,79 @@ class MapSpriteModel(ResourceCollectionModel):
         for klass in DB.classes:
             if klass.map_sprite_nid == old_nid:
                 klass.map_sprite_nid = new_nid
+
+    def import_gba_map_sprite(self, standing_pix, moving_pix):
+        s_width = standing_pix.width()
+        s_height = standing_pix.height()
+        new_s = QPixmap(192, 144)
+        new_s.fill(QColor(editor_utilities.qCOLORKEY))
+        new_m = QPixmap(192, 160)
+        new_m.fill(QColor(editor_utilities.qCOLORKEY))
+
+        passive1 = standing_pix.crop(0, 0, s_width, s_height//3)
+        passive2 = standing_pix.crop(0, s_height//3, s_width, 2*s_height//3)
+        passive3 = standing_pix.crop(0, 2*s_height//3, s_width, s_height)
+
+        left1 = moving_pix.crop(0, 0, 32, 32)
+        left2 = moving_pix.crop(0, 32, 32, 32)
+        left3 = moving_pix.crop(0, 32*2, 32, 32)
+        left4 = moving_pix.crop(0, 32*3, 32, 32)
+
+        down1 = moving_pix.crop(0, 32*4, 32, 32)
+        down2 = moving_pix.crop(0, 32*5, 32, 32)
+        down3 = moving_pix.crop(0, 32*6, 32, 32)
+        down4 = moving_pix.crop(0, 32*7, 32, 32)
+
+        up1 = moving_pix.crop(0, 32*8, 32, 32)
+        up2 = moving_pix.crop(0, 32*9, 32, 32)
+        up3 = moving_pix.crop(0, 32*10, 32, 32)
+        up4 = moving_pix.crop(0, 32*11, 32, 32)
+
+        focus1 = moving_pix.crop(0, 32*12, 32, 32)
+        focus2 = moving_pix.crop(0, 32*13, 32, 32)
+        focus3 = moving_pix.crop(0, 32*14, 32, 32)
+
+        if s_height//3 == 16:
+            new_height = 24
+        else:
+            new_height = 8
+        if s_width == 16:
+            new_width = 24
+        else:
+            new_width = 16
+
+        painter = QPainter()
+        # Standing pixmap
+        painter.begin(new_s)
+        painter.drawPixmap(new_width, new_height, passive1)
+        painter.drawPixmap(new_width + 64, new_height, passive2)
+        painter.drawPixmap(new_width + 128, new_height, passive3)
+        painter.drawPixmap(16, 8 + 96, focus1)
+        painter.drawPixmap(16 + 64, 8 + 96, focus2)
+        painter.drawPixmap(16 + 128, 8 + 96, focus3)
+        painter.end()
+        # Moving pixmap
+        painter.begin(new_m)
+        painter.drawPixmap(8, 8, down1)
+        painter.drawPixmap(8 + 48, 8, down2)
+        painter.drawPixmap(8 + 48 * 2, 8, down3)
+        painter.drawPixmap(8 + 48 * 3, 8, down4)
+        painter.drawPixmap(8, 48, left1)
+        painter.drawPixmap(8 + 48, 48, left2)
+        painter.drawPixmap(8 + 48 * 2, 48, left3)
+        painter.drawPixmap(8 + 48 * 3, 48, left4)
+        # Right direction pixmaps
+        painter.drawPixmap(8, 88, left1.transformed(QTransform().scale(-1, 1)))
+        painter.drawPixmap(8 + 48, 88, left2.transformed(QTransform().scale(-1, 1)))
+        painter.drawPixmap(8 + 48 * 2, 88, left3.transformed(QTransform().scale(-1, 1)))
+        painter.drawPixmap(8 + 48 * 3, 88, left4.transformed(QTransform().scale(-1, 1)))
+        painter.drawPixmap(8, 128, up1)
+        painter.drawPixmap(8 + 48, 128, up2)
+        painter.drawPixmap(8 + 48 * 2, 128, up3)
+        painter.drawPixmap(8 + 48 * 3, 128, up4)
+        painter.end()
+
+        return new_s, new_m
 
 class MapSpriteProperties(QWidget):
     standing_width, standing_height = 192, 144

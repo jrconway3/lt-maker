@@ -10,6 +10,7 @@ from app.editor.timer import TIMER
 from app.editor.unit_database import UnitDatabase
 from app.editor.class_database import ClassDatabase
 from app.editor.faction_database import FactionDatabase
+from app.editor.party_database import PartyDatabase
 from app.editor.weapon_database import WeaponDatabase
 from app.editor.item_database import ItemDatabase
 from app.editor.terrain_database import TerrainDatabase
@@ -69,6 +70,7 @@ class DatabaseEditor(QDialog):
         self.tabs['Units'] = UnitDatabase.create(self)
         self.tabs['Classes'] = ClassDatabase.create(self)
         self.tabs['Factions'] = FactionDatabase.create(self)
+        self.tabs['Parties'] = PartyDatabase.create(self)
         self.tabs['Weapons'] = WeaponDatabase.create(self)
         self.tabs['Items'] = ItemDatabase.create(self)
         self.tabs['Terrain'] = TerrainDatabase.create(self)
@@ -88,6 +90,7 @@ class DatabaseEditor(QDialog):
         self.saved_data['units'] = DB.units.save()
         self.saved_data['classes'] = DB.classes.save()
         self.saved_data['factions'] = DB.factions.save()
+        self.saved_data['parties'] = DB.parties.save()
         self.saved_data['weapons'] = DB.weapons.save()
         self.saved_data['weapon_ranks'] = DB.weapon_ranks.save()
         self.saved_data['items'] = DB.items.save()
@@ -106,6 +109,7 @@ class DatabaseEditor(QDialog):
         DB.units.restore(self.saved_data['units'])
         DB.classes.restore(self.saved_data['classes'])
         DB.factions.restore(self.saved_data['factions'])
+        DB.parties.restore(self.saved_data['parties'])
         DB.weapons.restore(self.saved_data['weapons'])
         DB.weapon_ranks.restore(self.saved_data['weapon_ranks'])
         DB.items.restore(self.saved_data['items'])

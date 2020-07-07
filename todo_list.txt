@@ -15,26 +15,26 @@ Editor:
 Test multiple target spells
 All remaining Item components
 Add Sacred Stones Items
-Auto-update editor
 Level-up
 * Level-up animations
 Promotion
 * Music/Sounds in engine
 
-Music won't play if reloaded
+Music won't play if reloaded in editor
 
 # For interaction
 * Add New, Duplicate, Delete to Palettes
 
-Equations check their validity
+* Equations check their validity
 
-Load GBA map sprites
+* Load GBA map sprites
 
 Combat Editor
 -- Combat Effects
 -- Load from GBA
 -- Load from Image Files
 -- Interaction in game
+-- Save Combat Animations as Index Files * 
 
 Tilemap Editor
 -- Autotile layer

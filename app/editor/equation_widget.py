@@ -3,6 +3,9 @@ from PyQt5.QtCore import Qt
 
 from app.data.data import Data
 from app.data.database import DB
+from app.data.simple_unit_object import SimpleUnitObject
+
+from app.parsers.equations import Parser
 
 from app.extensions.custom_gui import DeletionDialog, PropertyBox, ComboBox
 from app.extensions.list_dialogs import MultiAttrListDialog
@@ -27,7 +30,17 @@ class EquationMultiModel(DragDropMultiAttrListModel):
         return None
 
     def test_equation(self, equation) -> bool:
-        return True
+        try:
+            parser = Parser(None)
+            test_unit = SimpleUnitObject.from_prefab(DB.units[0], parser)
+            result = parser.get(equation.nid, test_unit)
+            print(result)
+            result = parser.get_expression(equation.expression, test_unit)
+            print(result)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def delete(self, idx):
         element = self._data[idx]

@@ -2,10 +2,10 @@ import sys
 
 from app import utilities
 from app.data.constants import TILEWIDTH, TILEHEIGHT
-from app.data import unit_object, items
+from app.data import items
 from app.data.database import DB
 
-from app.engine import banner, static_random, unit_funcs
+from app.engine import banner, static_random, unit_object, unit_funcs
 from app.engine.game_state import game
 
 class Action():

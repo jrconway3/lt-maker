@@ -2,13 +2,12 @@ import math, random
 
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app import utilities
-from app.data import unit_object
 from app.data.item_components import SpellAffect
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, banner, action, combat_calcs, gui, solver
+from app.engine import engine, banner, action, combat_calcs, gui, solver, unit_object
 from app.engine.health_bar import MapCombatInfo
 from app.engine.animations import MapAnimation
 from app.engine.game_state import game

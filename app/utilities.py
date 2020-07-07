@@ -1,4 +1,9 @@
 import re
+from collections import Counter
+
+class Multiset(Counter):
+    def __contains__(self, item):
+        return self[item] > 0
 
 def get_next_name(name, names):
     if name not in names:

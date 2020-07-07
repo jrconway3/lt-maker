@@ -122,6 +122,7 @@ class SpeedSpecification(QWidget):
         self.list_speed_box = QLineEdit(self)
         self.list_speed_box.setPlaceholderText("Enter integers separated by commas")
         self.list_speed_box.textChanged.connect(self.change_text)
+        self.list_speed_box.editingFinished.connect(self.check_text)
         self.list_speed_box.setEnabled(False)
         self.list_speed_label = QLabel(self)
 
@@ -201,7 +202,6 @@ class SpeedSpecification(QWidget):
         return frame_numbers
 
     def set_speed(self, speed_list):
-        print(speed_list, flush=True)
         a = []
         current_speed_int = speed_list[0]
         total = 1
@@ -226,7 +226,6 @@ class SpeedSpecification(QWidget):
     def text_valid(self, text):
         try:
             frame_numbers = self.get_speed(text)
-            print(frame_numbers)
             return all(i > 0 for i in frame_numbers) and len(frame_numbers) == self.window.current.num_frames
         except:
             return False

@@ -43,12 +43,14 @@ class Parser():
     def get(self, lhs, unit, item=None, dist=0):
         return self.equations[lhs](self.equations, unit, item, dist)
 
-    def get_expression(self, expr, unit):
+    def get_expression(self, expr, unit, item=None, dist=0):
         # For one time use
+        # Can't seem to be used with any sub equations
         expr = self.tokenize(expr)
         expr = [self.replacement_dict.get(n, n) for n in expr]
         expr = ''.join(expr)
         expr = 'int(%s)' % expr
+        equations = self.equations
         return eval(expr)
 
     def get_range(self, item, unit) -> set:

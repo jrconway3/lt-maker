@@ -18,12 +18,12 @@ class ObjBox(PropertyBox):
             self.add_button(b)
 
 class UnitBox(ObjBox):
-    def __init__(self, parent=None, button=False, exclude=None):
+    def __init__(self, parent=None, button=False, exclude=None, title="Unit"):
         from app.editor.unit_database import UnitModel
         database = DB.units
         if exclude:
             database = Data([d for d in DB.units if d is not exclude])
-        super().__init__("Unit", UnitModel, database, parent, button)
+        super().__init__(title, UnitModel, database, parent, button)
         self.edit.setIconSize(QSize(32, 32))
         self.edit.view().setUniformItemSizes(True)
 

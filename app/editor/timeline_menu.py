@@ -1,7 +1,8 @@
 import functools
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
-    QListWidgetItem, QLineEdit, QToolButton, QApplication, QMenu, QToolBar
+    QListWidgetItem, QLineEdit, QToolButton, QApplication, QMenu, QToolBar, \
+    QAbstractItemView
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
@@ -15,7 +16,7 @@ class TimelineList(WidgetList):
         super().__init__(parent)
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.CustomContextMenuRequested.connect(self.customMenuRequested)
+        self.customContextMenuRequested.connect(self.customMenuRequested)
 
     def customMenuRequested(self, pos):
         index = self.indexAt(pos)
@@ -34,7 +35,7 @@ class TimelineList(WidgetList):
     def duplicate(self, index):
         idx = index.row()
         command = self.index_list[idx]
-        self.window.current_pose.timeline.insert_command(idx + 1, command)
+        self.window.insert_command(idx + 1, command)
 
     def delete(self, index):
         idx = index.row()
@@ -130,6 +131,8 @@ class TimelineMenu(QWidget):
 
     def select(self, idx):
         self.view.setCurrentRow(idx)
+        item = self.view.item(idx)
+        self.view.scrollToItem(item, QAbstractItemView.EnsureVisible)
 
     def on_new_selection(self, curr, prev):
         print("On New Selection: %s" % curr.row())

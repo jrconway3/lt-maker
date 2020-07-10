@@ -28,7 +28,7 @@ class Pose():
         return self
 
 class Frame():
-    def __init__(self, nid, rect, offset, full_path=None, pixmap=None):
+    def __init__(self, nid, rect, offset, pixmap=None):
         self.nid = nid
 
         self.rect = rect
@@ -53,6 +53,11 @@ class Palette():
     def __repr__(self):
         return self.nid + ": " + str(self.colors)
 
+    def is_similar(self, colors):
+        # Returns true if 12 of the colors in the intersection
+        # are the same
+        return len(set(self.colors) & set(colors)) > 12
+        
     def serialize(self):
         return (self.nid, self.colors)
 
@@ -138,4 +143,4 @@ class CombatCatalog(ManifestCatalog):
                     weapon_anim.set_full_path(new_full_path)
         self.dump(loc)
 
-base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(15)])
+base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(19)])

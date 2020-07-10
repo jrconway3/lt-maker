@@ -128,7 +128,7 @@ class SettingsMenuState(State):
                 game.input_manager.update_key_map()
             elif event:
                 SOUNDTHREAD.play_sfx('Select 4')
-                self.state = 'invalid'
+                self.state = 'controls'
                 game.input_manager.set_change_keymap(False)
                 text = 'Invalid Choice!'
                 game.alerts.append(banner.Custom(text))
@@ -186,6 +186,7 @@ class SettingsMenuState(State):
                         self.state = 'controls'
                     self.current_menu.takes_input = True
                 elif self.state == 'controls':
+                    SOUNDTHREAD.play_sfx('Select 1')
                     self.state = 'get_input'
                     game.input_manager.set_change_keymap(True)
                 elif self.state == 'config':

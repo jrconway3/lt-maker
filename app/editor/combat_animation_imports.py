@@ -3,9 +3,39 @@ import os, glob
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QImage, QPixmap, qRgb, QColor, QPainter
 
-from app.data import combat_anims, combat_commands
+from app.resources import combat_anims, combat_commands
 
 import app.editor.utilities as editor_utilities
+
+def update_weapon_anim_pixmap(weapon_anim):
+    width_limit = 1200
+    left = 0
+    heights = []
+    max_heights = []
+    for frame in weapon_anim.frames:
+        width, height = frame.pixmap.width(), frame.pixmap.height()
+        if left + width > width_limit:
+            max_heights.append(max(heights))
+            frame.rect = (0, sum(max_heights), width, height)
+            heights = [height]
+            left = width
+        else:
+            frame.rect = (left, sum(max_heights), width, height)
+            left += width
+            heights.append(height)
+
+    total_width = min(width_limit, sum(frame.rect[2] for frame in weapon_anim.frames))
+    total_height = sum(max_heights)
+    print(total_width, total_height)
+    new_pixmap = QPixmap(total_width, total_height)
+    new_pixmap.fill(QColor(editor_utilities.qCOLORKEY))
+    painter = QPainter()
+    painter.begin(new_pixmap)
+    for frame in weapon_anim.frames:
+        x, y, width, height = frame.rect
+        painter.drawPixmap(x, y, frame.pixmap)
+    painter.end()
+    weapon_anim.pixmap = new_pixmap
 
 def import_from_lion_throne(current, fn):
     """
@@ -25,11 +55,11 @@ def import_from_lion_throne(current, fn):
     nid, weapon = kind.split('-')
     index_fn = fn.replace('-Script.txt', '-Index.txt')
     if not os.path.exists(index_fn):
-        QMessageBox.error("Could not find associated index file: %s" % index_fn)
+        QMessageBox.critical(None, "Error", "Could not find associated index file: %s" % index_fn)
         return
     images = glob.glob(fn.replace('-Script.txt', '-*.png'))
     if not images:
-        QMessageBox.error("Could not find any associated palettes")
+        QMessageBox.critical(None, "Error", "Could not find any associated palettes")
         return
     palette_nids = []
     for image_fn in images:
@@ -49,7 +79,6 @@ def import_from_lion_throne(current, fn):
     # Use the first palette
     my_colors = current.palettes[0].colors
     base_colors = combat_anims.base_palette.colors
-    assert len(my_colors) == len(base_colors)
     convert_dict = {qRgb(*a): qRgb(*b) for a, b in zip(my_colors, base_colors)}
     main_pixmap = QPixmap(images[0])
     for i in index_lines:
@@ -73,7 +102,7 @@ def import_from_lion_throne(current, fn):
     painter.begin(sprite_sheet)
     for frame in new_weapon.frames:
         x, y, width, height = frame.rect
-        painter.drawPixmap(frame.pixmap, (x, y, width, height))
+        painter.drawPixmap(x, y, frame.pixmap)
     painter.end()
     new_weapon.pixmap = sprite_sheet
 

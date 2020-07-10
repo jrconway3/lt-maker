@@ -1,4 +1,4 @@
-import time
+import time, os
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
@@ -18,6 +18,7 @@ from app.editor.icon_display import IconView
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.palette_display import PaletteMenu
 from app.editor.timeline_menu import TimelineMenu
+from app.editor.frame_selector import FrameSelector
 import app.editor.combat_animation_imports as combat_animation_imports
 from app.extensions.custom_gui import ResourceListView, ComboBox, DeletionDialog
 
@@ -249,15 +250,15 @@ class CombatAnimProperties(QWidget):
         info_form.addRow("Pose", pose_row)
 
         frame_group_box = QGroupBox()
-        frame_group_box.setTitle("Add Image Frames")
+        frame_group_box.setTitle("Image Frames")
         frame_layout = QVBoxLayout()
         frame_group_box.setLayout(frame_layout)
         self.import_from_lt_button = QPushButton("Import Lion Throne Weapon Animation...")
         self.import_from_lt_button.clicked.connect(self.import_lion_throne)
         self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
-        self.import_png_button = QPushButton("Import PNG Images...")
-        self.import_png_button.clicked.connect(self.import_png)
+        self.import_png_button = QPushButton("View Frames...")
+        self.import_png_button.clicked.connect(self.select_frame)
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
@@ -553,12 +554,17 @@ class CombatAnimProperties(QWidget):
             self.set_current(self.current)
             if self.current.weapon_anims:
                 self.weapon_box.setValue(self.current.weapon_anims[-1].nid)
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.setValue("last_open_path", parent_dir)
 
     def import_gba(self):
         pass
 
-    def import_png(self):
-        pass
+    def select_frame(self):
+        weapon_anim = self.get_current_weapon_anim()
+        if weapon_anim:
+            dlg = FrameSelector(self.current, weapon_anim, self)
+            dlg.exec_()
 
     def set_current(self, current):
         print("Set Current!")

@@ -8,39 +8,28 @@ class SimpleUnitObject(Prefab):
     def from_prefab(cls, prefab, parser):
         self = cls()
         self.nid = prefab.nid
-        self.position = self.previous_position = prefab.starting_position
-        self.team = prefab.team
+        self.position = self.previous_position = (0, 0)
+        self.team = 'player'
         self.party = 0
         self.klass = prefab.klass
         self.variant = prefab.variant
         self.level = prefab.level
         self.exp = 0
-        self.generic = prefab.generic
+        self.generic = False
 
-        self.ai = prefab.ai
+        self.ai = DB.ai[0]
         self.ai_group = 0
 
         self.items = self.create_items(prefab.starting_items)
 
-        if self.generic:
-            self.faction = prefab.faction
-            self.name = DB.factions.get(self.faction).name
-            self.desc = DB.factions.get(self.faction).desc
-            self._tags = []
-            self.stats = {stat.nid: stat.value for stat in DB.classes.get(self.klass).bases}
-            self.growths = {stat.nid: stat.value for stat in DB.classes.get(self.klass).growths}
-            self.wexp = {weapon.nid: 0 for weapon in DB.weapons}
-            self.calculate_needed_wexp_from_items()
-            self.portrait_nid = None
-        else:
-            self.faction = None
-            self.name = prefab.name
-            self.desc = prefab.desc
-            self._tags = [tag for tag in prefab.tags]
-            self.stats = {stat.nid: stat.value for stat in prefab.bases}
-            self.growths = {stat.nid: stat.value for stat in prefab.growths}
-            self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
-            self.portrait_nid = prefab.portrait_nid
+        self.faction = None
+        self.name = prefab.name
+        self.desc = prefab.desc
+        self._tags = [tag for tag in prefab.tags]
+        self.stats = {stat.nid: stat.value for stat in prefab.bases}
+        self.growths = {stat.nid: stat.value for stat in prefab.growths}
+        self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
+        self.portrait_nid = prefab.portrait_nid
         self.starting_position = self.position
             
         if DB.constants.get('player_leveling').value == 'Fixed':
@@ -51,12 +40,12 @@ class SimpleUnitObject(Prefab):
         self.status_effects = []
         self.status_bundle = utilities.Multiset()
 
-        self.current_hp = parser.equations.hitpoints(self)
+        self.current_hp = parser.hitpoints(self)
         if 'MANA' in DB.equations:
-            self.current_mana = parser.equations.mana(self)
+            self.current_mana = parser.mana(self)
         else:
             self.current_mana = 0
-        self.movement_left = parser.equations.movement(self)
+        self.movement_left = parser.movement(self)
 
         self.traveler = None
 
@@ -90,3 +79,12 @@ class SimpleUnitObject(Prefab):
         unit_tags = self._tags
         class_tags = DB.classes.get(self.klass).tags
         return unit_tags + class_tags
+
+    def create_items(self, item_nid_list):
+        items = []
+        for item_nid, droppable in item_nid_list:
+            item = DB.items.get_instance(item_nid)
+            item.owner_nid = self.nid
+            item.droppable = droppable
+            items.append(item)
+        return items

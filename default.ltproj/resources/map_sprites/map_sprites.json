@@ -33,5 +33,15 @@
         "Paladin",
         "Paladin-stand.png",
         "Paladin-move.png"
+    ],
+    [
+        "Berserker",
+        "Berserker-stand.png",
+        "Berserker-move.png"
+    ],
+    [
+        "ArcherFemale",
+        "ArcherFemale-stand.png",
+        "ArcherFemale-move.png"
     ]
 ]

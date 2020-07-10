@@ -180,9 +180,9 @@ class FrameCommand(CombatCommand):
         self._data.value = (num_frames, frame)
 
     def select_frame(self):
-        print(self.window)
-        print(self.window.current_frames, flush=True)
-        res, ok = FrameSelector.get(self.window.current_frames, self.window)
+        combat_anim_editor = self.window.window
+        weapon_anim = combat_anim_editor.get_current_weapon_anim()
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
         if ok:
             self.frame.setText(res.nid)
 

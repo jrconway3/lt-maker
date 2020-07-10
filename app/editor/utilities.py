@@ -52,3 +52,29 @@ def find_palette(image):
     color_palette = [QtGui.QColor(p) for p in palette]
     true_palette = [(c.red(), c.green(), c.blue()) for c in color_palette]
     return true_palette
+
+def get_bbox(image):
+    min_x, max_x = image.width(), 0
+    min_y, max_y = image.height(), 0
+
+    # Assumes topleft color is exclude color
+    # unless top right is qCOLORKEY, then uses qCOLORKEY
+    exclude_color = image.pixel(0, 0)
+    test_color = image.pixel(image.width() - 1, 0)
+    if test_color == qCOLORKEY:
+        exclude_color = qCOLORKEY
+
+    for x in range(image.width()):
+        for y in range(image.height()):
+            current_color = image.pixel(x, y)
+            if current_color != exclude_color:
+                if x < min_x:
+                    min_x = x
+                if x > max_x:
+                    max_x = x
+                if y < min_y:
+                    min_y = y
+                if y > max_y:
+                    max_y = y
+    # Returns x, y, width, height rect
+    return (min_x, min_y, max_x - min_x, max_y - min_y)

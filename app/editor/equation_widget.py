@@ -19,9 +19,9 @@ class EquationMultiModel(DragDropMultiAttrListModel):
             equation = self._data[index.row()]
             good = self.test_equation(equation)
             if good:
-                icon = self.style().standardIcon(QStyle.SP_DialogApplyButton)
+                icon = self.window.style().standardIcon(QStyle.SP_DialogApplyButton)
             else:
-                icon = self.style().standardIcon(QStyle.SP_DialogCancelButton)
+                icon = self.window.style().standardIcon(QStyle.SP_DialogCancelButton)
             return icon
         elif role == Qt.DisplayRole or role == Qt.EditRole:
             data = self._data[index.row()]
@@ -34,9 +34,7 @@ class EquationMultiModel(DragDropMultiAttrListModel):
             parser = Parser(None)
             test_unit = SimpleUnitObject.from_prefab(DB.units[0], parser)
             result = parser.get(equation.nid, test_unit)
-            print(result)
             result = parser.get_expression(equation.expression, test_unit)
-            print(result)
             return True
         except Exception as e:
             print(e)
@@ -89,6 +87,6 @@ class EquationDialog(MultiAttrListDialog):
         def deletion_func(model, index):
             return model._data[index.row()].nid not in cls.locked_vars
 
-        dlg = cls(DB.equations, "Equation", ("nid", "?", "expression"), 
+        dlg = cls(DB.equations, "Equation", ("nid", "expression"), 
                   EquationMultiModel, (deletion_func, None, deletion_func), cls.locked_vars)
         return dlg

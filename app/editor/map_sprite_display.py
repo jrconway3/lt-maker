@@ -164,28 +164,28 @@ class MapSpriteModel(ResourceCollectionModel):
         new_m = QPixmap(192, 160)
         new_m.fill(QColor(editor_utilities.qCOLORKEY))
 
-        passive1 = standing_pix.crop(0, 0, s_width, s_height//3)
-        passive2 = standing_pix.crop(0, s_height//3, s_width, 2*s_height//3)
-        passive3 = standing_pix.crop(0, 2*s_height//3, s_width, s_height)
+        passive1 = standing_pix.copy(0, 0, s_width, s_height//3)
+        passive2 = standing_pix.copy(0, s_height//3, s_width, s_height//3)
+        passive3 = standing_pix.copy(0, 2*s_height//3, s_width, s_height//3)
 
-        left1 = moving_pix.crop(0, 0, 32, 32)
-        left2 = moving_pix.crop(0, 32, 32, 32)
-        left3 = moving_pix.crop(0, 32*2, 32, 32)
-        left4 = moving_pix.crop(0, 32*3, 32, 32)
+        left1 = moving_pix.copy(0, 0, 32, 32)
+        left2 = moving_pix.copy(0, 32, 32, 32)
+        left3 = moving_pix.copy(0, 32*2, 32, 32)
+        left4 = moving_pix.copy(0, 32*3, 32, 32)
 
-        down1 = moving_pix.crop(0, 32*4, 32, 32)
-        down2 = moving_pix.crop(0, 32*5, 32, 32)
-        down3 = moving_pix.crop(0, 32*6, 32, 32)
-        down4 = moving_pix.crop(0, 32*7, 32, 32)
+        down1 = moving_pix.copy(0, 32*4, 32, 32)
+        down2 = moving_pix.copy(0, 32*5, 32, 32)
+        down3 = moving_pix.copy(0, 32*6, 32, 32)
+        down4 = moving_pix.copy(0, 32*7, 32, 32)
 
-        up1 = moving_pix.crop(0, 32*8, 32, 32)
-        up2 = moving_pix.crop(0, 32*9, 32, 32)
-        up3 = moving_pix.crop(0, 32*10, 32, 32)
-        up4 = moving_pix.crop(0, 32*11, 32, 32)
+        up1 = moving_pix.copy(0, 32*8, 32, 32)
+        up2 = moving_pix.copy(0, 32*9, 32, 32)
+        up3 = moving_pix.copy(0, 32*10, 32, 32)
+        up4 = moving_pix.copy(0, 32*11, 32, 32)
 
-        focus1 = moving_pix.crop(0, 32*12, 32, 32)
-        focus2 = moving_pix.crop(0, 32*13, 32, 32)
-        focus3 = moving_pix.crop(0, 32*14, 32, 32)
+        focus1 = moving_pix.copy(0, 32*12, 32, 32)
+        focus2 = moving_pix.copy(0, 32*13, 32, 32)
+        focus3 = moving_pix.copy(0, 32*14, 32, 32)
 
         if s_height//3 == 16:
             new_height = 24

@@ -114,7 +114,10 @@ class PaletteMenu(QListWidget):
         return self.palette_widgets[self.current_idx]
 
     def clear(self):
-        # self.radio_button_group.clear()
+        # Clear out old radio buttons
+        buttons = self.radio_button_group.buttons()
+        for button in buttons[:]:
+            self.radio_button_group.removeButton(button)
         self.palettes.clear()
 
         # for idx, l in reversed(list(enumerate(self.palette_widgets))):
@@ -125,39 +128,42 @@ class PaletteMenu(QListWidget):
         self.current_idx = 0
 
     def new(self, index):
-        palettes = self.window.current.palettes
+        palette_data = self.window.current.palettes
         new_nid = utilities.get_next_name("Palette", [p.nid for p in self.palettes])
         colors = combat_anims.base_palette.colors
         new_palette = combat_anims.Palette(new_nid, colors)
-        palettes.insert(index.row() + 1, new_palette)
+        palette_data.insert(index.row() + 1, new_palette)
 
-        self.set_current(palettes)
+        self.set_current(palette_data)
         self.set_palette(self.current_idx)
 
     def duplicate(self, index):
-        palettes = self.window.current.palettes
+        palette_data = self.window.current.palettes
         parent_palette = self.palettes[index.row()]
         new_nid = utilities.get_next_name(parent_palette.nid, [p.nid for p in self.palettes])
-        colors = parent_palette.colors
+        colors = parent_palette.colors[:]
         new_palette = combat_anims.Palette(new_nid, colors)
-        palettes.insert(index.row() + 1, new_palette)
+        palette_data.insert(index.row() + 1, new_palette)
 
-        self.set_current(palettes)
+        self.set_current(palette_data)
         self.set_palette(self.current_idx)
 
     def delete(self, index):
-        palettes = self.window.current.palettes
+        palette_data = self.window.current.palettes
         to_delete = self.palettes[index.row()]
-        palettes.remove(to_delete)
+        palette_data.delete(to_delete)
 
-        self.set_current(palettes)
+        self.set_current(palette_data)
         self.set_palette(self.current_idx)
 
     def rename(self, index):
-        palette = self.palettes[index.row()]
+        palette_data = self.window.current.palettes
+        to_rename = self.palettes[index.row()]
         new_nid, ok = QInputDialog.getText(self, "Rename", "Enter New Name: ")
         if not new_nid or not ok:
             return
-        palette.nid = utilities.get_next_name(new_nid, [p.nid for p in self.palettes if p is not palette])
+
+        new_nid = utilities.get_next_name(new_nid, palette_data.keys())
+        palette_data.change_key(to_rename.nid, new_nid)
         palette_widget = self.palette_widgets[index.row()]
-        palette_widget.name_label.setText(palette.nid)
+        palette_widget.name_label.setText(to_rename.nid)

@@ -362,7 +362,10 @@ class MapEditorView(QGraphicsView):
                     self.erase_tile(tile_pos)
                 self.left_selecting = True
             elif self.window.current_tool == PaintTool.Fill:
-                self.flood_fill_tile(tile_pos)
+                if self.window.terrain_mode:
+                    self.flood_fill_terrain(tile_pos)
+                else:
+                    self.flood_fill_tile(tile_pos)
         elif event.button() == Qt.RightButton and self.tilemap.check_bounds(tile_pos):
             if self.window.terrain_mode:
                 current_nid = self.tilemap.get_terrain(tile_pos)

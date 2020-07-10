@@ -73,7 +73,7 @@ class PartyProperties(QWidget):
         self.name_box.edit.textChanged.connect(self.name_changed)
         name_section.addWidget(self.name_box)
 
-        self.leader_box = PropertyBox("Leader Unit", UnitBox, self)
+        self.leader_box = UnitBox(self, title="Leader Unit")
         self.leader_box.edit.currentIndexChanged.connect(self.leader_changed)
         name_section.addWidget(self.leader_box)
 

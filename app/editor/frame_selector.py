@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QListView, QDialog, \
     QPushButton, QFileDialog, QMessageBox, QGroupBox, QFormLayout, QSpinBox
 from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, QColor
+from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, qRgb
 
 from app.data.constants import WINWIDTH, WINHEIGHT
 
@@ -13,6 +13,7 @@ from app.resources import combat_anims
 from app.extensions.custom_gui import Dialog
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.editor.icon_display import IconView
+from app.editor import combat_animation_imports
 import app.editor.utilities as editor_utilities
 
 class FrameModel(ResourceCollectionModel):
@@ -31,11 +32,12 @@ class FrameModel(ResourceCollectionModel):
         return None
 
 class FrameSelector(Dialog):
-    def __init__(self, weapon_anim, parent=None):
+    def __init__(self, combat_anim, weapon_anim, parent=None):
         super().__init__(parent)
         self.window = parent
         self.setWindowTitle("Animation Frames")
 
+        self.combat_anim = combat_anim
         self.weapon_anim = weapon_anim
         self.frames = weapon_anim.frames
         if self.frames:
@@ -92,50 +94,50 @@ class FrameSelector(Dialog):
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Frames", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
+            base_colors = combat_anims.base_palette.colors
+            pixmaps = []
+            crops = []
+            # Get files and crop them to right size
             for fn in fns:
                 if fn.endswith('.png'):
                     nid = os.path.split(fn)[-1][:-4]
                     pix = QPixmap(fn)
-                    nid = utilities.get_next_name(nid, self.frames.keys())
-                    new_frame = combat_anims.Frame(nid, (0, 0), fn, pix)
-                    self.frames.append(new_frame)
-                    self.model.layoutChanged.emit()
-                    self.set_current(new_frame)
+                    x, y, width, height = editor_utilities.get_bbox(pix.toImage())
+                    pix = pix.copy(x, y, width, height)
+                    pixmaps.append(pix)
+                    crops.append((x, y, width, height))
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Portrait must be PNG format!")
-            self.update_weapon_anim_pixmap()
+
+            # Now determine palette to use for ingestion
+            palette_colors = editor_utilities.find_palette_from_multiple(pixmaps)
+            for palette in self.combat_anim.palettes:
+                if palette.is_similar(palette_colors):
+                    my_colors = palette.colors
+                    break
+            else:
+                print("Generating new palette...")
+                nid = utilities.get_next_name("New Palette", self.combat_anim.palettes.keys())
+                new_palette = combat_anims.Palette(nid, palette_colors)
+                self.combat_anim.palettes.append(new_palette)
+                my_colors = new_palette.colors
+            convert_dict = {qRgb(*a): qRgb(*b) for a, b in zip(my_colors, base_colors)}
+
+            for idx, pixmap in enumerate(pixmaps):
+                im = pix.toImage()
+                im.convertTo(QImage.Format_Indexed8)
+                im = editor_utilities.color_convert(im, convert_dict)
+                pix = QPixmap.fromImage(im)
+                nid = utilities.get_next_name(nid, self.frames.keys())
+                x, y, width, height = crops[idx]
+                new_frame = combat_anims.Frame(nid, None, (x, y), pix)
+                self.frames.append(new_frame)
+                self.set_current(new_frame)
+
+            combat_animation_imports.update_weapon_anim_pixmap(self.weapon_anim)
+            self.model.layoutChanged.emit()
             parent_dir = os.path.split(fns[-1])[0]
             settings.setValue("last_open_path", parent_dir)
-
-    def update_weapon_anim_pixmap(self):
-        width_limit = 1200
-        left = 0
-        heights = []
-        max_heights = []
-        for frame in self.frames:
-            x, y, width, height = frame.rect
-            if left + width > width_limit:
-                max_heights.append(max(heights))
-                frame.rect = (0, sum(max_heights), width, height)
-                heights = [height]
-                left = width
-            else:
-                frame.rect = (left, sum(max_heights), width, height)
-                left += width
-                heights.append(height)
-
-        total_width = min(width_limit, sum(frame.rect[2] for frame in self.frames))
-        total_height = sum(max_heights)
-        print(total_width, total_height)
-        new_pixmap = QPixmap(total_width, total_height)
-        new_pixmap.fill(QColor(editor_utilities.qCOLORKEY))
-        painter = QPainter()
-        painter.begin(new_pixmap)
-        for frame in self.frames:
-            x, y, width, height = frame.rect
-            painter.drawPixmap(frame.pixmap, (x, y, width, height))
-        painter.end()
-        self.weapon_anim.pixmap = new_pixmap
 
     def on_item_changed(self, curr, prev):
         if self.frames:

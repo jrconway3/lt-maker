@@ -22,26 +22,17 @@ Promotion
 
 Music won't play if reloaded in editor
 
-# For interaction
-* Add New, Duplicate, Delete to Palettes
-
-* Equations check their validity
-
-* Load GBA map sprites
-
 Combat Editor
 -- Combat Effects
+-- Load from Image Files*
 -- Load from GBA
--- Load from Image Files
 -- Interaction in game
--- Save Combat Animations as Index Files * 
+-- Make sure palettes work correctly? -- 16, 20, 32 long palettes
 
 Tilemap Editor
 -- Autotile layer
--- Let *Eraser and *Fill work in terrain
--- *Remove Edit Terrain -- *Make Reset Terrain work
 
-Auto-update -- TEST
+Auto-update -- TEST*
 No need for launcher
 If using engine-solo, unlikely to be playing more than one game at a time. Even so, if multiple .ltproj files detected by engine, prompt you to choose before playing.
 editor doesn't need launcher -- just open projects from File Menu.

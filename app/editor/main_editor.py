@@ -24,6 +24,7 @@ from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
 from app.editor.translation_widget import TranslationDialog
+from app.editor.equation_widget import EquationDialog
 
 __version__ = VERSION
 
@@ -175,6 +176,7 @@ class MainEditor(QMainWindow):
         self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
         self.modify_resources_act = QAction("Edit Resources...", self, shortcut="Ctrl+R", triggered=self.edit_resources)
         self.modify_translations_act = QAction("Edit Translations...", self, triggered=self.edit_translations)
+        self.modify_equations_act = QAction("Edit Equations...", self, triggered=self.edit_equations)
 
     def create_menus(self):
         file_menu = QMenu("File", self)
@@ -192,6 +194,7 @@ class MainEditor(QMainWindow):
         # edit_menu.addAction(self.redo_act)
         edit_menu.addAction(self.modify_resources_act)
         edit_menu.addAction(self.modify_translations_act)
+        edit_menu.addAction(self.modify_equations_act)
         edit_menu.addSeparator()
         edit_menu.addAction(self.zoom_in_act)
         edit_menu.addAction(self.zoom_out_act)
@@ -388,7 +391,7 @@ class MainEditor(QMainWindow):
             os.mkdir(self.current_proj)
 
         # Actually save project
-        RESOURCES.serialize(self.current_proj)
+        RESOURCES.save(self.current_proj)
         DB.serialize(self.current_proj)
 
         # Save metadata
@@ -485,7 +488,13 @@ class MainEditor(QMainWindow):
         DB.deserialize(self.current_proj)
         dialog = TranslationDialog.create()
         dialog.exec_()
-        DB.serialize()
+        DB.serialize(self.current_proj)
+
+    def edit_equations(self):   
+        DB.deserialize(self.current_proj)
+        dialog = EquationDialog.create()
+        dialog.exec_()
+        DB.serialize(self.current_proj)
 
     def edit_events(self):
         pass

@@ -45,12 +45,18 @@ class MapSpriteCatalog(ManifestCatalog):
         for map_sprite in self:
             # Standing sprite
             new_full_path = os.path.join(loc, map_sprite.nid + '-stand.png')
-            if os.path.abspath(map_sprite.standing_full_path) != os.path.abspath(new_full_path):
+            if not map_sprite.standing_full_path:
+                map_sprite.set_standing_full_path(new_full_path)
+                map_sprite.standing_pixmap.save(new_full_path)
+            elif os.path.abspath(map_sprite.standing_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(map_sprite.standing_full_path, new_full_path)
                 map_sprite.set_standing_full_path(new_full_path)
             # Moving sprite
             new_full_path = os.path.join(loc, map_sprite.nid + '-move.png')
-            if os.path.abspath(map_sprite.moving_full_path) != os.path.abspath(new_full_path):
+            if not map_sprite.moving_full_path:
+                map_sprite.set_moving_full_path(new_full_path)
+                map_sprite.moving_pixmap.save(new_full_path)
+            elif os.path.abspath(map_sprite.moving_full_path) != os.path.abspath(new_full_path):
                 shutil.copy(map_sprite.moving_full_path, new_full_path)
                 map_sprite.set_moving_full_path(new_full_path)
         self.dump(loc)

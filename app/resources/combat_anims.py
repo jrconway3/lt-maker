@@ -143,4 +143,4 @@ class CombatCatalog(ManifestCatalog):
                     weapon_anim.set_full_path(new_full_path)
         self.dump(loc)
 
-base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(19)])
+base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(31)])

@@ -129,8 +129,12 @@ class PaletteMenu(QListWidget):
 
     def new(self, index):
         palette_data = self.window.current.palettes
-        new_nid = utilities.get_next_name("Palette", [p.nid for p in self.palettes])
-        colors = combat_anims.base_palette.colors
+        new_nid = utilities.get_next_name("New", [p.nid for p in self.palettes])
+        if palette_data:
+            num_colors = len(palette_data[0].colors)
+        else:
+            num_colors = 16
+        colors = combat_anims.base_palette.colors[:num_colors]
         new_palette = combat_anims.Palette(new_nid, colors)
         palette_data.insert(index.row() + 1, new_palette)
 

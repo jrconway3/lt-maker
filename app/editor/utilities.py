@@ -53,6 +53,13 @@ def find_palette(image):
     true_palette = [(c.red(), c.green(), c.blue()) for c in color_palette]
     return true_palette
 
+def convert_gba(image):
+    for i in range(image.colorCount()):
+        color = QtGui.QColor(image.color(i))
+        new_color = (color.red() // 8 * 8), (color.green() // 8 * 8), (color.blue() // 8 * 8)
+        image.setColor(i, QtGui.qRgb(*new_color))
+    return image
+
 def get_bbox(image):
     min_x, max_x = image.width(), 0
     min_y, max_y = image.height(), 0

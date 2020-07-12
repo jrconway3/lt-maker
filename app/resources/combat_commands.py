@@ -15,6 +15,34 @@ class CombatAnimationCommand():
     def serialize(self):
         return self.nid, self.value
 
+    def has_frames(self) -> bool:
+        return isinstance(self.attr, tuple) and 'frame' in self.attr
+
+    def get_frames(self) -> list:
+        f = []
+        for idx, f in enumerate(self.attr):
+            if f == 'frame':
+                f.append(self.value[idx])
+        return f
+
+    def increment_frame_count(self, inc=1):
+        """
+        Change the number of frames a frame should be displayed for
+        """
+        if isinstance(self.value, tuple):
+            self.value = (self.value[0] + inc, *self.value[1:])
+        elif self.nid == 'wait':
+            self.value += inc
+
+    def set_frame_count(self, val=1):
+        """
+        Set the number of frames a frame should be displayed
+        """
+        if isinstance(self.value, tuple):
+            self.value = (val, *self.value[1:])
+        elif self.nid == 'wait':
+            self.value = val
+
 def parse_attr(attr, text: str):
     if attr is None:
         return None
@@ -45,13 +73,13 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
         command_nid = 'under_frame'
     elif command_nid == 'self_flash_white':
         command_nid = 'self_tint'
-        split_text.append('248,248,248')
+        split_text.append('255,255,255')
     elif command_nid == 'enemy_flash_white':
         command_nid = 'enemy_tint'
-        split_text.append('248,248,248')
+        split_text.append('255,255,255')
     elif command_nid == 'screen_flash_white':
         command_nid = 'screen_blend'
-        split_text.append('248,248,248')
+        split_text.append('255,255,255')
     command = get_command(command_nid)
     values = []
     if isinstance(command.attr, tuple):

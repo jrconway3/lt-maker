@@ -25,9 +25,9 @@ Music won't play if reloaded in editor
 Combat Editor
 -- Combat Effects
 -- Load from Image Files*
--- Load from GBA
+-- Load from GBA*
 -- Interaction in game
--- Make sure palettes work correctly? -- 16, 20, 32 long palettes
+-- Make sure palettes work correctly? -- 16, 20, 32 long palettes*
 
 Tilemap Editor
 -- Autotile layer

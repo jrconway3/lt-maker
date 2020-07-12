@@ -85,6 +85,7 @@ class SoundCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.addItems([d.nid for d in RESOURCES.sfx])
+        self.editor.setValue(self._data.value)
         self.editor.currentIndexChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
@@ -111,6 +112,8 @@ class WaitForHitCommand(CombatCommand):
         self.editor1.setPlaceholderText('Frame Drawn Over Enemy')
         self.editor1.setMaximumWidth(100)
         self.editor1.setReadOnly(True)
+        if self._data.value[0]:
+            self.frame.setText(self._data.value[0])
         self.editor1.textChanged.connect(self.on_value_changed)
         hbox1.addWidget(self.editor1)
 
@@ -123,6 +126,8 @@ class WaitForHitCommand(CombatCommand):
         self.editor2.setPlaceholderText('Frame Drawn Under Enemy')
         self.editor2.setMaximumWidth(100)
         self.editor2.setReadOnly(True)
+        if self._data.value[1]:
+            self.frame.setText(self._data.value[1])
         self.editor2.textChanged.connect(self.on_value_changed)
         hbox2.addWidget(self.editor2)
 
@@ -139,12 +144,16 @@ class WaitForHitCommand(CombatCommand):
         self._data.value = (self.editor1.text(), self.editor2.text())
 
     def select_frame1(self):
-        res, ok = FrameSelector.get(self.window.current_frames, self.window)
+        combat_anim_editor = self.window.window
+        weapon_anim = combat_anim_editor.get_current_weapon_anim()
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
         if ok:
             self.editor1.setText(res)
 
     def select_frame2(self):
-        res, ok = FrameSelector.get(self.window.current_frames, self.window)
+        combat_anim_editor = self.window.window
+        weapon_anim = combat_anim_editor.get_current_weapon_anim()
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
         if ok:
             self.editor2.setText(res)
 
@@ -203,6 +212,8 @@ class DualFrameCommand(CombatCommand):
         self.editor1.setPlaceholderText('Frame Drawn Over Enemy')
         self.editor1.setMaximumWidth(100)
         self.editor1.setReadOnly(True)
+        if self._data.value[1]:
+            self.frame.setText(self._data.value[1])
         self.editor1.textChanged.connect(self.on_value_changed)
         hbox1.addWidget(self.editor1)
 
@@ -215,6 +226,8 @@ class DualFrameCommand(CombatCommand):
         self.editor2.setPlaceholderText('Frame Drawn Under Enemy')
         self.editor2.setMaximumWidth(100)
         self.editor2.setReadOnly(True)
+        if self._data.value[2]:
+            self.frame.setText(self._data.value[2])
         self.editor2.textChanged.connect(self.on_value_changed)
         hbox2.addWidget(self.editor2)
 
@@ -232,12 +245,16 @@ class DualFrameCommand(CombatCommand):
         self._data.value = (num_frames, self.editor1.text(), self.editor2.text())
 
     def select_frame1(self):
-        res, ok = FrameSelector.get(self.window.current_frames, self.window)
+        combat_anim_editor = self.window.window
+        weapon_anim = combat_anim_editor.get_current_weapon_anim()
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
         if ok:
             self.editor1.setText(res)
 
     def select_frame2(self):
-        res, ok = FrameSelector.get(self.window.current_frames, self.window)
+        combat_anim_editor = self.window.window
+        weapon_anim = combat_anim_editor.get_current_weapon_anim()
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
         if ok:
             self.editor2.setText(res)
 
@@ -291,9 +308,9 @@ class FrameWithOffsetCommand(CombatCommand):
         self._data.value = (num_frames, frame, x_val, y_val)
 
     def select_frame(self):
-        print(self.window)
-        print(self.window.current_frames, flush=True)
-        res, ok = FrameSelector.get(self.window.current_frames, self.window)
+        combat_anim_editor = self.window.window
+        weapon_anim = combat_anim_editor.get_current_weapon_anim()
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
         if ok:
             self.frame.setText(res.nid)
 
@@ -310,6 +327,7 @@ class ColorTimeCommand(CombatCommand):
         hbox.addWidget(self.num_frames)
 
         self.color = ColorIcon(QColor(248, 248, 248).name(), self)
+        self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 

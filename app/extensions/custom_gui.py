@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
     QLineEdit, QPushButton, QAction, QMenu, QSizePolicy, QFrame, \
-    QDialogButtonBox, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout, QApplication
+    QDialogButtonBox, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout, QApplication, \
+    QAbstractItemView
 from PyQt5.QtCore import Qt, QSize, QItemSelectionModel
 
 class SimpleDialog(QDialog):
@@ -261,6 +262,11 @@ class ResourceView(RightClickView):
 
 class ResourceListView(ResourceView, QListView):
     pass
+
+class ResourceMultiselectListView(ResourceListView):
+    def __init__(self, action_funcs=None, parent=None):
+        super().__init__(action_funcs, parent)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
 class ResourceTreeView(ResourceView, QTreeView):
     def check_index(self, index):

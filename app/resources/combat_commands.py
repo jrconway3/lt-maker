@@ -4,9 +4,9 @@ class CombatAnimationCommand():
     def __init__(self, nid=None, name='', attr=bool, value=True, tag=None):
         self.nid: str = nid
         self.name: str = name
-        self.attr = attr
-        self.value = value
-        self.tag = tag
+        self.attr: tuple = attr
+        self.value: tuple = value
+        self.tag: str = tag
 
     @classmethod
     def copy(cls, other):
@@ -16,32 +16,22 @@ class CombatAnimationCommand():
         return self.nid, self.value
 
     def has_frames(self) -> bool:
-        return isinstance(self.attr, tuple) and 'frame' in self.attr
+        return 'frame' in self.attr
 
     def get_frames(self) -> list:
-        f = []
-        for idx, f in enumerate(self.attr):
-            if f == 'frame':
-                f.append(self.value[idx])
-        return f
+        return [self.value[idx] for idx in range(len(self.attr)) if self.attr[idx] == 'frame']
 
     def increment_frame_count(self, inc=1):
         """
         Change the number of frames a frame should be displayed for
         """
-        if isinstance(self.value, tuple):
-            self.value = (self.value[0] + inc, *self.value[1:])
-        elif self.nid == 'wait':
-            self.value += inc
+        self.value = (self.value[0] + inc, *self.value[1:])
 
     def set_frame_count(self, val=1):
         """
         Set the number of frames a frame should be displayed
         """
-        if isinstance(self.value, tuple):
-            self.value = (val, *self.value[1:])
-        elif self.nid == 'wait':
-            self.value = val
+        self.value = (val, *self.value[1:])
 
 def parse_attr(attr, text: str):
     if attr is None:
@@ -56,6 +46,14 @@ def parse_attr(attr, text: str):
         return text
     elif attr == 'sound':
         return text
+
+def generate_text(command: CombatAnimationCommand) -> str:
+    s = [command.nid]
+    if isinstance(command.attrs, tuple):
+        for idx, attr in command.attrs:
+            if command.values[idx] is not None:
+                s.append(str(command.values[idx]))
+    return ';'.join(s)
 
 def parse_text(split_text: list) -> CombatAnimationCommand:
     command_nid = split_text[0]
@@ -82,36 +80,34 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
         split_text.append('255,255,255')
     command = get_command(command_nid)
     values = []
-    if isinstance(command.attr, tuple):
+    if command.attr:
         for idx, attr in enumerate(command.attr):
-            value = parse_attr(attr, split_text[idx + 1])
+            if len(split_text) > idx + 1:
+                value = parse_attr(attr, split_text[idx + 1])
+            else:
+                value = None
             values.append(value)
-    elif command.attr:
-        value = parse_attr(command.attr, split_text[1])
-        values.append(value)
     if len(values) == 0:
         pass
-    elif len(values) == 1:
-        command.value = values[0]
-    elif len(values) > 1:
+    else:
         command.value = tuple(values)
     return command
 
 anim_commands = Data([
     CombatAnimationCommand('frame', 'Display Frame', (int, 'frame'), (0, None), 'frame'),
-    CombatAnimationCommand('wait', 'Wait', int, 0, 'frame'),
+    CombatAnimationCommand('wait', 'Wait', (int,), (0,), 'frame'),
     CombatAnimationCommand('over_frame', 'Display Over Frame', (int, 'frame'), (0, None), 'frame'),
     CombatAnimationCommand('under_frame', 'Display Under Frame', (int, 'frame'), (0, None), 'frame'),
     CombatAnimationCommand('dual_frame', 'Display Dual Frame', (int, 'frame', 'frame'), (0, None, None), 'frame'),
     CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame'),
     
-    CombatAnimationCommand('sound', 'Play Sound', 'sound', None, 'sound'),
-    CombatAnimationCommand('stop_sound', 'Stop Sound', 'sound', None, 'sound'),
+    CombatAnimationCommand('sound', 'Play Sound', 'sound', (None,), 'sound'),
+    CombatAnimationCommand('stop_sound', 'Stop Sound', 'sound', (None,), 'sound'),
 
     CombatAnimationCommand('start_hit', 'Start Normal Hit Routine', None, None, 'process'),
     CombatAnimationCommand('wait_for_hit', 'Wait for End of Normal Hit Routine', ('frame', 'frame'), (None, None), 'process'),
     CombatAnimationCommand('miss', 'Miss', None, None, 'process'),
-    CombatAnimationCommand('spell', 'Cast Spell', 'effect', None, 'process'),
+    CombatAnimationCommand('spell', 'Cast Spell', ('effect',), (None,), 'process'),
     CombatAnimationCommand('spell_hit', 'Spell Hit Routine', None, None, 'process'),
 
     CombatAnimationCommand('self_tint', 'Tint Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
@@ -119,7 +115,7 @@ anim_commands = Data([
     CombatAnimationCommand('background_blend', 'Tint Background', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('foreground_blend', 'Tint Foreground', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('screen_blend', 'Tint Entire Screen', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
-    CombatAnimationCommand('opacity', 'Set Opacity', int, 0, 'aesthetic1'),
+    CombatAnimationCommand('opacity', 'Set Opacity', (int,), (0,), 'aesthetic1'),
 
     CombatAnimationCommand('platform_shake', 'Shake Platform', None, None, 'aesthetic2'),
     CombatAnimationCommand('screen_shake', 'Shake Screen', None, None, 'aesthetic2'),
@@ -128,16 +124,16 @@ anim_commands = Data([
     CombatAnimationCommand('darken', 'Darken Background', None, None, 'aesthetic2'),
     CombatAnimationCommand('lighten', 'Lighten Background', None, None, 'aesthetic2'),
 
-    CombatAnimationCommand('effect', 'Show Effect On Self', 'effect', None, 'effect'),
-    CombatAnimationCommand('under_effect', 'Show Effect Under Self', 'effect', None, 'effect'),
-    CombatAnimationCommand('enemy_effect', 'Show Effect On Enemy', 'effect', None, 'effect'),
-    CombatAnimationCommand('enemy_under_effect', 'Show Effect Under Enemy', 'effect', None, 'effect'),
+    CombatAnimationCommand('effect', 'Show Effect On Self', ('effect',), (None,), 'effect'),
+    CombatAnimationCommand('under_effect', 'Show Effect Under Self', ('effect',), (None,), 'effect'),
+    CombatAnimationCommand('enemy_effect', 'Show Effect On Enemy', ('effect',), (None,), 'effect'),
+    CombatAnimationCommand('enemy_under_effect', 'Show Effect Under Enemy', ('effect',), (None,), 'effect'),
     CombatAnimationCommand('clear_all_effects', 'Clear All Effects', None, None, 'effect'),
 
     CombatAnimationCommand('pan', 'Pan Screen', None, None, 'aesthetic3'),
-    CombatAnimationCommand('blend', 'Set Frame Blending', bool, True, 'aesthetic3'),
-    CombatAnimationCommand('static', 'Set Has Static Position', bool, True, 'aesthetic3'),
-    CombatAnimationCommand('ignore_pan', 'Set Ignore Pan', bool, True, 'aesthetic3'),
+    CombatAnimationCommand('blend', 'Set Frame Blending', (bool,), (True,), 'aesthetic3'),
+    CombatAnimationCommand('static', 'Set Has Static Position', (bool,), (True,), 'aesthetic3'),
+    CombatAnimationCommand('ignore_pan', 'Set Ignore Pan', (bool,), (True,), 'aesthetic3'),
     
     CombatAnimationCommand('start_loop', 'Start Loop', None, None, 'loop'),
     CombatAnimationCommand('end_loop', 'End Loop', None, None, 'loop'),

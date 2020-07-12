@@ -396,6 +396,10 @@ class CombatAnimProperties(QWidget):
                 items.append(weapon.nid)
                 items.append("Ranged" + weapon.nid)
                 items.append("Magic" + weapon.nid)
+        items.append("MagicGeneric")
+        items.append("Neutral")
+        items.append("RangedNeutral")
+        items.append("Unarmed")
         items.append("Custom")
         for weapon_nid in self.current.weapon_anims.keys():
             if weapon_nid in items:
@@ -682,19 +686,21 @@ class CombatAnimProperties(QWidget):
 
         if self.frame_nid:
             weapon_anim = self.get_current_weapon_anim()
-            frame = weapon_anim.frames.get(self.frame_nid)
-            if frame:
-                if self.custom_frame_offset:
-                    offset_x, offset_y = self.frame_offset
-                else:
-                    offset_x, offset_y = frame.offset
-                actor_im = self.modify_for_palette(frame.pixmap)
+            if weapon_anim:
+                frame = weapon_anim.frames.get(self.frame_nid)
+                if frame:
+                    if self.custom_frame_offset:
+                        offset_x, offset_y = self.frame_offset
+                    else:
+                        offset_x, offset_y = frame.offset
+                    actor_im = self.modify_for_palette(frame.pixmap)
         if self.under_frame_nid:
             weapon_anim = self.get_current_weapon_anim()
-            frame = weapon_anim.frames.get(self.frame_nid)
-            if frame:
-                under_offset_x, under_offset_y = frame.offset
-                under_actor_im = self.modify_for_palette(frame.pixmap)
+            if weapon_anim:
+                frame = weapon_anim.frames.get(self.frame_nid)
+                if frame:
+                    under_offset_x, under_offset_y = frame.offset
+                    under_actor_im = self.modify_for_palette(frame.pixmap)
 
         base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
         base_image.fill(editor_utilities.qCOLORKEY)

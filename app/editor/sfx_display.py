@@ -7,7 +7,7 @@ import os
 from app.resources.sounds import SFX
 from app.resources.resources import RESOURCES
 
-from app.extensions.custom_gui import PropertyBox, ResourceListView
+from app.extensions.custom_gui import PropertyBox, ResourceMultiselectListView
 from app.editor.timer import TIMER
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 
@@ -23,7 +23,9 @@ class SFXDisplay(DatabaseTab):
 
         deletion_criteria = None
 
-        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent, button_text="Add New %s...", view_type=ResourceListView)
+        dialog = cls(data, title, right_frame, deletion_criteria, 
+                     collection_model, parent, button_text="Add New %s...",
+                     view_type=ResourceMultiselectListView)
         return dialog
 
 class SFXModel(ResourceCollectionModel):
@@ -98,13 +100,13 @@ class SFXProperties(QWidget):
 
         self.tag_box = PropertyBox("Tag", QLineEdit, self)
         self.tag_box.edit.setPlaceholderText("Untagged")
-        self.tag_box.edit.textChanged.connect(self.tag_changed)
+        self.tag_box.edit.textEdited.connect(self.tag_changed)
         layout.addWidget(self.tag_box)
 
         # Double-click vagaries
-        view = self.window.left_frame.view
-        view.doubleClicked.connect(self.on_double_click)
-        view.setEditTriggers(QAbstractItemView.NoEditTriggers)  # Remove edit on double click
+        self.view = self.window.left_frame.view
+        self.view.doubleClicked.connect(self.on_double_click)
+        self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)  # Remove edit on double click
 
         TIMER.tick_elapsed.connect(self.tick)
 
@@ -124,7 +126,19 @@ class SFXProperties(QWidget):
             self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaStop))
 
     def tag_changed(self, text):
-        self.current.tag = text
+        print("tag changed")
+        print(text, flush=True)
+        # Can change multiple tags at the same time
+        indices = self.view.selectionModel().selectedIndexes()
+        if len(indices) > 1:
+            for index in indices:
+                self._data[index.row()].tag = text
+            # self.view.model().dataChanged.emit(indices[0], indices[-1])
+            self.view.model().layoutChanged.emit()
+        else:
+            self.current.tag = text
+            # self.view.model().
+            self.view.model().layoutChanged.emit()
 
     def set_current(self, current):
         self.stop_sfx()
@@ -138,11 +152,6 @@ class SFXProperties(QWidget):
                 self.tag_box.edit.setText('')
             self.play_button.setEnabled(True)
             self.loop_button.setEnabled(True)
-        else:  # Vestigial from when I had groups of SFX
-            self.current = None
-            self.nid_label.setText(current.nid + " Group")
-            self.play_button.setEnabled(False)
-            self.loop_button.setEnabled(False)
 
     def play_clicked(self):
         if self.playing:

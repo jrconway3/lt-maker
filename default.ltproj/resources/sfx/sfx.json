@@ -5,73 +5,1083 @@
         "Aircalibur.ogg"
     ],
     [
+        "FireBall",
+        "Anima",
+        "FireBall.ogg"
+    ],
+    [
         "Bolting1",
-        "",
+        "Anima",
         "Bolting1.ogg"
     ],
     [
         "Bolting2",
-        null,
+        "Anima",
         "Bolting2.ogg"
     ],
     [
         "ElfireHit",
-        null,
+        "Anima",
         "ElfireHit.ogg"
     ],
     [
         "Fimbulvetr1",
-        null,
+        "Anima",
         "Fimbulvetr1.ogg"
     ],
     [
         "Fimbulvetr2",
-        null,
+        "Anima",
         "Fimbulvetr2.ogg"
     ],
     [
-        "FireBall",
-        "",
-        "FireBall.ogg"
-    ],
-    [
         "FireCharge",
-        null,
+        "Anima",
         "FireCharge.ogg"
     ],
     [
         "FireHit",
-        null,
+        "Anima",
         "FireHit.ogg"
     ],
     [
         "Forblaze1",
-        null,
+        "Anima",
         "Forblaze1.ogg"
     ],
     [
         "Forblaze2",
-        null,
+        "Anima",
         "Forblaze2.ogg"
     ],
     [
         "Gust",
-        null,
+        "Anima",
         "Gust.ogg"
     ],
     [
         "Thunder",
-        null,
+        "Anima",
         "Thunder.ogg"
     ],
     [
         "Wind",
-        null,
+        "Anima",
         "Wind.ogg"
     ],
     [
         "WindWave",
-        null,
+        "Anima",
         "WindWave.ogg"
+    ],
+    [
+        "Apocalypse1",
+        "Dark",
+        "Apocalypse1.ogg"
+    ],
+    [
+        "Apocalypse2",
+        "Dark",
+        "Apocalypse2.ogg"
+    ],
+    [
+        "Apocalypse3",
+        "Dark",
+        "Apocalypse3.ogg"
+    ],
+    [
+        "EckesachsRanged",
+        "Dark",
+        "EckesachsRanged.ogg"
+    ],
+    [
+        "Eclipse1",
+        "Dark",
+        "Eclipse1.ogg"
+    ],
+    [
+        "Eclipse2",
+        "Dark",
+        "Eclipse2.ogg"
+    ],
+    [
+        "Eclipse3",
+        "Dark",
+        "Eclipse3.ogg"
+    ],
+    [
+        "Ereshkigal1",
+        "Dark",
+        "Ereshkigal1.ogg"
+    ],
+    [
+        "Ereshkigal2",
+        "Dark",
+        "Ereshkigal2.ogg"
+    ],
+    [
+        "Fenrir1",
+        "Dark",
+        "Fenrir1.ogg"
+    ],
+    [
+        "Fenrir2",
+        "Dark",
+        "Fenrir2.ogg"
+    ],
+    [
+        "Fenrir3",
+        "Dark",
+        "Fenrir3.ogg"
+    ],
+    [
+        "Fenrir4",
+        "Dark",
+        "Fenrir4.ogg"
+    ],
+    [
+        "Flux1",
+        "Dark",
+        "Flux1.ogg"
+    ],
+    [
+        "Flux2",
+        "Dark",
+        "Flux2.ogg"
+    ],
+    [
+        "Gespenst1",
+        "Dark",
+        "Gespenst1.ogg"
+    ],
+    [
+        "Gespenst2",
+        "Dark",
+        "Gespenst2.ogg"
+    ],
+    [
+        "Gespenst3",
+        "Dark",
+        "Gespenst3.ogg"
+    ],
+    [
+        "Gleipnir",
+        "Dark",
+        "Gleipnir.ogg"
+    ],
+    [
+        "GleipnirHit",
+        "Dark",
+        "GleipnirHit.ogg"
+    ],
+    [
+        "Luna1",
+        "Dark",
+        "Luna1.ogg"
+    ],
+    [
+        "Luna2",
+        "Dark",
+        "Luna2.ogg"
+    ],
+    [
+        "Naglfar",
+        "Dark",
+        "Naglfar.ogg"
+    ],
+    [
+        "NaglfarHit",
+        "Dark",
+        "NaglfarHit.ogg"
+    ],
+    [
+        "Nosferatu1",
+        "Dark",
+        "Nosferatu1.ogg"
+    ],
+    [
+        "Nosferatu2",
+        "Dark",
+        "Nosferatu2.ogg"
+    ],
+    [
+        "Nosferatu3",
+        "Dark",
+        "Nosferatu3.ogg"
+    ],
+    [
+        "Aura1",
+        "Light",
+        "Aura1.ogg"
+    ],
+    [
+        "Aura2",
+        "Light",
+        "Aura2.ogg"
+    ],
+    [
+        "Aura3",
+        "Light",
+        "Aura3.ogg"
+    ],
+    [
+        "Aureola1",
+        "Light",
+        "Aureola1.ogg"
+    ],
+    [
+        "Aureola2",
+        "Light",
+        "Aureola2.ogg"
+    ],
+    [
+        "Aureola3",
+        "Light",
+        "Aureola3.ogg"
+    ],
+    [
+        "Divine1",
+        "Light",
+        "Divine1.ogg"
+    ],
+    [
+        "Divine2",
+        "Light",
+        "Divine2.ogg"
+    ],
+    [
+        "Divine3",
+        "Light",
+        "Divine3.ogg"
+    ],
+    [
+        "Ivaldi1",
+        "Light",
+        "Ivaldi1.ogg"
+    ],
+    [
+        "Ivaldi2",
+        "Light",
+        "Ivaldi2.ogg"
+    ],
+    [
+        "Lightning1",
+        "Light",
+        "Lightning1.ogg"
+    ],
+    [
+        "Lightning2",
+        "Light",
+        "Lightning2.ogg"
+    ],
+    [
+        "Luce1",
+        "Light",
+        "Luce1.ogg"
+    ],
+    [
+        "Luce2",
+        "Light",
+        "Luce2.ogg"
+    ],
+    [
+        "Luce3",
+        "Light",
+        "Luce3.ogg"
+    ],
+    [
+        "Purge1",
+        "Light",
+        "Purge1.ogg"
+    ],
+    [
+        "Purge2",
+        "Light",
+        "Purge2.ogg"
+    ],
+    [
+        "Purge3",
+        "Light",
+        "Purge3.ogg"
+    ],
+    [
+        "Purge4",
+        "Light",
+        "Purge4.ogg"
+    ],
+    [
+        "Shine",
+        "Light",
+        "Shine.ogg"
+    ],
+    [
+        "Map_Step_Armor1",
+        "MapStep",
+        "Map_Step_Armor1.ogg"
+    ],
+    [
+        "Map_Step_Armor2",
+        "MapStep",
+        "Map_Step_Armor2.ogg"
+    ],
+    [
+        "Map_Step_FDragon",
+        "MapStep",
+        "Map_Step_FDragon.ogg"
+    ],
+    [
+        "Map_Step_Flier",
+        "MapStep",
+        "Map_Step_Flier.ogg"
+    ],
+    [
+        "Map_Step_Infantry1",
+        "MapStep",
+        "Map_Step_Infantry1.ogg"
+    ],
+    [
+        "Map_Step_Infantry2",
+        "MapStep",
+        "Map_Step_Infantry2.ogg"
+    ],
+    [
+        "Map_Step_Mounted1",
+        "MapStep",
+        "Map_Step_Mounted1.ogg"
+    ],
+    [
+        "Map_Step_Mounted2",
+        "MapStep",
+        "Map_Step_Mounted2.ogg"
+    ],
+    [
+        "Map_Step_Mounted3",
+        "MapStep",
+        "Map_Step_Mounted3.ogg"
+    ],
+    [
+        "CrimsonEye",
+        "MonsterSpells",
+        "CrimsonEye.ogg"
+    ],
+    [
+        "DemonLight",
+        "MonsterSpells",
+        "DemonLight.ogg"
+    ],
+    [
+        "DemonLightHit",
+        "MonsterSpells",
+        "DemonLightHit.ogg"
+    ],
+    [
+        "DemonSurge",
+        "MonsterSpells",
+        "DemonSurge.ogg"
+    ],
+    [
+        "EvilEye",
+        "MonsterSpells",
+        "EvilEye.ogg"
+    ],
+    [
+        "Shadowshot",
+        "MonsterSpells",
+        "Shadowshot.ogg"
+    ],
+    [
+        "ShadowshotHit",
+        "MonsterSpells",
+        "ShadowshotHit.ogg"
+    ],
+    [
+        "Stone",
+        "MonsterSpells",
+        "Stone.ogg"
+    ],
+    [
+        "StoneHit",
+        "MonsterSpells",
+        "StoneHit.ogg"
+    ],
+    [
+        "DebuffRecover",
+        "OtherItems",
+        "DebuffRecover.ogg"
+    ],
+    [
+        "HealBoop",
+        "OtherItems",
+        "HealBoop.ogg"
+    ],
+    [
+        "MapHeal",
+        "OtherItems",
+        "MapHeal.ogg"
+    ],
+    [
+        "Poison",
+        "OtherItems",
+        "Poison.ogg"
+    ],
+    [
+        "PureWater",
+        "OtherItems",
+        "PureWater.ogg"
+    ],
+    [
+        "Rally",
+        "OtherItems",
+        "Rally.ogg"
+    ],
+    [
+        "Torch",
+        "OtherItems",
+        "Torch.ogg"
+    ],
+    [
+        "Barrier",
+        "Staff",
+        "Barrier.ogg"
+    ],
+    [
+        "Berserk",
+        "Staff",
+        "Berserk.ogg"
+    ],
+    [
+        "Fortify",
+        "Staff",
+        "Fortify.ogg"
+    ],
+    [
+        "Hammerne",
+        "Staff",
+        "Hammerne.ogg"
+    ],
+    [
+        "Heal1",
+        "Staff",
+        "Heal1.ogg"
+    ],
+    [
+        "Heal2",
+        "Staff",
+        "Heal2.ogg"
+    ],
+    [
+        "HealInit",
+        "Staff",
+        "HealInit.ogg"
+    ],
+    [
+        "Mend",
+        "Staff",
+        "Mend.ogg"
+    ],
+    [
+        "Recover",
+        "Staff",
+        "Recover.ogg"
+    ],
+    [
+        "Restore",
+        "Staff",
+        "Restore.ogg"
+    ],
+    [
+        "Silence1",
+        "Staff",
+        "Silence1.ogg"
+    ],
+    [
+        "Silence2",
+        "Staff",
+        "Silence2.ogg"
+    ],
+    [
+        "SilenceCrack",
+        "Staff",
+        "SilenceCrack.ogg"
+    ],
+    [
+        "Sleep1",
+        "Staff",
+        "Sleep1.ogg"
+    ],
+    [
+        "Sleep2",
+        "Staff",
+        "Sleep2.ogg"
+    ],
+    [
+        "UnlockStaff",
+        "Staff",
+        "UnlockStaff.ogg"
+    ],
+    [
+        "Warp",
+        "Staff",
+        "Warp.ogg"
+    ],
+    [
+        "WarpEnd",
+        "Staff",
+        "WarpEnd.ogg"
+    ],
+    [
+        "ArmorShift",
+        null,
+        "ArmorShift.ogg"
+    ],
+    [
+        "Attack Hit 1",
+        null,
+        "Attack Hit 1.ogg"
+    ],
+    [
+        "Attack Hit 2",
+        null,
+        "Attack Hit 2.ogg"
+    ],
+    [
+        "Attack Hit 3",
+        null,
+        "Attack Hit 3.ogg"
+    ],
+    [
+        "Attack Hit 4",
+        null,
+        "Attack Hit 4.ogg"
+    ],
+    [
+        "Attack Hit 5",
+        null,
+        "Attack Hit 5.ogg"
+    ],
+    [
+        "Attack Miss 2",
+        null,
+        "Attack Miss 2.ogg"
+    ],
+    [
+        "Attack Miss 3",
+        null,
+        "Attack Miss 3.ogg"
+    ],
+    [
+        "Axe Pull",
+        null,
+        "Axe Pull.ogg"
+    ],
+    [
+        "Axe Push",
+        null,
+        "Axe Push.ogg"
+    ],
+    [
+        "Battle Cry",
+        null,
+        "Battle Cry.ogg"
+    ],
+    [
+        "BindingBladeRanged",
+        null,
+        "BindingBladeRanged.ogg"
+    ],
+    [
+        "Bow Miss",
+        null,
+        "Bow Miss.ogg"
+    ],
+    [
+        "Bow",
+        null,
+        "Bow.ogg"
+    ],
+    [
+        "BrightFlash",
+        null,
+        "BrightFlash.ogg"
+    ],
+    [
+        "CombatDeath",
+        null,
+        "CombatDeath.ogg"
+    ],
+    [
+        "Critical Hit 1",
+        null,
+        "Critical Hit 1.ogg"
+    ],
+    [
+        "Critical Hit 2",
+        null,
+        "Critical Hit 2.ogg"
+    ],
+    [
+        "Critical Kill",
+        null,
+        "Critical Kill.ogg"
+    ],
+    [
+        "CritInit",
+        null,
+        "CritInit.ogg"
+    ],
+    [
+        "CyclopsCrit",
+        null,
+        "CyclopsCrit.ogg"
+    ],
+    [
+        "Dance1",
+        null,
+        "Dance1.ogg"
+    ],
+    [
+        "Dance2",
+        null,
+        "Dance2.ogg"
+    ],
+    [
+        "Death",
+        null,
+        "Death.ogg"
+    ],
+    [
+        "DruidCrit",
+        null,
+        "DruidCrit.ogg"
+    ],
+    [
+        "Error",
+        null,
+        "Error.ogg"
+    ],
+    [
+        "Experience Gain Old",
+        null,
+        "Experience Gain Old.ogg"
+    ],
+    [
+        "Experience Gain",
+        null,
+        "Experience Gain.ogg"
+    ],
+    [
+        "Final Hit",
+        null,
+        "Final Hit.ogg"
+    ],
+    [
+        "First Stat Up",
+        null,
+        "First Stat Up.ogg"
+    ],
+    [
+        "Foot Step",
+        null,
+        "Foot Step.ogg"
+    ],
+    [
+        "FormationSelect",
+        null,
+        "FormationSelect.ogg"
+    ],
+    [
+        "General Step",
+        null,
+        "General Step.ogg"
+    ],
+    [
+        "GoldExchange",
+        null,
+        "GoldExchange.ogg"
+    ],
+    [
+        "Heavy Foot Steps 1",
+        null,
+        "Heavy Foot Steps 1.ogg"
+    ],
+    [
+        "Heavy Spear Spin",
+        null,
+        "Heavy Spear Spin.ogg"
+    ],
+    [
+        "Heavy Wing Flap",
+        null,
+        "Heavy Wing Flap.ogg"
+    ],
+    [
+        "Horse Step 1",
+        null,
+        "Horse Step 1.ogg"
+    ],
+    [
+        "Horse Step 2",
+        null,
+        "Horse Step 2.ogg"
+    ],
+    [
+        "Horse Step 3",
+        null,
+        "Horse Step 3.ogg"
+    ],
+    [
+        "Horse Steps",
+        null,
+        "Horse Steps.ogg"
+    ],
+    [
+        "HP_Recovery",
+        null,
+        "HP_Recovery.ogg"
+    ],
+    [
+        "Info In",
+        null,
+        "Info In.ogg"
+    ],
+    [
+        "Info Out",
+        null,
+        "Info Out.ogg"
+    ],
+    [
+        "Intro",
+        null,
+        "Intro.ogg"
+    ],
+    [
+        "Item",
+        null,
+        "Item.ogg"
+    ],
+    [
+        "ItemBreak",
+        null,
+        "ItemBreak.ogg"
+    ],
+    [
+        "Knight Step",
+        null,
+        "Knight Step.ogg"
+    ],
+    [
+        "Legendary Weapon",
+        null,
+        "Legendary Weapon.ogg"
+    ],
+    [
+        "Level Up",
+        null,
+        "Level Up.ogg"
+    ],
+    [
+        "Level_Up_Level",
+        null,
+        "Level_Up_Level.ogg"
+    ],
+    [
+        "Light Foot Steps 1",
+        null,
+        "Light Foot Steps 1.ogg"
+    ],
+    [
+        "Long Wing Flap",
+        null,
+        "Long Wing Flap.ogg"
+    ],
+    [
+        "Map In",
+        null,
+        "Map In.ogg"
+    ],
+    [
+        "Map Out",
+        null,
+        "Map Out.ogg"
+    ],
+    [
+        "Message",
+        null,
+        "Message.ogg"
+    ],
+    [
+        "Miss",
+        null,
+        "Miss.ogg"
+    ],
+    [
+        "MonkRune",
+        null,
+        "MonkRune.ogg"
+    ],
+    [
+        "Neigh",
+        null,
+        "Neigh.ogg"
+    ],
+    [
+        "Next Turn",
+        null,
+        "Next Turn.ogg"
+    ],
+    [
+        "No Damage",
+        null,
+        "No Damage.ogg"
+    ],
+    [
+        "Promotion1",
+        null,
+        "Promotion1.ogg"
+    ],
+    [
+        "Promotion2",
+        null,
+        "Promotion2.ogg"
+    ],
+    [
+        "Promotion3",
+        null,
+        "Promotion3.ogg"
+    ],
+    [
+        "PromotionCrackle",
+        null,
+        "PromotionCrackle.ogg"
+    ],
+    [
+        "Quintessence",
+        null,
+        "Quintessence.ogg"
+    ],
+    [
+        "RefreshDance",
+        null,
+        "RefreshDance.ogg"
+    ],
+    [
+        "RefreshDanceMap",
+        null,
+        "RefreshDanceMap.ogg"
+    ],
+    [
+        "RefreshFlute",
+        null,
+        "RefreshFlute.ogg"
+    ],
+    [
+        "RefreshFluteMap",
+        null,
+        "RefreshFluteMap.ogg"
+    ],
+    [
+        "SageCrit",
+        null,
+        "SageCrit.ogg"
+    ],
+    [
+        "SageRune",
+        null,
+        "SageRune.ogg"
+    ],
+    [
+        "Save",
+        null,
+        "Save.ogg"
+    ],
+    [
+        "Select 1",
+        null,
+        "Select 1.ogg"
+    ],
+    [
+        "Select 2",
+        null,
+        "Select 2.ogg"
+    ],
+    [
+        "Select 3",
+        null,
+        "Select 3.ogg"
+    ],
+    [
+        "Select 4",
+        null,
+        "Select 4.ogg"
+    ],
+    [
+        "Select 5",
+        null,
+        "Select 5.ogg"
+    ],
+    [
+        "Select 6",
+        null,
+        "Select 6.ogg"
+    ],
+    [
+        "ShamanRune",
+        null,
+        "ShamanRune.ogg"
+    ],
+    [
+        "Sheathe",
+        null,
+        "Sheathe.ogg"
+    ],
+    [
+        "SkillActivate",
+        null,
+        "SkillActivate.ogg"
+    ],
+    [
+        "StageClear",
+        null,
+        "StageClear.ogg"
+    ],
+    [
+        "Start",
+        null,
+        "Start.ogg"
+    ],
+    [
+        "Stat Up",
+        null,
+        "Stat Up.ogg"
+    ],
+    [
+        "Status_Character",
+        null,
+        "Status_Character.ogg"
+    ],
+    [
+        "Status_Page_Change",
+        null,
+        "Status_Page_Change.ogg"
+    ],
+    [
+        "Step Back 1",
+        null,
+        "Step Back 1.ogg"
+    ],
+    [
+        "StrategistRune",
+        null,
+        "StrategistRune.ogg"
+    ],
+    [
+        "Summon 2",
+        null,
+        "Summon 2.ogg"
+    ],
+    [
+        "Summon",
+        null,
+        "Summon.ogg"
+    ],
+    [
+        "Sword Whoosh",
+        null,
+        "Sword Whoosh.ogg"
+    ],
+    [
+        "Throw 1",
+        null,
+        "Throw 1.ogg"
+    ],
+    [
+        "Throw 2",
+        null,
+        "Throw 2.ogg"
+    ],
+    [
+        "Throw 3",
+        null,
+        "Throw 3.ogg"
+    ],
+    [
+        "TradeRight",
+        null,
+        "TradeRight.ogg"
+    ],
+    [
+        "TurnwheelIn1",
+        null,
+        "TurnwheelIn1.ogg"
+    ],
+    [
+        "TurnwheelIn2",
+        null,
+        "TurnwheelIn2.ogg"
+    ],
+    [
+        "TurnwheelOut",
+        null,
+        "TurnwheelOut.ogg"
+    ],
+    [
+        "TurnwheelTurn",
+        null,
+        "TurnwheelTurn.ogg"
+    ],
+    [
+        "Unlock",
+        null,
+        "Unlock.ogg"
+    ],
+    [
+        "Unsheathe",
+        null,
+        "Unsheathe.ogg"
+    ],
+    [
+        "ValkyrieCharge",
+        null,
+        "ValkyrieCharge.ogg"
+    ],
+    [
+        "VillageDestroyed",
+        null,
+        "VillageDestroyed.ogg"
+    ],
+    [
+        "Wall Attack",
+        null,
+        "Wall Attack.ogg"
+    ],
+    [
+        "Weapon Click",
+        null,
+        "Weapon Click.ogg"
+    ],
+    [
+        "Weapon Pull",
+        null,
+        "Weapon Pull.ogg"
+    ],
+    [
+        "Weapon Push",
+        null,
+        "Weapon Push.ogg"
+    ],
+    [
+        "Weapon Shine",
+        null,
+        "Weapon Shine.ogg"
+    ],
+    [
+        "Weapon Swing",
+        null,
+        "Weapon Swing.ogg"
+    ],
+    [
+        "Whistle",
+        null,
+        "Whistle.ogg"
     ]
 ]

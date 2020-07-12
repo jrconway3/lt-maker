@@ -469,10 +469,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
                     counter = 0
                     for command in current_pose.timeline:
                         if command.tag == 'frame':
-                            if isinstance(command.attr, tuple):
-                                counter += command.value[0]
-                            else:
-                                counter += command.value  # Wait
+                            counter += command.value[0]
                     copy_frame(current_frame, 31 - counter)
                 elif current_mode in (1, 2, 3, 4):  # Hit or Crit
                     wait_for_hit(current_frame)

@@ -51,7 +51,7 @@ class UnitObject(Prefab):
             self.growth_points = {k: 0 for k in self.stats.keys()}
 
         self.status_effects = []
-        self.status_bundle = utilities.Multiset()
+        # self.status_bundle = utilities.Multiset()
 
         self.current_hp = game.equations.hitpoints(self)
         if 'MANA' in DB.equations:
@@ -120,42 +120,6 @@ class UnitObject(Prefab):
                     weapon_type = item.spell.value[0]
                 requirement = DB.weapon_ranks.get(item.level.value).requirement
                 self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
-
-    def has_uses(self, item) -> bool:
-        if item.uses and item.uses.value <= 0:
-            return False
-        if item.c_uses and item.c_uses.value <= 0:
-            return False
-        if item.hp_cost and self.get_hp() <= item.hp_cost.value:
-            return False
-        if item.mana_cost and self.get_mana() <= item.mana_cost.value:
-            return False
-        return True
-
-    def could_wield(self, item) -> bool:
-        if item.prf_unit:
-            if self.nid not in item.prf_unit.value.keys():
-                return False
-        if item.prf_class:
-            if self.klass not in item.prf_class.value.keys():
-                return False
-        if item.prf_tag:
-            if not any(tag in item.prf_tag.value.keys() for tag in self.tags):
-                return False
-        if (item.weapon or item.spell) and item.level:
-            weapon_rank = DB.weapon_ranks.get(item.level.value)
-            req = weapon_rank.requirement
-            comp = item.weapon.value if item.weapon else item.spell.value[0]
-            spec_wexp = self.wexp.get(comp)
-            klass = DB.classes.get(self.klass)
-            klass_usable = klass.wexp_gain.get(comp).usable
-            if klass_usable and spec_wexp >= req:
-                return True
-            return False
-        return True
-
-    def can_wield(self, item) -> bool:
-        return self.could_wield(item) and self.has_uses(item)
 
     def could_use(self, item):
         if item.heal:
@@ -395,7 +359,7 @@ class UnitObject(Prefab):
         self.starting_position = self.position
 
         self.status_effects = [game.get_status(status_uid) for status_uid in s_dict['status_effects']]
-        self.status_bundle = Multiset()
+        # self.status_bundle = Multiset()
 
         self.current_hp = s_dict['current_hp']
         self.current_mana = s_dict['current_mana']

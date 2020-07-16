@@ -7,7 +7,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, combat, image_mods, banner, save, phase
+from app.engine import engine, action, menus, interaction, combat, image_mods, banner, save, phase, status_system, targets
 from app.engine.targets import SelectionHelper
 
 import logging
@@ -114,7 +114,7 @@ class FreeState(MapState):
             cur_unit = game.grid.get_unit(cur_pos)
             if cur_unit:
                 game.cursor.cur_unit = cur_unit
-                if cur_unit.team == 'player' and 'un_selectable' not in cur_unit.status_bundle:
+                if status_system.can_select(cur_unit):
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
                 else:
@@ -480,31 +480,31 @@ class MenuState(MapState):
 
         if not self.cur_unit.has_attacked:
             self.cur_unit.sprite.change_state('menu')
-            spell_targets = game.targets.get_all_spell_targets(self.cur_unit)
-            atk_targets = game.targets.get_all_weapon_targets(self.cur_unit)
+            spell_targets = targets.get_all_spell_targets(self.cur_unit)
+            atk_targets = targets.get_all_weapon_targets(self.cur_unit)
         else:
             self.cur_unit.sprite.change_state('selected')
             spell_targets = set()
             atk_targets = set()
 
         if spell_targets:
-            valid_attacks = game.targets.get_possible_spell_attacks(self.cur_unit, valid_moves)
+            valid_attacks = targets.get_possible_spell_attacks(self.cur_unit, valid_moves)
             game.highlight.display_possible_spell_attacks(valid_attacks)
         if atk_targets:
-            valid_attacks = game.targets.get_possible_attacks(self.cur_unit, valid_moves)
+            valid_attacks = targets.get_possible_attacks(self.cur_unit, valid_moves)
             game.highlight.display_possible_attacks(valid_attacks)
         if self.cur_unit.has_canto():
             # Shows the canto moves in the menu
-            game.highlight.display_moves(game.targets.get_valid_moves(self.cur_unit))
+            game.highlight.display_moves(targets.get_valid_moves(self.cur_unit))
         # Aura
         game.cursor.set_pos(self.cur_unit.position)
 
         options = []
 
-        adj_positions = game.targets.get_adjacent_positions(self.cur_unit.position)
+        adj_positions = targets.get_adjacent_positions(self.cur_unit.position)
         adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
         adj_units = [_ for _ in adj_units if _]  # Remove Nones
-        adj_allies = [unit for unit in adj_units if game.targets.check_ally(self.cur_unit, unit)]
+        adj_allies = [unit for unit in adj_units if targets.check_ally(self.cur_unit, unit)]
 
         # If the unit has valid targets
         if atk_targets:
@@ -538,9 +538,8 @@ class MenuState(MapState):
         # If the unit has an item
         if self.cur_unit.items:
             options.append("Item")
-        if adj_allies:
-            if any(ally.team == self.cur_unit.team for ally in adj_allies):
-                options.append("Trade")
+        if any(status_system.can_trade(self.cur_unit, unit) for unit in game.level.units):
+            options.append("Trade")
         options.append("Wait")
 
         self.menu = menus.Choice(self.cur_unit, options)
@@ -563,7 +562,7 @@ class MenuState(MapState):
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             if self.cur_unit.has_traded:
-                if self.cur_unit.has_canto():
+                if status_system.has_canto(self.cur_unit):
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move')
                 else:
@@ -675,11 +674,11 @@ class ItemChildState(MapState):
         self.cur_unit = game.cursor.cur_unit
 
         options = []
-        if item.weapon and self.cur_unit.can_wield(item):
+        if item_system.equippable(self.cur_unit, item) and item_system.available(self.cur_unit, item):
             options.append("Equip")
-        if item.usable and self.cur_unit.can_use(item):
+        if item_system.can_use(self.cur_unit, item) and item_system.available(self.cur_unit, item):
             options.append("Use")
-        if not item.locked:
+        if item_system.locked(self.cur_unit, item):
             if 'convoy' in game.game_constants:
                 options.append('Storage')
             else:
@@ -740,10 +739,10 @@ class SelectState(MapState):
     def start(self):
         self.cur_unit = game.cursor.cur_unit
 
-        adj_positions = game.targets.get_adjacent_positions(self.cur_unit.position)
+        adj_positions = targets.get_adjacent_positions(self.cur_unit.position)
         adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
         adj_units = [_ for _ in adj_units if _]  # Remove Nones
-        adj_allies = [unit for unit in adj_units if game.targets.check_ally(self.cur_unit, unit)]
+        adj_allies = [unit for unit in adj_units if targets.check_ally(self.cur_unit, unit)]
 
         if self.name == 'rescue_select':
             good_pos = [unit.position for unit in adj_allies if not unit.traveler and
@@ -924,11 +923,11 @@ class WeaponChoiceState(MapState):
     def get_options(self, unit):
         options = [item for item in unit.items if item.weapon and unit.can_wield(item)]
         # Skill straining
-        options = [item for item in options if game.targets.get_valid_weapon_targets(unit, item)]
+        options = [item for item in options if targets.get_valid_weapon_targets(unit, item)]
         return options
 
     def disp_attacks(self, unit, item):
-        valid_attacks, valid_splash = game.targets.get_attacks(unit, item)
+        valid_attacks, valid_splash = targets.get_attacks(unit, item)
         game.highlight.display_possible_attacks(valid_attacks)
         game.highlight.display_possible_attacks(valid_splash, light=True)
 
@@ -989,11 +988,11 @@ class SpellChoiceState(WeaponChoiceState):
     def get_options(self, unit):
         options = [item for item in unit.items if item.spell and unit.can_wield(item)]
         # Skill straining
-        options = [item for item in options if game.targets.get_valid_spell_targets(unit, item)]
+        options = [item for item in options if targets.get_valid_spell_targets(unit, item)]
         return options
 
     def disp_attacks(self, unit, item):
-        spell_attacks = game.targets.get_spell_attacks(unit, item)
+        spell_attacks = targets.get_spell_attacks(unit, item)
         game.highlight.display_possible_spells(spell_attacks)
 
     def proceed(self):
@@ -1013,7 +1012,7 @@ class AttackState(MapState):
         game.cursor.combat_show()
         self.attacker = game.cursor.cur_unit
         self.weapon = self.attacker.get_weapon()
-        targets = game.targets.get_valid_weapon_targets(self.attacker, self.weapon)
+        targets = targets.get_valid_weapon_targets(self.attacker, self.weapon)
         self.selection = SelectionHelper(targets)
         closest_position = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_position)
@@ -1090,7 +1089,7 @@ class SpellState(MapState):
 
     def begin(self):
         # Selection
-        targets = game.targets.get_valid_spell_targets(self.attacker, self.spell)
+        targets = targets.get_valid_spell_targets(self.attacker, self.spell)
         self.selection = SelectionHelper(targets)
         if self.spell.heal:
             units = [game.level.units.get(game.grid.get_unit(pos)) for pos in targets]
@@ -1293,7 +1292,7 @@ class AIState(MapState):
         self.unit_list = [unit for unit in game.level.units if unit.position and 
                           not unit.finished and unit.team == game.phase.get_current()]
         # Sort by distance to closest enemy (ascending)
-        self.unit_list = sorted(self.unit_list, key=lambda unit: game.targets.distance_to_closest_enemy(unit))
+        self.unit_list = sorted(self.unit_list, key=lambda unit: targets.distance_to_closest_enemy(unit))
         # Sort ai groups together
         self.unit_list = sorted(self.unit_list, key=lambda unit: unit.ai_group)
         # Sort by ai priority

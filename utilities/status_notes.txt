@@ -6,7 +6,7 @@ Compute Check (compute_damage, compute_hit, etc.)
 Regular Check (Damage, Resist, Hit, Avoid, etc.)
 Solver Check (Lifelink, Status, Evasion, Devil Axe)
 Post-Combat Check (Status After Battle, Status After Kill)
-Unselectable
+Unselectable (Can select - Unit)
 Weapon Wield Change
 On Status Add
     AI Change

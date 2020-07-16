@@ -3,7 +3,7 @@ from app import utilities
 from app.engine.sprites import SPRITES
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 
-from app.engine import engine
+from app.engine import engine, targets
 from app.engine.game_state import game
 
 class BoundaryInterface():
@@ -79,13 +79,13 @@ class BoundaryInterface():
                     self.grids[m][x * self.height + y].clear()
 
     def _add_unit(self, unit):
-        valid_moves = game.targets.get_valid_moves(unit, force=True)
-        valid_attacks = game.targets.get_possible_attacks(unit, valid_moves, boundary=True)
-        valid_spells = game.targets.get_possible_spell_attacks(unit, valid_moves, boundary=True)
+        valid_moves = targets.get_valid_moves(unit, force=True)
+        valid_attacks = targets.get_possible_attacks(unit, valid_moves, boundary=True)
+        valid_spells = targets.get_possible_spell_attacks(unit, valid_moves, boundary=True)
         self._set(valid_attacks, 'attack', unit.nid)
         self._set(valid_spells, 'spell', unit.nid)
 
-        area_of_influence = game.targets.find_manhattan_spheres(set(range(1, game.equations.movement(unit) + 1)), *unit.position)
+        area_of_influence = targets.find_manhattan_spheres(set(range(1, game.equations.movement(unit) + 1)), *unit.position)
         area_of_influence = {pos for pos in area_of_influence if self.check_bounds(pos)}
         self._set(area_of_influence, 'movement', unit.nid)
 

@@ -1,6 +1,5 @@
 import re, functools
 
-from app import utilities
 from app.data.database import DB
 
 class Parser():
@@ -52,17 +51,3 @@ class Parser():
         expr = 'int(%s)' % expr
         equations = self.equations
         return eval(expr)
-
-    def get_range(self, item, unit) -> set:
-        # Calc min range
-        if utilities.is_int(item.min_range):
-            min_range = int(item.min_range)
-        else:
-            min_range = self.get(item.min_range, unit, item)
-        # Calc max range
-        if utilities.is_int(item.max_range):
-            max_range = int(item.max_range)
-        else:
-            max_range = self.get(item.max_range, unit, item)
-        max_range += item.longshot.value if item.longshot else 0
-        return set(range(min_range, max_range + 1))

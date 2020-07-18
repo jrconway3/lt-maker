@@ -1,7 +1,6 @@
-from app.data.item_components import SpellAffect, AOEMode
-from app import utilities
-import app.engine.config as cf
-from app.engine import action, banner, combat
+from app.data.database import DB
+
+from app.engine import action, banner, combat_calcs, item_system, status_system, static_random
 from app.engine.game_state import game
 
 import logging
@@ -28,59 +27,138 @@ def handle_booster(unit, item):
     elif item.event_script:
         pass  # TODO
 
-def get_aoe(item, user, atk_pos, target_pos) -> tuple:
-    if not item.aoe:
-        return target_pos, set()
-    if item.aoe.value == AOEMode.Cleave:
-        x, y = atk_pos
-        other_pos = [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1),
-                     (x - 1, y), (x + 1, y),
-                     (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
-        splash_positions = {pos for pos in other_pos if game.tilemap.check_bounds(pos) and 
-                            not utilities.compare_teams(user.team, game.grid.get_team(pos))}
-        return target_pos, splash_positions - {target_pos}
-    elif item.aoe.value == AOEMode.AllAllies:
-        splash_positions = {unit.position for unit in game.level.units if unit.position and game.target.check_ally(user, unit)}
-        return None, splash_positions
-    elif item.aoe.value == AOEMode.AllEnemies:
-        splash_positions = {unit.position for unit in game.level.units if unit.position and game.target.check_enemy(user, unit)}
-        return None, splash_positions
-    elif item.aoe.value == AOEMode.AllUnits:
-        splash_positions = {unit.position for unit in game.level.units if unit.position}
-        return None, splash_positions
+class SolverState():
+    def get_next_state(self, solver):
+        return None
 
-def convert_positions(attacker, atk_position, target_position, item):
-    logger.info("Attacker Position: %s, Target Position: %s, Item: %s", atk_position, target_position, item)
-    if item.weapon or item.spell:
-        def_position, splash_positions = get_aoe(item, attacker, atk_position, target_position)
-    else:
-        def_position, splash_positions = target_position, set()
-    logger.info('Defender Position: %s, Splash Pos: %s', def_position, splash_positions)
+    def process(self, solver):
+        return None
 
-    if def_position:
-        main_defender = game.grid.get_unit(def_position)
-        # Also tiles here
-    else:
-        main_defender = None
-    splash_units = [unit for unit in game.level.units if unit.position in splash_positions]
+class InitState(SolverState):
+    def get_next_state(self, solver):
+        if solver.defender_has_vantage():
+            return 'defender'
+        else:
+            return 'attacker'
 
-    # Beneficial Stuff only helps allies
-    if item.spell and item.spell.affect == SpellAffect.Helpful:
-        splash_units = [unit for unit in splash_units if game.targets.check_ally(attacker, unit)]
-        if item.heal:  # Only heal allies who need it
-            splash_units = [unit for unit in splash_units if unit.get_hp() < game.equations.hitpoints(unit)]
-    # if item.weapon or (item.spell and item.spell.affect != SpellAffect.Helpful):
-    #     splash_units += Tiles!
-    logger.info("Main Defender: %s, Splash: %s", main_defender.nid if main_defender else None, splash_units)
-    return main_defender, splash_units
+class AttackerState(SolverState):
+    def get_next_state(self, solver):
+        if solver.attacker_alive() and solver.main_target_alive():
+            if solver.allow_counterattack() and \
+                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defend'):
+                return 'defender'
+            elif solver.item_has_uses() and \
+                    solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
+                return 'attacker'
+        return None
 
-def start_combat(attacker, defender, def_pos, splash, item, 
-                 skill_used=None, event_combat=None, ai_combat=False):
-    def animation_wanted(attacker, defender):
-        return (cf.SETTINGS['animation'] == 'Always' or
-                (cf.SETTINGS['animation'] == 'Your Turn' and attacker.team == 'player') or
-                (cf.SETTINGS['animation'] == 'Combat Only' and game.targets.check_enemy(attacker, defender)))
+    def process(self, solver):
+        multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
+        for attack in range(multiattacks):
+            if solver.main_target:
+                solver.process(solver.attacker, solver.main_target, solver.item, 'attack')
+            for target in solver.splash:
+                solver.process(solver.attacker, target, solver.item, 'attack')
+        solver.num_attacks += 1
 
-    toggle_anim = game.input_manager.is_pressed('AUX')
-    # TODO Create animation combat here
-    return combat.MapCombat(attacker, defender, def_pos, splash, item, skill_used, event_combat, ai_combat)
+class DefenderState(SolverState):
+    def get_next_state(self, solver):
+        if solver.attacker_alive() and solver.main_target_alive():
+            if solver.item_has_uses() and \
+                    solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
+                return 'attacker'
+            elif solver.allow_counterattack() and \
+                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defend'):
+                return 'defender'
+
+    def process(self, solver):
+        multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
+        for attack in range(multiattacks):
+            solver.process(solver.main_target, solver.attacker, solver.target_item, 'defend')
+        solver.num_defends += 1
+
+class CombatPhaseSolver():
+    states = {'init': InitState,
+              'attacker': AttackerState,
+              'defender': DefenderState}
+
+    def __init__(self, attacker, main_target, splash, item):
+        self.attacker = attacker
+        self.main_target = main_target
+        self.splash = splash
+        self.item = item
+        self.target_item = self.main_target.get_weapon()
+        self.state = InitState()
+        self.num_attacks, self.num_defends = 0, 0
+
+    def get_state(self):
+        return self.state
+
+    def do(self):
+        self.state.process(self)
+        next_state = self.state.get_next_state(self)
+        if next_state:
+            self.state = self.states[next_state]()
+
+    def generate_roll(self):
+        rng_mode = DB.constants.get('rng').value
+        if rng_mode == 'Classic':
+            roll = static_random.get_combat()
+        elif rng_mode == 'True Hit':
+            roll = (static_random.get_combat() + static_random.get_combat()) // 2
+        elif rng_mode == 'True Hit+':
+            roll = (static_random.get_combat() + static_random.get_combat() + static_random.get_combat()) // 3
+        elif rng_mode == 'Grandmaster':
+            roll = 0
+        return roll
+
+    def generate_crit_roll(self):
+        return static_random.get_combat()
+
+    def process(self, attacker, defender, item, mode):
+        to_hit = combat_calcs.compute_hit(attacker, defender, item, mode)
+        roll = self.generate_roll()
+        if roll < to_hit:
+            crit = False
+            if DB.constants.get('crit').value:
+                to_crit = combat_calcs.compute_crit(attacker, defender, item, mode)
+                crit_roll = self.generate_crit_roll()
+                if crit_roll < to_crit:
+                    crit = True
+            if crit:
+                combat_calcs.on_crit(attacker, item, defender, mode)
+            else:
+                combat_calcs.on_hit(attacker, item, defender, mode)
+
+    def attacker_alive(self):
+        return self.attacker.get_hp() > 0
+
+    def main_target_alive(self):
+        return self.main_target and self.main_target.get_hp() > 0
+
+    def defender_has_vantage(self):
+        return self.allow_counterattack() and \
+            status_system.vantage(self.main_target) and \
+            not item_system.can_be_countered(self.attacker, self.item)
+
+    def allow_counterattack(self):
+        return self.target_item_has_uses() and \
+            item_system.can_be_countered(self.attacker, self.item) and \
+            item_system.can_counter(self.main_target, self.target_item) and \
+            (not self.attacker.position or \
+             self.attacker.position in self.attacker.item_system.valid_targets(self.main_target, self.target_item))
+
+    def item_has_uses(self):
+        return item_system.available(self.attacker, self.item)
+
+    def target_item_has_uses(self):
+        return self.main_target and self.target_item and item_system.available(self.main_target, self.target_item)
+
+def engage(attacker, position, item):
+    # Does one round of combat
+    starting_action_index = game.action_log.action_index
+    main_target, splash = item_system.splash(attacker, item, position)
+    state_machine = CombatPhaseSolver(attacker, main_target, splash, item)
+    while state_machine.get_state():
+        state_machine.do()
+    return starting_action_index

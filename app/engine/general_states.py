@@ -538,7 +538,8 @@ class MenuState(MapState):
         # If the unit has an item
         if self.cur_unit.items:
             options.append("Item")
-        if any(status_system.can_trade(self.cur_unit, unit) for unit in game.level.units):
+        trade_with = any(unit for unit in game.level.units if status_system.can_trade(self.cur_unit, unit))
+        if trade_with:
             options.append("Trade")
         options.append("Wait")
 
@@ -677,8 +678,8 @@ class ItemChildState(MapState):
         if item_system.equippable(self.cur_unit, item) and item_system.available(self.cur_unit, item):
             options.append("Equip")
         if item_system.can_use(self.cur_unit, item) and item_system.available(self.cur_unit, item):
-            options.append("Use")
-        if item_system.locked(self.cur_unit, item):
+            options.append("Use")  # No targeting system for Use
+        if not item_system.locked(self.cur_unit, item):
             if 'convoy' in game.game_constants:
                 options.append('Storage')
             else:
@@ -707,14 +708,10 @@ class ItemChildState(MapState):
             selection = self.menu.get_current()
             item = self.menu.owner
             if selection == 'Use':
-                if item.booster:  # Does not use interact object
-                    game.state.clear()
-                    game.state.change('free')
-                    game.state.change('wait')
-                    interaction.handle_booster(self.cur_unit, item)
-                else:
-                    game.combat = interaction.start_combat(self.cur_unit, self.cur_unit, self.cur_unit.position, [], item)
-                    game.state.change('combat')
+                starting_action_index = interaction.engage(self.cur_unit, self.cur_unit.position, item)
+                # Play actions back
+                game.memory['combat_start'] = starting_action_index
+                game.state.change('combat')
             elif selection == 'Equip':
                 action.do(action.EquipItem(self.cur_unit, item))
                 game.memory['parent_menu'].current_index = 0  # Reset selection

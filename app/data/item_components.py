@@ -2,6 +2,11 @@ from enum import IntEnum
 
 from app.data.data import Data, Prefab
 
+class Category(IntEnum):
+    Item = 1
+    Weapon = 2
+    Spell = 3
+
 # Custom Types
 class SpellAffect(IntEnum):
     Helpful = 1

@@ -4,7 +4,7 @@ from app.data.database import DB
 
 from app.engine.item_system import ItemComponent, Type
 
-from app.engine import action, status_system, item_system
+from app.engine import action, status_system, item_system, targets
 from app.engine.game_state import game
 
 class Spell(ItemComponent):
@@ -30,6 +30,25 @@ class Weapon(ItemComponent):
     def equippable(self, unit, item):
         return True
 
+    def can_be_countered(self, unit, item):
+        return True
+
+    def can_counter(self, unit, item):
+        return True
+
+class SiegeWeapon(ItemComponent):
+    nid = 'siege_weapon'
+    desc = "Item will be treated as a siege weapon (can not double or counterattack, but can still be equipped)"
+
+    def is_weapon(self, unit, item):
+        return True
+
+    def is_spell(self, unit, item):
+        return False
+
+    def equippable(self, unit, item):
+        return True    
+
 class Uses(ItemComponent):
     nid = 'uses'
     desc = "Number of uses of item"
@@ -42,7 +61,8 @@ class Uses(ItemComponent):
         return item.data['uses'] > 0
 
     def on_use(self, unit, item):
-        item.data['uses'] -= 1
+        # item.data['uses'] -= 1
+        action.do(action.IncItemData(item, 'uses', -1))
 
     def on_not_available(self, unit, item):
         action.do(action.RemoveItem(unit, item))
@@ -60,12 +80,14 @@ class ChapterUses(ItemComponent):
         return item.data['c_uses'] > 0
 
     def on_use(self, unit, item):
-        item.data['c_uses'] -= 1
+        # item.data['c_uses'] -= 1
+        action.do(action.IncItemData(item, 'c_uses', -1))
 
     def on_not_available(self, unit, item):
         pass
 
     def on_end_chapter(self, unit, item):
+        # Don't need to use action here because it will be end of chapter
         item.data['c_uses'] = self.starting_uses
 
 class HPCost(ItemComponent):
@@ -77,10 +99,7 @@ class HPCost(ItemComponent):
         return unit.get_hp() > self.hp_cost
 
     def on_use(self, unit, item):
-        unit.change_hp(-self.hp_cost)
-
-    def on_not_available(self, unit, item):
-        pass
+        action.do(action.ChangeHP(unit, -self.hp_cost))
 
 class ManaCost(ItemComponent):
     nid = 'mana_cost'
@@ -88,13 +107,10 @@ class ManaCost(ItemComponent):
     expose = ('mana_cost', Type.Int)
 
     def available(self, unit, item) -> bool:
-        return unit.get_hp() > self.mana_cost
+        return unit.get_mana() > self.mana_cost
 
     def on_use(self, unit, item):
-        unit.change_mana(-self.mana_cost)
-
-    def on_not_available(self, unit, item):
-        pass
+        action.do(action.ChangeMana(unit, -self.mana_cost))
 
 class PrfUnit(ItemComponent):
     nid = 'prf_unit'
@@ -138,7 +154,11 @@ class WeaponRank(ItemComponent):
 
     def available(self, unit, item):
         required_wexp = DB.weapon_ranks.get(self.weapon_rank).value
-        return unit.wexp.get(item.weapon_type.weapon_type) > required_wexp
+        weapon_type = item_system.weapon_type(unit, item)
+        if weapon_type:
+            return unit.wexp.get(weapon_type(unit, item)) > required_wexp
+        else:  # If no weapon type, then always available
+            return True
 
 class TargetsUnits(ItemComponent):
     nid = 'target_unit'
@@ -214,3 +234,41 @@ class Locked(ItemComponent):
 
     def locked(self, unit, item) -> bool:
         return True
+
+class BlastAOE(ItemComponent):
+    nid = 'aoe_blast'
+    desc = "Gives Blast AOE"
+    expose = ('radius', Type.Int)
+
+    def splash(self, unit, item, position) -> tuple:
+        ranges = set(range(self.radius + 1))
+        splash = targets.find_manhattan_spheres(ranges, position[0], position[1])
+        if item_system.is_spell(unit, item):
+            # spell blast
+            splash = [game.grid.get_unit(s) for s in splash]
+            splash = [s for s in splash if s]
+            return None, splash
+        else:
+            # regular blast
+            splash = [game.grid.get_unit(s) for s in splash if s != position]
+            splash = [s for s in splash if s]
+            return game.grid.get_unit(position), splash
+
+class Damage(ItemComponent):
+    nid = 'damage'
+    desc = "Item does damage on hit"
+    expose = ('damage', Type.Int)
+
+    def display_might(self, unit, item) -> int:
+        return self.damage
+
+    def display_damage(self, unit, item, target, mode=None) -> int:
+        return combat_calcs.compute_damage(unit, target, item, mode)
+
+    def on_hit(self, unit, item, target, mode=None) -> int:
+        damage = combat_calcs.compute_damage(unit, target, item, mode)
+        action.do(action.ChangeHP(target, -damage))
+
+    def on_crit(self, unit, item, target, mode=None) -> int:
+        damage = combat_calcs.compute_damage(unit, target, item, mode, crit=True)
+        action.do(action.ChangeHP(target, -damage))

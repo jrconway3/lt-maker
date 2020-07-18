@@ -121,42 +121,15 @@ class UnitObject(Prefab):
                 requirement = DB.weapon_ranks.get(item.level.value).requirement
                 self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
 
-    def could_use(self, item):
-        if item.heal:
-            if self.get_hp() < game.equations.hitpoints(self):
-                return True
-        if item.mana:
-            if self.get_mana() < game.equations.mana(self):
-                return True
-        if item.permanent_stat_increase:
-            for stat_nid, increase in item.permanent_stat_increase.value.items():
-                current_value = self.stats[stat_nid]
-                klass_max = DB.classes.get(self.klass).max_stats.get(stat_nid)
-                if current_value < klass_max:
-                    return True
-        if item.promotion:
-            klass = DB.classes.get(self.klass)
-            allowed_classes = item.promotion.value
-            max_level = klass.max_level
-            if self.level >= max_level//2 and len(klass.turns_into) >= 1 and \
-                    (klass in allowed_classes or 'All' in allowed_classes):
-                return True
-        if not item.heal or item.mana or item.permanent_stat_increase or item.promotion:
-            return True
-        return False
-
-    def can_use(self, item) -> bool:
-        return self.could_use(item) and self.has_uses(item)
-
     def get_weapon(self):
         for item in self.items:
-            if item.weapon and self.can_wield(item):
+            if item_system.is_weapon(self, item) and item_system.available(self, item):
                 return item
         return None
 
     def get_spell(self):
         for item in self.items:
-            if item.spell and self.can_wield(item):
+            if item_system.is_spell(self, item) and item_system.available(self, item):
                 return item
         return None
 

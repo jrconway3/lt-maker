@@ -36,6 +36,14 @@ class Defaults():
     def maximum_range(unit, item) -> int:
         return 0
 
+    @staticmethod
+    def splash(unit, item, position) -> tuple:
+        """
+        Returns main target and splash
+        """
+        from app.engine.game_state import game
+        return game.grid.get_unit(position), []
+
 default_behaviours = ('is_weapon', 'is_spell' 'equippable', 'can_use', 'locked')
 # These behaviours default to false
 
@@ -48,7 +56,7 @@ for behaviour in default_behaviours:
         % (behaviour, behaviour, behaviour)
     exec(func)
 
-exclusive_behaviours = ('minimum_range', 'maximum_range')
+exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash')
 
 for behaviour in exclusive_behaviours:
     func = """def %s(unit, item):

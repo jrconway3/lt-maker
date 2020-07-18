@@ -233,47 +233,40 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
         item = unit.get_weapon()
     if not item:
         return None
-    if not (item.weapon or item.spell):
-        return 0
-    if not item.might:
-        return 0
 
     dist = utilities.calculate_distance(unit.position, target.position)
     might = damage(unit, item, dist)
 
-    if not isinstance(target, unit_object.UnitObject):
-        pass
-    else:
-        # Determine effective
-        might += get_effective(item, target)
+    # Determine effective
+    might += get_effective(item, target)
 
-        # Weapon Triangle
-        bonus = 0
+    # Weapon Triangle
+    bonus = 0
 
-        adv = compute_advantage(unit, item, target.get_weapon())
-        disadv = compute_advantage(unit, item, target.get_weapon(), False)
-        if adv:
-            bonus += int(adv.damage)
-        if disadv:
-            bonus += int(disadv.damage)
+    adv = compute_advantage(unit, item, target.get_weapon())
+    disadv = compute_advantage(unit, item, target.get_weapon(), False)
+    if adv:
+        bonus += int(adv.damage)
+    if disadv:
+        bonus += int(disadv.damage)
 
-        adv = compute_advantage(unit, target.get_weapon(), item)
-        disadv = compute_advantage(unit, target.get_weapon(), item, False)
-        if adv:
-            bonus -= int(adv.resist)
-        if disadv:
-            bonus -= int(disadv.resist)
+    adv = compute_advantage(unit, target.get_weapon(), item)
+    disadv = compute_advantage(unit, target.get_weapon(), item, False)
+    if adv:
+        bonus -= int(adv.resist)
+    if disadv:
+        bonus -= int(disadv.resist)
 
-        might += bonus
-        might -= defense(target, item, dist)
+    might += bonus
+    might -= defense(target, item, dist)
 
-        # Handle crit
-        if crit:
-            might *= game.equations.crit_mult(unit, item, dist)
-            for _ in range(game.equations.crit_add(unit, item, dist)):
-                might += damage(unit, item, dist)
+    # Handle crit
+    if crit:
+        might *= game.equations.crit_mult(unit, item, dist)
+        for _ in range(game.equations.crit_add(unit, item, dist)):
+            might += damage(unit, item, dist)
 
-        return int(max(DB.constants.get('min_damage').value, might))
+    return int(max(DB.constants.get('min_damage').value, might))
 
 def outspeed(unit, target, item, mode=None) -> bool:
     if not isinstance(target, unit_object.UnitObject):

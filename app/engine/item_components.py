@@ -260,15 +260,48 @@ class Damage(ItemComponent):
     expose = ('damage', Type.Int)
 
     def display_might(self, unit, item) -> int:
-        return self.damage
+        return combat_calcs.damage(unit, item) + self.damage
 
     def display_damage(self, unit, item, target, mode=None) -> int:
         return combat_calcs.compute_damage(unit, target, item, mode)
 
-    def on_hit(self, unit, item, target, mode=None) -> int:
+    def on_hit(self, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
         action.do(action.ChangeHP(target, -damage))
 
-    def on_crit(self, unit, item, target, mode=None) -> int:
+    def on_crit(self, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode, crit=True)
         action.do(action.ChangeHP(target, -damage))
+
+class PermanentStatChange(ItemComponent):
+    nid = 'permanent_stat_change'
+    desc = "Item changes target's stats on hit."
+    expose = ('stat_change', Type.Dict, Type.Stat)
+
+    def target_restrict(self, unit, item, target) -> bool:
+        klass = DB.classes.get(target.klass)
+        for stat, inc in self.stat_change.items():
+            if inc <= 0 or target.stats[stat] < klass.maximum:
+                return True
+        return False
+
+    def on_hit(self, unit, item, target, mode=None):
+        action.do(action.PermanentStatChange(unit, self.stat_change))
+
+class PermanentGrowthChange(ItemComponent):
+    nid = 'permanent_growth_change'
+    desc = "Item changes target's growths on hit"
+    expose = ('stat_change', Type.Dict, Type.Stat)
+
+    def on_hit(self, unit, item, target, mode=None):
+        action.do(action.PermanentGrowthChange(unit, self.stat_change))
+
+class WexpChange(ItemComponent):
+    nid = 'wexp_change'
+    desc = "Item changes target's wexp on hit"
+    expose = ('wexp_change', Type.Dict, Type.WeaponType)
+
+    def on_hit(self, unit, item, target, mode=None):
+        action.do(action.WexpChange(unit, self.wexp_change))
+
+class 

@@ -1,31 +1,10 @@
 from app.data.database import DB
 
-from app.engine import action, banner, combat_calcs, item_system, status_system, static_random
+from app.engine import combat_calcs, item_system, status_system, static_random
 from app.engine.game_state import game
 
 import logging
 logger = logging.getLogger(__name__)
-
-def handle_booster(unit, item):
-    action.do(action.UseItem(item))
-    if item.uses and item.uses.value <= 0:
-        game.alerts.append(banner.BrokenItem(unit, item))
-        game.state.change('alert')
-        action.do(action.RemoveItem(unit, item))
-
-    # Actually use item
-    if item.permanent_stat_increase:
-        game.memory['exp'] = (unit, item.permanent_stat_increase, None, 'booster')
-        game.state.change('exp')
-    elif item.permanent_growth_increase:
-        action.do(action.PermanentGrowthIncrease(unit, item.permanent_growth_increase))
-    elif item.wexp_increase:
-        action.do(action.GainWexp(unit, item.wexp_increase))
-    elif item.promotion:
-        game.memory['exp'] = (unit, 0, None, 'item_promote')
-        game.state.change('exp')
-    elif item.event_script:
-        pass  # TODO
 
 class SolverState():
     def get_next_state(self, solver):

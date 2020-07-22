@@ -37,7 +37,7 @@ class AttackerState(SolverState):
             if solver.main_target:
                 solver.process(solver.attacker, solver.main_target, solver.item, 'attack')
             for target in solver.splash:
-                solver.process(solver.attacker, target, solver.item, 'attack')
+                solver.process(solver.attacker, target, solver.item, 'splash')
         solver.num_attacks += 1
 
 class DefenderState(SolverState):

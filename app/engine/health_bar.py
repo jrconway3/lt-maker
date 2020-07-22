@@ -38,7 +38,7 @@ class HealthBar():
         # Check to see if we should update
         if self.transition_flag:
             time = (engine.get_time() - self.last_update) / self.time_for_change
-            new_val = self.old_hp + int(utilities.lerp(self.old_hp, self.unit.get_hp(), time))
+            new_val = int(utilities.lerp(self.old_hp, self.unit.get_hp(), time))
             self.set_hp(new_val)
             if time >= 1:
                 self.set_hp(self.unit.get_hp())

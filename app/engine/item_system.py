@@ -11,7 +11,9 @@ class Type(IntEnum):
     Class = 7
     Tag = 8
     Color = 9
+    Status = 10
     Set = 100
+    Dict = 101
 
 class ItemComponent():
     nid: str = None
@@ -44,7 +46,19 @@ class Defaults():
         from app.engine.game_state import game
         return game.grid.get_unit(position), []
 
-default_behaviours = ('is_weapon', 'is_spell' 'equippable', 'can_use', 'locked')
+    @staticmethod
+    def damage(unit, item) -> int:
+        return None
+
+    @staticmethod
+    def splash_multiplier(unit, item) -> int:
+        return 1
+
+    @staticmethod
+    def damage_formula(unit, item) -> str:
+        return 'DAMAGE'
+
+default_behaviours = ('is_weapon', 'is_spell', 'equippable', 'can_use', 'locked', 'can_counter', 'can_be_countered')
 # These behaviours default to false
 
 for behaviour in default_behaviours:
@@ -56,7 +70,7 @@ for behaviour in default_behaviours:
         % (behaviour, behaviour, behaviour)
     exec(func)
 
-exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash')
+exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash', 'damage', 'splash_multiplier', 'damage_formula')
 
 for behaviour in exclusive_behaviours:
     func = """def %s(unit, item):
@@ -102,3 +116,20 @@ def available(unit, item) -> bool:
             if not component.available(unit, item):
                 return False
     return True
+
+def on_hit(unit, item, target, mode=None):
+    for component in item.components:
+        if component.defines('on_hit'):
+            component.on_hit(unit, item, target, mode)
+
+def on_crit(unit, item, target, mode=None):
+    for component in item.components:
+        if component.defines('on_crit'):
+            component.on_crit(unit, item, target, mode)
+        elif component.defines('on_hit'):
+            component.on_hit(unit, item, target, mode)
+
+def on_miss(unit, item, target, mode=None):
+    for component in item.components:
+        if component.defines('on_miss'):
+            component.on_miss(unit, item, target, mode)

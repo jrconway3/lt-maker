@@ -4,13 +4,7 @@ from app.engine import item_funcs, unit_object
 from app.engine.game_state import game
 
 def get_weapon_rank_bonus(unit, item):
-    if item.weapon:
-        weapon_type = item.weapon.value
-    elif item.spell:
-        weapon_type = item.spell.weapon_type
-    else:
-        return None
-
+    weapon_type = item_system.weapon_type(unit, item)
     highest_rank = None
     for weapon_rank in DB.weapon_ranks:
         if unit.wexp[weapon_type] >= weapon_rank.requirement:
@@ -20,8 +14,8 @@ def get_weapon_rank_bonus(unit, item):
 def compute_advantage(unit, item1, item2, advantage=True):
     if not item1 or not item2:
         return None
-    item1_weapontype = item1.weapon.value if item1.weapon else item1.spell.weapon_type if item1.spell else None
-    item2_weapontype = item2.weapon.value if item2.weapon else item2.spell.weapon_type if item2.spell else None
+    item1_weapontype = item_system.weapon_type(unit, item1)
+    item2_weapontype = item_system.weapon_type(unit, item2)
     if not item1_weapontype or not item2_weapontype:
         return None
     # print(unit.nid, item1_weapontype, item2_weapontype, advantage)
@@ -112,23 +106,28 @@ def damage(unit, item=None, dist=0):
     if not item:
         item = item.get_weapon()
     if not item:
-        return 0
-    if not item.might:
-        return 0
+        return None
 
-    might = item.might.value
-    if item.custom_damage_equation:
-        equation = item.custom_damage_equation
-    elif item_funcs.is_magic(item):
-        equation = 'MAGIC_DAMAGE'
-    else:
-        equation = 'DAMAGE'
+    might = item_system.damage(unit, item)
+    if might is None:
+        return None
+
+    equation = item_system.damage_formula(unit, item)
+    # if item.custom_damage_equation:
+    #     equation = item.custom_damage_equation
+    # elif item_funcs.is_magic(item):
+    #     equation = 'MAGIC_DAMAGE'
+    # else:
+    #     equation = 'DAMAGE'
     might += game.equations.get(equation, unit, item, dist)
 
-    if item.weapon or item.spell:
-        weapon_rank = get_weapon_rank_bonus(unit, item)
-        if weapon_rank:
-            might += int(weapon_rank.damage)
+    weapon_rank = get_weapon_rank_bonus(unit, item)
+    if weapon_rank:
+        might += int(weapon_rank.damage)
+
+    # TODO
+    # Support bonus
+    # Status bonus
 
     return might
 
@@ -151,17 +150,6 @@ def defense(unit, item_to_avoid=None, dist=0):
             res = game.equations.get(equation, unit, item_to_avoid, dist)
 
     return res
-
-def compute_heal(unit, target, item, mode=None):
-    dist = utilities.calculate_distance(unit.position, target.position)
-    if item.heal == 'All':
-        heal = game.equations.hitpoints() - target.get_hp()
-    elif utilities.is_int(item.heal):
-        heal = int(item.heal) + game.equations.heal(unit, item, dist)
-    else:
-        heal = game.equations.get(item.heal, unit, item, dist)
-    # TODO Caretaker 
-    return heal
 
 def compute_hit(unit, target, item=None, mode=None):
     if not item:
@@ -265,6 +253,9 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
         might *= game.equations.crit_mult(unit, item, dist)
         for _ in range(game.equations.crit_add(unit, item, dist)):
             might += damage(unit, item, dist)
+
+    if mode == 'splash':
+        might *= item_system.splash_multiplier(unit, item)
 
     return int(max(DB.constants.get('min_damage').value, might))
 

@@ -79,7 +79,7 @@ def clamp(i, min_, max_):
 
 def lerp(a, b, t):
     t = clamp(t, 0, 1)
-    return (b - a) * t
+    return (b - a) * t + a
 
 def compare_teams(t1: str, t2: str) -> bool:
     # Returns True if allies, False if enemies

@@ -141,6 +141,9 @@ class WeaponType(ItemComponent):
     desc = "Item has a weapon type and can only be used by certain classes"
     expose = ('weapon_type', Type.WeaponType)
 
+    def weapon_type(self, unit, item):
+        return self.weapon_type
+
     def available(self, unit, item) -> bool:
         klass = DB.classes.get(unit.klass)
         klass_usable = klass.wexp_gain.get(self.weapon_type).usable
@@ -151,6 +154,9 @@ class WeaponRank(ItemComponent):
     desc = "Item has a weapon rank and can only be used by units with high enough rank"
     requires = ['weapon_type']
     expose = ('weapon_rank', Type.WeaponRank)
+
+    def weapon_rank(self, unit, item):
+        return self.weapon_rank
 
     def available(self, unit, item):
         required_wexp = DB.weapon_ranks.get(self.weapon_rank).value
@@ -184,17 +190,6 @@ class TargetsAllies(ItemComponent):
     def valid_targets(self, unit, item) -> set:
         return {other.position for other in game.level.units if other.position and 
                 status_system.check_ally(unit, other) and 
-                utilities.calculate_distance(unit.position, other.position) in item_system.get_range(unit, item)}
-
-class TargetsInjuredAllies(ItemComponent):
-    nid = 'target_injured'
-    desc = "Item targets any injured ally"
-
-    def valid_targets(self, unit, item) -> set:
-        return {other.position for other in game.level.units if 
-                other.position and 
-                status_system.check_ally(unit, other) and 
-                other.get_hp() < game.equations.hitpoints(other) and
                 utilities.calculate_distance(unit.position, other.position) in item_system.get_range(unit, item)}
 
 class MinimumRange(ItemComponent):
@@ -254,16 +249,34 @@ class BlastAOE(ItemComponent):
             splash = [s for s in splash if s]
             return game.grid.get_unit(position), splash
 
+class Magic(ItemComponent):
+    nid = 'magic'
+    desc = 'Makes Item use magic damage formula'
+
+    def damage_formula(self, unit, item):
+        return 'MAGIC_DAMAGE'
+
+class Heal(ItemComponent):
+    nid = 'heal'
+    desc = "Item heals on hit"
+    expose = ('heal', Type.Int)
+
+    def target_restrict():
+        # Restricts target based on whether any unit has < full hp
+        pass
+
+    def on_hit(unit, item, target, mode=None):
+        dist = utilities.calculate_distance(unit.position, target.position)
+        heal = self.heal + game.equations.heal(unit, item, dist)
+        action.do(action.ChangeHP(target, heal))
+
 class Damage(ItemComponent):
     nid = 'damage'
     desc = "Item does damage on hit"
     expose = ('damage', Type.Int)
 
-    def display_might(self, unit, item) -> int:
-        return combat_calcs.damage(unit, item) + self.damage
-
-    def display_damage(self, unit, item, target, mode=None) -> int:
-        return combat_calcs.compute_damage(unit, target, item, mode)
+    def damage(self, unit, item):
+        return self.damage
 
     def on_hit(self, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
@@ -272,6 +285,73 @@ class Damage(ItemComponent):
     def on_crit(self, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode, crit=True)
         action.do(action.ChangeHP(target, -damage))
+
+class Effective(ItemComponent):
+    nid = 'effective'
+    desc = 'Item does extra damage against certain units'
+    requires = ['damage']
+    expose = ('effective', Type.Int)
+
+    def effective(self, unit, item):
+        return self.effective
+
+class EffectiveTag(ItemComponent):
+    nid = 'effective_tag'
+    desc = "Item is effective against units with these tags"
+    requires = ['effective', 'damage']
+    expose = ('effective_tag', Type.Dict, Type.Tag)
+
+    def modify_damage(self, unit, item, target, mode=None) -> int:
+        if any(tag in targets.tags for tag in self.effective_tag):
+            return item_system.effective(unit, item)
+        return 0
+
+    def item_icon_mod(self, unit, item, target, sprite):
+        if any(tag in target.tags for tag in self.effective_tag):
+            # Make sprite white
+            pass
+        return sprite
+
+class Hit(ItemComponent):
+    nid = 'hit'
+    desc = "Item has a chance to hit. If left off, item will always hit."
+    expose = ('hit', Type.Int)
+
+    def hit(self, unit, item):
+        return self.hit
+
+class Crit(ItemComponent):
+    nid = 'crit'
+    desc = "Item has a chance to crit. If left off, item cannot crit."
+    expose = ('crit', Type.Int)
+
+    def crit(self, unit, item):
+        return self.crit
+
+class Weight(ItemComponent):
+    nid = 'weight'
+    desc = "Item has a weight. This doesn't do anything unless used in equations"
+    expose = ('weight', Type.Int)
+
+    def weight(self, unit, item):
+        return self.weight
+
+class Value(ItemComponent):
+    nid = 'value'
+    desc = "Item has a value and can be bought and sold. Items sell for half their value."
+    expose = ('value', Type.Int)
+
+    def buy_price(self, unit, item):
+        if item.uses:
+            frac = item.data['uses'] / item.uses.starting_uses
+            return self.value * frac
+        return self.value
+
+    def sell_price(self, unit, item):
+        if item.uses:
+            frac = item.data['uses'] / item.uses.starting_uses
+            return self.value * frac // 2
+        return self.value // 2
 
 class PermanentStatChange(ItemComponent):
     nid = 'permanent_stat_change'
@@ -304,4 +384,31 @@ class WexpChange(ItemComponent):
     def on_hit(self, unit, item, target, mode=None):
         action.do(action.WexpChange(unit, self.wexp_change))
 
-class 
+class Refresh(ItemComponent):
+    nid = 'refresh'
+    desc = "Item allows target to move again on hit"
+
+    def target_restrict():
+        # only targets areas where unit could move again
+        pass
+
+    def on_hit(self, unit, item, target, mode=None):
+        action.do(action.Reset(unit))
+
+class StatusOnHit(ItemComponent):
+    nid = 'status_on_hit'
+    desc = "Item gives status to target when it hits"
+    expose = ('status', Type.Status)  # Nid
+
+    def on_hit(self, unit, item, target, mode=None):
+        action.do(action.AddStatus(target, self.status))
+
+class Restore(ItemComponent):
+    nid = 'restore'
+    desc = "Item removes status with time from target on hit"
+    expose = ('status', Type.Status)
+
+    def on_hit(self, unit, item, target, mode=None):
+        for status in unit.status_effects:
+            if status.time and (self.status.lower() == 'all' or status.nid == self.status):
+                action.do(action.RemoveStatus(unit, status))

@@ -2,9 +2,10 @@ from app import utilities
 
 from app.data.database import DB
 
-from app.engine.item_system import ItemComponent, Type
+from app.engine.item_system.item_component import ItemComponent, Type
 
-from app.engine import action, status_system, item_system, targets
+from app.engine import action, status_system, targets, combat_calcs
+from app.engine.item_system import item_system
 from app.engine.game_state import game
 
 class Spell(ItemComponent):
@@ -166,6 +167,14 @@ class WeaponRank(ItemComponent):
         else:  # If no weapon type, then always available
             return True
 
+class TargetsAnything(ItemComponent):
+    nid = 'target_tile'
+    desc = "Item targets any tile"
+
+    def valid_targets(self, unit, item) -> set:
+        rng = item_system.get_range(unit, item)
+        return targets.find_manhattan_spheres(rng, *unit.position)
+
 class TargetsUnits(ItemComponent):
     nid = 'target_unit'
     desc = "Item targets any unit"
@@ -209,18 +218,11 @@ class MaximumRange(ItemComponent):
     def maximum_range(self, unit, item) -> int:
         return self.maximum_range
 
-class HealUsable(ItemComponent):
-    nid = 'usable_heal'
-    desc = "Item is usable when unit's HP < max HP"
-
-    def can_use(self, unit, item) -> bool:
-        return unit.get_hp() < game.equations.hitpoints(unit)
-
-class AlwaysUsable(ItemComponent):
-    nid = 'usable_always'
+class Usable(ItemComponent):
+    nid = 'usable'
     desc = "Item is usable"
 
-    def can_use(self, unit, item) -> bool:
+    def can_use(self, unit, item):
         return True
 
 class Locked(ItemComponent):
@@ -261,11 +263,16 @@ class Heal(ItemComponent):
     desc = "Item heals on hit"
     expose = ('heal', Type.Int)
 
-    def target_restrict():
+    def target_restrict(self, unit, item, defender, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
-        pass
+        if defender and defender.get_hp() < game.equations.hitpoints(defender):
+            return True
+        for s in splash:
+            if s.get_hp() < game.equations.hitpoints(s):
+                return True
+        return False
 
-    def on_hit(unit, item, target, mode=None):
+    def on_hit(self, unit, item, target, mode=None):
         dist = utilities.calculate_distance(unit.position, target.position)
         heal = self.heal + game.equations.heal(unit, item, dist)
         action.do(action.ChangeHP(target, heal))
@@ -330,11 +337,14 @@ class Crit(ItemComponent):
 
 class Weight(ItemComponent):
     nid = 'weight'
-    desc = "Item has a weight. This doesn't do anything unless used in equations"
+    desc = "Item has a weight."
     expose = ('weight', Type.Int)
 
-    def weight(self, unit, item):
-        return self.weight
+    def modify_double_attack(self, unit, item):
+        return -max(0, self.weight - game.equations.constitution(unit))
+
+    def modify_double_defense(self, unit, item):
+        return -max(0, self.weight - game.equations.constitution(unit))
 
 class Value(ItemComponent):
     nid = 'value'
@@ -358,10 +368,11 @@ class PermanentStatChange(ItemComponent):
     desc = "Item changes target's stats on hit."
     expose = ('stat_change', Type.Dict, Type.Stat)
 
-    def target_restrict(self, unit, item, target) -> bool:
-        klass = DB.classes.get(target.klass)
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # Ignore's splash
+        klass = DB.classes.get(defender.klass)
         for stat, inc in self.stat_change.items():
-            if inc <= 0 or target.stats[stat] < klass.maximum:
+            if inc <= 0 or defender.stats[stat] < klass.maximum:
                 return True
         return False
 
@@ -388,12 +399,16 @@ class Refresh(ItemComponent):
     nid = 'refresh'
     desc = "Item allows target to move again on hit"
 
-    def target_restrict():
+    def target_restrict(self, unit, item, defender, splash) -> bool:
         # only targets areas where unit could move again
-        pass
+        if defender and defender.finished:
+            return True
+        for s in splash:
+            if s.finished:
+                return True
 
     def on_hit(self, unit, item, target, mode=None):
-        action.do(action.Reset(unit))
+        action.do(action.Reset(target))
 
 class StatusOnHit(ItemComponent):
     nid = 'status_on_hit'
@@ -408,7 +423,19 @@ class Restore(ItemComponent):
     desc = "Item removes status with time from target on hit"
     expose = ('status', Type.Status)
 
+    def _can_be_restored(self, status):
+        return (self.status.lower() == 'all' or status.nid == self.status)
+
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # only targets units that need to be restored
+        if defender and status_system.check_ally(unit, defender) and any(status.time and self._can_be_restored(status) for status in defender.status_effects):
+            return True
+        for s in splash:
+            if status_system.check_ally(unit, s) and any(status.time and self._can_be_restored(status) for status in s.status_effects):
+                return True
+        return False
+
     def on_hit(self, unit, item, target, mode=None):
         for status in unit.status_effects:
-            if status.time and (self.status.lower() == 'all' or status.nid == self.status):
+            if status.time and self._can_be_restored(status):
                 action.do(action.RemoveStatus(unit, status))

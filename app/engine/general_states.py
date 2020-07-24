@@ -675,10 +675,14 @@ class ItemChildState(MapState):
         self.cur_unit = game.cursor.cur_unit
 
         options = []
-        if item_system.equippable(self.cur_unit, item) and item_system.available(self.cur_unit, item):
+        if item_system.equippable(self.cur_unit, item) and \
+                item_system.available(self.cur_unit, item):
             options.append("Equip")
-        if item_system.usable(self.cur_unit, item) and item_system.available(self.cur_unit, item):
-            options.append("Use")
+        if item_system.can_use(self.cur_unit, item) and \
+                item_system.available(self.cur_unit, item):
+            defender, splash = item_system.splash(self.cur_unit, item, self.cur_unit.position)
+            if item_system.target_restrict(self.cur_unit, item, defender, splash):
+                options.append("Use")
         if not item_system.locked(self.cur_unit, item):
             if 'convoy' in game.game_constants:
                 options.append('Storage')

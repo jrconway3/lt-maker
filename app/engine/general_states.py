@@ -712,9 +712,8 @@ class ItemChildState(MapState):
             selection = self.menu.get_current()
             item = self.menu.owner
             if selection == 'Use':
-                starting_action_index = interaction.engage(self.cur_unit, self.cur_unit.position, item)
-                # Play actions back
-                game.memory['combat_start'] = starting_action_index
+                combat = interaction.engage(self.cur_unit, self.cur_unit.position, item)
+                game.memory['combat'] = combat
                 game.state.change('combat')
             elif selection == 'Equip':
                 action.do(action.EquipItem(self.cur_unit, item))

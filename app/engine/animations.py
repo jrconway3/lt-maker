@@ -110,7 +110,7 @@ class Animation():
         return surf
 
 class MapAnimation(Animation):
-    def __init__(self, anim, position, speed=75, delay=0, loop=0, hold=False):
+    def __init__(self, anim, position, delay=0, loop=0, hold=False):
         super().__init__(anim, position, delay, loop, hold)
         self.position = self.position[0] * TILEWIDTH, self.position[1] * TILEHEIGHT
         self.use_center()

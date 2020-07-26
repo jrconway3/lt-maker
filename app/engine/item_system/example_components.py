@@ -272,10 +272,22 @@ class Heal(ItemComponent):
                 return True
         return False
 
-    def on_hit(self, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
         dist = utilities.calculate_distance(unit.position, target.position)
         heal = self.heal + game.equations.heal(unit, item, dist)
-        action.do(action.ChangeHP(target, heal))
+        actions.append(action.ChangeHP(target, heal))
+
+        # For animation
+        playback.append(('heal_hit', unit, item, target, heal))
+        playback.append(('hit_sound', 'MapHeal'))
+        if heal >= 30:
+            name = 'MapBigHealTrans'
+        elif heal >= 15:
+            name = 'MapMediumHealTrans'
+        else:
+            name = 'MapSmallHealTrans'
+        playback.append(('hit_anim', name, target))
+
 
 class Damage(ItemComponent):
     nid = 'damage'
@@ -285,13 +297,26 @@ class Damage(ItemComponent):
     def damage(self, unit, item):
         return self.damage
 
-    def on_hit(self, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
-        action.do(action.ChangeHP(target, -damage))
 
-    def on_crit(self, unit, item, target, mode=None):
+        actions.append(action.ChangeHP(target, -damage))
+
+        # For animation
+        playback.append(('damage_hit', unit, item, target, damage))
+        if damage == 0:
+            playback.append(('hit_sound', 'No Damage'))
+            playback.append(('hit_anim', 'MapNoDamage', target))
+
+    def on_crit(self, actions, playback, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode, crit=True)
-        action.do(action.ChangeHP(target, -damage))
+
+        actions.append(action.ChangeHP(target, -damage))
+
+        playback.append(('damage_crit', unit, item, target, damage))
+        if damage == 0:
+            playback.append(('hit_sound', 'No Damage'))
+            playback.append(('hit_anim', 'MapNoDamage', target))
 
 class Effective(ItemComponent):
     nid = 'effective'
@@ -376,24 +401,27 @@ class PermanentStatChange(ItemComponent):
                 return True
         return False
 
-    def on_hit(self, unit, item, target, mode=None):
-        action.do(action.PermanentStatChange(unit, self.stat_change))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.PermanentStatChange(unit, self.stat_change))
+        playback.append(('hit', unit, item, target))
 
 class PermanentGrowthChange(ItemComponent):
     nid = 'permanent_growth_change'
     desc = "Item changes target's growths on hit"
     expose = ('stat_change', Type.Dict, Type.Stat)
 
-    def on_hit(self, unit, item, target, mode=None):
-        action.do(action.PermanentGrowthChange(unit, self.stat_change))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.PermanentGrowthChange(unit, self.stat_change))
+        playback.append(('hit', unit, item, target))
 
 class WexpChange(ItemComponent):
     nid = 'wexp_change'
     desc = "Item changes target's wexp on hit"
     expose = ('wexp_change', Type.Dict, Type.WeaponType)
 
-    def on_hit(self, unit, item, target, mode=None):
-        action.do(action.WexpChange(unit, self.wexp_change))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.WexpChange(unit, self.wexp_change))
+        playback.append(('hit', unit, item, target))
 
 class Refresh(ItemComponent):
     nid = 'refresh'
@@ -407,16 +435,18 @@ class Refresh(ItemComponent):
             if s.finished:
                 return True
 
-    def on_hit(self, unit, item, target, mode=None):
-        action.do(action.Reset(target))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.Reset(target))
+        playback.append(('refresh_hit', unit, item, target))
 
 class StatusOnHit(ItemComponent):
     nid = 'status_on_hit'
     desc = "Item gives status to target when it hits"
     expose = ('status', Type.Status)  # Nid
 
-    def on_hit(self, unit, item, target, mode=None):
-        action.do(action.AddStatus(target, self.status))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.AddStatus(target, self.status))
+        playback.append(('status_hit', unit, item, target, self.status))
 
 class Restore(ItemComponent):
     nid = 'restore'
@@ -435,7 +465,8 @@ class Restore(ItemComponent):
                 return True
         return False
 
-    def on_hit(self, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
         for status in unit.status_effects:
             if status.time and self._can_be_restored(status):
-                action.do(action.RemoveStatus(unit, status))
+                actions.append(action.RemoveStatus(unit, status))
+        playback.append(('hit', unit, item, target))

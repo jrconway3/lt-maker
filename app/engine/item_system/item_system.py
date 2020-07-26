@@ -1,3 +1,5 @@
+import random
+
 # Only for exclusive behaviours
 class Defaults():
     @staticmethod
@@ -87,19 +89,50 @@ def available(unit, item) -> bool:
                 return False
     return True
 
-def on_hit(unit, item, target, mode=None):
+def find_hp(actions, target):
+    starting_hp = target.get_hp()
+    for action in actions:
+        if isinstance(action, action.ChangeHP):
+            starting_hp += action.num
+    return starting_hp
+
+def on_hit(actions, playback, unit, item, target, mode=None):
     for component in item.components:
         if component.defines('on_hit'):
-            component.on_hit(unit, item, target, mode)
+            component.on_hit(actions, playback, unit, item, target, mode)
 
-def on_crit(unit, item, target, mode=None):
+    # Default playback
+    if find_hp(actions, target) <= 0:
+        playback.append(('shake', 2))
+        if not any(action for action in playback if action[0] == 'hit_sound'):
+            playback.append(('hit_sound', 'Final Hit'))
+    else:
+        playback.append(('shake', 1))
+        if not any(action[0] == 'hit_sound' for action in playback):
+            playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
+    playback.append(('unit_tint', target, (255, 255, 255)))
+
+def on_crit(actions, playback, unit, item, target, mode=None):
     for component in item.components:
         if component.defines('on_crit'):
-            component.on_crit(unit, item, target, mode)
+            component.on_crit(actions, playback, unit, item, target, mode)
         elif component.defines('on_hit'):
-            component.on_hit(unit, item, target, mode)
+            component.on_hit(actions, playback, unit, item, target, mode)
 
-def on_miss(unit, item, target, mode=None):
+    # Default playback
+    playback.append(('shake', 3))
+    if not any(action for action in playback if action[0] == 'hit_sound'):
+        if find_hp(actions, target) <= 0:
+            playback.append(('hit_sound', 'Final Hit'))
+        else:
+            playback.append(('hit_sound', 'Critical Hit ' + str(random.randint(1, 2))))
+    playback.append(('unit_tint', target, (255, 255, 255)))
+
+def on_miss(actions, playback, unit, item, target, mode=None):
     for component in item.components:
         if component.defines('on_miss'):
-            component.on_miss(unit, item, target, mode)
+            component.on_miss(actions, playback, unit, item, target, mode)
+
+    # Default playback
+    playback.append(('hit_sound', 'Attack Miss 2'))
+    playback.append(('hit_anim', 'MapMiss', target))

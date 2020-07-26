@@ -62,6 +62,9 @@ class UnitObject(Prefab):
 
         self.traveler = None
 
+        self.equipped_weapon = self.get_equipped_weapon()
+        self.equipped_accessory = self.get_equipped_accessory()
+
         # -- Other properties
         self.dead = False
         self.is_dying = False
@@ -121,9 +124,15 @@ class UnitObject(Prefab):
                 requirement = DB.weapon_ranks.get(item.level.value).requirement
                 self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
 
-    def get_weapon(self):
+    def get_equipped_weapon(self):
         for item in self.items:
             if item_system.is_weapon(self, item) and item_system.available(self, item):
+                return item
+        return None
+
+    def get_equipped_accessory(self):
+        for item in self.items:
+            if item_system.is_accessory(self, item) and item_system.available(self, item):
                 return item
         return None
 

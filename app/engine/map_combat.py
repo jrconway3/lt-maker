@@ -1,5 +1,6 @@
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.resources.resources import RESOURCES
+from app.data.database import DB
 
 from app.engine.solver import CombatPhaseSolver
 
@@ -48,6 +49,7 @@ class MapCombat():
         if self.state == 'begin_phase':
             # Get playback
             if not self.state_machine.get_state():
+                self.clean_up()
                 return True
             self.actions, self.playback = self.state_machine.do()
             self._build_health_bars()
@@ -267,3 +269,190 @@ class MapCombat():
         self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
         return surf
+
+    def clean_up(self):
+        game.state.back()
+
+        # attacker has attacked
+        action.do(action.HasAttacked(self.attacker))
+        
+        # Messages
+        if self.defender:
+            if status_system.check_enemy(self.attacker, self.defender):
+                action.do(action.Message("%s attacked %s" % (self.attacker.name, self.defender.name)))
+            elif self.attacker is not self.defender:
+                action.do(action.Message("%s helped %s" % (self.attacker.name, self.defender.name)))
+            else:
+                action.do(action.Message("%s used %s" % (self.attacker.name, self.item.name)))
+        else:
+            action.do(action.Message("%s attacked" % self.attacker.name))
+
+        # Handle death
+        all_units = [unit for unit in self.splash] + [self.attacker]
+        if self.defender and self.attacker is not self.defender:
+            all_units.append(self.defender)
+        for unit in all_units:
+            if unit.get_hp() <= 0:
+                game.death.should_die(unit)
+                unit.sprite.change_state('normal')
+
+        self.turnwheel_death_messages(all_units)
+
+        self.handle_state_stack()
+        self.handle_item_gain()
+        a_broke, d_broke = self.find_broken_items()
+        if self.attacker is not self.defender:
+            self.broken_item_alert(a_broke, d_broke)
+
+        # handle wexp & skills
+        if not self.attacker.is_dying:
+            self.handle_wexp(self.attacker, self.item)
+        if self.def_item and not self.defender.is_dying:
+            self.handle_wexp(self.defender, self.def_item)
+
+        # handle exp & records
+        if self.attacker.team == 'player' and not self.attacker.is_dying:
+            exp = self.handle_exp(self.attacker, self.item)
+            if self.defender and status_system.check_ally(self.attacker, self.defender):
+                exp = int(utilities.clamp(exp, 0, 100))
+            else:
+                exp = int(utilities.clamp(exp, DB.constants.get('min_exp').value, 100))
+
+            if exp > 0:
+                game.memory['exp'] = (self.attacker, exp, None, 'init')
+                game.state.change('exp')
+
+        elif self.defender and self.defender.team == 'player' and not self.defender.is_dying:
+            exp = self.handle_exp(self.defender, self.def_item)
+            exp = int(utilities.clamp(exp, DB.constants.get('min_exp').value, 100))
+            if exp > 0:
+                game.memory['exp'] = (self.defender, exp, None, 'init')
+                game.state.change('exp')
+
+        self.handle_death(all_units)
+
+        self.check_equipped_items()
+        self.remove_broken_items(a_broke, d_broke)
+
+# === POSSIBLY SHOULD BE SHARED AMONGST ALL COMBATS ===
+    def turnwheel_death_messages(self, units):
+        messages = []
+        dying_units = [u for u in units if u.is_dying]
+        any_player_dead = any(not u.team.startswith('enemy') for u in dying_units)
+        for unit in dying_units:
+            if unit.team.startswith('enemy'):
+                if any_player_dead:
+                    messages.append("%s was defeated" % unit.name)
+                else:
+                    messages.append("Prevailed over %s" % unit.name)
+            else:
+                messages.append("%s was defeated" % unit.name)
+
+        for message in messages:
+            action.do(action.Message(message))
+
+    def handle_state_stack(self):
+        if self.ai_combat:
+            if status_system.has_canto_plus(self.attacker):
+                pass
+            else:
+                game.state.change('wait')
+        else:
+            if not self.attacker.has_attacked and not self.attacker.is_dying:
+                game.state.change('menu')
+            elif status_system.has_canto_plus(self.attacker) and not self.attacker.is_dying:
+                game.state.change('move')
+            else:
+                game.state.clear()
+                game.state.change('free')
+                game.state.change('wait')
+
+    def handle_item_gain(self):
+        enemies = self.splash
+        if self.defender:
+            enemies.append(self.defender)
+        for unit in enemies:
+            if unit.is_dying:
+                for item in unit.items:
+                    if item.droppable:
+                        action.do(action.DropItem(self.attacker, item))
+        if self.attacker.is_dying and self.defender:
+            for item in self.attacker.items:
+                if item.droppable:
+                    action.do(action.DropItem(self.defender, item))
+
+    def find_broken_items(self):
+        a_broke, d_broke = False, False
+        if not item_system.usable(self.attacker, self.item):
+            a_broke = True
+        if self.def_item and not item_system.usable(self.defender, self.def_item):
+            d_broke = True
+        return a_broke, d_broke
+
+    def broken_item_alert(self, a_broke_item, d_broke_item):
+        if a_broke_item and self.attacker.team == 'player' and not self.attacker.is_dying:
+            game.alerts.append(banner.BrokenItem(self.attacker, self.item))
+            game.state.change('alert')
+        if d_broke_item and self.defender.team == 'player' and not self.defender.is_dying:
+            game.alerts.append(banner.BrokenItem(self.defender, self.def_item))
+            game.state.change('alert')
+
+    def handle_broken_items(self, a_broke, d_broke):
+        if a_broke:
+            item_system.on_not_usable(self.attacker, self.item)
+        if d_broke:
+            item_system.on_not_usable(self.defender, self.def_item)
+
+    def handle_wexp(self, unit, item):
+        marks = self.get_from_playback('mark_hit')
+        marks += self.get_from_playback('mark_crit')
+        if DB.constants.get('miss_wexp').value:
+            marks += self.get_from_playback('mark_miss')
+        marks = [mark for mark in marks if mark[1] == unit]
+        wexp = item_system.wexp(unit, item)
+
+        if DB.constants.get('double_wexp').value:
+            for mark in marks:
+                if mark[2].is_dying and DB.constants.get('kill_wexp').value:
+                    action.do(action.GainWexp(unit, item, wexp*2))
+                else:
+                    action.do(action.GainWexp(unit, item, wexp))
+        else:
+            if any(mark[2].is_dying for mark in marks):
+                action.do(action.GainWexp(unit, item, wexp*2))
+            else:
+                action.do(action.GainWexp(unit, item, wexp))
+
+    def handle_exp(self, unit, item):
+        marks = self.get_from_playback('mark_hit')
+        marks += self.get_from_playback('mark_crit')
+        marks = [mark for mark in marks if mark[1] == unit]
+        total_exp = 0
+        for mark in marks:
+            attacker = mark[1]
+            defender = mark[2]
+            attacker_klass = DB.classes.get(attacker.klass)
+            defender_klass = DB.classes.get(defender.klass)
+            exp_multiplier = attacker_klass.exp_mult * defender_klass.opponent_exp_mult
+
+            exp = item_system.exp(attacker, item, defender)
+            if defender.is_dying:
+                exp *= int(DB.constants.get('kill_multiplier').value)
+                if 'Boss' in defender.tags:
+                    exp += int(DB.constants.get('boss_bonus').value)
+            total_exp += (exp_multiplier * exp)
+
+        return total_exp
+
+    def handle_death(self, units):
+        for unit in units:
+            if unit.is_dying:
+                game.state.change('dying')
+                break
+
+    def check_equipped_items(self):
+        if not item_system.available(self.attacker, self.item):
+            self.attacker.check_equipped_weapon()
+        if self.def_item and not item_system.available(self.defender, self.def_item):
+            self.defender.check_equipped_weapon()
+

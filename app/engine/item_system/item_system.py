@@ -30,6 +30,14 @@ class Defaults():
     def damage_formula(unit, item) -> str:
         return 'DAMAGE'
 
+    @staticmethod
+    def exp(unit, item, target) -> int:
+        return 0
+
+    @staticmethod
+    def wexp(unit, item, target) -> int:
+        return 1
+
 default_behaviours = ('is_weapon', 'is_spell', 'equippable', 'can_use', 'locked', 'can_counter', 'can_be_countered')
 # These behaviours default to false
 
@@ -42,7 +50,7 @@ for behaviour in default_behaviours:
         % (behaviour, behaviour, behaviour)
     exec(func)
 
-exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash', 'damage', 'splash_multiplier', 'damage_formula')
+exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash', 'damage', 'splash_multiplier', 'damage_formula', 'exp', 'wexp')
 
 for behaviour in exclusive_behaviours:
     func = """def %s(unit, item):
@@ -83,9 +91,23 @@ def valid_targets(unit, item) -> set:
     return targets
 
 def available(unit, item) -> bool:
+    """
+    Also checks to see whether item is usable
+    or if all of its uses are gone
+    """
     for component in item.components:
         if component.defines('available'):
             if not component.available(unit, item):
+                return False
+        if component.defines('usable'):
+            if not component.usable(unit, item):
+                return False
+    return True
+
+def usable(unit, item) -> bool:
+    for component in item.components:
+        if component.defines('usable'):
+            if not component.usable(unit, item):
                 return False
     return True
 

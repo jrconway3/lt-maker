@@ -58,14 +58,16 @@ class Uses(ItemComponent):
     def init(self, item):
         item.data['uses'] = self.starting_uses
 
-    def available(self, unit, item) -> bool:
+    def usable(self, unit, item) -> bool:
         return item.data['uses'] > 0
 
-    def on_use(self, unit, item):
-        # item.data['uses'] -= 1
-        action.do(action.IncItemData(item, 'uses', -1))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.IncItemData(item, 'uses', -1))
 
-    def on_not_available(self, unit, item):
+    def on_miss(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.IncItemData(item, 'uses', -1))
+
+    def on_not_usable(self, unit, item):
         action.do(action.RemoveItem(unit, item))
 
 class ChapterUses(ItemComponent):
@@ -80,12 +82,11 @@ class ChapterUses(ItemComponent):
     def available(self, unit, item) -> bool:
         return item.data['c_uses'] > 0
 
-    def on_use(self, unit, item):
-        # item.data['c_uses'] -= 1
-        action.do(action.IncItemData(item, 'c_uses', -1))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.IncItemData(item, 'c_uses', -1))
 
-    def on_not_available(self, unit, item):
-        pass
+    def on_miss(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.IncItemData(item, 'c_uses', -1))
 
     def on_end_chapter(self, unit, item):
         # Don't need to use action here because it will be end of chapter
@@ -99,8 +100,11 @@ class HPCost(ItemComponent):
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self.hp_cost
 
-    def on_use(self, unit, item):
-        action.do(action.ChangeHP(unit, -self.hp_cost))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.ChangeHP(unit, -self.hp_cost))
+
+    def on_miss(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.ChangeHP(unit, -self.hp_cost))
 
 class ManaCost(ItemComponent):
     nid = 'mana_cost'
@@ -110,8 +114,11 @@ class ManaCost(ItemComponent):
     def available(self, unit, item) -> bool:
         return unit.get_mana() > self.mana_cost
 
-    def on_use(self, unit, item):
-        action.do(action.ChangeMana(unit, -self.mana_cost))
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.ChangeMana(unit, -self.mana_cost))
+
+    def on_miss(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.ChangeMana(unit, -self.mana_cost))
 
 class PrfUnit(ItemComponent):
     nid = 'prf_unit'
@@ -370,6 +377,56 @@ class Weight(ItemComponent):
 
     def modify_double_defense(self, unit, item):
         return -max(0, self.weight - game.equations.constitution(unit))
+
+class Exp(ItemComponent):
+    nid = 'exp'
+    desc = "Item gives a custom number of exp to user on use"
+    expose = ('exp', Type.Int)
+
+    def exp(self, unit, item, target) -> int:
+        return self.exp
+
+class LevelExp(ItemComponent):
+    nid = 'level_exp'
+    desc = "Item gives exp to user based on level difference"
+
+    def exp(self, unit, item, target) -> int:
+        if status_system.check_enemy(unit, target):
+            level_diff = target.get_internal_level() - unit.get_internal_level()
+            level_diff += DB.constants.get('exp_offset').value
+            exp_gained = math.exp(level_diff * DB.constants.get('exp_curve'))
+            exp_gained *= DB.constants.get('exp_magnitude').value
+        else:
+            exp_gained = 0
+        return exp_gained
+
+class HealExp(ItemComponent):
+    nid = 'heal_exp'
+    desc = "Item gives exp to user based on amount of damage healed"
+    requires = ['heal']
+
+    healing_done = 0
+
+    def exp(self, unit, item, target) -> int:
+        heal_diff = self.healing_done - unit.get_internal_level()
+        heal_diff += DB.constants.get('heal_offset').value
+        exp_gained = DB.constants.get('heal_curve').value * heal_diff
+        exp_gained += DB.constants.get('heal_magnitude').value
+        self.healing_done = 0
+        return max(exp_gained, DB.constants.get('heal_min').value)
+
+    def on_hit(self, action, playback, unit, item, target, mode=None):
+        heal = item.heal.heal + game.equations.heal(unit)
+        missing_hp = game.equations.hitpoints(unit) - unit.get_hp()
+        self.healing_done = min(heal, missing_hp)
+
+class Wexp(ItemComponent):
+    nid = 'wexp'
+    desc = "Item gives a custom number of wexp to user on use"
+    expose = ('wexp', Type.Int)
+
+    def wexp(self, unit, item, target):
+        return self.wexp
 
 class Value(ItemComponent):
     nid = 'value'

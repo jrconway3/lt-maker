@@ -6,49 +6,7 @@ from app.engine.item_system.item_component import ItemComponent, Type
 
 from app.engine import action, status_system, targets, combat_calcs
 from app.engine.item_system import item_system
-from app.engine.game_state import game
-
-class Spell(ItemComponent):
-    nid = 'spell'
-    desc = "Item will be treated as a spell (cannot counterattack or double)"
-
-    def is_spell(self, unit, item):
-        return True
-
-    def is_weapon(self, unit, item):
-        return False
-
-class Weapon(ItemComponent):
-    nid = 'weapon'
-    desc = "Item will be treated as a normal weapon (can double, counterattack, be equipped, etc.)" 
-
-    def is_weapon(self, unit, item):
-        return True
-
-    def is_spell(self, unit, item):
-        return False
-
-    def equippable(self, unit, item):
-        return True
-
-    def can_be_countered(self, unit, item):
-        return True
-
-    def can_counter(self, unit, item):
-        return True
-
-class SiegeWeapon(ItemComponent):
-    nid = 'siege_weapon'
-    desc = "Item will be treated as a siege weapon (can not double or counterattack, but can still be equipped)"
-
-    def is_weapon(self, unit, item):
-        return True
-
-    def is_spell(self, unit, item):
-        return False
-
-    def equippable(self, unit, item):
-        return True    
+from app.engine.game_state import game 
 
 class Uses(ItemComponent):
     nid = 'uses'

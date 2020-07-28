@@ -1,7 +1,6 @@
 from app.data.database import DB
 
 from app.engine import combat_calcs, item_system, status_system, static_random
-from app.engine.game_state import game
 
 import logging
 logger = logging.getLogger(__name__)
@@ -110,10 +109,13 @@ class CombatPhaseSolver():
                     crit = True
             if crit:
                 combat_calcs.on_crit(actions, playback, attacker, item, defender, mode)
+                playback.append(('mark_crit', attacker, defender))
             else:
                 combat_calcs.on_hit(actions, playback, attacker, item, defender, mode)
+                playback.append(('mark_hit', attacker, defender))
         else:
             combat_calcs.on_miss(actions, playback, attacker, item, defender, mode)
+            playback.append(('mark_miss', attacker, defender))
 
     def attacker_alive(self):
         return self.attacker.get_hp() > 0

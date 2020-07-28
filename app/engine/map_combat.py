@@ -1,3 +1,4 @@
+from app import utilities
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -5,7 +6,8 @@ from app.data.database import DB
 from app.engine.solver import CombatPhaseSolver
 
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, combat_calcs, gui, action
+from app.engine import engine, combat_calcs, gui, action, status_system, banner
+from app.engine.item_system import item_system
 from app.engine.health_bar import MapCombatInfo
 from app.engine.animations import MapAnimation
 from app.engine.game_state import game
@@ -455,4 +457,3 @@ class MapCombat():
             self.attacker.check_equipped_weapon()
         if self.def_item and not item_system.available(self.defender, self.def_item):
             self.defender.check_equipped_weapon()
-

@@ -22,6 +22,12 @@ Promotion
 
 Music won't play if reloaded in editor
 
+Item Plugins
+- Weapon Triangle Components
+- Prevent Items from Doubling
+- Multiple Targets
+- Multi-items
+
 Combat Editor
 -- Combat Effects
 -- Load from Image Files*

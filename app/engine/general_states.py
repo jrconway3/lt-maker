@@ -504,7 +504,7 @@ class MenuState(MapState):
         adj_positions = targets.get_adjacent_positions(self.cur_unit.position)
         adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
         adj_units = [_ for _ in adj_units if _]  # Remove Nones
-        adj_allies = [unit for unit in adj_units if targets.check_ally(self.cur_unit, unit)]
+        adj_allies = [unit for unit in adj_units if status_system.check_ally(self.cur_unit, unit)]
 
         # If the unit has valid targets
         if atk_targets:
@@ -538,9 +538,10 @@ class MenuState(MapState):
         # If the unit has an item
         if self.cur_unit.items:
             options.append("Item")
-        trade_with = any(unit for unit in game.level.units if status_system.can_trade(self.cur_unit, unit))
-        if trade_with:
-            options.append("Trade")
+        if adj_allies and DB.constants.get('trade').value:
+            trade_with = any(unit for unit in adj_allies if status_system.can_trade(self.cur_unit, unit))
+            if trade_with:
+                options.append("Trade")
         options.append("Wait")
 
         self.menu = menus.Choice(self.cur_unit, options)
@@ -626,11 +627,11 @@ class ItemState(MapState):
     def start(self):
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
-        options = [item for item in self.cur_unit.items]
+        options = item_funcs.get_all_items(self.cur_unit)
         self.menu = menus.Choice(self.cur_unit, options)
 
     def begin(self):
-        self.menu.update_options(self.cur_unit.items)
+        self.menu.update_options(item_funcs.get_all_items(self.cur_unit))
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -759,7 +760,7 @@ class SelectState(MapState):
             good_pos = [unit.position for unit in adj_allies if not unit.traveler and
                         game.equations.rescue_aid(unit) > game.equations.rescue_weight(traveler)]
         elif self.name == 'trade_select':
-            good_pos = [unit.position for unit in adj_allies]
+            good_pos = [unit.position for unit in adj_allies if status_system.can_trade(self.cur_unit, unit)]
         
         self.selection = SelectionHelper(good_pos)
         closest_pos = self.selection.get_closest(self.cur_unit.position)
@@ -921,9 +922,12 @@ class WeaponChoiceState(MapState):
     name = 'weapon_choice'
 
     def get_options(self, unit):
-        options = [item for item in unit.items if item.weapon and unit.can_wield(item)]
+        # NEED TO THINK ABOUT HOW I WANT TARGETING TO WORK
+        options = [item for item in item_funcs.get_all_items(unit) 
+                   if item_system.is_weapon(item) and 
+                   item_system.available(unit, item)]
         # Skill straining
-        options = [item for item in options if targets.get_valid_weapon_targets(unit, item)]
+        options = [item for item in options if item_system.target_restrict(unit, item, *item_system.splash(unit, item, )
         return options
 
     def disp_attacks(self, unit, item):

@@ -39,7 +39,7 @@ class Defaults():
     def can_trade(unit1, unit2) -> bool:
         return unit2.position and unit1.team == unit2.team and check_ally(unit1, unit2)
 
-default_behaviours = ('has_canto', 'has_canto_plus', 'has_canto_sharp')
+default_behaviours = ('has_canto',)
 
 for behaviour in default_behaviours:
     func = """def %s(unit):
@@ -50,23 +50,13 @@ for behaviour in default_behaviours:
         % (behaviour, behaviour, behaviour)
     exec(func)
 
-def can_select(unit) -> bool:
-    for status in unit.status_effects:
-        for component in status.components:
-            if component.defines('can_select'):
-                return component.can_select(unit)
-    return Defaults.can_select(unit)
+exclusive_behaviours = ('can_select', 'check_ally', 'check_enemy', 'can_trade')
 
-def check_ally(unit1, unit2) -> bool:
-    for status in unit1.status_effects:
-        for component in status.components:
-            if component.defines('check_ally'):
-                return component.check_ally(unit1, unit2)
-    return Defaults.check_ally(unit1, unit2)
-
-def check_enemy(unit1, unit2) -> bool:
-    for status in unit1.status_effects:
-        for component in status.components:
-            if component.defines('check_enemy'):
-                return component.check_enemy(unit1, unit2)
-    return Defaults.check_enemy(unit1, unit2)
+for behaviour in default_behaviours:
+    func = """def %s(unit):
+                  for component in item.components:
+                      if component.defines('%s'):
+                          return component.%s(unit)
+                  return Defaults.%s(unit)""" \
+        % (behaviour, behaviour, behaviour, behaviour)
+    exec(func)

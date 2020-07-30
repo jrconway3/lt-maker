@@ -71,6 +71,27 @@ class ManaCost(ItemComponent):
     def on_miss(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.ChangeMana(unit, -self.value))
 
+class Cooldown(ItemComponent):
+    nid = 'cooldown'
+    desc = "After use, item cannot be used until X turns have passed"
+    expose = Type.Int
+
+    def init(self, unit, item):
+        item.data['cooldown'] = 0
+
+    def available(self, unit, item) -> bool:
+        return item.data['cooldown'] == 0
+
+    def on_hit(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.SetItemData(item, 'cooldown', self.value))
+
+    def on_miss(self, actions, playback, unit, item, target, mode=None):
+        actions.append(action.SetItemData(item, 'cooldown', self.value))
+
+    def on_upkeep(self, unit, item):
+        if item.data['cooldown'] > 0:
+            action.do(action.IncItemData(item, 'cooldown', -1))
+
 class PrfUnit(ItemComponent):
     nid = 'prf_unit'
     desc = 'Item can only be wielded by certain units'

@@ -27,7 +27,6 @@ class GameState():
         self.memory = {}
 
         self.input_manager = input_manager.InputManager()
-        self.equations = equations.Parser(self)
         self.state = state_machine.StateMachine()
 
         self.playtime = 0

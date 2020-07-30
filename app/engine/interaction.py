@@ -33,7 +33,7 @@ class SimpleCombat():
     def draw(self, surf):
         return surf
 
-class AnimationCombat(Combat):
+class AnimationCombat(SimpleCombat):
     # TODO Implement
     pass
 

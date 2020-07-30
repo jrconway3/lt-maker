@@ -42,6 +42,7 @@ constants = ConstantCatalog([
     Constant('overworld', "Overworld", bool),
     Constant('crit', "Allow Criticals", bool, True),
     Constant('permadeath', "Permadeath", bool, True),
+    Constant('trade', "Can trade items on map", bool, True),
     Constant('line_of_sight', "Force weapons to obey line of sight rules", bool),
     Constant('spell_los', "Force spells to obey line of sight rules", bool),
     Constant('aura_los', "Force auras to obey line of sight rules", bool),

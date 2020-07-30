@@ -7,7 +7,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 from app.resources.resources import RESOURCES
 from app.data.data import Data
 from app.data.database import DB
-import app.data.item_components as IC
+import app.data.item_component as IC
 
 from app.extensions.custom_gui import PropertyBox, QHLine, QVLine, ComboBox, DeletionDialog
 from app.editor.custom_widgets import ItemBox
@@ -132,43 +132,29 @@ class ItemProperties(QWidget):
         self.desc_box.edit.textChanged.connect(self.desc_changed)
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
-        self.total_value_box = PropertyBox("Total Value", QSpinBox, self)
-        self.total_value_box.edit.setKeyboardTracking(False)
-        self.total_value_box.edit.setMaximum(100000000)
-        self.total_value_box.edit.setAlignment(Qt.AlignRight)
-        self.total_value_box.edit.valueChanged.connect(self.total_value_changed)
-        main_section.addWidget(self.total_value_box, 1, 0)
+        # self.min_range_box = PropertyBox("Minimum Range", ComboBox, self)
+        # self.min_range_box.edit.setEditable(True)
+        # self.min_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
+        # self.min_range_box.edit.addItems(DB.equations.keys())
+        # # self.min_range_box.edit.currentTextChanged.connect(self.min_range_changed)
+        # self.min_range_box.edit.lineEdit().editingFinished.connect(self.check_min_range)
+        # main_section.addWidget(self.min_range_box, 1, 2)
 
-        self.value_per_use_box = PropertyBox("Value per use", QSpinBox, self)
-        self.value_per_use_box.edit.setKeyboardTracking(False)
-        self.value_per_use_box.edit.setMaximum(1000000)
-        self.value_per_use_box.edit.setAlignment(Qt.AlignRight)
-        self.value_per_use_box.edit.valueChanged.connect(self.value_per_use_changed)
-        main_section.addWidget(self.value_per_use_box, 1, 1)
+        # self.min_range_box.add_button(QPushButton('...'))
+        # self.min_range_box.button.setMaximumWidth(40)
+        # self.min_range_box.button.clicked.connect(self.access_equations)
 
-        self.min_range_box = PropertyBox("Minimum Range", ComboBox, self)
-        self.min_range_box.edit.setEditable(True)
-        self.min_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
-        self.min_range_box.edit.addItems(DB.equations.keys())
-        # self.min_range_box.edit.currentTextChanged.connect(self.min_range_changed)
-        self.min_range_box.edit.lineEdit().editingFinished.connect(self.check_min_range)
-        main_section.addWidget(self.min_range_box, 1, 2)
+        # self.max_range_box = PropertyBox("Maximum Range", ComboBox, self)
+        # self.max_range_box.edit.setEditable(True)
+        # self.max_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
+        # self.max_range_box.edit.addItems(DB.equations.keys())
+        # # self.max_range_box.edit.currentTextChanged.connect(self.max_range_changed)
+        # self.max_range_box.edit.lineEdit().editingFinished.connect(self.check_max_range)
+        # main_section.addWidget(self.max_range_box, 1, 3)
 
-        self.min_range_box.add_button(QPushButton('...'))
-        self.min_range_box.button.setMaximumWidth(40)
-        self.min_range_box.button.clicked.connect(self.access_equations)
-
-        self.max_range_box = PropertyBox("Maximum Range", ComboBox, self)
-        self.max_range_box.edit.setEditable(True)
-        self.max_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
-        self.max_range_box.edit.addItems(DB.equations.keys())
-        # self.max_range_box.edit.currentTextChanged.connect(self.max_range_changed)
-        self.max_range_box.edit.lineEdit().editingFinished.connect(self.check_max_range)
-        main_section.addWidget(self.max_range_box, 1, 3)
-
-        self.max_range_box.add_button(QPushButton('...'))
-        self.max_range_box.button.setMaximumWidth(40)
-        self.max_range_box.button.clicked.connect(self.access_equations)
+        # self.max_range_box.add_button(QPushButton('...'))
+        # self.max_range_box.button.setMaximumWidth(40)
+        # self.max_range_box.button.clicked.connect(self.access_equations)
 
         component_section = QGridLayout()
         component_label = QLabel("Components")

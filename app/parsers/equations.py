@@ -3,8 +3,7 @@ import re, functools
 from app.data.database import DB
 
 class Parser():
-    def __init__(self, game):
-        self.game = game  # Needed for certain status nonsense later
+    def __init__(self):
         self.equations = {}
         for equation in DB.equations.values():
             self.equations[equation.nid] = self.tokenize(equation.expression)
@@ -51,3 +50,10 @@ class Parser():
         expr = 'int(%s)' % expr
         equations = self.equations
         return eval(expr)
+
+PARSER = Parser()
+
+def __getattr__(name):
+    if name == 'parser':
+        return PARSER
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

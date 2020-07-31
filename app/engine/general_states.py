@@ -9,6 +9,7 @@ import app.engine.config as cf
 from app.engine.game_state import game
 from app.engine import engine, action, menus, interaction, combat, image_mods, banner, save, phase, status_system, targets
 from app.engine.targets import SelectionHelper
+from app.engine.abilities import ABILITIES
 
 import logging
 logger = logging.getLogger(__name__)
@@ -476,72 +477,26 @@ class MenuState(MapState):
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
 
-        valid_moves = {self.cur_unit.position}
-
         if not self.cur_unit.has_attacked:
             self.cur_unit.sprite.change_state('menu')
-            spell_targets = targets.get_all_spell_targets(self.cur_unit)
-            atk_targets = targets.get_all_weapon_targets(self.cur_unit)
         else:
             self.cur_unit.sprite.change_state('selected')
-            spell_targets = set()
-            atk_targets = set()
 
-        if spell_targets:
-            valid_attacks = targets.get_possible_spell_attacks(self.cur_unit, valid_moves)
-            game.highlight.display_possible_spell_attacks(valid_attacks)
-        if atk_targets:
-            valid_attacks = targets.get_possible_attacks(self.cur_unit, valid_moves)
-            game.highlight.display_possible_attacks(valid_attacks)
+        # Draw highlights
+        for ability in ABILITIES:
+            ability.highlights(self.cur_unit)
         if self.cur_unit.has_canto():
             # Shows the canto moves in the menu
             game.highlight.display_moves(targets.get_valid_moves(self.cur_unit))
-        # Aura
         game.cursor.set_pos(self.cur_unit.position)
 
         options = []
-
-        adj_positions = targets.get_adjacent_positions(self.cur_unit.position)
-        adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
-        adj_units = [_ for _ in adj_units if _]  # Remove Nones
-        adj_allies = [unit for unit in adj_units if status_system.check_ally(self.cur_unit, unit)]
-
-        # If the unit has valid targets
-        if atk_targets:
-            options.append("Attack")
-        # If the unit has valid spell targets
-        if spell_targets:
-            options.append("Spell")
-        # If the unit has a traveler
-        if self.cur_unit.traveler and not self.cur_unit.has_attacked:
-            for adj_pos in adj_positions:
-                # If at least one adjacent, passable position is free of units
-                terrain_nid = game.tilemap.get_terrain(adj_pos)
-                terrain = DB.terrain.get(terrain_nid)
-                traveler = game.level.units.get(self.cur_unit.traveler)
-                mgroup = DB.classes.get(traveler.klass).movement_group
-                if not game.grid.get_unit(adj_pos) and DB.mcost.get_mcost(mgroup, terrain.mtype) < game.equations.movement(traveler):
-                    options.append("Drop")
-                    break
-        if adj_allies:
-            # If the unit does not have a traveler
-            if not self.cur_unit.traveler and not self.cur_unit.has_attacked:
-                # If Rescue AID is higher than Rescue Weight
-                if any(not ally.traveler and game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(ally) for ally in adj_allies):
-                    options.append("Rescue")
-                if any(ally.traveler and game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(game.level.units.get(ally.traveler)) for ally in adj_allies):
-                    options.append("Take")
-            # If the unit has a traveler
-            if self.cur_unit.traveler and not self.cur_unit.has_attacked:
-                if any(not ally.traveler and game.equations.rescue_aid(ally) > game.equations.rescue_weight(game.level.units.get(self.cur_unit.traveler)) for ally in adj_allies):
-                    options.append("Give")
-        # If the unit has an item
-        if self.cur_unit.items:
-            options.append("Item")
-        if adj_allies and DB.constants.get('trade').value:
-            trade_with = any(unit for unit in adj_allies if status_system.can_trade(self.cur_unit, unit))
-            if trade_with:
-                options.append("Trade")
+        target_dict = OrderedDict()
+        for ability in ABILITIES:
+            targets = ability.targets(self.cur_unit)
+            target_dict[ability.name] = targets
+            if targets:
+                options.append(ability.name)
         options.append("Wait")
 
         self.menu = menus.Choice(self.cur_unit, options)

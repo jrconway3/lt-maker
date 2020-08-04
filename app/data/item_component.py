@@ -19,6 +19,7 @@ class Type(IntEnum):
     Stat = 14  # Stored as Nids
     Set = 100
     Dict = 101
+    List = 102
 
 class ItemComponent():
     nid: str = None

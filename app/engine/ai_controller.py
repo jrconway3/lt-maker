@@ -2,10 +2,10 @@ import math
 
 from app import utilities
 from app.data.constants import FRAMERATE
-from app.data.item_components import SpellTarget, SpellAffect
 from app.data.database import DB
 
-from app.engine import engine, action, interaction, combat_calcs, a_star, unit_object, targets
+from app.engine import engine, action, interaction, combat_calcs, a_star, unit_object, targets, equations
+from app.engine.item_system import item_system
 from app.engine.game_state import game
 
 import logging
@@ -133,8 +133,8 @@ class AIController():
             target_positions = {u.position for u in game.level.units if u.position}
 
         zero_move = max(targets.find_potential_range(self.unit, True, True))
-        single_move = zero_move + game.equations.movement(self.unit)
-        double_move = self.single_move + game.equations.movement(self.unit)
+        single_move = zero_move + equations.parser.movement(self.unit)
+        double_move = self.single_move + equations.parser.movement(self.unit)
 
         target_positions = {(pos, utilities.calculate_distance(self.unit.position, pos)) for pos in target_positions}
 
@@ -274,7 +274,7 @@ class PrimaryAI():
         return targets
 
     def get_valid_targets(self, unit, item, valid_moves) -> list:
-        item_range = game.equations.get_range(item, unit)
+        item_range = item_system.get_range(unit, item)
         valid_targets = set()
 
         if item.weapon:
@@ -301,7 +301,7 @@ class PrimaryAI():
         item = self.items[self.item_index]
         logger.info(item)
         self.valid_targets = self.get_valid_targets(self.unit, item, self.valid_moves)
-        if 0 in game.equations.get_range(item, self.unit):
+        if 0 in item_system.get_range(self.unit, item):
             self.valid_targets += self.valid_moves  # Hack to target self in all valid positions
             self.valid_targets = list(set(self.valid_targets))  # Only uniques
         logger.info("Valid Targets: %s", self.valid_targets)
@@ -311,7 +311,7 @@ class PrimaryAI():
             # Given an item and a target, find all positions in valid_moves that I can strike the target at.
             item = self.items[self.item_index]
             target = self.valid_targets[self.target_index]
-            a = targets.find_manhattan_spheres(game.equations.get_range(item, self.unit), target[0], target[1])
+            a = targets.find_manhattan_spheres(item_system.get_range(self.unit, item), target[0], target[1])
             b = set(self.valid_moves)
             return list(a & b)
         else:
@@ -404,7 +404,7 @@ class PrimaryAI():
             target_accuracy = 0
             # Determine if I would get countered
             target_weapon = target.get_weapon()
-            if target_weapon and utilities.calculate_distance(move, target.position) in game.equations.get_range(target_weapon, target):
+            if target_weapon and utilities.calculate_distance(move, target.position) in item_system.get_range(target_weapon, target):
                 target_damage = utilities.clamp(combat_calcs.compute_damage(target, self.unit, target_weapon, "Defense"), 0, 1)
                 target_accuracy = utilities.clamp(combat_calcs.compute_hit(target, self.unit, target_weapon, "Defense")/100., 0, 1)
 
@@ -437,7 +437,7 @@ class PrimaryAI():
 
         # Only here to break ties
         # Tries to minmize how far the unit should move
-        max_distance = game.equations.movement(self.unit)
+        max_distance = equations.parser.movement(self.unit)
         if max_distance > 0:
             distance_term = (max_distance - utilities.calculate_distance(move, self.orig_pos)) / float(max_distance)
         else:
@@ -467,7 +467,7 @@ class PrimaryAI():
 
                 for target in targets:
                     if targets.check_ally(self.unit, target):
-                        max_hp = game.equations.hitpoints(target)
+                        max_hp = equations.parser.hitpoints(target)
                         missing_health = max_hp - target.get_hp()
                         help_term += utilities.clamp(missing_health / float(max_hp), 0, 1)
                         spell_heal = combat_calcs.compute_heal(self.unit, target, item, 'Attack')
@@ -535,7 +535,7 @@ class PrimaryAI():
         terms = []
         closest_enemy_distance = targets.distance_to_closest_enemy(self.unit, move)
         if item.heal_on_use:
-            max_hp = game.equations.hitpoints(self.unit)
+            max_hp = equations.parser.hitpoints(self.unit)
             missing_health = max_hp - defender.get_hp()
             if missing_health <= 0:
                 return 0
@@ -590,8 +590,8 @@ class SecondaryAI():
                 else:
                     self.all_targets = [u.position for u in self.all_targets]
 
-        self.single_move = game.equations.movement(self.unit) + max(targets.find_potential_range(self.unit, True, True))
-        self.double_move = self.single_move + game.equations.movement(self.unit)
+        self.single_move = equations.parser.movement(self.unit) + max(targets.find_potential_range(self.unit, True, True))
+        self.double_move = self.single_move + equations.parser.movement(self.unit)
 
         mtype = DB.classes.get(self.unit.klass).movement_group
         self.grid = game.grid.get_grid(mtype)
@@ -665,7 +665,7 @@ class SecondaryAI():
 
         enemy = game.grid.get_unit(target)
         if self.behaviour.action == "Attack" and enemy and targets.check_enemy(self.unit, enemy):
-            hp_max = game.equations.hitpoints(enemy)
+            hp_max = equations.parser.hitpoints(enemy)
             weakness_term = float(hp_max - enemy.get_hp()) / hp_max
 
             max_damage = 0

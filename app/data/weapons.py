@@ -13,6 +13,7 @@ class WeaponRank(Prefab):
     accuracy: int = 0
     damage: int = 0
     crit: int = 0
+    attack_speed: int = 0
 
     @property
     def nid(self):
@@ -23,25 +24,11 @@ class WeaponRank(Prefab):
         self.rank = value
 
     def __repr__(self):
-        return "WeaponRank %s: %d -- (%d, %d, %d)" % \
-            (self.rank, self.requirement, self.accuracy, self.damage, self.crit)
+        return "WeaponRank %s: %d -- (%d, %d, %d, %d)" % \
+            (self.rank, self.requirement, self.accuracy, self.damage, self.crit, self.attack_speed)
 
 class RankCatalog(Data):
     datatype = WeaponRank
-
-    def import_data(self, txt_fn):
-        with open(txt_fn) as fp:
-            lines = [line.strip() for line in fp.readlines() if not line.strip().startswith('#')]
-            for line in lines:
-                s_l = line.split(';')
-                rank = s_l[0]
-                requirement = int(s_l[1])
-                if len(s_l) > 2:
-                    accuracy, damage, crit = int(s_l[2]), int(s_l[3]), int(s_l[4])
-                else:
-                    accuracy, damage, crit = 0, 0, 0
-                new_rank = WeaponRank(rank, requirement, accuracy, damage, crit)
-                self.append(new_rank)
 
     def add_new_default(self, db):
         new_name = utilities.get_next_name('RANK', [d.rank for d in self.values()])
@@ -60,22 +47,23 @@ class Advantage(Prefab):
         self.avoid = effects[3]
         self.crit = effects[4]
         self.dodge = effects[5]
-        self.attackspeed = effects[6]
+        self.attack_speed = effects[6]
+        self.defense_speed = effects[7]
 
     @property
     def effects(self):
-        return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attackspeed)
+        return (self.damage, self.resist, self.accuracy, self.avoid, self.crit, self.dodge, self.attack_speed, self.defense_speed)
 
     @classmethod
     def default(cls):
-        return cls(None, None, [0]*7)
+        return cls(None, None, [0]*8)
 
 class AdvantageList(list):
     def add_new_default(self, db):
         if len(self):
-            new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0))
+            new_advantage = Advantage(self[-1].weapon_type, self[-1].weapon_rank, (0, 0, 0, 0, 0, 0, 0, 0))
         else:
-            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0))
+            new_advantage = Advantage(db.weapons[0].nid, db.weapon_ranks[0].rank, (0, 0, 0, 0, 0, 0, 0, 0))
         self.append(new_advantage)
 
     def contains(self, weapon_type: str):

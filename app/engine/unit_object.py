@@ -2,6 +2,7 @@ from app import utilities
 from app.data.data import Prefab
 from app.data.database import DB
 
+from app.engine import equations
 from app.engine.item_system import item_system
 from app.engine.game_state import game
 
@@ -54,17 +55,17 @@ class UnitObject(Prefab):
         self.status_effects = []
         # self.status_bundle = utilities.Multiset()
 
-        self.current_hp = game.equations.hitpoints(self)
+        self.current_hp = equations.parser.hitpoints(self)
         if 'MANA' in DB.equations:
-            self.current_mana = game.equations.mana(self)
+            self.current_mana = equations.parser.mana(self)
         else:
             self.current_mana = 0
-        self.movement_left = game.equations.movement(self)
+        self.movement_left = equations.parser.movement(self)
 
         self.traveler = None
 
-        self.equipped_weapon = self.get_equipped_weapon()
-        self.equipped_accessory = self.get_equipped_accessory()
+        self.equipped_weapon = self.get_weapon()
+        self.equipped_accessory = self.get_accessory()
 
         # -- Other properties
         self.dead = False
@@ -86,13 +87,13 @@ class UnitObject(Prefab):
         return self.current_hp
 
     def set_hp(self, val):
-        self.current_hp = utilities.clamp(val, 0, game.equations.hitpoints(self))
+        self.current_hp = utilities.clamp(val, 0, equations.parser.hitpoints(self))
 
     def get_mana(self):
         return self.current_mana
 
     def set_mana(self, val):
-        self.current_mana = utilities.clamp(val, 0, game.equations.mana(self))
+        self.current_mana = utilities.clamp(val, 0, equations.parser.mana(self))
 
     def get_exp(self):
         return self.exp
@@ -125,16 +126,13 @@ class UnitObject(Prefab):
                 requirement = DB.weapon_ranks.get(item.level.value).requirement
                 self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
 
-    def get_equipped_weapon(self):
-        for item in self.items:
-            if item_system.is_weapon(self, item) and item_system.available(self, item):
-                return item
-        return None
-
-    def get_equipped_accessory(self):
-        for item in self.items:
-            if item_system.is_accessory(self, item) and item_system.available(self, item):
-                return item
+    def get_weapon(self):
+        if self.equipped_weapon:
+            return self.equipped_weapon
+        else:
+            for item in self.items:
+                if item_system.is_weapon(self, item) and item_system.available(self, item):
+                    return item
         return None
 
     def get_spell(self):
@@ -143,54 +141,49 @@ class UnitObject(Prefab):
                 return item
         return None
 
+    def get_accessory(self):
+        if self.equipped_accessory:
+            return self.equipped_accessory
+        else:
+            for item in self.items:
+                if item_system.is_accessory(self, item) and item_system.available(self, item):
+                    return item
+        return None
+
     def equip(self, item):
-        if item in self.items and self.items.index(item) == 0:
+        if item in self.items and item is self.equipped_weapon:
             return  # Don't need to do anything
+        if item_system.equippable(self, item) and item_system.available(self, item):
+            if self.equipped_weapon:
+                self.unequip(self.equipped_weapon)
+            self.equipped_weapon = item
         self.insert_item(0, item)
+
+    def unequip(self, item):
+        self.equipped_weapon = None
 
     def add_item(self, item):
         index = len(self.items)
         self.insert_item(index, item)
 
-    def unequip_item(self, item):
-        # handle status on equip
-        pass
-
-    def equip_item(self, item):
-        # handle status on equip
-        pass
-
     def insert_item(self, index, item):
-        def handle_equip(item):
-            if self.get_weapon() == item:
-                # You unequipped a different item, so remove its status
-                if len(self.items) > 1 and self.could_wield(self.items[1]):
-                    self.unequip_item(self.items[1])
-                # Now add yours
-                if self.can_wield(item):
-                    self.equip_item(item)
-
         if item in self.items:
             self.items.remove(item)
             self.items.insert(index, item)
-            handle_equip(item)
         else:
             self.items.insert(index, item)
             item.owner_nid = self.nid
             # Statuses here
-            handle_equip(item)
 
     def remove_item(self, item):
-        next_weapon = next((item for item in self.items if item.weapon and self.could_wield(item)), None)
-        was_main_weapon = next_weapon == item
+        if self.equipped_weapon is item:
+            self.unequip(item)
         self.items.remove(item)
         item.owner_nid = None
-        if was_main_weapon:
-            self.unequip_item(item)
         # Status effects
         # There may be a new item equipped
-        if was_main_weapon and self.get_weapon():
-            self.equip_item(self.get_weapon())
+        if not self.equipped_weapon and self.get_weapon():
+            self.equip(self.get_weapon())
 
     def get_internal_level(self):
         klass = DB.classes.get(self.klass)
@@ -213,12 +206,6 @@ class UnitObject(Prefab):
                 if klass.tier <= 0:
                     return running_total
             return running_total 
-
-    def has_canto(self):
-        return 'canto' in self.status_bundle or 'canto_plus' in self.status_bundle
-
-    def has_canto_plus(self):
-        return 'canto_plus' in self.status_bundle
 
     @property
     def finished(self):
@@ -346,9 +333,12 @@ class UnitObject(Prefab):
 
         self.current_hp = s_dict['current_hp']
         self.current_mana = s_dict['current_mana']
-        self.movement_left = game.equations.movement(self)
+        self.movement_left = equations.parser.movement(self)
 
         self.traveler = s_dict['traveler']
+
+        self.equipped_weapon = self.get_weapon()
+        self.equipped_accessory = self.get_accessory()
 
         # -- Other properties
         self.dead = s_dict['dead']

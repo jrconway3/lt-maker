@@ -3,7 +3,7 @@ from app import utilities
 from app.data.database import DB
 
 import app.engine.config as cf
-from app.engine import engine, action
+from app.engine import engine, action, equations
 from app.engine.game_state import game
 
 class MovementData():
@@ -54,7 +54,7 @@ class MovementManager():
         mtype, magnitude = move_component
         if not utilities.is_int(magnitude):
             dist = utilities.calculate_distance(unit_to_move.position, anchor_pos)
-            magnitude = game.equations.get(magnitude, unit_to_move, None, dist)
+            magnitude = equations.parser.get(magnitude, unit_to_move, None, dist)
 
         if mtype == 'shove':
             new_position = self.check_shove(unit_to_move, anchor_pos, magnitude)

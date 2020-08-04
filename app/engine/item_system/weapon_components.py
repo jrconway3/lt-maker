@@ -43,6 +43,9 @@ class Magic(ItemComponent):
     def damage_formula(self, unit, item):
         return 'MAGIC_DAMAGE'
 
+    def defense_formula(self, unit, item):
+        return 'MAGIC_DEFENSE'
+
 class Hit(ItemComponent):
     nid = 'hit'
     desc = "Item has a chance to hit. If left off, item will always hit."
@@ -81,7 +84,7 @@ class Effective(ItemComponent):
 
 class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
-    desc = "Item is effective against units with these tags"
+    desc = "Item is does extra damage against units with these tags"
     requires = ['effective', 'damage']
     expose = (Type.Dict, Type.Tag)
 

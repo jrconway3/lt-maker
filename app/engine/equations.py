@@ -1,11 +1,9 @@
 import re, functools
 
-from app import utilities
 from app.data.database import DB
 
 class Parser():
-    def __init__(self, game):
-        self.game = game  # Needed for certain status nonsense later
+    def __init__(self):
         self.equations = {}
         for equation in DB.equations.values():
             self.equations[equation.nid] = self.tokenize(equation.expression)
@@ -43,24 +41,19 @@ class Parser():
     def get(self, lhs, unit, item=None, dist=0):
         return self.equations[lhs](self.equations, unit, item, dist)
 
-    def get_expression(self, expr, unit):
+    def get_expression(self, expr, unit, item=None, dist=0):
         # For one time use
+        # Can't seem to be used with any sub equations
         expr = self.tokenize(expr)
         expr = [self.replacement_dict.get(n, n) for n in expr]
         expr = ''.join(expr)
         expr = 'int(%s)' % expr
+        equations = self.equations
         return eval(expr)
 
-    def get_range(self, item, unit) -> set:
-        # Calc min range
-        if utilities.is_int(item.min_range):
-            min_range = int(item.min_range)
-        else:
-            min_range = self.get(item.min_range, unit, item)
-        # Calc max range
-        if utilities.is_int(item.max_range):
-            max_range = int(item.max_range)
-        else:
-            max_range = self.get(item.max_range, unit, item)
-        max_range += item.longshot.value if item.longshot else 0
-        return set(range(min_range, max_range + 1))
+PARSER = Parser()
+
+def __getattr__(name):
+    if name == 'parser':
+        return PARSER
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

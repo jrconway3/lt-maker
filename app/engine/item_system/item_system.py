@@ -19,6 +19,10 @@ class Defaults():
         return game.grid.get_unit(position), []
 
     @staticmethod
+    def splash_positions(unit, item, position) -> set:
+        return {position}
+
+    @staticmethod
     def damage(unit, item) -> int:
         return None
 
@@ -38,6 +42,10 @@ class Defaults():
     def wexp(unit, item, target) -> int:
         return 1
 
+    @staticmethod
+    def num_targets(unit, item) -> int:
+        return 1
+
 default_behaviours = ('is_weapon', 'is_spell', 'equippable', 'can_use', 'locked', 'can_counter', 'can_be_countered')
 # These behaviours default to false
 
@@ -50,7 +58,7 @@ for behaviour in default_behaviours:
         % (behaviour, behaviour, behaviour)
     exec(func)
 
-exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash', 'damage', 'splash_multiplier', 'damage_formula', 'exp', 'wexp')
+exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash', 'splash_positions', 'damage', 'splash_multiplier', 'damage_formula', 'exp', 'wexp', 'num_targets')
 
 for behaviour in exclusive_behaviours:
     func = """def %s(unit, item):

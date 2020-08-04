@@ -8,16 +8,12 @@
         "expression": "MOV"
     },
     {
-        "nid": "ATTACKSPEED",
-        "expression": "SPD - max(0, WEIGHT - CON)"
+        "nid": "ATTACK_SPEED",
+        "expression": "SPD"
     },
     {
-        "nid": "DOUBLE_ATK",
-        "expression": "ATTACKSPEED - 3"
-    },
-    {
-        "nid": "DOUBLE_DEF",
-        "expression": "ATTACKSPEED"
+        "nid": "DEFENSE_SPEED",
+        "expression": "SPD"
     },
     {
         "nid": "HIT",
@@ -58,6 +54,10 @@
     {
         "nid": "CRIT_MULT",
         "expression": "3"
+    },
+    {
+        "nid": "SPEED_TO_DOUBLE",
+        "expression": "4"
     },
     {
         "nid": "RATING",

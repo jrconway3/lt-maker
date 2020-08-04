@@ -5,7 +5,7 @@ from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data import items
 from app.data.database import DB
 
-from app.engine import banner, static_random, unit_object, unit_funcs
+from app.engine import banner, static_random, unit_object, unit_funcs, equations
 from app.engine.game_state import game
 
 class Action():
@@ -237,7 +237,7 @@ class Reset(Action):
 
     def do(self):
         self.unit.reset()
-        self.unit.movement_left = game.equations.movement(self.unit)
+        self.unit.movement_left = equations.parser.movement(self.unit)
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)

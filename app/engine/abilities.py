@@ -1,4 +1,4 @@
-from app.engine import targets, status_system, action
+from app.engine import targets, status_system, action, equations
 from app.engine.game_state import game
 
 class Ability():
@@ -51,7 +51,7 @@ class DropAbility(Ability):
             adj_positions = targets.get_adjacent_positions(unit)
             traveler = unit.traveler
             for adj_pos in adj_positions:
-                if not game.grid.get_unit(adj_pos) and game.moving_units.get_mcost(unit, adj_pos) <= game.equations.movement(traveler):
+                if not game.grid.get_unit(adj_pos) and game.moving_units.get_mcost(unit, adj_pos) <= equations.parser.movement(traveler):
                     good_pos.add(adj_pos)
             return good_pos
         return set()
@@ -68,7 +68,7 @@ class RescueAbility(Ability):
         if not unit.traveler and not unit.has_attacked:
             adj_allies = get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
-                        game.equations.rescue_aid(unit) > game.equations.rescue_weight(u)])
+                        equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(u)])
 
     def do(self, unit):
         u = game.grid.get_unit(game.cursor.position)
@@ -87,7 +87,7 @@ class TakeAbility(Ability):
         if not unit.traveler and not unit.has_attacked:
             adj_allies = get_adj_allies(unit)
             return set([u.position for u in adj_allies if u.traveler and
-                        game.equations.rescue_aid(unit) > game.equations.rescue_weight(game.level.units.get(u.traveler))])
+                        equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(game.level.units.get(u.traveler))])
 
     def do(self, unit):
         u = game.grid.get_unit(game.cursor.position)
@@ -102,7 +102,7 @@ class GiveAbility(Ability):
         if unit.traveler and not unit.has_attacked:
             adj_allies = get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
-                        game.equations.rescue_aid(u) > game.equations.rescue_weight(game.level.units.get(unit.traveler))])
+                        equations.parser.rescue_aid(u) > equations.parser.rescue_weight(game.level.units.get(unit.traveler))])
 
     def do(self, unit):
         u = game.grid.get_unit(game.cursor.position)

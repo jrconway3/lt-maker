@@ -2,7 +2,7 @@ from app.data.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX
 from app import utilities
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine, combat_calcs, icons, unit_object
+from app.engine import engine, combat_calcs, icons, unit_object, equations
 from app.engine.game_state import game
 
 team_dict = {'player': 'blue',
@@ -18,7 +18,7 @@ class HealthBar():
 
         self.displayed_hp = self.unit.get_hp()
         self.old_hp = self.displayed_hp
-        self.total_hp = game.equations.hitpoints(self.unit)
+        self.total_hp = equations.parser.hitpoints(self.unit)
 
         self.transition_flag = False
         self.time_for_change = 200

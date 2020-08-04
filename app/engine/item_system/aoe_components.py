@@ -22,3 +22,8 @@ class BlastAOE(ItemComponent):
             splash = [game.grid.get_unit(s) for s in splash if s != position]
             splash = [s for s in splash if s]
             return game.grid.get_unit(position), splash
+
+    def splash_positions(self, unit, item, position) -> set:
+        ranges = set(range(self.value + 1))
+        splash = targets.find_manhattan_spheres(ranges, position[0], position[1])
+        return splash

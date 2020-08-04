@@ -1,11 +1,11 @@
 from app import utilities
 from app.data.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
-from app.data.item_components import SpellTarget
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, base_surf, image_mods, text_funcs, icons, combat_calcs, unit_object
+from app.engine.item_system import item_system
 import app.engine.config as cf
 from app.engine.game_state import game
 
@@ -141,7 +141,7 @@ class UIView():
         surf.blit(SPRITES.get('unit_info_hp'), (left + 34, top + height - 20))
         surf.blit(SPRITES.get('unit_info_slash'), (left + 68, top + height - 19))
         current_hp = unit.get_hp()
-        max_hp = game.equations.hitpoints(unit)
+        max_hp = equations.parser.hitpoints(unit)
         font.blit_right(str(current_hp), surf, (left + 66, top + 16))
         font.blit_right(str(max_hp), surf, (left + 90, top + 16))
 
@@ -268,7 +268,7 @@ class UIView():
                 blit_num(surf, c, 64, 67)
         # Enemy Hit and Mt
         if not attacker.get_weapon().cannot_be_countered and isinstance(defender, unit_object.UnitObject) and defender.get_weapon() and \
-               utilities.calculate_distance(attacker.position, defender.position) in game.equations.get_range(defender.get_weapon(), defender):
+               utilities.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, defender.get_weapon()):
             e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'Defense')
             e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'Defense')
             if crit:
@@ -292,6 +292,10 @@ class UIView():
                 blit_num(surf, e_crit, 20, 67)
 
         return surf
+
+    def prepare_attack_info(self):
+        self.attack_info_disp = None
+        self.attack_info_offset = 80
 
     def draw_attack_info(self, surf, attacker, defender):
         if not self.attack_info_disp:
@@ -387,7 +391,7 @@ class UIView():
 
                     e_num = 1
                     if eweapon and not eweapon.no_double and \
-                            utilities.calculate_distance(attacker.position, defender.position) in game.equations.get_range(eweapon, defender):
+                            utilities.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, eweapon):
                         if eweapon.brave and eweapon.brave.value != 'Brave while attacking':
                             e_num *= 2
                         if DB.constants.get('def_double').value and \
@@ -426,7 +430,7 @@ class UIView():
             # Blit /
             FONT['text_yellow'].blit('/', bg_surf, (width - 25, running_height))
             # Blit stats['HP']
-            maxhp = str(game.equations.hitpoints(defender))
+            maxhp = str(equations.parser.hitpoints(defender))
             maxhp_width = FONT['text_blue'].width(maxhp)
             FONT['text_blue'].blit(maxhp, bg_surf, (width - 5 - maxhp_width, running_height))
             # Blit currenthp

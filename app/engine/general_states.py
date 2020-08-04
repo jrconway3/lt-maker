@@ -1,5 +1,4 @@
 from app.data.constants import TILEWIDTH, TILEHEIGHT
-from app.data.item_components import SpellTarget
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
@@ -7,7 +6,8 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, combat, image_mods, banner, save, phase, status_system, targets
+from app.engine import engine, action, menus, interaction, image_mods, banner, save, phase, status_system, targets
+from app.engine.item_system import item_system
 from app.engine.targets import SelectionHelper
 from app.engine.abilities import ABILITIES
 
@@ -491,10 +491,10 @@ class MenuState(MapState):
         game.cursor.set_pos(self.cur_unit.position)
 
         options = []
-        target_dict = OrderedDict()
+        self.target_dict = OrderedDict()
         for ability in ABILITIES:
             targets = ability.targets(self.cur_unit)
-            target_dict[ability.name] = targets
+            self.target_dict[ability.name] = ability
             if targets:
                 options.append(ability.name)
         options.append("Wait")
@@ -543,26 +543,18 @@ class MenuState(MapState):
             logger.info("Player selected %s", selection)
             game.highlight.remove_highlights()
 
-            if selection == 'Attack':
-                game.state.change('weapon_choice')
-            elif selection == 'Spells':
-                game.state.change('spell_choice')
-            elif selection == 'Item':
+            if selection == 'Item':
                 game.state.change('item')
-            elif selection == 'Trade':
-                game.state.change('trade_select')
-            elif selection == 'Rescue':
-                game.state.change('rescue_select')
-            elif selection == 'Take':
-                game.state.change('take_select')
-            elif selection == 'Drop':
-                game.state.change('drop_select')
-            elif selection == 'Give':
-                game.state.change('give_select')
+            elif selection in ('Attack', 'Spell'):
+                game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
+                game.state.change('weapon_choice')
             elif selection == 'Wait':
                 game.state.clear()
                 game.state.change('free')
                 action.do(action.Wait(self.cur_unit))
+            else:  # Selection is one of the other abilities
+                game.memory['ability'] = self.target_dict[selection]
+                game.state.change('targeting')
 
     def update(self):
         super().update()
@@ -668,7 +660,7 @@ class ItemChildState(MapState):
             selection = self.menu.get_current()
             item = self.menu.owner
             if selection == 'Use':
-                combat = interaction.engage(self.cur_unit, self.cur_unit.position, item)
+                combat = interaction.engage(self.cur_unit, [self.cur_unit.position], item)
                 game.memory['combat'] = combat
                 game.state.change('combat')
             elif selection == 'Equip':
@@ -687,108 +679,6 @@ class ItemChildState(MapState):
 
     def draw(self, surf):
         surf = self.menu.draw(surf)
-        return surf
-
-class SelectState(MapState):
-    name = 'select'
-
-    def start(self):
-        self.cur_unit = game.cursor.cur_unit
-
-        adj_positions = targets.get_adjacent_positions(self.cur_unit.position)
-        adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
-        adj_units = [_ for _ in adj_units if _]  # Remove Nones
-        adj_allies = [unit for unit in adj_units if targets.check_ally(self.cur_unit, unit)]
-
-        if self.name == 'rescue_select':
-            good_pos = [unit.position for unit in adj_allies if not unit.traveler and
-                        game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(unit)]
-        elif self.name == 'take_select':
-            good_pos = [unit.position for unit in adj_allies if unit.traveler and
-                        game.equations.rescue_aid(self.cur_unit) > game.equations.rescue_weight(game.level.units.get(unit.traveler))]
-        elif self.name == 'drop_select':
-            traveler = game.level.units.get(self.cur_unit.traveler)
-            good_pos = [adj for adj in adj_positions if not game.grid.get_unit(adj) and
-                        game.movement.get_mcost(traveler, adj) <= game.equations.movement(traveler)]
-        elif self.name == 'give_select':
-            traveler = game.level.units.get(self.cur_unit.traveler)
-            good_pos = [unit.position for unit in adj_allies if not unit.traveler and
-                        game.equations.rescue_aid(unit) > game.equations.rescue_weight(traveler)]
-        elif self.name == 'trade_select':
-            good_pos = [unit.position for unit in adj_allies if status_system.can_trade(self.cur_unit, unit)]
-        
-        self.selection = SelectionHelper(good_pos)
-        closest_pos = self.selection.get_closest(self.cur_unit.position)
-        game.cursor.set_pos(closest_pos)
-
-        self.pennant = banner.Pennant(self.name)
-
-    def begin(self):
-        game.cursor.combat_show()
-        self.cur_unit.sprite.change_state('chosen')
-
-    def take_input(self, event):
-        self.fluid.update()
-        directions = self.fluid.get_directions()
-
-        if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            new_position = self.selection.get_down(game.cursor.position)
-            game.cursor.set_pos(new_position)
-        elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            new_position = self.selection.get_up(game.cursor.position)
-            game.cursor.set_pos(new_position)
-        if 'LEFT' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            new_position = self.selection.get_left(game.cursor.position)
-            game.cursor.set_pos(new_position)
-        elif 'RIGHT' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            new_position = self.selection.get_right(game.cursor.position)
-            game.cursor.set_pos(new_position)
-
-        new_position = self.selection.handle_mouse()
-        if new_position:
-            game.cursor.set_pos(new_position)
-
-        if event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
-            game.state.back()
-
-        elif event == 'SELECT':
-            SOUNDTHREAD.play_sfx('Select 1')
-            if self.name == 'rescue_select':
-                unit = game.grid.get_unit(game.cursor.position)
-                action.do(action.Rescue(self.cur_unit, unit))
-                if self.cur_unit.has_canto():
-                    game.state.change('menu')
-                else:
-                    game.state.change('free')
-                    action.do(action.Wait(self.cur_unit))
-                    game.cursor.set_pos(self.cur_unit.position)
-            elif self.name == 'take_select':
-                unit = game.grid.get_unit(game.cursor.position)
-                action.do(action.Take(self.cur_unit, unit))
-                # Taking does not count as major action
-                game.state.change('menu')
-            elif self.name == 'give_select':
-                unit = game.grid.get_unit(game.cursor.position)
-                action.do(action.Give(self.cur_unit, unit))
-                # Giving does not count as a major action
-                game.state.change('menu')
-            elif self.name == 'drop_select':
-                game.state.change('menu')
-                unit = game.level.units.get(self.cur_unit.traveler)
-                action.do(action.Drop(self.cur_unit, unit, game.cursor.position))
-            elif self.name == 'trade_select':
-                game.state.change('trade')
-
-    def draw(self, surf):
-        surf = super().draw(surf)
-        if self.pennant:
-            draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
-            self.pennant.draw(surf, draw_on_top)
         return surf
 
 class TradeState(MapState):
@@ -876,19 +766,15 @@ class TradeState(MapState):
 class WeaponChoiceState(MapState):
     name = 'weapon_choice'
 
-    def get_options(self, unit):
-        # NEED TO THINK ABOUT HOW I WANT TARGETING TO WORK
-        options = [item for item in item_funcs.get_all_items(unit) 
-                   if item_system.is_weapon(item) and 
-                   item_system.available(unit, item)]
+    def get_options(self, unit) -> list:
+        options = targets.get_all_weapons()
         # Skill straining
-        options = [item for item in options if item_system.target_restrict(unit, item, *item_system.splash(unit, item, )
+        options = [option for option in options if targets.get_valid_targets(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
-        valid_attacks, valid_splash = targets.get_attacks(unit, item)
+        valid_attacks = targets.get_attacks(unit, item)
         game.highlight.display_possible_attacks(valid_attacks)
-        game.highlight.display_possible_attacks(valid_splash, light=True)
 
     def begin(self):
         game.cursor.hide()
@@ -924,7 +810,8 @@ class WeaponChoiceState(MapState):
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             action.do(action.EquipItem(self.cur_unit, selection))
-            self.proceed()
+            game.memory['item'] = selection
+            game.state.change('combat_targeting')
 
         elif event == 'INFO':
             self.menu.toggle_info()
@@ -944,56 +831,54 @@ class WeaponChoiceState(MapState):
 class SpellChoiceState(WeaponChoiceState):
     name = 'spell_choice'
 
-    def get_options(self, unit):
-        options = [item for item in unit.items if item.spell and unit.can_wield(item)]
+    def get_options(self, unit) -> list:
+        options = targets.get_all_spells()
         # Skill straining
-        options = [item for item in options if targets.get_valid_spell_targets(unit, item)]
+        options = [option for option in options if targets.get_valid_targets(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
         spell_attacks = targets.get_spell_attacks(unit, item)
         game.highlight.display_possible_spells(spell_attacks)
 
-    def proceed(self):
-        game.state.change('spell')
+class TargetingState(MapState):
+    name = 'targeting'
 
-class AttackState(MapState):
-    name = 'attack'
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
 
-    def display_single_attack(self):
-        game.highlight.remove_highlights()
-        attack_position, splash_positions = \
-            interaction.get_aoe(self.weapon, self.attacker, self.attacker.position, game.cursor.position)
-        game.highlight.display_possible_attacks({attack_position})
-        game.highlight.display_possible_attacks(splash_positions, light=True)
+        # Should always come with associated ability
+        self.ability = game.memory.get('ability')
+        good_pos = self.ability.targets(self.cur_unit)
+        
+        self.selection = SelectionHelper(good_pos)
+        closest_pos = self.selection.get_closest(self.cur_unit.position)
+        game.cursor.set_pos(closest_pos)
+
+        self.pennant = banner.Pennant(self.name)
 
     def begin(self):
         game.cursor.combat_show()
-        self.attacker = game.cursor.cur_unit
-        self.weapon = self.attacker.get_weapon()
-        targets = targets.get_valid_weapon_targets(self.attacker, self.weapon)
-        self.selection = SelectionHelper(targets)
-        closest_position = self.selection.get_closest(game.cursor.position)
-        game.cursor.set_pos(closest_position)
-        game.ui_view.attack_info_disp = None
-        game.ui_view.attack_info_offset = 80
-        self.display_single_attack()
-
-        self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+        self.cur_unit.sprite.change_state('chosen')
 
     def take_input(self, event):
         self.fluid.update()
         directions = self.fluid.get_directions()
+
         if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_down(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_up(game.cursor.position)
             game.cursor.set_pos(new_position)
         if 'LEFT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_left(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'RIGHT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
             new_position = self.selection.get_right(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -1002,68 +887,55 @@ class AttackState(MapState):
             game.cursor.set_pos(new_position)
 
         if event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 2')
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
-            defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, self.weapon)
-            game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.weapon)
-            game.state.change('combat')
-
-        if directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.display_single_attack()
+            self.ability.do(self.cur_unit)
 
     def draw(self, surf):
         surf = super().draw(surf)
-        if self.attacker and game.cursor.get_hover():
-            surf = game.ui_view.draw_attack_info(surf, self.attacker, game.cursor.get_hover())
+        if self.pennant:
+            draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
+            self.pennant.draw(surf, draw_on_top)
         return surf
 
-    def end(self):
-        game.highlight.remove_highlights()
-        game.ui_view.attack_info_disp = None
+class CombatTargetingState(MapState):
+    name = 'combat_targeting'
 
-class SpellState(MapState):
-    name = 'spell'
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
+        self.item = game.memory['item']
+
+        self.num_targets = item_system.num_targets(self.cur_unit, self.item)
+        self.current_target_idx = 0
+        self.prev_targets = []
+
+        positions = targets.get_valid_targets(self.cur_unit, self.item)
+        self.selection = SelectionHelper(positions)
+        if item_system.heal(self.cur_unit, self.item):
+            closest_pos = self.selection.get_wounded()
+        else:
+            closest_pos = self.selection.get_closest(game.cursor.position)
+        game.cursor.set_pos(closest_pos)
+
+        game.ui_view.prepare_attack_info()
+        self.display_single_attack()
+
+    def begin(self):
+        game.cursor.combat_show()
 
     def display_single_attack(self):
         game.highlight.remove_highlights()
-        attack_position, splash_positions = \
-            interaction.get_aoe(self.spell, self.attacker, self.attacker.position, game.cursor.position)
-        if attack_position:
-            game.highlight.display_possible_spells({attack_position})
-        game.highlight.display_possible_spells(splash_positions)
-
-    def start(self):
-        game.cursor.combat_show()
-        self.attacker = game.cursor.cur_unit
-        self.spell = self.attacker.get_spell()
-
-        if self.spell.multiple_targets:
-            self.spell._multiple_target_index = 0
-
-        self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
-
-    def begin(self):
-        # Selection
-        targets = targets.get_valid_spell_targets(self.attacker, self.spell)
-        self.selection = SelectionHelper(targets)
-        if self.spell.heal:
-            units = [game.level.units.get(game.grid.get_unit(pos)) for pos in targets]
-            units = sorted(units, key=lambda unit: unit.get_hp())
-            closest_position = units[0].position
-        else:
-            closest_position = self.selection.get_closest(game.cursor.position)
-        game.cursor.set_pos(closest_position)
-        
-        game.ui_view.spell_info_disp = None
-        self.display_single_attack()
+        splash_positions = item_system.splash_positions(self.cur_unit, self.item, game.cursor.position)
+        game.highlight.display_possible_attacks({game.cursor.position})
+        game.highlight.display_possible_attacks(splash_positions, light=True)
 
     def take_input(self, event):
         self.fluid.update()
         directions = self.fluid.get_directions()
+
         if 'DOWN' in directions:
             new_position = self.selection.get_down(game.cursor.position)
             game.cursor.set_pos(new_position)
@@ -1083,85 +955,45 @@ class SpellState(MapState):
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
-            # Go back to weapon choice no matter what
-            self.finish_multiple_targets(self.weapon)
             game.state.back()
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
-            spell = self.weapon
-            target = spell.spell.targets
-            if target in (SpellTarget.Enemy, SpellTarget.Ally, SpellTarget.Unit):
-                if spell.multiple_targets and spell._multiple_target_index < len(spell.multiple_targets.value):
-                    self.handle_multiple_targets(spell)
-                    spell._multiple_targets_list.append(game.cursor.get_hover())
-                    self.end()  # Re-do state[]
-                    self.begin()
-                elif spell.repair:
-                    action.do(action.EquipItem(self.attacker, spell))
-                    game.state.change('repair')
-                else:
-                    self.finish_multiple_targets(spell)
-                    defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, spell)
-
-                    if spell.multiple_targets:
-                        splash += spell._multiple_targets_list
-                        spell._multiple_targets_list.clear()
-
-                    game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.weapon)
-                    game.state.change('combat')
-            # Targets are Tile or TileNoUnit
+            self.current_target_idx += 1
+            self.prev_targets.append(game.cursor.position)
+            if self.current_target_idx < self.num_targets and self.selection.count() > 1:
+                if not item_system.allow_same_target(self.cur_unit, self.item):
+                    self.selection.remove_target(game.cursor.position)
+                    closest_pos = self.selection.get_closest(game.cursor.position)
+                    game.cursor.set_pos(closest_pos)
+                self.begin()
+                self.display_single_attack()
             else:
-                if spell.multiple_targets and spell._multiple_target_index < len(spell.multiple_targets.value):
-                    self.handle_multiple_targets(spell)
-                    spell._multiple_targets_list.append(game.cursor.position)
-                    self.end()
-                    self.begin()
-                else:
-                    self.finish_multiple_targets(spell)
-                    defender, splash = interaction.convert_positions(self.attacker, self.attacker.position, game.cursor.position, spell)
-
-                    if spell.multiple_targets:
-                        splash += spell._multiple_targets_list
-                        spell._multiple_targets_list.clear()
-
-                    game.combat_instance = interaction.start_combat(self.attacker, defender, game.cursor.position, splash, self.weapon)
-                    game.state.change('combat')
+                combat = interaction.engage(self.cur_unit, self.prev_targets, self.item)
+                game.memory['combat'] = combat
+                game.state.change('combat')
 
         if directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.display_single_attack()
 
-    def handle_multiple_targets(self, spell):
-        idx = spell._multiple_target_index
-        if idx == 0:
-            spell._true_target_type = spell.spell.target
-            spell._true_min_range = spell.min_range
-            spell._true_max_range = spell.max_range
-            spell._multiple_targets_list = []
-
-        spell.min_range = spell.multiple_targets.value[idx].min_range
-        spell.max_range = spell.multiple_targets.value[idx].max_range
-        spell.spell.value = (spell.spell.weapon_type, spell.multiple_targets.value[idx].target, spell.spell.affect)
-        spell._multiple_target_index += 1
-
-    def finish_multiple_targets(self, spell):
-        if spell.multiple_targets and spell._multiple_target_index > 0:  
-            # Reapply old value
-            spell._multiple_target_index = 0
-            spell.spell.value = (spell.spell.weapon_type, spell._true_target_type, spell.spell.affect)
-            spell.min_range = spell._true_min_range
-            spell.max_range = spell._true_max_range
-
     def draw(self, surf):
         surf = super().draw(surf)
-        if self.attacker:
-            surf = game.ui_view.draw_spell_info(surf, self.attacker, game.cursor.get_hover())
+        if self.cur_unit and game.cursor.get_hover():
+            game.ui_view.draw_attack_info(surf, self.cur_unit, game.cursor.get_hover())
         return surf
 
     def end(self):
         game.highlight.remove_highlights()
-        game.ui_view.spell_info_disp = None
+        game.ui_view.attack_info_disp = None
+
+class SpellState(MapState):
+    name = 'spell_targeting'
+
+    def display_single_attack(self):
+        game.highlight.remove_highlights()
+        splash_positions = item_system.splash_positions(self.cur_unit, self.item, game.cursor.position)
+        game.highlight.display_possible_spells(splash_positions)
 
 class CombatState(MapState):
     name = 'combat'
@@ -1173,30 +1005,31 @@ class CombatState(MapState):
         self.skip = False
         width = game.tilemap.width * TILEWIDTH
         height = game.tilemap.height * TILEHEIGHT
+        self.combat = game.memory['combat']
         self.unit_surf = engine.create_surface((width, height), transparent=True)
-        self.is_animation_combat = isinstance(game.combat_instance, combat.AnimationCombat)
+        self.is_animation_combat = isinstance(self.combat, interaction.AnimationCombat)
 
     def take_input(self, event):
         if event == 'START' and not self.skip:
             self.skip = True
-            game.combat_instance.skip()
+            self.combat.skip()
         elif event == 'BACK':
             # Arena
             pass
 
     def update(self):
         super().update()
-        done = game.combat_instance.update()
+        done = self.combat.update()
         if self.skip and not self.is_animation_combat:
             while not done:
-                done = game.combat_instance.update()
+                done = self.combat.update()
 
     def draw(self, surf):
         if self.is_animation_combat:
             pass
         else:
             surf = super().draw(surf)
-            surf = game.combat_instance.draw(surf)
+            self.combat.draw(surf)
         return surf
 
 class DyingState(MapState):

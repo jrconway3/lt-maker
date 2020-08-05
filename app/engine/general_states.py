@@ -914,7 +914,7 @@ class CombatTargetingState(MapState):
 
         positions = targets.get_valid_targets(self.cur_unit, self.item)
         self.selection = SelectionHelper(positions)
-        if item_system.heal(self.cur_unit, self.item):
+        if self.item.heal(self.cur_unit, self.item):
             closest_pos = self.selection.get_wounded()
         else:
             closest_pos = self.selection.get_closest(game.cursor.position)

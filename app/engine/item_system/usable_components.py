@@ -10,7 +10,7 @@ class Uses(ItemComponent):
     def init(self, item):
         item.data['uses'] = self.value
 
-    def usable(self, unit, item) -> bool:
+    def available(self, unit, item) -> bool:
         return item.data['uses'] > 0
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
@@ -21,6 +21,7 @@ class Uses(ItemComponent):
 
     def on_not_usable(self, unit, item):
         action.do(action.RemoveItem(unit, item))
+        return True
 
 class ChapterUses(ItemComponent):
     nid = 'c_uses'

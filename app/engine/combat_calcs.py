@@ -246,8 +246,7 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
         for _ in range(equations.parser.crit_add(unit)):
             might += total_might
 
-    if mode == 'splash':
-        might *= item_system.splash_damage_multiplier(unit, item)
+    might *= item_system.damage_multiplier(unit, item, target, mode)
 
     return int(max(DB.constants.get('min_damage').value, might))
 

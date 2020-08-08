@@ -1,8 +1,8 @@
 from app import utilities
 from app.data.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
-from app.data.item_components import SpellTarget
-from app.engine import a_star, interaction, status_system, item_system
+from app.engine import a_star, status_system, equations, item_funcs
+from app.engine.item_system import item_system
 from app.engine.game_state import game
 
 # Consider making these sections faster
@@ -96,7 +96,7 @@ def get_valid_moves(unit, force=False) -> set:
     width, height = game.tilemap.width, game.tilemap.height
     pathfinder = a_star.Djikstra(unit.position, grid, width, height, unit.team, 'pass_through' in unit.status_bundle)
 
-    movement_left = game.equations.movement(unit) if force else unit.movement_left
+    movement_left = equations.parser.movement(unit) if force else unit.movement_left
 
     valid_moves = pathfinder.process(game.grid.team_grid, movement_left)
     valid_moves.add(unit.position)

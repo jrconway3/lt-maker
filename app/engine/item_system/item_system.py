@@ -1,7 +1,18 @@
 import random
 
-# Only for exclusive behaviours
 class Defaults():
+    @staticmethod
+    def buy_price(unit, item) -> int:
+        return None
+
+    @staticmethod
+    def sell_price(unit, item) -> int:
+        return None
+
+    @staticmethod
+    def num_targets(unit, item) -> int:
+        return 1
+
     @staticmethod
     def minimum_range(unit, item) -> int:
         return 0
@@ -11,28 +22,28 @@ class Defaults():
         return 0
 
     @staticmethod
-    def splash(unit, item, position) -> tuple:
-        """
-        Returns main target and splash
-        """
-        from app.engine.game_state import game
-        return game.grid.get_unit(position), []
+    def weapon_type(unit, item):
+        return None
 
     @staticmethod
-    def splash_positions(unit, item, position) -> set:
-        return {position}
+    def weapon_rank(unit, item):
+        return None
+
+    @staticmethod
+    def modify_weapon_triangle(unit, item) -> int:
+        return 1
 
     @staticmethod
     def damage(unit, item) -> int:
         return None
 
     @staticmethod
-    def splash_multiplier(unit, item) -> int:
-        return 1
+    def hit(unit, item) -> int:
+        return None
 
     @staticmethod
-    def damage_formula(unit, item) -> str:
-        return 'DAMAGE'
+    def crit(unit, item) -> int:
+        return None
 
     @staticmethod
     def exp(unit, item, target) -> int:
@@ -43,41 +54,145 @@ class Defaults():
         return 1
 
     @staticmethod
-    def num_targets(unit, item) -> int:
-        return 1
+    def damage_formula(unit, item) -> str:
+        return 'DAMAGE'
 
-default_behaviours = ('is_weapon', 'is_spell', 'equippable', 'can_use', 'locked', 'can_counter', 'can_be_countered')
-# These behaviours default to false
+    @staticmethod
+    def defense_formula(unit, item) -> str:
+        return 'DEFENSE'
 
-for behaviour in default_behaviours:
+    @staticmethod
+    def accuracy_formula(unit, item) -> str:
+        return 'HIT'
+
+    @staticmethod
+    def avoid_formula(unit, item) -> str:
+        return 'AVOID'
+
+    @staticmethod
+    def crit_accuracy_formula(unit, item) -> str:
+        return 'CRIT_HIT'
+
+    @staticmethod
+    def crit_avoid_formula(unit, item) -> str:
+        return 'CRIT_AVOID'
+
+    @staticmethod
+    def attack_speed_formula(unit, item) -> str:
+        return 'ATTACK_SPEED'
+
+    @staticmethod
+    def defense_speed_formula(unit, item) -> str:
+        return 'DEFENSE_SPEED'
+
+# HOOK CATALOG
+# All false hooks are exclusive
+false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
+               'can_use', 'locked', 'allow_same_target')
+# All true hooks are not exclusive
+true_hooks = ('can_counter', 'can_be_countered', 'can_double')
+# All default hooks are exclusive
+formula = ('damage_formula', 'defense_formula', 'accuracy_formula', 'avoid_formula', 
+           'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
+default_hooks = ('buy_price', 'sell_price', 'num_targets', 'minimum_range', 'maximum_range',
+                 'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit')
+default_hooks += formula
+
+target_hooks = ('wexp', 'exp')
+
+dynamic_hooks = ('dynamic_damage', 'dynamic_accuracy', 'dynamic_crit_accuracy', 
+                 'dynamic_attack_speed')
+modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
+                'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
+                'modify_defense_speed')
+
+# None of these are exclusive
+event_hooks = ('init', 'on_use', 'on_not_usable', 'on_end_chapter', 'on_upkeep', 'on_endstep',
+               'on_equip', 'on_unequip', 'on_hold', 'on_drop')
+
+exclusive_hooks = false_hooks + default_hooks
+
+for hook in false_hooks:
     func = """def %s(unit, item):
                   for component in item.components:
                       if component.defines('%s'):
                           return component.%s(unit, item)
                   return False""" \
-        % (behaviour, behaviour, behaviour)
+        % (hook, hook, hook)
     exec(func)
 
-exclusive_behaviours = ('minimum_range', 'maximum_range', 'splash', 'splash_positions', 'damage', 'splash_multiplier', 'damage_formula', 'exp', 'wexp', 'num_targets')
+for hook in true_hooks:
+    func = """def %s(unit, item):
+                  for component in item.components:
+                      if component.defines('%s') and not component.%s(unit, item):
+                          return False
+                  return True""" \
+        % (hook, hook, hook)
+    exec(func)
 
-for behaviour in exclusive_behaviours:
+for hook in default_hooks:
     func = """def %s(unit, item):
                   for component in item.components:
                       if component.defines('%s'):
                           return component.%s(unit, item)
                   return Defaults.%s(unit, item)""" \
-        % (behaviour, behaviour, behaviour, behaviour)
+        % (hook, hook, hook, hook)
     exec(func)
 
-event_behaviours = ('on_use', 'on_not_available', 'on_end_chapter')
+for hook in target_hooks:
+    func = """def %s(unit, item, target):
+                  val = 0
+                  for component in item.components:
+                      if component.defines('%s'):
+                          val += component.%s(unit, item, target)
+                  return val""" \
+        % (hook, hook, hook)
+    exec(func)
 
-for behaviour in event_behaviours:
+for hook in modify_hooks:
+    func = """def %s(unit, item):
+                  val = 0
+                  for component in item.components:
+                      if component.defines('%s'):
+                          val += component.%s(unit, item)
+                  return val""" \
+        % (hook, hook, hook)
+    exec(func)
+
+for hook in dynamic_hooks:
+    func = """def %s(unit, item, target, mode):
+                  val = 0
+                  for component in item.components:
+                      if component.defines('%s'):
+                          val += component.%s(unit, item, target, mode)
+                  return val""" \
+        % (hook, hook, hook)
+    exec(func)
+
+for hook in event_hooks:
     func = """def %s(unit, item):
                   for component in item.components:
                       if component.defines('%s'):
                           component.%s(unit, item)""" \
-        % (behaviour, behaviour, behaviour)
+        % (hook, hook, hook)
     exec(func)
+
+def available(unit, item) -> bool:
+    """
+    If any hook reports false, then it is false
+    """
+    for component in item.components:
+        if component.defines('available'):
+            if not component.available(unit, item):
+                return False
+    return True
+
+def valid_targets(unit, item) -> set:
+    targets = set()
+    for component in item.components:
+        if component.defines('valid_targets'):
+            targets |= component.valid_targets(unit, item)
+    return targets
 
 def get_range(unit, item) -> set:
     min_range, max_range = 0, 0
@@ -91,33 +206,55 @@ def get_range(unit, item) -> set:
             break
     return set(range(min_range, max_range + 1))
 
-def valid_targets(unit, item) -> set:
-    targets = set()
-    for component in item.components:
-        if component.defines('valid_targets'):
-            targets |= component.valid_targets(unit, item)
-    return targets
-
-def available(unit, item) -> bool:
+def splash(unit, item, position) -> tuple:
     """
-    Also checks to see whether item is usable
-    or if all of its uses are gone
+    Returns main target and splash
     """
+    main_target = []
+    splash = []
     for component in item.components:
-        if component.defines('available'):
-            if not component.available(unit, item):
-                return False
-        if component.defines('usable'):
-            if not component.usable(unit, item):
-                return False
-    return True
+        if component.defines('splash'):
+            new_target, new_splash = component.splash(unit, item, position)
+            main_target.append(new_target)
+            splash += new_splash
+    # Handle having multiple main targets
+    if len(main_target) > 1:
+        splash += main_target
+        main_target = None
+    elif len(main_target) == 1:
+        main_target = main_target[0]
+    else:
+        main_target = None
 
-def usable(unit, item) -> bool:
+    # If not default
+    if main_target or splash:
+        return main_target, splash
+    else:
+        from app.engine.game_state import game
+        return game.grid.get_unit(position), []
+
+def splash_positions(unit, item, position) -> set:
+    positions = set()
     for component in item.components:
-        if component.defines('usable'):
-            if not component.usable(unit, item):
-                return False
-    return True
+        if component.defines('splash_positions'):
+            positions |= component.splash_positions(unit, item)
+    if not positions:
+        return {position}
+    return positions
+
+def damage_multiplier(unit, item, target, mode) -> float:
+    mult = 1
+    for component in item.components:
+        if component.defines('damage_multiplier'):
+            mult *= component.damage_multiplier(unit, item, target, mode)
+    return mult
+
+def dynamic_multiattacks(unit, item, target, mode) -> int:
+    num_attacks = 1
+    for component in item.components:
+        if component.defines('dynamic_multiattacks'):
+            num_attacks += component.dynamic_multiattacks(unit, item, target, mode)
+    return num_attacks
 
 def find_hp(actions, target):
     starting_hp = target.get_hp()

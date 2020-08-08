@@ -4,8 +4,7 @@ from app.data.database import DB
 
 from app.engine.item_system.item_component import ItemComponent, Type
 
-from app.engine import status_system
-from app.engine.game_state import game 
+from app.engine import status_system, equations
 
 class Exp(ItemComponent):
     nid = 'exp'
@@ -45,8 +44,8 @@ class HealExp(ItemComponent):
         return max(exp_gained, DB.constants.get('heal_min').value)
 
     def on_hit(self, action, playback, unit, item, target, mode=None):
-        heal = item.heal.heal + game.equations.heal(unit)
-        missing_hp = game.equations.hitpoints(unit) - unit.get_hp()
+        heal = item.heal.heal + equations.parser.heal(unit)
+        missing_hp = equations.parser.hitpoints(unit) - unit.get_hp()
         self.healing_done = min(heal, missing_hp)
 
 class Wexp(ItemComponent):
@@ -55,4 +54,4 @@ class Wexp(ItemComponent):
     expose = Type.Int
 
     def wexp(self, unit, item, target):
-        return self.value
+        return self.value - 1  # Because 1 will already be given by WeaponComponent

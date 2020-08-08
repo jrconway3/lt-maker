@@ -19,11 +19,8 @@ class Spell(ItemComponent):
     def equippable(self, unit, item):
         return False
 
-    def can_be_countered(self, unit, item):
-        return False
-
-    def can_counter(self, unit, item):
-        return False
+    def wexp(self, unit, item):
+        return 1
 
 class Weapon(ItemComponent):
     nid = 'weapon'
@@ -44,6 +41,12 @@ class Weapon(ItemComponent):
     def can_counter(self, unit, item):
         return True
 
+    def can_double(self, unit, item):
+        return True
+
+    def wexp(self, unit, item, target):
+        return 1
+
 class SiegeWeapon(ItemComponent):
     nid = 'siege_weapon'
     desc = "Item will be treated as a siege weapon (can not double or counterattack, but can still be equipped)"
@@ -57,11 +60,11 @@ class SiegeWeapon(ItemComponent):
     def equippable(self, unit, item):
         return True
 
-    def can_be_countered(self, unit, item):
-        return False
+    def can_double(self, unit, item):
+        return True
 
-    def can_counter(self, unit, item):
-        return False
+    def wexp(self, unit, item, target):
+        return 1
 
 class TargetsAnything(ItemComponent):
     nid = 'target_tile'

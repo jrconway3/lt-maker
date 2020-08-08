@@ -5,8 +5,8 @@ is_weapon! bool False
 is_spell! bool False
 is_accessory! bool False
 
-buy_price!  # How much is item worth
-sell_price!  # How much is item worth when sold
+buy_price! int None # How much is item worth
+sell_price! int None  # How much is item worth when sold
 
 equippable! bool False  # Whether item can be equipped
 can_use! bool False  # Whether item can be "Used"
@@ -31,8 +31,6 @@ splash extra input target position tuple (main_defender, splash) None, []
 # Given a target position, determines all positions affected by the item
 splash_positions input target position set
 
-splash_multiplier float 1
-
 weapon_type! WeaponType None
 weapon_rank! WeaponRank None
 modify_weapon_triangle! int 1  # 2 would be double effective, 0 would be no effect, -1 would be reaver
@@ -41,12 +39,12 @@ damage! int None
 hit! int None
 crit! int None
 
-exp! input target int 0
-wexp! input target int 1
+exp input target int 0
+wexp input target int 0
 locked! bool False  # Whether this item can be dropped or traded
-can_counter! bool False  # Whether this item can counter on defense
-can_be_countered! bool False  # Whether this item can be countered while attacking
-can_double! bool False  # Whether this item can double attack
+can_counter!+ bool False  # Whether this item can counter on defense
+can_be_countered!+ bool False  # Whether this item can be countered while attacking
+can_double!+ bool False  # Whether this item can double attack
 
 # Use these formulas to change how items determine their combat stats
 # Like for magic items -- Is this actually useful?? Should I be using equations at all... hmmm...
@@ -59,16 +57,25 @@ crit_avoid_formula! CRIT_AVOID
 attack_speed_formula! ATTACK_SPEED
 defense_speed_formula! DEFENSE_SPEED
 
-modify_damage input target mode int 0
-modify_accuracy input target mode int 0
-modify_crit_accuracy input target mode int 0
-modify_attack_speed input target mode int 0
-multiattacks input target mode int 1  # Used for things like brave
+dynamic_damage input target mode int 0
+damage_multiplier input target mode float 1
+dynamic_accuracy input target mode int 0
+dynamic_crit_accuracy input target mode int 0
+dynamic_attack_speed input target mode int 0
+modify_damage
+modify_resist
+modfiy_accuracy
+modify_avoid
+modify_crit_accuracy
+modify_crit_avoid
+modify_attack_speed
+modify_defense_speed
+dynamic_multiattacks input target mode int 1  # Used for things like brave
 
 # Event behaviours
 init  # Called when item is created
 on_use  # Called whenever the item is used
-*on_not_usable # Called whenever the item becomes not usable after being used in an interaction  NEED TO CONSIDER HOW THIS SHOULD WORK
+on_not_usable returns True when user should be alerted# Called whenever the item becomes not usable after being used in an interaction
 on_end_chapter  # Called on ending the chapter
 on_upkeep  # Called on owner's upkeep
 on_endstep  # Called on owner's endstep

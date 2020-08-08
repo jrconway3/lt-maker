@@ -4,8 +4,7 @@ from app.data.database import DB
 
 from app.engine.item_system.item_component import ItemComponent, Type
 
-from app.engine import action, status_system, combat_calcs
-from app.engine.game_state import game 
+from app.engine import action, status_system, combat_calcs, equations
 
 class Heal(ItemComponent):
     nid = 'heal'
@@ -14,16 +13,16 @@ class Heal(ItemComponent):
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
-        if defender and defender.get_hp() < game.equations.hitpoints(defender):
+        if defender and defender.get_hp() < equations.parser.hitpoints(defender):
             return True
         for s in splash:
-            if s.get_hp() < game.equations.hitpoints(s):
+            if s.get_hp() < equations.parser.hitpoints(s):
                 return True
         return False
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         dist = utilities.calculate_distance(unit.position, target.position)
-        heal = self.value + game.equations.heal(unit, item, dist)
+        heal = self.value + equations.parser.heal(unit, item, dist)
         actions.append(action.ChangeHP(target, heal))
 
         # For animation

@@ -303,8 +303,6 @@ class MapCombat():
         self.handle_state_stack()
         self.handle_item_gain()
         a_broke, d_broke = self.find_broken_items()
-        if self.attacker is not self.defender:
-            self.broken_item_alert(a_broke, d_broke)
 
         # handle wexp & skills
         if not self.attacker.is_dying:
@@ -334,7 +332,7 @@ class MapCombat():
         self.handle_death(all_units)
 
         self.check_equipped_items()
-        self.remove_broken_items(a_broke, d_broke)
+        self.handle_broken_items(a_broke, d_broke)
 
 # === POSSIBLY SHOULD BE SHARED AMONGST ALL COMBATS ===
     def turnwheel_death_messages(self, units):
@@ -385,25 +383,25 @@ class MapCombat():
 
     def find_broken_items(self):
         a_broke, d_broke = False, False
-        if not item_system.usable(self.attacker, self.item):
+        if not item_system.available(self.attacker, self.item):
             a_broke = True
-        if self.def_item and not item_system.usable(self.defender, self.def_item):
+        if self.def_item and not item_system.available(self.defender, self.def_item):
             d_broke = True
         return a_broke, d_broke
 
-    def broken_item_alert(self, a_broke_item, d_broke_item):
-        if a_broke_item and self.attacker.team == 'player' and not self.attacker.is_dying:
-            game.alerts.append(banner.BrokenItem(self.attacker, self.item))
-            game.state.change('alert')
-        if d_broke_item and self.defender.team == 'player' and not self.defender.is_dying:
-            game.alerts.append(banner.BrokenItem(self.defender, self.def_item))
-            game.state.change('alert')
-
     def handle_broken_items(self, a_broke, d_broke):
         if a_broke:
-            item_system.on_not_usable(self.attacker, self.item)
+            alert = item_system.on_not_usable(self.attacker, self.item)
+            if self.attacker is not self.defender and alert and \
+                    self.attacker.team == 'player' and not self.attacker.is_dying:
+                game.alerts.append(banner.BrokenItem(self.attacker, self.item))
+                game.state.change('alert')
         if d_broke:
-            item_system.on_not_usable(self.defender, self.def_item)
+            alert = item_system.on_not_usable(self.defender, self.def_item)
+            if self.attacker is not self.defender and alert and \
+                    self.defender.team == 'player' and not self.defender.is_dying:
+                game.alerts.append(banner.BrokenItem(self.defender, self.def_item))
+                game.state.change('alert')
 
     def handle_wexp(self, unit, item):
         marks = self.get_from_playback('mark_hit')

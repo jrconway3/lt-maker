@@ -140,7 +140,7 @@ class ItemHelpDialog(HelpDialog):
                 rng = '%d-%d' % (min_rng, max_rng)
         else:
             owner = game.get_unit(self.owner_nid)
-            item_range = game.equations.get_range(self.item, owner)
+            item_range = item_system.get_range(self.item, owner)
             rng = '%d-%d' % (min(item_range), max(item_range))
 
         self.vals = (weapon_level, rng, weight, might, hit, crit)

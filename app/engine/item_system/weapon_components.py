@@ -2,9 +2,8 @@ from app.data.database import DB
 
 from app.engine.item_system.item_component import ItemComponent, Type
 
-from app.engine import targets, action, combat_calcs
+from app.engine import targets, action, combat_calcs, equations
 from app.engine.item_system import item_system
-from app.engine.game_state import game 
 
 class WeaponType(ItemComponent):
     nid = 'weapon_type'
@@ -67,11 +66,11 @@ class Weight(ItemComponent):
     desc = "Item has a weight."
     expose = Type.Int
 
-    def modify_double_attack(self, unit, item):
-        return -max(0, self.value - game.equations.constitution(unit))
+    def modify_attack_speed(self, unit, item):
+        return -max(0, self.value - equations.parser.constitution(unit))
 
-    def modify_double_defense(self, unit, item):
-        return -max(0, self.value - game.equations.constitution(unit))
+    def modify_defense_speed(self, unit, item):
+        return -max(0, self.value - equations.parser.constitution(unit))
 
 class Effective(ItemComponent):
     nid = 'effective'
@@ -103,14 +102,14 @@ class Brave(ItemComponent):
     nid = 'brave'
     desc = "Item multi-attacks"
 
-    def modify_multiattacks(self, unit, item, target, mode=None):
+    def dynamic_multiattacks(self, unit, item, target, mode=None):
         return 1
 
 class BraveOnAttack(ItemComponent):
     nid = 'brave_on_attack'
     desc = "Item multi-attacks only when attacking"
 
-    def modify_multiattacks(self, unit, item, target, mode=None):
+    def dynamic_multiattacks(self, unit, item, target, mode=None):
         return 1 if mode == 'Attack' else 0
 
 class CannotBeCountered(ItemComponent):
@@ -163,5 +162,5 @@ class NoDouble(ItemComponent):
     nid = 'no_double'
     desc = "Item cannot double"
 
-    def modify_double_attack(self, unit, item):
-        return -999
+    def can_double(self, unit, item):
+        return False

@@ -2,8 +2,7 @@ from app import utilities
 from app.data.data import Prefab
 from app.data.database import DB
 
-from app.engine import equations
-from app.engine.item_system import item_system
+from app.engine import equations, item_system
 from app.engine.game_state import game
 
 # Main unit object used by engine

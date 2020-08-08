@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine.item_system.item_component import ItemComponent, Type
+from app.data.item_component import ItemComponent, Type
 
 from app.engine import targets, action, combat_calcs, equations
 from app.engine.item_system import item_system
@@ -22,7 +22,7 @@ class WeaponRank(ItemComponent):
     nid = 'weapon_rank'
     desc = "Item has a weapon rank and can only be used by units with high enough rank"
     requires = ['weapon_type']
-    expose = (Type.WeaponRank)
+    expose = Type.WeaponRank
 
     def weapon_rank(self, unit, item):
         return self.value
@@ -85,7 +85,7 @@ class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
     desc = "Item is does extra damage against units with these tags"
     requires = ['effective', 'damage']
-    expose = (Type.Dict, Type.Tag)
+    expose = (Type.List, Type.Tag)
 
     def modify_damage(self, unit, item, target, mode=None) -> int:
         if any(tag in targets.tags for tag in self.value):

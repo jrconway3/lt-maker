@@ -41,3 +41,12 @@ class ColorIcon(QPushButton):
             dlg.setCurrentColor(QColor(self._color))
         if dlg.exec_():
             self.change_color(dlg.currentColor().name())
+
+class AlphaColorIcon(ColorIcon):
+    def onColorPicker(self):
+        dlg = QColorDialog()
+        dlg.setOption(QColorDialog.ShowAlphaChannel, True)
+        if self._color:
+            dlg.setCurrentColor(QColor(self._color))
+        if dlg.exec_():
+            self.change_color(dlg.currentColor().name())

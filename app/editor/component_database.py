@@ -1,20 +1,20 @@
 from functools import partial
 
-from app import utilities
-
 from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, QDoubleSpinBox, \
     QSpinBox, QHBoxLayout, QListWidgetItem, \
     QDialog, QTreeView, QDialogButtonBox, QVBoxLayout, QItemDelegate, QComboBox
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
 
 from app.data.database import DB
-from app.data import item_components
+from app.data.item_component import Type
 
-from app.extensions.color_icon import ColorIcon
+from app.extensions.color_icon import ColorIcon, AlphaColorIcon
 from app.extensions.custom_gui import ComboBox
 from app.extensions.widget_list import WidgetList
 from app.extensions.list_widgets import AppendMultiListWidget
+
+from app.engine import item_component
 
 class ComponentList(WidgetList):
     def add_component(self, component):
@@ -33,10 +33,13 @@ class ComponentList(WidgetList):
         return None
 
 class BoolItemComponent(QWidget):
-    def __init__(self, data, parent):
+    delegate = None
+
+    def __init__(self, data, parent, delegate=None):
         super().__init__(parent)
         self._data = data
         self.window = parent
+        self.delegate = delegate
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
@@ -75,20 +78,10 @@ class IntItemComponent(BoolItemComponent):
     def on_value_changed(self, val):
         self._data.value = int(val)
 
-class HitItemComponent(BoolItemComponent):
+class HitItemComponent(IntItemComponent):
     def create_editor(self, hbox):
-        self.editor = QSpinBox(self)
-        self.editor.setMaximumWidth(40)
-        self.editor.setRange(-255, 255)
-        self.editor.setValue(self._data.value)
+        super().create_editor(hbox)
         self.editor.setSingleStep(5)
-        self.editor.valueChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor)
-
-class UsesItemComponent(IntItemComponent):
-    def on_value_changed(self, val):
-        self._data.value = int(val)
-        self.window.update_value_boxes()
 
 class FloatItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
@@ -123,116 +116,44 @@ class WeaponRankItemComponent(BoolItemComponent):
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
-class BraveChoiceItemComponent(BoolItemComponent):
-    def create_editor(self, hbox):
-        self.editor = ComboBox(self)
-        self.editor.setMaximumWidth(120)
-        self.editor.addItem('Always Brave')
-        self.editor.addItem('Brave while attacking')
-        self.editor.addItem('Brave while defending')
-        self.editor.setValue(self._data.value)
-        self.editor.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor)
-
 class EquationItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.setMaximumWidth(120)
-        self.editor.setEditable(True)
         self.editor.setInsertPolicy(QComboBox.NoInsert)
         self.editor.addItems(DB.equations.keys())
         self.editor.lineEdit().editingFinished.connect(self.on_value_changed)
 
     def on_value_changed(self):
         val = self.editor.currentText()
-        if utilities.is_int(val):
-            self._data.value = int(val)
-        else:
-            self._data.value = val
+        self._data.value = val
 
-class SpellItemComponent(BoolItemComponent):
+class Color3ItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
-        self.editor1 = ComboBox(self)
-        self.editor1.setMaximumWidth(120)
-        for weapon in DB.weapons.values():
-            self.editor1.addItem(weapon.nid)
-        self.editor1.setValue(self._data.weapon_type)
-        self.editor1.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor1)
-
-        self.editor2 = ComboBox(self)
-        for spell_affect in item_components.SpellAffect:
-            self.editor2.addItem(spell_affect.name)
-        self.editor2.setCurrentIndex(self._data.affect - 1)
-        self.editor2.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor2)
-
-        self.editor3 = ComboBox(self)
-        for spell_target in item_components.SpellTarget:
-            self.editor3.addItem(spell_target.name)
-        self.editor3.setCurrentIndex(self._data.target - 1)
-        self.editor3.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor3)
-
-    def on_value_changed(self, val):
-        v1 = self.editor1.currentText()
-        v2 = item_components.SpellAffect[self.editor2.currentText()].value
-        v3 = item_components.SpellTarget[self.editor3.currentText()].value
-        self._data.value = (v1, v2, v3)
-
-class AOEItemComponent(BoolItemComponent):
-    def create_editor(self, hbox):
-        self.editor1 = ComboBox(self)
-        self.editor1.setMaximumWidth(120)
-        for aoe_mode in item_components.AOEMode:
-            self.editor1.addItem(aoe_mode.name)
-        self.editor1.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor1)
-
-        self.editor2 = ComboBox(self)
-        for spell_target in item_components.SpellTarget:
-            self.editor2.addItem(spell_target.name)
-        self.editor2.currentTextChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor2)
-
-        self.editor3 = QSpinBox(self)
-        self.editor3.setMaximumWidth(40)
-        self.editor3.setValue(self._data.value)
-        self.editor3.setMinimum(0)
-        self.editor3.valueChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.editor)
-
-    def on_value_changed(self, val):
-        v1 = item_components.AOEMode[self.editor1.currentText()].value
-        v2 = item_components.SpellTarget[self.editor2.currentText()].value
-        v3 = int(self.editor3.value())
-        self._data.value = (v1, v2, v3)
-
-class ColorItemComponent(BoolItemComponent):
-    def create_editor(self, hbox):
-        color = self._data.value[:3]
+        color = self._data.value
         self.color = ColorIcon(QColor(*color).name(), self)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 
-        # Alpha
-        label = QLabel("Alpha (0 - 255)")
-        hbox.addWidget(label)
-        self.alpha = QSpinBox(self)
-        self.alpha.setMaximumWidth(40)
-        self.alpha.setRange(0, 255)
-        self.alpha.setSingleStep(8)
-        self.alpha.setValue(int(self._data.value[3]))
-        self.alpha.valueChanged.connect(self.on_value_changed)
-        hbox.addWidget(self.alpha)
-
     def on_value_changed(self, val):
         color = self.color.color().getRgb()
-        alpha = int(self.alpha.value())
-        self._data.value = (*color, alpha)
+        self._data.value = color
 
+class Color4ItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        color = self._data.value
+        self.color = AlphaColorIcon(QColor(*color).name(), self)
+        self.color.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color)
+
+    def on_value_changed(self, val):
+        color = self.color.color().getRgba()
+        self._data.value = color
+
+# Delegates
 class UnitDelegate(QItemDelegate):
     data = DB.units
+    name = "Unit"
 
     def createEditor(self, parent, option, index):
         if index.column() == 0:
@@ -240,163 +161,86 @@ class UnitDelegate(QItemDelegate):
             for obj in self.data:
                 editor.addItem(obj.nid)
             return editor
+        elif index.column() == 1:  # Integer value column
+            editor = QSpinBox(parent)
+            editor.setRange(-255, 255)
+            return editor
         else:
             return super().createEditor(parent, option, index)
 
 class ClassDelegate(UnitDelegate):
     data = DB.classes
+    name = "Class"
 
-class EffectiveDelegate(QItemDelegate):
-    int_column = 1
-    tag_column = 0
+class TagDelegate(UnitDelegate):
+    data = DB.tags
+    name = "Tag"
 
-    def createEditor(self, parent, option, index):
-        if index.column() == self.int_column:
-            editor = QSpinBox(parent)
-            editor.setRange(-255, 255)
-            return editor
-        elif index.column() == self.tag_column:
-            editor = ComboBox(parent)
-            for tag in DB.tags:
-                editor.addItem(tag.nid)
-            return editor
-        else:
-            return super().createEditor(parent, option, index)
+class ItemDelegate(UnitDelegate):
+    data = DB.items
+    name = "Item"
 
-class StatChangeDelegate(QItemDelegate):
-    int_column = 1
-    stat_column = 0
+class StatDelegate(UnitDelegate):
+    data = DB.stats
+    name = "Stat"
 
-    def createEditor(self, parent, option, index):
-        if index.column() == self.int_column:
-            editor = QSpinBox(parent)
-            editor.setRange(-255, 255)
-            return editor
-        elif index.column() == self.stat_column:
-            editor = ComboBox(parent)
-            for stat in DB.stats:
-                editor.addItem(stat.nid)
-            return editor
-        else:
-            return super().createEditor(parent, option, index)
+class WeaponTypeDelegate(UnitDelegate):
+    data = DB.weapons
+    name = "Weapon Type"
 
-class GrowthChangeDelegate(QItemDelegate):
-    int_column = 1
-    stat_column = 0
-
-    def createEditor(self, parent, option, index):
-        if index.column() == self.int_column:
-            editor = QSpinBox(parent)
-            editor.setRange(-1000, 1000)
-            editor.setSingleStep(5)
-            return editor
-        elif index.column() == self.stat_column:
-            editor = ComboBox(parent)
-            for stat in DB.stats:
-                editor.addItem(stat.nid)
-            return editor
-        else:
-            return super().createEditor(parent, option, index)
-
-class EffectiveItemComponent(BoolItemComponent):
-    attrs = ("tag", "damage")
-    delegate = EffectiveDelegate
+class ListItemComponent(BoolItemComponent):
+    delegate = None
 
     def create_editor(self, hbox):    
-        self.editor = AppendMultiListWidget(self._data.value, self._data.name, self.attrs, self.delegate, self)
+        self.editor = AppendMultiListWidget(self._data.value, self._data.name, (self.delegate.name), self.delegate, self)
         self.editor.view.setColumnWidth(0, 100)
         self.editor.view.setMaximumHeight(75)
         self.editor.model.nid_column = 0
 
         hbox.addWidget(self.editor)
 
-class StatChangeItemComponent(EffectiveItemComponent):
-    attrs = ("stat", "amount")
-    delegate = StatChangeDelegate
+class DictItemComponent(BoolItemComponent):
+    delegate = None
 
-class GrowthChangeItemComponent(EffectiveItemComponent):
-    attrs = ("stat", "percent")
-    delegate = GrowthChangeDelegate
-
-class RestrictedUnitComponent(BoolItemComponent):
-    delegate = UnitDelegate
-
-    def create_editor(self, hbox):
-        attrs = ("nid", )
-        self.editor = AppendMultiListWidget(self._data.value, self._data.name, attrs, self.delegate, self)
+    def create_editor(self, hbox):    
+        self.editor = AppendMultiListWidget(self._data.value, self._data.name, (self.delegate.name, "Value"), self.delegate, self)
         self.editor.view.setColumnWidth(0, 100)
         self.editor.view.setMaximumHeight(75)
         self.editor.model.nid_column = 0
 
         hbox.addWidget(self.editor)
-
-class RestrictedClassComponent(RestrictedUnitComponent):
-    delegate = ClassDelegate
-
-class PromotionComponent(RestrictedClassComponent):
-    pass
-
-class ClassChangeComponent(RestrictedClassComponent):
-    pass
-
-class MultiTargetDelegate(QItemDelegate):
-    def createEditor(self, parent, option, index):
-        if index.column() == 0:
-            return super().createEditor(parent, option, index)
-        elif index.column() == 1 or index.column() == 2:
-            editor = ComboBox(parent)
-            editor.setEditable(True)
-            editor.setInsertPolicy(QComboBox.NoInsert)
-            editor.addItems(DB.equations.keys())
-
-            editor = QSpinBox(parent)
-            editor.setRange(-255, 255)
-            return editor
-        elif index.column() == 3:
-            editor = ComboBox(self)
-            for spell_target in item_components.SpellTarget:
-                editor.addItem(spell_target.name)
-            return editor
-        else:
-            return super().createEditor(parent, option, index)
 
 def get_display_widget(component, parent):
-    if component.attr == bool:
+    if not component.expose:
         c = BoolItemComponent(component, parent)
-    elif component.attr == item_components.EffectiveSubComponent:
-        c = EffectiveItemComponent(component, parent)
-    elif component.attr == item_components.StatChangeSubComponent:
-        c = StatChangeItemComponent(component, parent)
-    elif component.attr == item_components.GrowthChangeSubComponent:
-        c = GrowthChangeItemComponent(component, parent)
-    elif component.nid == 'prf_unit':
-        c = RestrictedUnitComponent(component, parent)
-    elif component.nid == 'prf_class':
-        c = RestrictedClassComponent(component, parent)
-    elif component.attr == 'promotion':
-        c = PromotionComponent(component, parent)
-    elif component.attr == 'class_change':
-        c = ClassChangeComponent(component, parent)
-    elif component.nid == 'uses':
-        c = UsesItemComponent(component, parent)
-    elif component.nid in ('hit', 'crit'):
-        c = HitItemComponent(component, parent)
-    elif component.attr == int:
+    elif component.expose == Type.Int:
         c = IntItemComponent(component, parent)
-    elif component.attr == float:
+    elif component.expose == Type.Float:
         c = FloatItemComponent(component, parent)
-    elif component.attr == 'WeaponType':
+    elif component.expose == Type.WeaponType:
         c = WeaponTypeItemComponent(component, parent)
-    elif component.attr == 'WeaponRank':
+    elif component.expose == Type.WeaponRank:
         c = WeaponRankItemComponent(component, parent)
-    elif component.attr == 'BraveChoice':
-        c = BraveChoiceItemComponent(component, parent)
-    elif component.attr == 'Equation':
-        c = EquationItemComponent(component, parent)
-    elif component.nid == 'spell':
-        c = SpellItemComponent(component, parent)
-    elif component.nid == 'aoe':
-        c = AOEItemComponent(component, parent)
+    elif isinstance(component.expose, tuple):
+        delegate = None
+        if component.expose[1] == Type.Unit:
+            delegate = UnitDelegate
+        elif component.expose[1] == Type.Class:
+            delegate = ClassDelegate
+        elif component.expose[1] == Type.Tag:
+            delegate = TagDelegate
+        elif component.expose[1] == Type.Item:
+            delegate = ItemDelegate
+        elif component.expose[1] == Type.Stat:
+            delegate = StatDelegate
+        elif component.expose[1] == Type.WeaponType:
+            delegate = WeaponTypeDelegate
+
+        if component.expose[0] == Type.List:
+            c = ListItemComponent(component, parent, delegate)
+        elif component.expose[0] == Type.Dict:
+            c = DictItemComponent(component, parent, delegate)
+
     else:  # TODO
         c = BoolItemComponent(component, parent)
     return c
@@ -428,7 +272,7 @@ class ComponentDialog(QDialog):
         self.buttonbox.rejected.connect(self.reject)
 
     def get_checked(self):
-        components = item_components.item_components
+        components = item_component.get_item_components()
         # remove components that were already present
         checked = self.model.checked - set(self.model.already_present.keys())
         # sort based off position in item_components

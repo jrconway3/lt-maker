@@ -17,9 +17,8 @@ class Type(IntEnum):
     Item = 12  # Stored as Nids
     Status = 13  # Stored as Nids
     Stat = 14  # Stored as Nids
-    Set = 100
+    List = 100
     Dict = 101
-    List = 102
 
 class ItemComponent():
     nid: str = None
@@ -46,19 +45,3 @@ class ItemComponent():
             return self.nid, self.value.save()
         else:
             return self.nid, self.value
-
-def get_item_components():
-    return {i.nid: i for i in ItemComponent.__subclasses__()}
-
-def get_component(nid):
-    item_components = get_item_components()
-    base = item_components.get(nid)
-    return ItemComponent.copy(base)
-
-def deserialize_component(dat):
-    nid, value = dat
-    item_components = get_item_components()
-    base = item_components.get(nid)
-    copy = ItemComponent.copy(base)
-    copy.value = value
-    return copy

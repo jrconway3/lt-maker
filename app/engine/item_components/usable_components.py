@@ -1,4 +1,4 @@
-from app.engine.item_system.item_component import ItemComponent, Type
+from app.data.item_component import ItemComponent, Type
 
 from app.engine import action
 
@@ -96,7 +96,7 @@ class Cooldown(ItemComponent):
 class PrfUnit(ItemComponent):
     nid = 'prf_unit'
     desc = 'Item can only be wielded by certain units'
-    expose = (Type.Set, Type.Unit)
+    expose = (Type.List, Type.Unit)
 
     def available(self, unit, item) -> bool:
         return unit.nid in self.value
@@ -104,7 +104,7 @@ class PrfUnit(ItemComponent):
 class PrfClass(ItemComponent):
     nid = 'prf_class'
     desc = 'Item can only be wielded by certain classes'
-    expose = (Type.Set, Type.Class)
+    expose = (Type.List, Type.Class)
 
     def available(self, unit, item) -> bool:
         return unit.klass in self.value
@@ -112,7 +112,7 @@ class PrfClass(ItemComponent):
 class PrfTag(ItemComponent):
     nid = 'prf_tags'
     desc = 'Item can only be wielded by units with certain tags'
-    expose = (Type.Set, Type.Tag)
+    expose = (Type.List, Type.Tag)
 
     def available(self, unit, item) -> bool:
         return any(tag in self.value for tag in unit.tags)

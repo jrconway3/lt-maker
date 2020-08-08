@@ -4,8 +4,7 @@ from app import utilities
 from app.data.constants import FRAMERATE
 from app.data.database import DB
 
-from app.engine import engine, action, interaction, combat_calcs, a_star, unit_object, targets, equations
-from app.engine.item_system import item_system
+from app.engine import engine, action, interaction, combat_calcs, a_star, unit_object, targets, equations, item_system
 from app.engine.game_state import game
 
 import logging

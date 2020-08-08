@@ -1,9 +1,8 @@
 from app import utilities
 
-from app.engine.item_system.item_component import ItemComponent, Type
+from app.data.item_component import ItemComponent, Type
 
-from app.engine import status_system, targets
-from app.engine.item_system import item_system
+from app.engine import status_system, targets, item_system
 from app.engine.game_state import game 
 
 class Spell(ItemComponent):

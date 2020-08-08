@@ -6,8 +6,7 @@ from app.data.database import DB
 from app.engine.solver import CombatPhaseSolver
 
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, combat_calcs, gui, action, status_system, banner
-from app.engine.item_system import item_system
+from app.engine import engine, combat_calcs, gui, action, status_system, banner, item_system
 from app.engine.health_bar import MapCombatInfo
 from app.engine.animations import MapAnimation
 from app.engine.game_state import game

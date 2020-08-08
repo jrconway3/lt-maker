@@ -6,8 +6,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, image_mods, banner, save, phase, status_system, targets
-from app.engine.item_system import item_system
+from app.engine import engine, action, menus, interaction, image_mods, banner, save, phase, status_system, targets, item_system
 from app.engine.targets import SelectionHelper
 from app.engine.abilities import ABILITIES
 

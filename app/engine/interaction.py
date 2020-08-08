@@ -1,6 +1,6 @@
 from app.engine.solver import CombatPhaseSolver
 from app.engine.map_combat import MapCombat
-from app.engine.item_system import item_system
+from app.engine import item_system
 
 def has_animation(attacker, item, main_target, splash):
     return False

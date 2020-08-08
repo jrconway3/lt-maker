@@ -2,7 +2,7 @@ import math
 
 from app.data.database import DB
 
-from app.engine.item_system.item_component import ItemComponent, Type
+from app.data.item_component import ItemComponent, Type
 
 from app.engine import status_system, equations
 

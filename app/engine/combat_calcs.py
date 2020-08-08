@@ -1,7 +1,6 @@
 from app import utilities
 from app.data.database import DB
-from app.engine import equations, unit_object
-from app.engine.item_system import item_system
+from app.engine import equations, item_system
 
 def get_weapon_rank_bonus(unit, item):
     weapon_type = item_system.weapon_type(unit, item)

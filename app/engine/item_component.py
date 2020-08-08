@@ -1,4 +1,4 @@
-from app.data.item_components import ItemComponent
+from app.data.item_component import ItemComponent
 
 # Necessary for get_item_components to find all the 
 # item components defined in item_components folder

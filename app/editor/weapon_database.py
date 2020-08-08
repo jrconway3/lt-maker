@@ -228,7 +228,7 @@ class WeaponProperties(QWidget):
         self.rank_button.clicked.connect(self.edit_weapon_ranks)
         main_section.addWidget(self.rank_button)
 
-        attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attackspeed')
+        attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attack_speed', 'defense_speed')
         self.advantage = AppendMultiListWidget(AdvantageList(), "Advantage versus", attrs, AdvantageDelegate, self)
         self.disadvantage = AppendMultiListWidget(AdvantageList(), "Disadvantage versus", attrs, AdvantageDelegate, self)
 

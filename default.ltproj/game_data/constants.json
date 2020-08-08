@@ -24,6 +24,10 @@
         true
     ],
     [
+        "trade",
+        true
+    ],
+    [
         "line_of_sight",
         false
     ],

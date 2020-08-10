@@ -110,7 +110,7 @@ class Database(object):
         self.factions.append(new_faction_type)
 
     def create_new_item(self, nid, name):
-        new_item = items.Item(nid, name, "", "1", "1", 0)
+        new_item = items.Item(nid, name, "")
         self.items.append(new_item)
 
     def create_new_class(self, nid, name):

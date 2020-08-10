@@ -4,7 +4,7 @@
         "weapon_anims": [
             {
                 "nid": "Unarmed",
-                "full_path": "C:/Users/Patrick/Documents/Github/lt-maker/default.ltproj\\resources\\combat_anims\\Archer-Unarmed.png",
+                "full_path": "Archer-Unarmed.png",
                 "poses": [
                     [
                         "Dodge",
@@ -103,7 +103,7 @@
             },
             {
                 "nid": "RangedBow",
-                "full_path": "C:/Users/Patrick/Documents/Github/lt-maker/default.ltproj\\resources\\combat_anims\\Archer-RangedBow.png",
+                "full_path": "Archer-RangedBow.png",
                 "poses": [
                     [
                         "Dodge",
@@ -1097,7 +1097,7 @@
         "weapon_anims": [
             {
                 "nid": "Unarmed",
-                "full_path": "C:/Users/Patrick/Documents/Github/lt-maker/default.ltproj\\resources\\combat_anims\\Myrmidon-Unarmed.png",
+                "full_path": "Myrmidon-Unarmed.png",
                 "poses": [
                     [
                         "Dodge",

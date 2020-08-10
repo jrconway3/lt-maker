@@ -132,30 +132,6 @@ class ItemProperties(QWidget):
         self.desc_box.edit.textChanged.connect(self.desc_changed)
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
-        # self.min_range_box = PropertyBox("Minimum Range", ComboBox, self)
-        # self.min_range_box.edit.setEditable(True)
-        # self.min_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
-        # self.min_range_box.edit.addItems(DB.equations.keys())
-        # # self.min_range_box.edit.currentTextChanged.connect(self.min_range_changed)
-        # self.min_range_box.edit.lineEdit().editingFinished.connect(self.check_min_range)
-        # main_section.addWidget(self.min_range_box, 1, 2)
-
-        # self.min_range_box.add_button(QPushButton('...'))
-        # self.min_range_box.button.setMaximumWidth(40)
-        # self.min_range_box.button.clicked.connect(self.access_equations)
-
-        # self.max_range_box = PropertyBox("Maximum Range", ComboBox, self)
-        # self.max_range_box.edit.setEditable(True)
-        # self.max_range_box.edit.setInsertPolicy(QComboBox.NoInsert)
-        # self.max_range_box.edit.addItems(DB.equations.keys())
-        # # self.max_range_box.edit.currentTextChanged.connect(self.max_range_changed)
-        # self.max_range_box.edit.lineEdit().editingFinished.connect(self.check_max_range)
-        # main_section.addWidget(self.max_range_box, 1, 3)
-
-        # self.max_range_box.add_button(QPushButton('...'))
-        # self.max_range_box.button.setMaximumWidth(40)
-        # self.max_range_box.button.clicked.connect(self.access_equations)
-
         component_section = QGridLayout()
         component_label = QLabel("Components")
         component_label.setAlignment(Qt.AlignBottom)
@@ -198,84 +174,12 @@ class ItemProperties(QWidget):
         self.current.name = text
         self.window.update_list()
 
-    def total_value_changed(self, val):
-        val = int(val)
-        if 'uses' in [c.nid for c in self.current.components]:
-            num_uses = self.current.components.get('uses').value
-            new_value_per_use = val // num_uses
-            old_total_value = self.total_value_box.edit.value()
-            new_total_value = new_value_per_use * num_uses
-            if val % num_uses != 0 and old_total_value > new_total_value:
-                new_value_per_use += 1  # Try making it one bigger
-            self.current.value = new_total_value
-            self.value_per_use_box.edit.setValue(new_value_per_use)
-            self.total_value_box.edit.setValue(self.current.value)
-        else:
-            self.value_per_use_box.edit.setValue(val)
-
-    def value_per_use_changed(self, val):
-        val = int(val)
-        if 'uses' in [c.nid for c in self.current.components]:
-            num_uses = self.current.components.get('uses').value
-            self.current.value = val * num_uses
-            self.total_value_box.edit.setValue(self.current.value)
-        else:
-            self.current.value = val
-            self.total_value_box.edit.setValue(val)
-
-    def update_value_boxes(self):
-        # print("Updating Value Boxes", flush=True)
-        old_value = self.current.value
-        self.total_value_box.edit.setValue(0)  # Force a change
-        self.total_value_box.edit.setValue(old_value)
-
     def desc_changed(self, text):
         self.current.desc = text
-
-    def check_min_range(self):
-        min_val = self.min_range_box.edit.currentText()
-        self.current.min_range = min_val
-        max_val = self.max_range_box.edit.currentText()
-        # Max range can't be lower than min range
-        if utilities.is_int(min_val) and utilities.is_int(max_val):
-            if min_val > max_val:
-                self.max_range_box.edit.setEditText(str(min_val))
-
-    def check_max_range(self):
-        max_val = self.max_range_box.edit.currentText()
-        self.current.max_range = max_val
-        min_val = self.min_range_box.edit.currentText()
-        # Min range can't be higher than max range
-        if utilities.is_int(min_val) and utilities.is_int(max_val):
-            if max_val < min_val:
-                self.min_range_box.edit.setEditText(str(max_val))
-
-    def min_range_changed(self, val):
-        self.current.min_range = val
-
-    def max_range_changed(self, val):
-        self.current.max_range = val
-
-    def access_equations(self):
-        dlg = EquationDialog.create()
-        result = dlg.exec_()
-        if result == QDialog.Accepted:
-            # current_min = self.min_range_box.edit.currentText()
-            # current_max = self.max_range_box.edit.currentText()
-            self.min_range_box.edit.clear()
-            self.min_range_box.edit.addItems(DB.equations.keys())
-            self.max_range_box.edit.clear()
-            self.max_range_box.edit.addItems(DB.equations.keys())
-            self.set_current(self.current)
-            # self.min_range_box.edit.setEditText(current_min)
-            # self.max_range_box.edit.setEditText(current_max)
-        else:
-            pass
 
     def add_component(self, component):
         self.add_component_widget(component)
         self.current.components.append(component)
-        self.update_value_boxes()
 
     def add_component_widget(self, component):
         c = component_database.get_display_widget(component, self)
@@ -285,7 +189,6 @@ class ItemProperties(QWidget):
         data = component_widget._data
         self.component_list.remove_component(component_widget)
         self.current.components.delete(data)
-        self.update_value_boxes()
 
     def component_moved(self, start, end):
         self.current.components.move_index(start, end)
@@ -295,20 +198,10 @@ class ItemProperties(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
         self.desc_box.edit.setText(current.desc)
-        if utilities.is_int(current.min_range):
-            self.min_range_box.edit.setEditText(current.min_range)
-        else:
-            self.min_range_box.edit.setValue(current.min_range)
-        if utilities.is_int(current.max_range):
-            self.max_range_box.edit.setEditText(current.max_range)
-        else:
-            self.max_range_box.edit.setValue(current.max_range)
         self.icon_edit.set_current(current.icon_nid, current.icon_index)
         self.component_list.clear()
         for component in current.components.values():
             self.add_component_widget(component)
-
-        self.total_value_box.edit.setValue(current.value)
 
     def add_components(self):
         dlg = component_database.ComponentDialog(IC.item_components, "Item Components", self)
@@ -373,12 +266,14 @@ class ItemListWidget(QWidget):
         self.item_list.set_current(items)
 
     def add_new_item(self):
-        new_item = DB.items[0].nid
-        self.item_list.add_item(new_item)
+        if DB.items:
+            new_item = DB.items[0].nid
+            self.item_list.add_item(new_item)
         self.activate()
 
     def remove_last_item(self):
-        self.item_list.remove_item_at_index(self.item_list.length() - 1)
+        if self.item_list.length() > 0:
+            self.item_list.remove_item_at_index(self.item_list.length() - 1)
         self.activate()
 
     def activate(self):

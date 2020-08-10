@@ -134,13 +134,13 @@ class CombatCatalog(ManifestCatalog):
     def save(self, loc):
         for combat_anim in self:
             for weapon_anim in combat_anim.weapon_anims:
-                new_full_path = os.path.join(loc, "%s-%s.png" % (combat_anim.nid, weapon_anim.nid))
+                short_path = "%s-%s.png" % (combat_anim.nid, weapon_anim.nid)
+                full_path = os.path.join(loc, short_path)
                 if not weapon_anim.full_path:
-                    weapon_anim.full_path = new_full_path
-                    weapon_anim.pixmap.save(weapon_anim.full_path)
-                if os.path.abspath(weapon_anim.full_path) != os.path.abspath(new_full_path):
-                    shutil.copy(weapon_anim.full_path, new_full_path)
-                    weapon_anim.set_full_path(new_full_path)
+                    weapon_anim.pixmap.save(full_path)
+                if os.path.abspath(weapon_anim.full_path) != os.path.abspath(full_path):
+                    shutil.copy(weapon_anim.full_path, full_path)
+                weapon_anim.set_full_path(short_path)
         self.dump(loc)
 
 base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(31)])

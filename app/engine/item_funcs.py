@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine.item_system import item_system
+from app.engine import item_system
 
 def is_magic(unit, item) -> bool:
     weapon_type = item_system.weapon_type(unit, item)

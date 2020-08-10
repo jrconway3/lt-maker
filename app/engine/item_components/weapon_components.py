@@ -2,13 +2,13 @@ from app.data.database import DB
 
 from app.data.item_component import ItemComponent, Type
 
-from app.engine import targets, action, combat_calcs, equations
-from app.engine.item_system import item_system
+from app.engine import targets, action, combat_calcs, equations, item_system
 
 class WeaponType(ItemComponent):
     nid = 'weapon_type'
     desc = "Item has a weapon type and can only be used by certain classes"
     expose = Type.WeaponType
+    tag = 'weapon'
 
     def weapon_type(self, unit, item):
         return self.value
@@ -23,6 +23,7 @@ class WeaponRank(ItemComponent):
     desc = "Item has a weapon rank and can only be used by units with high enough rank"
     requires = ['weapon_type']
     expose = Type.WeaponRank
+    tag = 'weapon'
 
     def weapon_rank(self, unit, item):
         return self.value
@@ -38,6 +39,7 @@ class WeaponRank(ItemComponent):
 class Magic(ItemComponent):
     nid = 'magic'
     desc = 'Makes Item use magic damage formula'
+    tag = 'weapon'
 
     def damage_formula(self, unit, item):
         return 'MAGIC_DAMAGE'
@@ -49,6 +51,7 @@ class Hit(ItemComponent):
     nid = 'hit'
     desc = "Item has a chance to hit. If left off, item will always hit."
     expose = Type.Int
+    tag = 'weapon'
 
     def hit(self, unit, item):
         return self.value
@@ -57,6 +60,7 @@ class Crit(ItemComponent):
     nid = 'crit'
     desc = "Item has a chance to crit. If left off, item cannot crit."
     expose = Type.Int
+    tag = 'weapon'
 
     def crit(self, unit, item):
         return self.value
@@ -65,6 +69,7 @@ class Weight(ItemComponent):
     nid = 'weight'
     desc = "Item has a weight."
     expose = Type.Int
+    tag = 'weapon'
 
     def modify_attack_speed(self, unit, item):
         return -max(0, self.value - equations.parser.constitution(unit))
@@ -76,7 +81,9 @@ class Effective(ItemComponent):
     nid = 'effective'
     desc = 'Item does extra damage against certain units'
     requires = ['damage']
+    paired_with = ('effective_tag',)
     expose = Type.Int
+    tag = 'extra'
 
     def effective(self, unit, item):
         return self.value
@@ -84,8 +91,10 @@ class Effective(ItemComponent):
 class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
     desc = "Item is does extra damage against units with these tags"
-    requires = ['effective', 'damage']
+    requires = ['damage']
+    paired_with = ('effective',)
     expose = (Type.List, Type.Tag)
+    tag = 'extra'
 
     def modify_damage(self, unit, item, target, mode=None) -> int:
         if any(tag in targets.tags for tag in self.value):
@@ -101,6 +110,7 @@ class EffectiveTag(ItemComponent):
 class Brave(ItemComponent):
     nid = 'brave'
     desc = "Item multi-attacks"
+    tag = 'extra'
 
     def dynamic_multiattacks(self, unit, item, target, mode=None):
         return 1
@@ -108,6 +118,7 @@ class Brave(ItemComponent):
 class BraveOnAttack(ItemComponent):
     nid = 'brave_on_attack'
     desc = "Item multi-attacks only when attacking"
+    tag = 'extra'
 
     def dynamic_multiattacks(self, unit, item, target, mode=None):
         return 1 if mode == 'Attack' else 0
@@ -115,6 +126,7 @@ class BraveOnAttack(ItemComponent):
 class CannotBeCountered(ItemComponent):
     nid = 'cannot_be_countered'
     desc = "Item cannot be countered"
+    tag = 'extra'
 
     def can_be_countered(self, unit, item):
         return False
@@ -124,6 +136,7 @@ class Lifelink(ItemComponent):
     desc = "Heals user %% of damage dealt"
     expose = Type.Float
     requires = ['damage']
+    tag = 'extra'
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
@@ -145,6 +158,7 @@ class DamageOnMiss(ItemComponent):
     desc = "Does %% damage even on miss"
     expose = Type.Float
     requires = ['damage']
+    tag = 'extra'
 
     def on_miss(self, actions, playback, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
@@ -161,6 +175,7 @@ class DamageOnMiss(ItemComponent):
 class NoDouble(ItemComponent):
     nid = 'no_double'
     desc = "Item cannot double"
+    tag = 'extra'
 
     def can_double(self, unit, item):
         return False

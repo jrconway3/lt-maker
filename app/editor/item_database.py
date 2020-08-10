@@ -8,6 +8,7 @@ from app.resources.resources import RESOURCES
 from app.data.data import Data
 from app.data.database import DB
 import app.data.item_component as IC
+import app.engine.item_component as ICS
 
 from app.extensions.custom_gui import PropertyBox, QHLine, QVLine, ComboBox, DeletionDialog
 from app.editor.custom_widgets import ItemBox
@@ -204,12 +205,13 @@ class ItemProperties(QWidget):
             self.add_component_widget(component)
 
     def add_components(self):
-        dlg = component_database.ComponentDialog(IC.item_components, "Item Components", self)
+        components = ICS.get_item_components()
+        dlg = component_database.ComponentDialog(components, "Item Components", self)
         result = dlg.exec_()
         if result == QDialog.Accepted:
             checked = dlg.get_checked()
             for nid in checked:
-                c = IC.get_component(nid)
+                c = ICS.get_component(nid)
                 self.add_component(c)
         else:
             pass

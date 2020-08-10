@@ -20,18 +20,30 @@ class Type(IntEnum):
     List = 100
     Dict = 101
 
+tags = ['base', 'target', 'weapon', 'uses', 'extra', 'exp', 'aoe', 'aesthetic', 'advanced', 'custom']
+
 class ItemComponent():
     nid: str = None
     desc: str = None
     author: str = 'rainlash'
     expose = None  # Attribute for the Item Component
     requires: list = None
+    tag = 'extra'
     value = None
 
     @property
     def name(self):
         name = self.__class__.__name__
-        return functools.reduce(lambda a, b: a + ((b.upper() == b and (a and a[-1].upper() != a[-1])) and (' ' + b) or b), name, '')
+        print(name)
+        name = functools.reduce(lambda a, b: a + ((b.upper() == b and (a and a[-1].upper() != a[-1])) and (' ' + b) or b), name, '')
+        return name
+
+    @classmethod
+    def class_name(cls):
+        name = cls.__name__
+        print(name)
+        name = functools.reduce(lambda a, b: a + ((b.upper() == b and (a and a[-1].upper() != a[-1])) and (' ' + b) or b), name, '')
+        return name
 
     def defines(self, function_name):
         return hasattr(self, function_name)

@@ -10,6 +10,7 @@ class Exp(ItemComponent):
     nid = 'exp'
     desc = "Item gives a custom number of exp to user on use"
     expose = Type.Int
+    tag = 'exp'
 
     def exp(self, unit, item, target) -> int:
         return self.value
@@ -17,6 +18,7 @@ class Exp(ItemComponent):
 class LevelExp(ItemComponent):
     nid = 'level_exp'
     desc = "Item gives exp to user based on level difference"
+    tag = 'exp'
 
     def exp(self, unit, item, target) -> int:
         if status_system.check_enemy(unit, target):
@@ -32,6 +34,7 @@ class HealExp(ItemComponent):
     nid = 'heal_exp'
     desc = "Item gives exp to user based on amount of damage healed"
     requires = ['heal']
+    tag = 'exp'
 
     healing_done = 0
 
@@ -52,6 +55,7 @@ class Wexp(ItemComponent):
     nid = 'wexp'
     desc = "Item gives a custom number of wexp to user on use"
     expose = Type.Int
+    tag = 'exp'
 
     def wexp(self, unit, item, target):
         return self.value - 1  # Because 1 will already be given by WeaponComponent

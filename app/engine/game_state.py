@@ -7,7 +7,6 @@ from app.data.items import Item
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
-from app.parsers import equations
 from app.engine import state_machine, input_manager, static_random, a_star
 from app.engine import config as cf
 

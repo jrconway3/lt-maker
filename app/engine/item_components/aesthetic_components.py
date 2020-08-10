@@ -4,6 +4,7 @@ class MapHitColor(ItemComponent):
     nid = 'map_hit_color'
     desc = "Changes the color that appears on the unit when hit"
     expose = Type.Color4
+    tag = 'aesthetic'
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         playback.append(('unit_tint', target, self.value))

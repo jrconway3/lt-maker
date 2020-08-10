@@ -7,6 +7,7 @@ class BlastAOE(ItemComponent):
     nid = 'aoe_blast'
     desc = "Gives Blast AOE"
     expose = Type.Int  # Radius
+    tag = 'aoe'
 
     def splash(self, unit, item, position) -> tuple:
         ranges = set(range(self.value + 1))

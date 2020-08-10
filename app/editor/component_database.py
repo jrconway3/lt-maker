@@ -319,7 +319,7 @@ class ComponentModel(QAbstractItemModel):
             return None
         data = self._data[index.row()]
         if role == Qt.DisplayRole:
-            return data.name
+            return data.class_name()
         elif role == Qt.CheckStateRole:
             value = Qt.Checked if data.nid in self.checked else Qt.Unchecked
             return value
@@ -340,9 +340,10 @@ class ComponentModel(QAbstractItemModel):
     def flags(self, index):
         basic_flags = Qt.ItemNeverHasChildren
         data = self._data[index.row()]
+        true_components = set(self.already_present.keys()) | self.checked
         if data.nid in self.already_present.keys():
             pass
-        elif data.requires(set(self.already_present.keys()) | self.checked):
+        elif not data.requires or all(r in true_components for r in data.requires):
             basic_flags |= Qt.ItemIsEnabled | Qt.ItemIsSelectable
             # basic_flags |= Qt.ItemIsUserCheckable
         return basic_flags

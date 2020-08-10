@@ -8,6 +8,7 @@ from app.engine.game_state import game
 class Spell(ItemComponent):
     nid = 'spell'
     desc = "Item will be treated as a spell (cannot counterattack or double)"
+    tag = 'base'
 
     def is_spell(self, unit, item):
         return True
@@ -24,6 +25,7 @@ class Spell(ItemComponent):
 class Weapon(ItemComponent):
     nid = 'weapon'
     desc = "Item will be treated as a normal weapon (can double, counterattack, be equipped, etc.)" 
+    tag = 'base'
 
     def is_weapon(self, unit, item):
         return True
@@ -49,6 +51,7 @@ class Weapon(ItemComponent):
 class SiegeWeapon(ItemComponent):
     nid = 'siege_weapon'
     desc = "Item will be treated as a siege weapon (can not double or counterattack, but can still be equipped)"
+    tag = 'base'
 
     def is_weapon(self, unit, item):
         return True
@@ -68,6 +71,7 @@ class SiegeWeapon(ItemComponent):
 class TargetsAnything(ItemComponent):
     nid = 'target_tile'
     desc = "Item targets any tile"
+    tag = 'target'
 
     def valid_targets(self, unit, item) -> set:
         rng = item_system.get_range(unit, item)
@@ -76,6 +80,7 @@ class TargetsAnything(ItemComponent):
 class TargetsUnits(ItemComponent):
     nid = 'target_unit'
     desc = "Item targets any unit"
+    tag = 'target'
 
     def valid_targets(self, unit, item) -> set:
         return {other.position for other in game.level.units if other.position and 
@@ -84,6 +89,7 @@ class TargetsUnits(ItemComponent):
 class TargetsEnemies(ItemComponent):
     nid = 'target_enemy'
     desc = "Item targets any enemy"
+    tag = 'target'
 
     def valid_targets(self, unit, item) -> set:
         return {other.position for other in game.level.units if other.position and 
@@ -93,6 +99,7 @@ class TargetsEnemies(ItemComponent):
 class TargetsAllies(ItemComponent):
     nid = 'target_ally'
     desc = "Item targets any ally"
+    tag = 'target'
 
     def valid_targets(self, unit, item) -> set:
         return {other.position for other in game.level.units if other.position and 
@@ -102,6 +109,7 @@ class TargetsAllies(ItemComponent):
 class MinimumRange(ItemComponent):
     nid = 'min_range'
     desc = "Set the minimum_range of the item to an integer"
+    tag = 'target'
 
     expose = Type.Int
 
@@ -112,6 +120,7 @@ class MaximumRange(ItemComponent):
     nid = 'max_range'
     desc = "Set the maximum_range of the item to an integer"
     expose = Type.Int
+    tag = 'target'
 
     def maximum_range(self, unit, item) -> int:
         return self.value
@@ -119,6 +128,7 @@ class MaximumRange(ItemComponent):
 class Usable(ItemComponent):
     nid = 'usable'
     desc = "Item is usable"
+    tag = 'base'
 
     def can_use(self, unit, item):
         return True
@@ -127,6 +137,7 @@ class Value(ItemComponent):
     nid = 'value'
     desc = "Item has a value and can be bought and sold. Items sell for half their value."
     expose = Type.Int
+    tag = 'base'
 
     def buy_price(self, unit, item):
         if item.uses:

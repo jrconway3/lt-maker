@@ -10,6 +10,7 @@ class Heal(ItemComponent):
     nid = 'heal'
     desc = "Item heals on hit"
     expose = Type.Int
+    tag = 'weapon'
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
@@ -40,6 +41,7 @@ class Damage(ItemComponent):
     nid = 'damage'
     desc = "Item does damage on hit"
     expose = Type.Int
+    tag = 'weapon'
 
     def damage(self, unit, item):
         return self.value
@@ -69,6 +71,7 @@ class PermanentStatChange(ItemComponent):
     nid = 'permanent_stat_change'
     desc = "Item changes target's stats on hit."
     expose = (Type.Dict, Type.Stat)
+    tag = 'extra'
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # Ignore's splash
@@ -86,6 +89,7 @@ class PermanentGrowthChange(ItemComponent):
     nid = 'permanent_growth_change'
     desc = "Item changes target's growths on hit"
     expose = (Type.Dict, Type.Stat)
+    tag = 'extra'
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.PermanentGrowthChange(unit, self.value))
@@ -95,6 +99,7 @@ class WexpChange(ItemComponent):
     nid = 'wexp_change'
     desc = "Item changes target's wexp on hit"
     expose = (Type.Dict, Type.WeaponType)
+    tag = 'extra'
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.WexpChange(unit, self.value))
@@ -103,6 +108,7 @@ class WexpChange(ItemComponent):
 class Refresh(ItemComponent):
     nid = 'refresh'
     desc = "Item allows target to move again on hit"
+    tag = 'extra'
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # only targets areas where unit could move again
@@ -120,6 +126,7 @@ class StatusOnHit(ItemComponent):
     nid = 'status_on_hit'
     desc = "Item gives status to target when it hits"
     expose = Type.Status  # Nid
+    tag = 'extra'
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.AddStatus(target, self.value))
@@ -129,6 +136,7 @@ class Restore(ItemComponent):
     nid = 'restore'
     desc = "Item removes status with time from target on hit"
     expose = Type.Status # Nid
+    tag = 'extra'
 
     def _can_be_restored(self, status):
         return (self.value.lower() == 'all' or status.nid == self.value)

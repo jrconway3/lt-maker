@@ -6,6 +6,7 @@ class Uses(ItemComponent):
     nid = 'uses'
     desc = "Number of uses of item"
     expose = Type.Int
+    tag = 'uses'
 
     def init(self, item):
         item.data['uses'] = self.value
@@ -27,6 +28,7 @@ class ChapterUses(ItemComponent):
     nid = 'c_uses'
     desc = "Number of uses per chapter for item. (Refreshes after each chapter)"
     expose = Type.Int
+    tag = 'uses'
 
     def init(self, item):
         item.data['uses'] = self.value
@@ -48,6 +50,7 @@ class HPCost(ItemComponent):
     nid = 'hp_cost'
     desc = "Item costs HP to use"
     expose = Type.Int
+    tag = 'uses'
 
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self.hp_cost
@@ -62,6 +65,7 @@ class ManaCost(ItemComponent):
     nid = 'mana_cost'
     desc = "Item costs mana to use"
     expose = Type.Int
+    tag = 'uses'
 
     def available(self, unit, item) -> bool:
         return unit.get_mana() > self.mana_cost
@@ -76,6 +80,7 @@ class Cooldown(ItemComponent):
     nid = 'cooldown'
     desc = "After use, item cannot be used until X turns have passed"
     expose = Type.Int
+    tag = 'uses'
 
     def init(self, unit, item):
         item.data['cooldown'] = 0
@@ -97,6 +102,7 @@ class PrfUnit(ItemComponent):
     nid = 'prf_unit'
     desc = 'Item can only be wielded by certain units'
     expose = (Type.List, Type.Unit)
+    tag = 'uses'
 
     def available(self, unit, item) -> bool:
         return unit.nid in self.value
@@ -105,6 +111,7 @@ class PrfClass(ItemComponent):
     nid = 'prf_class'
     desc = 'Item can only be wielded by certain classes'
     expose = (Type.List, Type.Class)
+    tag = 'uses'
 
     def available(self, unit, item) -> bool:
         return unit.klass in self.value
@@ -113,6 +120,7 @@ class PrfTag(ItemComponent):
     nid = 'prf_tags'
     desc = 'Item can only be wielded by units with certain tags'
     expose = (Type.List, Type.Tag)
+    tag = 'uses'
 
     def available(self, unit, item) -> bool:
         return any(tag in self.value for tag in unit.tags)
@@ -120,6 +128,7 @@ class PrfTag(ItemComponent):
 class Locked(ItemComponent):
     nid = 'locked'
     desc = 'Item cannot be discarded, traded, or stolen'
+    tag = 'extra'
 
     def locked(self, unit, item) -> bool:
         return True

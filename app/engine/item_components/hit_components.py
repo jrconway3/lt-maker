@@ -8,9 +8,11 @@ from app.engine import action, status_system, combat_calcs, equations
 
 class Heal(ItemComponent):
     nid = 'heal'
-    desc = "Item heals on hit"
-    expose = Type.Int
+    desc = "Item heals this amount + HEAL on hit"
     tag = 'weapon'
+
+    expose = Type.Int
+    value = 10
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
@@ -40,8 +42,10 @@ class Heal(ItemComponent):
 class Damage(ItemComponent):
     nid = 'damage'
     desc = "Item does damage on hit"
-    expose = Type.Int
     tag = 'weapon'
+
+    expose = Type.Int
+    value = 0
 
     def damage(self, unit, item):
         return self.value
@@ -70,8 +74,9 @@ class Damage(ItemComponent):
 class PermanentStatChange(ItemComponent):
     nid = 'permanent_stat_change'
     desc = "Item changes target's stats on hit."
-    expose = (Type.Dict, Type.Stat)
     tag = 'extra'
+
+    expose = (Type.Dict, Type.Stat)
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # Ignore's splash
@@ -88,8 +93,9 @@ class PermanentStatChange(ItemComponent):
 class PermanentGrowthChange(ItemComponent):
     nid = 'permanent_growth_change'
     desc = "Item changes target's growths on hit"
-    expose = (Type.Dict, Type.Stat)
     tag = 'extra'
+
+    expose = (Type.Dict, Type.Stat)
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.PermanentGrowthChange(unit, self.value))
@@ -98,8 +104,9 @@ class PermanentGrowthChange(ItemComponent):
 class WexpChange(ItemComponent):
     nid = 'wexp_change'
     desc = "Item changes target's wexp on hit"
-    expose = (Type.Dict, Type.WeaponType)
     tag = 'extra'
+
+    expose = (Type.Dict, Type.WeaponType)
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.WexpChange(unit, self.value))
@@ -125,8 +132,9 @@ class Refresh(ItemComponent):
 class StatusOnHit(ItemComponent):
     nid = 'status_on_hit'
     desc = "Item gives status to target when it hits"
-    expose = Type.Status  # Nid
     tag = 'extra'
+
+    expose = Type.Status  # Nid
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.AddStatus(target, self.value))
@@ -135,8 +143,9 @@ class StatusOnHit(ItemComponent):
 class Restore(ItemComponent):
     nid = 'restore'
     desc = "Item removes status with time from target on hit"
-    expose = Type.Status # Nid
     tag = 'extra'
+
+    expose = Type.Status # Nid
 
     def _can_be_restored(self, status):
         return (self.value.lower() == 'all' or status.nid == self.value)

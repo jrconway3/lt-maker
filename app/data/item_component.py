@@ -31,6 +31,9 @@ class ItemComponent():
     tag = 'extra'
     value = None
 
+    def __init__(self, value=None):
+        self.value = value
+
     @property
     def name(self):
         name = self.__class__.__name__
@@ -50,7 +53,7 @@ class ItemComponent():
 
     @classmethod
     def copy(cls, other):
-        return cls(other.nid, other.name, other.attr, other.value, other.requires)
+        return cls(other.value)
 
     def serialize(self):
         if isinstance(self.value, Data):

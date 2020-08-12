@@ -10,7 +10,7 @@ from app.data.database import DB
 from app.extensions.custom_gui import PropertyBox, ComboBox
 
 from app.editor.base_database_gui import DatabaseTab
-from app.editor.component_database import ComponentModel
+from app.extensions.checkable_list_dialog import ComponentModel
 
 class BoolConstantsModel(ComponentModel):
     def __init__(self, data, parent=None):

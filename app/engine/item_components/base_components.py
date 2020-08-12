@@ -112,6 +112,7 @@ class MinimumRange(ItemComponent):
     tag = 'target'
 
     expose = Type.Int
+    value = 0
 
     def minimum_range(self, unit, item) -> int:
         return self.value
@@ -119,8 +120,10 @@ class MinimumRange(ItemComponent):
 class MaximumRange(ItemComponent):
     nid = 'max_range'
     desc = "Set the maximum_range of the item to an integer"
-    expose = Type.Int
     tag = 'target'
+
+    expose = Type.Int
+    value = 0
 
     def maximum_range(self, unit, item) -> int:
         return self.value
@@ -136,8 +139,10 @@ class Usable(ItemComponent):
 class Value(ItemComponent):
     nid = 'value'
     desc = "Item has a value and can be bought and sold. Items sell for half their value."
-    expose = Type.Int
     tag = 'base'
+    
+    expose = Type.Int
+    value = 0
 
     def buy_price(self, unit, item):
         if item.uses:

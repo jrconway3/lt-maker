@@ -1,10 +1,9 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, QDoubleSpinBox, \
-    QSpinBox, QHBoxLayout, QListWidgetItem, \
-    QDialog, QTreeView, QDialogButtonBox, QVBoxLayout, QItemDelegate, QComboBox
+    QSpinBox, QHBoxLayout, QListWidgetItem, QItemDelegate, QComboBox
 from PyQt5.QtGui import QIcon, QColor
-from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
+from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 from app.data.item_component import Type
@@ -13,8 +12,6 @@ from app.extensions.color_icon import ColorIcon, AlphaColorIcon
 from app.extensions.custom_gui import ComboBox
 from app.extensions.widget_list import WidgetList
 from app.extensions.list_widgets import AppendMultiListWidget
-
-from app.engine import item_component
 
 class ComponentList(WidgetList):
     def add_component(self, component):
@@ -69,8 +66,7 @@ class BoolItemComponent(QWidget):
 class IntItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QSpinBox(self)
-        self.editor.setMaximumWidth(40)
-        self.editor.setRange(-255, 255)
+        self.set_format()
         self.editor.setValue(self._data.value)
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -78,10 +74,20 @@ class IntItemComponent(BoolItemComponent):
     def on_value_changed(self, val):
         self._data.value = int(val)
 
+    def set_format(self):
+        self.editor.setMaximumWidth(40)
+        self.editor.setRange(-255, 255)
+
 class HitItemComponent(IntItemComponent):
-    def create_editor(self, hbox):
-        super().create_editor(hbox)
+    def set_format(self):
+        self.editor.setMaximumWidth(40)
+        self.editor.setRange(-255, 255)
         self.editor.setSingleStep(5)
+
+class ValueItemComponent(IntItemComponent):
+    def set_format(self):
+        self.editor.setMaximumWidth(60)
+        self.editor.setRange(0, 99999)
 
 class FloatItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
@@ -102,6 +108,8 @@ class WeaponTypeItemComponent(BoolItemComponent):
         self.editor.setMaximumWidth(120)
         for weapon_type in DB.weapons.values():
             self.editor.addItem(weapon_type.nid)
+        if not self._data.value and DB.weapons:
+            self._data.value = DB.weapons[0].nid
         self.editor.setValue(self._data.value)
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -112,6 +120,8 @@ class WeaponRankItemComponent(BoolItemComponent):
         self.editor.setMaximumWidth(120)
         for weapon_rank in DB.weapon_ranks.values():
             self.editor.addItem(weapon_rank.nid)
+        if not self._data.value and DB.weapon_ranks:
+            self._data.value = DB.weapon_ranks[0].nid
         self.editor.setValue(self._data.value)
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -122,6 +132,8 @@ class EquationItemComponent(BoolItemComponent):
         self.editor.setMaximumWidth(120)
         self.editor.setInsertPolicy(QComboBox.NoInsert)
         self.editor.addItems(DB.equations.keys())
+        if not self._data.value and DB.equations:
+            self._data.value = DB.equations[0].nid
         self.editor.lineEdit().editingFinished.connect(self.on_value_changed)
 
     def on_value_changed(self):
@@ -214,7 +226,12 @@ def get_display_widget(component, parent):
     if not component.expose:
         c = BoolItemComponent(component, parent)
     elif component.expose == Type.Int:
-        c = IntItemComponent(component, parent)
+        if component.nid == 'hit':
+            c = HitItemComponent(component, parent)
+        elif component.nid == 'value':
+            c = ValueItemComponent(component, parent)
+        else:
+            c = IntItemComponent(component, parent)
     elif component.expose == Type.Float:
         c = FloatItemComponent(component, parent)
     elif component.expose == Type.WeaponType:
@@ -244,106 +261,3 @@ def get_display_widget(component, parent):
     else:  # TODO
         c = BoolItemComponent(component, parent)
     return c
-
-class ComponentDialog(QDialog):
-    def __init__(self, data, title, parent=None):
-        super().__init__(parent)
-
-        self.window = parent
-        self._data = data
-        self.current_components = self.window.current.components
-
-        self.setWindowTitle(title)
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-
-        self.model = ComponentModel(data, self.current_components, self)
-
-        self.view = QTreeView()
-        self.view.setModel(self.model)
-        self.view.header().hide()
-        self.view.clicked.connect(self.on_click)
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.view)
-
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
-        layout.addWidget(self.buttonbox)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
-
-    def get_checked(self):
-        components = item_component.get_item_components()
-        # remove components that were already present
-        checked = self.model.checked - set(self.model.already_present.keys())
-        # sort based off position in item_components
-        sorted_components = sorted(checked, key=lambda x: [c.nid for c in components].index(x))
-        return sorted_components
-
-    def on_click(self, index):
-        # Only if clickable
-        if bool(self.model.flags(index) & Qt.ItemIsEnabled):
-            nid_clicked = self.model._data[index.row()].nid
-            if nid_clicked in self.model.checked:
-                self.model.checked.discard(nid_clicked)
-            else:
-                self.model.checked.add(nid_clicked)
-            self.model.dataChanged.emit(index, index)
-
-class ComponentModel(QAbstractItemModel):
-    def __init__(self, data, already_present, parent=None):
-        super().__init__(parent)
-        self.window = parent
-        self._data = data
-        self.already_present = already_present
-        self.checked = set(self.already_present.keys())
-    
-    def headerData(self, idx, orientation, role=Qt.DisplayRole):
-        return None
-
-    def index(self, row, column, parent_index=QModelIndex()):
-        if self.hasIndex(row, column, parent_index):
-            return self.createIndex(row, column)
-        return QModelIndex()
-
-    def parent(self, index):
-        return QModelIndex()
-
-    def rowCount(self, parent=None):
-        return len(self._data)
-
-    def columnCount(self, parent=None):
-        return 1
-
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        data = self._data[index.row()]
-        if role == Qt.DisplayRole:
-            return data.class_name()
-        elif role == Qt.CheckStateRole:
-            value = Qt.Checked if data.nid in self.checked else Qt.Unchecked
-            return value
-        return None
-
-    def setData(self, index, value, role):
-        if not index.isValid():
-            return False
-        if role == Qt.CheckStateRole:
-            data = self._data[index.row()]
-            if value == Qt.Checked:
-                self.checked.add(data.nid)
-            else:
-                self.checked.discard(data.nid)
-            self.dataChanged.emit(index, index)
-        return True
-
-    def flags(self, index):
-        basic_flags = Qt.ItemNeverHasChildren
-        data = self._data[index.row()]
-        true_components = set(self.already_present.keys()) | self.checked
-        if data.nid in self.already_present.keys():
-            pass
-        elif not data.requires or all(r in true_components for r in data.requires):
-            basic_flags |= Qt.ItemIsEnabled | Qt.ItemIsSelectable
-            # basic_flags |= Qt.ItemIsUserCheckable
-        return basic_flags

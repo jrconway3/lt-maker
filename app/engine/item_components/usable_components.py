@@ -5,8 +5,10 @@ from app.engine import action
 class Uses(ItemComponent):
     nid = 'uses'
     desc = "Number of uses of item"
-    expose = Type.Int
     tag = 'uses'
+
+    expose = Type.Int
+    value = 1
 
     def init(self, item):
         item.data['uses'] = self.value
@@ -27,8 +29,10 @@ class Uses(ItemComponent):
 class ChapterUses(ItemComponent):
     nid = 'c_uses'
     desc = "Number of uses per chapter for item. (Refreshes after each chapter)"
-    expose = Type.Int
     tag = 'uses'
+
+    expose = Type.Int
+    value = 1
 
     def init(self, item):
         item.data['uses'] = self.value
@@ -49,8 +53,10 @@ class ChapterUses(ItemComponent):
 class HPCost(ItemComponent):
     nid = 'hp_cost'
     desc = "Item costs HP to use"
-    expose = Type.Int
     tag = 'uses'
+
+    expose = Type.Int
+    value = 1
 
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self.hp_cost
@@ -64,8 +70,10 @@ class HPCost(ItemComponent):
 class ManaCost(ItemComponent):
     nid = 'mana_cost'
     desc = "Item costs mana to use"
-    expose = Type.Int
     tag = 'uses'
+
+    expose = Type.Int
+    value = 1
 
     def available(self, unit, item) -> bool:
         return unit.get_mana() > self.mana_cost
@@ -79,8 +87,10 @@ class ManaCost(ItemComponent):
 class Cooldown(ItemComponent):
     nid = 'cooldown'
     desc = "After use, item cannot be used until X turns have passed"
-    expose = Type.Int
     tag = 'uses'
+
+    expose = Type.Int
+    value = 1
 
     def init(self, unit, item):
         item.data['cooldown'] = 0
@@ -101,8 +111,9 @@ class Cooldown(ItemComponent):
 class PrfUnit(ItemComponent):
     nid = 'prf_unit'
     desc = 'Item can only be wielded by certain units'
-    expose = (Type.List, Type.Unit)
     tag = 'uses'
+
+    expose = (Type.List, Type.Unit)
 
     def available(self, unit, item) -> bool:
         return unit.nid in self.value
@@ -110,8 +121,9 @@ class PrfUnit(ItemComponent):
 class PrfClass(ItemComponent):
     nid = 'prf_class'
     desc = 'Item can only be wielded by certain classes'
-    expose = (Type.List, Type.Class)
     tag = 'uses'
+
+    expose = (Type.List, Type.Class)
 
     def available(self, unit, item) -> bool:
         return unit.klass in self.value
@@ -119,8 +131,9 @@ class PrfClass(ItemComponent):
 class PrfTag(ItemComponent):
     nid = 'prf_tags'
     desc = 'Item can only be wielded by units with certain tags'
-    expose = (Type.List, Type.Tag)
     tag = 'uses'
+
+    expose = (Type.List, Type.Tag)
 
     def available(self, unit, item) -> bool:
         return any(tag in self.value for tag in unit.tags)

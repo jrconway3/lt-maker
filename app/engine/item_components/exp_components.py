@@ -9,8 +9,10 @@ from app.engine import status_system, equations
 class Exp(ItemComponent):
     nid = 'exp'
     desc = "Item gives a custom number of exp to user on use"
-    expose = Type.Int
     tag = 'exp'
+
+    expose = Type.Int
+    value = 15
 
     def exp(self, unit, item, target) -> int:
         return self.value
@@ -54,8 +56,10 @@ class HealExp(ItemComponent):
 class Wexp(ItemComponent):
     nid = 'wexp'
     desc = "Item gives a custom number of wexp to user on use"
-    expose = Type.Int
     tag = 'exp'
+
+    expose = Type.Int
+    value = 2
 
     def wexp(self, unit, item, target):
         return self.value - 1  # Because 1 will already be given by WeaponComponent

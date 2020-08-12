@@ -278,7 +278,7 @@ def on_hit(actions, playback, unit, item, target, mode=None):
         if not any(action[0] == 'hit_sound' for action in playback):
             playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
     if not any(action for action in playback if action[0] == 'unit_tint'):
-        playback.append(('unit_tint', target, (255, 255, 255, 120)))
+        playback.append(('unit_tint', target, (255, 255, 255, 128)))
 
 def on_crit(actions, playback, unit, item, target, mode=None):
     for component in item.components:

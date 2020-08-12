@@ -1,5 +1,5 @@
 from app.data.data import Data
-import app.data.item_component as IC
+import app.engine.item_component as ICS
 
 class Item(object):
     next_uid = 100
@@ -78,7 +78,7 @@ class Item(object):
     @classmethod
     def deserialize_prefab(cls, dat):
         item_components = Data()
-        components = [IC.deserialize_component(val) for val in dat['components']]
+        components = [ICS.deserialize_component(val) for val in dat['components']]
         for component in components:
             item_components.append(component)
         i = cls(dat['nid'], dat['name'], dat['desc'],

@@ -7,8 +7,9 @@ from app.engine import targets, action, combat_calcs, equations, item_system
 class WeaponType(ItemComponent):
     nid = 'weapon_type'
     desc = "Item has a weapon type and can only be used by certain classes"
-    expose = Type.WeaponType
     tag = 'weapon'
+
+    expose = Type.WeaponType
 
     def weapon_type(self, unit, item):
         return self.value
@@ -22,8 +23,9 @@ class WeaponRank(ItemComponent):
     nid = 'weapon_rank'
     desc = "Item has a weapon rank and can only be used by units with high enough rank"
     requires = ['weapon_type']
-    expose = Type.WeaponRank
     tag = 'weapon'
+
+    expose = Type.WeaponRank
 
     def weapon_rank(self, unit, item):
         return self.value
@@ -50,8 +52,10 @@ class Magic(ItemComponent):
 class Hit(ItemComponent):
     nid = 'hit'
     desc = "Item has a chance to hit. If left off, item will always hit."
-    expose = Type.Int
     tag = 'weapon'
+
+    expose = Type.Int
+    value = 75
 
     def hit(self, unit, item):
         return self.value
@@ -59,8 +63,10 @@ class Hit(ItemComponent):
 class Crit(ItemComponent):
     nid = 'crit'
     desc = "Item has a chance to crit. If left off, item cannot crit."
-    expose = Type.Int
     tag = 'weapon'
+
+    expose = Type.Int
+    value = 0
 
     def crit(self, unit, item):
         return self.value
@@ -68,8 +74,10 @@ class Crit(ItemComponent):
 class Weight(ItemComponent):
     nid = 'weight'
     desc = "Item has a weight."
-    expose = Type.Int
     tag = 'weapon'
+
+    expose = Type.Int
+    value = 0
 
     def modify_attack_speed(self, unit, item):
         return -max(0, self.value - equations.parser.constitution(unit))
@@ -82,8 +90,10 @@ class Effective(ItemComponent):
     desc = 'Item does extra damage against certain units'
     requires = ['damage']
     paired_with = ('effective_tag',)
-    expose = Type.Int
     tag = 'extra'
+
+    expose = Type.Int
+    value = 0
 
     def effective(self, unit, item):
         return self.value
@@ -93,8 +103,9 @@ class EffectiveTag(ItemComponent):
     desc = "Item is does extra damage against units with these tags"
     requires = ['damage']
     paired_with = ('effective',)
-    expose = (Type.List, Type.Tag)
     tag = 'extra'
+
+    expose = (Type.List, Type.Tag)
 
     def modify_damage(self, unit, item, target, mode=None) -> int:
         if any(tag in targets.tags for tag in self.value):
@@ -134,9 +145,11 @@ class CannotBeCountered(ItemComponent):
 class Lifelink(ItemComponent):
     nid = 'lifelink'
     desc = "Heals user %% of damage dealt"
-    expose = Type.Float
     requires = ['damage']
     tag = 'extra'
+
+    expose = Type.Float
+    value = 0.5
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
@@ -156,9 +169,11 @@ class Lifelink(ItemComponent):
 class DamageOnMiss(ItemComponent):
     nid = 'damage_on_miss'
     desc = "Does %% damage even on miss"
-    expose = Type.Float
     requires = ['damage']
     tag = 'extra'
+
+    expose = Type.Float
+    value = 0.5
 
     def on_miss(self, actions, playback, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)

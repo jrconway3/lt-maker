@@ -1,19 +1,19 @@
+import functools
+
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
-    QMessageBox, QSpinBox, QHBoxLayout, QPushButton, \
-    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QComboBox
+    QMessageBox, QHBoxLayout, QPushButton, QAction, QToolButton, QToolBar, \
+    QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QMenu, QWidgetAction
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 
 from app.resources.resources import RESOURCES
 from app.data.data import Data
 from app.data.database import DB
-import app.data.item_component as IC
 import app.engine.item_component as ICS
 
-from app.extensions.custom_gui import PropertyBox, QHLine, QVLine, ComboBox, DeletionDialog
+from app.extensions.custom_gui import PropertyBox, QHLine, DeletionDialog
 from app.editor.custom_widgets import ItemBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
-from app.editor.equation_widget import EquationDialog
 from app.editor.icons import ItemIcon16
 from app.editor.multi_combo_box_list import MultiComboBoxListWithCheckbox
 from app.editor import component_database
@@ -138,12 +138,35 @@ class ItemProperties(QWidget):
         component_label.setAlignment(Qt.AlignBottom)
         component_section.addWidget(component_label, 0, 0, Qt.AlignBottom)
 
-        self.add_component_button = QPushButton("Add Components...")
-        self.add_component_button.clicked.connect(self.add_components)
-        component_section.addWidget(self.add_component_button, 0, 1)
+        # Create actions
+        self.actions = {}
+        for component in ICS.get_item_components():
+            new_func = functools.partial(self.add_component, component)
+            new_action = QAction(QIcon(), component.class_name(), self, triggered=new_func)
+            self.actions[component.nid] = new_action
+
+        # Create toolbar
+        self.toolbar = QToolBar(self)
+        self.menus = {}
+
+        for component in ICS.get_item_components():
+            if component.tag not in self.menus:
+                new_menu = QMenu(self)
+                self.menus[component.tag] = new_menu
+                toolbutton = QToolButton(self)
+                toolbutton.setIcon(QIcon("icons/component_%s.png" % component.tag))
+                toolbutton.setMenu(new_menu)
+                toolbutton.setPopupMode(QToolButton.InstantPopup)
+                toolbutton_action = QWidgetAction(self)
+                toolbutton_action.setDefaultWidget(toolbutton)
+                self.toolbar.addAction(toolbutton_action)
+            menu = self.menus[component.tag]
+            menu.addAction(self.actions.get(component.nid))
+
+        component_section.addWidget(self.toolbar, 1, 0, 1, 2)
 
         self.component_list = component_database.ComponentList(self)
-        component_section.addWidget(self.component_list, 1, 0, 1, 2)
+        component_section.addWidget(self.component_list, 2, 0, 1, 2)
         self.component_list.order_swapped.connect(self.component_moved)
 
         total_section = QVBoxLayout()
@@ -178,9 +201,10 @@ class ItemProperties(QWidget):
     def desc_changed(self, text):
         self.current.desc = text
 
-    def add_component(self, component):
-        self.add_component_widget(component)
+    def add_component(self, component_class):
+        component = component_class(component_class.value)
         self.current.components.append(component)
+        self.add_component_widget(component)
 
     def add_component_widget(self, component):
         c = component_database.get_display_widget(component, self)

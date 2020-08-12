@@ -6,8 +6,10 @@ from app.engine.game_state import game
 class BlastAOE(ItemComponent):
     nid = 'aoe_blast'
     desc = "Gives Blast AOE"
-    expose = Type.Int  # Radius
     tag = 'aoe'
+
+    expose = Type.Int  # Radius
+    value = 1
 
     def splash(self, unit, item, position) -> tuple:
         ranges = set(range(self.value + 1))

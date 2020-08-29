@@ -1,5 +1,5 @@
 from app import utilities
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.engine.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 from app.engine import a_star, status_system, equations, item_funcs, item_system
 from app.engine.game_state import game

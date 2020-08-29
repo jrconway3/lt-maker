@@ -1,11 +1,4 @@
-from app.sprites import SPRITES
-
 class MinimapCatalog(object):
-    # Constants
-    minimap_tiles = SPRITES['Minimap_Tiles']
-    minimap_units = SPRITES['Minimap_Sprites']
-    minimap_cursor = SPRITES['Minimap_Cursor']
-
     single_map = {'Grass': (1, 0),
                   'House': (2, 0),
                   'Shop': (3, 0),
@@ -35,12 +28,6 @@ class MinimapCatalog(object):
                  'Bridge': (0, 1),
                  'Coast': (0, 7)}
 
-    scale_factor = 4
-
-    def __init__(self):
-        pass
-
     def get_minimap_types(self):
         r = list(self.single_map.items()) + list(self.complex_map.items()) + list(self.other_map.items())
-        print(r)
         return r

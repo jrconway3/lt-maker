@@ -1,46 +1,41 @@
 from collections import OrderedDict
 
-from app.data.data import Data, Prefab
-from app.data.units import UniqueUnit, GenericUnit
+from app.utilities.data import Data, Prefab
+from app.data.level_units import UniqueUnit, GenericUnit
 
-class Level(Prefab):
-    def __init__(self, nid, title):
+class LevelPrefab(Prefab):
+    def __init__(self, nid, name):
         self.nid = nid
-        self.title = title
-        self.tilemap = None  # Just a nid
-        self.party = None
+        self.name = name
+        self.tilemap = None  # Tilemap Nid
+        self.party = None  # Party Prefab Nid
         self.music = OrderedDict()
         music_keys = ['player_phase', 'enemy_phase', 'other_phase',
                       'player_battle', 'enemy_battle', 'other_battle',
                       'prep', 'base']
         for key in music_keys:
             self.music[key] = None
-        self.market_flag = False
         self.objective = {'simple': '',
                           'win': '',
                           'loss': ''}
 
         self.units = Data()
 
-    def check_position(self, pos):
-        for unit in self.units:
-            if unit.starting_position == pos:
-                return unit
-        return None
+        self.fog_of_war = 0  # Range units can default see in fog of war
 
-    def serialize_attr(self, name, value):
+    def save_attr(self, name, value):
         if name == 'units':
-            value = [unit.serialize() for unit in value]
+            value = [unit.save() for unit in value]
         else:
-            value = super().serialize_attr(name, value)
+            value = super().save_attr(name, value)
         return value
 
-    def deserialize_attr(self, name, value):
+    def restore_attr(self, name, value):
         if name == 'units':
-            value = Data([GenericUnit.deserialize(unit_data) if unit_data['generic'] 
-                          else UniqueUnit.deserialize(unit_data) for unit_data in value])
+            value = Data([GenericUnit.restore(unit_data) if unit_data['generic'] 
+                          else UniqueUnit.restore(unit_data) for unit_data in value])
         else:
-            value = super().deserialize_attr(name, value)
+            value = super().restore_attr(name, value)
         return value
 
     @classmethod
@@ -48,18 +43,4 @@ class Level(Prefab):
         return cls('0', 'Prologue')
 
 class LevelCatalog(Data):
-    datatype = Level
-    
-    def save(self):
-        return [level.serialize() for level in self._list]
-
-    def restore(self, serialized_data):
-        self.clear()
-        for s_dict in serialized_data:
-            new_level = Level.deserialize(s_dict)
-            self.append(new_level)
-
-    def restore_all_prefabs(self, db):
-        for level in self:
-            for unit in level.units:
-                unit.restore_prefab(db.units)
+    datatype = LevelPrefab

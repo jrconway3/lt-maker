@@ -1,153 +1,53 @@
 import os
-
 import json
 
-from app.data import game_constants, stats, equations, tags, weapons, factions, terrain, mcost_grid, \
-    minimap, items, klass, units, party, ai, translations, skills, levels
-
-from app.resources.resources import RESOURCES
+from app.data import constants, stats, equations, tags, weapons, factions, terrain, mcost, \
+    minimap, items, klass, units, parties, ai, translations, skills, levels
 
 class Database(object):
+    save_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
+                       "weapons", "factions", "items", "skills", "tags", "classes", 
+                       "units", "ai", "parties", "translations", "levels")
+
     def __init__(self):
-        self.constants = game_constants.constants
-        self.levels = levels.LevelCatalog()
+        self.constants = constants.constants
         self.teams = ["player", "enemy", "enemy2", "other"]  # Order determine phase order
         self.stats = stats.StatCatalog()
         self.equations = equations.EquationCatalog()
-        self.mcost = mcost_grid.McostGrid()
+        self.mcost = mcost.McostGrid()
         self.terrain = terrain.TerrainCatalog()
         self.minimap = minimap.MinimapCatalog()
         self.weapon_ranks = weapons.RankCatalog()
         self.weapons = weapons.WeaponCatalog()
         self.factions = factions.FactionCatalog()
         self.items = items.ItemCatalog()
-        self.tags = tags.TagCatalog()
+        self.skills = skills.SkillCatalog()
+        self.tags = tags.TagCatalog(['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon', 'ZeroMove', 'AutoPromote', 'NoAutoPromote'])
         self.classes = klass.ClassCatalog()
         self.units = units.UnitCatalog()
-        self.parties = party.PartyCatalog()
+        self.parties = parties.PartyCatalog()
         self.ai = ai.AICatalog()
+
+        self.levels = levels.LevelCatalog()
+
         self.translations = translations.TranslationCatalog()
 
-        # Needed to create an initial level
-        self.terrain.import_xml('./app/default_data/default_terrain.xml')
-
-    def init_load(self):
-        self.stats.import_xml('./app/default_data/default_stats.xml')
-        self.equations.import_data('./app/default_data/default_equations.txt')
-        self.mcost.import_data('./app/default_data/default_mcost.txt')
-        self.terrain.import_xml('./app/default_data/default_terrain.xml')
-        self.weapon_ranks.import_data('./app/default_data/default_weapon_ranks.txt')
-        self.weapons.import_xml('./app/default_data/default_weapons.xml')
-        self.factions.import_xml('./app/default_data/default_factions.xml')
-        self.items.import_xml('./app/default_data/default_items.xml')
-        self.tags = tags.TagCatalog(['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon', 'ZeroMove', 'NoAutoPromote'])
-        self.classes.import_xml('./app/default_data/default_classes.xml', self.stats, self.weapons, self.weapon_ranks)
-        self.units.import_xml('./app/default_data/default_units.xml', self.stats, self.weapons, self.weapon_ranks, self.items)
-        self.ai.import_data('./app/default_data/default_ai.txt')
-
-    def get_platform_types(self):
-        p = RESOURCES.platforms
-        names = list({fn.split('-')[0] for fn in p.keys()})
-        sprites = [n + '-Melee' for n in names]
-        return list(zip(names, sprites))
+    # def get_platform_types(self):
+    #     p = RESOURCES.platforms
+    #     names = list({fn.split('-')[0] for fn in p.keys()})
+    #     sprites = [n + '-Melee' for n in names]
+    #     return list(zip(names, sprites))
 
     # === Saving and loading important data functions ===
     def restore(self, data):
-        # print(data['stats'])
-        self.constants.restore(data['constants'])
-        self.stats.restore(data['stats'])
-        self.equations.restore(data['equations'])
-        self.mcost.restore(data['mcost'])
-        self.terrain.restore(data['terrain'])
-        self.weapon_ranks.restore(data['weapon_ranks'])
-        self.weapons.restore(data['weapons'])
-        self.factions.restore(data['factions'])
-        self.items.restore(data['items'])
-        self.tags.restore(data['tags'])
-        self.classes.restore(data['classes'])
-        self.units.restore(data['units'])
-        self.parties.restore(data['parties'])
-        self.ai.restore(data['ai'])
-        self.translations.restore(data['translations'])
-
-        self.levels.restore(data['levels'])
-        # Need to restore the prefab link on restore
-        for level in self.levels:
-            for unit in level.units:
-                unit.restore_prefab(self.units)
+        for data_type in self.save_data_types:
+            getattr(self, data_type).restore(data[data_type])
 
     def save(self):
-        to_save = {'constants': self.constants.save(),
-                   'stats': self.stats.save(),
-                   'equations': self.equations.save(),
-                   'mcost': self.mcost.save(),
-                   'terrain': self.terrain.save(),
-                   'weapon_ranks': self.weapon_ranks.save(),
-                   'weapons': self.weapons.save(),
-                   'factions': self.factions.save(),
-                   'items': self.items.save(),
-                   'tags': self.tags.save(),
-                   'classes': self.classes.save(),
-                   'units': self.units.save(),
-                   'ai': self.ai.save(),
-                   'parties': self.parties.save(),
-                   'translations': self.translations.save(),
-                   'levels': self.levels.save(),
-                   }
+        to_save = {}
+        for data_type in self.save_data_types:
+            to_save[data_type] = getattr(self, data_type).save()
         return to_save
-
-    # === Creation functions ===
-    def create_new_terrain(self, nid, name):
-        new_terrain = terrain.Terrain(nid, name, (0, 0, 0), 'Grass', self.get_platform_types()[0][0], self.mcost.row_headers[0])
-        self.terrain.append(new_terrain)
-
-    def create_new_weapon_type(self, nid, name):
-        new_weapon_type = weapons.WeaponType(nid, name, False, weapons.AdvantageList(), weapons.AdvantageList())
-        self.weapons.append(new_weapon_type)
-
-    def create_new_faction(self, nid, name):
-        new_faction_type = factions.Faction(nid, name, "")
-        self.factions.append(new_faction_type)
-
-    def create_new_item(self, nid, name):
-        new_item = items.Item(nid, name, "")
-        self.items.append(new_item)
-
-    def create_new_class(self, nid, name):
-        num_stats = len(self.stats)
-        bases = stats.StatList.from_xml([10] + [0] * (num_stats - 2) + [5], self.stats)
-        growths = stats.StatList.from_xml([0] * num_stats, self.stats)
-        growth_bonus = stats.StatList.from_xml([0] * num_stats, self.stats)
-        promotion = stats.StatList.from_xml([0] * num_stats, self.stats)
-        max_stats = stats.StatList.from_xml([30] * num_stats, self.stats)
-        wexp_gain = weapons.WexpGainData.from_xml([], self.weapons)
-        learned_skills = skills.LearnedSkillList()
-        movement_group = self.mcost.column_headers[0]
-        new_class = klass.Klass(nid, name, name, '', 1, movement_group, None, [], [], 20, 
-                                bases, growths, growth_bonus, promotion, max_stats, 
-                                learned_skills, wexp_gain)
-        self.classes.append(new_class)
-        return new_class
-
-    def create_new_unit(self, nid, name):
-        num_stats = len(self.stats)
-        bases = stats.StatList.from_xml([10] + [0] * (num_stats - 2) + [5], self.stats)
-        growths = stats.StatList.from_xml([0] * num_stats, self.stats)
-        wexp_gain = weapons.WexpGainData.from_xml([], self.weapons)
-        learned_skills = skills.LearnedSkillList()
-        new_unit = units.UnitPrefab(nid, name, '', 0, 1, 'Citizen', [], 
-                                    bases, growths, [], learned_skills, wexp_gain)
-        self.units.append(new_unit)
-        return new_unit
-
-    def create_unit_unique(self, nid, team, ai):
-        prefab = self.units.get(nid)
-        new_unit = units.UniqueUnit(nid, prefab, team, ai)
-        return new_unit
-
-    def create_new_ai(self, nid, name=None):
-        new_ai = ai.AIPreset(nid, 20)
-        return new_ai
 
     def serialize(self, proj_dir):
         data_dir = os.path.join(proj_dir, 'game_data')
@@ -159,7 +59,6 @@ class Database(object):
         for key, value in to_save.items():
             save_loc = os.path.join(data_dir, key + '.json')
             print("Serializing %s to %s" % (key, save_loc))
-            # print(value, flush=True)
             with open(save_loc, 'w') as serialize_file:
                 json.dump(value, serialize_file, indent=4)
 
@@ -169,12 +68,8 @@ class Database(object):
         data_dir = os.path.join(proj_dir, 'game_data')
         print("Deserializing data from %s..." % data_dir)
 
-        game_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
-                           "weapons", "factions", "items", "tags", "classes", 
-                           "units", "ai", "parties", "translations", "levels")
-
         save_obj = {}
-        for key in game_data_types:
+        for key in self.save_data_types:
             save_loc = os.path.join(data_dir, key + '.json')
             if os.path.exists(save_loc):
                 print("Deserializing %s from %s" % (key, save_loc))

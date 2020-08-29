@@ -92,21 +92,21 @@ class Data(object):
         obj = self._list.pop(old_index)
         self._list.insert(new_index, obj)
 
-    def begin_insert_row(self, index):
-        self.drop_to = index
+    # def begin_insert_row(self, index):
+    #     self.drop_to = index
 
     # Saving functions
     def save(self):
         if self.datatype and issubclass(self.datatype, Prefab):
-            return [elem.serialize() for elem in self._list]
+            return [elem.save() for elem in self._list]
         else:
-            return self._list
+            return self._list[:]
 
     def restore(self, vals):
         self.clear()
         if self.datatype and issubclass(self.datatype, Prefab):
             for s_dict in vals:
-                new_val = self.datatype.deserialize(s_dict)
+                new_val = self.datatype.restore(s_dict)
                 self.append(new_val)
         else:
             for val in vals:
@@ -126,15 +126,15 @@ class Data(object):
         return iter(self._list)
 
 class Prefab(object):
-    def serialize(self):
+    def save(self):
         s_dict = {}
         for attr in self.__dict__.items():
             name, value = attr
-            value = self.serialize_attr(name, value)
+            value = self.save_attr(name, value)
             s_dict[name] = value
         return s_dict
 
-    def serialize_attr(self, name, value):
+    def save_attr(self, name, value):
         if isinstance(value, Data):
             value = value.save()
         else:  # int, str, float, list, dict
@@ -142,14 +142,14 @@ class Prefab(object):
         return value
 
     @classmethod
-    def deserialize(cls, s_dict):
+    def restore(cls, s_dict):
         self = cls.default()
         for attr_name, attr_value in self.__dict__.items():
-            value = self.deserialize_attr(attr_name, s_dict.get(attr_name))
+            value = self.restore_attr(attr_name, s_dict.get(attr_name))
             setattr(self, attr_name, value)
         return self
 
-    def deserialize_attr(self, name, value):
+    def restore_attr(self, name, value):
         if isinstance(value, Data):
             value = value.restore()
         else:

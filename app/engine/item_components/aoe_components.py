@@ -1,4 +1,4 @@
-from app.data.item_component import ItemComponent, Type
+from app.data.item_components import ItemComponent, Type
 
 from app.engine import targets
 from app.engine.game_state import game 

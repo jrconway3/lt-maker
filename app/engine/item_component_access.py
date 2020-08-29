@@ -1,5 +1,5 @@
-from app.data.data import Data
-from app.data.item_component import ItemComponent, tags
+from app.utilities.data import Data
+from app.data.item_components import ItemComponent, tags
 
 def get_item_components():
     # Necessary for get_item_components to find all the 
@@ -16,7 +16,7 @@ def get_component(nid):
     base_class = _item_components.get(nid)
     return base_class(base_class.value)
 
-def deserialize_component(dat):
+def restore_component(dat):
     nid, value = dat
     _item_components = get_item_components()
     base_class = _item_components.get(nid)

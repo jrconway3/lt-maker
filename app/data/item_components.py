@@ -1,7 +1,7 @@
-import functools
 from enum import IntEnum
 
-from app.data.data import Data
+from app.utilities import str_utils
+from app.utilities.data import Data
 
 class Type(IntEnum):
     Int = 1
@@ -37,16 +37,12 @@ class ItemComponent():
     @property
     def name(self):
         name = self.__class__.__name__
-        print(name)
-        name = functools.reduce(lambda a, b: a + ((b.upper() == b and (a and a[-1].upper() != a[-1])) and (' ' + b) or b), name, '')
-        return name
+        return str_utils.camel_case(name)
 
     @classmethod
     def class_name(cls):
         name = cls.__name__
-        print(name)
-        name = functools.reduce(lambda a, b: a + ((b.upper() == b and (a and a[-1].upper() != a[-1])) and (' ' + b) or b), name, '')
-        return name
+        return str_utils.camel_case(name)
 
     def defines(self, function_name):
         return hasattr(self, function_name)
@@ -55,7 +51,7 @@ class ItemComponent():
     def copy(cls, other):
         return cls(other.value)
 
-    def serialize(self):
+    def save(self):
         if isinstance(self.value, Data):
             return self.nid, self.value.save()
         else:

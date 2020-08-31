@@ -4,24 +4,23 @@ import shutil
 from app.resources.base_catalog import BaseResourceCatalog
 
 class Icon():
-    def __init__(self, nid, full_path=None, pixmap=None):
+    def __init__(self, nid, full_path=None):
         self.nid = nid
         self.full_path = full_path
-        self.pixmap = pixmap
         self.image = None
 
-        self.sub_images = []
-        self.parent_image = None
-        self.icon_index = (0, 0)
+        # self.sub_images = []
+        # self.parent_image = None
+        # self.icon_index = (0, 0)
 
     def set_full_path(self, full_path):
         self.full_path = full_path
 
-    def unhook(self):
-        if self.parent_image:
-            self.parent_image.sub_images.remove(self)
-            self.parent_image = None
-        self.sub_images = []
+    # def unhook(self):
+    #     if self.parent_image:
+    #         self.parent_image.sub_images.remove(self)
+    #         self.parent_image = None
+    #     self.sub_images = []
 
 class IconCatalog(BaseResourceCatalog):
     datatype = Icon

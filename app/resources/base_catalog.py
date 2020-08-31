@@ -2,7 +2,7 @@ import os
 import shutil
 import json
 
-from app.data.data import Data
+from app.utilities.data import Data
 
 class BaseResourceCatalog(Data):
     def load(self, loc):
@@ -17,12 +17,12 @@ class BaseResourceCatalog(Data):
 class ManifestCatalog(Data):
     filetype = '.png'
 
-    def read_manifest(self, fn) -> dict:
-        datum_dict = {}
+    def read_manifest(self, fn: str) -> dict:
+        datum = {}
         if os.path.exists(fn):
             with open(fn) as load_file:
-                datum_dict = json.load(load_file)
-        return datum_dict
+                datum = json.load(load_file)
+        return datum
 
     def dump(self, loc):
         save = [datum.serialize() for datum in self]

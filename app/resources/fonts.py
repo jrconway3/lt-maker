@@ -1,26 +1,23 @@
-import os
+import os, shutil
 
-from app.data.data import Data
+from app.resources.base_catalog import BaseResourceCatalog
 
 class Font():
-    def __init__(self, nid, png_path, idx_path):
+    def __init__(self, nid, full_path=None):
         self.nid = nid
-        self.png_path = png_path
-        self.idx_path = idx_path
+        self.full_path = full_path  # IDX Path
 
-class FontCatalog(Data):
+class FontCatalog(BaseResourceCatalog):
     datatype = Font
+    filetype = '.idx'
 
-    @classmethod
-    def load(cls, home, sub):
-        self = cls()
-        loc = os.path.join(home, sub)
-        for root, dirs, files in os.walk(loc):
-            for name in files:
-                if name.endswith('.png'):
-                    full_name = os.path.join(root, name)
-                    nid = name[:-4]
-                    idx_name = nid.split('_')[0] + '.idx'
-                    idx_full_name = os.path.join(root, idx_name)
-                    self.append(Font(nid, full_name, idx_full_name))
-        return self
+    # I don't think move image or save are needed right now...
+    def move_image(self, icon, loc):
+        new_full_path = os.path.join(loc, icon.nid + self.filetype)
+        if os.path.abspath(icon.full_path) != os.path.abspath(new_full_path):
+            shutil.copy(icon.full_path, new_full_path)
+            icon.set_full_path(new_full_path)
+
+    def save(self, loc):
+        for font in self:
+            self.move_image(font, loc)

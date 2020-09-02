@@ -1,10 +1,10 @@
-from app.data.data import Data
+from app.utilities.data import Data
 
 class CombatAnimationCommand():
     def __init__(self, nid=None, name='', attr=bool, value=True, tag=None):
         self.nid: str = nid
         self.name: str = name
-        self.attr: tuple = attr
+        self.attr: tuple = attr  # Can have multiple attributes
         self.value: tuple = value
         self.tag: str = tag
 
@@ -12,7 +12,7 @@ class CombatAnimationCommand():
     def copy(cls, other):
         return cls(other.nid, other.name, other.attr, other.value, other.tag)
 
-    def serialize(self):
+    def save(self):
         return self.nid, self.value
 
     def has_frames(self) -> bool:
@@ -25,13 +25,15 @@ class CombatAnimationCommand():
         """
         Change the number of frames a frame should be displayed for
         """
-        self.value = (self.value[0] + inc, *self.value[1:])
+        if self.tag == 'frame':
+            self.value = (self.value[0] + inc, *self.value[1:])
 
     def set_frame_count(self, val=1):
         """
         Set the number of frames a frame should be displayed
         """
-        self.value = (val, *self.value[1:])
+        if self.tag == 'frame':
+            self.value = (val, *self.value[1:])
 
 def parse_attr(attr, text: str):
     if attr is None:
@@ -143,6 +145,5 @@ anim_commands = Data([
     
 
 def get_command(nid):
-    print(nid)
     base = anim_commands.get(nid)
     return CombatAnimationCommand.copy(base)

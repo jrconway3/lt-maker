@@ -25,7 +25,7 @@ class ManifestCatalog(Data):
         return datum
 
     def dump(self, loc):
-        save = [datum.serialize() for datum in self]
+        save = [datum.save() for datum in self]
         save_loc = os.path.join(loc, self.manifest)
         print("Serializing %s to %s" % (self.title, save_loc))
         with open(save_loc, 'w') as serialize_file:

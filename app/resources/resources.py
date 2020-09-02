@@ -1,6 +1,6 @@
 import os
 
-from app.data import data
+from app.utilities import data
 from app import sprites
 
 from app.resources.fonts import FontCatalog
@@ -14,6 +14,10 @@ from app.resources.sounds import SFXCatalog, MusicCatalog
 from app.resources.combat_anims import CombatCatalog
 
 class Resources():
+    save_data_types = ("icons16", "icons32", "icons80", "portraits", "animations", "panoramas",
+                       "map_sprites", "combat_animations", "combat_effects", "music", "sfx", 
+                       "tilesets", "tilemaps")
+
     def __init__(self):
         self.main_folder = None
 
@@ -25,7 +29,8 @@ class Resources():
 
     def load_standard_resources(self):
         self.platforms = self.get_sprites('resources', 'platforms')
-        self.fonts = FontCatalog.load('resources', 'fonts')
+        self.fonts = FontCatalog()
+        self.fonts.load('resources/fonts')
 
     def get_sprites(self, home, sub):
         s = {}
@@ -36,6 +41,11 @@ class Resources():
                     full_name = os.path.join(root, name)
                     s[name[:-4]] = full_name
         return s
+
+    def get_platform_types(self):
+        names = list({fn.split('-')[0] for fn in self.platforms.keys()})
+        sprites = [n + '-Melee' for n in names]
+        return list(zip(names, sprites))
 
     def clear(self):
         self.icons16 = IconCatalog()
@@ -60,24 +70,11 @@ class Resources():
         self.main_folder = os.path.join(proj_dir, 'resources')
 
         # Load custom sprites for the UI
+        # This should overwrite the regular sprites in the "/sprites" folder
         sprites.load_sprites(os.path.join(self.main_folder, 'custom_sprites'))
 
-        self.icons16.load(os.path.join(self.main_folder, 'icons/icons_16x16'))
-        self.icons32.load(os.path.join(self.main_folder, 'icons/icons_32x32'))
-        self.icons80.load(os.path.join(self.main_folder, 'icons/icons_80x72'))
-
-        self.portraits.load(os.path.join(self.main_folder, 'portraits'))
-        self.animations.load(os.path.join(self.main_folder, 'animations'))
-        self.map_sprites.load(os.path.join(self.main_folder, 'map_sprites'))
-        self.panoramas.load(os.path.join(self.main_folder, 'panoramas'))
-
-        self.tilesets.load(os.path.join(self.main_folder, 'tilesets'))
-        self.tilemaps.load(os.path.join(self.main_folder, 'tilesets'))
-
-        self.combat_anims.load(os.path.join(self.main_folder, 'combat_anims'))
-
-        self.sfx.load(os.path.join(self.main_folder, 'sfx'))
-        self.music.load(os.path.join(self.main_folder, 'music'))
+        for data_type in self.save_data_types:
+            getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
 
     def reload(self, proj_dir):
         self.clear()
@@ -92,75 +89,15 @@ class Resources():
         if not os.path.exists(resource_dir):
             os.mkdir(resource_dir)
 
-        # Save Icons
-        icons_dir = os.path.join(resource_dir, 'icons')
-        if not os.path.exists(icons_dir):
-            os.mkdir(icons_dir)
-        # Save Icons16
-        subicons_dir = os.path.join(icons_dir, 'icons_16x16')
-        if not os.path.exists(subicons_dir):
-            os.mkdir(subicons_dir)
-        self.icons16.save(subicons_dir)
-        # Save Icons32
-        subicons_dir = os.path.join(icons_dir, 'icons_32x32')
-        if not os.path.exists(subicons_dir):
-            os.mkdir(subicons_dir)
-        self.icons32.save(subicons_dir)
-        # Save Icons80
-        subicons_dir = os.path.join(icons_dir, 'icons_80x72')
-        if not os.path.exists(subicons_dir):
-            os.mkdir(subicons_dir)
-        self.icons80.save(subicons_dir)
-        
-        # Save Portraits
-        portraits_dir = os.path.join(resource_dir, 'portraits')
-        if not os.path.exists(portraits_dir):
-            os.mkdir(portraits_dir)
-        self.portraits.save(portraits_dir)
-        
-        # Save Panoramas
-        panoramas_dir = os.path.join(resource_dir, 'panoramas')
-        if not os.path.exists(panoramas_dir):
-            os.mkdir(panoramas_dir)
-        self.panoramas.save(panoramas_dir)
-
-        # Save Map Sprites
-        map_sprites_dir = os.path.join(resource_dir, 'map_sprites')
-        if not os.path.exists(map_sprites_dir):
-            os.mkdir(map_sprites_dir)
-        self.map_sprites.save(map_sprites_dir)
-
-        # Save Animations
-        animation_dir = os.path.join(resource_dir, 'animations')
-        if not os.path.exists(animation_dir):
-            os.mkdir(animation_dir)
-        self.animations.save(animation_dir)
-
-        # Save TileSets & TileMaps 
-        tileset_dir = os.path.join(resource_dir, 'tilesets')
-        if not os.path.exists(tileset_dir):
-            os.mkdir(tileset_dir)
-        self.tilesets.save(tileset_dir)
-        self.tilemaps.save(tileset_dir)
-
-        # Save Combat Animations
-        combat_anim_dir = os.path.join(resource_dir, 'combat_anims')
-        if not os.path.exists(combat_anim_dir):
-            os.mkdir(combat_anim_dir)
-        self.combat_anims.save(combat_anim_dir)
-
-        # === Save SFX ===
-        sfx_dir = os.path.join(resource_dir, 'sfx')
-        if not os.path.exists(sfx_dir):
-            os.mkdir(sfx_dir)
-        self.sfx.save(sfx_dir)
-
-        # === Save Music ===
-        music_dir = os.path.join(resource_dir, 'music')
-        if not os.path.exists(music_dir):
-            os.mkdir(music_dir)
-        self.music.save(music_dir)
+        for data_type in self.save_data_types:
+            data_dir = os.path.join(resource_dir, data_type)
+            if not os.path.exists(data_dir):
+                os.mkdir(data_dir)
+            getattr(self, data_type).save(data_dir)
 
         print('Done Resource Serializing!')
 
 RESOURCES = Resources()
+
+# Testing
+# Run "python -m app.resources.resources" from main directory

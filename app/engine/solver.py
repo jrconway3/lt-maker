@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine import combat_calcs, item_system, status_system, static_random
+from app.engine import combat_calcs, item_system, skill_system, static_random
 
 import logging
 logger = logging.getLogger(__name__)
@@ -125,7 +125,7 @@ class CombatPhaseSolver():
 
     def defender_has_vantage(self):
         return self.allow_counterattack() and \
-            status_system.vantage(self.main_target) and \
+            skill_system.vantage(self.main_target) and \
             not item_system.can_be_countered(self.attacker, self.item)
 
     def allow_counterattack(self):

@@ -37,6 +37,9 @@ class Panorama():
         return self
 
 class PanoramaCatalog(ManifestCatalog):
+    manifest = 'panoramas.json'
+    title = 'panoramas'
+
     def load(self, loc):
         panorama_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in panorama_dict:

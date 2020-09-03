@@ -10,7 +10,7 @@ from app.engine import game_state
 
 def main():
     RESOURCES.load('./default.ltproj')
-    DB.restore('./default.ltproj')
+    DB.load('./default.ltproj')
     title = DB.constants.value('title')
     driver.start(title)
     game = game_state.start_game()

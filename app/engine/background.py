@@ -1,4 +1,4 @@
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 from app.engine import engine, image_mods
 
 class SpriteBackground():

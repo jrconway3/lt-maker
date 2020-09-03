@@ -101,7 +101,7 @@ class TileSet(Prefab):
     def save(self):
         s_dict = {}
         s_dict['nid'] = self.nid
-        s_dict['size'] = (self.width, self.height)
+        # s_dict['size'] = (self.width, self.height)
         s_dict['terrain_grid'] = {}
         for coord, terrain_nid in self.terrain_grid.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
@@ -111,7 +111,7 @@ class TileSet(Prefab):
     @classmethod
     def restore(cls, s_dict):
         self = cls(s_dict['nid'])
-        self.width, self.height = s_dict['size']
+        # self.width, self.height = s_dict['size']
         for str_coord, terrain_nid in s_dict['terrain_grid'].items():
             coord = tuple(int(_) for _ in str_coord.split(','))
             self.terrain_grid[coord] = terrain_nid
@@ -195,7 +195,7 @@ class TileSetCatalog(ManifestCatalog):
         tileset_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in tileset_dict:
             new_tileset = TileSet.restore(s_dict)
-            new_tileset.set_full_path(os.path.join(loc, new_tileset.full_path))
+            new_tileset.set_full_path(os.path.join(loc, new_tileset.nid))
             self.append(new_tileset)
 
 class TileMapCatalog(ManifestCatalog):

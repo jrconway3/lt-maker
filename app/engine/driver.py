@@ -15,6 +15,8 @@ def start(title, from_editor=False):
 
 def run(game):
     from app.engine.sound import SOUNDTHREAD
+    from app.engine.input_manager import INPUT
+    
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
     SOUNDTHREAD.set_sfx_volume(cf.SETTINGS['sound_volume'])
     
@@ -27,7 +29,7 @@ def run(game):
         raw_events = engine.get_events()
         if raw_events == engine.QUIT:
             break
-        event = game.input_manager.process_input(raw_events)
+        event = INPUT.process_input(raw_events)
 
         surf, repeat = game.state.update(event, surf)
         while repeat:  # Let's the game traverse through state chains

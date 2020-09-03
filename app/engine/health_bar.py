@@ -1,8 +1,8 @@
-from app.data.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
-from app import utilities
+from app.utilities import utils
+from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine, combat_calcs, icons, unit_object, equations
+from app.engine import engine, combat_calcs, icons, equations
 from app.engine.game_state import game
 
 team_dict = {'player': 'blue',
@@ -38,7 +38,7 @@ class HealthBar():
         # Check to see if we should update
         if self.transition_flag:
             time = (engine.get_time() - self.last_update) / self.time_for_change
-            new_val = int(utilities.lerp(self.old_hp, self.unit.get_hp(), time))
+            new_val = int(utils.lerp(self.old_hp, self.unit.get_hp(), time))
             self.set_hp(new_val)
             if time >= 1:
                 self.set_hp(self.unit.get_hp())
@@ -46,7 +46,7 @@ class HealthBar():
                 self.transition_flag = False
 
     def draw(self, surf):
-        fraction_hp = utilities.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
         index_pixel = int(50 * fraction_hp)
         position = 25, 22
         surf.blit(engine.subsurface(SPRITES.get('health_bar'), (0, 0, index_pixel, 2)), position)
@@ -95,7 +95,7 @@ class MapCombatInfo():
         self.skill_icons.clear()
 
         # Handle surfaces
-        team = 'enemy' if not isinstance(unit, unit_object.UnitObject) else unit.team
+        team = unit.team
 
         self.stats_surf = None
         self.bg_surf = SPRITES.get('health_' + team_dict[team]).convert_alpha()
@@ -217,7 +217,7 @@ class MapCombatInfo():
 
         elif self.draw_method == 'splash':
             x_pos = self.unit.position[0] - game.camera.get_x()
-            x_pos = utilities.clamp(x_pos, 3, TILEX - 2)
+            x_pos = utils.clamp(x_pos, 3, TILEX - 2)
             if self.unit.position[1] - game.camera.get_y() < TILEY//2:
                 y_pos = self.unit.position[1] - game.camera.get_y() + 2
             else:
@@ -227,7 +227,7 @@ class MapCombatInfo():
 
     def update(self):
         # Make blinds wider
-        self.blinds = utilities.clamp(self.blinds, self.blinds + self.blind_speed, 1)
+        self.blinds = utils.clamp(self.blinds, self.blinds + self.blind_speed, 1)
 
         if self.unit and self.blinds >= 1:
             self.handle_shake()
@@ -244,24 +244,22 @@ class MapCombatInfo():
         bg_surf.blit(self.bg_surf, (0, 0))
 
         # Name
-        name_width = FONT['text_numbers'].size(self.unit.name)[0]
+        name_width = FONT['text-numbers'].size(self.unit.name)[0]
         position = width - name_width - 4, 3
-        FONT['text_numbers'].blit(self.unit.name, bg_surf, position)
+        FONT['text-numbers'].blit(self.unit.name, bg_surf, position)
 
         # Item
         if self.item:
             # Determine effectiveness
             if self.target:
-                if isinstance(self.target, unit_object.UnitObject) and game.targets.check_enemy(self.unit, self.target):
+                if game.targets.check_enemy(self.unit, self.target):
                     white = combat_calcs.get_effective(self.item, self.target)
-                else:
-                    white = True if self.item.extra_tile_damage else False
             else:
                 white = False
             icons.draw_item(bg_surf, self.item, (2, 3), white)
 
             # Blit advantage
-            if isinstance(self.target, unit_object.UnitObject) and game.targets.check_enemy(self.unit, self.target):
+            if game.targets.check_enemy(self.unit, self.target):
                 adv = combat_calcs.compute_advantage(self.unit, self.item, self.target.get_weapon())
                 disadv = combat_calcs.compute_advantage(self.unit, self.item, self.target.get_weapon(), False)
                 if adv:

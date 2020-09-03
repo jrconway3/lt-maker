@@ -139,9 +139,9 @@ class ChoiceOption(ConfigOption):
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
-        name_font = FONT['text_white']
+        name_font = FONT['text-white']
         name_font.blit(self.display_name, surf, (x + 32, y))
-        value_font = FONT['text_blue']
+        value_font = FONT['text-blue']
         value = cf.SETTINGS[self.name]
         display_value = text_funcs.translate(value)
         value_font.blit_center(display_value, surf, (x + 164, y))
@@ -157,16 +157,16 @@ class ChoiceOption(ConfigOption):
 class SimpleOption(ConfigOption):
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
-        name_font = FONT['text_white']
+        name_font = FONT['text-white']
         name_font.blit(self.display_name, surf, (x + 32, y))
         value = str(cf.SETTINGS[self.name])
         
         running_width = 0
         for choice in self.values:
             if choice == value:
-                font = FONT['text_blue']
+                font = FONT['text-blue']
             else:
-                font = FONT['text_grey']
+                font = FONT['text-grey']
             text = text_funcs.translate(choice) + '    '
             font.blit(text, surf, (x + 112 + running_width, y))
             width = font.width(text)
@@ -192,16 +192,16 @@ class BoolOption(ConfigOption):
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
-        name_font = FONT['text_white']
+        name_font = FONT['text-white']
         name_font.blit(self.display_name, surf, (x + 32, y))
         value = cf.SETTINGS[self.name]
         
         if value:
-            on_font = FONT['text_blue']
-            off_font = FONT['text_grey']
+            on_font = FONT['text-blue']
+            off_font = FONT['text-grey']
         else:
-            on_font = FONT['text_grey']
-            off_font = FONT['text_blue']
+            on_font = FONT['text-grey']
+            off_font = FONT['text-blue']
         on_str = text_funcs.translate('ON') + '    '
         on_font.blit(on_str, surf, (x + 112, y))
         off_font.blit(text_funcs.translate('OFF'), surf, (x + 112 + on_font.width(on_str), y))

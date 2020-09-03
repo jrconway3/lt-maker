@@ -1,7 +1,6 @@
 from app.utilities import utils
-from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
-from app.engine import a_star, status_system, equations, item_funcs, item_system
+from app.engine import pathfinding, skill_system, equations, item_funcs, item_system
 from app.engine.game_state import game
 
 # Consider making these sections faster
@@ -27,7 +26,7 @@ def find_manhattan_spheres(rng: set, x: int, y: int) -> set:
 def distance_to_closest_enemy(unit, pos=None):
     if pos is None:
         pos = unit.position
-    enemy_list = [u for u in game.level.units if u.position and status_system.check_enemy(u, unit)]
+    enemy_list = [u for u in game.level.units if u.position and skill_system.check_enemy(u, unit)]
     if not enemy_list:
         return 100  # No enemies
     dist_list = [utils.calculate_distance(enemy.position, pos) for enemy in enemy_list]
@@ -87,13 +86,14 @@ def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:
 
 def get_valid_moves(unit, force=False) -> set:
     # Assumes unit is on the map
-    if not force and unit.finished or (unit.has_moved and not status_system.has_canto(unit)):
+    if not force and unit.finished or (unit.has_moved and not skill_system.has_canto(unit)):
         return set()
 
     mtype = DB.classes.get(unit.klass).movement_group
     grid = game.grid.get_grid(mtype)
     width, height = game.tilemap.width, game.tilemap.height
-    pathfinder = a_star.Djikstra(unit.position, grid, width, height, unit.team, 'pass_through' in unit.status_bundle)
+    pass_through = skill_system.pass_through(unit)
+    pathfinder = pathfinding.Djikstra(unit.position, grid, width, height, unit.team, pass_through)
 
     movement_left = equations.parser.movement(unit) if force else unit.movement_left
 
@@ -106,7 +106,8 @@ def get_path(unit, position, ally_block=False) -> list:
     grid = game.grid.get_grid(mtype)
 
     width, height = game.tilemap.width, game.tilemap.height
-    pathfinder = a_star.AStar(unit.position, position, grid, width, height, unit.team, 'pass_through' in unit.status_bundle)
+    pass_through = skill_system.pass_through(unit)
+    pathfinder = pathfinding.AStar(unit.position, position, grid, width, height, unit.team, pass_through)
 
     path = pathfinder.process(game.grid.team_grid, ally_block=ally_block)
     return path
@@ -162,75 +163,3 @@ def get_all_spell_targets(unit) -> set:
     for spell in spells:
         targets |= get_valid_targets(unit, spell)
     return targets
-
-class SelectionHelper():
-    def __init__(self, pos_list):
-        self.pos_list = pos_list
-
-    def handle_mouse(self):
-        mouse_position = game.input_manager.get_mouse_position()
-        if mouse_position:
-            new_pos = mouse_position[0] // TILEWIDTH, mouse_position[1] // TILEHEIGHT
-            if new_pos in self.pos_list:
-                return new_pos
-        return None
-
-    # For a given position, determine which position in self.pos_list is closest
-    def get_closest(self, position):
-        if self.pos_list:
-            return min(self.pos_list, key=lambda pos: utils.calculate_distance(pos, position))
-        else:
-            return None
-
-    # For a given position, determine which position in self.pos_list is the closest position in the downward direction
-    def get_down(self, position):
-        min_distance, closest = 100, None
-        for pos in self.pos_list:
-            if pos[1] > position[1]: # If further down than the position
-                dist = utils.calculate_distance(pos, position)
-                if dist < min_distance:
-                    closest = pos
-                    min_distance = dist
-        if closest is None: # Nothing was found in the down direction
-            # Just find the closest
-            closest = self.get_closest(position)
-        return closest
-
-    def get_up(self, position):
-        min_distance, closest = 100, None
-        for pos in self.pos_list:
-            if pos[1] < position[1]: # If further up than the position
-                dist = utils.calculate_distance(pos, position)
-                if dist < min_distance:
-                    closest = pos
-                    min_distance = dist
-        if closest is None: # Nothing was found in the down direction
-            # Just find the closest
-            closest = self.get_closest(position)
-        return closest
-
-    def get_right(self, position):
-        min_distance, closest = 100, None
-        for pos in self.pos_list:
-            if pos[0] > position[0]: # If further right than the position
-                dist = utils.calculate_distance(pos, position)
-                if dist < min_distance:
-                    closest = pos
-                    min_distance = dist
-        if closest is None: # Nothing was found in the down direction
-            # Just find the closest
-            closest = self.get_closest(position)
-        return closest
-
-    def get_left(self, position):
-        min_distance, closest = 100, None
-        for pos in self.pos_list:
-            if pos[0] < position[0]: # If further left than the position
-                dist = utils.calculate_distance(pos, position)
-                if dist < min_distance:
-                    closest = pos
-                    min_distance = dist
-        if closest is None: # Nothing was found in the down direction
-            # Just find the closest
-            closest = self.get_closest(position)
-        return closest

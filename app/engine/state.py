@@ -11,13 +11,18 @@ class State():
     processed = False
 
     def __init__(self, name=None):
-        if name:
-            self.name = name
+        self.name = name
 
     def start(self):
+        """
+        Called when state is first loaded
+        """
         pass
 
     def begin(self):
+        """
+        Called whenever state begins being top of state stack
+        """
         pass
 
     def take_input(self, event):
@@ -44,7 +49,6 @@ class MapState(State):
     def update(self):
         game.cursor.update()
         game.camera.update()
-        # game.tilemap.update()
         game.highlight.update()
         game.map_view.update()
 

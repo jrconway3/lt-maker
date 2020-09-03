@@ -1,4 +1,4 @@
-from app.engine import targets, status_system, action, equations
+from app.engine import targets, skill_system, action, equations
 from app.engine.game_state import game
 
 class Ability():
@@ -39,7 +39,7 @@ def get_adj_allies(unit) -> list:
     adj_positions = targets.get_adjacent_positions(unit)
     adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
     adj_units = [_ for _ in adj_units if _]
-    adj_allies = [u for u in adj_units if status_system.check_ally(unit, u)]
+    adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
     return adj_allies
 
 class DropAbility(Ability):
@@ -73,7 +73,7 @@ class RescueAbility(Ability):
     def do(self, unit):
         u = game.grid.get_unit(game.cursor.position)
         action.do(action.Rescue(unit, u))
-        if status_system.has_canto(unit):
+        if skill_system.has_canto(unit):
             game.state.change('menu')
         else:
             game.state.change('free')
@@ -128,4 +128,4 @@ class TradeAbility(Ability):
     def do(self, unit):
         game.state.change('trade')
 
-ABILITIES = Ability.__sub_classes__()
+ABILITIES = Ability.__subclasses__()

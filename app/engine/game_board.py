@@ -54,6 +54,7 @@ class GameBoard(object):
         self.fog_of_war_grids = {}
         for team in DB.teams:
             self.fog_of_war_grids[team] = self.init_aura_grid()
+        self.fow_vantage_point = {}  # Unit: Position where the unit is that's looking
 
         # For Auras
         self.aura_grid = self.init_aura_grid()
@@ -92,14 +93,17 @@ class GameBoard(object):
     def update_fow(self, pos, unit, sight_range: int):
         grid = self.fog_of_war_grids[unit.team]
         # Remove the old vision
+        self.fow_vantage_point[unit.nid] = None
         for cell in grid:
             cell.discard(unit.nid)
         # Add new vision
-        positions = targets.find_manhattan_spheres(range(sight_range + 1), pos[0], pos[1])
-        positions = {pos for pos in positions if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height}
-        for position in positions:
-            idx = position[0] * self.height + position[1]
-            grid[idx].add(unit.nid)
+        if pos:
+            self.fow_vantage_point[unit.nid] = pos
+            positions = targets.find_manhattan_spheres(range(sight_range + 1), pos[0], pos[1])
+            positions = {pos for pos in positions if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height}
+            for position in positions:
+                idx = position[0] * self.height + position[1]
+                grid[idx].add(unit.nid)
 
     def in_vision(self, pos, team='player') -> bool:
         idx = pos[0] * self.height + pos[1]

@@ -1,4 +1,3 @@
-from app.data.constants import WINWIDTH
 from app.data.database import DB
 
 def translate(string):
@@ -10,7 +9,7 @@ def translate(string):
 def get_max_width(font, text_list):
     return max(font.width(t) for t in text_list)
 
-def split(font, string, num_lines):
+def split(font, string, num_lines, max_width):
     total_length = font.width(string)
     lines = []
     for line in range(num_lines):
@@ -30,7 +29,7 @@ def split(font, string, num_lines):
         length_so_far = font.width(''.join(lines[which_line]))
         if length_so_far > total_length // num_lines:
             new_line = True
-        elif length_so_far > WINWIDTH - 8:
+        elif length_so_far > max_width:
             new_line = True
 
     return [''.join(line) for line in lines]

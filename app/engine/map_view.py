@@ -1,4 +1,4 @@
-from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
 
 from app.counters import generic3counter, simplecounter
 
@@ -6,9 +6,7 @@ from app.engine import engine, unit_sprite, unit_sound
 from app.engine.game_state import game
 
 class MapView():
-    def __init__(self, tilemap):
-        self.tilemap = tilemap
-
+    def __init__(self):
         self.passive_sprite_counter = generic3counter(32 * FRAMERATE, 4 * FRAMERATE)
         self.active_sprite_counter = generic3counter(13 * FRAMERATE, 6 * FRAMERATE)
         self.move_sprite_counter = simplecounter((10 * FRAMERATE, 5 * FRAMERATE, 10 * FRAMERATE, 5 * FRAMERATE))
@@ -29,6 +27,8 @@ class MapView():
 
     def draw_units(self, surf):
         culled_units = [unit for unit in game.level.units if unit.position]
+        if game.level.fog_of_war:
+            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1])
         for unit in draw_units:
             if not unit.sprite:
@@ -42,7 +42,7 @@ class MapView():
             surf = unit.sprite.draw_hp(surf)
 
     def draw(self):
-        map_image = self.tilemap.get_full_image()
+        map_image = game.level.tilemap.get_full_image()
         surf = engine.copy_surface(map_image)
         surf = surf.convert_alpha()
         surf = game.boundary.draw(surf, (surf.get_width(), surf.get_height()))

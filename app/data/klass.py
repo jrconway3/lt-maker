@@ -47,11 +47,11 @@ class Klass(Prefab):
 
     def restore_attr(self, name, value):
         if name in ('bases', 'growths', 'growth_bonus', 'promotion', 'max_stats'):
-            value = stats.StatList.restore(value)
+            value = stats.StatList().restore(value)
         elif name == 'learned_skills':
             value = [LearnedSkill.restore(skill) for skill in value]
         elif name == 'wexp_gain':
-            value = weapons.WexpGainList.restore(value)
+            value = weapons.WexpGainList().restore(value)
         else:
             value = super().restore_attr(name, value)
         return value

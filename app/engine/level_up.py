@@ -1,7 +1,7 @@
 import math
 
-from app import utilities
-from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
+from app.utilities import utils
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
@@ -404,7 +404,7 @@ class LevelUpScreen():
                     self.animations.append(spark_anim)
 
                 # Number
-                increase = utilities.clamp(self.stat_list[self.current_spark], 1, 7)
+                increase = utils.clamp(self.stat_list[self.current_spark], 1, 7)
                 anim = RESOURCES.get('LevelUpNumber' + str(increase))
                 if anim:
                     number_animation = Animation(anim, (pos[0] + 43, pos[1] + 49), delay=80, hold=True)
@@ -436,14 +436,14 @@ class LevelUpScreen():
         # Render top
         klass = DB.classes.get(self.unit.klass)
         long_name = klass.long_name
-        FONT['text_white'].blit(long_name, sprite, (12, 3))
-        FONT['text_yellow'].blit('Lv', sprite, (self.width//2 + 12, 3))
+        FONT['text-white'].blit(long_name, sprite, (12, 3))
+        FONT['text-yellow'].blit('Lv', sprite, (self.width//2 + 12, 3))
         if self.state in ('scroll_in', 'init_wait'):
             level = str(self.old_level)
         else:
             level = str(self.new_level)
-        width = FONT['text_blue'].size(level)[0]
-        FONT['text_blue'].blit(level, sprite, (self.width//2 + 50 - width, 3))
+        width = FONT['text-blue'].size(level)[0]
+        FONT['text-blue'].blit(level, sprite, (self.width//2 + 50 - width, 3))
 
         # Render underlines
         new_underline_surf = image_mods.change_color(self.underline, new_color)
@@ -470,10 +470,10 @@ class LevelUpScreen():
         # Draw stats
         for idx, stat in enumerate(DB.stats.keys()):
             pos = self.get_position(idx)
-            FONT['text_yellow'].blit(stat, sprite, pos)
+            FONT['text-yellow'].blit(stat, sprite, pos)
             text = self.unit.stats[stat] - (self.stat_list[idx] if self.current_spark < idx else 0)
-            width = FONT['text_blue'].size(str(text))[0]
-            FONT['text_blue'].blit(str(text), sprite, (pos[0] + 40 - width, pos[1]))
+            width = FONT['text-blue'].size(str(text))[0]
+            FONT['text-blue'].blit(str(text), sprite, (pos[0] + 40 - width, pos[1]))
 
         pos = (6 - self.screen_scroll_offset, WINHEIGHT - 8 - self.height)
         surf.blit(sprite, pos)

@@ -49,15 +49,18 @@ chapter.colors['green'] = ((232, 232, 232, 255), (144, 224, 160, 255), (128, 208
 font_types = [text, small, info, convo, chapter]
 
 # Load in default, uncolored fonts
-FONT = {font.nid.lower(): bmpfont.BmpFont(font.png_path, font.idx_path) for font in RESOURCES.fonts.values()}
+FONT = {}
+for font in RESOURCES.fonts.values():
+    idx_path = font.nid.split('-')[0]
+    FONT[font.nid] = bmpfont.BmpFont(font.full_path, font.full_path.replace(font.nid, idx_path).replace('.png', '.idx'))
 
 # Convert colors
 for font_type in font_types:
     for color, value in font_type.colors.items():
         if color == font_type.default:
             continue
-        text = FONT[font_type.name + '_' + font_type.default]
-        new_text = font_type.name + '_' + color
+        text = FONT[font_type.name + '-' + font_type.default]
+        new_text = font_type.name + '-' + color
         FONT[new_text] = bmpfont.BmpFont(text.png_path, text.idx_path)
         dic = {a: b for a, b in zip(font_type.colors[font_type.default], font_type.colors[color])}
         FONT[new_text].surface = image_mods.color_convert_alpha(FONT[new_text].surface, dic)

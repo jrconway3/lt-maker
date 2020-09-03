@@ -28,53 +28,49 @@ class StateMachine():
     def load_states(self, starting_states=None, temp_state=None):
         from app.engine import title_screen, transitions, general_states, level_up, \
             turnwheel, game_over, settings
-        self.all_states = {'title_start': title_screen.TitleStartState,
-                           'title_main': title_screen.TitleMainState,
-                           'title_load': title_screen.TitleLoadState,
-                           'title_restart': title_screen.TitleRestartState,
-                           'title_new': title_screen.TitleNewState,
-                           'title_new_child': title_screen.TitleNewChildState,
-                           'title_extras': title_screen.TitleExtrasState,
-                           'title_wait': title_screen.TitleWaitState,
-                           'title_save': title_screen.TitleSaveState,
-                           'transition_in': transitions.TransitionInState,
-                           'transition_out': transitions.TransitionOutState,
-                           'transition_pop': transitions.TransitionPopState,
-                           'transition_double_pop': transitions.TransitionDoublePopState,
-                           'transition_to': transitions.TransitionToState,
-                           'turn_change': general_states.TurnChangeState,
-                           'free': general_states.FreeState,
-                           'option_menu': general_states.OptionMenuState,
-                           'option_child': general_states.OptionChildState,
-                           'settings_menu': settings.SettingsMenuState,
-                           'phase_change': general_states.PhaseChangeState,
-                           'move': general_states.MoveState,
-                           'movement': general_states.MovementState,
-                           'wait': general_states.WaitState,
-                           'canto_wait': general_states.CantoWaitState,
-                           'move_camera': general_states.MoveCameraState,
-                           'dying': general_states.DyingState,
-                           'menu': general_states.MenuState,
-                           'item': general_states.ItemState,
-                           'item_child': general_states.ItemChildState,
-                           'rescue_select': general_states.SelectState,
-                           'drop_select': general_states.SelectState,
-                           'give_select': general_states.SelectState,
-                           'take_select': general_states.SelectState,
-                           'trade_select': general_states.SelectState,
-                           'trade': general_states.TradeState,
-                           'weapon_choice': general_states.WeaponChoiceState,
-                           'spell_choice': general_states.SpellChoiceState,
-                           'attack': general_states.AttackState,
-                           'spell': general_states.SpellState,
-                           'combat': general_states.CombatState,
-                           'alert': general_states.AlertState,
-                           'ai': general_states.AIState,
-                           'exp': level_up.ExpState,
-                           'turnwheel': turnwheel.TurnwheelState,
-                           'force_turnwheel': turnwheel.TurnwheelState,
-                           'game_over': game_over.GameOverState,
-                           }
+        self.all_states = \
+            {'title_start': title_screen.TitleStartState,
+             'title_main': title_screen.TitleMainState,
+             'title_load': title_screen.TitleLoadState,
+             'title_restart': title_screen.TitleRestartState,
+             'title_new': title_screen.TitleNewState,
+             'title_new_child': title_screen.TitleNewChildState,
+             'title_extras': title_screen.TitleExtrasState,
+             'title_wait': title_screen.TitleWaitState,
+             'title_save': title_screen.TitleSaveState,
+             'transition_in': transitions.TransitionInState,
+             'transition_out': transitions.TransitionOutState,
+             'transition_pop': transitions.TransitionPopState,
+             'transition_double_pop': transitions.TransitionDoublePopState,
+             'transition_to': transitions.TransitionToState,
+             'turn_change': general_states.TurnChangeState,
+             'free': general_states.FreeState,
+             'option_menu': general_states.OptionMenuState,
+             'option_child': general_states.OptionChildState,
+             'settings_menu': settings.SettingsMenuState,
+             'phase_change': general_states.PhaseChangeState,
+             'move': general_states.MoveState,
+             'movement': general_states.MovementState,
+             'wait': general_states.WaitState,
+             'canto_wait': general_states.CantoWaitState,
+             'move_camera': general_states.MoveCameraState,
+             'dying': general_states.DyingState,
+             'menu': general_states.MenuState,
+             'item': general_states.ItemState,
+             'item_child': general_states.ItemChildState,
+             'targeting': general_states.TargetingState,
+             'trade': general_states.TradeState,
+             'weapon_choice': general_states.WeaponChoiceState,
+             'spell_choice': general_states.SpellChoiceState,
+             'combat_targeting': general_states.CombatTargetingState,
+             'combat': general_states.CombatState,
+             'alert': general_states.AlertState,
+             'ai': general_states.AIState,
+             'exp': level_up.ExpState,
+             'turnwheel': turnwheel.TurnwheelState,
+             'game_over': game_over.GameOverState,
+             }
+
         if starting_states:
             for state_name in starting_states:
                 self.state.append(self.all_states[state_name](state_name))
@@ -94,13 +90,15 @@ class StateMachine():
         # Clears all states except the top one
         self.state = self.state[-1:]
 
-    def get(self):
+    def current(self):
         if self.state:
             return self.state[-1].name
 
-    def get_state(self):
-        if self.state:
-            return self.state[-1].name
+    def exit_state(self, state):
+        if state.processed:
+            state.processed = False
+            state.end()
+        state.finish()
 
     def process_temp_state(self):
         if self.temp_state:
@@ -109,17 +107,11 @@ class StateMachine():
             if transition == 'pop':
                 if self.state:
                     state = self.state[-1]
-                    if state.processed:
-                        state.processed = False
-                        state.end()
-                    state.finish()
+                    self.exit_state(state)
                     self.state.pop()
             elif transition == 'clear':
                 for state in reversed(self.state):
-                    if state.processed:
-                        state.processed = False
-                        state.end()
-                    state.finish()
+                    self.exit_state(state)
                 self.state.clear()
             else:
                 new_state = self.all_states[transition](transition)
@@ -168,5 +160,5 @@ class StateMachine():
         self.process_temp_state()  # This is where FINISH is taken care of
         return surf, repeat_flag
 
-    def serialize(self):
+    def save(self):
         return [state.name for state in self.state], self.temp_state

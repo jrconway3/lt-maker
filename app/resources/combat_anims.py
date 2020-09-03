@@ -36,11 +36,11 @@ class Frame():
 
         self.image = None
 
-    def serialize(self):
+    def save(self):
         return (self.nid, self.rect, self.offset)
 
     @classmethod
-    def deserialize(cls, s_tuple):
+    def restore(cls, s_tuple):
         self = cls(*s_tuple)
         return self
 
@@ -109,7 +109,7 @@ class CombatAnimation():
         return s_dict
 
     @classmethod
-    def deserialize(cls, s_dict):
+    def restore(cls, s_dict):
         self = cls(s_dict['nid'])
         for palette_save in s_dict['palettes']:
             self.palettes.append(Palette.restore(palette_save))
@@ -126,7 +126,8 @@ class CombatCatalog(ManifestCatalog):
         for s_dict in combat_dict:
             new_combat_anim = CombatAnimation.restore(s_dict)
             for weapon_anim in new_combat_anim.weapon_anims:
-                weapon_anim.set_full_path(os.path.join(loc, weapon_anim.full_path))
+                short_path = "%s-%s.png" % (new_combat_anim.nid, weapon_anim.nid)
+                weapon_anim.set_full_path(os.path.join(loc, short_path))
             self.append(new_combat_anim)
 
     def save(self, loc):
@@ -137,6 +138,26 @@ class CombatCatalog(ManifestCatalog):
                 if os.path.abspath(weapon_anim.full_path) != os.path.abspath(new_full_path):
                     shutil.copy(weapon_anim.full_path, new_full_path)
                 weapon_anim.set_full_path(new_full_path)
+        self.dump(loc)
+
+class CombatEffectCatalog(ManifestCatalog):
+    manifest = 'combat_effects.json'
+    title = 'Combat Effects'
+
+    def load(self, loc):
+        effect_dict = self.read_manifest(os.path.join(loc, self.manifest))
+        for s_dict in effect_dict:
+            new_effect_anim = WeaponAnimation.restore(s_dict)
+            full_path = os.path.join(loc, new_effect_anim.nid)
+            new_effect_anim.set_full_path(os.path.join(loc, full_path))
+            self.append(new_effect_anim)
+
+    def save(self, loc):
+        for effect_anim in self:
+            full_path = os.path.join(loc, effect_anim.nid)
+            if os.path.abspath(effect_anim.full_path) != os.path.abspath(full_path):
+                shutil.copy(effect_anim.full_path, full_path)
+                effect_anim.set_full_path(full_path)
         self.dump(loc)
 
 base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(31)])

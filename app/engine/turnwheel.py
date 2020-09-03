@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
@@ -324,15 +324,15 @@ class ActionLog():
         game.cursor.hide()
         self.hovered_unit = None
 
-    def serialize(self):
-        return ([action.serialize() for action in self.actions], self.first_free_action)
+    def save(self):
+        return ([action.save() for action in self.actions], self.first_free_action)
 
     @classmethod
-    def deserialize(cls, serial):
+    def restore(cls, serial):
         self = cls()
         actions, first_free_action = serial
         for name, action in actions:
-            self.append(getattr(Action, name).deserialize(action))
+            self.append(getattr(Action, name).restore(action))
         self.first_free_action = first_free_action
         return self
 
@@ -371,7 +371,7 @@ class TurnwheelDisplay():
 
         # Turnwheel message
         if self.desc:
-            font = FONT['text_white']
+            font = FONT['text-white']
             num_lines = len(self.desc)
             bg = base_surf.create_base_surf(WINWIDTH, 8 + font.height * num_lines, 'menu_bg_clear')
             for idx, line in enumerate(self.desc):
@@ -386,22 +386,22 @@ class TurnwheelDisplay():
         turn_surf = engine.subsurface(golden_words_surf, (0, 17, 26, 10))
         turn_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
         turn_bg.blit(turn_surf, (4, 6))
-        FONT['text_blue'].blit_right(str(self.turn), turn_bg, (44, 3))
+        FONT['text-blue'].blit_right(str(self.turn), turn_bg, (44, 3))
         surf.blit(turn_bg, (WINWIDTH - 52, 4 + self.transition))
         # Unit Count
         count_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
         player_units = [unit for unit in game.level.units if unit.team == 'player' and unit.position]
         unused_units = [unit for unit in player_units if not unit.finished]
         count_str = str(len(unused_units)) + "/" + str(len(player_units))
-        count_width = FONT['text_blue'].width(count_str)
-        FONT['text_blue'].blit(count_str, count_bg, (24 - count_width/2, 3))
+        count_width = FONT['text-blue'].width(count_str)
+        FONT['text-blue'].blit(count_str, count_bg, (24 - count_width/2, 3))
         surf.blit(count_bg, (4, WINHEIGHT - 28 - self.transition))
         # Num uses
         if game.game_constants.get('max_turnwheel_uses', -1) > 0:
             uses_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
             uses_text = str(game.game_constants['current_turnwheel_uses']) + ' Left'
-            x = 48 - FONT['text_blue'].width(uses_text) - 8
-            FONT['text_blue'].blit(uses_text, uses_bg, (x, 4))
+            x = 48 - FONT['text-blue'].width(uses_text) - 8
+            FONT['text-blue'].blit(uses_text, uses_bg, (x, 4))
             surf.blit(uses_bg, (WINWIDTH - 52, WINHEIGHT - 28 - self.transition))
 
 class TurnwheelState(MapState):

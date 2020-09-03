@@ -1,11 +1,12 @@
 import sys
 
-from app import utilities
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.utilities import utils
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data import items
 from app.data.database import DB
 
-from app.engine import banner, static_random, unit_object, unit_funcs, equations
+from app.engine import banner, static_random, unit_funcs, equations, skill_system
+from app.engine.objects.unit import UnitObject
 from app.engine.game_state import game
 
 class Action():
@@ -24,46 +25,46 @@ class Action():
     def reverse(self):
         pass
 
-    def serialize_obj(self, value):
-        if isinstance(value, unit_object.UnitObject):
+    def save_obj(self, value):
+        if isinstance(value, UnitObject):
             value = ('unit', value.nid)
         elif isinstance(value, items.Item):
             value = ('item', value.uid)
         elif isinstance(value, list):
-            value = ('list', [self.serialize_obj(v) for v in value])
+            value = ('list', [self.save_obj(v) for v in value])
         elif isinstance(value, Action):
-            value = ('action', value.serialize())
+            value = ('action', value.save())
         else:
             value = ('generic', value)
         return value
 
-    def serialize(self):
+    def save(self):
         ser_dict = {}
         for attr in self.__dict__.items():
             name, value = attr
-            value = self.serialize_obj(value)
+            value = self.save_obj(value)
             ser_dict[name] = value
         return (self.__class__.__name__, ser_dict)
 
-    def deserialize_obj(self, value):
+    def restore_obj(self, value):
         if value[0] == 'unit':
             return game.get_unit(value[1])
         elif value[0] == 'item':
             return game.get_item(value[1])
         elif value[0] == 'list':
-            return [self.deserialize_obj(v) for v in value[1]]
+            return [self.restore_obj(v) for v in value[1]]
         elif value[0] == 'action':
             name, value = value[1][0], value[1][1]
             action = getattr(sys.modules[__name__], name)
-            return action.deserialize(value)
+            return action.restore(value)
         else:
             return value[1]
 
     @classmethod
-    def deserialize(cls, ser_dict):
+    def restore(cls, ser_dict):
         self = cls.__new__(cls)
         for name, value in ser_dict.items():
-            setattr(self, name, self.deserialize_obj(value))
+            setattr(self, name, self.restore_obj(value))
         return self
 
 class Move(Action):
@@ -225,9 +226,29 @@ class Wait(Action):
         self.unit.finished = True
         self.unit.current_move = None
         self.unit.sprite.change_state('normal')
+        UpdateFogOfWar(self.unit).do()
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)
+        UpdateFogOfWar(self.unit).reverse()
+
+class UpdateFogOfWar(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.prev_pos = None
+
+    def do(self):
+        # Handle fog of war
+        if game.level.fog_of_war:
+            self.prev_pos = game.board.fow_vantage_point.get(self.unit.nid)
+            sight_range = skill_system.sight_range(self.unit) + game.level.fog_of_war
+            game.board.update_fow(self.unit.position, self.unit, sight_range)
+
+    def reverse(self):
+        # Handle fog of war
+        if game.level.fog_of_war:
+            sight_range = skill_system.sight_range(self.unit) + game.level.fog_of_war
+            game.board.update_fow(self.prev_pos, self.unit, sight_range)
 
 class Reset(Action):
     def __init__(self, unit):
@@ -310,7 +331,7 @@ class Drop(Action):
         self.unit.has_traded = True
         self.unit.traveler = None
 
-        if utilities.calculate_distance(self.unit.position, self.pos) == 1:
+        if utils.calculate_distance(self.unit.position, self.pos) == 1:
             self.droppee.sprite.set_transition('fake_in')
             self.droppee.sprite.offset = [(self.unit.position[0] - self.pos[0]) * TILEWIDTH, 
                                           (self.unit.position[1] - self.pos[1]) * TILEHEIGHT]

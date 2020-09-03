@@ -179,16 +179,16 @@ class UIView():
             self.expected_coord = coord
             bg_surf = SPRITES.get('tile_info_quick').copy()
         name = terrain.name
-        width, height = FONT['text_white'].size(name)
+        width, height = FONT['text-white'].size(name)
         pos = (bg_surf.get_width()//2 - width//2, 22 - height)
-        FONT['text_white'].blit(name, bg_surf, pos)
+        FONT['text-white'].blit(name, bg_surf, pos)
         return bg_surf
 
     def eval_string(self, string):
         return string
 
     def create_obj_info(self):
-        font = FONT['text_white']
+        font = FONT['text-white']
         obj = game.level.objective['simple']
         text_lines = self.eval_string(obj).split(',')
         longest_surf_width = text_funcs.get_max_width(font, text_lines)
@@ -216,7 +216,7 @@ class UIView():
             if not isinstance(num, str) and num >= 100:
                 surf.blit(SPRITES.get('blue_100'), (x_pos - 16, y_pos))
             else:
-                FONT['text_blue'].blit_right(str(num), surf, (x_pos, y_pos))
+                FONT['text-blue'].blit_right(str(num), surf, (x_pos, y_pos))
 
         grandmaster = DB.constants.get('rng').value == 'Grandmaster'
         crit = DB.constants.get('crit').value
@@ -229,26 +229,26 @@ class UIView():
             surf = SPRITES.get('attack_info').copy()
 
         # Name
-        width = FONT['text_white'].width(attacker.name)
-        FONT['text_white'].blit(attacker.name, surf, (43 - width//2, 3))
+        width = FONT['text-white'].width(attacker.name)
+        FONT['text-white'].blit(attacker.name, surf, (43 - width//2, 3))
         # Enemy name
         y_pos = 84
         if not crit:
             y_pos -= 16
         if grandmaster:
             y_pos -= 16
-        position = 26 - FONT['text_white'].width(defender.name)//2, y_pos
-        FONT['text_white'].blit(defender.name, surf, position)
+        position = 26 - FONT['text-white'].width(defender.name)//2, y_pos
+        FONT['text-white'].blit(defender.name, surf, position)
         # Enemy Weapon
         if isinstance(defender, unit_object.UnitObject) and defender.get_weapon():
-            width = FONT['text_white'].width(defender.get_weapon().name)
+            width = FONT['text-white'].width(defender.get_weapon().name)
             y_pos = 100
             if not crit:
                 y_pos -= 16
             if grandmaster:
                 y_pos -= 16
             position = 32 - width//2, y_pos
-            FONT['text_white'].blit(defender.get_weapon().name, surf, position)
+            FONT['text-white'].blit(defender.get_weapon().name, surf, position)
         # Self HP
         blit_num(surf, attacker.get_hp(), 64, 19)
         # Enemy HP
@@ -422,56 +422,56 @@ class UIView():
 
             running_height = 8
 
-            FONT['text_white'].blit(defender.name, bg_surf, (30, running_height))
+            FONT['text-white'].blit(defender.name, bg_surf, (30, running_height))
 
             running_height += 16
             # Blit HP
-            FONT['text_yellow'].blit('HP', bg_surf, (9, running_height))
+            FONT['text-yellow'].blit('HP', bg_surf, (9, running_height))
             # Blit /
-            FONT['text_yellow'].blit('/', bg_surf, (width - 25, running_height))
+            FONT['text-yellow'].blit('/', bg_surf, (width - 25, running_height))
             # Blit stats['HP']
             maxhp = str(equations.parser.hitpoints(defender))
-            maxhp_width = FONT['text_blue'].width(maxhp)
-            FONT['text_blue'].blit(maxhp, bg_surf, (width - 5 - maxhp_width, running_height))
+            maxhp_width = FONT['text-blue'].width(maxhp)
+            FONT['text-blue'].blit(maxhp, bg_surf, (width - 5 - maxhp_width, running_height))
             # Blit currenthp
             currenthp = str(defender.get_hp())
-            currenthp_width = FONT['text_blue'].width(currenthp)
-            FONT['text_blue'].blit(currenthp, bg_surf, (width - 26 - currenthp_width, running_height))
+            currenthp_width = FONT['text-blue'].width(currenthp)
+            FONT['text-blue'].blit(currenthp, bg_surf, (width - 26 - currenthp_width, running_height))
 
             if spell.might is not None:
                 running_height += 16
                 mt = combat_calcs.compute_damage(attacker, defender, spell, 'Attack')
-                FONT['text_yellow'].blit('Mt', bg_surf, (9, running_height))
-                mt_width = FONT['text_blue'].width(str(mt))
-                FONT['text_blue'].blit(str(mt), bg_surf, (width - 5 - mt_width, running_height))
+                FONT['text-yellow'].blit('Mt', bg_surf, (9, running_height))
+                mt_width = FONT['text-blue'].width(str(mt))
+                FONT['text-blue'].blit(str(mt), bg_surf, (width - 5 - mt_width, running_height))
 
             if spell.hit is not None:
                 running_height += 16
-                FONT['text_yellow'].blit('Hit', bg_surf, (9, running_height))
+                FONT['text-yellow'].blit('Hit', bg_surf, (9, running_height))
                 hit = combat_calcs.compute_hit(attacker, defender, spell, 'Attack')
                 if hit >= 100:
                     bg_surf.blit(SPRITES.get('blue_100'), (width - 21, running_height))
                 else:
-                    hit_width = FONT['text_blue'].width(str(hit))
+                    hit_width = FONT['text-blue'].width(str(hit))
                     position = width - 5 - hit_width, running_height
-                    FONT['text_blue'].blit(str(hit), bg_surf, position)
+                    FONT['text-blue'].blit(str(hit), bg_surf, position)
 
             if DB.constants.get('crit').value and spell.crit is not None:
                 running_height += 16
-                FONT['text_yellow'].blit('Crit', bg_surf, (9, running_height))
+                FONT['text-yellow'].blit('Crit', bg_surf, (9, running_height))
                 crit = combat_calcs.compute_crit(attacker, defender, spell, 'Attack')
                 if crit >= 100:
                     bg_surf.blit(SPRITES.get('blue_100'), (width - 21, running_height))
                 else:
-                    crit_width = FONT['text_blue'].width(str(crit))
+                    crit_width = FONT['text-blue'].width(str(crit))
                     position = width - 5 - crit_width, running_height
-                    FONT['text_blue'].blit(str(crit), bg_surf, position)
+                    FONT['text-blue'].blit(str(crit), bg_surf, position)
 
             # Blit name
             running_height += 16
             icons.draw_item(bg_surf, spell, (8, running_height))
-            name_width = FONT['text_white'].width(spell.name)
-            FONT['text_white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
+            name_width = FONT['text-white'].width(spell.name)
+            FONT['text-white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
 
             return bg_surf
 
@@ -493,15 +493,15 @@ class UIView():
             if spell.might is not None:
                 running_height += 16
                 mt = combat_calcs.damage(attacker, defender, spell, "Attack")
-                FONT['text_yellow'].blit('Mt', bg_surf, (5, running_height))
-                mt_size = FONT['text_blue'].width(str(mt))
-                FONT['text_blue'].blit(str(mt), bg_surf, (width - 5 - mt_size, running_height))
+                FONT['text-yellow'].blit('Mt', bg_surf, (5, running_height))
+                mt_size = FONT['text-blue'].width(str(mt))
+                FONT['text-blue'].blit(str(mt), bg_surf, (width - 5 - mt_size, running_height))
 
             # Blit name
             running_height += 16
             icons.draw(bg_surf, spell, (4, running_height))
-            name_width = FONT['text_white'].width(spell.name)
-            FONT['text_white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
+            name_width = FONT['text-white'].width(spell.name)
+            FONT['text-white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
 
             return bg_surf
 

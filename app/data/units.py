@@ -42,11 +42,11 @@ class UnitPrefab(Prefab):
 
     def restore_attr(self, name, value):
         if name in ('bases', 'growths'):
-            value = stats.StatList.restore(value)
+            value = stats.StatList().restore(value)
         elif name == 'learned_skills':
             value = [LearnedSkill.restore(skill) for skill in value]
         elif name == 'wexp_gain':
-            value = weapons.WexpGainList.restore(value)
+            value = weapons.WexpGainList().restore(value)
         elif name == 'starting_items':
             # Need to convert to item nid + droppable
             value = [i if isinstance(i, list) else [i, False] for i in value]

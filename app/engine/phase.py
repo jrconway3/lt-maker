@@ -1,10 +1,10 @@
 import math
 
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 from app.data.database import DB
 from app.engine.sprites import SPRITES
 
-from app import utilities
+from app.utilities import utils
 
 from app.engine.sound import SOUNDTHREAD
 from app.engine import config as cf
@@ -134,11 +134,11 @@ class PhaseIn():
                 k1 = int(t * 1.5 - (i - j%2)/2 + j/2 - 4)
                 k2 = int(t * 1.5 - (i - j%2)/2 + j/2 - 1)
                 if time_passed < t_half:
-                    frame1 = utilities.clamp(8 - abs(max(k1, 8) - 8), 0, 8)
-                    frame2 = utilities.clamp(8 - abs(max(k2, 8) - 8), 0, 8)
+                    frame1 = utils.clamp(8 - abs(max(k1, 8) - 8), 0, 8)
+                    frame2 = utils.clamp(8 - abs(max(k2, 8) - 8), 0, 8)
                 else:
-                    frame1 = utilities.clamp(k1, 0, 8)
-                    frame2 = utilities.clamp(k2, 0, 8)
+                    frame1 = utils.clamp(k1, 0, 8)
+                    frame2 = utils.clamp(k2, 0, 8)
                 square_surf = engine.subsurface(self.black_squares, (frame1*16, 0, 16, 16)).copy()
                 transition_space1.blit(square_surf, (x, y))
                 square_surf = engine.subsurface(self.black_squares, (frame2*16, 0, 16, 16)).copy()

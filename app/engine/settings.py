@@ -1,11 +1,12 @@
 from app.resources.resources import RESOURCES
 
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 
 from app.engine import config as cf
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.sound import SOUNDTHREAD
+from app.engine.input_manager import INPUT
 from app.engine.state import State
 from app.engine import engine, background, banner, menus, settings_menu, base_surf, text_funcs
 from app.engine.game_state import game
@@ -84,7 +85,7 @@ class SettingsMenuState(State):
             return self.controls_menu
 
     def handle_mouse(self):
-        mouse_position = game.input_manager.get_mouse_position()
+        mouse_position = INPUT.get_mouse_position()
         if mouse_position:
             mouse_x, mouse_y = mouse_position
             top_left_rect = (4, 4, 112, 24)
@@ -118,18 +119,18 @@ class SettingsMenuState(State):
             if event == 'BACK':
                 SOUNDTHREAD.play_sfx('Select 4')
                 self.state = 'controls'
-                game.input_manager.set_change_keymap(False)
+                INPUT.set_change_keymap(False)
             elif event == 'NEW':
                 SOUNDTHREAD.play_sfx('Select 1')
                 self.state = 'controls'
                 selection = self.current_menu.get_current()
-                cf.SETTINGS[selection] = game.input_manager.unavailable_button
-                game.input_manager.set_change_keymap(False)
-                game.input_manager.update_key_map()
+                cf.SETTINGS[selection] = INPUT.unavailable_button
+                INPUT.set_change_keymap(False)
+                INPUT.update_key_map()
             elif event:
                 SOUNDTHREAD.play_sfx('Select 4')
                 self.state = 'controls'
-                game.input_manager.set_change_keymap(False)
+                INPUT.set_change_keymap(False)
                 text = 'Invalid Choice!'
                 game.alerts.append(banner.Custom(text))
                 game.state.change('alert')
@@ -188,7 +189,7 @@ class SettingsMenuState(State):
                 elif self.state == 'controls':
                     SOUNDTHREAD.play_sfx('Select 1')
                     self.state = 'get_input'
-                    game.input_manager.set_change_keymap(True)
+                    INPUT.set_change_keymap(True)
                 elif self.state == 'config':
                     SOUNDTHREAD.play_sfx('Select 6')
                     self.current_menu.move_next()
@@ -207,13 +208,13 @@ class SettingsMenuState(State):
         surf.blit(bg, (4, 4))
         surf.blit(bg, (WINWIDTH//2 + 4, 4))
         if self.current_menu is self.config_menu:
-            FONT['text_yellow'].blit_center('Config', surf, (4 + 112//2, 8))
-            FONT['text_grey'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112//2, 8))
+            FONT['text-yellow'].blit_center('Config', surf, (4 + 112//2, 8))
+            FONT['text-grey'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112//2, 8))
             if self.state in ('top_menu_left', 'top_menu_right'):
                 self.top_cursor.draw(surf, 112//2 - 16, 8)
         else:
-            FONT['text_grey'].blit_center('Config', surf, (4 + 112/2, 8))
-            FONT['text_yellow'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112//2, 8))
+            FONT['text-grey'].blit_center('Config', surf, (4 + 112/2, 8))
+            FONT['text-yellow'].blit_center('Controls', surf, (WINWIDTH//2 + 4 + 112//2, 8))
             if self.state in ('top_menu_left', 'top_menu_right'):
                 self.top_cursor.draw(surf, WINWIDTH//2 + 2 + 112//2 - 16, 8)
 
@@ -231,7 +232,7 @@ class SettingsMenuState(State):
         else:
             text = 'keymap_desc'
         text = text_funcs.translate(text)
-        FONT['text_white'].blit_center(text, surf, (WINWIDTH//2, WINHEIGHT - height))
+        FONT['text-white'].blit_center(text, surf, (WINWIDTH//2, WINHEIGHT - height))
     
     def draw(self, surf):
         if self.bg:
@@ -245,4 +246,4 @@ class SettingsMenuState(State):
 
     def finish(self):
         # Just to make sure!
-        game.input_manager.set_change_keymap(False)
+        INPUT.set_change_keymap(False)

@@ -1,5 +1,5 @@
 from app.utilities import utils
-from app.data.data import Prefab
+from app.utilities.data import Prefab
 from app.data.database import DB
 
 from app.engine import equations, item_system

@@ -1,4 +1,6 @@
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from collections import OrderedDict
+
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
@@ -6,8 +8,8 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, image_mods, banner, save, phase, status_system, targets, item_system
-from app.engine.targets import SelectionHelper
+from app.engine import engine, action, menus, interaction, image_mods, banner, save, phase, skill_system, targets, item_system, item_funcs
+from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
 
 import logging
@@ -114,7 +116,7 @@ class FreeState(MapState):
             cur_unit = game.grid.get_unit(cur_pos)
             if cur_unit:
                 game.cursor.cur_unit = cur_unit
-                if status_system.can_select(cur_unit):
+                if skill_system.can_select(cur_unit):
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
                 else:
@@ -492,9 +494,9 @@ class MenuState(MapState):
         options = []
         self.target_dict = OrderedDict()
         for ability in ABILITIES:
-            targets = ability.targets(self.cur_unit)
+            t = ability.targets(self.cur_unit)
             self.target_dict[ability.name] = ability
-            if targets:
+            if t:
                 options.append(ability.name)
         options.append("Wait")
 
@@ -518,7 +520,7 @@ class MenuState(MapState):
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             if self.cur_unit.has_traded:
-                if status_system.has_canto(self.cur_unit):
+                if skill_system.has_canto(self.cur_unit):
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move')
                 else:
@@ -986,13 +988,13 @@ class CombatTargetingState(MapState):
         game.highlight.remove_highlights()
         game.ui_view.attack_info_disp = None
 
-class SpellState(MapState):
-    name = 'spell_targeting'
+# class SpellTargetingState(MapState):
+#     name = 'spell_targeting'
 
-    def display_single_attack(self):
-        game.highlight.remove_highlights()
-        splash_positions = item_system.splash_positions(self.cur_unit, self.item, game.cursor.position)
-        game.highlight.display_possible_spells(splash_positions)
+#     def display_single_attack(self):
+#         game.highlight.remove_highlights()
+#         splash_positions = item_system.splash_positions(self.cur_unit, self.item, game.cursor.position)
+#         game.highlight.display_possible_spells(splash_positions)
 
 class CombatState(MapState):
     name = 'combat'

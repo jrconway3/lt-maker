@@ -1,6 +1,5 @@
 import os
 
-from app.utilities import data
 from app import sprites
 
 from app.resources.fonts import FontCatalog
@@ -11,11 +10,11 @@ from app.resources.panoramas import PanoramaCatalog
 from app.resources.map_sprites import MapSpriteCatalog
 from app.resources.tiles import TileSetCatalog, TileMapCatalog
 from app.resources.sounds import SFXCatalog, MusicCatalog
-from app.resources.combat_anims import CombatCatalog
+from app.resources.combat_anims import CombatCatalog, CombatEffectCatalog
 
 class Resources():
     save_data_types = ("icons16", "icons32", "icons80", "portraits", "animations", "panoramas",
-                       "map_sprites", "combat_animations", "combat_effects", "music", "sfx", 
+                       "map_sprites", "combat_anims", "combat_effects", "music", "sfx", 
                        "tilesets", "tilemaps")
 
     def __init__(self):
@@ -58,7 +57,7 @@ class Resources():
         self.panoramas = PanoramaCatalog()
         self.map_sprites = MapSpriteCatalog()
         self.combat_anims = CombatCatalog()
-        self.combat_effects = data.Data()
+        self.combat_effects = CombatEffectCatalog()
 
         self.tilesets = TileSetCatalog()
         self.tilemaps = TileMapCatalog()
@@ -74,6 +73,7 @@ class Resources():
         sprites.load_sprites(os.path.join(self.main_folder, 'custom_sprites'))
 
         for data_type in self.save_data_types:
+            print("Resources: Loading %s..." % data_type)
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
 
     def reload(self, proj_dir):

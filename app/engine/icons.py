@@ -1,4 +1,4 @@
-from app.data.constants import COLORKEY
+from app.constants import COLORKEY
 from app.resources.resources import RESOURCES
 
 from app.engine import engine, image_mods

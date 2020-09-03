@@ -1,12 +1,12 @@
 import math
 
-from app.data.constants import TILEX, WINWIDTH, WINHEIGHT
+from app.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data import items
 from app.data.database import DB
 from app import utilities
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-
+from app.engine.input_manager import INPUT
 from app.engine import engine, image_mods, icons, help_menu, text_funcs
 from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
@@ -435,7 +435,7 @@ class Simple():
         return NotImplementedError
 
     def handle_mouse(self):
-        mouse_position = game.input_manager.get_mouse_position()
+        mouse_position = INPUT.get_mouse_position()
         if mouse_position:
             mouse_x, mouse_y = mouse_position
             idxs, option_rects = self.get_rects()
@@ -591,7 +591,7 @@ class Choice(Simple):
                     
                 running_height += choice.height()
         else:
-            FONT['text_grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
+            FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
         return surf
 
     def horiz_draw(self, surf):
@@ -622,7 +622,7 @@ class Choice(Simple):
                     
                 running_width += choice.width() + 8
         else:
-            FONT['text_grey'].blit("Nothing", bg_surf, (self.topleft[0] + 8, self.topleft[1] + 4))
+            FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 8, self.topleft[1] + 4))
         return surf
 
     # For mouse handling
@@ -784,8 +784,8 @@ class Trade(Simple):
         # Draw trade names
         surf.blit(self.trade_name_surf, (-4, -1))
         surf.blit(self.trade_name_surf, (WINWIDTH - self.trade_name_surf.get_width() + 4, -1))
-        FONT['text_white'].blit(self.owner.name, surf, (24 - FONT['text_white'].width(self.owner.name)//2, 0))
-        FONT['text_white'].blit(self.partner.name, surf, (WINWIDTH - 24 - FONT['text_white'].width(self.owner.name)//2, 0))
+        FONT['text-white'].blit(self.owner.name, surf, (24 - FONT['text-white'].width(self.owner.name)//2, 0))
+        FONT['text-white'].blit(self.partner.name, surf, (WINWIDTH - 24 - FONT['text-white'].width(self.owner.name)//2, 0))
 
         # Draw Portraits
         # Owner
@@ -807,7 +807,7 @@ class Trade(Simple):
         return surf
 
     def handle_mouse(self):
-        mouse_position = game.input_manager.get_mouse_position()
+        mouse_position = INPUT.get_mouse_position()
         if mouse_position:
             mouse_x, mouse_y = mouse_position
             idxs1, option_rects1 = self.menu1.get_rects()

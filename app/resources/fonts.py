@@ -9,7 +9,7 @@ class Font():
 
 class FontCatalog(BaseResourceCatalog):
     datatype = Font
-    filetype = '.idx'
+    filetype = '.png'
 
     # I don't think move image or save are needed right now...
     def move_image(self, icon, loc):

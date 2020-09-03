@@ -6,10 +6,10 @@ try:
 except ImportError:
     import pickle
 
-from app.data.items import Item
 from app.data.database import DB
 
 import app.engine.config as cf
+from app.engine.objects.item import ItemObject
 
 import logging
 logger = logging.getLogger(__name__)
@@ -103,9 +103,9 @@ def load_game(game_state, save_slot):
 
 def set_next_uids(game_state):
     if game_state.item_registry:
-        Item.next_uid = max(game_state.item_registry.keys()) + 1
+        ItemObject.next_uid = max(game_state.item_registry.keys()) + 1
     else:
-        Item.next_uid = 100
+        ItemObject.next_uid = 100
     # if game_state.status_registry:
     #     Status.next_uid = max(game_state.status_registry.keys()) + 1
     # else:

@@ -1,4 +1,4 @@
-from app import utilities
+from app.utilities import utils
 from app.engine import engine
 
 def color_convert(image, conversion_dict):
@@ -23,7 +23,7 @@ def make_translucent(image, t):
     """
 
     alpha = 255 - int(255 * t)
-    alpha = utilities.clamp(alpha, 0, 255)
+    alpha = utils.clamp(alpha, 0, 255)
     image = engine.copy_surface(image)
     engine.fill(image, (255, 255, 255, alpha), None, engine.BLEND_RGBA_MULT)
 
@@ -34,7 +34,7 @@ def make_white(image, white):
     whiteness measured from 0.0 to 1.0, where 0.0 is no change to color
     """
     white = int(255 * white)
-    white = utilities.clamp(white, 0, 255)
+    white = utils.clamp(white, 0, 255)
     image = engine.copy_surface(image)
     engine.fill(image, (white, white, white), None, engine.BLEND_RGB_ADD)
 
@@ -71,7 +71,7 @@ def blend_colors(color1, color2, t):
     gets a color between color1 and color2 depending on t
     t is between 0 and 1
     """
-    t = utilities.clamp(t, 0, 1)
+    t = utils.clamp(t, 0, 1)
     color_diff = (color2[0] - color1[0], color2[1] - color1[1], color2[2] - color1[2])
     new_color = []
     for idx, chroma in enumerate(color_diff):

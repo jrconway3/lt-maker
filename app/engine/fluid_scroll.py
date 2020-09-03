@@ -1,5 +1,5 @@
 from app.engine import engine
-from app.engine.game_state import game
+from app.engine.input_manager import INPUT
 
 class FluidScroll():
     def __init__(self, speed=64, slow_speed=3):
@@ -24,48 +24,48 @@ class FluidScroll():
         self.slow_speed = speed*slow_speed
 
     def update(self, hold=True):
-        if (hold and game.input_manager.is_pressed('LEFT')) or \
-                game.input_manager.just_pressed('LEFT'):
+        if (hold and INPUT.is_pressed('LEFT')) or \
+                INPUT.just_pressed('LEFT'):
             self.move_right = False
             self.move_left = True
         else:
             self.move_left = False
 
-        if (hold and game.input_manager.is_pressed('RIGHT')) or \
-                game.input_manager.just_pressed('RIGHT'):
+        if (hold and INPUT.is_pressed('RIGHT')) or \
+                INPUT.just_pressed('RIGHT'):
             self.move_left = False
             self.move_right = True
         else:
             self.move_right = False
 
-        if (hold and game.input_manager.is_pressed('UP')) or \
-                game.input_manager.just_pressed('UP'):
+        if (hold and INPUT.is_pressed('UP')) or \
+                INPUT.just_pressed('UP'):
             self.move_down = False
             self.move_up = True
         else:
             self.move_up = False
 
-        if (hold and game.input_manager.is_pressed('DOWN')) or \
-                game.input_manager.just_pressed('DOWN'):
+        if (hold and INPUT.is_pressed('DOWN')) or \
+                INPUT.just_pressed('DOWN'):
             self.move_up = False
             self.move_down = True
         else:
             self.move_down = False
 
-        if game.input_manager.just_pressed('LEFT'):
+        if INPUT.just_pressed('LEFT'):
             self.left_update = 0
-        if game.input_manager.just_pressed('RIGHT'):
+        if INPUT.just_pressed('RIGHT'):
             self.right_update = 0
-        if game.input_manager.just_pressed('UP'):
+        if INPUT.just_pressed('UP'):
             self.up_update = 0
-        if game.input_manager.just_pressed('DOWN'):
+        if INPUT.just_pressed('DOWN'):
             self.down_update = 0
 
         # If we didn't make any moves, reset the move counter
         if not any((self.move_left, self.move_right, self.move_down, self.move_up)):
             self.move_counter = 0
 
-        if any((game.input_manager.just_pressed(direction) for direction in ('LEFT', 'RIGHT', 'UP', 'DOWN'))):
+        if any((INPUT.just_pressed(direction) for direction in ('LEFT', 'RIGHT', 'UP', 'DOWN'))):
             return True  # This is a first push
         return False
 

@@ -1,12 +1,12 @@
-from app import utilities
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.utilities import utils
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.solver import CombatPhaseSolver
 
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, combat_calcs, gui, action, status_system, banner, item_system
+from app.engine import engine, combat_calcs, gui, action, skill_system, banner, item_system
 from app.engine.health_bar import MapCombatInfo
 from app.engine.animations import MapAnimation
 from app.engine.game_state import game
@@ -279,7 +279,7 @@ class MapCombat():
         
         # Messages
         if self.defender:
-            if status_system.check_enemy(self.attacker, self.defender):
+            if skill_system.check_enemy(self.attacker, self.defender):
                 action.do(action.Message("%s attacked %s" % (self.attacker.name, self.defender.name)))
             elif self.attacker is not self.defender:
                 action.do(action.Message("%s helped %s" % (self.attacker.name, self.defender.name)))
@@ -312,10 +312,10 @@ class MapCombat():
         # handle exp & records
         if self.attacker.team == 'player' and not self.attacker.is_dying:
             exp = self.handle_exp(self.attacker, self.item)
-            if self.defender and status_system.check_ally(self.attacker, self.defender):
-                exp = int(utilities.clamp(exp, 0, 100))
+            if self.defender and skill_system.check_ally(self.attacker, self.defender):
+                exp = int(utils.clamp(exp, 0, 100))
             else:
-                exp = int(utilities.clamp(exp, DB.constants.get('min_exp').value, 100))
+                exp = int(utils.clamp(exp, DB.constants.get('min_exp').value, 100))
 
             if exp > 0:
                 game.memory['exp'] = (self.attacker, exp, None, 'init')
@@ -323,7 +323,7 @@ class MapCombat():
 
         elif self.defender and self.defender.team == 'player' and not self.defender.is_dying:
             exp = self.handle_exp(self.defender, self.def_item)
-            exp = int(utilities.clamp(exp, DB.constants.get('min_exp').value, 100))
+            exp = int(utils.clamp(exp, DB.constants.get('min_exp').value, 100))
             if exp > 0:
                 game.memory['exp'] = (self.defender, exp, None, 'init')
                 game.state.change('exp')
@@ -352,14 +352,14 @@ class MapCombat():
 
     def handle_state_stack(self):
         if self.ai_combat:
-            if status_system.has_canto_plus(self.attacker):
+            if skill_system.has_canto_plus(self.attacker):
                 pass
             else:
                 game.state.change('wait')
         else:
             if not self.attacker.has_attacked and not self.attacker.is_dying:
                 game.state.change('menu')
-            elif status_system.has_canto_plus(self.attacker) and not self.attacker.is_dying:
+            elif skill_system.has_canto_plus(self.attacker) and not self.attacker.is_dying:
                 game.state.change('move')
             else:
                 game.state.clear()

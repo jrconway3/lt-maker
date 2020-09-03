@@ -1,16 +1,16 @@
-from app import utilities
-
+from app.utilities import str_utils
+from app.constants import WINWIDTH
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 import app.engine.config as cf
-from app.engine import engine, base_surf, text_funcs, icons
+from app.engine import engine, base_surf, text_funcs, icons, item_system
 from app.engine.game_state import game
 
 class HelpDialog():
     help_logo = SPRITES.get('help_logo')
-    font = FONT['convo_black']
+    font = FONT['convo-black']
 
     def __init__(self, desc, num_lines=2, name=False):
         self.name = name
@@ -25,7 +25,7 @@ class HelpDialog():
         if len(desc) < 24:
             num_lines = 1
 
-        self.lines = text_funcs.split(self.font, desc, num_lines)
+        self.lines = text_funcs.split(self.font, desc, num_lines, WINWIDTH - 8)
 
         greater_line_len = max([self.font.width(line) for line in self.lines])
         if self.name:
@@ -108,8 +108,8 @@ class HelpDialog():
         return surf
 
 class ItemHelpDialog(HelpDialog):
-    font_blue = FONT['text_blue']
-    font_yellow = FONT['text_yellow']
+    font_blue = FONT['text-blue']
+    font_yellow = FONT['text-yellow']
 
     def __init__(self, item):
         self.last_time = self.start_time = 0
@@ -133,7 +133,7 @@ class ItemHelpDialog(HelpDialog):
         weight = self.item.weight.value if self.item.weight else '--'
         min_rng = self.item.min_range
         max_rng = self.item.max_range
-        if utilities.is_int(min_rng) and utilities.is_int(max_rng):
+        if str_utils.is_int(min_rng) and str_utils.is_int(max_rng):
             if min_rng == max_rng:
                 rng = min_rng
             else:

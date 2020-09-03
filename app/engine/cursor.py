@@ -6,6 +6,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine import engine
 from app.engine import config as cf
 from app.engine.game_state import game
+from app.engine.input_manager import INPUT
 from app.engine.fluid_scroll import FluidScroll
 
 import logging
@@ -155,13 +156,13 @@ class Cursor():
         if game.highlight.check_in_move(self.position):
             if directions:
                 # If we would move off the current move
-                if ('LEFT' in directions and not game.input_manager.just_pressed('LEFT') and
+                if ('LEFT' in directions and not INPUT.just_pressed('LEFT') and
                         not game.highlight.check_in_move((self.position[0] - 1, self.position[1]))) or \
-                        ('RIGHT' in directions and not game.input_manager.just_pressed('RIGHT') and
+                        ('RIGHT' in directions and not INPUT.just_pressed('RIGHT') and
                          not game.highlight.check_in_move((self.position[0] + 1, self.position[1]))) or \
-                        ('UP' in directions and not game.input_manager.just_pressed('UP') and
+                        ('UP' in directions and not INPUT.just_pressed('UP') and
                          not game.highlight.check_in_move((self.position[0], self.position[1] - 1))) or \
-                        ('DOWN' in directions and not game.input_manager.just_pressed('DOWN') and
+                        ('DOWN' in directions and not INPUT.just_pressed('DOWN') and
                          not game.highlight.check_in_move((self.position[0], self.position[1] + 1))):
                     # Then we can just keep going
                     if self.stopped_at_move_border:
@@ -191,7 +192,7 @@ class Cursor():
             game.camera.set_y(self.position[1])
 
         # Handle mouse
-        mouse_position = game.input_manager.get_mouse_position()
+        mouse_position = INPUT.get_mouse_position()
         if mouse_position:
             new_pos = mouse_position[0] // TILEWIDTH, mouse_position[1] // TILEHEIGHT
             dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]

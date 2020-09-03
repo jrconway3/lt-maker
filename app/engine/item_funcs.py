@@ -11,6 +11,10 @@ def is_magic(unit, item) -> bool:
     return False
 
 def get_all_items(unit) -> list:
+    """
+    Use this to get all weapons if you want to be able to handle multi_items
+    """
+    
     items = []
     for item in unit.items:
         if item.multi_item:

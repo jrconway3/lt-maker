@@ -1,5 +1,5 @@
-from app import utilities
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.utilities import str_utils
+from app.constants import TILEWIDTH, TILEHEIGHT
 
 from app.engine import engine, image_mods
 
@@ -55,7 +55,7 @@ class Animation():
             return
 
         done = False
-        if utilities.is_int(self.speed):
+        if str_utils.is_int(self.speed):
             self.counter = int(current_time - self.first_update) // self.speed
             if self.counter >= self.num_frames:
                 if self.loop:

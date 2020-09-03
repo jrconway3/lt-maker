@@ -6,6 +6,13 @@ from app.utilities.data import Data, Prefab
 class Tag(Prefab):
     nid: str = None
 
+    def save(self):
+        return self.nid
+
+    @classmethod
+    def restore(cls, dat):
+        return cls(dat)
+
 class TagCatalog(Data):
     datatype = Tag
 

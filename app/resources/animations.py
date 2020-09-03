@@ -48,5 +48,5 @@ class AnimationCatalog(ManifestCatalog):
         anim_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in anim_dict:
             new_anim = Animation.restore(s_dict)
-            new_anim.set_full_path(os.path.join(loc, new_anim.full_path))
+            new_anim.set_full_path(os.path.join(loc, new_anim.nid))
             self.append(new_anim)

@@ -11,7 +11,6 @@ class BmpFont():
         self.space_offset = 0
         self._width = 8
         self.height = 16
-        self.transrgb = (0, 0, 0)
         self.memory = {}
 
         with open(self.idx_path, 'r', encoding='utf-8') as fp:
@@ -29,8 +28,6 @@ class BmpFont():
                     self._width = int(words[1])
                 elif words[0] == "height":
                     self.height = int(words[1])
-                elif words[0] == "transrgb":
-                    self.transrgb = (int(words[1]), int(words[2]), int(words[3]))
                 else:  # Default to index entry.
                     if words[0] == "space":
                         words[0] = ' '
@@ -41,11 +38,20 @@ class BmpFont():
                     self.chartable[words[0]] = (int(words[1]) * self._width,
                                                 int(words[2]) * self.height,
                                                 int(words[3]))
+                    
         self.surface = engine.image_load(self.png_path)
-        engine.set_colorkey(self.surface, self.transrgb, rleaccel=True)
+        # engine.set_colorkey(self.surface, (0, 0, 0), rleaccel=True)
+
+    def modify_string(self, string: str) -> str:
+        if self.all_uppercase:
+            string = string.upper()
+        if self.all_lowercase:
+            string = string.lower()
+        string = string.replace('_', ' ')
+        return string
 
     def blit(self, string, surf, pos=(0, 0)):
-        def normal_render(left, top):
+        def normal_render(left, top, string):
             for c in string:
                 if c not in self.memory:
                     try:
@@ -66,7 +72,7 @@ class BmpFont():
                 engine.blit(surf, subsurf, (left, top))
                 left += char_width + self.space_offset
 
-        def stacked_render(left, top):
+        def stacked_render(left, top, string):
             orig_left = left
             for c in string:
                 if c not in self.memory:
@@ -97,16 +103,12 @@ class BmpFont():
         x, y = pos
         surfwidth, surfheight = surf.get_size()
 
-        if self.all_uppercase:
-            string = string.upper()
-        if self.all_lowercase:
-            string = string.lower()
-        string = string.replace('_', ' ')
+        string = self.modify_string(string)
 
         if self.stacked:
-            stacked_render(x, y)
+            stacked_render(x, y, string)
         else:
-            normal_render(x, y)
+            normal_render(x, y, string)
 
     def blit_right(self, string, surf, pos):
         width = self.width(string)
@@ -120,36 +122,14 @@ class BmpFont():
         """
         Returns the length and width of a bitmapped string
         """
-        length = 0
-
-        if self.all_uppercase:
-            string = string.upper()
-        if self.all_lowercase:
-            string = string.lower()
-        string = string.replace('_', ' ')
-
-        for c in string:
-            try:
-                char_width = self.chartable[c][2]
-            except KeyError as e:
-                print(e)
-                print("%s is not chartable" % c)
-                print("string: ", string)
-                char_width = 8
-            length += char_width
-        return (length, self.height)
+        return (self.width(string), self.height)
 
     def width(self, string):
         """
-        Returns the length and width of a bitmapped string
+        Returns the width of a bitmapped string
         """
         length = 0
-
-        if self.all_uppercase:
-            string = string.upper()
-        if self.all_lowercase:
-            string = string.lower()
-        string = string.replace('_', ' ')
+        string = self.modify_string(string)
 
         for c in string:
             try:

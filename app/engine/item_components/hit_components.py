@@ -2,9 +2,9 @@ from app import utilities
 
 from app.data.database import DB
 
-from app.data.item_component import ItemComponent, Type
+from app.data.item_components import ItemComponent, Type
 
-from app.engine import action, status_system, combat_calcs, equations
+from app.engine import action, skill_system, combat_calcs, equations
 
 class Heal(ItemComponent):
     nid = 'heal'
@@ -152,10 +152,10 @@ class Restore(ItemComponent):
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # only targets units that need to be restored
-        if defender and status_system.check_ally(unit, defender) and any(status.time and self._can_be_restored(status) for status in defender.status_effects):
+        if defender and skill_system.check_ally(unit, defender) and any(status.time and self._can_be_restored(status) for status in defender.status_effects):
             return True
         for s in splash:
-            if status_system.check_ally(unit, s) and any(status.time and self._can_be_restored(status) for status in s.status_effects):
+            if skill_system.check_ally(unit, s) and any(status.time and self._can_be_restored(status) for status in s.status_effects):
                 return True
         return False
 

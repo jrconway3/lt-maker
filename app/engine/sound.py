@@ -22,7 +22,11 @@ class Song():
 class MusicDict(dict):
     def get(self, val):
         if val not in self:
-            self[val] = Song(RESOURCES.music.get(val))
+            prefab = RESOURCES.music.get(val)
+            if prefab:
+                self[val] = Song(prefab)
+            else:
+                return None
         return self[val]
 
 MUSIC = MusicDict()
@@ -33,7 +37,6 @@ class SoundDict(dict):
             sfx = RESOURCES.sfx.get(val)
             if sfx:
                 self[val] = pygame.mixer.Sound(sfx.full_path)
-                return self[val]
             else:
                 return None
         return self[val]

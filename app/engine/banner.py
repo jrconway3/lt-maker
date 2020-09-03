@@ -1,4 +1,4 @@
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, base_surf, image_mods, icons, text_funcs
@@ -15,7 +15,7 @@ class Banner():
         self.font = []
 
     def figure_out_size(self):
-        self.length = FONT['text_white'].width(''.join(self.text))
+        self.length = FONT['text-white'].width(''.join(self.text))
         self.length += (16 if self.item else 0)
         self.font_height = 16
         self.size = self.length + 18, 24
@@ -97,7 +97,7 @@ class Pennant():
     Lower banner that scrolls across bottom of screen
     """
 
-    font = FONT['convo_white']
+    font = FONT['convo-white']
     bg_surf = SPRITES.get('pennant_bg')
 
     def __init__(self, text):

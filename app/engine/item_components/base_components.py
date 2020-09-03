@@ -2,7 +2,7 @@ from app import utilities
 
 from app.data.item_components import ItemComponent, Type
 
-from app.engine import status_system, targets, item_system
+from app.engine import skill_system, targets, item_system
 from app.engine.game_state import game 
 
 class Spell(ItemComponent):
@@ -93,7 +93,7 @@ class TargetsEnemies(ItemComponent):
 
     def valid_targets(self, unit, item) -> set:
         return {other.position for other in game.level.units if other.position and 
-                status_system.check_enemy(unit, other) and 
+                skill_system.check_enemy(unit, other) and 
                 utilities.calculate_distance(unit.position, other.position) in item_system.get_range(unit, item)}
 
 class TargetsAllies(ItemComponent):
@@ -103,7 +103,7 @@ class TargetsAllies(ItemComponent):
 
     def valid_targets(self, unit, item) -> set:
         return {other.position for other in game.level.units if other.position and 
-                status_system.check_ally(unit, other) and 
+                skill_system.check_ally(unit, other) and 
                 utilities.calculate_distance(unit.position, other.position) in item_system.get_range(unit, item)}
 
 class MinimumRange(ItemComponent):

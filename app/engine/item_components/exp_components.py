@@ -4,7 +4,7 @@ from app.data.database import DB
 
 from app.data.item_components import ItemComponent, Type
 
-from app.engine import status_system, equations
+from app.engine import skill_system, equations
 
 class Exp(ItemComponent):
     nid = 'exp'
@@ -23,7 +23,7 @@ class LevelExp(ItemComponent):
     tag = 'exp'
 
     def exp(self, unit, item, target) -> int:
-        if status_system.check_enemy(unit, target):
+        if skill_system.check_enemy(unit, target):
             level_diff = target.get_internal_level() - unit.get_internal_level()
             level_diff += DB.constants.get('exp_offset').value
             exp_gained = math.exp(level_diff * DB.constants.get('exp_curve'))

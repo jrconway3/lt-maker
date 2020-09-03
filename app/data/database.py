@@ -39,9 +39,10 @@ class Database(object):
     #     return list(zip(names, sprites))
 
     # === Saving and loading important data functions ===
-    def restore(self, data):
+    def restore(self, save_obj):
         for data_type in self.save_data_types:
-            getattr(self, data_type).restore(data[data_type])
+            print("Database: Restoring %s..." % data_type)
+            getattr(self, data_type).restore(save_obj[data_type])
 
     def save(self):
         to_save = {}
@@ -64,7 +65,7 @@ class Database(object):
 
         print("Done serializing!")
 
-    def deserialize(self, proj_dir):
+    def load(self, proj_dir):
         data_dir = os.path.join(proj_dir, 'game_data')
         print("Deserializing data from %s..." % data_dir)
 

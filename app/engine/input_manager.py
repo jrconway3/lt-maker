@@ -195,3 +195,10 @@ class InputManager():
                     elif control[2] > 0:
                         pushed = amount > control[2]
                     update_state(pushed, self.axis_state, control[3], button)
+
+INPUT = InputManager()
+
+def __getattr__(name):
+    if name == 'input_manager':
+        return INPUT
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

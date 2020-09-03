@@ -78,14 +78,16 @@ class GameState():
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
         from app.engine import cursor, camera, phase, highlight, \
-            movement, death, ai_controller
+            movement, death, ai_controller, map_view, ui_view
         # Systems
         self.cursor = cursor.Cursor()
         self.camera = camera.Camera()
         self.phase = phase.PhaseController()
         self.highlight = highlight.HighlightController()
+        self.map_view = map_view.MapView()
         self.moving_units = movement.MovementManager()
         self.death = death.DeathManager()
+        self.ui_view = ui_view.UIView()
         self.combat_instance = None
         self.ai = ai_controller.AIController()
 

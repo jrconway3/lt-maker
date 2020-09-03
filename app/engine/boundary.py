@@ -1,14 +1,14 @@
-from app import utilities
+from app.constants import TILEWIDTH, TILEHEIGHT
+from app.utilities import utils
 
 from app.engine.sprites import SPRITES
-from app.data.constants import TILEWIDTH, TILEHEIGHT
-
 from app.engine import engine, targets, equations
 from app.engine.game_state import game
 
 class BoundaryInterface():
     draw_order = ('all_spell', 'all_attack', 'spell', 'attack')
     enemy_teams = ('enemy', 'enemy2')
+    fog_of_war_tile = SPRITES.get('fog_of_war_tile1')
 
     def __init__(self, width, height):
         self.modes = {'attack': SPRITES.get('boundary_red'),
@@ -19,9 +19,15 @@ class BoundaryInterface():
         self.width = width
         self.height = height
         
+        # grid of sets. Each set contains the unit nids that are capable
+        # of attacking that spot
+        # The movement portion -- unit's have an area of influence
+        # If they move, they affect all other units in their area of influence
         self.grids = {'attack': self.init_grid(),
                       'spell': self.init_grid(),
                       'movement': self.init_grid()}
+        # Key: Unit NID, Value: list of positions where the unit is capable
+        # of attacking
         self.dictionaries = {'attack': {},
                              'spell': {},
                              'movement': {}}
@@ -32,6 +38,7 @@ class BoundaryInterface():
         self.displaying_units = set()
 
         self.surf = None
+        self.fog_of_war_surf = None
 
     def init_grid(self):
         cells = []
@@ -61,6 +68,9 @@ class BoundaryInterface():
             self.display_units.discard(unit.nid)
             self.surf = None
 
+    def reset_fog_of_war(self):
+        self.fog_of_war_surf = None
+
     def _set(self, positions, mode, nid):
         grid = self.grids[mode]
         self.dictionaries[mode][nid] = set()
@@ -77,6 +87,8 @@ class BoundaryInterface():
             for x in range(self.width):
                 for y in range(self.height):
                     self.grids[m][x * self.height + y].clear()
+        self.surf = None
+        self.fog_of_war_surf = None
 
     def _add_unit(self, unit):
         valid_moves = targets.get_valid_moves(unit, force=True)
@@ -106,7 +118,7 @@ class BoundaryInterface():
         if unit.position:
             x, y = unit.position
             other_units = {game.level.units.get(nid) for nid in self.grids['movement'][x * self.height + y]}
-            other_units = {other_unit for other_unit in other_units if not utilities.compare_teams(unit.team, other_unit.team)}
+            other_units = {other_unit for other_unit in other_units if not utils.compare_teams(unit.team, other_unit.team)}
 
             for other_unit in other_units:
                 self._remove_unit(other_unit)
@@ -123,7 +135,7 @@ class BoundaryInterface():
             x, y = unit.position
             # print(self.grids['movement'][x * self.height + y])
             other_units = {game.level.units.get(nid) for nid in self.grids['movement'][x * self.height + y]}
-            other_units = {other_unit for other_unit in other_units if not utilities.compare_teams(unit.team, other_unit.team)}
+            other_units = {other_unit for other_unit in other_units if not utils.compare_teams(unit.team, other_unit.team)}
 
             for other_unit in other_units:
                 self._remove_unit(other_unit)
@@ -158,7 +170,9 @@ class BoundaryInterface():
 
         if not self.surf:
             self.surf = engine.create_surface(size, transparent=True)
+
             for grid_name in self.draw_order:
+                # Check whether we can skip this boundary interface
                 if grid_name == 'attack' and not self.displaying_units:
                     continue
                 elif grid_name == 'spell' and not self.displaying_units:
@@ -167,27 +181,43 @@ class BoundaryInterface():
                     continue
                 elif grid_name == 'all_spell' and not self.all_on_flag:
                     continue
+
                 if grid_name == 'all_attack' or grid_name == 'attack':
                     grid = self.grids['attack']
                 else:
                     grid = self.grids['spell']
 
+                # Remove all units that we shouldn't be able to see from the boundary
+                # Fog of War application
+                if game.level.fog_of_war:
+                    new_grid = []
+                    for cell in grid:
+                        new_grid.append({nid for nid in cell if game.board.in_vision(game.level.units.get(nid).position)})
+                else:
+                    new_grid = grid
+
                 for y in range(self.height):
                     for x in range(self.width):
-                        cell = grid[x * self.height + y]
+                        cell = new_grid[x * self.height + y]
                         if cell:
-                            display = any(nid in self.displaying_units for nid in cell)
+                            # Determine whether this tile should have a red display
+                            red_display = False
+                            for nid in cell:
+                                if nid in self.displaying_units:
+                                    red_display = True
+                                    break
 
-                            if grid_name == 'all_attack' and display:
+                            if grid_name == 'all_attack' and red_display:
                                 continue
-                            if grid_name == 'all_spell' and display:
-                                continue
-                            if grid_name == 'attack' and not display:
-                                continue
-                            if grid_name == 'spell' and not display:
+                            if grid_name == 'all_spell' and red_display:
                                 continue
 
-                            image = self.create_image(grid, x, y, grid_name)
+                            if grid_name == 'attack' and not red_display:
+                                continue
+                            if grid_name == 'spell' and not red_display:
+                                continue
+
+                            image = self.create_image(new_grid, x, y, grid_name)
                             self.surf.blit(image, (x * TILEWIDTH, y * TILEHEIGHT))
 
         surf.blit(self.surf, (0, 0))
@@ -199,11 +229,20 @@ class BoundaryInterface():
         right_pos = (x + 1, y)
         bottom_pos = (x, y + 1)
 
+        top = False
+        bottom = False
+        left = False
+        right = False
+
         if grid_name == 'all_attack' or grid_name == 'all_spell':
-            top = bool(grid[x * self.height + y - 1]) if self.check_bounds(top_pos) else False
-            left = bool(grid[(x - 1) * self.height + y]) if self.check_bounds(left_pos) else False
-            right = bool(grid[(x + 1) * self.height + y]) if self.check_bounds(right_pos) else False
-            bottom = bool(grid[x * self.height + y + 1]) if self.check_bounds(bottom_pos) else False
+            if self.check_bounds(top_pos) and grid[x * self.height + y - 1]:
+                top = True
+            if self.check_bounds(bottom_pos) and grid[x * self.height + y + 1]:
+                bottom = True
+            if self.check_bounds(left_pos) and grid[(x - 1) * self.height + y]:
+                left = True
+            if self.check_bounds(right_pos) and grid[(x + 1) * self.height + y]:
+                right = True
         else:
             top = any(nid in self.displaying_units for nid in grid[x * self.height + y - 1]) if self.check_bounds(top_pos) else False
             left = any(nid in self.displaying_units for nid in grid[(x - 1) * self.height + y]) if self.check_bounds(left_pos) else False
@@ -211,3 +250,15 @@ class BoundaryInterface():
             bottom = any(nid in self.displaying_units for nid in grid[x * self.height + y + 1]) if self.check_bounds(bottom_pos) else False
         idx = top*8 + left*4 + right*2 + bottom  # Binary logis to get correct index
         return engine.subsurface(self.modes[grid_name], (idx * TILEWIDTH, 0, TILEWIDTH, TILEHEIGHT))
+
+    def draw_fog_of_war(self, surf, size):
+        if not self.fog_of_war_surf:
+            self.fog_of_war_surf = engine.create_surface(size, transparent=True)
+            for y in range(self.height):
+                for x in range(self.width):
+                    if not game.board.in_vision((x, y)):
+                        image = self.fog_of_war_tile1
+                        self.fog_of_war_surf.blit(image, (x * TILEWIDTH, y * TILEHEIGHT))
+                        
+        surf.blit(self.fog_of_war_surf, (0, 0))
+        return surf

@@ -1,6 +1,6 @@
 import os
 
-from app.data.constants import VERSION
+from app.constants import VERSION
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.engine import engine
@@ -10,8 +10,8 @@ from app.engine import game_state
 
 def main():
     RESOURCES.load('./default.ltproj')
-    DB.deserialize('./default.ltproj')
-    title = DB.constants.get('title').value
+    DB.restore('./default.ltproj')
+    title = DB.constants.value('title')
     driver.start(title)
     game = game_state.start_game()
     driver.run(game)
@@ -63,8 +63,8 @@ if __name__ == '__main__':
                         level=logging_level, format='%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s')
     logger.info('*** Lex Talionis Engine Version %s ***' % VERSION)
     try:
-        # main()
-        test_play()
+        main()
+        # test_play()
     except Exception as e:
         logger.exception(e)
         inform_error()

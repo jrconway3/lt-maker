@@ -23,6 +23,9 @@ class ConstantCatalog(Data):
         for nid, value in ser_data:
             self.get(nid).value = value
 
+    def value(self, val):
+        return self.get(val).value
+
 tags = ['title', 'features', 'inventory', 'line_of_sight', 'leveling', 'ai', 'wexp', 'other']
 
 constants = ConstantCatalog([

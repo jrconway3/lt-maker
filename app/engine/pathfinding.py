@@ -1,110 +1,13 @@
 import heapq
 
-from app.data.database import DB
-
-def compare_teams(t1: str, t2: str) -> bool:
-    # Returns True if allies, False if enemies
-    if t1 == t2:
-        return True
-    elif (t1 == 'player' and t2 == 'other') or (t2 == 'player' and t1 == 'other'):
-        return True
-    else:
-        return False
-
-class Node():
-    __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f']
-
-    def __init__(self, x: int, y: int, reachable: bool, cost: float):
-        """
-        Initialize new cell
-        reachable - is cell reachable? is not a wall?
-        cost - how many movement points to reach
-        """
-        self.reachable = reachable
-        self.cost = cost
-        self.x = x
-        self.y = y
-        self.reset()
-
-    def reset(self):
-        self.parent = None
-        self.g = 0
-        self.h = 0
-        self.f = 0
-
-    def __gt__(self, n):
-        return self.cost > n
-
-    def __lt__(self, n):
-        return self.cost < n
-
-    def __repr__(self):
-        return "Node(%d, %d): cost=%d, g=%d, h=%d, f=%f, %s" % (self.x, self.y, self.cost, self.g, self.h, self.f, self.reachable)
-
-class GridManager(object):
-    __slots__ = ['width', 'height', 'grids', 'team_grid', 'unit_grid', 'aura_grid', 'known_auras']
-
-    def __init__(self, tilemap):
-        self.width = tilemap.width
-        self.height = tilemap.height
-        self.grids = {}
-
-        # For each movement type
-        for idx, col in enumerate(DB.mcost.column_headers):
-            self.grids[col] = self.init_grid(col, tilemap)
-
-        self.team_grid = self.init_unit_grid()
-        self.unit_grid = self.init_unit_grid()
-        self.aura_grid = self.init_aura_grid()
-        # Key: Aura, Value: Set of positions
-        self.known_auras = {}  
-
-    def init_unit_grid(self):
-        cells = []
-        for x in range(self.width):
-            for y in range(self.height):
-                cells.append(None)
-        return cells
-
-    def init_aura_grid(self):
-        cells = []
-        for x in range(self.width):
-            for y in range(self.height):
-                cells.append(set())
-        return cells
-
-    def set_unit(self, pos, unit):
-        idx = pos[0] * self.height + pos[1]
-        self.unit_grid[idx] = unit
-        if unit:
-            self.team_grid[idx] = unit.team
-        else:
-            self.team_grid[idx] = None
-
-    def get_unit(self, pos):
-        return self.unit_grid[pos[0] * self.height + pos[1]]
-
-    def get_team(self, pos):
-        return self.team_grid[pos[0] * self.height + pos[1]]
-
-    # For movement
-    def init_grid(self, mode, tilemap):
-        cells = []
-        for x in range(self.width):
-            for y in range(self.height):
-                terrain_nid = tilemap.get_terrain((x, y))
-                terrain = DB.terrain.get(terrain_nid)
-                tile_cost = DB.mcost.get_mcost(mode, terrain.mtype)
-                cells.append(Node(x, y, tile_cost < 99, tile_cost))
-        return cells
-
-    def get_grid(self, mode):
-        return self.grids[mode]
+from app.utilities import utils
 
 class Djikstra():
-    __slots__ = ['open', 'closed', 'cells', 'width', 'height', 'start_pos', 'start_cell', 'unit_team', 'pass_through']
+    __slots__ = ['open', 'closed', 'cells', 'width', 'height', 'start_pos', 
+                 'start_cell', 'unit_team', 'pass_through']
 
-    def __init__(self, start_pos, grid, width, height, unit_team, pass_through):
+    def __init__(self, start_pos: tuple, grid: list, width: int, height: int, 
+                 unit_team: str, pass_through: bool):
         self.open = []
         heapq.heapify(self.open)
         self.closed = set()
@@ -128,14 +31,14 @@ class Djikstra():
         Returns adjacent cells to a cell.
         """
         cells = []
-        if cell.x < self.width - 1:
-            cells.append(self.get_cell(cell.x + 1, cell.y))
-        if cell.y > 0:
-            cells.append(self.get_cell(cell.x, cell.y - 1))
-        if cell.x > 0:
-            cells.append(self.get_cell(cell.x - 1, cell.y))
         if cell.y < self.height - 1:
             cells.append(self.get_cell(cell.x, cell.y + 1))
+        if cell.x < self.width - 1:
+            cells.append(self.get_cell(cell.x + 1, cell.y))
+        if cell.x > 0:
+            cells.append(self.get_cell(cell.x - 1, cell.y))
+        if cell.y > 0:
+            cells.append(self.get_cell(cell.x, cell.y - 1))
         return cells
 
     def update_cell(self, adj, cell):
@@ -143,7 +46,7 @@ class Djikstra():
         adj.g = cell.g + adj.cost
         adj.parent = cell
 
-    def process(self, team_map, movement_left):
+    def process(self, team_grid: list, movement_left: int) -> set:
         # add starting cell to open heap queue
         heapq.heappush(self.open, (self.start_cell.g, self.start_cell))
         while self.open:
@@ -159,8 +62,8 @@ class Djikstra():
             adj_cells = self.get_adjacent_cells(cell)
             for adj in adj_cells:
                 if adj.reachable and adj not in self.closed:
-                    unit_team = team_map[adj.x * self.height + adj.y]
-                    if not unit_team or compare_teams(self.unit_team, unit_team) or self.pass_through:
+                    unit_team = team_grid[adj.x * self.height + adj.y]
+                    if not unit_team or utils.compare_teams(self.unit_team, unit_team) or self.pass_through:
                         if (adj.g, adj) in self.open:
                             # if adj cell in open list, check if current path
                             # is better than the one previously found for this adj cell
@@ -174,7 +77,9 @@ class Djikstra():
         return {(cell.x, cell.y) for cell in self.closed}
 
 class AStar():
-    def __init__(self, start_pos, goal_pos, grid, width, height, unit_team, pass_through=False):
+    def __init__(self, start_pos: tuple, goal_pos: tuple, grid: list, 
+                 width: int, height: int, unit_team: str, 
+                 pass_through: bool = False):
         self.cells = grid
         self.width = width
         self.height = height
@@ -198,7 +103,6 @@ class AStar():
         self.open = []
         heapq.heapify(self.open)
         self.closed = set()
-        self.path = []
         self.reset_grid()
 
     def set_goal_pos(self, goal_pos):
@@ -227,14 +131,14 @@ class AStar():
 
     def get_adjacent_cells(self, cell):
         cells = []
-        if cell.x < self.width - 1:
-            cells.append(self.get_cell(cell.x + 1, cell.y))
-        if cell.y > 0:
-            cells.append(self.get_cell(cell.x, cell.y - 1))
-        if cell.x > 0:
-            cells.append(self.get_cell(cell.x - 1, cell.y))
         if cell.y < self.height - 1:
             cells.append(self.get_cell(cell.x, cell.y + 1))
+        if cell.x < self.width - 1:
+            cells.append(self.get_cell(cell.x + 1, cell.y))
+        if cell.x > 0:
+            cells.append(self.get_cell(cell.x - 1, cell.y))
+        if cell.y > 0:
+            cells.append(self.get_cell(cell.x, cell.y - 1))
         return cells
 
     def update_cell(self, adj, cell):
@@ -253,7 +157,8 @@ class AStar():
             cell = cell.parent
         return path
 
-    def process(self, team_map, adj_good_enough=False, ally_block=False, limit=None):
+    def process(self, team_map: list, adj_good_enough: bool = False, 
+                ally_block: bool = False, limit: int = None):
         # Add starting cell to open queue
         heapq.heappush(self.open, (self.start_cell.f, self.start_cell))
         while self.open:
@@ -264,17 +169,17 @@ class AStar():
             # Uses f, not g, because g will cut off if first greedy path fails
             # f only cuts off if all cells are bad
             if limit and cell.f > limit:
-                return self.path
+                return []
             # if ending cell, display found path
             if cell is self.end_cell or (adj_good_enough and cell in self.adj_end):
-                self.path = self.return_path(cell)
-                return self.path
+                return self.return_path(cell)
             # get adjacent cells for cell
             adj_cells = self.get_adjacent_cells(cell)
             for adj in adj_cells:
                 if adj.reachable and adj not in self.closed:
                     unit_team = team_map[adj.x * self.height + adj.y]
-                    if not unit_team or self.pass_through or (not ally_block and compare_teams(self.unit_team, unit_team)):
+                    if not unit_team or self.pass_through or \
+                            (not ally_block and utils.compare_teams(self.unit_team, unit_team)):
                         if (adj.f, adj) in self.open:
                             # if adj cell in open list, check if current path
                             # is better than the one previously found for this adj cell

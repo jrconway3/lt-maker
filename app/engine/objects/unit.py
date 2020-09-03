@@ -1,4 +1,4 @@
-from app import utilities
+from app.utilities import utils
 from app.data.data import Prefab
 from app.data.database import DB
 
@@ -51,14 +51,14 @@ class UnitObject(Prefab):
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}
 
-        self.status_effects = []
-        # self.status_bundle = utilities.Multiset()
+        self.skills = []
 
         self.current_hp = equations.parser.hitpoints(self)
         if 'MANA' in DB.equations:
             self.current_mana = equations.parser.mana(self)
         else:
             self.current_mana = 0
+        self.current_fatigue = 0
         self.movement_left = equations.parser.movement(self)
 
         self.traveler = None
@@ -86,19 +86,25 @@ class UnitObject(Prefab):
         return self.current_hp
 
     def set_hp(self, val):
-        self.current_hp = utilities.clamp(val, 0, equations.parser.hitpoints(self))
+        self.current_hp = int(utils.clamp(val, 0, equations.parser.hitpoints(self)))
 
     def get_mana(self):
         return self.current_mana
 
     def set_mana(self, val):
-        self.current_mana = utilities.clamp(val, 0, equations.parser.mana(self))
+        self.current_mana = int(utils.clamp(val, 0, equations.parser.mana(self)))
+
+    def get_fatigue(self):
+        return self.current_fatigue
+
+    def set_fatigue(self, val):
+        self.current_fatigue = int(utils.clamp(val, 0, equations.parser.fatigue(self)))
 
     def get_exp(self):
         return self.exp
 
     def set_exp(self, val):
-        self.exp = int(val)
+        self.exp = int(utils.clamp(val, 0, equations.parser.exp(self)))
 
     @property
     def tags(self):
@@ -266,7 +272,7 @@ class UnitObject(Prefab):
             self.sprite.change_state('normal')
         self.reset()
 
-    def serialize(self):
+    def save(self):
         s_dict = {'nid': self.nid,
                   'position': self.position,
                   'team': self.team,
@@ -292,6 +298,7 @@ class UnitObject(Prefab):
                   'status_effects': [status.uid for status in self.status_effects],
                   'current_hp': self.current_hp,
                   'current_mana': self.current_mana,
+                  'fatigue': self.current_fatigue,
                   'traveler': self.traveler,
                   'dead': self.dead,
                   'finished': self._finished,
@@ -299,7 +306,7 @@ class UnitObject(Prefab):
         return s_dict
 
     @classmethod
-    def deserialize(cls, s_dict):
+    def restore(cls, s_dict):
         self = cls()
         self.nid = s_dict['nid']
         self.position = self.previous_position = s_dict['position']
@@ -332,6 +339,7 @@ class UnitObject(Prefab):
 
         self.current_hp = s_dict['current_hp']
         self.current_mana = s_dict['current_mana']
+        self.current_fatigue = s_dict['current_fatigue']
         self.movement_left = equations.parser.movement(self)
 
         self.traveler = s_dict['traveler']

@@ -1,5 +1,5 @@
-from app.data.constants import TILEWIDTH, TILEHEIGHT
-from app.data.data import Data, Prefab
+from app.constants import TILEWIDTH, TILEHEIGHT
+from app.utilities.data import Data, Prefab
 
 from app.resources.resources import RESOURCES
 
@@ -16,25 +16,13 @@ class LayerObject():
     def set_image(self, image):
         self.image = image
 
-    def serialize(self):
+    def save(self):
         s_dict = {}
         s_dict['nid'] = self.nid
         s_dict['visible'] = self.visible
-        # s_dict['terrain'] = {}
-        # for coord, terrain_nid in self.terrain.items():
-        #     str_coord = "%d,%d" % (coord[0], coord[1])
-        #     s_dict['terrain'][str_coord] = terrain_nid
         return s_dict
 
-    # Not even needed -- handled in TileMapObjects deserialize function
-    # @classmethod
-    # def deserialize(cls, s_dict, parent):
-    #     self = cls(s_dict['nid'], parent)
-    #     self.visible = bool(s_dict['visible'])
-    #     # for str_coord, terrain_nid in s_dict['terrain'].items():
-    #     #     coord = tuple(int(_) for _ in str_coord.split(','))
-    #     #     self.terrain[coord] = terrain_nid
-    #     return self
+    # Restore not needed -- handled in TileMapObjects deserialize function
 
 class TileMapObject(Prefab):
     @classmethod
@@ -91,22 +79,20 @@ class TileMapObject(Prefab):
     def reset(self):
         self.full_image = None
 
-    def serialize(self):
+    def save(self):
         s_dict = {}
         s_dict['nid'] = self.nid
-        s_dict['layers'] = [layer.serialize() for layer in self.layers]
+        s_dict['layers'] = [layer.save() for layer in self.layers]
         return s_dict
 
     @classmethod
     def deserialize(cls, s_dict):
-        print(s_dict)
         prefab = RESOURCES.tilemaps.get(s_dict['nid'])
-        print(prefab)
         self = cls.from_prefab(prefab)
-        self.deserialize_layers(s_dict['layers'])
+        self.restore_layers(s_dict['layers'])
         return self
 
-    def deserialize_layers(self, layer_list):
+    def restore_layers(self, layer_list):
         for layer_dict in layer_list:
             nid = layer_dict['nid']
             visible = layer_dict['visible']

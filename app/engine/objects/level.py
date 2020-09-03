@@ -1,7 +1,8 @@
 from app.utilities.data import Data
 from app.resources.tilemap import TileMap
 
-from app.engine.unit_object import UnitObject
+from app.engine.objects.unit import UnitObject
+from app.engine.objects.tilemap import TileMapObject
 
 # Main Level Object used by engine
 class LevelObject():
@@ -14,6 +15,8 @@ class LevelObject():
         self.objective = {}
 
         self.units = Data()
+
+        self.fog_of_war = 0
 
     @classmethod
     def from_prefab(cls, prefab, tilemap):
@@ -47,7 +50,7 @@ class LevelObject():
         level = cls()
         level.nid = s_dict['nid']
         level.title = s_dict['title']
-        level.tilemap = TileMap.restore(s_dict['tilemap'])
+        level.tilemap = TileMapObject.restore(s_dict['tilemap'])
 
         level.music = s_dict['music']
         level.objective = s_dict['objective']

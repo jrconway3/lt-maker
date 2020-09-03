@@ -1,5 +1,5 @@
-from app import utilities
-from app.engine.constants import TILEWIDTH, TILEHEIGHT
+from app.utilities import utils
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 from app.engine import a_star, status_system, equations, item_funcs, item_system
 from app.engine.game_state import game
@@ -30,7 +30,7 @@ def distance_to_closest_enemy(unit, pos=None):
     enemy_list = [u for u in game.level.units if u.position and status_system.check_enemy(u, unit)]
     if not enemy_list:
         return 100  # No enemies
-    dist_list = [utilities.calculate_distance(enemy.position, pos) for enemy in enemy_list]
+    dist_list = [utils.calculate_distance(enemy.position, pos) for enemy in enemy_list]
     return min(dist_list)
 
 def get_adjacent_positions(pos):
@@ -178,7 +178,7 @@ class SelectionHelper():
     # For a given position, determine which position in self.pos_list is closest
     def get_closest(self, position):
         if self.pos_list:
-            return min(self.pos_list, key=lambda pos: utilities.calculate_distance(pos, position))
+            return min(self.pos_list, key=lambda pos: utils.calculate_distance(pos, position))
         else:
             return None
 
@@ -187,7 +187,7 @@ class SelectionHelper():
         min_distance, closest = 100, None
         for pos in self.pos_list:
             if pos[1] > position[1]: # If further down than the position
-                dist = utilities.calculate_distance(pos, position)
+                dist = utils.calculate_distance(pos, position)
                 if dist < min_distance:
                     closest = pos
                     min_distance = dist
@@ -200,7 +200,7 @@ class SelectionHelper():
         min_distance, closest = 100, None
         for pos in self.pos_list:
             if pos[1] < position[1]: # If further up than the position
-                dist = utilities.calculate_distance(pos, position)
+                dist = utils.calculate_distance(pos, position)
                 if dist < min_distance:
                     closest = pos
                     min_distance = dist
@@ -213,7 +213,7 @@ class SelectionHelper():
         min_distance, closest = 100, None
         for pos in self.pos_list:
             if pos[0] > position[0]: # If further right than the position
-                dist = utilities.calculate_distance(pos, position)
+                dist = utils.calculate_distance(pos, position)
                 if dist < min_distance:
                     closest = pos
                     min_distance = dist
@@ -226,7 +226,7 @@ class SelectionHelper():
         min_distance, closest = 100, None
         for pos in self.pos_list:
             if pos[0] < position[0]: # If further left than the position
-                dist = utilities.calculate_distance(pos, position)
+                dist = utils.calculate_distance(pos, position)
                 if dist < min_distance:
                     closest = pos
                     min_distance = dist

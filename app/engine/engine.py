@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from app.data.constants import WINWIDTH, WINHEIGHT, FPS
+from app.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
 
 import logging
@@ -84,10 +84,10 @@ BLEND_RGBA_MULT = pygame.BLEND_RGBA_MULT
 def blit(dest, source, pos=(0, 0), mask=None, blend=0):
     dest.blit(source, pos, mask, blend)
 
-def blit_center(dest, source, pos=(WINWIDTH//2, WINHEIGHT//2)):
+def blit_center(dest, source, pos=(WINWIDTH//2, WINHEIGHT//2), mask=None, blend=0):
     x = pos[0] - source.get_width()//2
     y = pos[1] - source.get_height()//2
-    dest.blit(source, (x, y))
+    dest.blit(source, (x, y), mask, blend)
 
 def create_surface(size, transparent=False):
     if transparent:

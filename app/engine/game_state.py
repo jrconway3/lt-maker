@@ -1,21 +1,16 @@
+import time
 import random
 from collections import Counter
 
-from app.data.constants import VERSION
-from app.data.party import PartyObject
-from app.data.items import Item
+from app.constants import VERSION
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
-from app.engine import state_machine, input_manager, static_random, a_star
+from app.engine import state_machine, static_random
 from app.engine import config as cf
 
 import logging
 logger = logging.getLogger(__name__)
-
-# TODO
-class Status():
-    pass
 
 class GameState():
     def __init__(self):
@@ -25,7 +20,6 @@ class GameState():
         self.game_constants = Counter()
         self.memory = {}
 
-        self.input_manager = input_manager.InputManager()
         self.state = state_machine.StateMachine()
 
         self.playtime = 0
@@ -38,18 +32,18 @@ class GameState():
         self.state.load_states(starting_states)
 
     # Start a new game
+    # When the player clicks "New Game"
     def build_new(self):
         logger.info("Building New Game")
         self.playtime = 0
 
         self.unit_registry = {}
         self.item_registry = {}
-        self.status_registry = {}
+        self.skill_registry = {}
 
         self.parties = {}
         self.current_party = None
         self.current_level = None
-        self.tilemap = None
         self.game_constants.clear()
 
         # Set up random seed
@@ -61,7 +55,7 @@ class GameState():
         self.game_constants['_random_seed'] = random_seed
 
         # Set up overworld  TODO
-        if DB.constants.get('overworld').value:
+        if DB.constants.value('overworld'):
             self.overworld = None
         else:
             self.overworld = None
@@ -85,6 +79,7 @@ class GameState():
         """
         from app.engine import cursor, camera, phase, highlight, \
             movement, death, ai_controller
+        # Systems
         self.cursor = cursor.Cursor()
         self.camera = camera.Camera()
         self.phase = phase.PhaseController()
@@ -105,12 +100,15 @@ class GameState():
         """
         self.generic()
         
-        from app.engine.level_object import LevelObject
+        from app.engine.objects.level import LevelObject
+        from app.engine.objects.tilemap import TileMapObject
+
         level_prefab = DB.levels.get(level_nid)
         tilemap_nid = level_prefab.tilemap
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
-        self.tilemap = self.load_map(tilemap_prefab)
-        self.current_level = LevelObject.from_prefab(level_prefab, self.tilemap)
+        tilemap = TileMapObject.from_prefab(tilemap_prefab)
+        self.current_level = LevelObject.from_prefab(level_prefab, tilemap)
+        self.set_up_game_board(self.current_level.tilemap)
 
         for unit in self.current_level.units:
             self.register_unit(unit)
@@ -119,70 +117,64 @@ class GameState():
         for unit in self.current_level.units:
             self.arrive(unit)
 
-    def load_map(self, tilemap_prefab):
-        from app.engine import map_view, ui_view, boundary
-        from app.engine.tilemap_object import TileMapObject
-        tilemap = TileMapObject.from_prefab(tilemap_prefab)
-        self.grid = a_star.GridManager(tilemap)
+    def set_up_game_board(self, tilemap):
+        from app.engine import game_board, boundary
+        self.board = game_board.GameBoard(tilemap)
         self.boundary = boundary.BoundaryInterface(tilemap.width, tilemap.height)
-        self.map_view = map_view.MapView(tilemap)
-        self.ui_view = ui_view.UIView()
-        return tilemap
 
     def save(self):
         self.action_log.record = False
-        s_dict = {'units': [unit.serialize() for unit in self.unit_registry.values()],
-                  'items': [item.serialize() for item in self.item_registry.values()],
-                  'status': [status.serialize() for status in self.status_registry.values()],
-                  'level': self.current_level.serialize() if self.current_level else None,
+        s_dict = {'units': [unit.save() for unit in self.unit_registry.values()],
+                  'items': [item.save() for item in self.item_registry.values()],
+                  'skills': [skill.save() for skill in self.skill_registry.values()],
+                  'level': self.current_level.save() if self.current_level else None,
                   'turncount': self.turncount,
                   'playtime': self.playtime,
                   'game_constants': self.game_constants,
                   'level_constants': self.level_constants,
-                  'parties': {nid: party.serialize() for nid, party in self.parties.values()},
+                  'parties': [party.save() for party in self.parties.values()],
                   'current_party': self.current_party,
-                  'state': self.state.serialize(),
-                  'action_log': self.action_log.serialize()
+                  'state': self.state.save(),
+                  'action_log': self.action_log.save()
                   }
-        import time
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
                      'version': VERSION,
-                     'title': DB.constants.get('title').value,
-                     'level_title': self.current_level.title,
+                     'title': DB.constants.value('title'),
+                     'level_title': self.current_level.name,
                      }
         self.action_log.record = True
         return s_dict, meta_dict
 
     def load(self, s_dict):
         from app.engine import turnwheel
-        from app.engine.unit_object import UnitObject
-        from app.engine.level_object import LevelObject
+
+        from app.engine.objects.item import ItemObject
+        from app.engine.objects.skill import SkillObject
+        from app.engine.objects.unit import UnitObject
+        from app.engine.objects.level import LevelObject
+        from app.engine.objects.party import PartyObject
 
         logger.info("Loading Game...")
         self.game_constants = Counter(s_dict.get('game_constants', {}))
         self.level_constants = Counter(s_dict.get('level_constants', {}))
         self.playtime = float(s_dict['playtime'])
-        self.parties = {nid: PartyObject.deserialize(party) for nid, party in s_dict['parties'].items()}
+        self.parties = {nid: PartyObject.restore(party) for nid, party in s_dict['parties'].items()}
         self.current_party = s_dict['current_party']
         self.turncount = int(s_dict['turncount'])
 
         self.state.load_states(s_dict['state'][0], s_dict['state'][1])
 
-        self.item_registry = {item['uid']: Item.deserialize(item, DB.items.get_instance(item['nid'])) for item in s_dict['items']}
-        self.status_registry = {status['uid']: Status.deserialize(status, DB.status.get(status['nid'])) for status in s_dict['status']}
-        self.unit_registry = {unit['nid']: UnitObject.deserialize(unit) for unit in s_dict['units']}
+        self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
+        self.status_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skill']}
+        self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
 
-        self.action_log = turnwheel.ActionLog.deserialize(s_dict['action_log'])
+        self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
 
         if s_dict['level']:
-            logger.info("Loading Map...")
-            tilemap_dict = s_dict['level']['tilemap']
-            tilemap_nid = tilemap_dict['nid']
-            tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
-            self.tilemap = self.load_map(tilemap_prefab)
-            self.tilemap.deserialize_layers(tilemap_dict['layers'])
-            self.current_level = LevelObject.deserialize(s_dict['level'], self.tilemap, self)
+            logger.info("Loading Level...")
+            self.current_level = LevelObject.restore(s_dict['level'], self)
+            self.set_up_game_board(self.current_level.tilemap)            
 
             self.generic()
 
@@ -191,16 +183,18 @@ class GameState():
                 self.arrive(unit)
 
     def clean_up(self):
+        from app.engine import item_system
+
         for unit in self.unit_registry.values():
-            game.leave(unit)
-            unit.position = None
+            self.leave(unit)
         for unit in self.unit_registry.values():
             unit.clean_up()
-        # Items with chapter counts should be reset
+        
         for item in self.item_registry.values():
-            if item.c_uses:
-                prefab = DB.items.get(item.nid)
-                item.c_uses.value = prefab.c_uses.value
+            unit = None
+            if item.owner_nid:
+                unit = self.get_unit(item.owner_nid)
+            item_system.on_end_chapter(unit, item)
 
         # Remove non-player team units and all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.team == 'player' and not v.generic}
@@ -208,9 +202,9 @@ class GameState():
         # Handle player death
         for unit in self.unit_registry.values():
             if unit.dead:
-                if not DB.constants.get('permadeath').value:
+                if not DB.constants.value('permadeath'):
                     unit.dead = False  # Resurrect unit
-                elif DB.constants.get('convoy_on_death').value:
+                elif DB.constants.value('convoy_on_death'):
                     for item in unit.items:
                         if not item.locked:
                             unit.remove_item(item)
@@ -219,7 +213,6 @@ class GameState():
 
         # Remove unnecessary information between levels
         self.sweep()
-        self.tilemap = None
         self.current_level = None
 
     @property
@@ -234,9 +227,9 @@ class GameState():
         logger.info("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
 
-    def register_status(self, status):
-        logger.info("Registering status %s as %s", status, status.uid)
-        self.item_registry[status.uid] = status
+    def register_skill(self, skill):
+        logger.info("Registering skill %s as %s", skill, skill.uid)
+        self.skill_registry[skill.uid] = skill
 
     def get_unit(self, unit_nid):
         """
@@ -251,16 +244,16 @@ class GameState():
         item = self.item_registry.get(item_uid)
         return item
 
-    def get_status(self, status_uid):
-        status = self.item_registry.get(status_uid)
-        return status
+    def get_skill(self, skill_uid):
+        skill = self.item_registry.get(skill_uid)
+        return skill
 
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):
         if unit.position:
             logger.info("Leave %s %s", unit.nid, unit.position)
             if not test:
-                game.grid.set_unit(unit.position, None)
+                game.board.set_unit(unit.position, None)
                 game.boundary.leave(unit)
             # Tiles
         # Auras
@@ -269,7 +262,7 @@ class GameState():
         if unit.position:
             logger.info("Arrive %s %s", unit.nid, unit.position)
             if not test:
-                game.grid.set_unit(unit.position, unit)
+                game.board.set_unit(unit.position, unit)
                 game.boundary.arrive(unit)
             # Tiles
             # Auras

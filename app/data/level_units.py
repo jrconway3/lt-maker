@@ -17,6 +17,8 @@ class GenericUnit(Prefab):
     team: str = None
     ai: str = None
 
+    starting_position: list = None  # 2-tuple
+
     name: str = None
     desc: str = None
     generic: bool = True
@@ -39,6 +41,8 @@ class UniqueUnit(Prefab):
     nid: str = None
     team: str = None
     ai: str = None
+
+    starting_position: list = None  # 2-tuple
 
     generic: bool = False
 

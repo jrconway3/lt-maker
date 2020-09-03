@@ -1,4 +1,4 @@
-from app.data.constants import WINWIDTH, WINHEIGHT, VERSION
+from app.constants import WINWIDTH, WINHEIGHT, VERSION
 from app.engine import engine
 
 import app.engine.config as cf

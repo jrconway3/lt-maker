@@ -38,6 +38,10 @@ Combat Editor
 Tilemap Editor
 -- Autotile layer
 
+Rewrite AI controller to better handle new item and targeting system
+Rewrite UI View to better handle new item and targeting system
+Divorce unit sprite animations from the position the unit is at (for rescue, escape etc.)
+
 Auto-update -- TEST*
 No need for launcher
 If using engine-solo, unlikely to be playing more than one game at a time. Even so, if multiple .ltproj files detected by engine, prompt you to choose before playing.

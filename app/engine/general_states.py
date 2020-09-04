@@ -8,7 +8,8 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, image_mods, banner, save, phase, skill_system, targets, item_system, item_funcs
+from app.engine import engine, action, menus, interaction, image_mods, \
+    banner, save, phase, skill_system, target_system, item_system, item_funcs
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
 
@@ -502,7 +503,7 @@ class MenuState(MapState):
 
         self.menu = menus.Choice(self.cur_unit, options)
         self.menu.set_limit(8)
-        self.menu.set_color(['text_green' if option not in self.normal_options else 'text_white' for option in options])
+        self.menu.set_color(['text_green' if option not in self.normal_options else 'text-white' for option in options])
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -768,13 +769,13 @@ class WeaponChoiceState(MapState):
     name = 'weapon_choice'
 
     def get_options(self, unit) -> list:
-        options = targets.get_all_weapons()
+        options = target_system.get_all_weapons()
         # Skill straining
-        options = [option for option in options if targets.get_valid_targets(unit, option)]
+        options = [option for option in options if target_system.get_valid_targets(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
-        valid_attacks = targets.get_attacks(unit, item)
+        valid_attacks = target_system.get_attacks(unit, item)
         game.highlight.display_possible_attacks(valid_attacks)
 
     def begin(self):
@@ -833,13 +834,13 @@ class SpellChoiceState(WeaponChoiceState):
     name = 'spell_choice'
 
     def get_options(self, unit) -> list:
-        options = targets.get_all_spells()
+        options = target_system.get_all_spells()
         # Skill straining
-        options = [option for option in options if targets.get_valid_targets(unit, option)]
+        options = [option for option in options if target_system.get_valid_targets(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
-        spell_attacks = targets.get_spell_attacks(unit, item)
+        spell_attacks = target_system.get_spell_attacks(unit, item)
         game.highlight.display_possible_spells(spell_attacks)
 
 class TargetingState(MapState):
@@ -913,7 +914,7 @@ class CombatTargetingState(MapState):
         self.current_target_idx = 0
         self.prev_targets = []
 
-        positions = targets.get_valid_targets(self.cur_unit, self.item)
+        positions = target_system.get_valid_targets(self.cur_unit, self.item)
         self.selection = SelectionHelper(positions)
         if self.item.heal(self.cur_unit, self.item):
             closest_pos = self.selection.get_wounded()
@@ -1085,7 +1086,7 @@ class AIState(MapState):
         self.unit_list = [unit for unit in game.level.units if unit.position and 
                           not unit.finished and unit.team == game.phase.get_current()]
         # Sort by distance to closest enemy (ascending)
-        self.unit_list = sorted(self.unit_list, key=lambda unit: targets.distance_to_closest_enemy(unit))
+        self.unit_list = sorted(self.unit_list, key=lambda unit: target_system.distance_to_closest_enemy(unit))
         # Sort ai groups together
         self.unit_list = sorted(self.unit_list, key=lambda unit: unit.ai_group)
         # Sort by ai priority

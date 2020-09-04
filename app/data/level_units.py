@@ -50,7 +50,7 @@ class UniqueUnit(Prefab):
     def __getattr__(self, attr):
         if attr.startswith('__') and attr.endswith('__'):
             return super().__getattr__(attr)
-        elif self.prefab:
+        elif self.nid:
             from app.data.database import DB
             prefab = DB.units.get(self.nid)
             return getattr(prefab, attr)

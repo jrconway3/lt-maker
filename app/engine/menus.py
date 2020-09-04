@@ -1,15 +1,16 @@
 import math
 
 from app.constants import TILEX, WINWIDTH, WINHEIGHT
-from app.data import items
 from app.data.database import DB
-from app import utilities
+from app.utilities import utils
+
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
 from app.engine import engine, image_mods, icons, help_menu, text_funcs
 from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
+from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
 
 class EmptyOption():
@@ -49,7 +50,7 @@ class BasicOption():
         self.text = text
         self.display_text = text_funcs.translate(text)
         self.help_box = None
-        self.color = 'text_white'
+        self.color = 'text-white'
         self.ignore = False
 
     def get(self):
@@ -89,7 +90,7 @@ class TitleOption():
         self.display_text = text_funcs.translate(text)
         self.option_bg_name = option_bg_name
 
-        self.color = 'chapter_grey'
+        self.color = 'chapter-grey'
 
     def get(self):
         return self.text
@@ -144,7 +145,7 @@ class ChapterSelectOption(TitleOption):
         self.bg_color = bg_color
         self.option_bg_name = option_bg_name + '_' + bg_color
 
-        self.color = 'chapter_grey'
+        self.color = 'chapter-grey'
 
     def draw_flicker(self, surf, x, y):
         left = x - self.width()//2
@@ -182,11 +183,11 @@ class ItemOption(BasicOption):
         if self.color:
             main_font = self.color
             uses_font = self.color
-            if main_font == 'text_white':
-                uses_font = 'text_blue'
+            if main_font == 'text-white':
+                uses_font = 'text-blue'
         elif owner and owner.can_wield(self.item):
-            main_font = 'text_white'
-            uses_font = 'text_blue'
+            main_font = 'text-white'
+            uses_font = 'text-blue'
         return main_font, uses_font
 
     def get_help_box(self):
@@ -389,7 +390,7 @@ class Simple():
         else:
             bare_options = [option.get() for option in self.options]
         self.create_options(bare_options)
-        self.current_index = utilities.clamp(self.current_index, 0, len(self.options) - 1)
+        self.current_index = utils.clamp(self.current_index, 0, len(self.options) - 1)
 
     def get_menu_width(self):
         max_width = max(option.width() for option in self.options)
@@ -469,7 +470,7 @@ class Choice(Simple):
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
-            if isinstance(option, items.Item):
+            if isinstance(option, ItemObject):
                 if self.display_total_uses:
                     option = FullItemOption(idx, option)
                 else:
@@ -837,6 +838,7 @@ class Main(Simple):
 
         self.cursor1 = Cursor(SPRITES.get('cursor_dragon'))
         self.cursor2 = Cursor(engine.flip_horiz(SPRITES.get('cursor_dragon')))
+        self.next_scroll_time = 0
         self.option_bg = option_bg
 
         self.options = []

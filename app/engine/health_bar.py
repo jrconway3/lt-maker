@@ -2,7 +2,7 @@ from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine, combat_calcs, icons, equations
+from app.engine import engine, combat_calcs, icons, equations, skill_system
 from app.engine.game_state import game
 
 team_dict = {'player': 'blue',
@@ -252,14 +252,14 @@ class MapCombatInfo():
         if self.item:
             # Determine effectiveness
             if self.target:
-                if game.targets.check_enemy(self.unit, self.target):
+                if skill_system.check_enemy(self.unit, self.target):
                     white = combat_calcs.get_effective(self.item, self.target)
             else:
                 white = False
             icons.draw_item(bg_surf, self.item, (2, 3), white)
 
             # Blit advantage
-            if game.targets.check_enemy(self.unit, self.target):
+            if skill_system.check_enemy(self.unit, self.target):
                 adv = combat_calcs.compute_advantage(self.unit, self.item, self.target.get_weapon())
                 disadv = combat_calcs.compute_advantage(self.unit, self.item, self.target.get_weapon(), False)
                 if adv:

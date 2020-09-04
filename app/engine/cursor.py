@@ -1,9 +1,10 @@
 from app.counters import generic3counter
-from app import utilities
-from app.data.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
+from app.utilities import utils
+from app.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
+
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine
+from app.engine import engine, target_system
 from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine.input_manager import INPUT
@@ -63,17 +64,17 @@ class Cursor():
 
         if self.display_arrows:
             if self.border_position:
-                self.path = game.targets.get_path(self.cur_unit, self.border_position)
+                self.path = target_system.get_path(self.cur_unit, self.border_position)
             else:
-                self.path = game.targets.get_path(self.cur_unit, self.position)
+                self.path = target_system.get_path(self.cur_unit, self.position)
             self.construct_arrows(self.path[::-1])
 
         # Remove unit info display
         game.ui_view.remove_unit_display()
 
         if mouse:
-            self.offset_x += utilities.clamp(8*dx, -8, 8)
-            self.offset_y += utilities.clamp(8*dy, -8, 8)
+            self.offset_x += utils.clamp(8*dx, -8, 8)
+            self.offset_y += utils.clamp(8*dy, -8, 8)
             self.offset_x = min(self.offset_x, 8)
             self.offset_y = min(self.offset_y, 8)
         # If we are slow

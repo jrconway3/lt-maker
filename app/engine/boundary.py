@@ -2,7 +2,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities import utils
 
 from app.engine.sprites import SPRITES
-from app.engine import engine, targets, equations
+from app.engine import engine, target_system, equations
 from app.engine.game_state import game
 
 class BoundaryInterface():
@@ -91,13 +91,13 @@ class BoundaryInterface():
         self.fog_of_war_surf = None
 
     def _add_unit(self, unit):
-        valid_moves = targets.get_valid_moves(unit, force=True)
-        valid_attacks = targets.get_possible_attacks(unit, valid_moves)
-        valid_spells = targets.get_possible_spell_attacks(unit, valid_moves)
+        valid_moves = target_system.get_valid_moves(unit, force=True)
+        valid_attacks = target_system.get_possible_attacks(unit, valid_moves)
+        valid_spells = target_system.get_possible_spell_attacks(unit, valid_moves)
         self._set(valid_attacks, 'attack', unit.nid)
         self._set(valid_spells, 'spell', unit.nid)
 
-        area_of_influence = targets.find_manhattan_spheres(set(range(1, equations.parser.movement(unit) + 1)), *unit.position)
+        area_of_influence = target_system.find_manhattan_spheres(set(range(1, equations.parser.movement(unit) + 1)), *unit.position)
         area_of_influence = {pos for pos in area_of_influence if self.check_bounds(pos)}
         self._set(area_of_influence, 'movement', unit.nid)
 

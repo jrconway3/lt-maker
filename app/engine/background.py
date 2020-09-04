@@ -49,14 +49,16 @@ class PanoramaBackground():
         self.last_update = engine.get_time()
 
     def draw(self, surf):
-        image = self.panorama.get_img_frame()
+        image = self.panorama.images[self.counter]
         if image:
             engine.blit_center(surf, image)
 
         if engine.get_time() - self.last_update > self.speed:
-            self.panorama.increment_frame()
+            self.counter += 1
+            if self.counter >= self.panorama.num_frames:
+                self.counter = 0
             self.last_update = engine.get_time()
-            if self.panorama.idx == 0 and not self.loop:
+            if self.counter == 0 and not self.loop:
                 return True
         return False
 

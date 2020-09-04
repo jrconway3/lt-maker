@@ -57,10 +57,10 @@ class AcquiredItem(Banner):
         if "'" in self.item.name:
             # No article for things like Prim's Charm, Ophie's Blade, etc.
             self.text = [unit.name, ' got ', item.name, '.']
-            self.font = ['text_blue', 'text_white', 'text_blue', 'text_white']
+            self.font = ['text-blue', 'text-white', 'text-blue', 'text-white']
         else:
             self.text = [unit.name, ' got ', article, ' ', item.name, '.']
-            self.font = ['text_blue', 'text_white', 'text_white', 'text_white', 'text_blue', 'text_white']
+            self.font = ['text-blue', 'text-white', 'text-white', 'text-white', 'text-blue', 'text-white']
         self.figure_out_size()
 
 class SentToConvoy(Banner):
@@ -68,7 +68,7 @@ class SentToConvoy(Banner):
         super().__init__()
         self.item = item
         self.text = [item.name, ' sent to convoy.']
-        self.font = ['text_blue', 'txt_white']
+        self.font = ['text-blue', 'txt_white']
         self.figure_out_size()
 
 class BrokenItem(Banner):
@@ -82,13 +82,13 @@ class BrokenItem(Banner):
         else:
             self.text = [unit.name, ' broke ', item.name, '.']
             # self.sound = GC.SOUNDDICT['ItemBreak']
-        self.font = ['text_blue', 'text_white', 'text_blue', 'text_blue']
+        self.font = ['text-blue', 'text-white', 'text-blue', 'text-blue']
         self.figure_out_size()
 
 class Custom(Banner):
     def __init__(self, text):
         self.text = [text]
-        self.font = ['text_white']
+        self.font = ['text-white']
         self.item = None
         self.figure_out_size()
 

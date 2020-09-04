@@ -1,18 +1,10 @@
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.engine.sprites import SPRITES
-from app.engine import engine
+from app.engine import engine, target_system
 from app.engine.game_state import game
 
 import logging
 logger = logging.getLogger(__name__)
-
-# class Highlight():
-#     def __init__(self, spritename):
-#         self.sprite = SPRITES.get(spritename)
-#         self.image = None
-
-#     def draw(self, surf, position, idx, transition):
-#         pass
 
 class HighlightController():
     starting_cutoff = 7
@@ -86,12 +78,12 @@ class HighlightController():
         self.add_highlights(valid_attacks, name)
 
     def display_highlights(self, unit, light=False):
-        valid_moves = game.targets.get_valid_moves(unit)
+        valid_moves = target_system.get_valid_moves(unit)
         if unit.get_spell():
-            valid_attacks = game.targets.get_possible_spell_attacks(unit, valid_moves)
+            valid_attacks = target_system.get_possible_spell_attacks(unit, valid_moves)
             self.display_possible_spell_attacks(valid_attacks, light=light)
         if unit.get_weapon():
-            valid_attacks = game.targets.get_possible_attacks(unit, valid_moves)
+            valid_attacks = target_system.get_possible_attacks(unit, valid_moves)
             self.display_possible_attacks(valid_attacks, light=light)
         self.display_moves(valid_moves, light=light)
         return valid_moves

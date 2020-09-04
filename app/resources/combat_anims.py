@@ -148,7 +148,7 @@ class CombatEffectCatalog(ManifestCatalog):
         effect_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in effect_dict:
             new_effect_anim = WeaponAnimation.restore(s_dict)
-            full_path = os.path.join(loc, new_effect_anim.nid)
+            full_path = os.path.join(loc, new_effect_anim.nid + '.png')
             new_effect_anim.set_full_path(os.path.join(loc, full_path))
             self.append(new_effect_anim)
 

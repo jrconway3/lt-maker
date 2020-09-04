@@ -93,7 +93,7 @@ class SFXCatalog(ManifestCatalog):
         temp_list = []
         for s_tuple in sfx_dict:
             new_sfx = SFX.restore(s_tuple)
-            new_sfx.set_full_path(os.path.join(loc, new_sfx.nid))
+            new_sfx.set_full_path(os.path.join(loc, new_sfx.nid + self.filetype))
             temp_list.append(new_sfx)
         # Need to sort according to tag
         temp_list = sorted(temp_list, key=lambda x: x.tag if x.tag else '____')

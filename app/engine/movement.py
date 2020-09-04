@@ -1,5 +1,5 @@
-from app.data.constants import TILEWIDTH, TILEHEIGHT
-from app import utilities
+from app.constants import TILEWIDTH, TILEHEIGHT
+from app.utilities import utils, str_utils
 from app.data.database import DB
 
 import app.engine.config as cf
@@ -52,8 +52,8 @@ class MovementManager():
 
     def forced_movement(self, unit_to_move, anchor_unit, anchor_pos, move_component):
         mtype, magnitude = move_component
-        if not utilities.is_int(magnitude):
-            dist = utilities.calculate_distance(unit_to_move.position, anchor_pos)
+        if not str_utils.is_int(magnitude):
+            dist = utils.calculate_distance(unit_to_move.position, anchor_pos)
             magnitude = equations.parser.get(magnitude, unit_to_move, None, dist)
 
         if mtype == 'shove':

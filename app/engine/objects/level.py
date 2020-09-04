@@ -1,5 +1,4 @@
 from app.utilities.data import Data
-from app.resources.tilemap import TileMap
 
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
@@ -9,7 +8,7 @@ class LevelObject():
     def __init__(self):
         self.nid: str = None
         self.name: str = None
-        self.tilemap: TileMap = None  # Actually the tilemap, not a nid
+        self.tilemap: TileMapObject = None  # Actually the tilemap, not a nid
 
         self.music = {}
         self.objective = {}

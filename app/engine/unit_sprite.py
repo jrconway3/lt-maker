@@ -1,10 +1,10 @@
-from app.data.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
+from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
 from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
-from app import utilities
+from app.utilities import utils
 
 from app.engine.sprites import SPRITES
 from app.engine import engine, image_mods
@@ -125,14 +125,14 @@ class UnitSprite():
             self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
         elif self.state == 'fake_transition_in':
-            pos = (self.unit.position[0] + utilities.clamp(self.offset[0], -1, 1),
-                   self.unit.position[1] + utilities.clamp(self.offset[1], -1, 1))
+            pos = (self.unit.position[0] + utils.clamp(self.offset[0], -1, 1),
+                   self.unit.position[1] + utils.clamp(self.offset[1], -1, 1))
             pos = (pos[0] - self.unit.position[0], pos[1] - self.unit.position[1])
             self.net_position = (-pos[0], -pos[1])
             self.handle_net_position(self.net_position)
         elif self.state == 'fake_transition_out':
-            pos = (self.unit.position[0] + utilities.clamp(self.offset[0], -1, 1),
-                   self.unit.position[1] + utilities.clamp(self.offset[1], -1, 1))
+            pos = (self.unit.position[0] + utils.clamp(self.offset[0], -1, 1),
+                   self.unit.position[1] + utils.clamp(self.offset[1], -1, 1))
             pos = (pos[0] - self.unit.position[0], pos[1] - self.unit.position[1])
             self.net_position = pos
             self.handle_net_position(self.net_position)
@@ -167,8 +167,8 @@ class UnitSprite():
             else:
                 self.image_state = 'passive'
         elif self.state == 'combat_anim':
-            self.offset[0] = utilities.clamp(self.net_position[0], -1, 1) * game.map_view.attack_movement_counter.count
-            self.offset[1] = utilities.clamp(self.net_position[1], -1, 1) * game.map_view.attack_movement_counter.count
+            self.offset[0] = utils.clamp(self.net_position[0], -1, 1) * game.map_view.attack_movement_counter.count
+            self.offset[1] = utils.clamp(self.net_position[1], -1, 1) * game.map_view.attack_movement_counter.count
         elif self.state == 'chosen':
             self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
@@ -266,7 +266,7 @@ class UnitSprite():
                 diff = time % length
                 if diff > length // 2:
                     diff = length - diff
-                diff = utilities.clamp(255. * diff / length * 2, 0, 255) 
+                diff = utils.clamp(255. * diff / length * 2, 0, 255) 
                 color = (-120, 120, -120, diff)  # Tint image green at magnitude depending on diff
                 image = image_mods.tint_image(image.convert_alpha(), color)
 

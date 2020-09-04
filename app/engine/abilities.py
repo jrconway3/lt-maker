@@ -1,4 +1,4 @@
-from app.engine import targets, skill_system, action, equations
+from app.engine import target_system, skill_system, action, equations
 from app.engine.game_state import game
 
 class Ability():
@@ -17,10 +17,10 @@ class AttackAbility(Ability):
     def targets(self, unit) -> set:
         if self.cur_unit.has_attacked:
             return set()
-        return targets.get_all_weapon_targets(unit)
+        return target_system.get_all_weapon_targets(unit)
 
     def highlights(self, unit):
-        valid_attacks = targets.get_possible_attacks(unit, {unit.position})
+        valid_attacks = target_system.get_possible_attacks(unit, {unit.position})
         game.highlight.display_possible_attacks(valid_attacks)
 
 class SpellAbility(Ability):
@@ -29,14 +29,14 @@ class SpellAbility(Ability):
     def targets(self, unit) -> set:
         if self.cur_unit.has_attacked:
             return set()
-        return targets.get_all_spell_targets(unit)
+        return target_system.get_all_spell_targets(unit)
 
     def highlights(self, unit):
-        valid_attacks = targets.get_possible_spell_attacks(unit, {unit.position})
+        valid_attacks = target_system.get_possible_spell_attacks(unit, {unit.position})
         game.highlight.display_possible_spell_attacks(valid_attacks)
 
 def get_adj_allies(unit) -> list:
-    adj_positions = targets.get_adjacent_positions(unit)
+    adj_positions = target_system.get_adjacent_positions(unit)
     adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
     adj_units = [_ for _ in adj_units if _]
     adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
@@ -48,7 +48,7 @@ class DropAbility(Ability):
     def targets(self, unit) -> set:
         if unit.traveler and not unit.has_attacked:
             good_pos = set()
-            adj_positions = targets.get_adjacent_positions(unit)
+            adj_positions = target_system.get_adjacent_positions(unit)
             traveler = unit.traveler
             for adj_pos in adj_positions:
                 if not game.grid.get_unit(adj_pos) and game.moving_units.get_mcost(unit, adj_pos) <= equations.parser.movement(traveler):

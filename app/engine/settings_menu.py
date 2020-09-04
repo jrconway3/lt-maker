@@ -24,8 +24,8 @@ class ControlOption(menus.BasicOption):
         return 16
 
     def draw(self, surf, x, y, active=False):
-        name_font = 'text_white'
-        key_font = 'text_blue'
+        name_font = 'text-white'
+        key_font = 'text-blue'
         surf.blit(self.icon, (x + 32 - self.icon.get_width()//2, y + 8 - self.icon.get_height()//2))
         FONT[name_font].blit(self.display_name, surf, (x + 56, y))
         key_name = engine.get_key_name(cf.SETTINGS[self.name])
@@ -90,7 +90,7 @@ class SliderOption(ConfigOption):
     def draw(self, surf, x, y, active=False):
         self.counter = (self.counter + 1) % len(self.anim)
         surf.blit(self.icon, (x + 16, y))
-        name_font = 'text_white'
+        name_font = 'text-white'
         FONT[name_font].blit(self.display_name, surf, (x + 32, y))
         slider_bar = SPRITES.get('health_bar_bg')
         if not slider_bar:

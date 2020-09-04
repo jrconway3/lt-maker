@@ -2,7 +2,7 @@ from app import utilities
 
 from app.data.item_components import ItemComponent, Type
 
-from app.engine import skill_system, targets, item_system
+from app.engine import skill_system, target_system, item_system
 from app.engine.game_state import game 
 
 class Spell(ItemComponent):
@@ -75,7 +75,7 @@ class TargetsAnything(ItemComponent):
 
     def valid_targets(self, unit, item) -> set:
         rng = item_system.get_range(unit, item)
-        return targets.find_manhattan_spheres(rng, *unit.position)
+        return target_system.find_manhattan_spheres(rng, *unit.position)
 
 class TargetsUnits(ItemComponent):
     nid = 'target_unit'

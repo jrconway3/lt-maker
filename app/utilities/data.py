@@ -111,6 +111,7 @@ class Data(object):
         else:
             for val in vals:
                 self.append(val)
+        return self
 
     # Magic Methods
     def __repr__(self):

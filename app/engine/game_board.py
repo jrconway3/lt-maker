@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine import targets
+from app.engine import target_system
 
 class Node():
     __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f']
@@ -99,7 +99,7 @@ class GameBoard(object):
         # Add new vision
         if pos:
             self.fow_vantage_point[unit.nid] = pos
-            positions = targets.find_manhattan_spheres(range(sight_range + 1), pos[0], pos[1])
+            positions = target_system.find_manhattan_spheres(range(sight_range + 1), pos[0], pos[1])
             positions = {pos for pos in positions if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height}
             for position in positions:
                 idx = position[0] * self.height + position[1]

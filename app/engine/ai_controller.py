@@ -1,10 +1,10 @@
 import math
 
-from app import utilities
-from app.data.constants import FRAMERATE
+from app.utilities import utils
+from app.constants import FRAMERATE
 from app.data.database import DB
 
-from app.engine import engine, action, interaction, combat_calcs, a_star, unit_object, targets, equations, item_system
+from app.engine import engine, action, interaction, combat_calcs, pathfinding, target_system, equations, item_system
 from app.engine.game_state import game
 
 import logging
@@ -83,7 +83,7 @@ class AIController():
 
     def move(self):
         if self.goal_position and self.goal_position != self.unit.position:
-            path = targets.get_path(self.unit, self.goal_position)
+            path = target_system.get_path(self.unit, self.goal_position)
             if self.unit.has_attacked:
                 action.do(action.Wait(self.unit))
             game.state.change('movement')
@@ -118,24 +118,24 @@ class AIController():
 
     def canto_retreat(self):
         valid_positions = self.get_true_valid_moves()
-        enemy_positions = {u.position for u in game.level.units if u.position and targets.check_enemy(self.unit, u)}
-        self.goal_position = utilities.farthest_away_pos(self.unit.position, valid_positions, enemy_positions)
+        enemy_positions = {u.position for u in game.level.units if u.position and target_system.check_enemy(self.unit, u)}
+        self.goal_position = utils.farthest_away_pos(self.unit.position, valid_positions, enemy_positions)
 
     def smart_retreat(self):
         valid_positions = self.get_true_valid_moves()
 
         if self.behaviour.targets == 'Enemy':
-            target_positions = {u.position for u in game.level.units if u.position and targets.check_enemy(self.unit, u)}
+            target_positions = {u.position for u in game.level.units if u.position and target_system.check_enemy(self.unit, u)}
         elif self.behaviour.targets == 'Ally':
-            target_positions = {u.position for u in game.level.units if u.position and targets.check_ally(self.unit, u)}
+            target_positions = {u.position for u in game.level.units if u.position and target_system.check_ally(self.unit, u)}
         elif self.behaviour.targets == 'Unit':
             target_positions = {u.position for u in game.level.units if u.position}
 
-        zero_move = max(targets.find_potential_range(self.unit, True, True))
+        zero_move = max(target_system.find_potential_range(self.unit, True, True))
         single_move = zero_move + equations.parser.movement(self.unit)
         double_move = self.single_move + equations.parser.movement(self.unit)
 
-        target_positions = {(pos, utilities.calculate_distance(self.unit.position, pos)) for pos in target_positions}
+        target_positions = {(pos, utils.calculate_distance(self.unit.position, pos)) for pos in target_positions}
 
         if self.behaviour.view_range == -4:
             pass
@@ -148,10 +148,10 @@ class AIController():
         else:
             target_positions = {(pos, mag) for pos, mag in target_positions if mag < self.view_range}
 
-        self.goal_position = utilities.smart_farthest_away_pos(self.unit.position, valid_positions, target_positions)
+        self.goal_position = utils.smart_farthest_away_pos(self.unit.position, valid_positions, target_positions)
 
     def get_true_valid_moves(self) -> set:
-        valid_moves = targets.get_valid_moves(self.unit)
+        valid_moves = target_system.get_valid_moves(self.unit)
         other_unit_positions = {unit.position for unit in game.level.units if unit.position and unit is not self.unit}
         valid_moves -= other_unit_positions
         return valid_moves
@@ -263,11 +263,11 @@ class PrimaryAI():
 
     def get_all_targets(self, unit) -> set:
         if self.behaviour.target == "Enemy":
-            targets = {u for u in game.level.units if u.position and targets.check_enemy(unit, u)}
+            targets = {u for u in game.level.units if u.position and target_system.check_enemy(unit, u)}
         elif self.behaviour.target == "Unit":
             targets = {u for u in game.level.units if u.position}
         elif self.behaviour.target == "Ally":
-            targets = {u for u in game.level.units if u.position and targets.check_ally(unit, u)}
+            targets = {u for u in game.level.units if u.position and target_system.check_ally(unit, u)}
         elif self.behaviour.target == "Tile":
             targets = set()  # TODO add destroyable tiles
         return targets
@@ -277,12 +277,12 @@ class PrimaryAI():
         valid_targets = set()
 
         if item.weapon:
-            filtered_targets = [u.position for u in self.all_targets if targets.check_enemy(unit, u)]
+            filtered_targets = [u.position for u in self.all_targets if target_system.check_enemy(unit, u)]
         elif item.spell:
             if item.spell.target == SpellTarget.Ally:
-                filtered_targets = [u.position for u in self.all_targets if targets.check_ally(unit, u)]
+                filtered_targets = [u.position for u in self.all_targets if target_system.check_ally(unit, u)]
             elif item.spell.target == SpellTarget.Enemy:
-                filtered_targets = [u.position for u in self.all_targets if targets.check_enemy(unit, u)]
+                filtered_targets = [u.position for u in self.all_targets if target_system.check_enemy(unit, u)]
             else:
                 filtered_targets = [u.position for u in self.all_targets]
 
@@ -290,7 +290,7 @@ class PrimaryAI():
             pos = filtered_targets.pop()
             for valid_move in valid_moves:
                 # Determine if we can hit this unit at one of our moves
-                if utilities.calculate_distance(pos, valid_move) in item_range:
+                if utils.calculate_distance(pos, valid_move) in item_range:
                     valid_targets.add(pos)
                     break
 
@@ -310,7 +310,7 @@ class PrimaryAI():
             # Given an item and a target, find all positions in valid_moves that I can strike the target at.
             item = self.items[self.item_index]
             target = self.valid_targets[self.target_index]
-            a = targets.find_manhattan_spheres(item_system.get_range(self.unit, item), target[0], target[1])
+            a = target_system.find_manhattan_spheres(item_system.get_range(self.unit, item), target[0], target[1])
             b = set(self.valid_moves)
             return list(a & b)
         else:
@@ -392,20 +392,20 @@ class PrimaryAI():
             crit_damage = combat_calcs.compute_damage(self.unit, target, item, "Attack", crit=True)
 
             # Damage I do compared to target's current hp
-            lethality = utilities.clamp(raw_damage / float(target.get_hp()), 0, 1)
+            lethality = utils.clamp(raw_damage / float(target.get_hp()), 0, 1)
             # TODO Do I add a new status to the target
             status = 0
             # Accuracy
-            accuracy = utilities.clamp(combat_calcs.compute_hit(self.unit, target, item, "Attack")/100., 0, 1)
-            crit_accuracy = utilities.clamp(combat_calcs.compute_crit(self.unit, target, item, "Attack")/100., 0, 1)
+            accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, "Attack")/100., 0, 1)
+            crit_accuracy = utils.clamp(combat_calcs.compute_crit(self.unit, target, item, "Attack")/100., 0, 1)
 
             target_damage = 0
             target_accuracy = 0
             # Determine if I would get countered
             target_weapon = target.get_weapon()
-            if target_weapon and utilities.calculate_distance(move, target.position) in item_system.get_range(target_weapon, target):
-                target_damage = utilities.clamp(combat_calcs.compute_damage(target, self.unit, target_weapon, "Defense"), 0, 1)
-                target_accuracy = utilities.clamp(combat_calcs.compute_hit(target, self.unit, target_weapon, "Defense")/100., 0, 1)
+            if target_weapon and utils.calculate_distance(move, target.position) in item_system.get_range(target_weapon, target):
+                target_damage = utils.clamp(combat_calcs.compute_damage(target, self.unit, target_weapon, "Defense"), 0, 1)
+                target_accuracy = utils.clamp(combat_calcs.compute_hit(target, self.unit, target_weapon, "Defense")/100., 0, 1)
 
             double = 1 if combat_calcs.outspeed(self.unit, target, item, "Attack") else 0
             first_strike = lethality * accuracy if lethality == 1 else 0
@@ -419,13 +419,11 @@ class PrimaryAI():
             status_term += status * min(1, accuracy * (double + 1))
             defensive_term -= target_damage * target_accuracy * (1 - first_strike)
 
-        splash = [s for s in splash if isinstance(s, unit_object.UnitObject)]
-
         for target in splash:
             raw_damage = combat_calcs.compute_damage(self.unit, target, item, "Attack")
-            lethality = utilities.clamp(raw_damage / float(target.get_hp()), 0, 1)
+            lethality = utils.clamp(raw_damage / float(target.get_hp()), 0, 1)
             status = 0
-            accuracy = utilities.clamp(combat_calcs.compute_hit(self.unit, target, item, "Attack")/100., 0, 1)
+            accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, "Attack")/100., 0, 1)
 
             offensive_term += 3 if lethality * accuracy == 1 else lethality * accuracy
             status_term += status * accuracy
@@ -438,7 +436,7 @@ class PrimaryAI():
         # Tries to minmize how far the unit should move
         max_distance = equations.parser.movement(self.unit)
         if max_distance > 0:
-            distance_term = (max_distance - utilities.calculate_distance(move, self.orig_pos)) / float(max_distance)
+            distance_term = (max_distance - utils.calculate_distance(move, self.orig_pos)) / float(max_distance)
         else:
             distance_term = 1
 
@@ -449,13 +447,13 @@ class PrimaryAI():
         terms.append((defensive_term, 20))
         terms.append((distance_term, 1))
 
-        return utilities.process_terms(terms)
+        return utils.process_terms(terms)
 
     def compute_priority_spell(self, defender, splash, move, item):
         terms = []
-        closest_enemy_distance = targets.distance_to_closest_enemy(self.unit, move)
+        closest_enemy_distance = target_system.distance_to_closest_enemy(self.unit, move)
 
-        targets = [s for s in splash if isinstance(s, unit_object.UnitObject)]
+        targets = splash[:]
         if defender:
             targets.insert(0, defender)
 
@@ -465,12 +463,12 @@ class PrimaryAI():
                 help_term = 0
 
                 for target in targets:
-                    if targets.check_ally(self.unit, target):
+                    if target_system.check_ally(self.unit, target):
                         max_hp = equations.parser.hitpoints(target)
                         missing_health = max_hp - target.get_hp()
-                        help_term += utilities.clamp(missing_health / float(max_hp), 0, 1)
+                        help_term += utils.clamp(missing_health / float(max_hp), 0, 1)
                         spell_heal = combat_calcs.compute_heal(self.unit, target, item, 'Attack')
-                        heal_term += utilities.clamp(min(spell_heal, missing_health) / float(max_hp), 0, 1)
+                        heal_term += utils.clamp(min(spell_heal, missing_health) / float(max_hp), 0, 1)
 
                     logger.info("Help: %s, Heal: %s", help_term, heal_term)
                     if help_term <= 0:
@@ -496,14 +494,14 @@ class PrimaryAI():
                 crit_damage = combat_calcs.compute_damage(self.unit, target, item, "Attack", crit=True)
 
                 # Damage I do compared to target's current hp
-                lethality = utilities.clamp(raw_damage / float(target.get_hp()), 0, 1)
+                lethality = utils.clamp(raw_damage / float(target.get_hp()), 0, 1)
                 # TODO Do I add a new status to the target
                 status = 0
                 # Accuracy
-                accuracy = utilities.clamp(combat_calcs.compute_hit(self.unit, target, item, "Attack")/100., 0, 1)
-                crit_accuracy = utilities.clamp(combat_calcs.compute_crit(self.unit, target, item, "Attack")/100., 0, 1)
+                accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, "Attack")/100., 0, 1)
+                crit_accuracy = utils.clamp(combat_calcs.compute_crit(self.unit, target, item, "Attack")/100., 0, 1)
 
-                if targets.check_enemy(self.unit, target):
+                if target_system.check_enemy(self.unit, target):
                     offensive_term += lethality * accuracy
                     offensive_term += crit_damage * crit_accuracy * accuracy
                     status_term += status * accuracy
@@ -527,19 +525,19 @@ class PrimaryAI():
             terms.append((status_term, 20))
             terms.append((closest_enemy_term, 1))
 
-        return utilities.process_terms(terms)
+        return utils.process_terms(terms)
 
     # Currently only computes utility correctly for healing items
     def compute_priority_usable(self, defender, splash, move, item):
         terms = []
-        closest_enemy_distance = targets.distance_to_closest_enemy(self.unit, move)
+        closest_enemy_distance = target_system.distance_to_closest_enemy(self.unit, move)
         if item.heal_on_use:
             max_hp = equations.parser.hitpoints(self.unit)
             missing_health = max_hp - defender.get_hp()
             if missing_health <= 0:
                 return 0
-            heal_term = utilities.clamp(int(item.heal_on_use.value) / float(missing_health), 0, 1)
-            help_term = utilities.clamp(missing_health / float(max_hp), 0, 1)
+            heal_term = utils.clamp(int(item.heal_on_use.value) / float(missing_health), 0, 1)
+            help_term = utils.clamp(missing_health / float(max_hp), 0, 1)
             terms.append((heal_term, 10))
             terms.append((help_term, 20))
 
@@ -547,7 +545,7 @@ class PrimaryAI():
             terms.append((closest_enemy_term, 5))
 
             logger.info("Help: %s, Heal: %s", help_term, heal_term)
-            return utilities.process_terms(terms) / 2  # Divide by two to make it less likely to make this choice
+            return utils.process_terms(terms) / 2  # Divide by two to make it less likely to make this choice
         else:
             return 0
 
@@ -564,11 +562,11 @@ class SecondaryAI():
         # Determine all targets
         if self.behaviour.action == "Attack":
             if self.behaviour.target == "Enemy":
-                self.all_targets = [u.position for u in game.level.units if u.position and targets.check_enemy(self.unit, u)]
+                self.all_targets = [u.position for u in game.level.units if u.position and target_system.check_enemy(self.unit, u)]
             elif self.behaviour.target == "Unit":
                 self.all_targets = [u.position for u in game.level.units if u.position]
             elif self.behaviour.target == "Ally":
-                self.all_targets = [u.position for u in game.level.units if u.position and targets.check_ally(self.unit, u)]
+                self.all_targets = [u.position for u in game.level.units if u.position and target_system.check_ally(self.unit, u)]
             elif self.behaviour.target == "Tile":
                 # TODO add breakable tiles
                 self.all_targets = []
@@ -580,7 +578,7 @@ class SecondaryAI():
                 else:
                     self.all_targets = [tuple(self.behaviour.target_spec)]
             elif self.behaviour.target == "Ally":
-                self.all_targets = [u for u in game.level.units if u.position and targets.check_ally(self.unit, u)]
+                self.all_targets = [u for u in game.level.units if u.position and target_system.check_ally(self.unit, u)]
                 if self.behaviour.target_spec:
                     if self.behaviour.target_spec[0] == "Tag":
                         self.all_targets = [u.position for u in self.all_targets if self.behaviour.target_spec[1] in u.tags]
@@ -589,12 +587,12 @@ class SecondaryAI():
                 else:
                     self.all_targets = [u.position for u in self.all_targets]
 
-        self.single_move = equations.parser.movement(self.unit) + max(targets.find_potential_range(self.unit, True, True))
+        self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True))
         self.double_move = self.single_move + equations.parser.movement(self.unit)
 
         mtype = DB.classes.get(self.unit.klass).movement_group
         self.grid = game.grid.get_grid(mtype)
-        self.pathfinder = a_star.AStar(self.unit.position, None, self.grid, 
+        self.pathfinder = pathfinding.AStar(self.unit.position, None, self.grid, 
                                        game.tilemap.width, game.tilemap.height, 
                                        self.unit.team, 'pass_through' in self.unit.status_bundle)
 
@@ -607,13 +605,13 @@ class SecondaryAI():
         self.best_path = None
 
         if self.view_range == -3:
-            self.available_targets = [t for t in self.all_targets if utilities.calculate_distance(self.unit.position, t) <= self.double_move]
+            self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.double_move]
         elif self.view_range == -2:
-            self.available_targets = [t for t in self.all_targets if utilities.calculate_distance(self.unit.position, t) <= self.single_move]
+            self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.single_move]
         elif self.view_range == -1:
             self.available_targets = []
         else:
-            self.available_targets = [t for t in self.all_targets if utilities.calculate_distance(self.unit.position, t) <= self.view_range]
+            self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.view_range]
 
         self.best_position = None
 
@@ -634,7 +632,7 @@ class SecondaryAI():
                 self.best_path = path
 
         elif self.best_target:
-            self.best_position = targets.travel_algorithm(self.best_path, self.unit.movement_left, self.unit, self.grid)
+            self.best_position = target_system.travel_algorithm(self.best_path, self.unit.movement_left, self.unit, self.grid)
             return True, self.best_position
 
         else:
@@ -658,12 +656,12 @@ class SecondaryAI():
         if distance:
             distance_term = 1 - math.log(distance)/4.
         else:
-            target_distance = utilities.calculate_distance(self.unit.position, target)
+            target_distance = utils.calculate_distance(self.unit.position, target)
             distance_term = 1 - math.log(target_distance)/4.
         terms.append((distance_term, 60))
 
         enemy = game.grid.get_unit(target)
-        if self.behaviour.action == "Attack" and enemy and targets.check_enemy(self.unit, enemy):
+        if self.behaviour.action == "Attack" and enemy and target_system.check_enemy(self.unit, enemy):
             hp_max = equations.parser.hitpoints(enemy)
             weakness_term = float(hp_max - enemy.get_hp()) / hp_max
 
@@ -675,7 +673,7 @@ class SecondaryAI():
                     status_term = 1
                 if item.weapon or item.spell:
                     raw_damage = combat_calcs.compute_damage(self.unit, enemy, item)
-                    hit = utilities.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
+                    hit = utils.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
                     true_damage = raw_damage * hit
                     if true_damage > max_damage:
                         max_damage = true_damage
@@ -690,4 +688,4 @@ class SecondaryAI():
         else:
             pass
 
-        return utilities.process_terms(terms)
+        return utils.process_terms(terms)

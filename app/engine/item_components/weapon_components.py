@@ -2,7 +2,7 @@ from app.data.database import DB
 
 from app.data.item_components import ItemComponent, Type
 
-from app.engine import targets, action, combat_calcs, equations, item_system
+from app.engine import action, combat_calcs, equations, item_system
 
 class WeaponType(ItemComponent):
     nid = 'weapon_type'
@@ -108,7 +108,7 @@ class EffectiveTag(ItemComponent):
     expose = (Type.List, Type.Tag)
 
     def modify_damage(self, unit, item, target, mode=None) -> int:
-        if any(tag in targets.tags for tag in self.value):
+        if any(tag in target.tags for tag in self.value):
             return item_system.effective(unit, item)
         return 0
 

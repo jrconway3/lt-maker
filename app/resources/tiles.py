@@ -170,7 +170,7 @@ class LayerGrid(Prefab):
             self.terrain_grid[coord] = terrain_nid
         for str_coord, data in s_dict['sprite_grid'].items():
             coord = tuple(int(_) for _ in str_coord.split(','))
-            self.sprite_grid[coord] = TileSprite.deserialize(*data, self)
+            self.sprite_grid[coord] = TileSprite.restore(*data, self)
         return self
 
 class TileSprite(Prefab):
@@ -195,7 +195,7 @@ class TileSetCatalog(ManifestCatalog):
         tileset_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in tileset_dict:
             new_tileset = TileSet.restore(s_dict)
-            new_tileset.set_full_path(os.path.join(loc, new_tileset.nid))
+            new_tileset.set_full_path(os.path.join(loc, new_tileset.nid + '.png'))
             self.append(new_tileset)
 
 class TileMapCatalog(ManifestCatalog):

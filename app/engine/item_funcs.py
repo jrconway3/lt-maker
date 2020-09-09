@@ -1,6 +1,7 @@
 from app.data.database import DB
 
 from app.engine import item_system
+from app.engine.objects.item import ItemObject
 
 def is_magic(unit, item) -> bool:
     weapon_type = item_system.weapon_type(unit, item)
@@ -9,6 +10,16 @@ def is_magic(unit, item) -> bool:
     if item.magic:
         return True
     return False
+
+def create_items(unit_nid, item_nid_list):
+    items = []
+    for item_nid, droppable in item_nid_list:
+        item_prefab = DB.items.get(item_nid)
+        item = ItemObject.from_prefab(item_prefab)
+        item.owner_nid = unit_nid
+        item.droppable = droppable
+        items.append(item)
+    return items
 
 def get_all_items(unit) -> list:
     """

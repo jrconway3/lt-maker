@@ -2,7 +2,7 @@ from app.utilities import utils
 from app.utilities.data import Prefab
 from app.data.database import DB
 
-from app.engine import equations, item_system
+from app.engine import equations, item_system, item_funcs
 from app.engine.game_state import game
 
 # Main unit object used by engine
@@ -23,7 +23,7 @@ class UnitObject(Prefab):
         self.ai = prefab.ai
         self.ai_group = 0
 
-        self.items = self.create_items(prefab.starting_items)
+        self.items = item_funcs.create_items(self.nid, prefab.starting_items)
 
         if self.generic:
             self.faction = prefab.faction
@@ -63,6 +63,9 @@ class UnitObject(Prefab):
 
         self.traveler = None
 
+        # -- Equipped Items
+        self.equipped_weapon = None
+        self.equipped_accessory = None
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
 
@@ -112,15 +115,6 @@ class UnitObject(Prefab):
         class_tags = DB.classes.get(self.klass).tags
         return unit_tags + class_tags
 
-    def create_items(self, item_nid_list):
-        items = []
-        for item_nid, droppable in item_nid_list:
-            item = DB.items.get_instance(item_nid)
-            item.owner_nid = self.nid
-            item.droppable = droppable
-            items.append(item)
-        return items
-
     def calculate_needed_wexp_from_items(self):
         for item in self.items:
             if item.level:
@@ -136,7 +130,9 @@ class UnitObject(Prefab):
             return self.equipped_weapon
         else:
             for item in self.items:
-                if item_system.is_weapon(self, item) and item_system.available(self, item):
+                if item_system.is_weapon(self, item) and \
+                        item_system.available(self, item) and \
+                        item_system.equippable(self, item):
                     return item
         return None
 
@@ -151,7 +147,9 @@ class UnitObject(Prefab):
             return self.equipped_accessory
         else:
             for item in self.items:
-                if item_system.is_accessory(self, item) and item_system.available(self, item):
+                if item_system.is_accessory(self, item) and \
+                        item_system.available(self, item) and \
+                        item_system.equippable(self, item):
                     return item
         return None
 

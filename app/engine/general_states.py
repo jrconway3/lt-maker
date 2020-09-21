@@ -114,7 +114,7 @@ class FreeState(MapState):
 
         elif event == 'SELECT':
             cur_pos = game.cursor.position
-            cur_unit = game.grid.get_unit(cur_pos)
+            cur_unit = game.board.get_unit(cur_pos)
             if cur_unit:
                 game.cursor.cur_unit = cur_unit
                 if skill_system.can_select(cur_unit):
@@ -386,7 +386,7 @@ class MoveState(MapState):
                     game.state.change('menu')
 
             elif game.cursor.position in self.valid_moves:
-                if game.grid.get_unit(game.cursor.position):
+                if game.board.get_unit(game.cursor.position):
                     SOUNDTHREAD.play_sfx('Error')
                 else:
                     # Sound -- ADD FOOTSTEP SOUNDS

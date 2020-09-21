@@ -18,8 +18,8 @@ def main():
 
 def test_play():
     RESOURCES.load('./default.ltproj')
-    DB.deserialize('./default.ltproj')
-    title = DB.constants.get('title').value
+    DB.load('./default.ltproj')
+    title = DB.constants.value('title')
     driver.start(title, from_editor=True)
     game = game_state.start_level('DEBUG')
     driver.run(game)
@@ -63,8 +63,8 @@ if __name__ == '__main__':
                         level=logging_level, format='%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s')
     logger.info('*** Lex Talionis Engine Version %s ***' % VERSION)
     try:
-        main()
-        # test_play()
+        # main()
+        test_play()
     except Exception as e:
         logger.exception(e)
         inform_error()

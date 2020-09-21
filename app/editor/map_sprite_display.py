@@ -64,7 +64,7 @@ class MapSpriteModel(ResourceCollectionModel):
         elif role == Qt.DecorationRole:
             map_sprite = self._data[index.row()]
             if not map_sprite.standing_pixmap:
-                map_sprite.standing_pixmap = QPixmap(map_sprite.standing_full_path)
+                map_sprite.standing_pixmap = QPixmap(map_sprite.stand_full_path)
             pixmap = map_sprite.standing_pixmap
             # num = TIMER.passive_counter.count
             num = 0
@@ -77,7 +77,7 @@ class MapSpriteModel(ResourceCollectionModel):
         settings = QSettings("rainlash", "Lex Talionis")
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
         nid = None
-        standing_full_path, moving_full_path = None, None
+        stand_full_path, move_full_path = None, None
         standing_pix, moving_pix = None, None
         lion_throne_mode = True
         fn, sok = QFileDialog.getOpenFileName(self.window, "Choose Standing Map Sprite", starting_path)
@@ -86,7 +86,7 @@ class MapSpriteModel(ResourceCollectionModel):
                 nid = os.path.split(fn)[-1][:-4]
                 standing_pix = QPixmap(fn)
                 nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.map_sprites])
-                standing_full_path = fn
+                stand_full_path = fn
                 if standing_pix.width() == 192 and standing_pix.height() == 144:
                     lion_throne_mode = True
                 elif standing_pix.width() >= 16 and standing_pix.height() % 3 == 0:  # Try for GBA mode
@@ -104,7 +104,7 @@ class MapSpriteModel(ResourceCollectionModel):
         if mok:
             if fn.endswith('.png'):
                 moving_pix = QPixmap(fn)
-                moving_full_path = fn
+                move_full_path = fn
                 if lion_throne_mode:
                     if moving_pix.width() == 192 and moving_pix.height() == 160:
                         pass
@@ -123,7 +123,7 @@ class MapSpriteModel(ResourceCollectionModel):
                 return
         if sok and mok and nid:
             if lion_throne_mode: 
-                new_map_sprite = MapSprite(nid, standing_full_path, moving_full_path, standing_pix, moving_pix)
+                new_map_sprite = MapSprite(nid, stand_full_path, move_full_path, standing_pix, moving_pix)
             else:
                 standing_pix, moving_pix = self.import_gba_map_sprite(standing_pix, moving_pix)
                 new_map_sprite = MapSprite(nid, None, None, standing_pix, moving_pix)
@@ -241,10 +241,10 @@ class MapSpriteProperties(QWidget):
 
         # Populate resources
         for resource in self._data:
-            if resource.standing_full_path:
-                resource.standing_pixmap = QPixmap(resource.standing_full_path)
-            if resource.moving_full_path:
-                resource.moving_pixmap = QPixmap(resource.moving_full_path)
+            if resource.stand_full_path:
+                resource.standing_pixmap = QPixmap(resource.stand_full_path)
+            if resource.move_full_path:
+                resource.moving_pixmap = QPixmap(resource.move_full_path)
 
         self.current = current
 

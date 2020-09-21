@@ -85,31 +85,35 @@ def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:
     return potential_range
 
 def get_valid_moves(unit, force=False) -> set:
+    # For some reason, I need to forcefully import the game
+    # object here, otherwise it is recorded as None...
+    # from app.engine.game_state import game
     # Assumes unit is on the map
     if not force and unit.finished or (unit.has_moved and not skill_system.has_canto(unit)):
         return set()
 
     mtype = DB.classes.get(unit.klass).movement_group
-    grid = game.grid.get_grid(mtype)
+
+    grid = game.board.get_grid(mtype)
     width, height = game.tilemap.width, game.tilemap.height
     pass_through = skill_system.pass_through(unit)
     pathfinder = pathfinding.Djikstra(unit.position, grid, width, height, unit.team, pass_through)
 
     movement_left = equations.parser.movement(unit) if force else unit.movement_left
 
-    valid_moves = pathfinder.process(game.grid.team_grid, movement_left)
+    valid_moves = pathfinder.process(game.board.team_grid, movement_left)
     valid_moves.add(unit.position)
     return valid_moves
 
 def get_path(unit, position, ally_block=False) -> list:
     mtype = DB.classes.get(unit.klass).movement_group
-    grid = game.grid.get_grid(mtype)
+    grid = game.board.get_grid(mtype)
 
     width, height = game.tilemap.width, game.tilemap.height
     pass_through = skill_system.pass_through(unit)
     pathfinder = pathfinding.AStar(unit.position, position, grid, width, height, unit.team, pass_through)
 
-    path = pathfinder.process(game.grid.team_grid, ally_block=ally_block)
+    path = pathfinder.process(game.board.team_grid, ally_block=ally_block)
     return path
 
 def travel_algorithm(path, moves, unit, grid):

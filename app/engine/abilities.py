@@ -37,7 +37,7 @@ class SpellAbility(Ability):
 
 def get_adj_allies(unit) -> list:
     adj_positions = target_system.get_adjacent_positions(unit)
-    adj_units = [game.grid.get_unit(pos) for pos in adj_positions]
+    adj_units = [game.board.get_unit(pos) for pos in adj_positions]
     adj_units = [_ for _ in adj_units if _]
     adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
     return adj_allies
@@ -51,7 +51,7 @@ class DropAbility(Ability):
             adj_positions = target_system.get_adjacent_positions(unit)
             traveler = unit.traveler
             for adj_pos in adj_positions:
-                if not game.grid.get_unit(adj_pos) and game.moving_units.get_mcost(unit, adj_pos) <= equations.parser.movement(traveler):
+                if not game.board.get_unit(adj_pos) and game.moving_units.get_mcost(unit, adj_pos) <= equations.parser.movement(traveler):
                     good_pos.add(adj_pos)
             return good_pos
         return set()
@@ -71,7 +71,7 @@ class RescueAbility(Ability):
                         equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(u)])
 
     def do(self, unit):
-        u = game.grid.get_unit(game.cursor.position)
+        u = game.board.get_unit(game.cursor.position)
         action.do(action.Rescue(unit, u))
         if skill_system.has_canto(unit):
             game.state.change('menu')
@@ -90,7 +90,7 @@ class TakeAbility(Ability):
                         equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(game.level.units.get(u.traveler))])
 
     def do(self, unit):
-        u = game.grid.get_unit(game.cursor.position)
+        u = game.board.get_unit(game.cursor.position)
         action.do(action.Take(unit, u))
         # Taking does not count as major action
         game.state.change('menu')
@@ -105,7 +105,7 @@ class GiveAbility(Ability):
                         equations.parser.rescue_aid(u) > equations.parser.rescue_weight(game.level.units.get(unit.traveler))])
 
     def do(self, unit):
-        u = game.grid.get_unit(game.cursor.position)
+        u = game.board.get_unit(game.cursor.position)
         action.do(action.Give(unit, u))
         # Giving does not count as a major action
         game.state.change('menu')

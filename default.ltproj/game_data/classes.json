@@ -1,8 +1,7 @@
 [
     {
         "nid": "Citizen",
-        "short_name": "Citizen",
-        "long_name": "Citizen",
+        "name": "Citizen",
         "desc": "An ordinary commoner.",
         "tier": 0,
         "movement_group": "Light Foot",
@@ -280,8 +279,7 @@
     },
     {
         "nid": "Eirika_Lord",
-        "short_name": "Lord",
-        "long_name": "Lord",
+        "name": "Lord",
         "desc": "The princess of Renais. A sword fighter on an important mission.",
         "tier": 1,
         "movement_group": "Light Foot",
@@ -561,8 +559,7 @@
     },
     {
         "nid": "Myrmidon",
-        "short_name": "Myrm.",
-        "long_name": "Myrmidon",
+        "name": "Myrmidon",
         "desc": "Swordfighters with superior speed and skill.",
         "tier": 1,
         "movement_group": "Light Foot",
@@ -840,8 +837,7 @@
     },
     {
         "nid": "Cavalier",
-        "short_name": "Cavalier",
-        "long_name": "Cavalier",
+        "name": "Cavalier",
         "desc": "Mounted knights with superior movement.",
         "tier": 1,
         "movement_group": "Heavy Cav",
@@ -1129,8 +1125,7 @@
     },
     {
         "nid": "Paladin",
-        "short_name": "Paladin",
-        "long_name": "Paladin",
+        "name": "Paladin",
         "desc": "A title earned only by those cavaliers whose lives have been dedicated to justice.",
         "tier": 2,
         "movement_group": "Heavy Cav",
@@ -1411,8 +1406,7 @@
     },
     {
         "nid": "Knight",
-        "short_name": "Knight",
-        "long_name": "Knight",
+        "name": "Knight",
         "desc": "Heavily armored knights with superior defense but poor movement.",
         "tier": 1,
         "movement_group": "Armors",
@@ -1692,8 +1686,7 @@
     },
     {
         "nid": "Fighter",
-        "short_name": "Fighter",
-        "long_name": "Fighter",
+        "name": "Fighter",
         "desc": "??",
         "tier": 1,
         "movement_group": "Regular",
@@ -1971,8 +1964,7 @@
     },
     {
         "nid": "Soldier",
-        "short_name": "Soldier",
-        "long_name": "Soldier",
+        "name": "Soldier",
         "desc": "A generic solider",
         "tier": 1,
         "movement_group": "Light Foot",

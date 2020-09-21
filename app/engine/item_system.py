@@ -171,9 +171,9 @@ for hook in dynamic_hooks:
 
 for hook in event_hooks:
     func = """def %s(unit, item):
-                  for component in item.components:
-                      if component.defines('%s'):
-                          component.%s(unit, item)""" \
+    for component in item.components:
+        if component.defines('%s'):
+            component.%s(unit, item)""" \
         % (hook, hook, hook)
     exec(func)
 
@@ -231,7 +231,7 @@ def splash(unit, item, position) -> tuple:
         return main_target, splash
     else:
         from app.engine.game_state import game
-        return game.grid.get_unit(position), []
+        return game.board.get_unit(position), []
 
 def splash_positions(unit, item, position) -> set:
     positions = set()

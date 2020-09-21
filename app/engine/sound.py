@@ -1,6 +1,6 @@
 import pygame
 
-from app import utilities
+from app.utilities import utils
 from app.resources.resources import RESOURCES
 from app.engine import engine
 
@@ -76,7 +76,7 @@ class Channel():
         if self.state == "paused":
             pass
         if self.state in ("fade_out", "crossfade_out"):
-            progress = utilities.clamp((current_time - self.last_update) / self.fade_out_time, 0, 1)
+            progress = utils.clamp((current_time - self.last_update) / self.fade_out_time, 0, 1)
             self.local_volume = 1 - progress
             self._channel.set_volume(self.local_volume * self.global_volume)
             if progress >= 1:
@@ -87,7 +87,7 @@ class Channel():
                 elif self.state == 'crossfade_out':
                     self.state = "playing"
         if self.state in ("fade_in", "crossfade_in"):
-            progress = utilities.clamp((current_time - self.last_update) / self.fade_in_time, 0, 1)
+            progress = utils.clamp((current_time - self.last_update) / self.fade_in_time, 0, 1)
             self.local_volume = progress
             self._channel.set_volume(self.local_volume * self.global_volume)
             if progress >= 1:

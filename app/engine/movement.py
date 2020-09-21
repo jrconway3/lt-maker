@@ -78,7 +78,7 @@ class MovementManager():
 
         mcost = self.get_mcost(unit_to_move, new_position)
         if game.tilemap.check_bounds(new_position) and \
-                not game.grid.get_unit(new_position) and \
+                not game.board.get_unit(new_position) and \
                 mcost < 5:
             return new_position
         return False

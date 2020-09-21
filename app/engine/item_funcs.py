@@ -11,13 +11,14 @@ def is_magic(unit, item) -> bool:
         return True
     return False
 
-def create_items(unit_nid, item_nid_list):
+def create_items(unit, item_nid_list: list) -> list:
     items = []
     for item_nid, droppable in item_nid_list:
         item_prefab = DB.items.get(item_nid)
         item = ItemObject.from_prefab(item_prefab)
-        item.owner_nid = unit_nid
+        item.owner_nid = unit.nid
         item.droppable = droppable
+        item_system.init(unit, item)
         items.append(item)
     return items
 

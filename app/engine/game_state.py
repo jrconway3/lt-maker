@@ -1,3 +1,4 @@
+print("Importing Game State")
 import time
 import random
 from collections import Counter
@@ -221,6 +222,10 @@ class GameState():
     def level(self):
         return self.current_level
 
+    @property
+    def tilemap(self):
+        return self.current_level.tilemap
+    
     def register_unit(self, unit):
         logger.info("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
@@ -255,8 +260,8 @@ class GameState():
         if unit.position:
             logger.info("Leave %s %s", unit.nid, unit.position)
             if not test:
-                game.board.set_unit(unit.position, None)
-                game.boundary.leave(unit)
+                self.board.set_unit(unit.position, None)
+                self.boundary.leave(unit)
             # Tiles
         # Auras
 
@@ -264,12 +269,12 @@ class GameState():
         if unit.position:
             logger.info("Arrive %s %s", unit.nid, unit.position)
             if not test:
-                game.board.set_unit(unit.position, unit)
-                game.boundary.arrive(unit)
+                self.board.set_unit(unit.position, unit)
+                self.boundary.arrive(unit)
             # Tiles
             # Auras
 
-game = None
+game = GameState()
 
 def start_game():
     global game

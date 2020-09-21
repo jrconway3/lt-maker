@@ -38,7 +38,7 @@ class UIView():
         # Unit info handling
         if self.remove_unit_info:
             hover = game.cursor.get_hover()
-            if game.state.get_state() in self.legal_states and hover:
+            if game.state.current() in self.legal_states and hover:
                 self.remove_unit_info = False
                 self.unit_info_disp = self.create_unit_info(hover)
                 self.unit_info_offset = min(self.unit_info_disp.get_width(), self.unit_info_offset)
@@ -51,7 +51,7 @@ class UIView():
             self.unit_info_offset = max(0, self.unit_info_offset)
 
         # Tile info handling
-        if game.state.get_state() in self.legal_states and cf.SETTINGS['show_terrain']:
+        if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain']:
             if game.cursor.position != self.expected_coord:
                 self.tile_info_disp = self.create_tile_info(game.cursor.position)
             if self.tile_info_disp:
@@ -64,7 +64,7 @@ class UIView():
                 self.tile_info_disp = None
 
         # Objective info handling
-        if game.state.get_state() in self.legal_states and cf.SETTINGS['show_objective']:
+        if game.state.current() in self.legal_states and cf.SETTINGS['show_objective']:
             self.obj_info_disp = self.create_obj_info()
             self.obj_info_offset -= 20
             self.obj_info_offset = max(0, self.obj_info_offset)
@@ -119,7 +119,7 @@ class UIView():
         return surf
 
     def create_unit_info(self, unit):
-        font = FONT['info_grey']
+        font = FONT['info-grey']
         dimensions = (112, 40)
         width, height = dimensions
         surf = SPRITES.get('unit_info_bg').copy()
@@ -132,7 +132,7 @@ class UIView():
 
         name = unit.name
         if unit.generic:
-            short_name = DB.classes.get(unit.klass).short_name
+            short_name = DB.classes.get(unit.klass).name
             name = short_name + ' ' + str(unit.level)
         pos = (left + width//2 + 6 - font.width(name)//2, top + 4)
         font.blit(name, surf, pos)

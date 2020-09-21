@@ -197,6 +197,7 @@ class RemoveFromMap(Action):
 
 class IncrementTurn(Action):
     def do(self):
+        from app.engine.game_state import game
         game.turncount += 1
 
     def reverse(self):
@@ -717,6 +718,7 @@ class RecordRandomState(Action):
 
 # === Master Functions for adding to the action log ===
 def do(action):
+    from app.engine.game_state import game
     game.action_log.action_depth += 1
     action.do()
     game.action_log.action_depth -= 1

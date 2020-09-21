@@ -17,14 +17,14 @@ class BlastAOE(ItemComponent):
         from app.engine.item_system import item_system
         if item_system.is_spell(unit, item):
             # spell blast
-            splash = [game.grid.get_unit(s) for s in splash]
+            splash = [game.board.get_unit(s) for s in splash]
             splash = [s for s in splash if s]
             return None, splash
         else:
             # regular blast
-            splash = [game.grid.get_unit(s) for s in splash if s != position]
+            splash = [game.board.get_unit(s) for s in splash if s != position]
             splash = [s for s in splash if s]
-            return game.grid.get_unit(position), splash
+            return game.board.get_unit(position), splash
 
     def splash_positions(self, unit, item, position) -> set:
         ranges = set(range(self.value + 1))

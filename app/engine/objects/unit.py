@@ -11,7 +11,7 @@ class UnitObject(Prefab):
     def from_prefab(cls, prefab):
         self = cls()
         self.nid = prefab.nid
-        self.position = self.previous_position = prefab.starting_position
+        self.position = self.previous_position = tuple(prefab.starting_position)
         self.team = prefab.team
         self.party = 0
         self.klass = prefab.klass
@@ -23,7 +23,7 @@ class UnitObject(Prefab):
         self.ai = prefab.ai
         self.ai_group = 0
 
-        self.items = item_funcs.create_items(self.nid, prefab.starting_items)
+        self.items = item_funcs.create_items(self, prefab.starting_items)
 
         if self.generic:
             self.faction = prefab.faction
@@ -116,13 +116,11 @@ class UnitObject(Prefab):
         return unit_tags + class_tags
 
     def calculate_needed_wexp_from_items(self):
-        for item in self.items:
-            if item.level:
-                if item.weapon:
-                    weapon_type = item.weapon.value
-                elif item.spell:
-                    weapon_type = item.spell.value[0]
-                requirement = DB.weapon_ranks.get(item.level.value).requirement
+        for item in item_funcs.get_all_items(self):
+            weapon_rank_required = item_system.weapon_rank(self, item)
+            if weapon_rank_required:
+                weapon_type = item_system.weapon_type(self, item)
+                requirement = DB.weapon_ranks.get(weapon_rank_required).requirement
                 self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
 
     def get_weapon(self):
@@ -307,7 +305,7 @@ class UnitObject(Prefab):
     def restore(cls, s_dict):
         self = cls()
         self.nid = s_dict['nid']
-        self.position = self.previous_position = s_dict['position']
+        self.position = self.previous_position = tuple(s_dict['position'])
         self.team = s_dict['team']
         self.party = s_dict['party']
         self.klass = s_dict['klass']

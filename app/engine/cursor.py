@@ -33,7 +33,7 @@ class Cursor():
         self.stopped_at_move_border = False
 
     def get_hover(self):
-        return game.grid.get_unit(self.position)
+        return game.board.get_unit(self.position)
 
     def hide(self):
         self.draw_state = 0

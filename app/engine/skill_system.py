@@ -1,4 +1,3 @@
-
 class Defaults():
     @staticmethod
     def can_select(unit) -> bool:
@@ -32,20 +31,22 @@ default_behaviours = ('has_canto', 'pass_through')
 
 for behaviour in default_behaviours:
     func = """def %s(unit):
-                  for component in item.components:
-                      if component.defines('%s'):
-                          return component.%s(unit)
+                  for skill in unit.skills:
+                      for component in skill.components:
+                          if component.defines('%s'):
+                              return component.%s(unit)
                   return False""" \
         % (behaviour, behaviour, behaviour)
     exec(func)
 
 exclusive_behaviours = ('can_select', 'check_ally', 'check_enemy', 'can_trade', 'sight_range')
 
-for behaviour in default_behaviours:
+for behaviour in exclusive_behaviours:
     func = """def %s(unit):
-                  for component in item.components:
-                      if component.defines('%s'):
-                          return component.%s(unit)
+                  for skill in unit.skills:
+                      for component in skill.components:
+                          if component.defines('%s'):
+                              return component.%s(unit)
                   return Defaults.%s(unit)""" \
         % (behaviour, behaviour, behaviour, behaviour)
     exec(func)

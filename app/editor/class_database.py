@@ -55,7 +55,7 @@ def get_map_sprite_icon(klass, num=0, current=False, team='player', variant=None
     if not res:
         return None
     if not res.standing_pixmap:
-        res.standing_pixmap = QPixmap(res.standing_full_path)
+        res.standing_pixmap = QPixmap(res.stand_full_path)
     pixmap = res.standing_pixmap
     pixmap = map_sprite_display.get_basic_icon(pixmap, num, current, team)
     return pixmap

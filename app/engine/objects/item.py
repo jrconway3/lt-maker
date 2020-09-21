@@ -30,6 +30,12 @@ class ItemObject():
     def from_prefab(cls, prefab):
         return cls(prefab.nid, prefab.name, prefab.desc, prefab.icon_nid, prefab.icon_index, prefab.components)
 
+    # If the attribute is not found
+    def __getattr__(self, attr):
+        if attr.startswith('__') and attr.endswith('__'):
+            return super().__getattr__(attr)
+        return None
+
     def __str__(self):
         return self.name
 

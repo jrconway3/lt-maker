@@ -33,8 +33,8 @@ class Node():
         return "Node(%d, %d): cost=%d, g=%d, h=%d, f=%f, %s" % (self.x, self.y, self.cost, self.g, self.h, self.f, self.reachable)
 
 class GameBoard(object):
-    __slots__ = ['width', 'height', 'grids', 'team_grid', 'unit_grid', 
-                 'aura_grid', 'known_auras']
+    # __slots__ = ['width', 'height', 'grids', 'team_grid', 'unit_grid', 
+    #              'aura_grid', 'known_auras']
 
     def __init__(self, tilemap):
         self.width = tilemap.width
@@ -73,7 +73,7 @@ class GameBoard(object):
         return cells
 
     def get_grid(self, mode):
-        return self.grids[mode]
+        return self.mcost_grids[mode]
 
     def init_unit_grid(self):
         cells = []

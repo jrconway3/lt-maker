@@ -31,7 +31,7 @@ class WeaponRank(ItemComponent):
         return self.value
 
     def available(self, unit, item):
-        required_wexp = DB.weapon_ranks.get(self.value).value
+        required_wexp = DB.weapon_ranks.get(self.value).requirement
         weapon_type = item_system.weapon_type(unit, item)
         if weapon_type:
             return unit.wexp.get(weapon_type(unit, item)) > required_wexp

@@ -10,7 +10,7 @@ class Uses(ItemComponent):
     expose = Type.Int
     value = 1
 
-    def init(self, item):
+    def init(self, unit, item):
         item.data['uses'] = self.value
 
     def available(self, unit, item) -> bool:
@@ -34,7 +34,7 @@ class ChapterUses(ItemComponent):
     expose = Type.Int
     value = 1
 
-    def init(self, item):
+    def init(self, unit, item):
         item.data['uses'] = self.value
 
     def available(self, unit, item) -> bool:

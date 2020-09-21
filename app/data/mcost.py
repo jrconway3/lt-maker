@@ -74,9 +74,8 @@ class McostGrid():
     def save(self):
         return ([x[:] for x in self.grid], self.terrain_types[:], self.unit_types[:])
 
-    @classmethod
-    def restore(cls, data):
-        self = cls()
+    def restore(self, data):
         self.grid = data[0]
         self.terrain_types = data[1]
         self.unit_types = data[2]
+        return self

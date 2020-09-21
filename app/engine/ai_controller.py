@@ -366,7 +366,7 @@ class PrimaryAI():
                 itp = self.compute_prority_usable(defender, splash, move, item)
                 if itp > tp:  # Only use usable if greater than item spell or weapon
                     tp = itp
-        unit = game.grid.get_unit(target)
+        unit = game.board.get_unit(target)
         if unit:
             name = unit.nid
         else:
@@ -591,7 +591,7 @@ class SecondaryAI():
         self.double_move = self.single_move + equations.parser.movement(self.unit)
 
         mtype = DB.classes.get(self.unit.klass).movement_group
-        self.grid = game.grid.get_grid(mtype)
+        self.grid = game.board.get_grid(mtype)
         self.pathfinder = pathfinding.AStar(self.unit.position, None, self.grid, 
                                        game.tilemap.width, game.tilemap.height, 
                                        self.unit.team, 'pass_through' in self.unit.status_bundle)
@@ -647,7 +647,7 @@ class SecondaryAI():
 
     def get_path(self, goal_pos):
         self.pathfinder.set_goal_pos(goal_pos)
-        path = self.pathfinder.process(game.grid.team_grid, adj_good_enough=True, ally_block=False)
+        path = self.pathfinder.process(game.board.team_grid, adj_good_enough=True, ally_block=False)
         self.pathfinder.reset()
         return path
 
@@ -660,7 +660,7 @@ class SecondaryAI():
             distance_term = 1 - math.log(target_distance)/4.
         terms.append((distance_term, 60))
 
-        enemy = game.grid.get_unit(target)
+        enemy = game.board.get_unit(target)
         if self.behaviour.action == "Attack" and enemy and target_system.check_enemy(self.unit, enemy):
             hp_max = equations.parser.hitpoints(enemy)
             weakness_term = float(hp_max - enemy.get_hp()) / hp_max

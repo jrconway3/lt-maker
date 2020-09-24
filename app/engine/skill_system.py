@@ -39,7 +39,7 @@ for behaviour in default_behaviours:
         % (behaviour, behaviour, behaviour)
     exec(func)
 
-exclusive_behaviours = ('can_select', 'check_ally', 'check_enemy', 'can_trade', 'sight_range')
+exclusive_behaviours = ('can_select', 'sight_range')
 
 for behaviour in exclusive_behaviours:
     func = """def %s(unit):
@@ -48,5 +48,17 @@ for behaviour in exclusive_behaviours:
                           if component.defines('%s'):
                               return component.%s(unit)
                   return Defaults.%s(unit)""" \
+        % (behaviour, behaviour, behaviour, behaviour)
+    exec(func)
+
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade')
+
+for behaviour in targeted_behaviours:
+    func = """def %s(unit1, unit2):
+                  for skill in unit1.skills:
+                      for component in skill.components:
+                          if component.defines('%s'):
+                              return component.%s(unit1, unit2)
+                  return Defaults.%s(unit1, unit2)""" \
         % (behaviour, behaviour, behaviour, behaviour)
     exec(func)

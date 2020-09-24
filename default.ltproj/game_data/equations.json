@@ -21,7 +21,7 @@
     },
     {
         "nid": "AVOID",
-        "expression": "ATTACKSPEED*2 + LCK"
+        "expression": "SPD*2 + LCK"
     },
     {
         "nid": "CRIT_HIT",

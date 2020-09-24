@@ -115,7 +115,7 @@ class FreeState(MapState):
         elif event == 'SELECT':
             cur_pos = game.cursor.position
             cur_unit = game.board.get_unit(cur_pos)
-            if cur_unit:
+            if cur_unit and not cur_unit.finished:
                 game.cursor.cur_unit = cur_unit
                 if skill_system.can_select(cur_unit):
                     SOUNDTHREAD.play_sfx('Select 3')
@@ -487,9 +487,10 @@ class MenuState(MapState):
         # Draw highlights
         for ability in ABILITIES:
             ability.highlights(self.cur_unit)
-        if self.cur_unit.has_canto():
+        if skill_system.has_canto(self.cur_unit):
             # Shows the canto moves in the menu
-            game.highlight.display_moves(targets.get_valid_moves(self.cur_unit))
+            moves = target_system.get_valid_moves(self.cur_unit)
+            game.highlight.display_moves(moves)
         game.cursor.set_pos(self.cur_unit.position)
 
         options = []
@@ -769,7 +770,7 @@ class WeaponChoiceState(MapState):
     name = 'weapon_choice'
 
     def get_options(self, unit) -> list:
-        options = target_system.get_all_weapons()
+        options = target_system.get_all_weapons(unit)
         # Skill straining
         options = [option for option in options if target_system.get_valid_targets(unit, option)]
         return options
@@ -916,10 +917,7 @@ class CombatTargetingState(MapState):
 
         positions = target_system.get_valid_targets(self.cur_unit, self.item)
         self.selection = SelectionHelper(positions)
-        if self.item.heal(self.cur_unit, self.item):
-            closest_pos = self.selection.get_wounded()
-        else:
-            closest_pos = self.selection.get_closest(game.cursor.position)
+        closest_pos = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_pos)
 
         game.ui_view.prepare_attack_info()

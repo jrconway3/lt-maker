@@ -128,9 +128,11 @@ class UnitObject(Prefab):
             return self.equipped_weapon
         else:
             for item in self.items:
-                if item_system.is_weapon(self, item) and \
-                        item_system.available(self, item) and \
-                        item_system.equippable(self, item):
+                weapon = item_system.is_weapon(self, item)
+                available = item_system.available(self, item)
+                equippable = item_system.equippable(self, item)
+                if weapon and available and equippable:
+                    self.equip(item)
                     return item
         return None
 

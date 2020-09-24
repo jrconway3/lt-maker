@@ -14,7 +14,7 @@ class UnitSound():
         self.playing_sound = 0
 
     def play(self):
-        if 'Flying' in self.unit.tags or 'flying' in self.unit.status_bundle:
+        if 'Flying' in self.unit.tags:
             self.current_sound = 'Flier'
         elif 'Mounted' in self.unit.tags:
             self.current_sound = 'Mounted'

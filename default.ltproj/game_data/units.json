@@ -93,7 +93,7 @@
                 30
             ]
         ],
-        "starting_items": [],
+        "starting_items": ["Iron Sword"],
         "learned_skills": [],
         "wexp_gain": [
             [
@@ -671,7 +671,7 @@
                 0
             ]
         ],
-        "starting_items": [],
+        "starting_items": ["Iron Axe"],
         "learned_skills": [],
         "wexp_gain": [
             [

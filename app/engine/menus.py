@@ -7,7 +7,7 @@ from app.utilities import utils
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
-from app.engine import engine, image_mods, icons, help_menu, text_funcs
+from app.engine import engine, image_mods, icons, help_menu, text_funcs, item_system
 from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
 from app.engine.objects.item import ItemObject
@@ -185,7 +185,7 @@ class ItemOption(BasicOption):
             uses_font = self.color
             if main_font == 'text-white':
                 uses_font = 'text-blue'
-        elif owner and owner.can_wield(self.item):
+        elif owner and item_system.available(owner, self.item):
             main_font = 'text-white'
             uses_font = 'text-blue'
         return main_font, uses_font

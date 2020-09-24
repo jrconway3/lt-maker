@@ -55,7 +55,67 @@
             ],
             [
                 "weapon_type",
-                "Lance"
+                "Sword"
+            ]
+        ]
+    },
+    {
+        "nid": "Iron Axe",
+        "name": "Iron Axe",
+        "desc": "",
+        "icon_nid": "Axe",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "value",
+                350
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "damage",
+                8
+            ],
+            [
+                "hit",
+                75
+            ],
+            [
+                "crit",
+                0
+            ],
+            [
+                "weight",
+                9
+            ],
+            [
+                "uses",
+                45
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "weapon_type",
+                "Axe"
             ]
         ]
     }

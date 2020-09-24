@@ -194,6 +194,13 @@ def valid_targets(unit, item) -> set:
             targets |= component.valid_targets(unit, item)
     return targets
 
+def target_restrict(unit, item, defender, splash) -> bool:
+    for component in item.components:
+        if component.defines('target_restrict'):
+            if not component.target_restrict(unit, item, defender, splash):
+                return False
+    return True
+
 def get_range(unit, item) -> set:
     min_range, max_range = 0, 0
     for component in item.components:

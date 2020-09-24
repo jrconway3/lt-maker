@@ -50,7 +50,7 @@ def get_attacks(unit, item=None) -> set:
         return set()
 
     item_range = item_system.get_range(unit, item)
-    attacks = get_shell({unit.postion}, item_range, game.tilemap.width, game.tilemap.height)
+    attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
     return attacks
 
 def get_possible_attacks(unit, valid_moves) -> set:

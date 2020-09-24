@@ -4,11 +4,11 @@ from app.engine import equations, item_system
 
 def get_weapon_rank_bonus(unit, item):
     weapon_type = item_system.weapon_type(unit, item)
-    highest_rank = None
+    highest_rank_bonus = None
     for weapon_rank in DB.weapon_ranks:
         if unit.wexp[weapon_type] >= weapon_rank.requirement:
-            highest_rank = weapon_rank
-    return highest_rank
+            highest_rank_bonus = weapon_rank.bonus
+    return highest_rank_bonus
 
 def compute_advantage(unit1, unit2, item1, item2, advantage=True):
     if not item1 or not item2:
@@ -40,9 +40,9 @@ def accuracy(unit, item=None):
     equation = item_system.accuracy_formula(unit, item)
     accuracy += equations.parser.get(equation, unit)
     
-    weapon_rank = get_weapon_rank_bonus(unit, item)
-    if weapon_rank:
-        accuracy += int(weapon_rank.accuracy)
+    weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
+    if weapon_rank_bonus:
+        accuracy += int(weapon_rank_bonus.accuracy)
 
     # TODO
     # Support Bonus
@@ -71,9 +71,9 @@ def crit_accuracy(unit, item=None):
     equation = item_system.crit_accuracy_formula(unit, item)
     crit_accuracy += equations.parser.get(equation, unit)
     
-    weapon_rank = get_weapon_rank_bonus(unit, item)
-    if weapon_rank:
-        crit_accuracy += int(weapon_rank.crit)
+    weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
+    if weapon_rank_bonus:
+        crit_accuracy += int(weapon_rank_bonus.crit)
 
     return crit_accuracy
 
@@ -98,9 +98,9 @@ def damage(unit, item=None):
     equation = item_system.damage_formula(unit, item)
     might += equations.parser.get(equation, unit)
 
-    weapon_rank = get_weapon_rank_bonus(unit, item)
-    if weapon_rank:
-        might += int(weapon_rank.damage)
+    weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
+    if weapon_rank_bonus:
+        might += int(weapon_rank_bonus.damage)
 
     # TODO
     # Support bonus
@@ -125,9 +125,9 @@ def attack_speed(unit, item=None):
     equation = item_system.attack_speed_formula(unit, item)
     attack_speed = equations.parser.get(equation, unit)
 
-    weapon_rank = get_weapon_rank_bonus(unit, item)
-    if weapon_rank:
-        attack_speed += int(weapon_rank.attack_speed)
+    weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
+    if weapon_rank_bonus:
+        attack_speed += int(weapon_rank_bonus.attack_speed)
 
     # TODO
     # Support bonus
@@ -154,7 +154,7 @@ def compute_hit(unit, target, item=None, mode=None):
         return 10000
 
     # Handles things like effective accuracy
-    hit += item_system.modify_accuracy(unit, item, target, mode)
+    hit += item_system.dynamic_accuracy(unit, item, target, mode)
     
     # Weapon Triangle
     triangle_bonus = 0
@@ -186,7 +186,7 @@ def compute_crit(unit, target, item=None, mode=None):
     crit = crit_accuracy(unit, item)
 
     # Handles things like effective accuracy
-    crit += item_system.modify_crit_accuracy(unit, item, target, mode)
+    crit += item_system.dynamic_crit_accuracy(unit, item, target, mode)
     
     # Weapon Triangle
     triangle_bonus = 0
@@ -218,7 +218,7 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
     might = damage(unit, item)
 
     # Handles things like effective damage
-    might += item_system.modify_damage(unit, item, target, mode)
+    might += item_system.dynamic_damage(unit, item, target, mode)
 
     # Weapon Triangle
     triangle_bonus = 0
@@ -256,7 +256,7 @@ def outspeed(unit, target, item, mode=None) -> bool:
     speed = attack_speed(unit, item)
 
     # Handles things like effective damage
-    speed += item_system.modify_attack_speed(unit, item, target, mode)
+    speed += item_system.dynamic_attack_speed(unit, item, target, mode)
 
     # Weapon Triangle
     triangle_bonus = 0

@@ -61,6 +61,7 @@ class UnitSprite():
         self.transition_counter = 0
         self.transition_time = 450
 
+        self.transition_position = None  # For escape and rescue, etc...
         self.net_position = None
         self.offset = [0, 0]
 

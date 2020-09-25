@@ -257,7 +257,7 @@ def damage_multiplier(unit, item, target, mode) -> float:
     return mult
 
 def dynamic_multiattacks(unit, item, target, mode) -> int:
-    num_attacks = 1
+    num_attacks = 0
     for component in item.components:
         if component.defines('dynamic_multiattacks'):
             num_attacks += component.dynamic_multiattacks(unit, item, target, mode)
@@ -312,3 +312,9 @@ def on_miss(actions, playback, unit, item, target, mode=None):
     # Default playback
     playback.append(('hit_sound', 'Attack Miss 2'))
     playback.append(('hit_anim', 'MapMiss', target))
+
+def item_icon_mods(unit, item, target, sprite):
+    for component in item.components:
+        if component.defines('item_icon_mods'):
+            sprite = component.item_icon_mods(unit, item, target, sprite)
+    return sprite

@@ -159,9 +159,11 @@ class UIView():
 
         # Weapon Icon
         weapon = unit.get_weapon()
-        if weapon:
+        icon = icons.get_item_icon(weapon)
+        if icon:
             pos = (left + width - 20, top + height//2 - 8)
-            icons.draw_item(surf, weapon, pos)
+            # icon = item_system.item_icon_mods(unit, weapon, defender, icon)
+            surf.blit(icon, pos)
         return surf
 
     def create_tile_info(self, coord):
@@ -314,27 +316,29 @@ class UIView():
         surf.blit(self.attack_info_disp, topleft)
 
         # Attacker Item
-        white = False
-        if combat_calcs.get_effective(attacker.get_weapon(), defender):
-            white = True
-        icons.draw_item(surf, attacker.get_weapon(), (topleft[0] + 2, topleft[1] + 4), white)
+        item = attacker.get_weapon()
+        icon = icons.get_item_icon(item)
+        if icon:
+            icon = item_system.item_icon_mods(attacker, item, defender, icon)
+            surf.blit(icon, (topleft[0] + 2, topleft[1] + 4))
 
         # Defender Item
         if defender.get_weapon():
-            white = False
-            if combat_calcs.get_effective(defender.get_weapon(), attacker):
-                white = True
-            y_pos = topleft[1] + 83
-            if not crit:
-                y_pos -= 16
-            if grandmaster:
-                y_pos -= 16
-            icons.draw_item(surf, defender.get_weapon(), (topleft[0] + 50, y_pos), white)
+            item = defender.get_weapon()
+            icon = icons.get_item_icon(item)
+            if icon:
+                icon = item_system.item_icon_mods(defender, item, attacker, icon)
+                y_pos = topleft[1] + 83
+                if not crit:
+                    y_pos -= 16
+                if grandmaster:
+                    y_pos -= 16
+                surf.blit(icon, (topleft[0] + 50, y_pos))
 
         # Advantage arrows
         if skill_system.check_enemy(attacker, defender):
-            adv = combat_calcs.compute_advantage(attacker, attacker.get_weapon(), defender.get_weapon())
-            disadv = combat_calcs.compute_advantage(attacker, attacker.get_weapon(), defender.get_weapon(), False)
+            adv = combat_calcs.compute_advantage(attacker, defender, attacker.get_weapon(), defender.get_weapon())
+            disadv = combat_calcs.compute_advantage(attacker, defender, attacker.get_weapon(), defender.get_weapon(), False)
             if adv:
                 up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
                 surf.blit(up_arrow, (topleft[0] + 13, topleft[1] + 8))
@@ -347,8 +351,8 @@ class UIView():
                 y_pos -= 16
             if not grandmaster:
                 y_pos -= 16
-            adv = combat_calcs.compute_advantage(defender, defender.get_weapon(), attacker.get_weapon())
-            disadv = combat_calcs.compute_advantage(defender, defender.get_weapon(), attacker.get_weapon(), False)
+            adv = combat_calcs.compute_advantage(defender, attacker, defender.get_weapon(), attacker.get_weapon())
+            disadv = combat_calcs.compute_advantage(defender, attacker, defender.get_weapon(), attacker.get_weapon(), False)
             if adv:
                 up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
                 surf.blit(up_arrow, (topleft[0] + 61, y_pos))
@@ -360,38 +364,29 @@ class UIView():
         count = game.map_view.x2_counter.count
         x2_pos_player = (topleft[0] + 59 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
         x2_pos_enemy = (topleft[0] + 20 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
+
         weapon = attacker.get_weapon()
-        my_num = 1
-        if not weapon.no_double:
-            if weapon.brave and weapon.brave.value != "Brave while defending":
-                my_num *= 2
-            if combat_calcs.outspeed(attacker, defender, weapon, "Attack"):
-                my_num *= 2
-            if weapon.uses or weapon.c_uses:
-                if weapon.uses:
-                    my_num = min(my_num, weapon.uses.value)
-                if weapon.c_uses:
-                    my_num = min(my_num, weapon.c_uses.value)
+        my_num = combat_calcs.outspeed(attacker, defender, weapon, "attack")
+        my_num *= combat_calcs.compute_multiattacks(attacker, defender, weapon, "attack")
+        my_num = min(my_num, weapon.data.get('uses', 100))
 
-            if my_num == 2:
-                surf.blit(SPRITES.get('x2'), x2_pos_player)
-            elif my_num == 3:
-                surf.blit(SPRITES.get('x3'), x2_pos_player)
-            elif my_num == 4:
-                surf.blit(SPRITES.get('x4'), x2_pos_player)
+        if my_num == 2:
+            surf.blit(SPRITES.get('x2'), x2_pos_player)
+        elif my_num == 3:
+            surf.blit(SPRITES.get('x3'), x2_pos_player)
+        elif my_num == 4:
+            surf.blit(SPRITES.get('x4'), x2_pos_player)
 
-            # ie if weapon can be countered
-            if not weapon.cannot_be_countered:
-                eweapon = defender.get_weapon()
-
-                e_num = 1
-                if eweapon and not eweapon.no_double and \
-                        utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, eweapon):
-                    if eweapon.brave and eweapon.brave.value != 'Brave while attacking':
-                        e_num *= 2
-                    if DB.constants.get('def_double').value and \
-                            combat_calcs.outspeed(defender, attacker, weapon, "Defense"):
-                        e_num *= 2
+        # Enemy doubling
+        eweapon = defender.get_weapon()        
+        if eweapon and item_system.cannot_be_countered(attacker, weapon):
+            if utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, eweapon):
+                if DB.constants.value('def_double'):
+                    e_num = combat_calcs.outspeed(defender, attacker, eweapon, 'defense')
+                else:
+                    e_num = 1
+                e_num *= combat_calcs.compute_multiattacks(defender, attacker, eweapon, 'defense')
+                e_num = min(e_num, eweapon.data.get('uses', 100))
 
                 if e_num == 2:
                     surf.blit(SPRITES.get('x2'), x2_pos_enemy)
@@ -464,7 +459,10 @@ class UIView():
 
             # Blit name
             running_height += 16
-            icons.draw_item(bg_surf, spell, (8, running_height))
+            icon = icons.get_item_icon(spell)
+            if icon:
+                icon = item_system.item_icon_mods(attacker, spell, defender, icon)
+                bg_surf.blit(icon, (8, running_height))
             name_width = FONT['text-white'].width(spell.name)
             FONT['text-white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
 

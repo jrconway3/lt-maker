@@ -1,23 +1,19 @@
 from app.constants import COLORKEY
 from app.resources.resources import RESOURCES
 
-from app.engine import engine, image_mods
+from app.engine import engine
 
-def draw_item(surf, item, topleft, effective=False, cooldown=False):
+def get_item_icon(item):
     image = RESOURCES.icons16.get(item.icon_nid)
     if not image:
-        return surf
+        return None
 
     if not image.image:
         image.image = engine.image_load(image.full_path)
     image = engine.subsurface(image.image, (item.icon_index[0] * 16, item.icon_index[1] * 16, 16, 16))
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
-
-    if effective:
-        image = image_mods.make_white(image.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
-    surf.blit(image, topleft)
-    return surf
+    return image
 
 def draw_weapon(surf, weapon, topleft):
     image = RESOURCES.icons16.get(weapon.icon_nid)

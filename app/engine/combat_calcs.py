@@ -1,4 +1,4 @@
-from app import utilities
+from app.utilities import utils
 from app.data.database import DB
 from app.engine import equations, item_system
 
@@ -175,7 +175,7 @@ def compute_hit(unit, target, item=None, mode=None):
 
     hit -= avoid(target, item)
 
-    return utilities.clamp(hit, 0, 100)
+    return utils.clamp(hit, 0, 100)
 
 def compute_crit(unit, target, item=None, mode=None):
     if not item:
@@ -207,7 +207,7 @@ def compute_crit(unit, target, item=None, mode=None):
 
     crit -= crit_avoid(target, item)
 
-    return utilities.clamp(crit, 0, 100)
+    return utils.clamp(crit, 0, 100)
 
 def compute_damage(unit, target, item=None, mode=None, crit=False):
     if not item:
@@ -252,6 +252,8 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
 def outspeed(unit, target, item, mode=None) -> bool:
     if not item:
         item = unit.get_weapon()
+    if not item_system.can_double(unit, item):
+        return 1
 
     speed = attack_speed(unit, item)
 
@@ -278,4 +280,15 @@ def outspeed(unit, target, item, mode=None) -> bool:
     speed -= defense_speed(target, item)
 
     # Skills and Status TODO
-    return 2 if speed >= equations.parser.speed_to_double() else 1
+    return 2 if speed >= equations.parser.speed_to_double(unit) else 1
+
+def compute_multiattacks(unit, target, item=None, mode=None):
+    if not item:
+        item = unit.get_weapon()
+    if not item:
+        return None
+
+    num_attacks = 1
+    num_attacks += item_system.dynamic_multiattacks(unit, item, target, mode)
+
+    return num_attacks

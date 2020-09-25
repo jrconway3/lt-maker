@@ -46,6 +46,8 @@ can_counter!+ bool False  # Whether this item can counter on defense
 can_be_countered!+ bool False  # Whether this item can be countered while attacking
 can_double!+ bool False  # Whether this item can double attack
 
+item_icon_mod unit item target sprite -> sprite
+
 # Use these formulas to change how items determine their combat stats
 # Like for magic items -- Is this actually useful?? Should I be using equations at all... hmmm...
 *damage_formula! equation DAMAGE

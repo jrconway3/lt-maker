@@ -19,7 +19,7 @@ class MapCombat():
         self.splash = splash
 
         self.item = item
-        self.def_item = self.defender.get_equipped_weapon() if self.defender else None
+        self.def_item = self.defender.get_weapon() if self.defender else None
 
         self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item)
 

@@ -2,7 +2,7 @@ from app.data.database import DB
 
 from app.data.item_components import ItemComponent, Type
 
-from app.engine import action, combat_calcs, equations, item_system
+from app.engine import action, combat_calcs, equations, item_system, image_mods, engine
 
 class WeaponType(ItemComponent):
     nid = 'weapon_type'
@@ -114,8 +114,7 @@ class EffectiveTag(ItemComponent):
 
     def item_icon_mod(self, unit, item, target, sprite):
         if any(tag in target.tags for tag in self.value):
-            # Make sprite white
-            pass
+            sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
         return sprite
 
 class Brave(ItemComponent):

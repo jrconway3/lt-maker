@@ -199,7 +199,9 @@ class ItemOption(BasicOption):
     def draw(self, surf, x, y):
         main_font = 'text_grey'
         uses_font = 'text_grey'
-        icons.draw_item(surf, self.item, (x + 2, y))
+        icon = icons.get_item_icon(self.item)
+        if icon:
+            surf.blit(icon, (x + 2, y))
         main_font, uses_font = self.get_color()
         FONT[main_font].blit(self.item.name, surf, (x + 20, y))
         uses_string = '--'

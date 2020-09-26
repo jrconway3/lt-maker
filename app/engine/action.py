@@ -608,7 +608,6 @@ class GainWexp(Action):
 
     def increase_wexp(self):
         weapon_type = item_system.weapon_type(self.unit, self.item)
-        print(weapon_type)
         if not weapon_type:
             return 0, 0
         self.unit.wexp[weapon_type] += self.wexp_gain

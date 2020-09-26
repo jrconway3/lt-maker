@@ -25,9 +25,9 @@ class LevelExp(ItemComponent):
     def exp(self, unit, item, target) -> int:
         if skill_system.check_enemy(unit, target):
             level_diff = target.get_internal_level() - unit.get_internal_level()
-            level_diff += DB.constants.get('exp_offset').value
-            exp_gained = math.exp(level_diff * DB.constants.get('exp_curve'))
-            exp_gained *= DB.constants.get('exp_magnitude').value
+            level_diff += DB.constants.value('exp_offset')
+            exp_gained = math.exp(level_diff * DB.constants.value('exp_curve'))
+            exp_gained *= DB.constants.value('exp_magnitude')
         else:
             exp_gained = 0
         return exp_gained

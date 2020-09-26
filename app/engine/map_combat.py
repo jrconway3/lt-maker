@@ -49,13 +49,15 @@ class MapCombat():
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
 
-        print("Map Combat %s" % self.state)
+        # print("Map Combat %s" % self.state)
         if self.state == 'begin_phase':
             # Get playback
             if not self.state_machine.get_state():
                 self.clean_up()
                 return True
             self.actions, self.playback = self.state_machine.do()
+            if not self.actions and not self.playback:
+                return False
             self._build_health_bars()
 
             # Camera
@@ -298,6 +300,7 @@ class MapCombat():
         for unit in all_units:
             if unit.get_hp() <= 0:
                 game.death.should_die(unit)
+            else:
                 unit.sprite.change_state('normal')
 
         self.turnwheel_death_messages(all_units)

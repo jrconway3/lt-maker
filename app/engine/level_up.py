@@ -543,7 +543,7 @@ class ExpBar():
         new_surf.blit(self.end, (10 + idx, 9))
 
         # Blit current amount of exp
-        FONT['number_small3'].blit_right(str(self.num), new_surf, (self.width - 4, 4))
+        FONT['number-small3'].blit_right(str(self.num), new_surf, (self.width - 4, 4))
 
         # Transition
         new_surf = engine.subsurface(new_surf, (0, self.offset, self.width, self.height - self.offset * 2))

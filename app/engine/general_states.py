@@ -542,7 +542,6 @@ class MenuState(MapState):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
-            print(selection)
             logger.info("Player selected %s", selection)
             game.highlight.remove_highlights()
 

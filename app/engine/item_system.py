@@ -274,7 +274,6 @@ def find_hp(actions, target):
 def on_hit(actions, playback, unit, item, target, mode=None):
     for component in item.components:
         if component.defines('on_hit'):
-            print(component)
             component.on_hit(actions, playback, unit, item, target, mode)
 
     # Default playback

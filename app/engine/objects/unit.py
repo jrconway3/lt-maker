@@ -107,7 +107,7 @@ class UnitObject(Prefab):
         return self.exp
 
     def set_exp(self, val):
-        self.exp = int(utils.clamp(val, 0, equations.parser.exp(self)))
+        self.exp = int(utils.clamp(val, 0, 100))
 
     @property
     def tags(self):

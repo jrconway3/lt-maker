@@ -72,14 +72,12 @@ class CombatPhaseSolver():
         self.num_attacks, self.num_defends = 0, 0
 
     def get_state(self):
-        print("Get State: %s" % self.state)
         return self.state
 
     def do(self):
         actions, playback = [], []
         self.state.process(self, actions, playback)
         next_state = self.state.get_next_state(self)
-        print(next_state)
         if next_state:
             self.state = self.states[next_state]()
         else:

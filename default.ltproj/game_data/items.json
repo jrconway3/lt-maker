@@ -56,6 +56,10 @@
             [
                 "weapon_type",
                 "Sword"
+            ],
+            [
+                "weapon_rank",
+                "E"
             ]
         ]
     },
@@ -116,6 +120,10 @@
             [
                 "weapon_type",
                 "Axe"
+            ],
+            [
+                "weapon_rank",
+                "E"
             ]
         ]
     }

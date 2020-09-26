@@ -70,7 +70,8 @@ class Cursor():
             self.construct_arrows(self.path[::-1])
 
         # Remove unit info display
-        game.ui_view.remove_unit_display()
+        if dx != 0 or dy != 0:
+            game.ui_view.remove_unit_display()
 
         if mouse:
             self.offset_x += utils.clamp(8*dx, -8, 8)

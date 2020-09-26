@@ -269,8 +269,8 @@ class UIView():
                 c = combat_calcs.compute_crit(attacker, defender, attacker.get_weapon(), 'Attack')
                 blit_num(surf, c, 64, 67)
         # Enemy Hit and Mt
-        if not attacker.get_weapon().cannot_be_countered and defender.get_weapon() and \
-               utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, defender.get_weapon()):
+        if item_system.can_be_countered(attacker, attacker.get_weapon()) and defender.get_weapon() and \
+                utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, defender.get_weapon()):
             e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'Defense')
             e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'Defense')
             if crit:
@@ -379,7 +379,7 @@ class UIView():
 
         # Enemy doubling
         eweapon = defender.get_weapon()        
-        if eweapon and item_system.cannot_be_countered(attacker, weapon):
+        if eweapon and item_system.can_be_countered(attacker, weapon):
             if utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, eweapon):
                 if DB.constants.value('def_double'):
                     e_num = combat_calcs.outspeed(defender, attacker, eweapon, 'defense')

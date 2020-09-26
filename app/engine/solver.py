@@ -135,7 +135,7 @@ class CombatPhaseSolver():
             item_system.can_be_countered(self.attacker, self.item) and \
             item_system.can_counter(self.main_target, self.target_item) and \
             (not self.attacker.position or \
-             self.attacker.position in self.attacker.item_system.valid_targets(self.main_target, self.target_item))
+             self.attacker.position in item_system.valid_targets(self.main_target, self.target_item))
 
     def item_has_uses(self):
         return item_system.available(self.attacker, self.item)

@@ -27,7 +27,7 @@ class Defaults():
     def sight_range(unit) -> int:
         return 0
 
-default_behaviours = ('has_canto', 'pass_through')
+default_behaviours = ('has_canto', 'pass_through', 'vantage')
 
 for behaviour in default_behaviours:
     func = """def %s(unit):

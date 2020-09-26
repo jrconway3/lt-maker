@@ -8,9 +8,9 @@ from app.engine import engine, image_mods
 
 class Animation():
     def __init__(self, anim, position, delay=0, loop=0, hold=False):
-        if not anim.sprite:
-            anim.sprite = engine.image_load(anim.full_path)
-        self.sprite = anim.sprite
+        if not anim.image:
+            anim.image = engine.image_load(anim.full_path)
+        self.sprite = anim.image
         self.position = position
         self.frame_x, self.frame_y = anim.frame_x, anim.frame_y
         self.num_frames = anim.num_frames

@@ -34,7 +34,7 @@ class WeaponRank(ItemComponent):
         required_wexp = DB.weapon_ranks.get(self.value).requirement
         weapon_type = item_system.weapon_type(unit, item)
         if weapon_type:
-            return unit.wexp.get(weapon_type(unit, item)) > required_wexp
+            return unit.wexp.get(weapon_type) >= required_wexp
         else:  # If no weapon type, then always available
             return True
 

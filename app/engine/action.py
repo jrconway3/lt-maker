@@ -5,7 +5,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data import items
 from app.data.database import DB
 
-from app.engine import banner, static_random, unit_funcs, equations, skill_system
+from app.engine import banner, static_random, unit_funcs, equations, skill_system, item_system
 from app.engine.objects.unit import UnitObject
 from app.engine.game_state import game
 
@@ -545,21 +545,19 @@ class TradeItem(Action):
     def reverse(self):
         self.swap(self.unit1, self.unit2, self.item2, self.item1, self.item_index2, self.item_index1)
 
-class UseItem(Action):
-    def __init__(self, item):
+class IncItemData(Action):
+    def __init__(self, item, keyword, value):
         self.item = item
+        self.keyword = keyword
+        self.value = value
 
     def do(self):
-        if self.item.uses:
-            self.item.uses.value -= 1
-        if self.item.c_uses:
-            self.item.c_uses.value -= 1
+        if self.keyword in self.item.data:
+            self.item.data[self.keyword] += self.value
 
     def reverse(self):
-        if self.item.uses:
-            self.item.uses.value += 1
-        if self.item.c_cuses:
-            self.item.c_uses.value += 1
+        if self.keyword in self.item.data:
+            self.item.data[self.keyword] -= self.value
 
 class GainExp(Action):
     def __init__(self, unit, exp_gain):
@@ -603,20 +601,18 @@ class ApplyLevelUp(Action):
         unit_funcs.apply_stat_changes(self.unit, negative_changes)
 
 class GainWexp(Action):
-    def __init__(self, unit, item):
+    def __init__(self, unit, item, wexp_gain):
         self.unit = unit
         self.item = item
+        self.wexp_gain = wexp_gain
 
     def increase_wexp(self):
-        if self.item.weapon:
-            weapon_type = self.item.weapon.value
-        elif self.item.spell:
-            weapon_type = self.item.spell.weapon_type
-        else:
+        weapon_type = item_system.weapon_type(self.unit, self.item)
+        print(weapon_type)
+        if not weapon_type:
             return 0, 0
-        increase = self.item.wexp.value if self.item.wexp is not None else 1
-        self.unit.wexp[weapon_type] += increase
-        return self.unit.wexp[weapon_type] - increase, self.unit.wexp[weapon_type]
+        self.unit.wexp[weapon_type] += self.wexp_gain
+        return self.unit.wexp[weapon_type] - self.wexp_gain, self.unit.wexp[weapon_type]
 
     def do(self):
         self.old_value, self.current_value = self.increase_wexp()
@@ -630,11 +626,8 @@ class GainWexp(Action):
         self.old_value, self.current_value = self.increase_wexp()
 
     def reverse(self):
-        if self.item.weapon:
-            weapon_type = self.item.weapon.value
-        elif self.item.spell:
-            weapon_type = self.item.spell.weapon_type
-        else:
+        weapon_type = item_system.weapon_type(self.unit, self.item)
+        if not weapon_type:
             return
         self.unit.wexp[weapon_type] = self.old_value
 

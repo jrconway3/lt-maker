@@ -12,6 +12,8 @@ from app.engine.animations import MapAnimation
 from app.engine.game_state import game
 
 class MapCombat():
+    ai_combat = False
+
     def __init__(self, attacker, item, position, main_target, splash):
         self.target_position = position
         self.attacker = attacker
@@ -47,6 +49,7 @@ class MapCombat():
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
 
+        print("Map Combat %s" % self.state)
         if self.state == 'begin_phase':
             # Get playback
             if not self.state_machine.get_state():
@@ -92,7 +95,7 @@ class MapCombat():
             if self._skip or current_time > 400:
                 game.cursor.hide()
                 game.highlight.remove_highlights()
-                animation_brushes = self.playback.get_from_playback('cast_anim')
+                animation_brushes = self.get_from_playback('cast_anim')
                 for brush in animation_brushes:
                     anim = RESOURCES.animations.get(brush[1])
                     pos = game.cursor.position
@@ -108,7 +111,7 @@ class MapCombat():
                     self.defender.sprite.change_state('combat_anim')
                 else:
                     self.attacker.sprite.change_state('combat_anim')
-                sound_brushes = self.playback.get_from_playback('cast_sound')
+                sound_brushes = self.get_from_playback('cast_sound')
                 for brush in sound_brushes:
                     SOUNDTHREAD.play_sfx(brush[1])
 
@@ -126,10 +129,10 @@ class MapCombat():
                 self._apply_actions()
 
                 # Force update hp bars so we can get timing info
-                for hp_bar in self.health_bars.value():
+                for hp_bar in self.health_bars.values():
                     hp_bar.update()
                 if self.health_bars:
-                    self.hp_bar_time = max(hp_bar.get_time_for_change() for hp_bar in self.hp_bars.values())
+                    self.hp_bar_time = max(hp_bar.get_time_for_change() for hp_bar in self.health_bars.values())
                 else:
                     self.hp_bar_time = 400
                 self.state = 'hp_bar_wait'
@@ -140,7 +143,7 @@ class MapCombat():
                 self.state = 'end_phase'
                 self.last_update = engine.get_time()
 
-        elif self.state == 'wait':
+        elif self.state == 'end_phase':
             if self._skip or current_time > 400:
                 self._end_phase()
                 self.state = 'begin_phase'
@@ -305,9 +308,9 @@ class MapCombat():
 
         # handle wexp & skills
         if not self.attacker.is_dying:
-            self.handle_wexp(self.attacker, self.item)
+            self.handle_wexp(self.attacker, self.item, self.defender)
         if self.def_item and not self.defender.is_dying:
-            self.handle_wexp(self.defender, self.def_item)
+            self.handle_wexp(self.defender, self.def_item, self.attacker)
 
         # handle exp & records
         if self.attacker.team == 'player' and not self.attacker.is_dying:
@@ -359,7 +362,7 @@ class MapCombat():
         else:
             if not self.attacker.has_attacked and not self.attacker.is_dying:
                 game.state.change('menu')
-            elif skill_system.has_canto_plus(self.attacker) and not self.attacker.is_dying:
+            elif skill_system.has_canto(self.attacker) and not self.attacker.is_dying:
                 game.state.change('move')
             else:
                 game.state.clear()
@@ -402,17 +405,17 @@ class MapCombat():
                 game.alerts.append(banner.BrokenItem(self.defender, self.def_item))
                 game.state.change('alert')
 
-    def handle_wexp(self, unit, item):
+    def handle_wexp(self, unit, item, target):
         marks = self.get_from_playback('mark_hit')
         marks += self.get_from_playback('mark_crit')
-        if DB.constants.get('miss_wexp').value:
+        if DB.constants.value('miss_wexp'):
             marks += self.get_from_playback('mark_miss')
         marks = [mark for mark in marks if mark[1] == unit]
-        wexp = item_system.wexp(unit, item)
+        wexp = item_system.wexp(unit, item, target)
 
-        if DB.constants.get('double_wexp').value:
+        if DB.constants.value('double_wexp'):
             for mark in marks:
-                if mark[2].is_dying and DB.constants.get('kill_wexp').value:
+                if mark[2].is_dying and DB.constants.value('kill_wexp'):
                     action.do(action.GainWexp(unit, item, wexp*2))
                 else:
                     action.do(action.GainWexp(unit, item, wexp))
@@ -430,16 +433,12 @@ class MapCombat():
         for mark in marks:
             attacker = mark[1]
             defender = mark[2]
-            attacker_klass = DB.classes.get(attacker.klass)
-            defender_klass = DB.classes.get(defender.klass)
-            exp_multiplier = attacker_klass.exp_mult * defender_klass.opponent_exp_mult
-
             exp = item_system.exp(attacker, item, defender)
             if defender.is_dying:
                 exp *= int(DB.constants.get('kill_multiplier').value)
                 if 'Boss' in defender.tags:
                     exp += int(DB.constants.get('boss_bonus').value)
-            total_exp += (exp_multiplier * exp)
+            total_exp += exp
 
         return total_exp
 

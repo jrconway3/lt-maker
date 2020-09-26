@@ -664,7 +664,7 @@ class ItemChildState(MapState):
             item = self.menu.owner
             if selection == 'Use':
                 combat = interaction.engage(self.cur_unit, [self.cur_unit.position], item)
-                game.memory['combat'] = combat
+                game.combat_instance = combat
                 game.state.change('combat')
             elif selection == 'Equip':
                 action.do(action.EquipItem(self.cur_unit, item))
@@ -970,7 +970,7 @@ class CombatTargetingState(MapState):
                 self.display_single_attack()
             else:
                 combat = interaction.engage(self.cur_unit, self.prev_targets, self.item)
-                game.memory['combat'] = combat
+                game.combat_instance = combat
                 game.state.change('combat')
 
         if directions:
@@ -1005,7 +1005,7 @@ class CombatState(MapState):
         self.skip = False
         width = game.tilemap.width * TILEWIDTH
         height = game.tilemap.height * TILEHEIGHT
-        self.combat = game.memory['combat']
+        self.combat = game.combat_instance
         self.unit_surf = engine.create_surface((width, height), transparent=True)
         self.is_animation_combat = isinstance(self.combat, interaction.AnimationCombat)
 

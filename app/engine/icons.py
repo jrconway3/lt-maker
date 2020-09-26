@@ -4,6 +4,8 @@ from app.resources.resources import RESOURCES
 from app.engine import engine
 
 def get_item_icon(item):
+    if not item:
+        return None
     image = RESOURCES.icons16.get(item.icon_nid)
     if not image:
         return None

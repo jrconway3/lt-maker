@@ -118,11 +118,11 @@ class UnitSprite():
         elif self.state in ('combat_active'):
             self.image_state = 'active'
         elif self.state == 'combat_defender':
-            attacker = game.combat_instance.p1
+            attacker = game.combat_instance.attacker
             self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
         elif self.state == 'combat_counter':
-            attacker = game.combat_instance.p2
+            attacker = game.combat_instance.defender
             self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
         elif self.state == 'fake_transition_in':

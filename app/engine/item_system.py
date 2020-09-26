@@ -264,15 +264,17 @@ def dynamic_multiattacks(unit, item, target, mode) -> int:
     return num_attacks
 
 def find_hp(actions, target):
+    from app.engine import action
     starting_hp = target.get_hp()
-    for action in actions:
-        if isinstance(action, action.ChangeHP):
-            starting_hp += action.num
+    for subaction in actions:
+        if isinstance(subaction, action.ChangeHP):
+            starting_hp += subaction.num
     return starting_hp
 
 def on_hit(actions, playback, unit, item, target, mode=None):
     for component in item.components:
         if component.defines('on_hit'):
+            print(component)
             component.on_hit(actions, playback, unit, item, target, mode)
 
     # Default playback

@@ -23,7 +23,7 @@ class AttackerState(SolverState):
     def get_next_state(self, solver):
         if solver.attacker_alive() and solver.main_target_alive():
             if solver.allow_counterattack() and \
-                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defend'):
+                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
                 return 'defender'
             elif solver.item_has_uses() and \
                     solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
@@ -47,14 +47,14 @@ class DefenderState(SolverState):
                     solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
                 return 'attacker'
             elif solver.allow_counterattack() and \
-                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defend'):
+                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
                 return 'defender'
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))
         multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
         for attack in range(multiattacks):
-            solver.process(actions, playback, solver.main_target, solver.attacker, solver.target_item, 'defend')
+            solver.process(actions, playback, solver.main_target, solver.attacker, solver.target_item, 'defense')
         solver.num_defends += 1
 
 class CombatPhaseSolver():
@@ -72,14 +72,18 @@ class CombatPhaseSolver():
         self.num_attacks, self.num_defends = 0, 0
 
     def get_state(self):
+        print("Get State: %s" % self.state)
         return self.state
 
     def do(self):
         actions, playback = [], []
         self.state.process(self, actions, playback)
         next_state = self.state.get_next_state(self)
+        print(next_state)
         if next_state:
             self.state = self.states[next_state]()
+        else:
+            self.state = None
         return actions, playback
 
     def generate_roll(self):
@@ -108,13 +112,13 @@ class CombatPhaseSolver():
                 if crit_roll < to_crit:
                     crit = True
             if crit:
-                combat_calcs.on_crit(actions, playback, attacker, item, defender, mode)
+                item_system.on_crit(actions, playback, attacker, item, defender, mode)
                 playback.append(('mark_crit', attacker, defender))
             else:
-                combat_calcs.on_hit(actions, playback, attacker, item, defender, mode)
+                item_system.on_hit(actions, playback, attacker, item, defender, mode)
                 playback.append(('mark_hit', attacker, defender))
         else:
-            combat_calcs.on_miss(actions, playback, attacker, item, defender, mode)
+            item_system.on_miss(actions, playback, attacker, item, defender, mode)
             playback.append(('mark_miss', attacker, defender))
 
     def attacker_alive(self):

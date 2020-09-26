@@ -1,6 +1,7 @@
 from app.engine.solver import CombatPhaseSolver
 from app.engine.map_combat import MapCombat
-from app.engine import item_system
+from app.engine import item_system, action
+from app.engine.game_state import game
 
 def has_animation(attacker, item, main_target, splash):
     return False
@@ -33,15 +34,35 @@ class SimpleCombat():
     has no position
     """
     def __init__(self, attacker, item, main_target, splash):
+        self.attacker = attacker
         self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item)
         while self.state_machine.get_state():
-            self.state_machine.do()
+            self.actions, self.playback = self.state_machine.do()
+            self._apply_actions()
+
+    def _apply_actions(self):
+        """
+        Actually commit the actions that we had stored!
+        """
+        for act in self.actions:
+            action.execute(act)
 
     def update(self) -> bool:
+        self.clean_up()
         return True
 
     def draw(self, surf):
         return surf
+
+    def clean_up(self):
+        action.do(action.HasAttacked(self.attacker))
+        if self.attacker.team == 'player':
+            game.state.clear()
+            game.state.change('free')
+            game.state.change('wait')
+        else:
+            game.state.back()
+            game.state.change('wait')
 
 class AnimationCombat(SimpleCombat):
     # TODO Implement

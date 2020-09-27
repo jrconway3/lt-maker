@@ -8,11 +8,14 @@ from app.engine import action, skill_system, combat_calcs, equations
 
 class Heal(ItemComponent):
     nid = 'heal'
-    desc = "Item heals this amount + HEAL on hit"
+    desc = "Item heals this amount on hit"
     tag = 'weapon'
 
     expose = Type.Int
     value = 10
+
+    def _get_heal_amount(self, unit):
+        return self.value
 
     def target_restrict(self, unit, item, defender, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
@@ -24,8 +27,7 @@ class Heal(ItemComponent):
         return False
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        dist = utilities.calculate_distance(unit.position, target.position)
-        heal = self.value + equations.parser.heal(unit, item, dist)
+        heal = self._get_heal_amount(unit)
         actions.append(action.ChangeHP(target, heal))
 
         # For animation
@@ -38,6 +40,13 @@ class Heal(ItemComponent):
         else:
             name = 'MapSmallHealTrans'
         playback.append(('hit_anim', name, target))
+
+class MagicHeal(Heal):
+    nid = 'magic_heal'
+    desc = "Item heals this amount + HEAL on hit"
+
+    def _get_heal_amount(self, unit):
+        return self.value + equations.parser.heal(unit)
 
 class Damage(ItemComponent):
     nid = 'damage'

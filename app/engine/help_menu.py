@@ -117,35 +117,36 @@ class ItemHelpDialog(HelpDialog):
         self.transition_out = 0
 
         self.item = item
+        self.unit = game.get_unit(item.owner_nid) if item.owner_nid else None
 
-        if self.item.level:
-            weapon_level = self.item.level.value
-        elif self.item.prf_unit or self.item.prf_class:
-            weapon_level = 'Prf'
-        else:
-            weapon_level = '--'
-        might = self.item.might.value if self.item.might else '--'
-        hit = self.item.hit.value if self.item.hit else '--'
-        if DB.constants.get('crit').value:
-            crit = self.item.crit.value if self.item.crit else '--'
+        weapon_rank = item_system.weapon_rank(self.unit, self.item)
+        if not weapon_rank:
+            if item.prf_unit or item.prf_class or item.prf_tag:
+                weapon_rank = 'Prf'
+            else:
+                weapon_rank = '--'
+
+        might = item_system.damage(self.unit, self.item)
+        hit = item_system.hit(self.unit, self.item)
+        if DB.constants.value('crit'):
+            crit = item_system.crit(self.unit, self.item)
         else:
             crit = None
         weight = self.item.weight.value if self.item.weight else '--'
-        min_rng = self.item.min_range
-        max_rng = self.item.max_range
-        if str_utils.is_int(min_rng) and str_utils.is_int(max_rng):
-            if min_rng == max_rng:
-                rng = min_rng
-            else:
-                rng = '%d-%d' % (min_rng, max_rng)
-        elif self.item.owner_nid:
-            owner = game.get_unit(self.item.owner_nid)
-            item_range = item_system.get_range(owner, self.item)
-            rng = '%d-%d' % (min(item_range), max(item_range))
+        # Get range
+        if self.unit:
+            item_range = item_system.get_range(self.unit, self.item)
+            min_range = min(item_range)
+            max_range = max(item_range)
         else:
-            rng = '%d-%d' % (item_system.minimum_range(self.item, None), item_system.maximum_range(self.item, None))
+            min_range = item_system.minimum_range(None, self.item)
+            max_range = item_system.maximum_range(None, self.item)
+        if min_range != max_range:
+            rng = '%d-%d' % (min_range, max_range)
+        else:
+            rng = '%d' % max_range
 
-        self.vals = (weapon_level, rng, weight, might, hit, crit)
+        self.vals = (weapon_rank, rng, weight, might, hit, crit)
 
         if self.item.desc:
             self.lines = text_funcs.line_wrap(self.font, self.item.desc, 164)
@@ -163,11 +164,9 @@ class ItemHelpDialog(HelpDialog):
         self.last_time = time
 
         help_surf = engine.copy_surface(self.help_surf)
-        if self.item.weapon:
-            weapon_type = DB.weapons.get(self.item.weapon.value)
-        elif self.item.spell:
-            weapon_type = DB.weapons.get(self.item.spell.weapon_type)
-        icons.draw_weapon(help_surf, weapon_type, (8, 6))
+        weapon_type = item_system.weapon_type(self.unit, self.item)
+        if weapon_type:
+            icons.draw_weapon(help_surf, weapon_type, (8, 6))
 
         self.font_yellow.blit('Rng', help_surf, (56, 6))
         self.font_yellow.blit('Wt', help_surf, (116, 6))

@@ -1,5 +1,6 @@
 from app.constants import COLORKEY
 from app.resources.resources import RESOURCES
+from app.data.database import DB
 
 from app.engine import engine
 
@@ -17,14 +18,15 @@ def get_item_icon(item):
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
     return image
 
-def draw_weapon(surf, weapon, topleft):
-    image = RESOURCES.icons16.get(weapon.icon_nid)
+def draw_weapon(surf, weapon_type, topleft):
+    w_type_obj = DB.weapons.get(weapon_type)
+    image = RESOURCES.icons16.get(w_type_obj.icon_nid)
     if not image:
         return surf
 
     if not image.image:
         image.image = engine.image_load(image.full_path)
-    image = engine.subsurface(image.image, (weapon.icon_index[0] * 16, weapon.icon_index[1] * 16, 16, 16))
+    image = engine.subsurface(image.image, (w_type_obj.icon_index[0] * 16, w_type_obj.icon_index[1] * 16, 16, 16))
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
     

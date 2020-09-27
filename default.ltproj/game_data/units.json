@@ -93,7 +93,7 @@
                 30
             ]
         ],
-        "starting_items": ["Iron Sword"],
+        "starting_items": ["Iron Sword", "Vulnerary"],
         "learned_skills": [],
         "wexp_gain": [
             [
@@ -237,7 +237,7 @@
                 30
             ]
         ],
-        "starting_items": [],
+        "starting_items": ["Steel Sword", "Vulnerary"],
         "learned_skills": [],
         "wexp_gain": [
             [

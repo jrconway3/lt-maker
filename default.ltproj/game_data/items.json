@@ -64,13 +64,13 @@
         ]
     },
     {
-        "nid": "Iron Axe",
-        "name": "Iron Axe",
+        "nid": "Steel Sword",
+        "name": "Steel Sword",
         "desc": "",
-        "icon_nid": "Axe",
+        "icon_nid": "Sword",
         "icon_index": [
             0,
-            0
+            1
         ],
         "components": [
             [
@@ -79,7 +79,7 @@
             ],
             [
                 "value",
-                350
+                480
             ],
             [
                 "target_enemy",
@@ -107,7 +107,71 @@
             ],
             [
                 "weight",
-                9
+                10
+            ],
+            [
+                "uses",
+                30
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "weapon_type",
+                "Sword"
+            ],
+            [
+                "weapon_rank",
+                "D"
+            ]
+        ]
+    },
+    {
+        "nid": "Iron Axe",
+        "name": "Iron Axe",
+        "desc": "",
+        "icon_nid": "Axe",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "value",
+                270
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "damage",
+                8
+            ],
+            [
+                "hit",
+                75
+            ],
+            [
+                "crit",
+                0
+            ],
+            [
+                "weight",
+                10
             ],
             [
                 "uses",
@@ -124,6 +188,38 @@
             [
                 "weapon_rank",
                 "E"
+            ]
+        ]
+    },
+    {
+        "nid": "Vulnerary",
+        "name": "Vulnerary",
+        "desc": "Restores 10 HP.",
+        "icon_nid": "Consumable",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "value",
+                300
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "uses",
+                3
+            ],
+            [
+                "heal",
+                10
+            ],
+            [
+                "map_hit_color",
+                [96, 144, 232, 128]
             ]
         ]
     }

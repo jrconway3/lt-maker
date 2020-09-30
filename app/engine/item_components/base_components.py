@@ -73,6 +73,9 @@ class TargetsAnything(ItemComponent):
     desc = "Item targets any tile"
     tag = 'target'
 
+    def ai_targets(self, unit, item) -> set:
+        return {(x, y) for x in game.map.width for y in game.map.height}
+
     def valid_targets(self, unit, item) -> set:
         rng = item_system.get_range(unit, item)
         return target_system.find_manhattan_spheres(rng, *unit.position)
@@ -82,29 +85,40 @@ class TargetsUnits(ItemComponent):
     desc = "Item targets any unit"
     tag = 'target'
 
+    def ai_targets(self, unit, item):
+        return {other.position for other in game.level.units if other.position}
+
     def valid_targets(self, unit, item) -> set:
-        return {other.position for other in game.level.units if other.position and 
-                utils.calculate_distance(unit.position, other.position) in item_system.get_range(unit, item)}
+        targets = {other.position for other in game.level.units if other.position}
+        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_system.get_range(unit, item)}
 
 class TargetsEnemies(ItemComponent):
     nid = 'target_enemy'
     desc = "Item targets any enemy"
     tag = 'target'
 
-    def valid_targets(self, unit, item) -> set:
+    def ai_targets(self, unit, item):
         return {other.position for other in game.level.units if other.position and 
-                skill_system.check_enemy(unit, other) and 
-                utils.calculate_distance(unit.position, other.position) in item_system.get_range(unit, item)}
+                skill_system.check_enemy(unit, other)}
+
+    def valid_targets(self, unit, item, ai=False) -> set:
+        targets = {other.position for other in game.level.units if other.position and 
+                   skill_system.check_enemy(unit, other)}        
+        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_system.get_range(unit, item)}
 
 class TargetsAllies(ItemComponent):
     nid = 'target_ally'
     desc = "Item targets any ally"
     tag = 'target'
 
-    def valid_targets(self, unit, item) -> set:
+    def ai_targets(self, unit, item):
         return {other.position for other in game.level.units if other.position and 
-                skill_system.check_ally(unit, other) and 
-                utils.calculate_distance(unit.position, other.position) in item_system.get_range(unit, item)}
+                skill_system.check_ally(unit, other)}
+
+    def valid_targets(self, unit, item, ai=False) -> set:
+        targets = {other.position for other in game.level.units if other.position and 
+                   skill_system.check_ally(unit, other)}        
+        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_system.get_range(unit, item)}
 
 class MinimumRange(ItemComponent):
     nid = 'min_range'

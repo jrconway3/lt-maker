@@ -57,6 +57,7 @@ class MapCombat():
                 return True
             self.actions, self.playback = self.state_machine.do()
             if not self.actions and not self.playback:
+                self.state_machine.setup_next_state()
                 return False
             self._build_health_bars()
 
@@ -148,6 +149,7 @@ class MapCombat():
         elif self.state == 'end_phase':
             if self._skip or current_time > 400:
                 self._end_phase()
+                self.state_machine.setup_next_state()
                 self.state = 'begin_phase'
 
         if self.state not in ('begin_phase', 'red_cursor'):
@@ -179,7 +181,7 @@ class MapCombat():
                     attacker_health = MapCombatInfo('p1', self.attacker, self.item, self.defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
 
-                if self.get_from_playback('defender_phase'):
+                if combat_calcs.can_counterattack(self.attacker, self.item, self.defender, self.def_item):
                     hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, 'Defense')
                     mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, 'Defense')
                 else:

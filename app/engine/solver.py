@@ -77,12 +77,14 @@ class CombatPhaseSolver():
     def do(self):
         actions, playback = [], []
         self.state.process(self, actions, playback)
+        return actions, playback
+
+    def setup_next_state(self):
         next_state = self.state.get_next_state(self)
         if next_state:
             self.state = self.states[next_state]()
         else:
             self.state = None
-        return actions, playback
 
     def generate_roll(self):
         rng_mode = DB.constants.get('rng').value
@@ -125,17 +127,12 @@ class CombatPhaseSolver():
     def main_target_alive(self):
         return self.main_target and self.main_target.get_hp() > 0
 
-    def defender_has_vantage(self):
+    def defender_has_vantage(self) -> bool:
         return self.allow_counterattack() and \
-            skill_system.vantage(self.main_target) and \
-            not item_system.can_be_countered(self.attacker, self.item)
+            skill_system.vantage(self.main_target)
 
-    def allow_counterattack(self):
-        return self.target_item_has_uses() and \
-            item_system.can_be_countered(self.attacker, self.item) and \
-            item_system.can_counter(self.main_target, self.target_item) and \
-            (not self.attacker.position or \
-             self.attacker.position in item_system.valid_targets(self.main_target, self.target_item))
+    def allow_counterattack(self) -> bool:
+        return combat_calcs.can_counterattack(self.attacker, self.item, self.main_target, self.target_item)
 
     def item_has_uses(self):
         return item_system.available(self.attacker, self.item)

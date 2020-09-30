@@ -139,7 +139,7 @@ def travel_algorithm(path, moves, unit, grid):
 
 def get_valid_targets(unit, item=None) -> set:
     """
-    Determines all the valud targets given use of the item
+    Determines all the valid targets given use of the item
     """
     if not item:
         item = unit.get_equipped_item()

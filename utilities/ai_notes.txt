@@ -1,0 +1,18 @@
+For each item in available items
+    For each target in valid targets
+        For each move in valid moves
+            Determine utility
+
+For each move in valid moves
+    For each item in available items
+        For each target in valid targets
+            Determine utility
+
+compute priority
+
+Weapons
+Spells
+Healing Spells
+Status Spells
+
+Vulnerary

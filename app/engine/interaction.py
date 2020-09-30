@@ -39,6 +39,7 @@ class SimpleCombat():
         while self.state_machine.get_state():
             self.actions, self.playback = self.state_machine.do()
             self._apply_actions()
+            self.state_machine.setup_next_state()
 
     def _apply_actions(self):
         """

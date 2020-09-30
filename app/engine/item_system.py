@@ -194,12 +194,32 @@ def valid_targets(unit, item) -> set:
             targets |= component.valid_targets(unit, item)
     return targets
 
+def ai_targets(unit, item) -> set:
+    targets = set()
+    for component in item.components:
+        if component.defines('ai_targets'):
+            targets |= component.ai_targets(unit, item)
+    return targets
+
 def target_restrict(unit, item, defender, splash) -> bool:
     for component in item.components:
         if component.defines('target_restrict'):
             if not component.target_restrict(unit, item, defender, splash):
                 return False
     return True
+
+def ai_priority(unit, item, target, move) -> float:
+    custom_ai_flag: bool = False
+    ai_priority = 0
+    for component in item.components:
+        if component.defines('ai_priority'):
+            custom_ai_flag = True
+            ai_priority += component.ai_priority(unit, item, target, move)
+    if custom_ai_flag:
+        return ai_priority
+    else:
+        # Returns None when no custom ai is available
+        return None
 
 def get_range(unit, item) -> set:
     min_range, max_range = 0, 0

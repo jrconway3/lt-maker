@@ -27,6 +27,14 @@ def compute_advantage(unit1, unit2, item1, item2, advantage=True):
                 return adv
     return None
 
+def can_counterattack(attacker, aweapon, defender, dweapon) -> bool:
+    if dweapon and item_system.available(defender, dweapon):
+        if item_system.can_be_countered(attacker, aweapon) and \
+                item_system.can_counter(defender, dweapon):
+            if not attacker.position or attacker.position in item_system.valid_targets(defender, dweapon):
+                return True
+    return False
+
 def accuracy(unit, item=None):
     if not item:
         item = unit.get_weapon()

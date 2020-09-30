@@ -1,4 +1,4 @@
-from app import utilities
+from app.utilities import utils
 
 from app.data.database import DB
 
@@ -40,6 +40,16 @@ class Heal(ItemComponent):
         else:
             name = 'MapSmallHealTrans'
         playback.append(('hit_anim', name, target))
+
+    def ai_priority(self, unit, item, target, move):
+        if skill_system.check_ally(unit, target):
+            max_hp = equations.parser.hitpoints(target)
+            missing_health = max_hp - target.get_hp()
+            help_term = utils.clamp(missing_health / float(max_hp), 0, 1)
+            heal = self._get_heal_amount(unit)
+            heal_term = utils.clamp(min(heal, missing_health) / float(max_hp), 0, 1)
+            return help_term * heal_term
+        return 0
 
 class MagicHeal(Heal):
     nid = 'magic_heal'

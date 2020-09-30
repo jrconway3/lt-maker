@@ -294,7 +294,7 @@ class UnitObject(Prefab):
                   'starting_position': self.starting_position,
                   'wexp': self.wexp,
                   'portrait_nid': self.portrait_nid,
-                  'status_effects': [status.uid for status in self.status_effects],
+                  'skills': [skill.uid for skill in self.skills],
                   'current_hp': self.current_hp,
                   'current_mana': self.current_mana,
                   'fatigue': self.current_fatigue,
@@ -333,8 +333,7 @@ class UnitObject(Prefab):
         self.portrait_nid = s_dict['portrait_nid']
         self.starting_position = self.position
 
-        self.status_effects = [game.get_status(status_uid) for status_uid in s_dict['status_effects']]
-        # self.status_bundle = Multiset()
+        self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]
 
         self.current_hp = s_dict['current_hp']
         self.current_mana = s_dict['current_mana']

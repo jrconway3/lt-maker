@@ -1,4 +1,3 @@
-print("Importing Game State")
 import time
 import random
 from collections import Counter

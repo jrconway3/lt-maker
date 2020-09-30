@@ -483,14 +483,6 @@ class MenuState(MapState):
             self.cur_unit.sprite.change_state('menu')
         else:
             self.cur_unit.sprite.change_state('selected')
-
-        # Draw highlights
-        for ability in ABILITIES:
-            ability.highlights(self.cur_unit)
-        if skill_system.has_canto(self.cur_unit):
-            # Shows the canto moves in the menu
-            moves = target_system.get_valid_moves(self.cur_unit)
-            game.highlight.display_moves(moves)
         game.cursor.set_pos(self.cur_unit.position)
 
         options = []
@@ -501,6 +493,15 @@ class MenuState(MapState):
             if t:
                 options.append(ability.name)
         options.append("Wait")
+
+        # Draw highlights
+        for ability in ABILITIES:
+            if ability.name in options:
+                ability.highlights(self.cur_unit)
+        if skill_system.has_canto(self.cur_unit):
+            # Shows the canto moves in the menu
+            moves = target_system.get_valid_moves(self.cur_unit)
+            game.highlight.display_moves(moves)
 
         self.menu = menus.Choice(self.cur_unit, options)
         self.menu.set_limit(8)

@@ -7,7 +7,7 @@ from app.data.database import DB
 from app.utilities import utils
 
 from app.engine.sprites import SPRITES
-from app.engine import engine, image_mods
+from app.engine import engine, image_mods, health_bar, equations
 import app.engine.config as cf
 from app.engine.game_state import game
 
@@ -68,6 +68,8 @@ class UnitSprite():
         self.flicker = None
 
         self.load_sprites()
+
+        self.health_bar = health_bar.MapHealthBar(self.unit)
 
     def load_sprites(self):
         klass = DB.classes.get(self.unit.klass)
@@ -157,6 +159,7 @@ class UnitSprite():
     def update(self):
         self.update_state()
         self.update_transition()
+        self.health_bar.update()
 
     def update_state(self):
         current_time = engine.get_time()
@@ -277,11 +280,25 @@ class UnitSprite():
         surf.blit(image, topleft)
         return surf
 
+    def check_draw_hp(self) -> bool:
+        if self.unit.is_dying:
+            return False
+        if (cf.SETTINGS['hp_map_team'] == 'All') or \
+           (cf.SETTINGS['hp_map_team'] == 'Ally' and self.unit.team in ('player', 'other')) or \
+           (cf.SETTINGS['hp_map_team'] == 'Enemy' and self.unit.team.startswith('enemy')):
+            if (cf.SETTINGS['hp_map_cull'] == 'All') or \
+               (cf.SETTINGS['hp_map_cull'] == 'Wounded' and self.unit.get_hp() < equations.parser.hitpoints(self.unit)):
+                return True
+        return False
+
     def draw_hp(self, surf):
         current_time = engine.get_time()
         x, y = self.unit.position
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
+
+        if self.check_draw_hp():
+            self.health_bar.draw(surf, left, top)
 
         if 'Boss' in self.unit.tags and self.transition_state == 'normal' and not self.unit.is_dying and \
                 self.image_state in ('gray', 'passive') and int((current_time%450) // 150) in (1, 2):

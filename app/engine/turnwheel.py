@@ -97,7 +97,7 @@ class ActionLog():
                 if current_move:
                     finalize(current_move)
                     current_move = None
-                self.unique_moves(('Lock', action_index, action.lock))
+                self.unique_moves.append(('Lock', action_index, action.lock))
 
         # Handles having extra actions off the right of the action log
         if self.unique_moves:

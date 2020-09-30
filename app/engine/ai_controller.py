@@ -65,7 +65,7 @@ class AIController():
             self.attack()
             self.attack_ai_complete = True
         elif not self.canto_ai_complete:
-            if self.unit.has_attacked and self.unit.has_canto_plus():
+            if self.unit.has_attacked and skill_system.has_canto(self.unit):
                 self.retreat()
                 self.move()
             self.canto_ai_complete = True
@@ -100,6 +100,7 @@ class AIController():
                     game.highlight.display_possible_spell_attacks(splash_positions, light=True)
                 # Combat
                 combat = interaction.engage(self.unit, [self.goal_target], self.goal_item)
+                combat.ai_combat = True
                 game.combat_instance = combat
                 game.state.change('combat')
 
@@ -479,9 +480,10 @@ class SecondaryAI():
 
         mtype = DB.classes.get(self.unit.klass).movement_group
         self.grid = game.board.get_grid(mtype)
-        self.pathfinder = pathfinding.AStar(self.unit.position, None, self.grid, 
-                                       game.tilemap.width, game.tilemap.height, 
-                                       self.unit.team, 'pass_through' in self.unit.status_bundle)
+        self.pathfinder = \
+            pathfinding.AStar(self.unit.position, None, self.grid, 
+                              game.tilemap.width, game.tilemap.height, 
+                              self.unit.team, skill_system.pass_through(self.unit))
 
         self.widen_flag = False  # Determines if we've widened our search
         self.reset()

@@ -11,7 +11,8 @@ team_dict = {'player': 'blue',
              'enemy2': 'purple'}
 
 class HealthBar():
-    display_numbers = True
+    time_for_change_max = 200
+    speed = 2 * FRAMERATE   # 2 frames an hp point
 
     def __init__(self, unit):
         self.unit = unit
@@ -21,7 +22,7 @@ class HealthBar():
         self.total_hp = equations.parser.hitpoints(self.unit)
 
         self.transition_flag = False
-        self.time_for_change = 200
+        self.time_for_change = self.time_for_change_max
         self.last_update = 0
 
     def set_hp(self, val):
@@ -32,7 +33,7 @@ class HealthBar():
         # Check to see if we should begin showing transition
         if self.displayed_hp != self.unit.get_hp() and not self.transition_flag:
             self.transition_flag = True
-            self.time_for_change = max(200, abs(self.displayed_hp - self.unit.get_hp()) * 2 * FRAMERATE)  # 2 frames an hp point
+            self.time_for_change = max(self.time_for_change_max, abs(self.displayed_hp - self.unit.get_hp()) * self.speed)
             self.last_update = engine.get_time()
 
         # Check to see if we should update
@@ -45,11 +46,31 @@ class HealthBar():
                 self.old_hp = self.displayed_hp
                 self.transition_flag = False
 
+class MapHealthBar(HealthBar):
+    time_for_change_max = 12 * 50
+    speed = 3 * FRAMERATE
+    health_outline = SPRITES.get('map_health_outline')
+    health_bar = SPRITES.get('map_health_bar')
+
+    def draw(self, surf, left, top):
+        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        index_pixel = int(12 * fraction_hp) + 1
+
+        surf.blit(self.health_outline, (left, top + 13))
+        bar = engine.subsurface(self.health_bar, (0, 0, index_pixel, 1))
+        surf.blit(bar, (left + 1, top + 14))
+
+        return surf
+
+class MapCombatHealthBar(HealthBar):
+    display_numbers = True
+    health_bar = SPRITES.get('health_bar')
+
     def draw(self, surf):
         fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
         index_pixel = int(50 * fraction_hp)
         position = 25, 22
-        surf.blit(engine.subsurface(SPRITES.get('health_bar'), (0, 0, index_pixel, 2)), position)
+        surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
 
         # Blit HP number
         if self.display_numbers:
@@ -83,7 +104,7 @@ class MapCombatInfo():
         else:
             self.blinds = 1
 
-        self.hp_bar = HealthBar(unit)
+        self.hp_bar = MapCombatHealthBar(unit)
         self.unit = unit
         self.item = item
         if target:

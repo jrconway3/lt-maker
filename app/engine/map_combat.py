@@ -75,7 +75,7 @@ class MapCombat():
             # Sprites
             if self.get_from_playback('defender_phase'):
                 self.defender.sprite.change_state('combat_attacker')
-                self.attacker.sprite.change_state('combat_defender')
+                self.attacker.sprite.change_state('combat_counter')
             else:
                 self.attacker.sprite.change_state('combat_attacker')
                 if self.defender:
@@ -323,7 +323,7 @@ class MapCombat():
             if self.defender and skill_system.check_ally(self.attacker, self.defender):
                 exp = int(utils.clamp(exp, 0, 100))
             else:
-                exp = int(utils.clamp(exp, DB.constants.get('min_exp').value, 100))
+                exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
             if exp > 0:
                 game.memory['exp'] = (self.attacker, exp, None, 'init')
@@ -331,7 +331,7 @@ class MapCombat():
 
         elif self.defender and self.defender.team == 'player' and not self.defender.is_dying:
             exp = self.handle_exp(self.defender, self.def_item)
-            exp = int(utils.clamp(exp, DB.constants.get('min_exp').value, 100))
+            exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
             if exp > 0:
                 game.memory['exp'] = (self.defender, exp, None, 'init')
                 game.state.change('exp')
@@ -360,7 +360,7 @@ class MapCombat():
 
     def handle_state_stack(self):
         if self.ai_combat:
-            if skill_system.has_canto_plus(self.attacker):
+            if skill_system.has_canto(self.attacker):
                 pass
             else:
                 game.state.change('wait')

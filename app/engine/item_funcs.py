@@ -35,3 +35,17 @@ def get_all_items(unit) -> list:
         else:
             items.append(item)
     return items
+
+def get_range_string(unit, item):
+    if unit:
+        item_range = item_system.get_range(unit, item)
+        min_range = min(item_range)
+        max_range = max(item_range)
+    else:
+        min_range = item_system.minimum_range(None, item)
+        max_range = item_system.maximum_range(None, item)
+    if min_range != max_range:
+        rng = '%d-%d' % (min_range, max_range)
+    else:
+        rng = '%d' % max_range
+    return rng

@@ -12,6 +12,7 @@ class Uses(ItemComponent):
 
     def init(self, unit, item):
         item.data['uses'] = self.value
+        item.data['starting_uses'] = self.value
 
     def available(self, unit, item) -> bool:
         return item.data['uses'] > 0
@@ -35,7 +36,8 @@ class ChapterUses(ItemComponent):
     value = 1
 
     def init(self, unit, item):
-        item.data['uses'] = self.value
+        item.data['c_uses'] = self.value
+        item.data['starting_c_uses'] = self.value
 
     def available(self, unit, item) -> bool:
         return item.data['c_uses'] > 0
@@ -48,7 +50,7 @@ class ChapterUses(ItemComponent):
 
     def on_end_chapter(self, unit, item):
         # Don't need to use action here because it will be end of chapter
-        item.data['c_uses'] = self.starting_uses
+        item.data['c_uses'] = item.data['starting_c_uses']
 
 class HPCost(ItemComponent):
     nid = 'hp_cost'

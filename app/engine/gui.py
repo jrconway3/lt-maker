@@ -146,3 +146,69 @@ class ScrollBar():
         if end_pos < height:
             bottom_arrow = engine.subsurface(SPRITES.get('scroll_bar'), (0, 4 + self.arrow_counter.get() * 6, 8, 6))
             surf.blit(bottom_arrow, (x - 1, y + height + 4))
+
+class Logo():
+    speed = 64
+
+    def __init__(self, texture, center, num_frames=8):
+        self.texture = texture
+        self.center = center
+        self.num_frames = num_frames
+
+        self.height = self.texture.get_height()//self.num_frames
+        self.width = self.texture.get_width()
+
+        self.counter = 0
+        self.anim = [0, 0] + list(range(1, self.num_frames - 1)) + \
+            [self.num_frames - 1, self.num_frames - 1] + list(reversed(range(1, self.num_frames - 1)))
+        self.last_update = engine.get_time()
+        self.transition_counter = 0
+
+        self.image = self.get_image()
+        self.draw_image = self.image
+
+        self.state = "idle"
+
+    def get_image(self):
+        rect = (0, self.anim[self.counter] * self.height, self.width, self.height)
+        return engine.subsurface(self.texture, rect)
+
+    def update(self):
+        current_time = engine.get_time()
+        diff = current_time - self.last_update
+
+        if diff > self.speed:
+            self.counter += 1
+            self.counter %= len(self.anim)
+            self.image = self.get_image()
+            self.last_update = current_time - (diff - self.speed)
+
+        if self.state == 'idle':
+            self.draw_image = self.image
+
+        elif self.state == 'out':
+            self.transition_counter -= 1
+            self.draw_image = engine.subsurface(self.image, (0, self.height//2 - self.transition_counter, self.width, self.transition_counter * 2))
+
+            if self.transition_counter <= 0:
+                self.state = 'in'
+                self.texture = self.next_texture
+                self.height = self.texture.get_height()//self.num_frames
+                self.width = self.texture.get_width()
+                self.image = self.get_image()
+
+        elif self.state == 'in':
+            self.transition_counter += 1
+            if self.transition_counter >= self.height//2:
+                self.transition_counter = self.height//2
+                self.state = 'idle'
+
+            self.draw_image = engine.subsurface(self.image, (0, self.height//2 - self.transition_counter, self.width, self.transition_counter * 2))
+
+    def draw(self, surf):
+        engine.blit_center(surf, self.draw_image, self.center)
+
+    def switch_image(self, new_image):
+        self.next_texture = new_image
+        self.transition_counter = self.height//2
+        self.state = 'out'

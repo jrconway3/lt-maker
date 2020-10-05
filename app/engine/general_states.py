@@ -103,8 +103,9 @@ class FreeState(MapState):
         
         if event == 'INFO':
             if game.cursor.get_hover():
-                # info_menu.start()
-                pass
+                game.memory['next_state'] = 'info_menu'
+                game.memory['current_unit'] = game.cursor.get_hover()
+                game.state.change('transition_to')
             else:
                 SOUNDTHREAD.play_sfx('Select 3')
                 game.boundary.toggle_all_enemy_attacks()
@@ -259,8 +260,9 @@ class OptionMenuState(MapState):
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')
             elif selection == 'Unit':
-                game.state.change('unit_menu')
-                game.state.change('transition_out')
+                pass
+                # game.state.change('unit_menu')
+                # game.state.change('transition_out')
             elif selection == 'Turnwheel':
                 if cf.SETTINGS['debug'] or game.game_constants.get('current_turnwheel_uses', 1) > 0:
                     game.state.change('turnwheel')

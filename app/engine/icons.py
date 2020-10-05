@@ -1,7 +1,11 @@
+from app.utilities import utils
+
 from app.constants import COLORKEY
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
+from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 from app.engine import engine
 
 def get_item_icon(item):
@@ -17,6 +21,42 @@ def get_item_icon(item):
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
     return image
+
+def get_skill_icon(skill):
+    if not skill:
+        return None
+    image = RESOURCES.icons16.get(skill.icon_nid)
+    if not image:
+        return None
+
+    if not image.image:
+        image.image = engine.image_load(image.full_path)
+    image = engine.subsurface(image.image, (skill.icon_index[0] * 16, skill.icon_index[1] * 16, 16, 16))
+    image = image.convert()
+    engine.set_colorkey(image, COLORKEY, rleaccel=True)
+    return image
+
+def draw_skill(surf, skill, topleft, compact=True):
+    image = get_skill_icon(skill.nid)
+    if not image:
+        return None
+
+    surf.blit(image, topleft)
+    frac = skill.get_cooldown()
+    if frac is not None:
+        cooldown_surf = SPRITES.get('icon_cooldown')
+        index = utils.clamp(int(8 * frac), 0, 8)
+        c = engine.subsurface(cooldown_surf, (16 * index, 0, 16, 16))
+        surf.blit(c, topleft)
+
+    if compact:
+        pass
+    else:
+        text = skill.get_text()
+        if text is not None:
+            FONT['text-blue'].blit(text, surf, (topleft[0] + 16, topleft[1]))
+    
+    return surf
 
 def draw_weapon(surf, weapon_type, topleft):
     w_type_obj = DB.weapons.get(weapon_type)
@@ -47,16 +87,23 @@ def draw_faction(surf, faction, topleft):
     surf.blit(image, topleft)
     return surf
 
-def draw_portrait(surf, nid, topleft=None, bottomright=None):
+def get_portrait(nid):
     image = RESOURCES.portraits.get(nid)
     if not image:
-        return surf
+        return None
 
     if not image.image:
         image.image = engine.image_load(image.full_path)
     image = engine.subsurface(image.image, (0, 0, 96, 80))
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
+
+    return image
+
+def draw_portrait(surf, nid, topleft=None, bottomright=None):
+    image = get_portrait(nid)
+    if not image:
+        return None
 
     if topleft:
         surf.blit(image, topleft)
@@ -80,3 +127,15 @@ def draw_chibi(surf, nid, topleft=None, bottomright=None):
     elif bottomright:
         surf.blit(image, (bottomright[0] - 32, bottomright[1] - 32))
     return surf
+
+def draw_stat(surf, stat_nid, unit, topright, compact=False):
+    # TODO Bonus stats
+    class_obj = DB.classes.get(unit.klass)
+    value = unit.stats.get(stat_nid, 0)
+    if compact:
+        pass
+    else:
+        if value >= class_obj.max_stats.get(stat_nid).value:
+            FONT['text-yellow'].blit_right(str(value), surf, topright)
+        else:
+            FONT['text-blue'].blit_right(str(value), surf, topright)

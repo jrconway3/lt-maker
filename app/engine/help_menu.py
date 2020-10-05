@@ -1,11 +1,10 @@
-from app.utilities import str_utils
 from app.constants import WINWIDTH
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 import app.engine.config as cf
-from app.engine import engine, base_surf, text_funcs, icons, item_system
+from app.engine import engine, base_surf, text_funcs, icons, item_system, item_funcs
 from app.engine.game_state import game
 
 class HelpDialog():
@@ -44,6 +43,9 @@ class HelpDialog():
 
     def get_height(self):
         return self.help_surf.get_height()
+
+    def set_transition_in(self):
+        self.transition_in = True
 
     def handle_transition_in(self, time, h_surf):
         if self.transition_in:
@@ -134,17 +136,7 @@ class ItemHelpDialog(HelpDialog):
             crit = None
         weight = self.item.weight.value if self.item.weight else '--'
         # Get range
-        if self.unit:
-            item_range = item_system.get_range(self.unit, self.item)
-            min_range = min(item_range)
-            max_range = max(item_range)
-        else:
-            min_range = item_system.minimum_range(None, self.item)
-            max_range = item_system.maximum_range(None, self.item)
-        if min_range != max_range:
-            rng = '%d-%d' % (min_range, max_range)
-        else:
-            rng = '%d' % max_range
+        rng = item_funcs.get_range_string(self.unit, self.item)
 
         self.vals = (weapon_rank, rng, weight, might, hit, crit)
 

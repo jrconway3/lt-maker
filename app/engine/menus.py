@@ -1,5 +1,3 @@
-import math
-
 from app.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data.database import DB
 from app.utilities import utils
@@ -7,232 +5,11 @@ from app.utilities import utils
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
-from app.engine import engine, image_mods, icons, help_menu, text_funcs, item_system
+from app.engine import engine, image_mods, icons, help_menu, menu_options
 from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
 from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
-
-class EmptyOption():
-    def __init__(self, idx):
-        self.idx = idx
-        self.help_box = None
-        self.color = None
-        self.ignore = False
-
-    def get(self):
-        return None
-
-    def set_text(self):
-        pass
-
-    def width(self):
-        return 104
-
-    def height(self):
-        return 16
-
-    def draw(self, surf, x, y):
-        pass
-
-    def draw_highlight(self, surf, x, y, menu_width):
-        highlight_surf = SPRITES.get('menu_highlight')
-        width = highlight_surf.get_width()
-        for slot in range((menu_width - 10)//width):
-            left = x + 5 + slot*width
-            top = y + 9
-            surf.blit(highlight_surf, (left, top))
-        return surf
-
-class BasicOption():
-    def __init__(self, idx, text):
-        self.idx = idx
-        self.text = text
-        self.display_text = text_funcs.translate(text)
-        self.help_box = None
-        self.color = 'text-white'
-        self.ignore = False
-
-    def get(self):
-        return self.text
-
-    def set_text(self, text):
-        self.text = text
-        self.display_text = text_funcs.translate(text)
-
-    def width(self):
-        return FONT[self.color].width(self.display_text) + 24
-
-    def height(self):
-        return 16
-
-    def draw(self, surf, x, y):
-        font = FONT[self.color]
-        font.blit(self.display_text, surf, (x + 6, y))
-
-    def draw_highlight(self, surf, x, y, menu_width):
-        highlight_surf = SPRITES.get('menu_highlight')
-        width = highlight_surf.get_width()
-        for slot in range((menu_width - 10)//width):
-            left = x + 5 + slot*width
-            top = y + 9
-            surf.blit(highlight_surf, (left, top))
-        return surf
-
-class HorizOption(BasicOption):
-    def width(self):
-        return FONT[self.color].width(self.display_text)
-
-class TitleOption():
-    def __init__(self, idx, text, option_bg_name):
-        self.idx = idx
-        self.text = text
-        self.display_text = text_funcs.translate(text)
-        self.option_bg_name = option_bg_name
-
-        self.color = 'chapter-grey'
-
-    def get(self):
-        return self.text
-
-    def set_text(self, text):
-        self.text = text
-        self.display_text = text_funcs.translate(text)
-
-    def width(self):
-        return SPRITES.get(self.option_bg_name).get_width()
-
-    def height(self):
-        return SPRITES.get(self.option_bg_name).get_height()
-
-    def draw_text(self, surf, x, y):
-        font = FONT[self.color]
-
-        text = self.display_text
-        text_size = font.size(text)
-        position = (x - text_size[0]//2, y - text_size[1]//2)
-
-        # Handle outline
-        t = math.sin(math.radians((engine.get_time()//10) % 180))
-        color_transition = image_mods.blend_colors((192, 248, 248), (56, 48, 40), t)
-        outline_surf = engine.create_surface((text_size[0] + 4, text_size[1] + 2), transparent=True)
-        font.blit(text, outline_surf, (1, 0))
-        font.blit(text, outline_surf, (0, 1))
-        font.blit(text, outline_surf, (1, 2))
-        font.blit(text, outline_surf, (2, 1))
-        outline_surf = image_mods.change_color(outline_surf, color_transition)
-
-        surf.blit(outline_surf, (position[0] - 1, position[1] - 1))
-        font.blit(text, surf, position)
-
-    def draw(self, surf, x, y):
-        left = x - self.width()//2
-        surf.blit(SPRITES.get(self.option_bg_name), (left, y))
-
-        self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
-
-    def draw_highlight(self, surf, x, y):
-        left = x - self.width()//2
-        surf.blit(SPRITES.get(self.option_bg_name + '_highlight'), (left, y))
-
-        self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
-
-class ChapterSelectOption(TitleOption):
-    def __init__(self, idx, text, option_bg_name, bg_color):
-        self.idx = idx
-        self.text = text
-        self.display_text = text_funcs.translate(text)
-        self.bg_color = bg_color
-        self.option_bg_name = option_bg_name + '_' + bg_color
-
-        self.color = 'chapter-grey'
-
-    def draw_flicker(self, surf, x, y):
-        left = x - self.width()//2
-        surf.blit(SPRITES.get(self.option_bg_name + '_flicker'), (left, y))
-
-        self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
-
-class ItemOption(BasicOption):
-    def __init__(self, idx, item):
-        self.idx = idx
-        self.item = item
-        self.help_box = None
-        self.color = None
-        self.ignore = False
-
-    def get(self):
-        return self.item
-
-    def set_text(self, text):
-        pass
-
-    def set_item(self, item):
-        self.item = item
-
-    def width(self):
-        return 104
-
-    def height(self):
-        return 16
-
-    def get_color(self):
-        owner = game.get_unit(self.item.owner_nid)
-        main_font = 'text_grey'
-        uses_font = 'text_grey'
-        if self.color:
-            main_font = self.color
-            uses_font = self.color
-            if main_font == 'text-white':
-                uses_font = 'text-blue'
-        elif owner and item_system.available(owner, self.item):
-            main_font = 'text-white'
-            uses_font = 'text-blue'
-        return main_font, uses_font
-
-    def get_help_box(self):
-        if self.item.weapon or self.item.spell:
-            return help_menu.ItemHelpDialog(self.item)
-        else:
-            return help_menu.HelpDialog(self.item.desc)
-
-    def draw(self, surf, x, y):
-        main_font = 'text_grey'
-        uses_font = 'text_grey'
-        icon = icons.get_item_icon(self.item)
-        if icon:
-            surf.blit(icon, (x + 2, y))
-        main_font, uses_font = self.get_color()
-        FONT[main_font].blit(self.item.name, surf, (x + 20, y))
-        uses_string = '--'
-        if self.item.uses:
-            uses_string = str(self.item.uses.value)
-        elif self.item.c_uses:
-            uses_string = str(self.item.c_uses.value)
-        left = x + self.width() - 4 - FONT[uses_font].size(uses_string)[0] - 5
-        FONT[uses_font].blit(uses_string, surf, (left, y))
-
-class FullItemOption(ItemOption):
-    def width(self):
-        return 120
-
-    def draw(self, surf, x, y):
-        main_font = 'text_grey'
-        uses_font = 'text_grey'
-        icons.draw_item(surf, self.item, (x + 2, y))
-        main_font, uses_font = self.get_color()
-        FONT[main_font].blit(self.item.name, surf, (x + 20, y))
-        uses_string = '--/--'
-        if self.item.uses:
-            prefab = DB.items.get(self.item.nid)
-            total = prefab.uses.value
-            uses_string = str(self.item.uses.value) + '/' + str(total)
-        elif self.item.c_uses:
-            prefab = DB.items.get(self.item.nid)
-            total = prefab.uses.value
-            uses_string = str(self.item.c_uses.value) + '/' + str(total)
-        left = x + self.width() - 4 - FONT[uses_font].size(uses_string)[0] - 5
-        FONT[uses_font].blit(uses_string, surf, (left, y))
 
 class Cursor():
     def __init__(self, sprite=None):
@@ -314,7 +91,7 @@ class Simple():
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
-            option = BasicOption(idx, option)
+            option = menu_options.BasicOption(idx, option)
             if info_descs:
                 option.help_box = help_menu.HelpDialog(info_descs[idx])
             self.options.append(option)
@@ -474,23 +251,23 @@ class Choice(Simple):
         for idx, option in enumerate(options):
             if isinstance(option, ItemObject):
                 if self.display_total_uses:
-                    option = FullItemOption(idx, option)
+                    option = menu_options.FullItemOption(idx, option)
                 else:
-                    option = ItemOption(idx, option)
+                    option = menu_options.ItemOption(idx, option)
                 option.help_box = option.get_help_box()
                 self.options.append(option)
             else:
                 if self.horizontal:
-                    option = HorizOption(idx, option)
+                    option = menu_options.HorizOption(idx, option)
                 else:
-                    option = BasicOption(idx, option)
+                    option = menu_options.BasicOption(idx, option)
                 if info_descs:
                     option.help_box = help_menu.HelpDialog(info_descs[idx])
                 self.options.append(option)
 
         if self.hard_limit:
             for num in range(self.limit - len(options)):
-                option = EmptyOption(len(options) + num)
+                option = menu_options.EmptyOption(len(options) + num)
                 self.options.append(option)
 
     def move_down(self, first_push=True):
@@ -856,7 +633,7 @@ class Main(Simple):
     def create_options(self, options):
         self.options.clear()
         for idx, option in enumerate(options):
-            option = TitleOption(idx, option, self.option_bg)
+            option = menu_options.TitleOption(idx, option, self.option_bg)
             self.options.append(option)
         return self.options
 
@@ -906,7 +683,7 @@ class ChapterSelect(Main):
     def create_options(self, options):
         self.options.clear()
         for idx, option in enumerate(options):
-            option = ChapterSelectOption(idx, option, self.option_bg, self.colors[idx])
+            option = menu_options.ChapterSelectOption(idx, option, self.option_bg, self.colors[idx])
             self.options.append(option)
         return self.options
 

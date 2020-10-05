@@ -1,12 +1,12 @@
-from app import utilities
+from app.utilities import utils
 
 from app.engine import config as cf
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import text_funcs, menus, image_mods, \
-    gui, base_surf, help_menu, engine
+from app.engine import text_funcs, menu_options, image_mods, \
+    gui, base_surf, help_menu, engine, menus
 
-class ControlOption(menus.BasicOption):
+class ControlOption(menu_options.BasicOption):
     def __init__(self, idx, name, icon):
         self.idx = idx
         self.name = name
@@ -31,7 +31,7 @@ class ControlOption(menus.BasicOption):
         key_name = engine.get_key_name(cf.SETTINGS[self.name])
         FONT[key_font].blit(key_name, surf, (x + 128, y))
 
-class ConfigOption(menus.BasicOption):
+class ConfigOption(menu_options.BasicOption):
     def __init__(self, idx, name, values, icon):
         self.idx = idx
         self.name = name
@@ -55,7 +55,7 @@ class ConfigOption(menus.BasicOption):
         value = str(cf.SETTINGS[self.name])
         if value in self.values:
             idx = self.values.index(value)
-            idx = utilities.clamp(idx - 1, 0, len(self.values) - 1)
+            idx = utils.clamp(idx - 1, 0, len(self.values) - 1)
             cf.SETTINGS[self.name] = self.values[idx]
         else:
             cf.SETTINGS[self.name] = self.values[0]
@@ -64,7 +64,7 @@ class ConfigOption(menus.BasicOption):
         value = str(cf.SETTINGS[self.name])
         if value in self.values:
             idx = self.values.index(value)
-            idx = utilities.clamp(idx + 1, 0, len(self.values) - 1)
+            idx = utils.clamp(idx + 1, 0, len(self.values) - 1)
             cf.SETTINGS[self.name] = self.values[idx]
         else:
             cf.SETTINGS[self.name] = self.values[-1]
@@ -302,4 +302,3 @@ class Config(Controls):
     def move_next(self):
         option = self.get_current_option()
         option.move_next()
-

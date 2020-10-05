@@ -32,6 +32,8 @@ constants = ConstantCatalog([
     Constant('num_items', "Max number of Items in inventory", int, 5, 'inventory'),
     Constant('num_accessories', "Max number of Accessories in inventory", int, 0, 'inventory'),
     Constant('turnwheel', "Turnwheel", bool, False, 'features'),
+    Constant('fatigue', "Fatigue", bool, False, 'features'),
+    Constant('support', "Supports", bool, False, 'features'),
     Constant('overworld', "Overworld", bool, False, 'features'),
     Constant('crit', "Allow Criticals", bool, True, 'features'),
     Constant('permadeath', "Permadeath", bool, True, 'features'),

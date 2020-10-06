@@ -1,13 +1,13 @@
+import copy
+
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QAbstractItemModel
 from PyQt5.QtCore import Qt, QModelIndex
 
-import copy
+from app.utilities import str_utils
+from app.utilities.data import Prefab
 
-from app.data.data import Prefab
 from app.data.database import DB
-
-from app import utilities
 
 class VirtualListModel(QAbstractItemModel):
     def set_new_data(self, data):
@@ -53,7 +53,7 @@ class SingleListModel(VirtualListModel):
         self.layoutChanged.emit()
 
     def append(self):
-        new_row = utilities.get_next_name("New %s" % self.title, self._data)
+        new_row = str_utils.get_next_name("New %s" % self.title, self._data)
         self._data.append(new_row)
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1, 0)
@@ -170,7 +170,7 @@ class MultiAttrListModel(VirtualListModel):
 
     def duplicate(self, idx):
         obj = self._data[idx]
-        new_nid = utilities.get_next_name(obj.nid, self._data.keys())
+        new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
         if isinstance(obj, Prefab):
             serialized_obj = obj.serialize()
             print("Duplcation!")
@@ -234,7 +234,7 @@ class DragDropMultiAttrListModel(MultiAttrListModel):
 class DefaultMultiAttrListModel(DragDropMultiAttrListModel):
     def change_watchers(self, data, attr, old_value, new_value):
         if attr in self._headers and self._headers.index(attr) == self.nid_column:
-            new_value = utilities.get_next_name(new_value, [d.nid for d in self._data])
+            new_value = str_utils.get_next_name(new_value, [d.nid for d in self._data])
             self._data.update_nid(data, new_value)
 
     def create_new(self):

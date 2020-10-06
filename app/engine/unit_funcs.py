@@ -8,11 +8,11 @@ logger = logging.getLogger(__name__)
 def get_next_level_up(unit) -> dict:
     # TODO Implement support for negative growths
     if unit.team == 'player':
-        method = DB.constants.get('player_leveling').value
+        method = DB.constants.value('player_leveling')
     else:
-        method = DB.constants.get('enemy_leveling').value
+        method = DB.constants.value('enemy_leveling')
         if method == 'Match':
-            method = DB.constants.get('player_leveling').value
+            method = DB.constants.value('player_leveling')
 
     r = static_random.get_levelup(unit.nid, unit.get_internal_level * 100)
 

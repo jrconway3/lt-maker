@@ -9,7 +9,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from app.resources.portraits import Portrait
 from app.resources.resources import RESOURCES
 
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 
 from app.extensions.spinbox_xy import SpinBoxXY

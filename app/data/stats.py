@@ -32,3 +32,7 @@ class Stat(Prefab):
 
 class StatList(Data):
     datatype = Stat
+
+    @classmethod
+    def default(cls, db):
+        return cls([Stat(nid, 0) for nid in db.stats.keys()])

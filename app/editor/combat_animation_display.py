@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
 from PyQt5.QtCore import Qt, QSettings, QDir
 from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter, QColor
 
-from app.data.constants import WINWIDTH, WINHEIGHT
-from app.data.data import Data
+from app.constants import WINWIDTH, WINHEIGHT
+from app.utilities.data import Data
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.resources import combat_anims

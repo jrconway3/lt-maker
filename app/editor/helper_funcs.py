@@ -1,30 +1,12 @@
-from app.data.database import DB
+from app.engine import item_system
 
-def can_wield(unit, item, prefab=False):
-    if (item.weapon or item.spell) and item.level:
-        weapon_rank = DB.weapon_ranks.get(item.level.value)
-        req = weapon_rank.requirement
-        comp = item.weapon.value if item.weapon else item.spell.value[0]
-        if prefab:
-            wexp_gain_data = unit.wexp_gain.get(comp)
-        else:
-            klass = DB.classes.get(unit.klass)
-            wexp_gain_data = klass.wexp_gain.get(comp)
-        if wexp_gain_data and wexp_gain_data.usable:
-            if not prefab and unit.generic:
-                return True
-            if wexp_gain_data.wexp_gain >= req:
-                return True
-        return False
-    elif item.prf_unit:
-        if unit.nid in item.prf_unit.value.keys():
+def can_wield(unit, item) -> bool:
+    weapon = item_system.is_weapon(unit, item)
+    spell = item_system.is_weapon(unit, item)
+    available = item_system.available(unit, item)
+    if (weapon or spell):
+        if available:
             return True
         else:
             return False
-    elif item.prf_class:
-        if unit.klass in item.prf_class.value.keys():
-            return True
-        else:
-            return False
-    else:
-        return True
+    return True

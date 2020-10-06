@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 
 import os, glob
 
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 
 from app.resources.panoramas import Panorama
 from app.resources.resources import RESOURCES

@@ -3,7 +3,7 @@ import time
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QTimer, pyqtSignal
 
-import app.data.constants as constants
+from app import constants
 from app import counters
 
 class Timer(QWidget):

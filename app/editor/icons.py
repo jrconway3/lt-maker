@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, pyqtSignal
 
 from app.resources.resources import RESOURCES
 
-from app.editor.resource_editor import ResourceEditor
 import app.editor.utilities as editor_utilities
 
 class PushableIcon16(QPushButton):
@@ -50,6 +49,7 @@ class PushableIcon16(QPushButton):
 
     def onIconSourcePicker(self):
         main_editor = self.window.window.main_editor
+        from app.editor.resource_editor import ResourceEditor
         res, ok = ResourceEditor.get(main_editor, "Icons " + str(self.width) + 'x' + str(self.height))
         if ok:
             if res.parent_image:

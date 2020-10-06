@@ -35,7 +35,7 @@ class LevelObject():
 
     def save(self):
         s_dict = {'nid': self.nid,
-                  'title': self.title,
+                  'name': self.name,
                   'tilemap': self.tilemap.save(),
                   'music': self.music,
                   'objective': self.objective,
@@ -48,7 +48,7 @@ class LevelObject():
     def restore(cls, s_dict, game):
         level = cls()
         level.nid = s_dict['nid']
-        level.title = s_dict['title']
+        level.name = s_dict['name']
         level.tilemap = TileMapObject.restore(s_dict['tilemap'])
 
         level.music = s_dict['music']

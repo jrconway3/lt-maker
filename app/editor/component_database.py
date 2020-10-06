@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
-from app.data.item_component import Type
+from app.data.item_components import Type
 
 from app.extensions.color_icon import ColorIcon, AlphaColorIcon
 from app.extensions.custom_gui import ComboBox

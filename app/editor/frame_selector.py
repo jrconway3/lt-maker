@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QListView, QDialog, \
 from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, qRgb
 
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 
 from app import utilities
 from app.resources import combat_anims

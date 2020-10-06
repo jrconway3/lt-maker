@@ -9,7 +9,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor, QPen
 from app.resources.animations import Animation
 from app.resources.resources import RESOURCES
 
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog

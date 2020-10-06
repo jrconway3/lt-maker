@@ -63,21 +63,21 @@ class MultiComboBoxList(QListWidget):
         self.combo_box_list.clear()
 
     def set_current(self, items):
-        # print("ItemList Set Current")
-        # print(items, flush=True)
+        print("ItemList Set Current")
+        print(items, flush=True)
         self.clear()
-        # print("ItemList Set Current")
-        # print(items, flush=True)
+        print("ItemList Set Current")
+        print(items, flush=True)
         for i in items:
             self.add_item(i)
         self.item_changed.emit()
 
     def on_item_change(self, index):
-        # print("ItemList Item Change")
-        # print(index, flush=True)
+        print("ItemList Item Change")
+        print(index, flush=True)
         combo_box = self.combo_box_list[index]
         item_nid = combo_box.currentText()
-        # print(item_nid, flush=True)
+        print(item_nid, flush=True)
         self.index_list[index] = item_nid
         self.item_changed.emit()
 
@@ -110,26 +110,30 @@ class MultiComboBoxListWithCheckbox(MultiComboBoxList):
 
         item_box = ItemBox(self)
         combo_box = item_box.combo_box
-        for i in self._data:
+        for i in self._data:  # DB.items
             if self.pixmap_func:
                 pix = self.pixmap_func(i)
-                icon = QIcon(pix) if pix else None
-                combo_box.addItem(icon, i.nid)
+                if pix:
+                    combo_box.addItem(QIcon(pix), i.nid)
+                else:
+                    combo_box.addItem(i.nid)
             else:
                 combo_box.addItem(i.nid)
+
         combo_box.setValue(item_nid)
         self.addItem(new_box)
         self.setItemWidget(new_box, item_box)
+
         corrected_item_nid = combo_box.currentText()
-        self.index_list.append([corrected_item_nid, False])
+        self.index_list.append([corrected_item_nid, droppable])
         self.combo_box_list.append(item_box)
+
         idx = len(self.combo_box_list) - 1
         combo_box.currentIndexChanged.connect(partial(self.on_item_change, idx))
         check_box = item_box.check_box
         check_box.setChecked(droppable)
         check_box.toggled.connect(partial(self.on_item_change, idx))
-        # print("ItemList Add Item: Index List")
-        # print(self.index_list, flush=True)
+        
         return corrected_item_nid
 
     def remove_item(self, item_nid):
@@ -148,12 +152,12 @@ class MultiComboBoxListWithCheckbox(MultiComboBoxList):
         self.item_changed.emit()
 
     def on_item_change(self, idx):
-        # print("ItemList Item Change")
-        # print(index, flush=True)
+        print("ItemList Item Change")
+        print(idx, flush=True)
         item_box = self.combo_box_list[idx]
         item_nid = item_box.combo_box.currentText()
         droppable = bool(item_box.check_box.isChecked())
-        # print(item_nid, flush=True)
+        print(item_nid, flush=True)
         self.index_list[idx] = [item_nid, droppable]
         self.item_changed.emit()
 

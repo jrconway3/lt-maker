@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt, QSize
 
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 from app import utilities
 

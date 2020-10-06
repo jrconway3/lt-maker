@@ -1,6 +1,6 @@
 from PyQt5 import QtGui
 
-from app.data.constants import COLORKEY
+from app.constants import COLORKEY
 from app.data.palettes import enemy_colors, other_colors, enemy2_colors
 
 qCOLORKEY = QtGui.qRgb(*COLORKEY)

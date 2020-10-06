@@ -34,7 +34,7 @@ class StatListWidget(QWidget):
             row_values = obj.get_stat_lists()
         else:
             row_titles = ['Example']
-            row_values = [StatList.from_xml([], DB.stats)]
+            row_values = [StatList.default(DB)]
 
         self.reset_button_flag = reset_button
 

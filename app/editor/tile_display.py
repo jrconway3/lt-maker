@@ -5,11 +5,11 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
 
 import os
 
-from app.data.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.resources.resources import RESOURCES
 from app.resources.tiles import TileSet, TileMapPrefab
 
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel

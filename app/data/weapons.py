@@ -133,3 +133,7 @@ class WexpGain(Prefab):
 
 class WexpGainList(Data):
     datatype = WexpGain
+
+    @classmethod
+    def default(cls, db):
+        return cls([WexpGain(False, nid, 0) for nid in db.weapons.keys()])

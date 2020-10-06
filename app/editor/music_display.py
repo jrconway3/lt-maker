@@ -7,7 +7,7 @@ import os
 from app.resources.sounds import Song
 from app.resources.resources import RESOURCES
 
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 
 from app.extensions.custom_gui import ResourceListView, DeletionDialog

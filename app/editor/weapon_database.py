@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QPushButton, \
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
-from app.data.data import Data
+from app.utilities.data import Data
 from app.resources.resources import RESOURCES
 from app.data.database import DB
-from app.data.weapons import AdvantageList
+from app.data.weapons import CombatBonusList
 
 from app.extensions.custom_gui import ComboBox, PropertyBox, PropertyCheckBox, DeletionDialog
 from app.extensions.list_dialogs import MultiAttrListDialog

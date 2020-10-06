@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtCore import QSize
 
 # Custom Widgets
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox

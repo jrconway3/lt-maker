@@ -1,7 +1,7 @@
 [
     {
         "nid": "DEBUG",
-        "title": "Prologue",
+        "name": "Prologue",
         "tilemap": "Prologue",
         "party": null,
         "music": {
@@ -102,7 +102,7 @@
     },
     {
         "nid": "1",
-        "title": "Chapter 1",
+        "name": "Chapter 1",
         "tilemap": "Chapter 1",
         "party": null,
         "music": {

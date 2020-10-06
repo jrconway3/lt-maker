@@ -1,48 +1,34 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
     QVBoxLayout, QSizePolicy, QSpacerItem, QTableView, QStyledItemDelegate
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QItemSelection, QItemSelectionModel
 
-from app.data.weapons import WexpGainData
-from app.data.skills import LearnedSkillList
-from app.resources.resources import RESOURCES
+from app.utilities import str_utils
+
+from app.data.weapons import WexpGainList
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, QHLine, DeletionDialog
+from app.extensions.custom_gui import PropertyBox, QHLine
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 from app.extensions.list_models import VirtualListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
 
-from app.editor.custom_widgets import UnitBox, ClassBox
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
+from app.editor.custom_widgets import ClassBox
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, UnitStatAveragesModel
 from app.editor.skill_database import LearnedSkillDelegate
-from app.editor.item_database import ItemListWidget
+from app.editor.item_list_widget import ItemListWidget
 import app.editor.weapon_database as weapon_database
 from app.editor.icons import UnitPortrait
-import app.editor.utilities as editor_utilities
-from app import utilities
 from app.editor.helper_funcs import can_wield
-
-class UnitDatabase(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = DB.units
-        title = "Unit"
-        right_frame = UnitProperties
-        deletion_criteria = (None, None, None)
-        collection_model = UnitModel
-        dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
-        return dialog
 
 class WexpModel(VirtualListModel):
     def __init__(self, columns, data, parent=None):
         super().__init__(parent)
         self.window = parent
         self._columns = self._headers = columns
-        self._data: WexpGainData = data
+        self._data: WexpGainList = data
 
     def rowCount(self, parent=None):
         return 1
@@ -50,8 +36,8 @@ class WexpModel(VirtualListModel):
     def columnCount(self, parent=None):
         return len(self._headers)
 
-    def set_new_data(self, wexp_gain: WexpGainData):
-        self._data: WexpGainData = wexp_gain
+    def set_new_data(self, wexp_gain: WexpGainList):
+        self._data: WexpGainList = wexp_gain
         self.layoutChanged.emit()
 
     def update_column_header(self, columns):
@@ -111,78 +97,14 @@ class HorizWeaponListWidget(BasicSingleListWidget):
             self.view.resizeColumnToContents(col)
             self.view.setColumnWidth(col, 20)
 
-def get_chibi(unit):
-    res = RESOURCES.portraits.get(unit.portrait_nid)
-    if not res:
-        return None
-    if not res.pixmap:
-        res.pixmap = QPixmap(res.full_path)
-    pixmap = res.pixmap.copy(96, 16, 32, 32)
-    pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
-    return pixmap
-
-class UnitModel(DragDropCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            unit = self._data[index.row()]
-            text = unit.nid
-            return text
-        elif role == Qt.DecorationRole:
-            unit = self._data[index.row()]
-            # Get chibi image
-            pixmap = get_chibi(unit)
-            if pixmap:
-                return QIcon(pixmap)
-            else:
-                return None
-        return None
-
-    def delete(self, idx):
-        # check to make sure nothing else is using me!!!
-        unit = self._data[idx]
-        nid = unit.nid
-        affected_ais = [ai for ai in DB.ai if 
-                        any(behaviour.target_spec and 
-                        behaviour.target_spec[0] == "Unit" and 
-                        behaviour.target_spec[1] == nid 
-                        for behaviour in ai.behaviours)]
-        if affected_ais:
-            from app.editor.ai_database import AIModel
-            model = AIModel
-            msg = "Deleting Unit <b>%s</b> would affect these ais" % nid
-            swap, ok = DeletionDialog.get_swap(affected_ais, model, msg, UnitBox(self.window, exclude=unit), self.window)
-            if ok:
-                self.change_nid(nid, swap.nid)
-            else:
-                return
-        # Delete watchers
-        for level in DB.levels:
-            level.units = [unit for unit in level.units if nid != unit.nid]
-        super().delete(idx)
-
-    def change_nid(self, old_nid, new_nid):
-        for ai in DB.ai:
-            for behaviour in ai.behaviours:
-                if behaviour.target_spec and behaviour.target_spec[0] == "Unit" and behaviour.target_spec[1] == old_nid:
-                    behaviour.target_spec[1] = new_nid
-
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New Unit", nids)
-        DB.create_new_unit(nid, name)
-
 class UnitProperties(QWidget):
-    def __init__(self, parent, current=None):
+    def __init__(self, parent):
         super().__init__(parent)
         self.window = parent
         self.view = self.window.left_frame.view
         self.model = self.window.left_frame.model
         self._data = self.window._data
-        self.database_editor = self.window.window
-
-        self.current = current
+        self.current = None
 
         top_section = QHBoxLayout()
 
@@ -254,14 +176,15 @@ class UnitProperties(QWidget):
 
         skill_section = QHBoxLayout()
         attrs = ("level", "skill_nid")
-        self.personal_skill_widget = AppendMultiListWidget(LearnedSkillList(), "Personal Skills", attrs, LearnedSkillDelegate, self)
+        self.personal_skill_widget = AppendMultiListWidget([], "Personal Skills", attrs, LearnedSkillDelegate, self)
         # Changing of Personal skills done automatically also
         # self.personal_skill_widget.activated.connect(self.learned_skills_changed)
         skill_section.addWidget(self.personal_skill_widget)
 
         weapon_section = QHBoxLayout()
         attrs = ("weapon_type", "wexp_gain")
-        self.wexp_gain_widget = HorizWeaponListWidget(WexpGainData.from_xml([], DB.weapons), "Starting Weapon Exp.", QStyledItemDelegate, self)
+        self.wexp_gain_widget = HorizWeaponListWidget(
+            WexpGainList.default(DB), "Starting Weapon Exp.", QStyledItemDelegate, self)
         # Changing of Weapon Gain done automatically
         # self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
         weapon_section.addWidget(self.wexp_gain_widget)
@@ -316,7 +239,7 @@ class UnitProperties(QWidget):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Unit ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self.model.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
@@ -328,7 +251,7 @@ class UnitProperties(QWidget):
         self.current.desc = text
 
     def level_changed(self, val):
-        self.current.level = val
+        self.current.level = int(val)
         if self.averages_dialog:
             self.averages_dialog.update()
 
@@ -387,18 +310,23 @@ class UnitProperties(QWidget):
     #     pass
 
     def items_changed(self):
+        print("UnitProperites: items_changed")
+        print(self.item_widget.get_items())
         self.current.starting_items = self.item_widget.get_items()
         # See which ones can actually be wielded
-        color_list = []
-        for item_nid, droppable in self.current.starting_items:
-            item = DB.items.get(item_nid)
-            if droppable:
-                color_list.append(Qt.darkGreen)
-            elif not can_wield(self.current, item, prefab=True):
-                color_list.append(Qt.red)
-            else:
-                color_list.append(Qt.black)
-        self.item_widget.set_color(color_list)
+        # color_list = []
+        # for item_nid, droppable in self.current.starting_items:
+        #     item = DB.items.get(item_nid)
+        #     print(item_nid)
+        #     if not item:
+        #         color_list.append(Qt.black)
+        #     elif droppable:
+        #         color_list.append(Qt.darkGreen)
+        #     elif not can_wield(self.current, item):
+        #         color_list.append(Qt.red)
+        #     else:
+        #         color_list.append(Qt.black)
+        # self.item_widget.set_color(color_list)
 
     def access_tags(self):
         dlg = TagDialog.create(self)
@@ -455,13 +383,3 @@ class UnitProperties(QWidget):
 
     def hideEvent(self, event):
         self.close_averages()
-
-# Testing
-# Run "python -m app.editor.unit_database" from main directory
-if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    window = UnitDatabase.create()
-    window.show()
-    app.exec_()

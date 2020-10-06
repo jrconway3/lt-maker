@@ -1,12 +1,10 @@
-import functools
-
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QToolButton, \
     QSpinBox, QLineEdit, QPushButton, QCheckBox, QVBoxLayout, \
     QGroupBox, QFormLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor, QPixmap
 
-from app.data.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 
 from app.editor.frame_selector import FrameSelector

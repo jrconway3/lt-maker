@@ -1,4 +1,4 @@
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 
 from app.extensions.custom_gui import DeletionDialog, PropertyBox, ComboBox
@@ -46,7 +46,7 @@ class TagMultiModel(DragDropMultiAttrListModel):
                 klass.tags = [new_value if elem == old_value else elem for elem in klass.tags]
 
 class TagDialog(MultiAttrListDialog):
-    locked_vars = {"NoAutoPromote", "Boss", "ZeroMove", "Lord"}
+    locked_vars = {"AutoPromote", "NoAutoPromote", "Boss", "ZeroMove", "Lord"}
 
     @classmethod
     def create(cls, parent=None):

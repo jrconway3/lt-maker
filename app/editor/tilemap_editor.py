@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
-from app.data.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 from app.resources.tiles import LayerGrid
 from app.data.database import DB

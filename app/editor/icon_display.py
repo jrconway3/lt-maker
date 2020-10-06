@@ -1,13 +1,13 @@
+import os
+
 from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, \
     QGraphicsView, QGraphicsScene, QMessageBox
 from PyQt5.QtCore import Qt, QDir, QAbstractItemModel, QModelIndex, QSettings
 from PyQt5.QtGui import QPixmap, QIcon
 
-import os
-
 from app.resources.icons import Icon
 from app.resources.resources import RESOURCES
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 from app.extensions.custom_gui import ResourceTreeView, DeletionDialog
 from app.editor.base_database_gui import DatabaseTab

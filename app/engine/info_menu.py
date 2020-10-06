@@ -13,7 +13,7 @@ from app.engine.input_manager import INPUT
 from app.engine.state import State
 from app.engine import engine, background, menu_options, help_menu, gui, \
     unit_sprite, icons, image_mods, item_funcs, item_system, equations, \
-    combat_calcs
+    combat_calcs, menus
 from app.engine.game_state import game
 from app.engine.fluid_scroll import FluidScroll
 
@@ -33,6 +33,7 @@ class InfoGraph():
         self.current_bb = None
         self.last_bb = None
         self.current_state = None
+        self.cursor = menus.Cursor()
 
     def clear(self):
         self.registry = {state: [] for state in info_states}
@@ -69,30 +70,49 @@ class InfoGraph():
         self.last_bb = self.current_bb
         self.current_bb = None
 
-    def _move(self, boxes):
+    def _move(self, boxes, horiz=False):
+        if not boxes:
+            return
         if self.current_bb:
-            # Find the closest box from boxes by comparing center points
             center_point = (self.current_bb.aabb[0] + self.current_bb.aabb[2]/2, 
                             self.current_bb.aabb[1] + self.current_bb.aabb[3]/2)
             closest_box = None
             max_distance = 1e6
+            # First try to find a close box by moving in the right direction
             for bb in boxes:
-                bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
-                distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
-                if distance < max_distance:
-                    max_distance = distance
-                    closest_box = bb
+                if horiz:
+                    a, b = self.current_bb.aabb[1], self.current_bb.aabb[1] + self.current_bb.aabb[3]
+                    bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
+                    if a < bb_center[1] < b:
+                        distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
+                        if distance < max_distance:
+                            max_distance = distance
+                            closest_box = bb
+                else:
+                    a, b = self.current_bb.aabb[0], self.current_bb.aabb[0] + self.current_bb.aabb[2]
+                    bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
+                    if a < bb_center[0] < b:
+                        distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
+                        if distance < max_distance:
+                            max_distance = distance
+                            closest_box = bb
+            # Find the closest box from boxes by comparing center points
+            if not closest_box:
+                for bb in boxes:
+                    bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
+                    distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
+                    if distance < max_distance:
+                        max_distance = distance
+                        closest_box = bb
             self.current_bb = closest_box
-            if self.current_bb:
-                pass
 
     def move_left(self):
         boxes = [bb for bb in self.registry[self.current_state] if bb.aabb[0] < self.current_bb.aabb[0]]
-        self._move(boxes)
+        self._move(boxes, horiz=True)
 
     def move_right(self):
         boxes = [bb for bb in self.registry[self.current_state] if bb.aabb[0] > self.current_bb.aabb[0]]
-        self._move(boxes)
+        self._move(boxes, horiz=True)
 
     def move_up(self):
         boxes = [bb for bb in self.registry[self.current_state] if bb.aabb[1] < self.current_bb.aabb[1]]
@@ -102,10 +122,27 @@ class InfoGraph():
         boxes = [bb for bb in self.registry[self.current_state] if bb.aabb[1] > self.current_bb.aabb[1]]
         self._move(boxes)
 
+    def handle_mouse(self, mouse_position):
+        x, y = mouse_position
+        for bb in self.registry[self.current_state]:
+            if bb.aabb[0] <= x < bb.aabb[0] + bb.aabb[2] and \
+                    bb.aabb[1] <= y < bb.aabb[1] + bb.aabb[3]:
+                self.current_bb = bb
+
     def draw(self, surf):
+        for bb in self.registry[self.current_state]:
+            s = engine.create_surface((bb.aabb[2], bb.aabb[3]), transparent=True)
+            engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
+            surf.blit(s, (bb.aabb[0], bb.aabb[1]))
+
         if self.current_bb:
             right = self.current_bb.aabb[0] >= int(0.75 * WINWIDTH)
-            self.current_bb.help_box.draw(surf, (self.current_bb.aabb[0], self.current_bb.aabb[1]), right)
+            pos = (max(0, self.current_bb.aabb[0] - 32), self.current_bb.aabb[1] + 13)
+            self.current_bb.help_box.draw(surf, pos, right)
+
+            cursor_pos = (max(0, self.current_bb.aabb[0] - 4), self.current_bb.aabb[1])
+            self.cursor.update()
+            self.cursor.draw(surf, *cursor_pos)
 
 def build_groove(surf, topleft, width, fill):
     bg = SPRITES.get('groove_back')
@@ -162,6 +199,7 @@ class InfoMenuState(State):
 
         self.info_graph = InfoGraph()
         self.info_flag = False
+        self.info_graph.set_current_state(self.state)
         self.reset_surfs()
 
         # For transitions between states
@@ -222,15 +260,17 @@ class InfoMenuState(State):
                 self.info_flag = False
                 return
 
-            if directions:
+            if event == 'RIGHT':
                 SOUNDTHREAD.play_sfx('Select 6')
-            if 'RIGHT' in directions:
                 self.info_graph.move_right()
-            elif 'LEFT' in directions:
+            elif event == 'LEFT':
+                SOUNDTHREAD.play_sfx('Select 6')
                 self.info_graph.move_left()
-            if 'UP' in directions:
+            if event == 'UP':
+                SOUNDTHREAD.play_sfx('Select 6')
                 self.info_graph.move_up()
-            elif 'DOWN' in directions:
+            elif event == 'DOWN':
+                SOUNDTHREAD.play_sfx('Select 6')
                 self.info_graph.move_down()
 
         elif not self.transition:  # Only takes input when not transitioning
@@ -299,7 +339,7 @@ class InfoMenuState(State):
         if not mouse_position:
             return
         if self.info_flag:
-            pass
+            self.info_graph.handle_mouse(mouse_position)
         elif not self.transition:
             # Move left, right, up or down
             mouse_x, mouse_y = mouse_position
@@ -448,7 +488,7 @@ class InfoMenuState(State):
         surf.blit(portrait_surf, (8, 8))
 
         FONT['text-white'].blit_center(self.unit.name, surf, (48, 80))
-        self.info_graph.register((8, 80, 72, 24), self.unit.desc, 'all')
+        self.info_graph.register((24, 80, 56, 24), self.unit.desc, 'all')
         class_obj = DB.classes.get(self.unit.klass)
         FONT['text-white'].blit(class_obj.name, surf, (8, 104))
         self.info_graph.register((8, 104, 72, 16), class_obj.desc, 'all')
@@ -505,7 +545,7 @@ class InfoMenuState(State):
                 self.equipment_surf = self.create_equipment_surf()
             self.draw_equipment_surf(main_surf)
 
-        elif info_states == 'support_skills':
+        elif self.state == 'support_skills':
             main_surf.blit(SPRITES.get('status_logo'), (100, WINHEIGHT - 34))
             if not self.skill_surf:
                 self.skill_surf = self.create_skill_surf()
@@ -536,7 +576,7 @@ class InfoMenuState(State):
         for idx, stat_nid in enumerate(stat_list):
             max_stat = max_stats.get(stat_nid).value
             total_length = int(max_stat / highest_stat * 44)
-            frac = int(self.unit.stats.get(stat_nid) / max_stat)
+            frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)
             build_groove(surf, (27, 16 * idx + 32), total_length, frac)
             icons.draw_stat(surf, stat_nid, self.unit, (47, 16 * idx + 24))
 
@@ -609,41 +649,34 @@ class InfoMenuState(State):
             state = 'growths'
         else:
             state = 'personal_data'
-        FONT['text-yellow'].blit('STR', surf, (8, 24))
-        self.info_graph.register((8, 24, 64, 16), 'STR_desc', state)
-        FONT['text-yellow'].blit('MAG', surf, (8, 40))
-        self.info_graph.register((8, 40, 64, 16), 'MAG_desc', state)
-        FONT['text-yellow'].blit('SKL', surf, (8, 54))
-        self.info_graph.register((8, 56, 64, 16), 'SKL_desc', state)
-        FONT['text-yellow'].blit('SPD', surf, (8, 72))
-        self.info_graph.register((8, 72, 64, 16), 'SPD_desc', state)
-        FONT['text-yellow'].blit('DEF', surf, (8, 88))
-        self.info_graph.register((8, 88, 64, 16), 'DEF_desc', state)
-        FONT['text-yellow'].blit('RES', surf, (8, 104))
-        self.info_graph.register((8, 104, 64, 16), 'RES_desc', state)
+        stat_list = ('STR', 'MAG', 'SKL', 'SPD', 'DEF', 'RES')
+        for idx, stat in enumerate(stat_list):
+            name = DB.stats.get(stat).name
+            FONT['text-yellow'].blit(name, surf, (8, 24 + 16 * idx))
+            self.info_graph.register((96 + 8, 24 + 16 * idx, 64, 16), '%s_desc' % stat, state)
 
-        FONT['text-yellow'].blit('LCK', surf, (72, 24))
-        self.info_graph.register((72, 24, 64, 16), 'LCK_desc', state)
-        FONT['text-yellow'].blit('MOV', surf, (72, 40))
-        self.info_graph.register((72, 40, 64, 16), 'MOV_desc', state)
-        FONT['text-yellow'].blit('CON', surf, (72, 54))
-        self.info_graph.register((72, 56, 64, 16), 'CON_desc', state)
+        FONT['text-yellow'].blit(DB.stats.get('LCK').name, surf, (72, 24))
+        self.info_graph.register((96 + 72, 24, 64, 16), 'LCK_desc', state)
+        FONT['text-yellow'].blit(DB.stats.get('MOV').name, surf, (72, 40))
+        self.info_graph.register((96 + 72, 40, 64, 16), 'MOV_desc', state)
+        FONT['text-yellow'].blit(DB.stats.get('CON').name, surf, (72, 56))
+        self.info_graph.register((96 + 72, 56, 64, 16), 'CON_desc', state)
         FONT['text-yellow'].blit('Trv', surf, (72, 88))
-        self.info_graph.register((72, 88, 64, 16), 'Trv_desc', state)
+        self.info_graph.register((96 + 72, 88, 64, 16), 'Trv_desc', state)
 
         if growths:
             FONT['text-yellow'].blit('HP', surf, (72, 72))
-            self.info_graph.register((72, 72, 64, 16), 'HP_desc', state)
+            self.info_graph.register((96 + 72, 72, 64, 16), 'HP_desc', state)
         else:
             FONT['text-yellow'].blit('Aid', surf, (72, 72))
-            self.info_graph.register((72, 72, 64, 16), 'Aid_desc', state)
+            self.info_graph.register((96 + 72, 72, 64, 16), 'Aid_desc', state)
 
         if DB.constants.value('support'):
             FONT['text-yellow'].blit('Affin', surf, (72, 104))
-            self.info_graph.register((72, 104, 64, 16), 'Affinity_desc', state)
+            self.info_graph.register((96 + 72, 104, 64, 16), 'Affinity_desc', state)
         else:
             FONT['text-yellow'].blit('Rat', surf, (72, 104))
-            self.info_graph.register((72, 104, 64, 16), 'Rating_desc', state)
+            self.info_graph.register((96 + 72, 104, 64, 16), 'Rating_desc', state)
 
     def draw_personal_data_surf(self, surf):
         surf.blit(self.personal_data_surf, (96, 0))
@@ -654,8 +687,8 @@ class InfoMenuState(State):
     def create_wexp_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
         
-        how_many = len(wexp for wexp in self.unit.wexp.values() if wexp > 0)
-        x_pos = WINWIDTH - 102 // max(how_many, 2)
+        how_many = len([wexp for wexp in self.unit.wexp.values() if wexp > 0])
+        x_pos = (WINWIDTH - 102) // max(how_many, 2)
 
         class_obj = DB.classes.get(self.unit.klass)
         counter = 0
@@ -664,7 +697,12 @@ class InfoMenuState(State):
             if value > 0 and class_obj.wexp_gain.get(weapon).usable:
                 weapon_rank = DB.weapon_ranks.get_rank_from_wexp(value)
                 next_weapon_rank = DB.weapon_ranks.get_next_rank_from_wexp(value)
-                perc = (value - weapon_rank.requirement) / (next_weapon_rank.requirement - weapon_rank.requirement)
+                if not weapon_rank:
+                    perc = 0
+                elif not next_weapon_rank:
+                    perc = 1
+                else:
+                    perc = (value - weapon_rank.requirement) / (next_weapon_rank.requirement - weapon_rank.requirement)
                 offset = 8 + counter * x_pos
                 counter += 1
 
@@ -673,7 +711,11 @@ class InfoMenuState(State):
                 # Build groove
                 build_groove(surf, (offset + 18, 10), x_pos - 24, perc)
                 # Add text
-                FONT['text-blue'].blit_center(weapon_rank.nid, surf, (offset + 7 + x_pos, 4))
+                pos = (offset + 7 + x_pos//2, 4)
+                FONT['text-blue'].blit_center(weapon_rank.nid, surf, pos)
+                self.info_graph.register((96 + pos[0] - x_pos//2 - 8, 24 + pos[1], x_pos, 16), "%s mastery level: %d" % (DB.weapons.get(weapon).name, value), 'support_skills')
+
+        return surf
 
     def draw_wexp_surf(self, surf):
         surf.blit(self.wexp_surf, (96, 24))
@@ -691,7 +733,7 @@ class InfoMenuState(State):
         for idx, item in enumerate(self.unit.items):
             item_option = menu_options.FullItemOption(idx, item)
             item_option.draw(surf, 8, idx * 16 + 24)
-            self.info_graph.register((8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment')
+            self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment')
 
         # Battle stats
         battle_surf = SPRITES.get('battle_info')
@@ -700,15 +742,15 @@ class InfoMenuState(State):
         # Populate battle info
         surf.blit(SPRITES.get('equipment_logo'), (14, top + 4))
         FONT['text-yellow'].blit('Rng', surf, (78, top))
-        self.info_graph.register((78, top, 56, 16), 'Rng_desc', 'equipment')
+        self.info_graph.register((96 + 78, top, 56, 16), 'Rng_desc', 'equipment')
         FONT['text-yellow'].blit('Atk', surf, (22, top + 16))
-        self.info_graph.register((22, top, 56, 16), 'Atk_desc', 'equipment')
+        self.info_graph.register((96 + 14, top + 16, 64, 16), 'Atk_desc', 'equipment')
         FONT['text-yellow'].blit('Hit', surf, (22, top + 32))
-        self.info_graph.register((22, top, 56, 16), 'Hit_desc', 'equipment')
+        self.info_graph.register((96 + 14, top + 32, 64, 16), 'Hit_desc', 'equipment')
         FONT['text-yellow'].blit('AS', surf, (78, top + 16))
-        self.info_graph.register((78, top + 16, 56, 16), 'AS_desc', 'equipment')
+        self.info_graph.register((96 + 78, top + 16, 56, 16), 'AS_desc', 'equipment')
         FONT['text-yellow'].blit('Avoid', surf, (78, top + 32))
-        self.info_graph.register((78, top + 32, 56, 16), 'Avoid_desc', 'equipment')
+        self.info_graph.register((96 + 78, top + 32, 56, 16), 'Avoid_desc', 'equipment')
 
         if weapon:
             rng = item_funcs.get_range_string(self.unit, weapon)

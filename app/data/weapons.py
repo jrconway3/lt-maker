@@ -61,6 +61,22 @@ class WeaponRank(Prefab):
 class RankCatalog(Data):
     datatype = WeaponRank
 
+    def get_rank_from_wexp(self, wexp) -> WeaponRank:
+        ranks = sorted(self._list, key=lambda x: x.requirement)
+        correct_rank = None
+        for rank in ranks:
+            if wexp >= rank.requirement:
+                correct_rank = rank
+        return correct_rank
+
+    def get_next_rank_from_wexp(self, wexp) -> WeaponRank:
+        ranks = sorted(self._list, key=lambda x: x.requirement)
+        correct_rank = None
+        for rank in ranks:
+            if wexp < rank.requirement:
+                correct_rank = rank
+        return correct_rank
+
 # === WEAPON TYPE ===
 @dataclass(eq=False)
 class WeaponType(Prefab):

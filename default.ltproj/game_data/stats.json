@@ -7,13 +7,13 @@
     },
     {
         "nid": "STR",
-        "name": "Strength",
+        "name": "Str",
         "maximum": 30,
         "desc": "Strength. The higher the number, the more damage you inflict."
     },
     {
         "nid": "MAG",
-        "name": "Magic",
+        "name": "Mag",
         "maximum": 30,
         "desc": "Magical power. Increases spell and staff effectiveness."
     },
@@ -25,7 +25,7 @@
     },
     {
         "nid": "SPD",
-        "name": "Speed",
+        "name": "Spd",
         "maximum": 30,
         "desc": "This affects both evasion and attack speed."
     },
@@ -37,25 +37,25 @@
     },
     {
         "nid": "DEF",
-        "name": "Defense",
+        "name": "Def",
         "maximum": 30,
         "desc": "Reduces damage from weapons."
     },
     {
         "nid": "RES",
-        "name": "Resistance",
+        "name": "Res",
         "maximum": 30,
         "desc": "Reduces damage from magic."
     },
     {
         "nid": "CON",
-        "name": "Constitution",
+        "name": "Con",
         "maximum": 25,
         "desc": "Constitution. Affects how well the unit can wield heavier weapons."
     },
     {
         "nid": "MOV",
-        "name": "Movement",
+        "name": "Move",
         "maximum": 15,
         "desc": "The distance you can move in one turn."
     }

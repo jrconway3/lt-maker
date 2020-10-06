@@ -27,9 +27,9 @@ def split(font, string, num_lines, max_width):
 
         lines[which_line].append(character)
         length_so_far = font.width(''.join(lines[which_line]))
-        if length_so_far > total_length // num_lines:
+        if num_lines > 1 and length_so_far >= total_length // num_lines - 5:
             new_line = True
-        elif length_so_far > max_width:
+        elif length_so_far >= max_width:
             new_line = True
 
     return [''.join(line) for line in lines]

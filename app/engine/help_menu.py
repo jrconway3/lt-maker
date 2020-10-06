@@ -1,4 +1,4 @@
-from app.constants import WINWIDTH
+from app.constants import WINWIDTH, WINHEIGHT
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
@@ -73,6 +73,11 @@ class HelpDialog():
         h_surf = engine.copy_surface(self.h_surf)
         h_surf.blit(help_surf, (0, 3))
         h_surf.blit(self.help_logo, (9, 0))
+
+        if pos[0] + help_surf.get_width() >= WINWIDTH:
+            pos = (WINWIDTH - help_surf.get_width() - 8, pos[1])
+        if pos[1] + help_surf.get_height() >= WINHEIGHT:
+            pos = (pos[0], pos[1] - help_surf.get_height() - 16)
 
         if self.transition_in:
             h_surf = self.handle_transition_in(time, h_surf)

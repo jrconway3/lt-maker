@@ -21,7 +21,7 @@ from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.item_list_widget import ItemListWidget
 import app.editor.weapon_database as weapon_database
 from app.editor.icons import UnitPortrait
-from app.editor.helper_funcs import can_wield
+# from app.editor.helper_funcs import can_wield
 
 class WexpModel(VirtualListModel):
     def __init__(self, columns, data, parent=None):
@@ -108,46 +108,47 @@ class UnitProperties(QWidget):
 
         top_section = QHBoxLayout()
 
+        main_section = QGridLayout()
+
         self.icon_edit = UnitPortrait(self)
-        top_section.addWidget(self.icon_edit)
+        main_section.addWidget(self.icon_edit, 0, 0, 2, 1, Qt.AlignHCenter)
+        # top_section.addWidget(self.icon_edit)
 
-        horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
-        top_section.addSpacerItem(horiz_spacer)
+        # horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # top_section.addSpacerItem(horiz_spacer)
 
-        name_section = QVBoxLayout()
+        # name_section = QVBoxLayout()
 
         self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
-        name_section.addWidget(self.nid_box)
+        main_section.addWidget(self.nid_box, 0, 1)
 
         self.name_box = PropertyBox("Display Name", QLineEdit, self)
         self.name_box.edit.setMaxLength(13)
         self.name_box.edit.textChanged.connect(self.name_changed)
-        name_section.addWidget(self.name_box)
+        main_section.addWidget(self.name_box, 0, 2)
 
-        top_section.addLayout(name_section)
-
-        main_section = QGridLayout()
+        # top_section.addLayout(name_section)
 
         self.variant_box = PropertyBox("Animation Variant", QLineEdit, self)
         self.variant_box.edit.textChanged.connect(self.variant_changed)
         self.variant_box.edit.setPlaceholderText("No Variant")
-        main_section.addWidget(self.variant_box, 0, 0)
+        main_section.addWidget(self.variant_box, 1, 2)
 
         self.desc_box = PropertyBox("Description", QLineEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
-        main_section.addWidget(self.desc_box, 0, 1, 1, 3)
+        main_section.addWidget(self.desc_box, 2, 0, 1, 3)
 
         self.level_box = PropertyBox("Level", QSpinBox, self)
         self.level_box.edit.setRange(1, 255)
         self.level_box.edit.setAlignment(Qt.AlignRight)
         self.level_box.edit.valueChanged.connect(self.level_changed)
-        main_section.addWidget(self.level_box, 1, 0)
+        main_section.addWidget(self.level_box, 1, 1)
 
         self.class_box = ClassBox(self)
         self.class_box.edit.currentIndexChanged.connect(self.class_changed)
-        main_section.addWidget(self.class_box, 1, 1)
+        main_section.addWidget(self.class_box, 3, 0)
 
         tag_section = QHBoxLayout()
 
@@ -161,7 +162,7 @@ class UnitProperties(QWidget):
         self.tag_box.button.setMaximumWidth(40)
         self.tag_box.button.clicked.connect(self.access_tags)
 
-        main_section.addLayout(tag_section, 1, 2, 1, 2)
+        main_section.addLayout(tag_section, 3, 1, 1, 2)
 
         stat_section = QGridLayout()
 
@@ -310,8 +311,6 @@ class UnitProperties(QWidget):
     #     pass
 
     def items_changed(self):
-        print("UnitProperites: items_changed")
-        print(self.item_widget.get_items())
         self.current.starting_items = self.item_widget.get_items()
         # See which ones can actually be wielded
         # color_list = []

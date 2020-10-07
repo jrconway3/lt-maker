@@ -7,12 +7,10 @@ from app.data.database import DB
 
 from app.editor.timer import TIMER
 
-from app.editor.unit_database import UnitDatabase
 from app.editor.class_database import ClassDatabase
 from app.editor.faction_database import FactionDatabase
 from app.editor.party_database import PartyDatabase
 from app.editor.weapon_database import WeaponDatabase
-from app.editor.item_database import ItemDatabase
 from app.editor.terrain_database import TerrainDatabase
 from app.editor.ai_database import AIDatabase
 from app.editor.constant_database import ConstantDatabase
@@ -103,8 +101,6 @@ class DatabaseEditor(QDialog):
         return self.saved_data
 
     def restore(self):
-        #for tab in self.tabs.values():
-        #    tab.restore(tab.saved_data)
         DB.tags.restore(self.saved_data['tags'])
         DB.units.restore(self.saved_data['units'])
         DB.classes.restore(self.saved_data['classes'])
@@ -122,9 +118,6 @@ class DatabaseEditor(QDialog):
 
     def apply(self):
         self.save()
-        DB.levels.restore_all_prefabs(DB)
-        # for tab in self.tabs.values():
-            # tab.apply()
 
     def accept(self):
         self.store_last_tab()

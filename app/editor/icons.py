@@ -127,9 +127,9 @@ class UnitPortrait(QPushButton):
             if not res:
                 self.setIcon(QIcon())
                 return
-            if not res.pixmap:
-                res.pixmap = QPixmap(res.full_path)
-            pixmap = res.pixmap.copy(0, 0, self.width, self.height)
+            if not res.image:
+                res.image = QPixmap(res.full_path)
+            pixmap = res.image.copy(0, 0, self.width, self.height)
             pic = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
             pic = QIcon(pic)
             self.setIcon(pic)
@@ -150,8 +150,9 @@ class UnitPortrait(QPushButton):
             self.window.window.update_list()
 
     def onIconSourcePicker(self):
-        main_editor = self.window.window.main_editor
-        res, ok = ResourceEditor.get(main_editor, "Portraits")
+        # main_editor = self.window.window.main_editor
+        # res, ok = ResourceEditor.get(main_editor, "Portraits")
+        res, ok = PortraitEditor.get()
         if ok:
             nid = res.nid
             self.change_icon(nid)

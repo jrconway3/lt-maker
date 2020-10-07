@@ -12,6 +12,8 @@ from app.extensions.custom_gui import RightClickListView
 from app import utilities
 
 class DatabaseTab(QWidget):
+    allow_import_from_lt = False
+    
     def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent, 
                  button_text="Create %s", view_type=RightClickListView):
         QWidget.__init__(self, parent)
@@ -85,13 +87,18 @@ class Collection(QWidget):
 
         self.view.setIconSize(QSize(32, 32))
 
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         self.button = QPushButton(button_text % self.title)
         self.button.clicked.connect(self.model.append)
 
         grid.addWidget(self.view, 0, 0)
         grid.addWidget(self.button, 1, 0)
+
+        if self.window.allow_import_from_lt:
+            self.import_button = QPushButton("Import from Lex Talionis...")
+            self.import_button.clicked.connect(self.window.import_data)
+            grid.addWidget(self.import_button, 2, 0)
 
     def on_item_changed(self, curr, prev):
         if self._data:

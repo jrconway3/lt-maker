@@ -26,8 +26,10 @@ class MultiComboBoxList(QListWidget):
         for i in self._data:
             if self.pixmap_func:
                 pix = self.pixmap_func(i)
-                icon = QIcon(pix) if pix else None
-                combo_box.addItem(icon, i.nid)
+                if pix:
+                    combo_box.addItem(QIcon(pix), i.nid)
+                else:
+                    combo_box.addItem(i.nid)
             else:
                 combo_box.addItem(i.nid)
         combo_box.setValue(item_nid)
@@ -63,21 +65,21 @@ class MultiComboBoxList(QListWidget):
         self.combo_box_list.clear()
 
     def set_current(self, items):
-        print("ItemList Set Current")
-        print(items, flush=True)
+        # print("ItemList Set Current")
+        # print(items, flush=True)
         self.clear()
-        print("ItemList Set Current")
-        print(items, flush=True)
+        # print("ItemList Set Current")
+        # print(items, flush=True)
         for i in items:
             self.add_item(i)
         self.item_changed.emit()
 
     def on_item_change(self, index):
-        print("ItemList Item Change")
-        print(index, flush=True)
+        # print("ItemList Item Change")
+        # print(index, flush=True)
         combo_box = self.combo_box_list[index]
         item_nid = combo_box.currentText()
-        print(item_nid, flush=True)
+        # print(item_nid, flush=True)
         self.index_list[index] = item_nid
         self.item_changed.emit()
 
@@ -152,12 +154,12 @@ class MultiComboBoxListWithCheckbox(MultiComboBoxList):
         self.item_changed.emit()
 
     def on_item_change(self, idx):
-        print("ItemList Item Change")
-        print(idx, flush=True)
+        # print("ItemList Item Change")
+        # print(idx, flush=True)
         item_box = self.combo_box_list[idx]
         item_nid = item_box.combo_box.currentText()
         droppable = bool(item_box.check_box.isChecked())
-        print(item_nid, flush=True)
+        # print(item_nid, flush=True)
         self.index_list[idx] = [item_nid, droppable]
         self.item_changed.emit()
 

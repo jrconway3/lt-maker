@@ -56,8 +56,6 @@ class ItemListWidget(QWidget):
         self.layout.addLayout(hbox, 0, 1, alignment=Qt.AlignRight)
 
     def set_current(self, items):
-        print("ItemListWidget: set_current")
-        print(items)
         self.item_list.set_current(items)
 
     def add_new_item(self):
@@ -72,7 +70,6 @@ class ItemListWidget(QWidget):
         self.activate()
 
     def activate(self):
-        print("ItemListWidget: activate")
         self.items_updated.emit()
 
     def get_items(self):

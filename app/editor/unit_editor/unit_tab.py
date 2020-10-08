@@ -7,8 +7,7 @@ from app.data.database import DB
 from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.base_database_gui import DatabaseTab
 
-from app.editor.unit_editor.unit_properties import UnitProperties
-from app.editor.unit_editor.unit_model import UnitModel
+from app.editor.unit_editor import unit_model, unit_properties, unit_import
 
 class UnitDatabase(DatabaseTab):
     allow_import_from_lt = True
@@ -17,9 +16,9 @@ class UnitDatabase(DatabaseTab):
     def create(cls, parent=None):
         data = DB.units
         title = "Unit"
-        right_frame = UnitProperties
+        right_frame = unit_properties.UnitProperties
         deletion_criteria = (None, None, None)
-        collection_model = UnitModel
+        collection_model = unit_model.UnitModel
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
@@ -30,9 +29,11 @@ class UnitDatabase(DatabaseTab):
         if ok and fn.endswith('units.xml'):
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)
-            with open(fn) as units_xml:
-                pass
-
+            new_units = unit_import.get_from_xml(parent_dir, fn)
+            for unit in new_units:
+                self._data.append(unit)
+            self.update_list()
+                
 # Testing
 # Run "python -m app.editor.unit_editor.unit_tab" from main directory
 if __name__ == '__main__':

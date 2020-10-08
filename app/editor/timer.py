@@ -27,4 +27,9 @@ class Timer(QWidget):
         self.active_counter.update(current_time)
         self.tick_elapsed.emit()
 
-TIMER = Timer(constants.FPS)
+TIMER = None
+def get_timer():
+    global TIMER
+    if not TIMER:
+        TIMER = Timer(constants.FPS)
+    return TIMER

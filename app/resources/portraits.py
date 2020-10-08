@@ -7,6 +7,7 @@ class Portrait():
         self.nid = nid
         self.full_path = full_path
         self.image = None
+        self.pixmap = None
 
         self.blinking_offset = [0, 0]
         self.smiling_offset = [0, 0]

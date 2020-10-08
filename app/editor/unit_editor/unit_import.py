@@ -12,7 +12,8 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     unit_xml = ET.parse(xml_fn)
     unit_list = []
     for unit in unit_xml.getroot().findall('unit'):
-        nid = unit.find('id').text
+        nids = DB.units.keys()
+        nid = str_utils.get_next_name(unit.find('id').text, nids)
         name = unit.get('name')
         desc = unit.find('desc').text
         klass = unit.find('class').text.split(',')[-1]

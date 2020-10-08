@@ -17,9 +17,9 @@ def get_pixmap(item):
     res = RESOURCES.icons16.get(item.icon_nid)
     if not res:
         return None
-    if not res.image:
-        res.image = QPixmap(res.full_path)
-    pixmap = res.image.copy(x*16, y*16, 16, 16)
+    if not res.pixmap:
+        res.pixmap = QPixmap(res.full_path)
+    pixmap = res.pixmap.copy(x*16, y*16, 16, 16)
     pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 

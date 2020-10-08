@@ -8,6 +8,7 @@ class Icon():
         self.nid = nid
         self.full_path = full_path
         self.image = None
+        self.pixmap = None
 
         # self.sub_images = []
         # self.parent_image = None

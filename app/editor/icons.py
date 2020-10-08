@@ -127,9 +127,9 @@ class UnitPortrait(QPushButton):
             if not res:
                 self.setIcon(QIcon())
                 return
-            if not res.image:
-                res.image = QPixmap(res.full_path)
-            pixmap = res.image.copy(0, 0, self.width, self.height)
+            if not res.pixmap:
+                res.pixmap = QPixmap(res.full_path)
+            pixmap = res.pixmap.copy(0, 0, self.width, self.height)
             pic = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
             pic = QIcon(pic)
             self.setIcon(pic)

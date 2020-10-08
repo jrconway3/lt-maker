@@ -204,15 +204,15 @@
         "text": "Attack Speed. If a unit has 4 or more attack speed than its opponent, it attacks twice."
     },
     {
-        "nid": "Level_desc", 
-        "text": "Unit level. How experienced a unit is."    
+        "nid": "Level_desc",
+        "text": "Unit level. How experienced a unit is."
     },
     {
         "nid": "Exp_desc",
         "text": "Experience points gained. Gain 100 points to earn a new level."
     },
     {
-        "nid": "HP_desc", 
+        "nid": "HP_desc",
         "text": "Hit points. The unit is removed from the battle if HP reaches 0."
     }
 ]

@@ -14,7 +14,7 @@ from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine, DeletionDia
 from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWidget
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
-from app.editor.timer import TIMER 
+from app.editor import timer
 
 from app.editor.custom_widgets import ClassBox
 from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
@@ -90,7 +90,7 @@ class ClassModel(DragDropCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             klass = self._data[index.row()]
-            num = TIMER.passive_counter.count
+            num = timer.get_timer().passive_counter.count
             if hasattr(self.window, 'view'):
                 active = index == self.window.view.currentIndex()
             else:

@@ -80,7 +80,7 @@ class Resources():
         self.clear()
         self.load(proj_dir)
 
-    def save(self, proj_dir):
+    def save(self, proj_dir, specific=None):
         print("Starting Resource Serialization...")
         # Make the directory to save this resource pack in
         if not os.path.exists(proj_dir):
@@ -89,7 +89,11 @@ class Resources():
         if not os.path.exists(resource_dir):
             os.mkdir(resource_dir)
 
-        for data_type in self.save_data_types:
+        if specific:
+            save_data_types = specific
+        else:
+            save_data_types = self.save_data_types
+        for data_type in save_data_types:
             data_dir = os.path.join(resource_dir, data_type)
             if not os.path.exists(data_dir):
                 os.mkdir(data_dir)

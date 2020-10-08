@@ -14,7 +14,6 @@
             "prep": null,
             "base": null
         },
-        "market_flag": false,
         "objective": {
             "simple": "Defeat Boss",
             "win": "Defeat Boss",
@@ -23,7 +22,6 @@
         "units": [
             {
                 "nid": "Eirika",
-                "prefab": "Eirika",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
@@ -34,7 +32,6 @@
             },
             {
                 "nid": "Seth",
-                "prefab": "Seth",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
@@ -89,7 +86,6 @@
             },
             {
                 "nid": "O'Neill",
-                "prefab": "O'Neill",
                 "team": "enemy",
                 "ai": "Guard",
                 "starting_position": [
@@ -98,7 +94,8 @@
                 ],
                 "generic": false
             }
-        ]
+        ],
+        "fog_of_war": null
     },
     {
         "nid": "1",
@@ -115,7 +112,6 @@
             "prep": null,
             "base": null
         },
-        "market_flag": false,
         "objective": {
             "simple": "Defeat Boss",
             "win": "Defeat Boss",
@@ -124,7 +120,6 @@
         "units": [
             {
                 "nid": "Eirika",
-                "prefab": "Eirika",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
@@ -135,7 +130,6 @@
             },
             {
                 "nid": "Seth",
-                "prefab": "Seth",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
@@ -146,7 +140,6 @@
             },
             {
                 "nid": "Gilliam",
-                "prefab": "Gilliam",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
@@ -157,7 +150,6 @@
             },
             {
                 "nid": "Franz",
-                "prefab": "Franz",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
@@ -168,7 +160,6 @@
             },
             {
                 "nid": "Breguet",
-                "prefab": "Breguet",
                 "team": "enemy",
                 "ai": "Guard",
                 "starting_position": [
@@ -309,6 +300,7 @@
                 "desc": null,
                 "generic": true
             }
-        ]
+        ],
+        "fog_of_war": null
     }
 ]

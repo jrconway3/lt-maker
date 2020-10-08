@@ -273,9 +273,7 @@
             0
         ],
         "map_sprite_nid": null,
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     },
     {
         "nid": "Eirika_Lord",
@@ -553,9 +551,7 @@
             0
         ],
         "map_sprite_nid": "Eirika_Lord",
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     },
     {
         "nid": "Myrmidon",
@@ -831,9 +827,7 @@
             0
         ],
         "map_sprite_nid": null,
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     },
     {
         "nid": "Cavalier",
@@ -1119,9 +1113,7 @@
             0
         ],
         "map_sprite_nid": "Cavalier",
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     },
     {
         "nid": "Paladin",
@@ -1400,9 +1392,7 @@
             0
         ],
         "map_sprite_nid": "Paladin",
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     },
     {
         "nid": "Knight",
@@ -1680,9 +1670,7 @@
             0
         ],
         "map_sprite_nid": "Knight",
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     },
     {
         "nid": "Fighter",
@@ -1958,9 +1946,7 @@
             0
         ],
         "map_sprite_nid": "Fighter",
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     },
     {
         "nid": "Soldier",
@@ -2236,8 +2222,6 @@
             0
         ],
         "map_sprite_nid": "Soldier",
-        "combat_anim_nid": null,
-        "exp_mult": 1.0,
-        "opponent_exp_mult": 1.0
+        "combat_anim_nid": null
     }
 ]

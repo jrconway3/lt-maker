@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QDialogButtonBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 class SingleDatabaseEditor(QDialog):
@@ -27,15 +28,19 @@ class SingleDatabaseEditor(QDialog):
         self.setWindowTitle(self.tab.windowTitle())
 
     def accept(self):
-        if self.window and self.window.current_proj:
-            DB.serialize(self.window.current_proj)
-        QDialog.accept(self)
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        if current_proj:
+            DB.serialize(current_proj)
+        super().accept()
 
     def reject(self):
         self.restore()
-        if self.window and self.window.current_proj:
-            DB.serialize(self.window.current_proj)
-        QDialog.reject(self)
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        if current_proj:
+            DB.serialize(current_proj)
+        super().reject()
 
     def save(self):
         self.saved_data = DB.save()
@@ -46,3 +51,38 @@ class SingleDatabaseEditor(QDialog):
         
     def apply(self):
         self.save()
+
+class SingleResourceEditor(QDialog):
+    def __init__(self, tab, resource_types=None, parent=None):
+        super().__init__(parent)
+        self.window = parent
+        self.resource_types = resource_types
+        self.setStyleSheet("font: 10pt;")
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+
+        self.grid = QGridLayout(self)
+        self.setLayout(self.grid)
+
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.grid.addWidget(self.buttonbox, 1, 1)
+        self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
+
+        self.tab = tab.create(self)
+        self.grid.addWidget(self.tab, 0, 0, 1, 2)
+
+        self.setWindowTitle(self.tab.windowTitle())
+
+    def accept(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        if current_proj:
+            RESOURCES.save(current_proj, self.resource_types)
+        super().accept()
+
+    def reject(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        if current_proj:
+            RESOURCES.reload(current_proj)
+        super().reject()

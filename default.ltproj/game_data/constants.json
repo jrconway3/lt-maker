@@ -12,6 +12,14 @@
         true
     ],
     [
+        "fatigue",
+        false
+    ],
+    [
+        "support",
+        false
+    ],
+    [
         "overworld",
         false
     ],

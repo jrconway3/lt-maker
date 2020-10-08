@@ -10,7 +10,8 @@
         ],
         "minimap": "Wall",
         "platform": "Wall",
-        "mtype": "Fence"
+        "mtype": "Fence",
+        "status": null
     },
     {
         "nid": "1",
@@ -23,7 +24,8 @@
         ],
         "minimap": "Grass",
         "platform": "Plains",
-        "mtype": "Normal"
+        "mtype": "Normal",
+        "status": null
     },
     {
         "nid": "2",
@@ -36,7 +38,8 @@
         ],
         "minimap": "Forest",
         "platform": "Forest",
-        "mtype": "Forest"
+        "mtype": "Forest",
+        "status": null
     },
     {
         "nid": "3",
@@ -49,7 +52,8 @@
         ],
         "minimap": "Thicket",
         "platform": "Thicket",
-        "mtype": "Thicket"
+        "mtype": "Thicket",
+        "status": null
     },
     {
         "nid": "4",
@@ -62,7 +66,8 @@
         ],
         "minimap": "Bridge",
         "platform": "Bridge",
-        "mtype": "Normal"
+        "mtype": "Normal",
+        "status": null
     },
     {
         "nid": "10",
@@ -75,7 +80,8 @@
         ],
         "minimap": "Sea",
         "platform": "Lake",
-        "mtype": "Sea"
+        "mtype": "Sea",
+        "status": null
     },
     {
         "nid": "11",
@@ -88,7 +94,8 @@
         ],
         "minimap": "Sea",
         "platform": "Sea",
-        "mtype": "Sea"
+        "mtype": "Sea",
+        "status": null
     },
     {
         "nid": "12",
@@ -101,7 +108,8 @@
         ],
         "minimap": "River",
         "platform": "River",
-        "mtype": "River"
+        "mtype": "River",
+        "status": null
     },
     {
         "nid": "20",
@@ -114,7 +122,8 @@
         ],
         "minimap": "Hill",
         "platform": "Hill",
-        "mtype": "Hill"
+        "mtype": "Hill",
+        "status": null
     },
     {
         "nid": "21",
@@ -127,7 +136,8 @@
         ],
         "minimap": "Mountain",
         "platform": "Mountain",
-        "mtype": "Mountain"
+        "mtype": "Mountain",
+        "status": null
     },
     {
         "nid": "22",
@@ -140,7 +150,8 @@
         ],
         "minimap": "Cliff",
         "platform": "Cliff",
-        "mtype": "Cliff"
+        "mtype": "Cliff",
+        "status": null
     },
     {
         "nid": "30",
@@ -153,7 +164,8 @@
         ],
         "minimap": "House",
         "platform": "House",
-        "mtype": "Normal"
+        "mtype": "Normal",
+        "status": null
     },
     {
         "nid": "31",
@@ -166,7 +178,8 @@
         ],
         "minimap": "Fort",
         "platform": "Fort",
-        "mtype": "Fort"
+        "mtype": "Fort",
+        "status": null
     },
     {
         "nid": "32",
@@ -179,6 +192,7 @@
         ],
         "minimap": "Throne",
         "platform": "Gate",
-        "mtype": "Throne"
+        "mtype": "Throne",
+        "status": null
     }
 ]

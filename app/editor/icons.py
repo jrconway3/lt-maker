@@ -152,7 +152,8 @@ class UnitPortrait(QPushButton):
     def onIconSourcePicker(self):
         # main_editor = self.window.window.main_editor
         # res, ok = ResourceEditor.get(main_editor, "Portraits")
-        res, ok = PortraitEditor.get()
+        from app.editor.portrait_editor import portrait_tab
+        res, ok = portrait_tab.get()
         if ok:
             nid = res.nid
             self.change_icon(nid)

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QSettings
 from collections import OrderedDict
 
 from app.editor.icon_display import Icon16Display, Icon32Display, Icon80Display
-from app.editor.portrait_display import PortraitDisplay
+from app.editor.portrait_editor.portrait_tab import PortraitDatabase
 from app.editor.map_sprite_display import MapSpriteDisplay
 from app.editor.panorama_display import PanoramaDisplay
 from app.editor.tile_display import TileSetDisplay, TileMapDisplay

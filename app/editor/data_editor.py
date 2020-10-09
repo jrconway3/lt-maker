@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QGridLayout, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QGridLayout, QDialogButtonBox, QTabWidget, \
+    QSizePolicy
 from PyQt5.QtCore import Qt, QSettings
 
 from app.resources.resources import RESOURCES
@@ -72,6 +73,61 @@ class SingleResourceEditor(QDialog):
         self.grid.addWidget(self.tab, 0, 0, 1, 2)
 
         self.setWindowTitle(self.tab.windowTitle())
+
+    def accept(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        if current_proj:
+            RESOURCES.save(current_proj, self.resource_types)
+        super().accept()
+
+    def reject(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        current_proj = settings.value("current_proj", None)
+        if current_proj:
+            RESOURCES.reload(current_proj)
+        super().reject()
+
+class MultiResourceEditor(QDialog):
+    def __init__(self, tabs, resource_types, parent=None):
+        super().__init__(parent)
+        self.window = parent
+        self.resource_types = resource_types
+        self.setWindowTitle("Resource Editor")
+        self.setStyleSheet("font: 10pt;")
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+
+        self.grid = QGridLayout(self)
+        self.setLayout(self.grid)
+
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.grid.addWidget(self.buttonbox, 1, 1)
+        self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
+
+        self.tab_bar = QTabWidget(self)
+        self.grid.addWidget(self.tab_bar, 0, 0, 1, 2)
+        self.tabs = []
+        for tab in tabs:
+            new_tab = tab.create(self)
+            self.tabs.append(new_tab)
+            self.tab_bar.addTab(new_tab, new_tab.windowTitle())
+
+        self.current_tab = self.tab_bar.currentWidget()
+        self.tab_bar.currentChanged.connect(self.on_tab_changed)
+
+    def on_tab_changed(self, idx):
+        # Make each tab individually resizable
+        for i in range(self.tab_bar.count()):
+            if i == idx:
+                self.tab_bar.widget(i).setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            else:
+                self.tab_bar.widget(i).setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+        new_tab = self.tab_bar.currentWidget()
+        self.current_tab = new_tab
+        self.current_tab.update_list()
+        self.current_tab.reset()
 
     def accept(self):
         settings = QSettings("rainlash", "Lex Talionis")

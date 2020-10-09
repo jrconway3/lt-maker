@@ -10,18 +10,10 @@ class Icon():
         self.image = None
         self.pixmap = None
 
-        # self.sub_images = []
-        # self.parent_image = None
-        # self.icon_index = (0, 0)
+        self.parent_nid = None
 
     def set_full_path(self, full_path):
         self.full_path = full_path
-
-    # def unhook(self):
-    #     if self.parent_image:
-    #         self.parent_image.sub_images.remove(self)
-    #         self.parent_image = None
-    #     self.sub_images = []
 
 class IconCatalog(BaseResourceCatalog):
     datatype = Icon

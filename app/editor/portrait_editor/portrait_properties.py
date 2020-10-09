@@ -8,7 +8,7 @@ from PyQt5.QtGui import QPixmap, QPainter
 from app.extensions.spinbox_xy import SpinBoxXY
 from app.extensions.custom_gui import PropertyBox
 from app.editor import timer
-from app.editor.icon_display import IconView
+from app.editor.icon_editor.icon_view import IconView
 
 class PortraitProperties(QWidget):
     width, height = 128, 112

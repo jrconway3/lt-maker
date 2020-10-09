@@ -65,20 +65,29 @@ class Resources():
         self.music = MusicCatalog()
         self.sfx = SFXCatalog()
 
-    def load(self, proj_dir):
+    def load(self, proj_dir, specific=None):
         self.main_folder = os.path.join(proj_dir, 'resources')
 
         # Load custom sprites for the UI
         # This should overwrite the regular sprites in the "/sprites" folder
         sprites.load_sprites(os.path.join(self.main_folder, 'custom_sprites'))
 
-        for data_type in self.save_data_types:
+        if specific:
+            save_data_types = specific
+        else:
+            save_data_types = self.save_data_types
+        for data_type in save_data_types:
             print("Resources: Loading %s..." % data_type)
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
 
-    def reload(self, proj_dir):
-        self.clear()
-        self.load(proj_dir)
+    def reload(self, proj_dir, specific=None):
+        if specific:
+            for resource_type in specific:
+                getattr(self, resource_type).clear()
+            self.load(proj_dir, specific)
+        else:
+            self.clear()
+            self.load(proj_dir)
 
     def save(self, proj_dir, specific=None):
         print("Starting Resource Serialization...")

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QSpinBox, QComboBox, QDialog, QWidget, QHBoxLayout, \
     QLineEdit, QPushButton, QAction, QMenu, QSizePolicy, QFrame, \
-    QDialogButtonBox, QListView, QTreeView, QItemDelegate, QLabel, QVBoxLayout, QApplication, \
+    QDialogButtonBox, QListView, QTreeView, QTableView, QItemDelegate, QLabel, QVBoxLayout, QApplication, \
     QAbstractItemView
 from PyQt5.QtCore import Qt, QSize, QItemSelectionModel
 
@@ -232,6 +232,9 @@ class RightClickTreeView(RightClickView, QTreeView):
     pass
 
 class RightClickListView(RightClickView, QListView):
+    pass
+
+class RightClickTableView(RightClickView, QTableView):
     pass
 
 class ResourceView(RightClickView):

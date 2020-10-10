@@ -1,32 +1,26 @@
 [
     {
         "rank": "E",
-        "requirement": 1,
-        "bonus": null
+        "requirement": 1
     },
     {
         "rank": "D",
-        "requirement": 31,
-        "bonus": null
+        "requirement": 31
     },
     {
         "rank": "C",
-        "requirement": 71,
-        "bonus": null
+        "requirement": 71
     },
     {
         "rank": "B",
-        "requirement": 121,
-        "bonus": null
+        "requirement": 121
     },
     {
         "rank": "A",
-        "requirement": 181,
-        "bonus": null
+        "requirement": 181
     },
     {
         "rank": "S",
-        "requirement": 252,
-        "bonus": null
+        "requirement": 252
     }
 ]

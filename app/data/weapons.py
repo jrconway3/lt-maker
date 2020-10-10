@@ -39,12 +39,24 @@ class CombatBonusList(list):
             if bonus.weapon_rank == old_rank:
                 bonus.weapon_rank = new_rank
 
+    def add_new_default(self, db):
+        new_combat_bonus = CombatBonus.default()
+        new_combat_bonus.weapon_type = db.weapons[0].nid
+        new_combat_bonus.weapon_rank = "All"
+        self.append(new_combat_bonus)
+        return new_combat_bonus
+
+    def move_index(self, old_index, new_index):
+        if old_index == new_index:
+            return
+        obj = self.pop(old_index)
+        self.insert(new_index, obj)
+
 # === WEAPON RANK ===
 @dataclass
 class WeaponRank(Prefab):
     rank: str = None
     requirement: int = 1
-    bonus: CombatBonus = None
 
     @property
     def nid(self):
@@ -83,6 +95,7 @@ class WeaponType(Prefab):
     nid: str = None
     name: str = None
     magic: bool = False
+    rank_bonus: CombatBonusList = None
     advantage: CombatBonusList = None
     disadvantage: CombatBonusList = None
 
@@ -93,15 +106,18 @@ class WeaponType(Prefab):
         return ("WeaponType %s" % self.nid)
 
     def save_attr(self, name, value):
-        if name in ('advantage', 'disadvantage'):
+        if name in ('rank_bonus', 'advantage', 'disadvantage'):
             value = [adv.save() for adv in value]
         else:
             value = super().save_attr(name, value)
         return value
 
     def restore_attr(self, name, value):
-        if name in ('advantage', 'disadvantage'):
-            value = CombatBonusList([CombatBonus.restore(adv) for adv in value])
+        if name in ('rank_bonus', 'advantage', 'disadvantage'):
+            if value:
+                value = CombatBonusList([CombatBonus.restore(adv) for adv in value])
+            else:
+                value = CombatBonusList()
         else:
             value = super().restore_attr(name, value)
         return value

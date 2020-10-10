@@ -19,8 +19,6 @@ class ItemProperties(QWidget):
         self.window = parent
         self.model = self.window.left_frame.model
         self._data = self.window._data
-        self.database_editor = self.window.window
-        self.main_editor = self.database_editor.window
 
         self.current = current
 

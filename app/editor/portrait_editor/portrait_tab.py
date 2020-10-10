@@ -41,6 +41,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     RESOURCES.load('default.ltproj')
     # DB.load('default.ltproj')
-    window = SingleResourceEditor(PortraitDatabase)
+    window = SingleResourceEditor(PortraitDatabase, ['portraits'])
     window.show()
     app.exec_()

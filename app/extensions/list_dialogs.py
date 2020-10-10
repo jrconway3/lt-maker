@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QPushButton, QDialog, QDialogButtonBox, QGridLayout
 from PyQt5.QtCore import Qt
 
-from app.extensions.custom_gui import RightClickListView, RightClickTreeView, IntDelegate
+from app.extensions.custom_gui import RightClickListView, RightClickTreeView, IntDelegate, RightClickTableView
 from app.extensions.list_models import SingleListModel, DefaultMultiAttrListModel
 
 # === LIST DIALOGS ===========================================================
@@ -49,7 +49,9 @@ class MultiAttrListDialog(SingleListDialog):
         if locked:
             self.model.edit_locked = locked
         self.view = RightClickTreeView(deletion_criteria, self)
+        # self.view.setDragDropOverwriteMode(False)
         self.view.setModel(self.model)
+        # self.view.setSelectionBehavior(1)  # SelectRows
         int_columns = [i for i, attr in enumerate(attrs) if type(getattr(self._data[0], attr)) == int]
         delegate = IntDelegate(self.view, int_columns)
         self.view.setItemDelegate(delegate)

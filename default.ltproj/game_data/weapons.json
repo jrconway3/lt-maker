@@ -3,6 +3,7 @@
         "nid": "Sword",
         "name": "Sword",
         "magic": false,
+        "rank_bonus": [],
         "advantage": [
             {
                 "weapon_type": "Axe",
@@ -41,6 +42,7 @@
         "nid": "Lance",
         "name": "Lance",
         "magic": false,
+        "rank_bonus": [],
         "advantage": [
             {
                 "weapon_type": "Sword",
@@ -79,6 +81,7 @@
         "nid": "Axe",
         "name": "Axe",
         "magic": false,
+        "rank_bonus": [],
         "advantage": [
             {
                 "weapon_type": "Lance",
@@ -117,6 +120,7 @@
         "nid": "Bow",
         "name": "Bow",
         "magic": false,
+        "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],
         "icon_nid": "wexp_icons",
@@ -129,6 +133,7 @@
         "nid": "Staff",
         "name": "Staff",
         "magic": true,
+        "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],
         "icon_nid": "wexp_icons",
@@ -141,6 +146,7 @@
         "nid": "Light",
         "name": "Light",
         "magic": true,
+        "rank_bonus": [],
         "advantage": [
             {
                 "weapon_type": "Dark",
@@ -179,6 +185,7 @@
         "nid": "Anima",
         "name": "Anima",
         "magic": true,
+        "rank_bonus": [],
         "advantage": [
             {
                 "weapon_type": "Light",
@@ -217,6 +224,7 @@
         "nid": "Dark",
         "name": "Dark",
         "magic": true,
+        "rank_bonus": [],
         "advantage": [
             {
                 "weapon_type": "Anima",
@@ -255,6 +263,7 @@
         "nid": "Default",
         "name": "Consumable",
         "magic": false,
+        "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],
         "icon_nid": "wexp_icons",

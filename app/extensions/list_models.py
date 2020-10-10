@@ -14,7 +14,7 @@ class VirtualListModel(QAbstractItemModel):
         self._data = data
         self.layoutChanged.emit()
 
-    def index(self, row, column, parent_index=QModelIndex()):
+    def index(self, row, column=0, parent_index=QModelIndex()):
         if self.hasIndex(row, column, parent_index):
             return self.createIndex(row, column)
         return QModelIndex()
@@ -170,15 +170,19 @@ class MultiAttrListModel(VirtualListModel):
 
     def duplicate(self, idx):
         obj = self._data[idx]
-        new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
-        if isinstance(obj, Prefab):
-            serialized_obj = obj.serialize()
-            print("Duplcation!")
-            print(serialized_obj, flush=True)
-            new_obj = self._data.datatype.deserialize(serialized_obj)
+        if hasattr(obj, 'nid'):
+            new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
+            if isinstance(obj, Prefab):
+                serialized_obj = obj.save()
+                print("Duplication!")
+                print(serialized_obj, flush=True)
+                new_obj = self._data.datatype.restore(serialized_obj)
+            else:
+                new_obj = copy.copy(obj)
+            new_obj.nid = new_nid
         else:
             new_obj = copy.copy(obj)
-        new_obj.nid = new_nid
+
         self._data.insert(idx + 1, new_obj)
         self.layoutChanged.emit()
 
@@ -231,7 +235,7 @@ class DragDropMultiAttrListModel(MultiAttrListModel):
         else:
             return Qt.ItemIsDragEnabled | super().flags(index)
 
-class DefaultMultiAttrListModel(DragDropMultiAttrListModel):
+class DefaultMultiAttrListModel(MultiAttrListModel):
     def change_watchers(self, data, attr, old_value, new_value):
         if attr in self._headers and self._headers.index(attr) == self.nid_column:
             new_value = str_utils.get_next_name(new_value, [d.nid for d in self._data])

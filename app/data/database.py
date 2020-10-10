@@ -32,12 +32,6 @@ class Database(object):
 
         self.translations = translations.TranslationCatalog()
 
-    # def get_platform_types(self):
-    #     p = RESOURCES.platforms
-    #     names = list({fn.split('-')[0] for fn in p.keys()})
-    #     sprites = [n + '-Melee' for n in names]
-    #     return list(zip(names, sprites))
-
     # === Saving and loading important data functions ===
     def restore(self, save_obj):
         for data_type in self.save_data_types:

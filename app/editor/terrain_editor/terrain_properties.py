@@ -4,59 +4,21 @@ from PyQt5.QtWidgets import QWidget, QSpacerItem, QDialog, \
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QSize
 
+from app.sprites import SPRITES
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, PropertyBox
 from app.editor.custom_widgets import MovementCostBox
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.mcost_dialog import McostDialog
 from app.extensions.color_icon import ColorIcon
 from app import utilities
-
-class TerrainDatabase(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = DB.terrain
-        title = "Terrain"
-        right_frame = TerrainProperties
-
-        def deletion_func(model, index):
-            return model._data[index.row()].nid != "0"
-
-        collection_model = TerrainModel
-        dialog = cls(data, title, right_frame, (deletion_func, None, None), collection_model, parent)
-        return dialog
-
-class TerrainModel(DragDropCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            terrain = self._data[index.row()]
-            text = terrain.nid + " : " + terrain.name
-            return text
-        elif role == Qt.DecorationRole:
-            terrain = self._data[index.row()]
-            color = terrain.color
-            pixmap = QPixmap(32, 32)
-            pixmap.fill(QColor(color[0], color[1], color[2]))
-            return QIcon(pixmap)
-        return None
-
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New Terrain", nids)
-        DB.create_new_terrain(nid, name)
 
 class TerrainProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
         self._data = self.window._data
-        self.database_editor = self.window.window
-
-        self.setStyleSheet("font: 10pt;")
 
         self.current = current
 
@@ -86,8 +48,8 @@ class TerrainProperties(QWidget):
         main_section = QVBoxLayout()
 
         self.minimap_box = PropertyBox("Minimap Type", ComboBox, self)
-        minimap_tiles = QImage(DB.minimap.minimap_tiles.full_path)
-        sf = DB.minimap.scale_factor
+        minimap_tiles = QImage(SPRITES['Minimap_Tiles'].full_path)
+        sf = 4
         for text, sprite_coord in DB.minimap.get_minimap_types():
             im = minimap_tiles.copy(sprite_coord[0]*sf, sprite_coord[1]*sf, sf, sf)
             icon = QIcon(QPixmap.fromImage(im).scaled(QSize(16, 16), Qt.KeepAspectRatio))
@@ -95,7 +57,7 @@ class TerrainProperties(QWidget):
         self.minimap_box.edit.currentIndexChanged.connect(self.minimap_changed)
 
         self.platform_box = PropertyBox("Combat Platform Type", ComboBox, self)
-        for text, sprite_name in DB.get_platform_types():
+        for text, sprite_name in RESOURCES.get_platform_types():
             icon = QIcon(RESOURCES.platforms[sprite_name])
             self.platform_box.edit.addItem(icon, text)
         self.platform_box.edit.setIconSize(QSize(87, 40))
@@ -165,13 +127,3 @@ class TerrainProperties(QWidget):
         # Icon
         color = current.color
         self.icon_edit.change_color(QColor(color[0], color[1], color[2]).name())
-
-# Testing
-# Run "python -m app.editor.terrain_database" from main directory
-if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    window = TerrainDatabase.create()
-    window.show()
-    app.exec_()

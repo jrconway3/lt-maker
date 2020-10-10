@@ -274,9 +274,9 @@ class GridModel(QAbstractTableModel):
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Vertical:  # Row
-            return self._data.row_headers[idx]
+            return self._data.terrain_types[idx]
         elif orientation == Qt.Horizontal:  # Column
-            return self._data.column_headers[idx]
+            return self._data.unit_types[idx]
         return None
 
     def insert_col(self, idx):
@@ -376,25 +376,25 @@ class GridModel(QAbstractTableModel):
 
 class MovementCostModel(CollectionModel):
     def rowCount(self, parent=None):
-        return len(self._data.row_headers)
+        return len(self._data.terrain_types)
 
     def data(self, index, role):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            mtype = self._data.row_headers[index.row()]
+            mtype = self._data.terrain_types[index.row()]
             return mtype
         return None
 
 class MovementClassModel(CollectionModel):
     def rowCount(self, parent=None):
-        return len(self._data.column_headers)
+        return len(self._data.unit_types)
         
     def data(self, index, role):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            mtype = self._data.column_headers[index.row()]
+            mtype = self._data.unit_types[index.row()]
             return mtype
         return None
 
@@ -404,6 +404,7 @@ if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
+    DB.load('default.ltproj')
     window = McostDialog()
     window.show()
     app.exec_()

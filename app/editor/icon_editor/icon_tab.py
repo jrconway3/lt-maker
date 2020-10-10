@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton
+from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, \
+    QDialog
 from PyQt5.QtCore import QSize, Qt
 
 from app.resources.resources import RESOURCES
-from app.editor.data_editor import MultiResourceEditor
+from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
 
 from app.editor.icon_editor import icon_model
 
@@ -42,6 +43,17 @@ class IconTab(QWidget):
 
     def reset(self):
         pass
+
+    @property
+    def current(self):
+        indices = self.view.selectionModel().selectedIndexes()
+        if indices:
+            index = indices[0]
+            icon = self.model.sub_data[index.row()]
+            if icon.parent_nid:
+                icon.nid = icon.parent_nid
+            return icon
+        return None
 
 class IconListView(QListView):
     def delete(self, index):
@@ -86,6 +98,26 @@ class Icon80Database(Icon16Database):
 
         dialog = cls(data, title, collection_model, parent)
         return dialog
+
+def get(width):
+    if width == 16:
+        resource_type = 'icons16'
+        database = Icon16Database
+    elif width == 32:
+        resource_type = 'icons32'
+        database = Icon32Database
+    elif width == 80:
+        resource_type = 'icons80'
+        database = Icon80Database
+    else:
+        return None, False
+    window = SingleResourceEditor(database, [resource_type])
+    result = window.exec_()
+    if result == QDialog.Accepted:
+        selected_icon = window.tab.current
+        return selected_icon, True
+    else:
+        return None, False
 
 # Testing
 # Run "python -m app.editor.icon_editor.icon_tab" from main directory

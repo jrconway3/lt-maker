@@ -3,61 +3,15 @@ from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, DeletionDialog
-from app.editor.custom_widgets import UnitBox, PartyBox
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
-from app import utilities
-
-class PartyDatabase(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = DB.parties
-        title: str = "Parties"
-        right_frame = PartyProperties
-
-        collection_model = PartyModel
-        return cls(data, title, right_frame, None, collection_model, parent)
-
-class PartyModel(DragDropCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            party = self._data[index.row()]
-            text = party.nid + ": " + party.name
-            return text
-        return None
-
-    def create_new(self):
-        return self._data.add_new_default(DB)
-
-    def delete(self, idx):
-        party = self._data[idx]
-        nid = party.nid
-        affected_levels = [level for level in DB.levels if level.party == nid]
-        if affected_levels:
-            from app.editor.level_menu import LevelModel
-            model = LevelModel
-            msg = "Deleting Party <b>%s</b> would affect this level" % nid
-            swap, ok = DeletionDialog.get_swap(affected_levels, model, msg, PartyBox(self.window, exclude=party), self.window)
-            if ok:
-                self.change_nid(nid, swap.nid)
-            else:
-                return
-            super().delete(idx)
-
-    def change_nid(self, old_nid, new_nid):
-        # Levels can be effected
-        for level in DB.levels:
-            if level.party == old_nid:
-                level.party = new_nid
+from app.extensions.custom_gui import PropertyBox
+from app.editor.custom_widgets import UnitBox
+from app.utilities import str_utils
 
 class PartyProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
         self._data = self.window._data
-        self.database_editor = self.window.window
 
         self.current = current
 
@@ -93,7 +47,7 @@ class PartyProperties(QWidget):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Party ID %s already in use' % self.current.nid)
-        self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+        self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()

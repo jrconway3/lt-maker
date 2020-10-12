@@ -19,7 +19,7 @@ class ObjBox(PropertyBox):
 
 class UnitBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None, title="Unit"):
-        from app.editor.unit_database import UnitModel
+        from app.editor.unit_editor.unit_model import UnitModel
         database = DB.units
         if exclude:
             database = Data([d for d in DB.units if d is not exclude])
@@ -39,12 +39,12 @@ class ClassBox(ObjBox):
 
 class FactionBox(ObjBox):
     def __init__(self, parent=None, button=False):
-        from app.editor.faction_database import FactionModel
+        from app.editor.faction_editor.faction_model import FactionModel
         super().__init__("Faction", FactionModel, DB.factions, parent, button)
 
 class ItemBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
-        from app.editor.item_database import ItemModel
+        from app.editor.item_editor.item_model import ItemModel
         database = DB.items
         if exclude:
             database = Data([d for d in DB.items if d is not exclude])
@@ -60,7 +60,7 @@ class AIBox(ObjBox):
 
 class WeaponTypeBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
-        from app.editor.weapon_database import WeaponModel
+        from app.editor.weapon_editor.weapon_model import WeaponModel
         database = DB.weapons
         if exclude:
             database = Data([d for d in DB.weapons if d is not exclude])
@@ -68,7 +68,7 @@ class WeaponTypeBox(ObjBox):
 
 class PartyBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
-        from app.editor.party_database import PartyModel
+        from app.editor.party_editor.party_model import PartyModel
         database = DB.parties
         if exclude:
             database = Data([d for d in DB.parties if d is not exclude])

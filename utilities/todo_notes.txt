@@ -1,9 +1,7 @@
 Classes
-Terrain
 Skills
 Stats
 Equations
-Factions
 Party
 Tags
 AI

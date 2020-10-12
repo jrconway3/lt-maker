@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QTableView, QStyledItemDelegate
+    QVBoxLayout, QTableView, QStyledItemDelegate
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QItemSelection, QItemSelectionModel
 

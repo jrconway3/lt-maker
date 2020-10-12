@@ -1,72 +1,18 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QSpacerItem, QSizePolicy
-from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
-
-from app.resources.resources import RESOURCES
-from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox
 
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.icons import ItemIcon32
-import app.editor.utilities as editor_utilities
-from app import utilities
-
-class FactionDatabase(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = DB.factions
-        title: str = 'Faction'
-        right_frame = FactionProperties
-
-        def deletion_func(model, index):
-            return model.rowCount() > 1 
-
-        collection_model = FactionModel
-        dialog = cls(data, title, right_frame, (deletion_func, None, None), collection_model, parent)
-        return dialog
-
-def get_pixmap(faction):
-    x, y = faction.icon_index
-    res = RESOURCES.icons32.get(faction.icon_nid)
-    if not res:
-        return None
-    if not res.pixmap:
-        res.pixmap = QPixmap(res.full_path)
-    pixmap = res.pixmap.copy(x*32, y*32, 32, 32)
-    pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
-    return pixmap
-
-class FactionModel(DragDropCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            faction = self._data[index.row()]
-            text = faction.nid
-            return text
-        elif role == Qt.DecorationRole:
-            faction = self._data[index.row()]
-            pixmap = get_pixmap(faction)
-            if pixmap:
-                return QIcon(pixmap)
-        return None
-
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New Faction", nids)
-        DB.create_new_faction(nid, name)
+from app.utilities import str_utils
 
 class FactionProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
         self._data = self.window._data
-        self.database_editor = self.window.window
-
-        self.setStyleSheet("font: 10pt;")
-
+    
         self.current = current
 
         top_section = QHBoxLayout()
@@ -113,7 +59,7 @@ class FactionProperties(QWidget):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Faction ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
@@ -130,13 +76,3 @@ class FactionProperties(QWidget):
         self.name_box.edit.setText(current.name)
         self.desc_box.edit.setText(current.desc)
         self.icon_edit.set_current(current.icon_nid, current.icon_index)
-
-# Testing
-# Run "python -m app.editor.faction_database" from main directory
-if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    window = FactionDatabase.create()
-    window.show()
-    app.exec_()

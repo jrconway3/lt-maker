@@ -1,12 +1,9 @@
 Classes
 Skills
 Stats
-Equations
-Party
 Tags
 AI
 
-Map Sprites
 Tileset / Tilemaps
 Music
 SFX

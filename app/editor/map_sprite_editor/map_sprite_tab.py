@@ -6,15 +6,15 @@ from app.extensions.custom_gui import ResourceListView
 from app.editor.data_editor import SingleResourceEditor
 from app.editor.base_database_gui import DatabaseTab
 
-from app.editor.portrait_editor import portrait_model, portrait_properties
+from app.editor.map_sprite_editor import map_sprite_model, map_sprite_properties
 
-class PortraitDatabase(DatabaseTab):
+class MapSpriteDatabase(DatabaseTab):
     @classmethod
     def create(cls, parent=None):
-        data = RESOURCES.portraits
-        title = "Unit Portrait"
-        right_frame = portrait_properties.PortraitProperties
-        collection_model = portrait_model.PortraitModel
+        data = RESOURCES.map_sprites
+        title = "Map Sprite"
+        right_frame = map_sprite_properties.MapSpriteProperties
+        collection_model = map_sprite_model.MapSpriteModel
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
@@ -23,21 +23,21 @@ class PortraitDatabase(DatabaseTab):
         return dialog
 
 def get():
-    window = SingleResourceEditor(PortraitDatabase, ['portraits'])
+    window = SingleResourceEditor(MapSpriteDatabase, ['map_sprites'])
     result = window.exec_()
     if result == QDialog.Accepted:
-        selected_portrait = window.tab.right_frame.current
-        return selected_portrait, True
+        selected_map_sprite = window.tab.right_frame.current
+        return selected_map_sprite, True
     else:
         return None, False
 
 # Testing
-# Run "python -m app.editor.portrait_editor.portrait_tab" from main directory
+# Run "python -m app.editor.map_sprite_editor.map_sprite_tab" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     RESOURCES.load('default.ltproj')
-    window = SingleResourceEditor(PortraitDatabase, ['portraits'])
+    window = SingleResourceEditor(MapSpriteDatabase, ['map_sprites'])
     window.show()
     app.exec_()

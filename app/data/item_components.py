@@ -17,6 +17,7 @@ class Type(IntEnum):
     Item = 12  # Stored as Nids
     Status = 13  # Stored as Nids
     Stat = 14  # Stored as Nids
+    MapAnimation = 15  # Stored as Nids
     List = 100
     Dict = 101
 
@@ -56,3 +57,17 @@ class ItemComponent():
             return self.nid, self.value.save()
         else:
             return self.nid, self.value
+
+def get_items_using(expose: Type, value, db) -> list:
+    affected_items = []
+    for item in db.items:
+        for component in item.components:
+            if component.expose == expose and component.value == value:
+                affected_items.append(item)
+    return affected_items
+
+def swap_values(affected_items: list, expose: Type, old_value, new_value):
+    for item in affected_items:
+        for component in item.components:
+            if component.expose == expose and component.value == old_value:
+                component.value = new_value

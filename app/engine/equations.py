@@ -27,21 +27,19 @@ class Parser():
         for stat in DB.stats:
             dic[stat.nid] = ("unit.stats['%s']" % stat.nid)
         for nid in self.equations.keys():
-            dic[nid] = ("equations['%s'](equations, unit, item, dist)" % nid)
-        dic['WEIGHT'] = '(item.weight.value if item and item.weight else 0)'
-        dic['DIST'] = 'dist'
+            dic[nid] = ("equations['%s'](equations, unit)" % nid)
         return dic
 
     def fix(self, lhs, rhs, dic):
         rhs = [dic.get(n, n) for n in rhs]
         rhs = ''.join(rhs)
         rhs = 'int(%s)' % rhs
-        exec("def %s(equations, unit, item=None, dist=0): return %s" % (lhs, rhs), self.equations)
+        exec("def %s(equations, unit): return %s" % (lhs, rhs), self.equations)
 
-    def get(self, lhs, unit, item=None, dist=0):
-        return self.equations[lhs](self.equations, unit, item, dist)
+    def get(self, lhs, unit):
+        return self.equations[lhs](self.equations, unit)
 
-    def get_expression(self, expr, unit, item=None, dist=0):
+    def get_expression(self, expr, unit):
         # For one time use
         # Can't seem to be used with any sub equations
         expr = self.tokenize(expr)

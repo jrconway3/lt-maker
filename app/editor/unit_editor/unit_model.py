@@ -16,9 +16,9 @@ def get_chibi(unit):
     res = RESOURCES.portraits.get(unit.portrait_nid)
     if not res:
         return None
-    if not res.image:
-        res.image = QPixmap(res.full_path)
-    pixmap = res.image.copy(96, 16, 32, 32)
+    if not res.pixmap:
+        res.pixmap = QPixmap(res.full_path)
+    pixmap = res.pixmap.copy(96, 16, 32, 32)
     pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
     return pixmap
 

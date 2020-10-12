@@ -11,11 +11,12 @@ from app.resources.resources import RESOURCES
 
 from app.utilities.data import Data
 from app.data.database import DB
+from app.data import item_components
 
 from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
 from app.extensions.spinbox_xy import SpinBoxXY
 
-from app.editor.timer import TIMER
+from app.editor import timer
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.icon_display import IconView
 
@@ -77,10 +78,7 @@ class AnimationModel(ResourceCollectionModel):
         # Check to see what is using me?
         res = self._data[idx]
         nid = res.nid
-        affected_items = [item for item in DB.items if 
-                          item.self_anim and item.self_anim.value == nid or 
-                          item.target_anim and item.target_anim.value == nid or
-                          item.aoe_anim and item.aoe_anim.value == nid]
+        affected_items = item_components.get_items_using(item_components.Type.MapAnimation, nid, DB)
         if affected_items:
             affected = Data(affected_items)
             from app.editor.item_database import ItemModel
@@ -96,13 +94,8 @@ class AnimationModel(ResourceCollectionModel):
     def nid_change_watchers(self, animation, old_nid, new_nid):
         # What uses Animations
         # Certain item components
-        for item in DB.items:
-            if item.self_anim and item.self_anim.value == old_nid:
-                item.self_anim.value = new_nid
-            if item.target_anim and item.target_anim.value == old_nid:
-                item.target_anim.value = new_nid
-            if item.aoe_anim and item.aoe_anim.value == old_nid:
-                item.aoe_anim.value = new_nid
+        affected_items = item_components.get_items_using(item_components.Type.MapAnimations, old_nid, DB)
+        item_components.swap_values(affected_items, item_components.Type.MapAnimations, old_nid, new_nid)
 
 class SpeedSpecification(QWidget):
     def __init__(self, parent):
@@ -306,7 +299,7 @@ class AnimationProperties(QWidget):
         self.setLayout(final_section)
         final_section.addWidget(final_splitter)
 
-        TIMER.tick_elapsed.connect(self.tick)
+        timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
         if self.current:

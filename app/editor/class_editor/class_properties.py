@@ -1,166 +1,28 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QDoubleSpinBox, QLabel
-from PyQt5.QtGui import QIcon, QPixmap
+    QVBoxLayout, QSizePolicy, QSpacerItem, QLabel
 from PyQt5.QtCore import Qt
 
-from app.resources.resources import RESOURCES
-
 from app.data.weapons import WexpGainList
-from app.utilities.data import Data
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine, DeletionDialog
+from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine
 from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWidget
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
-from app.editor import timer
-
-from app.editor.custom_widgets import ClassBox
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, ClassStatAveragesModel
-from app.editor.weapon_database import WexpGainDelegate
+from app.editor.weapon_editor.weapon_rank import WexpGainDelegate
 from app.editor.skill_database import LearnedSkillDelegate
-import app.editor.map_sprite_display as map_sprite_display
 from app.editor.icons import ItemIcon80
-from app.editor.resource_editor import ResourceEditor
+
+from app.editor.class_editor import class_model
+from app.editor.map_sprite_editor import map_sprite_tab
+# from app.editor.combat_anim_editor import combat_anim_tab
+
+from app.editor import timer
 
 from app import utilities
-
-class ClassDatabase(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = DB.classes
-        title = "Class"
-        right_frame = ClassProperties
-
-        def deletion_func(model, index):
-            return model._data[index.row()].nid != "Citizen"
-
-        collection_model = ClassModel
-        dialog = cls(data, title, right_frame, (deletion_func, None, deletion_func), collection_model, parent)
-        return dialog
-
-    def tick(self):
-        self.update_list()
-
-def get_map_sprite_icon(klass, num=0, current=False, team='player', variant=None):
-    res = None
-    if variant:
-        res = RESOURCES.map_sprites.get(klass.map_sprite_nid + variant)
-    if not variant or not res:
-        res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
-    if not res:
-        return None
-    if not res.standing_image:
-        res.standing_image = QPixmap(res.stand_full_path)
-    pixmap = res.standing_image
-    pixmap = map_sprite_display.get_basic_icon(pixmap, num, current, team)
-    return pixmap
-
-def get_combat_anim_icon(klass):
-    res = RESOURCES.combat_anims.get(klass.combat_anim_nid)
-    if not res:
-        return None
-    res = res.weapon_anims.get('Unarmed', res.weapon_anims[0])
-    if 'Stand' not in res.poses:
-        return None
-    pose = res.poses.get('Stand')
-    for command in pose.timeline:
-        if command.nid == 'frame':
-            frame_nid = command.value[1]
-            if frame_nid in res.frames:
-                frame = res.frames.get(frame_nid)
-                if not frame.pixmap:
-                    frame.pixmap = QPixmap(frame.full_path)
-                pixmap = frame.pixmap
-                return pixmap
-    return None
-
-class ClassModel(DragDropCollectionModel):
-    display_team = 'player'
-
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            klass = self._data[index.row()]
-            text = klass.nid
-            return text
-        elif role == Qt.DecorationRole:
-            klass = self._data[index.row()]
-            num = timer.get_timer().passive_counter.count
-            if hasattr(self.window, 'view'):
-                active = index == self.window.view.currentIndex()
-            else:
-                active = False
-            pixmap = get_map_sprite_icon(klass, num, active, self.display_team)
-            if pixmap:
-                return QIcon(pixmap)
-            else:
-                return None
-        return None
-
-    def delete(self, idx):
-        # check to make sure nothing else is using me!!!
-        klass = self._data[idx]
-        nid = klass.nid
-        affected_units = [unit for unit in DB.units if unit.klass == nid]
-        affected_classes = [k for k in DB.classes if k.promotes_from == nid or nid in k.turns_into]
-        affected_ais = [ai for ai in DB.ai if 
-                        any(behaviour.target_spec and 
-                            behaviour.target_spec[0] == "Class" and 
-                            behaviour.target_spec[1] == nid 
-                            for behaviour in ai.behaviours)]
-        affected_levels = [level for level in DB.levels if any(unit.klass == nid for unit in level.units)]
-        if affected_units or affected_classes or affected_ais or affected_levels:
-            if affected_units:
-                affected = Data(affected_units)
-                from app.editor.unit_database import UnitModel
-                model = UnitModel
-            elif affected_classes:
-                affected = Data(affected_classes)
-                from app.editor.class_database import ClassModel
-                model = ClassModel
-            elif affected_ais:
-                affected = Data(affected_ais)
-                from app.editor.ai_database import AIModel
-                model = AIModel
-            elif affected_levels:
-                affected = Data(affected_levels)
-                from app.editor.level_menu import LevelModel
-                model = LevelModel
-            msg = "Deleting Class <b>%s</b> would affect these objects" % nid
-            swap, ok = DeletionDialog.get_swap(affected, model, msg, ClassBox(self.window, exclude=klass), self.window)
-            if ok:
-                self.change_nid(nid, swap.nid)
-            else:
-                return
-        # Delete watchers
-        super().delete(idx)
-
-    def change_nid(self, old_nid, new_nid):
-        for unit in DB.units:
-            if unit.klass == old_nid:
-                unit.klass = new_nid
-        for k in DB.classes:
-            if k.promotes_from == old_nid:
-                k.promotes_from = new_nid
-            k.turns_into = [new_nid if elem == old_nid else elem for elem in k.turns_into]
-        for ai in DB.ai:
-            for behaviour in ai.behaviours:
-                if behaviour.target_spec and behaviour.target_spec[0] == "Class" and behaviour.target_spec[1] == old_nid:
-                    behaviour.target_spec[1] = new_nid
-        for level in DB.levels:
-            for unit in level.units:
-                if unit.klass == old_nid:
-                    unit.klass = new_nid
-
-    def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = name = utilities.get_next_name("New Class", nids)
-        DB.create_new_class(nid, name)
 
 class ClassProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -168,7 +30,6 @@ class ClassProperties(QWidget):
         self.window = parent
         self.model = self.window.left_frame.model
         self._data = self.window._data
-        self.database_editor = self.window.window
 
         self.current = current
 
@@ -187,15 +48,15 @@ class ClassProperties(QWidget):
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         name_section.addWidget(self.nid_box)
 
-        self.short_name_box = PropertyBox("Short Display Name", QLineEdit, self)
-        self.short_name_box.edit.setMaxLength(10)
-        self.short_name_box.edit.textChanged.connect(self.short_name_changed)
-        name_section.addWidget(self.short_name_box)
+        # self.short_name_box = PropertyBox("Short Display Name", QLineEdit, self)
+        # self.short_name_box.edit.setMaxLength(10)
+        # self.short_name_box.edit.textChanged.connect(self.short_name_changed)
+        # name_section.addWidget(self.short_name_box)
 
-        self.long_name_box = PropertyBox("Display Name", QLineEdit, self)
-        self.long_name_box.edit.setMaxLength(20)
-        self.long_name_box.edit.textChanged.connect(self.long_name_changed)
-        name_section.addWidget(self.long_name_box)
+        self.name_box = PropertyBox("Display Name", QLineEdit, self)
+        self.name_box.edit.setMaxLength(13)
+        self.name_box.edit.textChanged.connect(self.name_changed)
+        name_section.addWidget(self.name_box)
 
         top_section.addLayout(name_section)
 
@@ -206,7 +67,7 @@ class ClassProperties(QWidget):
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
         self.movement_box = PropertyBox("Movement Type", ComboBox, self)
-        self.movement_box.edit.addItems(DB.mcost.get_movement_types())
+        self.movement_box.edit.addItems(DB.mcost.unit_types)
         self.movement_box.edit.currentIndexChanged.connect(self.movement_changed)
         main_section.addWidget(self.movement_box, 0, 3)
 
@@ -256,33 +117,14 @@ class ClassProperties(QWidget):
         weapon_section = QHBoxLayout()
 
         attrs = ("usable", "weapon_type", "wexp_gain")
-        self.wexp_gain_widget = BasicMultiListWidget(WexpGainData.from_xml([], DB.weapons), "Weapon Exp.", attrs, WexpGainDelegate, self)
+        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList.default(DB), "Weapon Experience", attrs, WexpGainDelegate, self)
         self.wexp_gain_widget.model.checked_columns = {0}  # Add checked column
         weapon_section.addWidget(self.wexp_gain_widget)
 
         skill_section = QHBoxLayout()
-
         attrs = ("level", "skill_nid")
-        self.class_skill_widget = AppendMultiListWidget(LearnedSkillList(), "Class Skills", attrs, LearnedSkillDelegate, self)
+        self.class_skill_widget = AppendMultiListWidget([], "Class Skills", attrs, LearnedSkillDelegate, self)
         skill_section.addWidget(self.class_skill_widget)
-
-        exp_section = QHBoxLayout()
-
-        self.exp_mult_box = PropertyBox("Exp Multiplier", QDoubleSpinBox, self)
-        self.exp_mult_box.edit.setAlignment(Qt.AlignRight)
-        self.exp_mult_box.edit.setDecimals(1)
-        self.exp_mult_box.edit.setSingleStep(0.1)
-        self.exp_mult_box.edit.setRange(0, 255)
-        self.exp_mult_box.edit.valueChanged.connect(self.exp_mult_changed)
-        exp_section.addWidget(self.exp_mult_box)
-
-        self.opp_exp_mult_box = PropertyBox("Opponent Exp Multiplier", QDoubleSpinBox, self)
-        self.opp_exp_mult_box.edit.setAlignment(Qt.AlignRight)
-        self.opp_exp_mult_box.edit.setDecimals(1)
-        self.opp_exp_mult_box.edit.setSingleStep(0.1)
-        self.opp_exp_mult_box.edit.setRange(0, 255)
-        self.opp_exp_mult_box.edit.valueChanged.connect(self.opp_exp_mult_changed)
-        exp_section.addWidget(self.opp_exp_mult_box)
 
         self.map_sprite_label = QLabel()
         self.map_sprite_label.setMaximumWidth(32)
@@ -300,7 +142,6 @@ class ClassProperties(QWidget):
         total_section.addLayout(tag_section)
         total_section.addWidget(QHLine())
         total_section.addLayout(stat_section)
-        total_section.addLayout(exp_section)
         total_widget = QWidget()
         total_widget.setLayout(total_section)
 
@@ -335,6 +176,11 @@ class ClassProperties(QWidget):
         # final_section.addWidget(QVLine())
         # final_section.addLayout(right_section)
 
+        timer.get_timer().tick_elapsed.connect(self.tick)
+
+    def tick(self):
+        self.window.update_list()
+
     def nid_changed(self, text):
         self.current.nid = text
         self.window.update_list()
@@ -349,11 +195,8 @@ class ClassProperties(QWidget):
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
-    def short_name_changed(self, text):
-        self.current.short_name = text
-
-    def long_name_changed(self, text):
-        self.current.long_name = text
+    def name_changed(self, text):
+        self.current.name = text
 
     def desc_changed(self, text):
         self.current.desc = text
@@ -379,12 +222,6 @@ class ClassProperties(QWidget):
 
     def tags_changed(self):
         self.current.tags = self.tag_box.edit.currentText()
-
-    def exp_mult_changed(self):
-        self.current.exp_mult = float(self.exp_mult_box.edit.value())
-
-    def opp_exp_mult_changed(self):
-        self.current.opponent_exp_mult = float(self.opp_exp_mult_box.edit.value())
 
     def access_tags(self):
         dlg = TagDialog.create(self)
@@ -424,28 +261,27 @@ class ClassProperties(QWidget):
             self.averages_dialog.update()
 
     def select_map_sprite(self):
-        res, ok = ResourceEditor.get(self.window, "Map Sprites")
+        res, ok = map_sprite_tab.get()
         if ok:
             nid = res.nid
             self.current.map_sprite_nid = nid
-            pix = get_map_sprite_icon(self.current, num=0)
+            pix = class_model.get_map_sprite_icon(self.current, num=0)
             self.map_sprite_label.setPixmap(pix)
             self.window.update_list()
 
     def select_combat_anim(self):
-        res, ok = ResourceEditor.get(self.window, "Combat Anims")
+        res, ok = combat_anim_tab.get()
         if ok:
             nid = res.nid
             self.current.combat_anim_nid = nid
-            pix = get_combat_anim_icon(self.current)
+            pix = class_model.get_combat_anim_icon(self.current)
             self.combat_anim_label.setPixmap(pix)
             self.window.update_list()
 
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
-        self.short_name_box.edit.setText(current.short_name)
-        self.long_name_box.edit.setText(current.long_name)
+        self.name_box.edit.setText(current.name)
         self.desc_box.edit.setText(current.desc)
         self.tier_box.edit.setValue(current.tier)
         self.max_level_box.edit.setValue(current.max_level)
@@ -470,19 +306,16 @@ class ClassProperties(QWidget):
         if self.averages_dialog:
             self.averages_dialog.set_current(current)
 
-        self.exp_mult_box.edit.setValue(current.exp_mult)
-        self.opp_exp_mult_box.edit.setValue(current.opponent_exp_mult)
-
         self.class_skill_widget.set_current(current.learned_skills)
         self.wexp_gain_widget.set_current(current.wexp_gain)
 
         self.icon_edit.set_current(current.icon_nid, current.icon_index)
-        pix = get_map_sprite_icon(self.current, num=0)
+        pix = class_model.get_map_sprite_icon(self.current, num=0)
         if pix:
             self.map_sprite_label.setPixmap(pix)
         else:
             self.map_sprite_label.clear()
-        pix = get_combat_anim_icon(self.current)
+        pix = class_model.get_combat_anim_icon(self.current)
         if pix:
             self.combat_anim_label.setPixmap(pix)
         else:
@@ -490,13 +323,3 @@ class ClassProperties(QWidget):
 
     def hideEvent(self, event):
         self.close_averages()
-
-# Testing
-# Run "python -m app.editor.class_database" from main directory
-if __name__ == '__main__':
-    import sys
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    window = ClassDatabase.create()
-    window.show()
-    app.exec_()

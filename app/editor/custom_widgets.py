@@ -29,7 +29,7 @@ class UnitBox(ObjBox):
 
 class ClassBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
-        from app.editor.class_database import ClassModel
+        from app.editor.class_editor.class_model import ClassModel
         database = DB.classes
         if exclude:
             database = Data([d for d in DB.classes if d is not exclude])
@@ -52,7 +52,7 @@ class ItemBox(ObjBox):
 
 class AIBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
-        from app.editor.ai_database import AIModel
+        from app.editor.ai_editor.ai_model import AIModel
         database = DB.ai
         if exclude:
             database = Data([d for d in DB.ai if d is not exclude])

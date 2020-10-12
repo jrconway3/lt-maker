@@ -1,17 +1,17 @@
 from PyQt5.QtWidgets import QStyle
 from PyQt5.QtCore import Qt
 
-from app.data.data import Data
+from app.utilities import str_utils
+from app.utilities.data import Data
 from app.data.database import DB
-from app.data.simple_unit_object import SimpleUnitObject
-
-from app.engine import equations
 
 from app.extensions.custom_gui import DeletionDialog, PropertyBox, ComboBox
 from app.extensions.list_dialogs import MultiAttrListDialog
-from app.extensions.list_models import DragDropMultiAttrListModel
+from app.extensions.list_models import MultiAttrListModel
 
-class EquationMultiModel(DragDropMultiAttrListModel):
+from app.data import equations, level_units, item_components
+
+class EquationMultiModel(MultiAttrListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -31,21 +31,23 @@ class EquationMultiModel(DragDropMultiAttrListModel):
 
     def test_equation(self, equation) -> bool:
         try:
-            parser = equations.Parser()
-            test_unit = SimpleUnitObject.from_prefab(DB.units[0], parser)
+            from app.engine import equations as parse
+            parser = parse.Parser()
+            test_unit = level_units.UniqueUnit(DB.units[0].nid, 'player', None, (0, 0))
+            test_unit.stats = {stat.nid: stat.value for stat in test_unit.bases}
             result = parser.get(equation.nid, test_unit)
             result = parser.get_expression(equation.expression, test_unit)
             return True
         except Exception as e:
-            print(e)
+            print("TestEquation Error: %s" % e)
             return False
 
     def delete(self, idx):
         element = self._data[idx]
-        affected_items = [item for item in DB.items if item.min_range == element.nid or item.max_range == element.nid]
+        affected_items = item_components.get_items_using(item_components.Type.Equation, element.nid, DB)
         if affected_items:
             affected = Data(affected_items)
-            from app.editor.item_database import ItemModel
+            from app.editor.item_editor.item_model import ItemModel
             model = ItemModel
             msg = "Deleting Equation <b>%s</b> would affect these items" % element.nid
             combo_box = PropertyBox("Equation", ComboBox, self.window)
@@ -54,26 +56,23 @@ class EquationMultiModel(DragDropMultiAttrListModel):
             obj_idx, ok = DeletionDialog.get_simple_swap(affected, model, msg, combo_box)
             if ok:
                 swap = objs[obj_idx]
-                for item in affected_items:
-                    if item.min_range == element.nid:
-                        item.min_range = swap.nid
-                    if item.max_range == element.nid:
-                        item.max_range = swap.nid
+                item_components.swap_values(affected_items, item_components.Type.Equation, element.nid, swap.nid)
             else:
                 return
         super().delete(idx)
 
     def create_new(self):
-        return self._data.add_new_default(DB)
+        nids = [d.nid for d in self._data]
+        nid = str_utils.get_next_name("EQUATION", nids)
+        new_equation = equations.Equation(nid)
+        DB.equations.append(new_equation)
+        return new_equation
 
     def change_watchers(self, data, attr, old_value, new_value):
         if attr == 'nid':
             self._data.update_nid(data, new_value)
-            for item in DB.items:
-                if item.min_range == old_value:
-                    item.min_range = new_value
-                if item.max_range == old_value:
-                    item.max_range = new_value
+            affected_items = item_components.get_items_using(item_components.Type.Equation, old_value, DB)
+            item_components.swap_values(affected_items, item_components.Type.Equation, old_value, new_value)
 
 class EquationDialog(MultiAttrListDialog):
     locked_vars = {"HIT", "AVOID", "CRIT_HIT", "CRIT_AVOID", 
@@ -90,3 +89,14 @@ class EquationDialog(MultiAttrListDialog):
         dlg = cls(DB.equations, "Equation", ("nid", "expression"), 
                   EquationMultiModel, (deletion_func, None, deletion_func), cls.locked_vars)
         return dlg
+
+# Testing
+# Run "python -m app.editor.equation_widget"
+if __name__ == '__main__':
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    DB.load('default.ltproj')
+    window = EquationDialog.create()
+    window.show()
+    app.exec_()

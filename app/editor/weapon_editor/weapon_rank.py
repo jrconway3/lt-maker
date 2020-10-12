@@ -9,7 +9,7 @@ from app.extensions.list_dialogs import MultiAttrListDialog
 from app.extensions.list_models import MultiAttrListModel
 
 from app.data.weapons import WeaponRank
-from app.data.item_components import Type
+from app.data import item_components
 
 class WeaponRankMultiModel(MultiAttrListModel):
     def delete(self, idx):
@@ -19,12 +19,7 @@ class WeaponRankMultiModel(MultiAttrListModel):
                             any(adv.weapon_rank == element.rank for adv in weapon.rank_bonus) or
                             any(adv.weapon_rank == element.rank for adv in weapon.advantage) or 
                             any(adv.weapon_rank == element.rank for adv in weapon.disadvantage)]
-        affected_items = []
-        for item in DB.items:
-            for component in item.components:
-                if component.expose == Type.WeaponRank and component.value == element.rank:
-                    affected_items.append(item)
-
+        affected_items = item_components.get_items_using(item_components.Type.WeaponRank, element.rank, DB)
         if affected_weapons or affected_items:
             if affected_weapons:
                 affected = Data(affected_weapons)
@@ -41,11 +36,7 @@ class WeaponRankMultiModel(MultiAttrListModel):
             obj_idx, ok = DeletionDialog.get_simple_swap(affected, model, msg, combo_box)
             if ok:
                 swap = objs[obj_idx]
-                for item in affected_items:
-                    for component in item.components:
-                        if component.expose == Type.WeaponRank and component.value == element.rank:
-                            component.value = swap.rank
-
+                item_components.swap_values(affected_items, item_components.Type.WeaponRank, element.rank, swap.rank)
                 for weapon in affected_weapons:
                     weapon.rank_bonus.swap_rank(element.rank, swap.rank)
                     weapon.advantage.swap_rank(element.rank, swap.rank)
@@ -68,10 +59,8 @@ class WeaponRankMultiModel(MultiAttrListModel):
                 weapon.rank_bonus.swap_rank(old_value, new_value)
                 weapon.advantage.swap_rank(old_value, new_value)
                 weapon.disadvantage.swap_rank(old_value, new_value)
-            for item in DB.items:
-                for component in item.components:
-                    if component.expose == Type.WeaponRank and component.value == old_value:
-                        component.value = new_value
+            affected_items = item_components.get_items_using(item_components.Type.WeaponRank, old_value, DB)
+            item_components.swap_values(affected_items, item_components.Type.WeaponRank, old_value, new_value)
 
 class RankDialog(MultiAttrListDialog):
     @classmethod

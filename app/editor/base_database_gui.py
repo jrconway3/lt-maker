@@ -9,7 +9,7 @@ from app.utilities.data import Prefab
 from app.data import items
 from app.extensions.custom_gui import RightClickListView
 
-from app import utilities
+from app.utilities import str_utils
 
 class DatabaseTab(QWidget):
     allow_import_from_lt = False
@@ -167,12 +167,12 @@ class CollectionModel(QAbstractListModel):
     def duplicate(self, idx):
         view = self.window.view
         obj = self._data[idx]
-        new_nid = utilities.get_next_name(obj.nid, self._data.keys())
+        new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
         if isinstance(obj, Prefab):
-            serialized_obj = obj.serialize()
+            serialized_obj = obj.save()
             print("Duplication!")
             print(serialized_obj, flush=True)
-            new_obj = self._data.datatype.deserialize(serialized_obj)
+            new_obj = self._data.datatype.restore(serialized_obj)
         elif isinstance(obj, items.Item):
             serialized_obj = obj.serialize_prefab()
             print("Duplication of Item!")
@@ -241,7 +241,7 @@ class ResourceCollectionModel(DragDropCollectionModel):
             if value:
                 item = self._data[index.row()]
                 old_nid = item.nid
-                nid = utilities.get_next_name(value, [d.nid for d in self._data])
+                nid = str_utils.get_next_name(value, [d.nid for d in self._data])
                 self._data.update_nid(item, nid)
                 self.nid_change_watchers(item, old_nid, nid)
         return True

@@ -66,7 +66,7 @@ class MapSpriteProperties(QWidget):
         self.enemy2_button = QPushButton(self)
         self.button_group = QButtonGroup(self)
         self.button_group.buttonPressed.connect(self.color_clicked)
-        self.colors = [self.player_button, self.enemy_button, self.other_button, self.enemy2_button]
+        self.colors = [self.player_button, self.enemy_button, self.enemy2_button, self.other_button]
         text = [_.capitalize() for _ in DB.teams]
         pos = [(0, 0), (1, 0), (0, 1), (1, 1)]
         for idx, button in enumerate(self.colors):

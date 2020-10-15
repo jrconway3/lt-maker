@@ -1,34 +1,16 @@
-from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt, QDir, QSettings
 from PyQt5.QtGui import QPixmap, QIcon
 
-import os, glob
+import os, glob, time
 
 from app.constants import WINWIDTH, WINHEIGHT
+from app.utilities import str_utils
 
 from app.resources.panoramas import Panorama
 from app.resources.resources import RESOURCES
 
-from app.extensions.custom_gui import ResourceListView
-from app.editor.timer import TIMER
-from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
-from app.editor.icon_display import IconView
-
-import app.utilities as utilities
-
-class PanoramaDisplay(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = RESOURCES.panoramas
-        title = "Background"
-        right_frame = PanoramaProperties
-        collection_model = PanoramaModel
-        deletion_criteria = None
-
-        dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...",
-                     view_type=ResourceListView)
-        return dialog
+from app.editor.base_database_gui import ResourceCollectionModel
 
 class PanoramaModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -40,9 +22,10 @@ class PanoramaModel(ResourceCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             panorama = self._data[index.row()]
-            pixmap = panorama.get_frame()
+            counter = int(time.time() * 1000 // 125) % len(panorama.pixmaps)
+            pixmap = panorama.pixmaps[counter]
             if pixmap:
-                pixmap = pixmap.scaled(32, 32)
+                # pixmap = pixmap.scaled(240, 160)
                 return QIcon(pixmap)
         return None
 
@@ -54,11 +37,11 @@ class PanoramaModel(ResourceCollectionModel):
             for fn in fns:
                 if fn.endswith('.png'):
                     nid = os.path.split(fn)[-1][:-4]
-                    last_number = utilities.find_last_number(nid)
+                    last_number = str_utils.find_last_number(nid)
                     if last_number == 0:
-                        movie_prefix = utilities.get_prefix(fn)
+                        movie_prefix = str_utils.get_prefix(fn)
                         ims = glob.glob(movie_prefix + '*' + '.png')
-                        ims = sorted(ims, key=lambda x: utilities.find_last_number(x[:-4]))
+                        ims = sorted(ims, key=lambda x: str_utils.find_last_number(x[:-4]))
                         full_path = movie_prefix + '.png'
                     elif last_number is None:
                         movie_prefix = nid
@@ -67,7 +50,7 @@ class PanoramaModel(ResourceCollectionModel):
                     else:  # Should be nommed on by some other import
                         continue
                     pixs = [QPixmap(i) for i in ims]
-                    movie_prefix = utilities.get_next_name(movie_prefix, [d.nid for d in RESOURCES.panoramas])
+                    movie_prefix = str_utils.get_next_name(movie_prefix, [d.nid for d in RESOURCES.panoramas])
                     if all(pix.width() >= WINWIDTH and pix.height() >= WINHEIGHT for pix in pixs):
                         new_panorama = Panorama(movie_prefix, full_path, pixs)
                         RESOURCES.panoramas.append(new_panorama)
@@ -89,39 +72,3 @@ class PanoramaModel(ResourceCollectionModel):
         # What uses panoramas
         # Nothing for now -- later Dialogue
         pass
-
-class PanoramaProperties(QWidget):
-    def __init__(self, parent, current=None):
-        super().__init__(parent)
-        self.window = parent
-        self._data = self.window._data
-        self.resource_editor = self.window.window
-
-        # Populate resources
-        for resource in self._data:
-            for path in resource.get_all_paths():
-                resource.pixmaps.append(QPixmap(path))
-
-        self.current = current
-
-        self.view = IconView(self)
-
-        layout = QHBoxLayout()
-        self.setLayout(layout)
-
-        layout.addWidget(self.view)
-
-        TIMER.tick_elapsed.connect(self.tick)
-
-    def tick(self):
-        if self.current:
-            self.current.increment_frame()
-            self.draw()
-
-    def set_current(self, current):
-        self.current = current
-        self.draw()
-
-    def draw(self):
-        self.view.set_image(self.current.get_frame())
-        self.view.show_image()

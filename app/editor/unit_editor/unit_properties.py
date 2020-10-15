@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QTableView, QStyledItemDelegate
-from PyQt5.QtGui import QIcon
+    QVBoxLayout, QTableView, QStyledItemDelegate, QTextEdit
+from PyQt5.QtGui import QIcon, QFontMetrics
 from PyQt5.QtCore import Qt, QItemSelection, QItemSelectionModel
 
 from app.utilities import str_utils
@@ -9,7 +9,7 @@ from app.utilities import str_utils
 from app.data.weapons import WexpGainList
 from app.data.database import DB
 
-from app.extensions.custom_gui import PropertyBox, QHLine
+from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 from app.extensions.list_models import VirtualListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
@@ -19,7 +19,7 @@ from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, UnitStatAveragesModel
 from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.item_list_widget import ItemListWidget
-import app.editor.weapon_database as weapon_database
+from app.editor.weapon_editor import weapon_model
 from app.editor.icons import UnitPortrait
 # from app.editor.helper_funcs import can_wield
 
@@ -49,7 +49,7 @@ class WexpModel(VirtualListModel):
             return None
         elif role == Qt.DecorationRole and orientation == Qt.Horizontal:
             weapon = self._columns[idx]
-            pixmap = weapon_database.get_pixmap(weapon)
+            pixmap = weapon_model.get_pixmap(weapon)
             if pixmap:
                 return QIcon(pixmap)
         return None
@@ -72,6 +72,12 @@ class WexpModel(VirtualListModel):
             return False
         weapon = self._columns[index.column()]
         wexp_gain = self._data.get(weapon.nid)
+        if value in DB.weapon_ranks.keys():
+            value = DB.weapon_ranks.get(value).requirement
+        elif str_utils.is_int(value):
+            value = int(value)
+        else:
+            value = 0
         wexp_gain.wexp_gain = value
         self.dataChanged.emit(index, index)
         return True
@@ -88,6 +94,7 @@ class HorizWeaponListWidget(BasicSingleListWidget):
         self.model = WexpModel(DB.weapons, data, self)
         self.view = QTableView(self)
         self.view.setModel(self.model)
+        self.view.setFixedHeight(60)
         delegate = dlgate(self.view)
         self.view.setItemDelegate(delegate)
 
@@ -96,6 +103,14 @@ class HorizWeaponListWidget(BasicSingleListWidget):
         for col in range(len(DB.weapons)):
             self.view.resizeColumnToContents(col)
             self.view.setColumnWidth(col, 20)
+
+class HorizWeaponListDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, idnex):
+        editor = ComboBox(parent)
+        editor.setEditable(True)
+        for rank in DB.weapon_ranks:
+            editor.addItem(rank.rank)
+        return editor
 
 class UnitProperties(QWidget):
     def __init__(self, parent):
@@ -136,8 +151,10 @@ class UnitProperties(QWidget):
         self.variant_box.edit.setPlaceholderText("No Variant")
         main_section.addWidget(self.variant_box, 1, 2)
 
-        self.desc_box = PropertyBox("Description", QLineEdit, self)
+        self.desc_box = PropertyBox("Description", QTextEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
+        font_height = QFontMetrics(self.desc_box.edit.font())
+        self.desc_box.edit.setFixedHeight(font_height.lineSpacing() * 3 + 20)
         main_section.addWidget(self.desc_box, 2, 0, 1, 3)
 
         self.level_box = PropertyBox("Level", QSpinBox, self)
@@ -164,35 +181,31 @@ class UnitProperties(QWidget):
 
         main_section.addLayout(tag_section, 3, 1, 1, 2)
 
-        stat_section = QGridLayout()
-
         self.unit_stat_widget = StatListWidget(self.current, "Stats", reset_button=True, parent=self)
         self.unit_stat_widget.button.clicked.connect(self.display_averages)
         self.unit_stat_widget.reset_button.clicked.connect(self.reset_stats)
         self.unit_stat_widget.model.dataChanged.connect(self.stat_list_model_data_changed)
+        self.unit_stat_widget.view.setFixedHeight(120)
         self.averages_dialog = None
         # self.unit_stat_widget.button.clicked.connect(self.access_stats)
         # Changing of stats done automatically by using model view framework within
-        stat_section.addWidget(self.unit_stat_widget, 1, 0, 1, 2)
 
-        skill_section = QHBoxLayout()
         attrs = ("level", "skill_nid")
         self.personal_skill_widget = AppendMultiListWidget([], "Personal Skills", attrs, LearnedSkillDelegate, self)
+        self.personal_skill_widget.view.setMaximumHeight(120)
         # Changing of Personal skills done automatically also
         # self.personal_skill_widget.activated.connect(self.learned_skills_changed)
-        skill_section.addWidget(self.personal_skill_widget)
 
-        weapon_section = QHBoxLayout()
         attrs = ("weapon_type", "wexp_gain")
         self.wexp_gain_widget = HorizWeaponListWidget(
-            WexpGainList.default(DB), "Starting Weapon Experience", QStyledItemDelegate, self)
+            WexpGainList.default(DB), "Starting Weapon Experience", HorizWeaponListDelegate, self)
         # Changing of Weapon Gain done automatically
         # self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
-        weapon_section.addWidget(self.wexp_gain_widget)
 
         item_section = QHBoxLayout()
         self.item_widget = ItemListWidget("Starting Items", self)
         self.item_widget.items_updated.connect(self.items_changed)
+        # self.item_widget.setMaximumHeight(200)
         item_section.addWidget(self.item_widget)
 
         self.alternate_class_box = PropertyBox("Alternate Classes", MultiSelectComboBox, self)
@@ -204,15 +217,15 @@ class UnitProperties(QWidget):
         total_section.addLayout(top_section)
         total_section.addLayout(main_section)
         total_section.addWidget(QHLine())
-        total_section.addLayout(stat_section)
-        total_section.addLayout(weapon_section)
+        total_section.addWidget(self.unit_stat_widget)
+        total_section.addWidget(self.wexp_gain_widget)
         total_widget = QWidget()
         total_widget.setLayout(total_section)
 
         right_section = QVBoxLayout()
         right_section.addLayout(item_section)
         right_section.addWidget(QHLine())
-        right_section.addLayout(skill_section)
+        right_section.addWidget(self.personal_skill_widget)
         right_section.addWidget(QHLine())
         right_section.addWidget(self.alternate_class_box)
         right_widget = QWidget()
@@ -248,8 +261,9 @@ class UnitProperties(QWidget):
     def name_changed(self, text):
         self.current.name = text
 
-    def desc_changed(self, text):
-        self.current.desc = text
+    def desc_changed(self, text=None):
+        self.current.desc = self.desc_box.edit.toPlainText()
+        # self.current.desc = text
 
     def level_changed(self, val):
         self.current.level = int(val)

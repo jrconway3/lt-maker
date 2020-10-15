@@ -14,8 +14,7 @@ from app.extensions.custom_gui import DeletionDialog
 
 from app.editor.base_database_gui import ResourceCollectionModel
 import app.editor.utilities as editor_utilities
-
-from app import utilities
+from app.utilities import str_utils
 
 def get_basic_icon(pixmap, num, active=False, team='player'):
     if active:
@@ -48,6 +47,8 @@ class MapSpriteModel(ResourceCollectionModel):
             map_sprite = self._data[index.row()]
             if not map_sprite.standing_pixmap:
                 map_sprite.standing_pixmap = QPixmap(map_sprite.stand_full_path)
+            if not map_sprite.moving_pixmap:
+                map_sprite.moving_pixmap = QPixmap(map_sprite.move_full_path)
             pixmap = map_sprite.standing_pixmap
             # num = TIMER.passive_counter.count
             num = 0
@@ -68,7 +69,7 @@ class MapSpriteModel(ResourceCollectionModel):
             if fn.endswith('.png'):
                 nid = os.path.split(fn)[-1][:-4]
                 standing_pix = QPixmap(fn)
-                nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.map_sprites])
+                nid = str_utils.get_next_name(nid, [d.nid for d in RESOURCES.map_sprites])
                 stand_full_path = fn
                 if standing_pix.width() == 192 and standing_pix.height() == 144:
                     lion_throne_mode = True
@@ -108,10 +109,16 @@ class MapSpriteModel(ResourceCollectionModel):
             if lion_throne_mode: 
                 new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
             else:
-                standing_pix, moving_pix = self.import_gba_map_sprite(standing_pix, moving_pix)
-                # TODO: save pixmaps to a file
-                stand_full_path, move_full_path = None, None
-                new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
+                current_proj = settings.value("current_proj", None)
+                if current_proj:
+                    standing_pix, moving_pix = self.import_gba_map_sprite(standing_pix, moving_pix)
+                    stand_full_path = os.path.join(current_proj, 'resources', 'map_sprites', nid + '-stand.png')
+                    move_full_path = os.path.join(current_proj, 'resources', 'map_sprites', nid + '-move.png')
+                    standing_pix.save(stand_full_path)
+                    moving_pix.save(move_full_path)
+                    new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
+                else:
+                    QMessageBox.critical(self.window, "Error", "Cannot load GBA map sprites without having saved the project")
             RESOURCES.map_sprites.append(new_map_sprite)
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)

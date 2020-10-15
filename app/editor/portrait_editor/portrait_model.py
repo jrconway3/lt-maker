@@ -13,7 +13,8 @@ from app.data.database import DB
 from app.extensions.custom_gui import DeletionDialog
 from app.editor.base_database_gui import ResourceCollectionModel
 
-from app import utilities
+from app.utilities import str_utils
+import app.editor.utilities as editor_utilities
 
 class PortraitModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -27,6 +28,7 @@ class PortraitModel(ResourceCollectionModel):
             portrait = self._data[index.row()]
             pixmap = portrait.pixmap
             chibi = pixmap.copy(96, 16, 32, 32)
+            chibi = QPixmap.fromImage(editor_utilities.convert_colorkey(chibi.toImage()))
             return QIcon(chibi)
         return None
 
@@ -39,7 +41,7 @@ class PortraitModel(ResourceCollectionModel):
                 if fn.endswith('.png'):
                     nid = os.path.split(fn)[-1][:-4]
                     pix = QPixmap(fn)
-                    nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.portraits])
+                    nid = str_utils.get_next_name(nid, [d.nid for d in RESOURCES.portraits])
                     if pix.width() == 128 and pix.height() == 112:
                         new_portrait = Portrait(nid, fn, pix)
                         RESOURCES.portraits.append(new_portrait)

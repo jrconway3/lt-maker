@@ -1,10 +1,10 @@
 import functools
 
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
-    QMessageBox, QHBoxLayout, QAction, QToolButton, QToolBar, \
+    QMessageBox, QHBoxLayout, QAction, QToolButton, QToolBar, QTextEdit, \
     QDialog, QVBoxLayout, QSizePolicy, QSpacerItem, QMenu, QWidgetAction
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QFontMetrics
 
 import app.engine.item_component_access as ICA
 
@@ -46,8 +46,10 @@ class ItemProperties(QWidget):
 
         main_section = QGridLayout()
 
-        self.desc_box = PropertyBox("Description", QLineEdit, self)
+        self.desc_box = PropertyBox("Description", QTextEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
+        font_height = QFontMetrics(self.desc_box.edit.font())
+        self.desc_box.edit.setFixedHeight(font_height.lineSpacing() * 3 + 20)
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
         component_section = QGridLayout()
@@ -79,6 +81,26 @@ class ItemProperties(QWidget):
                 self.toolbar.addAction(toolbutton_action)
             menu = self.menus[component.tag]
             menu.addAction(self.actions.get(component.nid))
+
+        # Template action
+        for template_key, template_value in ICA.get_templates():
+            new_func = functools.partial(self.add_template, template_value)
+            template_action = QAction(QIcon(), template_key, self, triggered=new_func)
+            self.actions[template_key] = template_action
+
+        template_menu = QMenu(self)
+        self.menus['templates'] = template_menu
+        toolbutton = QToolButton(self)
+        toolbutton.setIcon(QIcon("icons/component_template.png"))
+        toolbutton.setMenu(template_menu)
+        toolbutton.setPopupMode(QToolButton.InstantPopup)
+        toolbutton_action = QWidgetAction(self)
+        toolbutton_action.setDefaultWidget(toolbutton)
+        self.toolbar.addAction(toolbutton_action)
+
+        for template_key, template_value in ICA.get_templates():
+            menu = self.menus['templates']
+            menu.addAction(self.actions.get(template_key))
 
         component_section.addWidget(self.toolbar, 1, 0, 1, 2)
 
@@ -115,13 +137,23 @@ class ItemProperties(QWidget):
         self.current.name = text
         self.window.update_list()
 
-    def desc_changed(self, text):
-        self.current.desc = text
+    def desc_changed(self, text=None):
+        self.current.desc = self.desc_box.edit.toPlainText()
+        # self.current.desc = text
+
+    def add_template(self, component_list):
+        all_components = ICA.get_item_components()
+        for component_nid in component_list:
+            self.add_component(all_components.get(component_nid))
 
     def add_component(self, component_class):
         component = component_class(component_class.value)
         self.current.components.append(component)
         self.add_component_widget(component)
+        # Add other components that this should be paired with
+        for pair in component.paired_with:
+            if pair not in self.current.components.keys():
+                self.add_component(ICA.get_item_components().get(pair))
 
     def add_component_widget(self, component):
         c = component_database.get_display_widget(component, self)
@@ -131,6 +163,13 @@ class ItemProperties(QWidget):
         data = component_widget._data
         self.component_list.remove_component(component_widget)
         self.current.components.delete(data)
+        # Remove all paired components
+        for pair in data.paired_with:
+            if pair in self.current.components.keys():
+                idx = self.component_list.index_list.index(pair)
+                item = self.component_list.item(idx)
+                component_widget = self.component_list.itemWidget(item)
+                self.remove_component(component_widget)
 
     def component_moved(self, start, end):
         self.current.components.move_index(start, end)
@@ -144,15 +183,3 @@ class ItemProperties(QWidget):
         self.component_list.clear()
         for component in current.components.values():
             self.add_component_widget(component)
-
-    def add_components(self):
-        components = ICA.get_item_components()
-        dlg = component_database.ComponentDialog(components, "Item Components", self)
-        result = dlg.exec_()
-        if result == QDialog.Accepted:
-            checked = dlg.get_checked()
-            for nid in checked:
-                c = ICA.get_component(nid)
-                self.add_component(c)
-        else:
-            pass

@@ -19,7 +19,7 @@ class Spell(ItemComponent):
     def equippable(self, unit, item):
         return False
 
-    def wexp(self, unit, item):
+    def wexp(self, playback, unit, item, target):
         return 1
 
 class Weapon(ItemComponent):
@@ -45,7 +45,7 @@ class Weapon(ItemComponent):
     def can_double(self, unit, item):
         return True
 
-    def wexp(self, unit, item, target):
+    def wexp(self, playback, unit, item, target):
         return 1
 
 class SiegeWeapon(ItemComponent):
@@ -65,7 +65,7 @@ class SiegeWeapon(ItemComponent):
     def can_double(self, unit, item):
         return True
 
-    def wexp(self, unit, item, target):
+    def wexp(self, playback, unit, item, target):
         return 1
 
 class TargetsAnything(ItemComponent):

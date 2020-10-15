@@ -1,7 +1,4 @@
-Classes
 Skills
-Stats
-Tags
 AI
 
 Tileset / Tilemaps
@@ -9,8 +6,8 @@ Music
 SFX
 Combat Anims
 Combat Effects
-Map Animations
-Panoramas
+
+Better method for frame speed for Map Animations
+Book pages frames with a number under them?
 
 Levels
-

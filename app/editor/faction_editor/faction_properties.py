@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
-    QSpacerItem, QSizePolicy
+    QSpacerItem, QSizePolicy, QTextEdit
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFontMetrics
 
 from app.extensions.custom_gui import PropertyBox
 
@@ -37,7 +38,9 @@ class FactionProperties(QWidget):
 
         top_section.addLayout(name_section)
 
-        self.desc_box = PropertyBox("Description", QLineEdit, self)
+        self.desc_box = PropertyBox("Description", QTextEdit, self)
+        font_height = QFontMetrics(self.desc_box.edit.font())
+        self.desc_box.edit.setFixedHeight(font_height.lineSpacing() * 3 + 20)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
 
         total_section = QVBoxLayout()
@@ -67,7 +70,8 @@ class FactionProperties(QWidget):
         self.current.name = text
         self.window.update_list()
 
-    def desc_changed(self, text):
+    def desc_changed(self, text=None):
+        self.current.desc = self.desc_box.edit.toPlainText()
         self.current.desc = text
 
     def set_current(self, current):

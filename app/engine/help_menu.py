@@ -21,10 +21,12 @@ class HelpDialog():
             desc = ''
         desc = text_funcs.translate(desc)
         # Hard set num lines if desc is very short
-        if len(desc) < 24:
-            num_lines = 1
-
-        self.lines = text_funcs.split(self.font, desc, num_lines, WINWIDTH - 8)
+        if '\n' in desc:
+            self.lines = desc.splitlines()
+        else:
+            if len(desc) < 24:
+                num_lines = 1
+            self.lines = text_funcs.split(self.font, desc, num_lines, WINWIDTH - 8)
 
         greater_line_len = max([self.font.width(line) for line in self.lines])
         if self.name:

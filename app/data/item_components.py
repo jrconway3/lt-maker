@@ -28,7 +28,8 @@ class ItemComponent():
     desc: str = None
     author: str = 'rainlash'
     expose = None  # Attribute for the Item Component
-    requires: list = None
+    # requires: list = []
+    paired_with: list = []
     tag = 'extra'
     value = None
 

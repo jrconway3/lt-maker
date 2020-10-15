@@ -88,7 +88,7 @@ class Weight(ItemComponent):
 class Effective(ItemComponent):
     nid = 'effective'
     desc = 'Item does extra damage against certain units'
-    requires = ['damage']
+    # requires = ['damage']
     paired_with = ('effective_tag',)
     tag = 'extra'
 
@@ -101,7 +101,7 @@ class Effective(ItemComponent):
 class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
     desc = "Item is does extra damage against units with these tags"
-    requires = ['damage']
+    # requires = ['damage']
     paired_with = ('effective',)
     tag = 'extra'
 
@@ -144,7 +144,7 @@ class CannotBeCountered(ItemComponent):
 class Lifelink(ItemComponent):
     nid = 'lifelink'
     desc = "Heals user %% of damage dealt"
-    requires = ['damage']
+    # requires = ['damage']
     tag = 'extra'
 
     expose = Type.Float
@@ -168,7 +168,7 @@ class Lifelink(ItemComponent):
 class DamageOnMiss(ItemComponent):
     nid = 'damage_on_miss'
     desc = "Does %% damage even on miss"
-    requires = ['damage']
+    # requires = ['damage']
     tag = 'extra'
 
     expose = Type.Float

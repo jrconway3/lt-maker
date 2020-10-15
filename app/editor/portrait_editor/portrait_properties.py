@@ -9,6 +9,7 @@ from app.extensions.spinbox_xy import SpinBoxXY
 from app.extensions.custom_gui import PropertyBox
 from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
+import app.editor.utilities as editor_utilities
 
 class PortraitProperties(QWidget):
     width, height = 128, 112
@@ -48,6 +49,7 @@ class PortraitProperties(QWidget):
         left_section = QGridLayout()
 
         self.portrait_view = IconView(self)
+        self.portrait_view.setMinimumHeight(80 + 2)
         left_section.addWidget(self.portrait_view, 0, 0, 1, 3)
 
         self.smile_button = QPushButton(self)
@@ -196,7 +198,9 @@ class PortraitProperties(QWidget):
             painter.drawImage(self.current.blinking_offset[0], self.current.blinking_offset[1], blink_image)
         painter.drawImage(self.current.smiling_offset[0], self.current.smiling_offset[1], mouth_image)
         painter.end()
-        self.portrait_view.set_image(QPixmap.fromImage(portrait))
+        self.portrait_view.set_image(
+            QPixmap.fromImage(
+                editor_utilities.convert_colorkey(portrait)))
         self.portrait_view.show_image()
 
     def blinking_changed(self, x, y):

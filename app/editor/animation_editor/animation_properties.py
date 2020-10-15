@@ -1,101 +1,17 @@
-import os, time
+import time
 
-from PyQt5.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, \
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, \
     QSizePolicy, QFrame, QSplitter, QRadioButton, QLineEdit, QLabel, QSpinBox, \
     QStyle, QToolButton
-from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtGui import QPixmap, QIcon, QPainter, QImage, QColor, QPen
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QPainter, QImage, QColor, QPen
 
-from app.resources.animations import Animation
-from app.resources.resources import RESOURCES
-
-from app.utilities.data import Data
-from app.data.database import DB
-from app.data import item_components
-
-from app.extensions.custom_gui import PropertyBox, ResourceListView, DeletionDialog
+from app.extensions.custom_gui import PropertyBox
 from app.extensions.spinbox_xy import SpinBoxXY
 
+from app.utilities import utils, str_utils
 from app.editor import timer
-from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
-from app.editor.icon_display import IconView
-
-from app import utilities
-
-class AnimationDisplay(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = RESOURCES.animations
-        title = "Map Animation"
-        right_frame = AnimationProperties
-        collection_model = AnimationModel
-        deletion_criteria = None
-
-        dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...",
-                     view_type=ResourceListView)
-        return dialog
-
-class AnimationModel(ResourceCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            animation = self._data[index.row()]
-            text = animation.nid
-            return text
-        elif role == Qt.DecorationRole:
-            animation = self._data[index.row()]
-            pixmap = animation.pixmap
-            width = pixmap.width() // animation.frame_x
-            height = pixmap.height() // animation.frame_y
-            median_frame = animation.num_frames // 2
-            left = (median_frame % animation.frame_x) * width
-            top = (median_frame // animation.frame_x) * height
-
-            middle_frame = pixmap.copy(left, top, width, height)
-            return QIcon(middle_frame)
-        return None
-
-    def create_new(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
-        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Animation PNG", starting_path, "PNG Files (*.png);;All Files(*)")
-        if ok:
-            for fn in fns:
-                if fn.endswith('.png'):
-                    nid = os.path.split(fn)[-1][:-4]
-                    pix = QPixmap(fn)
-                    nid = utilities.get_next_name(nid, [d.nid for d in RESOURCES.animations])
-                    new_animation = Animation(nid, fn, pix)
-                    RESOURCES.animations.append(new_animation)
-                else:
-                    QMessageBox.critical(self.window, "File Type Error!", "Map Animation must be PNG format!")
-            parent_dir = os.path.split(fns[-1])[0]
-            settings.setValue("last_open_path", parent_dir)
-
-    def delete(self, idx):
-        # Check to see what is using me?
-        res = self._data[idx]
-        nid = res.nid
-        affected_items = item_components.get_items_using(item_components.Type.MapAnimation, nid, DB)
-        if affected_items:
-            affected = Data(affected_items)
-            from app.editor.item_database import ItemModel
-            model = ItemModel
-            msg = "Deleting Map Animation <b>%s</b> would affect these items."
-            ok = DeletionDialog.inform(affected, model, msg, self.window)
-            if ok:
-                pass
-            else:
-                return
-        super().delete(idx)
-
-    def nid_change_watchers(self, animation, old_nid, new_nid):
-        # What uses Animations
-        # Certain item components
-        affected_items = item_components.get_items_using(item_components.Type.MapAnimations, old_nid, DB)
-        item_components.swap_values(affected_items, item_components.Type.MapAnimations, old_nid, new_nid)
+from app.editor.icon_editor.icon_view import IconView
 
 class SpeedSpecification(QWidget):
     def __init__(self, parent):
@@ -134,7 +50,7 @@ class SpeedSpecification(QWidget):
         self.setLayout(self.layout)
 
     def set_current(self, speed):
-        if utilities.is_int(speed):
+        if str_utils.is_int(speed):
             self.int_speed_box.setValue(speed)
             self.int_speed.setChecked(True)
             self.int_speed_toggled(True)
@@ -228,7 +144,7 @@ class AnimationProperties(QWidget):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window._data
-        self.resource_editor = self.window.window
+        self.setMaximumHeight(720)
 
         # Populate resources
         for resource in self._data:
@@ -244,6 +160,7 @@ class AnimationProperties(QWidget):
         left_section = QVBoxLayout()
 
         self.frame_view = IconView(self)
+        self.frame_view.scene.setBackgroundBrush(QColor(200, 200, 200))
         left_section.addWidget(self.frame_view)
 
         button_section = QHBoxLayout()
@@ -338,7 +255,7 @@ class AnimationProperties(QWidget):
 
     def draw_frame(self):
         if self.playing:
-            if utilities.is_int(self.current.speed):
+            if str_utils.is_int(self.current.speed):
                 num = int(time.time() * 1000 - self.last_update) // self.current.speed
                 if num >= self.current.num_frames and not self.loop:
                     num = 0
@@ -393,7 +310,7 @@ class AnimationProperties(QWidget):
             self.current.frame_y = y
             minim = x * y - x + 1
             self.total_num_box.edit.setRange(minim, x * y)
-            self.total_num_box.edit.setValue(utilities.clamp(self.current.num_frames, minim, x * y))
+            self.total_num_box.edit.setValue(utils.clamp(self.current.num_frames, minim, x * y))
 
     def num_frames_changed(self, val):
         self.current.num_frames = val

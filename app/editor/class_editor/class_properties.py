@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QLabel
+    QVBoxLayout, QSizePolicy, QSpacerItem, QLabel, QTextEdit
+from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt
 
 from app.data.weapons import WexpGainList
@@ -62,8 +63,10 @@ class ClassProperties(QWidget):
 
         main_section = QGridLayout()
 
-        self.desc_box = PropertyBox("Description", QLineEdit, self)
+        self.desc_box = PropertyBox("Description", QTextEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
+        font_height = QFontMetrics(self.desc_box.edit.font())
+        self.desc_box.edit.setFixedHeight(font_height.lineSpacing() * 3 + 20)
         main_section.addWidget(self.desc_box, 0, 0, 1, 3)
 
         self.movement_box = PropertyBox("Movement Type", ComboBox, self)
@@ -198,8 +201,9 @@ class ClassProperties(QWidget):
     def name_changed(self, text):
         self.current.name = text
 
-    def desc_changed(self, text):
-        self.current.desc = text
+    def desc_changed(self, text=None):
+        self.current.desc = self.desc_box.edit.toPlainText()
+        # self.current.desc = text
 
     def tier_changed(self, val):
         self.current.tier = val

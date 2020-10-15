@@ -12,6 +12,7 @@ class Panorama():
         self.full_path = full_path  # Ignores numbers at the end
         self.num_frames = num_frames
         self.images = []
+        self.pixmaps = []
 
         # self.idx = 0
 

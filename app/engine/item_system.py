@@ -46,11 +46,11 @@ class Defaults():
         return None
 
     @staticmethod
-    def exp(unit, item, target) -> int:
+    def exp(playback, unit, item, target) -> int:
         return 0
 
     @staticmethod
-    def wexp(unit, item, target) -> int:
+    def wexp(playback, unit, item, target) -> int:
         return 1
 
     @staticmethod
@@ -140,11 +140,11 @@ for hook in default_hooks:
     exec(func)
 
 for hook in target_hooks:
-    func = """def %s(unit, item, target):
+    func = """def %s(playback, unit, item, target):
                   val = 0
                   for component in item.components:
                       if component.defines('%s'):
-                          val += component.%s(unit, item, target)
+                          val += component.%s(playback, unit, item, target)
                   return val""" \
         % (hook, hook, hook)
     exec(func)

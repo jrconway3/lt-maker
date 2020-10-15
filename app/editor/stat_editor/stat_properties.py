@@ -4,76 +4,14 @@ from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
+from app.utilities import str_utils
 from app.extensions.custom_gui import PropertyBox
-
-from app.editor.base_database_gui import DatabaseTab, DragDropCollectionModel
-from app import utilities
-
-class StatTypeDatabase(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = DB.stats
-        title: str = "Stat Types"
-        right_frame = StatTypeProperties
-
-        collection_model = StatTypeModel
-        return cls(data, title, right_frame, None, collection_model, parent)
-
-class StatTypeModel(DragDropCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            stat_type = self._data[index.row()]
-            text = stat_type.nid + ": " + stat_type.name
-            return text
-        return None
-
-    def create_new(self):
-        return self._data.add_new_default(DB)
-
-    # Called on delete
-    def delete(self, idx):
-        # Check to make sure nothing else is using me!!!
-        stat_type = self._data[idx]
-        nid = stat_type.nid
-        # All classes and units are automatically effected
-        # We will just let equations check themselves!!!
-        # Also some item component can use stat lists???
-        for klass in DB.classes:
-            for row in klass.get_stat_lists():
-                row.remove_key(nid)
-        for unit in DB.units:
-            for row in unit.get_stat_lists():
-                row.remove_key(nid)
-        super().delete(idx)
-
-    # Called on create_new, new, and duplicate
-    # Makes sure that other datatypes that use this dat, but not directly
-    # Are always updated correctly
-    def update_watchers(self, idx):
-        for klass in DB.classes:
-            for row in klass.get_stat_lists():
-                row.new_key(DB.stats[idx].nid)
-        for unit in DB.units:
-            for row in unit.get_stat_lists():
-                row.new_key(DB.stats[idx].nid)
-
-    # Called on drag and drop
-    def update_drag_watchers(self, fro, to):
-        for klass in DB.classes:
-            for row in klass.get_stat_lists():
-                row.move_index(fro, to)
-        for unit in DB.units:
-            for row in unit.get_stat_lists():
-                row.move_index(fro, to)
 
 class StatTypeProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent
         self._data = self.window._data
-        self.database_editor = self.window.window
 
         self.current = current
 
@@ -121,7 +59,7 @@ class StatTypeProperties(QWidget):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Stat Type ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()

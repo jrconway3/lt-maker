@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QDialog
 from PyQt5.QtCore import QSettings, QDir
 
 from app.data.database import DB
@@ -33,6 +33,15 @@ class UnitDatabase(DatabaseTab):
             for unit in new_units:
                 self._data.append(unit)
             self.update_list()
+
+def get():
+    window = SingleDatabaseEditor(UnitDatabase)
+    result = window.exec_()
+    if result == QDialog.Accepted:
+        selected_unit = window.tab.right_frame.current
+        return selected_unit, True
+    else:
+        return None, False
                 
 # Testing
 # Run "python -m app.editor.unit_editor.unit_tab" from main directory

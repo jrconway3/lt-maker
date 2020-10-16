@@ -7,8 +7,7 @@ from PyQt5.QtCore import Qt
 from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
-from app.editor.resource_editor import ResourceEditor
-import app.utilities as utilities
+import app.utilities as str_utils
 
 class MusicDialog(SimpleDialog):
     def __init__(self, parent, current):
@@ -137,7 +136,7 @@ class PropertiesMenu(QWidget):
         other_nids = [level.nid for level in DB.levels if level is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_int(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_int(self.current.nid, other_nids)
         DB.levels.update_nid(self.current, self.current.nid)
         self.main_editor.update_view()
 

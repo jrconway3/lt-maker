@@ -2,27 +2,37 @@ import os, sys
 from datetime import datetime
 import json
 
-from PyQt5.QtWidgets import QMainWindow, QUndoStack, QAction, QMenu, QMessageBox, \
+from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QMessageBox, \
     QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget, \
     QToolButton, QWidgetAction
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QDir, QSettings
 
-from app import update
+from app import autoupdate
 
-from app.data.constants import VERSION
+from app.constants import VERSION
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
-from app.editor.timer import TIMER
+from app.editor import timer
 
 from app.editor.preferences import PreferencesDialog
 from app.editor.map_view import MapView
 from app.editor.level_menu import LevelDatabase
-from app.editor.database_editor import DatabaseEditor
-from app.editor.resource_editor import ResourceEditor
 from app.editor.property_menu import PropertiesMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
+
+# Databases
+from app.editor.unit_editor.unit_tab import UnitDatabase
+from app.editor.faction_editor.faction_tab import FactionDatabase
+from app.editor.party_editor.party_tab import PartyDatabase
+from app.editor.class_editor.class_tab import ClassDatabase
+from app.editor.weapon_editor.weapon_tab import WeaponDatabase
+from app.editor.item_editor.item_tab import ItemDatabase
+from app.editor.terrain_editor.terrain_tab import TerrainDatabase
+from app.editor.stat_editor.stat_tab import StatTypeDatabase
+from app.editor.tag_widget import TagDialog
+from app.editor.mcost_dialog import McostDialog
 from app.editor.translation_widget import TranslationDialog
 from app.editor.equation_widget import EquationDialog
 
@@ -65,7 +75,6 @@ class MainEditor(QMainWindow):
         self.setWindowTitle(self.window_title)
         QSettings.setDefaultFormat(QSettings.IniFormat)
         self.settings = QSettings("rainlash", "Lex Talionis")
-        # self.settings.setDefaultFormat(QSettings.IniFormat)
         print(self.settings.fileName())
         # Will be overwritten by auto-open
         desktop = QDesktopWidget()
@@ -77,9 +86,6 @@ class MainEditor(QMainWindow):
 
         self.map_view = MapView(self)
         self.setCentralWidget(self.map_view)
-
-        self.undo_stack = QUndoStack(self)
-        self.undo_stack.cleanChanged.connect(self.on_clean_changed)
 
         self.create_actions()
         self.create_menus()
@@ -103,7 +109,7 @@ class MainEditor(QMainWindow):
 
         self.map_view.update_view()
 
-        TIMER.tick_elapsed.connect(self.map_view.update_view)
+        timer.get_timer().tick_elapsed.connect(self.map_view.update_view)
 
     def on_clean_changed(self, clean):
         # Change Title
@@ -152,9 +158,9 @@ class MainEditor(QMainWindow):
         # self.build_act = QAction(QIcon(), "Build Project...", self, shortcut="Ctrl+B", triggered=self.build_project)
         self.quit_act = QAction(QIcon('icons/x.png'), "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
 
-        self.undo_act = QAction(QIcon('icons/corner-up-left.png'), "Undo", self, shortcut="Ctrl+Z", triggered=self.undo)
-        self.redo_act = QAction(QIcon('icons/corner-up-right.png'), "Redo", self, triggered=self.redo)
-        self.redo_act.setShortcuts(["Ctrl+Y", "Ctrl+Shift+Z"])
+        # self.undo_act = QAction(QIcon('icons/corner-up-left.png'), "Undo", self, shortcut="Ctrl+Z", triggered=self.undo)
+        # self.redo_act = QAction(QIcon('icons/corner-up-right.png'), "Redo", self, triggered=self.redo)
+        # self.redo_act.setShortcuts(["Ctrl+Y", "Ctrl+Shift+Z"])
 
         self.zoom_in_act = QAction(QIcon('icons/zoom_in.png'), "Zoom in", self, shortcut="Ctrl++", triggered=self.map_view.zoom_in)
         self.zoom_out_act = QAction(QIcon('icons/zoom_out.png'), "Zoom out", self, shortcut="Ctrl+-", triggered=self.map_view.zoom_out)
@@ -172,11 +178,31 @@ class MainEditor(QMainWindow):
         # Toolbar actions
         self.modify_level_act = QAction(QIcon('icons/map.png'), "Edit Level", self, shortcut="E", triggered=self.edit_level)
         self.back_to_main_act = QAction(QIcon('icons/left_arrow.png'), "Back", self, shortcut="E", triggered=self.edit_global)
-        self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, shortcut="D", triggered=self.edit_database)
-        self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
+
+        # Database actions
+        database_actions = {"Units": UnitDatabase.edit,
+                            "Factions": FactionDatabase.edit,
+                            "Parties": PartyDatabase.edit,
+                            "Classes": ClassDatabase.edit,
+                            "Tags": self.edit_tags,
+                            "Weapon Types": WeaponDatabase.edit,
+                            "Items": ItemDatabase.edit,
+                            # "Skills": partial(self.get_editor, skill_tab),
+                            # "AI": partial(self.get_editor, ai_tab),
+                            "Terrain": TerrainDatabase.edit,
+                            "Movement Costs": self.edit_mcost,
+                            "Stats": StatTypeDatabase.edit,
+                            "Equations": self.edit_equations,
+                            # "Constants": self.edit_constants,
+                            "Translations": self.edit_translations
+                            }
+        self.database_actions = {}
+        for name, func in database_actions.items():
+            self.database_actions[name] = QAction("Edit %s..." % name, self, triggered=func)
+
+        # self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, shortcut="D", triggered=self.edit_database)
         self.modify_resources_act = QAction("Edit Resources...", self, shortcut="Ctrl+R", triggered=self.edit_resources)
-        self.modify_translations_act = QAction("Edit Translations...", self, triggered=self.edit_translations)
-        self.modify_equations_act = QAction("Edit Equations...", self, triggered=self.edit_equations)
+        self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
 
     def create_menus(self):
         file_menu = QMenu("File", self)
@@ -192,9 +218,10 @@ class MainEditor(QMainWindow):
         # Current removing undo and redo capabilities
         # edit_menu.addAction(self.undo_act)
         # edit_menu.addAction(self.redo_act)
+        for action in self.database_actions.values():
+            edit_menu.addAction(action)
+        edit_menu.addSeparator()
         edit_menu.addAction(self.modify_resources_act)
-        edit_menu.addAction(self.modify_translations_act)
-        edit_menu.addAction(self.modify_equations_act)
         edit_menu.addSeparator()
         edit_menu.addAction(self.zoom_in_act)
         edit_menu.addAction(self.zoom_out_act)
@@ -216,7 +243,19 @@ class MainEditor(QMainWindow):
     def create_toolbar(self):
         self.toolbar = self.addToolBar("Edit")
         self.toolbar.addAction(self.modify_level_act)
-        self.toolbar.addAction(self.modify_database_act)
+
+        self.database_button = QToolButton(self)
+        self.database_button.setIcon(QIcon('icons/database.png'))
+        self.database_button.setPopupMode(QToolButton.InstantPopup)
+        database_menu = QMenu("Database", self)
+        for action in self.database_actions:
+            database_menu.addAction(action)
+        self.database_button.setMenu(database_menu)
+        self.database_button_action = QWidgetAction(self)
+        self.database_button_action.setDefaultWidget(self.database_button)
+        self.toolbar.addAction(self.database_button_action)
+
+        # self.toolbar.addAction(self.modify_database_act)
         self.toolbar.addAction(self.modify_events_act)
 
         self.test_button = QToolButton(self)
@@ -309,8 +348,8 @@ class MainEditor(QMainWindow):
             if not self.global_mode:
                 self.edit_global()
 
-            DB.deserialize('default.ltproj')
-            self.undo_stack.setClean()
+            DB.load('default.ltproj')
+            # self.undo_stack.setClean()
             self.set_window_title('Untitled')
             self.update_view()
 
@@ -346,10 +385,10 @@ class MainEditor(QMainWindow):
             self.set_window_title(title)
 
             RESOURCES.load(self.current_proj)
-            DB.deserialize(self.current_proj)
+            DB.load(self.current_proj)
             # DB.init_load()
 
-            self.undo_stack.clear()
+            # self.undo_stack.clear()
             print("Loaded project from %s" % self.current_proj)
             self.status_bar.showMessage("Loaded project from %s" % self.current_proj)
             self.update_view()
@@ -403,7 +442,7 @@ class MainEditor(QMainWindow):
             json.dump(metadata, serialize_file, indent=4)
         
         self.status_bar.showMessage('Saved project to %s' % self.current_proj)
-        self.undo_stack.setClean()
+        # self.undo_stack.setClean()
         return True
 
     def save_as(self):
@@ -429,15 +468,15 @@ class MainEditor(QMainWindow):
         else:
             event.ignore()
 
-    def undo(self):
-        self.status_bar.showMessage('Undo: %s' % self.undo_stack.undoText())
-        self.undo_stack.undo()
-        self.update_view()
+    # def undo(self):
+    #     self.status_bar.showMessage('Undo: %s' % self.undo_stack.undoText())
+    #     self.undo_stack.undo()
+    #     self.update_view()
 
-    def redo(self):
-        self.status_bar.showMessage('Redo: %s' % self.undo_stack.redoText())
-        self.undo_stack.redo()
-        self.update_view()
+    # def redo(self):
+    #     self.status_bar.showMessage('Redo: %s' % self.undo_stack.redoText())
+    #     self.undo_stack.redo()
+    #     self.update_view()
 
     def edit_level(self):
         if self.current_level:
@@ -476,25 +515,29 @@ class MainEditor(QMainWindow):
 
         self.global_mode = True
 
-    def edit_database(self):
-        dialog = DatabaseEditor(self)
+    # def edit_database(self):
+    #     dialog = DatabaseEditor(self)
+    #     dialog.exec_()
+
+    # def edit_resources(self):
+    #     dialog = ResourceEditor(self)
+    #     dialog.exec_()
+
+    def edit_tags(self):
+        dialog = TagDialog.create()
         dialog.exec_()
 
-    def edit_resources(self):
-        dialog = ResourceEditor(self)
+    def edit_mcost(self):
+        dialog = McostDialog.create()
+        dialog.exec_()
+
+    def edit_equations(self):   
+        dialog = EquationDialog.create()
         dialog.exec_()
 
     def edit_translations(self):
-        DB.deserialize(self.current_proj)
         dialog = TranslationDialog.create()
         dialog.exec_()
-        DB.serialize(self.current_proj)
-
-    def edit_equations(self):   
-        DB.deserialize(self.current_proj)
-        dialog = EquationDialog.create()
-        dialog.exec_()
-        DB.serialize(self.current_proj)
 
     def edit_events(self):
         pass
@@ -528,13 +571,13 @@ class MainEditor(QMainWindow):
     def check_for_updates(self):
         # Only check for updates in frozen version
         if hasattr(sys, 'frozen'):
-            if update.check_for_update():
+            if autoupdate.check_for_update():
                 ret = QMessageBox.information(self, "Update Available", "A new update to LT-maker is available!\n"
                                               "Do you want to download and install now?",
                                               QMessageBox.Yes | QMessageBox.No)
                 if ret == QMessageBox.Yes:
                     if self.maybe_save():
-                        updating = update.update()
+                        updating = autoupdate.update()
                         if updating:
                             # Force quit!!!
                             sys.exit()

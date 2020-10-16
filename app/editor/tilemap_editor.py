@@ -11,13 +11,12 @@ from app.resources.resources import RESOURCES
 from app.resources.tiles import LayerGrid
 from app.data.database import DB
 
-from app.editor.timer import TIMER
-from app.editor.icon_display import IconView
+from app.editor.icon_editor.icon_view import IconView
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, Dialog
 
-from app import utilities
+from app.utilities import str_utils
 
 def draw_tilemap(tilemap):
     image = QImage(tilemap.width * TILEWIDTH,
@@ -73,7 +72,7 @@ class MapEditorView(QGraphicsView):
         self.right_selecting = False
         self.right_selection = {}  # Dictionary of tile_sprites
 
-        TIMER.tick_elapsed.connect(self.tick)
+        timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
         if self.tilemap:
@@ -679,7 +678,7 @@ class LayerModel(ResourceCollectionModel):
         return None
 
     def create_new(self):
-        new_nid = utilities.get_next_name('New Layer', self._data.keys())
+        new_nid = str_utils.get_next_name('New Layer', self._data.keys())
         parent = self.window.current
         new_layer = LayerGrid(new_nid, parent)
         self._data.append(new_layer)
@@ -692,7 +691,7 @@ class LayerModel(ResourceCollectionModel):
     def duplicate(self, idx):
         layer = self._data[idx]
         parent = layer.parent
-        new_nid = utilities.get_next_name(layer.nid, self._data.keys())
+        new_nid = str_utils.get_next_name(layer.nid, self._data.keys())
         # Duplicate by serializing and then deserializing
         ser_layer = layer.serialize()
         new_layer = LayerGrid.deserialize(ser_layer, parent)

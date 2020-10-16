@@ -5,19 +5,19 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QBrush, QColor
 
 from app import utilities
-from app.data.units import GenericUnit
+from app.data.level_units import GenericUnit
 from app.data.database import DB
 
-from app.editor.timer import TIMER
+from app.editor import timer
 
 from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog, RightClickListView
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox, AIBox
-from app.editor import class_database, item_database
-from app.editor.database_editor import DatabaseEditor
+from app.editor.class_editor import class_model
+from app.editor.item_editor import item_model
+from app.editor.unit_editor import unit_tab
 from app.editor.stat_widget import StatAverageDialog, GenericStatAveragesModel
-from app.editor.item_database import ItemListWidget
-from app.editor.helper_funcs import can_wield
+from app.editor.item_list_widget import ItemListWidget
 
 class UnitPainterMenu(QWidget):
     def __init__(self, parent=None):
@@ -61,7 +61,7 @@ class UnitPainterMenu(QWidget):
         # self.display = self
         self.display = None
 
-        TIMER.tick_elapsed.connect(self.tick)
+        timer.get_timer().tick_elapsed.connect(self.tick)
 
     def on_visibility_changed(self, state):
         pass
@@ -141,7 +141,7 @@ class UnitPainterMenu(QWidget):
                 pass
             else:
                 # Restore the old unit
-                unit = GenericUnit.deserialize(serialized_unit)
+                unit = GenericUnit.restore(serialized_unit)
                 self._data.pop(idx)
                 self._data.insert(idx, unit)
         else:  # Unique unit
@@ -173,7 +173,7 @@ class AllUnitModel(DragDropCollectionModel):
             num = TIMER.passive_counter.count
             klass = DB.classes.get(klass_nid)
             active = self.window.view.selectionModel().isSelected(index)
-            pixmap = class_database.get_map_sprite_icon(klass, num, active, unit.team, unit.variant)
+            pixmap = class_model.get_map_sprite_icon(klass, num, active, unit.team, unit.variant)
             if pixmap:
                 return QIcon(pixmap)
             else:
@@ -203,7 +203,7 @@ class AllUnitModel(DragDropCollectionModel):
         if obj.generic:
             new_nid = utilities.get_next_generic_nid(obj.nid, self._data.keys())
             serialized_obj = obj.serialize()
-            new_obj = GenericUnit.deserialize(serialized_obj)
+            new_obj = GenericUnit.restore(serialized_obj)
             new_obj.nid = new_nid
             new_obj.starting_position = None
             self._data.insert(idx + 1, new_obj)
@@ -226,7 +226,7 @@ class InventoryDelegate(QStyledItemDelegate):
             item_nid, droppable = item
             item = DB.items.get(item_nid)
             if item:
-                pixmap = item_database.get_pixmap(item)
+                pixmap = item_model.get_pixmap(item)
                 rect = option.rect
                 left = rect.right() - ((idx + 1) * 16)
                 top = rect.center().y() - 8
@@ -281,7 +281,7 @@ class LoadUnitDialog(Dialog):
         self.current.ai = self.ai_box.edit.currentText()
 
     def access_units(self):
-        unit, ok = DatabaseEditor.get(self, "Units")
+        unit, ok = unit_tab.get()
         if ok:
             self.nid_changed(unit.nid)
 
@@ -321,13 +321,13 @@ class GenericUnitDialog(Dialog):
             self.current = unit
         elif example:
             new_nid = utilities.get_next_generic_nid(example.nid, units.keys())
-            self.current = units.GenericUnit(
+            self.current = GenericUnit(
                 new_nid, example.variant, example.level, example.klass, example.faction,
                 example.starting_items, example.team, example.ai)
         else:
             new_nid = utilities.get_next_generic_nid(101, units.keys())
             assert len(DB.classes) > 0 and len(DB.factions) > 0 and len(DB.items) > 0 and len(DB.ai) > 0
-            self.current = units.GenericUnit(
+            self.current = GenericUnit(
                 new_nid, None, 1, DB.classes[0].nid, DB.factions[0].nid,
                 [(DB.items[0].nid, False)], 'player', DB.ai[0].nid)
 

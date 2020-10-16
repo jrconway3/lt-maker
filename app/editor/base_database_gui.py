@@ -8,6 +8,7 @@ import copy
 from app.utilities.data import Prefab
 from app.data import items
 from app.extensions.custom_gui import RightClickListView
+from app.editor.data_editor import SingleDatabaseEditor
 
 from app.utilities import str_utils
 
@@ -59,10 +60,14 @@ class DatabaseTab(QWidget):
         else:
             self.right_frame.setEnabled(False)
 
+    # @classmethod
+    # def edit(cls, parent=None):
+    #     dialog = cls.create(parent)
+    #     dialog.exec_()
+
     @classmethod
-    def edit(cls, parent=None):
-        dialog = cls.create(parent)
-        dialog.exec_()
+    def edit(cls):
+        return SingleDatabaseEditor(cls)
 
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,

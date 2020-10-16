@@ -4,12 +4,12 @@ from PyQt5.QtGui import QPixmap, QIcon
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
-from app.data.levels import Level
+from app.data.levels import LevelPrefab
 
 from app.extensions.custom_gui import RightClickListView
 from app.editor.base_database_gui import CollectionModel
 import app.editor.tilemap_editor as tilemap_editor
-import app.utilities as utilities
+from app.utilities import str_utils
 
 class LevelDatabase(QWidget):
     def __init__(self, window=None):
@@ -39,11 +39,11 @@ class LevelDatabase(QWidget):
 
     def create_new(self):
         nids = [l.nid for l in DB.levels]
-        nid = str(utilities.get_next_int("0", nids))
+        nid = str(str_utils.get_next_int("0", nids))
         name = "Chapter %s" % nid
 
         # Create new level
-        DB.levels.append(Level(nid, name))
+        DB.levels.append(LevelPrefab(nid, name))
 
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
         last_index = self.model.index(self.model.rowCount() - 1)
@@ -63,8 +63,8 @@ class LevelDatabase(QWidget):
 
     def create_initial_level(self):
         nids = [l.nid for l in DB.levels]
-        new_nid = str(utilities.get_next_int("0", nids))
-        DB.levels.append(Level(new_nid, 'Prologue'))
+        new_nid = str(str_utils.get_next_int("0", nids))
+        DB.levels.append(LevelPrefab(new_nid, 'Prologue'))
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
         first_index = self.model.index(0)
         self.view.setCurrentIndex(first_index)

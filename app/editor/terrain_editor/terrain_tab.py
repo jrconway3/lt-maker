@@ -38,6 +38,9 @@ class TerrainDatabase(DatabaseTab):
                 self._data.append(terrain)
             self.update_list()
 
+def get_editor():
+    return SingleDatabaseEditor(TerrainDatabase)
+
 # Testing
 # Run "python -m app.editor.terrain_editor.terrain_tab" from main directory
 if __name__ == '__main__':

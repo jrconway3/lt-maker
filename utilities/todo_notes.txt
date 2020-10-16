@@ -1,10 +1,11 @@
 Skills
 AI
+Constants
 
 Tileset / Tilemaps
 Music
 SFX
-Combat Anims
+Combat Anims / Palettes as a separate tab?
 Combat Effects
 
 Better method for frame speed for Map Animations

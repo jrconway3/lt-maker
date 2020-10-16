@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QSize
 from app.data.database import DB
 
 # from app.editor.database_editor import DatabaseEditor
-from app.editor.terrain_database import TerrainModel
+from app.editor.terrain_editor.terrain_model import TerrainModel
 
 class TerrainPainterMenu(QWidget):
     def __init__(self, parent=None):

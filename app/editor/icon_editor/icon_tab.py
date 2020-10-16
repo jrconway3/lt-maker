@@ -119,6 +119,10 @@ def get(width):
     else:
         return None, False
 
+def get_full_editor():
+    return MultiResourceEditor((Icon16Database, Icon32Database, Icon80Database),
+                               ('icons16', 'icons32', 'icons80'))
+
 # Testing
 # Run "python -m app.editor.icon_editor.icon_tab" from main directory
 if __name__ == '__main__':

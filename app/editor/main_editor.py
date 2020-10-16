@@ -36,6 +36,12 @@ from app.editor.mcost_dialog import McostDialog
 from app.editor.translation_widget import TranslationDialog
 from app.editor.equation_widget import EquationDialog
 
+# Resources
+from app.editor.icon_editor import icon_tab
+from app.editor.portrait_editor.portrait_tab import PortraitDatabase
+from app.editor.panorama_editor.panorama_tab import PanoramaDatabase
+from app.editor.map_sprite_editor.map_sprite_tab import MapSpriteDatabase
+
 __version__ = VERSION
 
 class EventTileMenu(QWidget):
@@ -200,8 +206,19 @@ class MainEditor(QMainWindow):
         for name, func in database_actions.items():
             self.database_actions[name] = QAction("Edit %s..." % name, self, triggered=func)
 
-        # self.modify_database_act = QAction(QIcon('icons/database.png'), "Edit Database", self, shortcut="D", triggered=self.edit_database)
-        self.modify_resources_act = QAction("Edit Resources...", self, shortcut="Ctrl+R", triggered=self.edit_resources)
+        resource_actions = {"Icons": self.edit_icons,
+                            "Portraits": PortraitDatabase.edit,
+                            # "Map Animations": AnimationDatabase.edit_resource,
+                            "Backgrounds": PanoramaDatabase.edit,
+                            "Map Sprites": MapSpriteDatabase.edit,
+                            # "Combat Animations": self.edit_combat_animations,
+                            # "Tilemaps": self.edit_tilemaps,
+                            # "Sounds": self.edit_sounds,
+                            }
+        self.resource_actions = {}
+        for name, func in resource_actions.items():
+            self.resource_actions[name] = QAction("Edit %s..." % name, self, triggered=func)
+
         self.modify_events_act = QAction(QIcon('icons/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
 
     def create_menus(self):
@@ -221,7 +238,8 @@ class MainEditor(QMainWindow):
         for action in self.database_actions.values():
             edit_menu.addAction(action)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.modify_resources_act)
+        for action in self.resource_actions.values():
+            edit_menu.addAction(action)
         edit_menu.addSeparator()
         edit_menu.addAction(self.zoom_in_act)
         edit_menu.addAction(self.zoom_out_act)
@@ -255,7 +273,17 @@ class MainEditor(QMainWindow):
         self.database_button_action.setDefaultWidget(self.database_button)
         self.toolbar.addAction(self.database_button_action)
 
-        # self.toolbar.addAction(self.modify_database_act)
+        self.resource_button = QToolButton(self)
+        self.resource_button.setIcon(QIcon('icons/resource.png'))
+        self.resource_button.setPopupMode(QToolButton.InstantPopup)
+        resource_menu = QMenu("Resource", self)
+        for action in self.resource_actions:
+            resource_menu.addAction(action)
+        self.resource_button.setMenu(resource_menu)
+        self.resource_button_action = QWidgetAction(self)
+        self.resource_button_action.setDefaultWidget(self.resource_button)
+        self.toolbar.addAction(self.resource_button_action)
+
         self.toolbar.addAction(self.modify_events_act)
 
         self.test_button = QToolButton(self)
@@ -537,6 +565,10 @@ class MainEditor(QMainWindow):
 
     def edit_translations(self):
         dialog = TranslationDialog.create()
+        dialog.exec_()
+
+    def edit_icons(self):
+        dialog = icon_tab.get_full_editor()
         dialog.exec_()
 
     def edit_events(self):

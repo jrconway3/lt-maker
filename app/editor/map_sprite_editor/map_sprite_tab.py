@@ -22,6 +22,11 @@ class MapSpriteDatabase(DatabaseTab):
                      view_type=ResourceListView)
         return dialog
 
+    @classmethod
+    def edit(cls):
+        window = SingleResourceEditor(MapSpriteDatabase, ['map_sprites'])
+        window.exec_()
+
 def get():
     window = SingleResourceEditor(MapSpriteDatabase, ['map_sprites'])
     result = window.exec_()

@@ -22,6 +22,11 @@ class PortraitDatabase(DatabaseTab):
                      view_type=ResourceListView)
         return dialog
 
+    @classmethod
+    def edit(cls):
+        window = SingleResourceEditor(PortraitDatabase, ['portraits'])
+        window.exec_()
+
 def get():
     window = SingleResourceEditor(PortraitDatabase, ['portraits'])
     result = window.exec_()

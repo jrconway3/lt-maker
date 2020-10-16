@@ -76,6 +76,11 @@ class PanoramaDatabase(PanoramaTab):
         dialog = cls(data, title, collection_model, parent)
         return dialog
 
+    @classmethod
+    def edit(cls):
+        window = SingleResourceEditor(PanoramaDatabase, ['panoramas'])
+        window.exec_()
+
 # Run "python -m app.editor.panorama_editor.panorama_tab" from main directory
 if __name__ == '__main__':
     import sys

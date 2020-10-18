@@ -4,12 +4,13 @@ from PyQt5.QtWidgets import QGridLayout, QLineEdit, QSpinBox, QHBoxLayout, \
     QVBoxLayout, QGroupBox, QTreeView, QWidget, QDoubleSpinBox, QLabel, QSizePolicy
 from PyQt5.QtCore import Qt, QAbstractItemModel
 
-from app.data.data import Data
+from app.utilities.data import Data
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox
 
 from app.editor.base_database_gui import DatabaseTab
+from app.editor.data_editor import SingleDatabaseEditor
 from app.extensions.checkable_list_dialog import ComponentModel
 
 class BoolConstantsModel(ComponentModel):
@@ -441,3 +442,14 @@ class ConstantDatabase(DatabaseTab):
                 self.bool_model.setData(index, Qt.Unchecked, Qt.CheckStateRole)
             else:
                 self.bool_model.setData(index, Qt.Checked, Qt.CheckStateRole)
+
+# Testing
+# Run "python -m app.editor.constant_tab" from main directory
+if __name__ == '__main__':
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    DB.load('default.ltproj')
+    window = SingleDatabaseEditor(ConstantDatabase)
+    window.show()
+    app.exec_()

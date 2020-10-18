@@ -1,0 +1,66 @@
+# Questions to Answer
+# How do item mods work -- Critical, Brave Strike, Longshot, Cleave
+# Maybe item mods on init add a new item component to the items they care about
+# so on activation of Cleave combat art, new Cleave item component is applied to items that fit rules 
+# How do proc effects work
+# How do combat arts work
+# How do activated items work -- create new ability with one item that can be used
+# Auras (range, target, child_status)
+# Properties
+negative, stack, feat, class_skill
+
+can_select bool True
+can_be_moved bool True
+
+check_ally bool extra input unit
+check_enemy bool extra input unit
+can_trade bool extra input unit
+
+can_steal bool extra input unit item
+
+sight_range int 0
+
+has_canto bool False
+pass_through bool False
+vantage bool False
+
+can_use_weapon bool True item
+
+stat_bonuses StatList [0, 0,...]
+
+dynamic_damage input target mode int 0
+dynamic_resist input target mode int 0
+damage_multiplier input target mode float 1
+dynamic_accuracy input target mode int 0
+dynamic_avoid input target mode int 0
+dynamic_crit_accuracy input target mode int 0
+dynamic_crit_avoid input target mode int 0
+dynamic_attack_speed input target mode int 0
+dynamic_defense_speed input target mode int 0
+dynamic_heal input target mode int 0
+modify_damage
+modify_resist
+modfiy_accuracy
+modify_avoid
+modify_crit_accuracy
+modify_crit_avoid
+modify_attack_speed
+modify_defense_speed
+dynamic_multiattacks input target mode int 1  # Used for things like brave
+
+# EVENT HOOKS
+init  # Called when skill is applied
+on_end_chapter  # Called on ending the chapter
+on_upkeep  # Called on owner's upkeep
+on_endstep  # Called on owner's endstep
+on_end_combat  # Called whenever unit finishes a combat -- needs to check for hit, kill, and whose turn it is, combat art charge, etc.
+check_proc -- called at the beginning of the combat phase
+on_hit  has_playback  # Called whenever user hits
+on_crit  has_playback  # Called whenever user crits
+on_miss  has_playback  # Called whenever user misses
+on_equip  # called whenever an item becomes equipped
+on_unequip  # called whenever an item becomes unequipped
+on_receive_skill  # called whenever the unit receives an additional skill
+
+# Animation
+unit_sprite_mod None extra sprite

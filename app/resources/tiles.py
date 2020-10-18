@@ -73,26 +73,28 @@ class TileSet(Prefab):
         self.terrain_grid = {}
         self.full_path = full_path
 
+        self.pixmap = None
+        self.subpixmaps = {}
+
         self.image = None
-        self.subimages = {}
 
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
     def set_pixmap(self, pixmap):
-        self.image = pixmap
+        self.pixmap = pixmap
         self.width = self.pixmap.width() // TILEWIDTH
         self.height = self.pixmap.height() // TILEHEIGHT
         # Subsurface
-        self.subimages.clear()
+        self.subpixmaps.clear()
         for x in range(self.width):
             for y in range(self.height):
-                p = self.image.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
-                self.subimages[(x, y)] = p
+                p = self.pixmap.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                self.subpixmaps[(x, y)] = p
 
     def get_pixmap(self, pos):
-        if pos in self.subimages:
-            return self.subimages[pos]
+        if pos in self.subpixmaps:
+            return self.subpixmaps[pos]
         return None
 
     def set_full_path(self, full_path):

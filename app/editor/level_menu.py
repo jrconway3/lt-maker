@@ -79,7 +79,7 @@ class LevelModel(CollectionModel):
             return None
         if role == Qt.DisplayRole:
             level = self._data[index.row()]
-            text = level.nid + " : " + level.title
+            text = level.nid + " : " + level.name
             return text
         elif role == Qt.DecorationRole:
             level = self._data[index.row()]

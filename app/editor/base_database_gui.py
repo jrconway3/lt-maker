@@ -67,7 +67,8 @@ class DatabaseTab(QWidget):
 
     @classmethod
     def edit(cls):
-        return SingleDatabaseEditor(cls)
+        window = SingleDatabaseEditor(cls)
+        window.exec_()
 
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,

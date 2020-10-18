@@ -6,7 +6,7 @@ from app.sprites import SPRITES
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.database import DB
 
-from app.editor.timer import TIMER
+from app.editor import timer
 from app.editor.class_editor import class_model
 import app.editor.tilemap_editor as tilemap_editor
 
@@ -66,7 +66,7 @@ class MapView(QGraphicsView):
                     continue
                 # Draw unit map sprite
                 klass_nid = unit.klass
-                num = TIMER.passive_counter.count
+                num = timer.get_timer().passive_counter.count
                 klass = DB.classes.get(klass_nid)
                 pixmap = class_model.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
                 coord = unit.starting_position

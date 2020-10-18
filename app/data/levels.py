@@ -21,7 +21,7 @@ class LevelPrefab(Prefab):
 
         self.units = Data()
 
-        self.fog_of_war = 0  # Range units can default see in fog of war
+        # self.fog_of_war = 0  # Range units can default see in fog of war
 
     def save_attr(self, name, value):
         if name == 'units':

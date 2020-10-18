@@ -74,9 +74,9 @@ class PropertiesMenu(QWidget):
         self.party_box.edit.currentIndexChanged.connect(self.party_changed)
         form.addWidget(self.party_box)
 
-        self.market_box = PropertyCheckBox("Market Available?", QCheckBox, self)
-        self.market_box.edit.stateChanged.connect(self.market_changed)
-        form.addWidget(self.market_box)
+        # self.market_box = PropertyCheckBox("Market Available?", QCheckBox, self)
+        # self.market_box.edit.stateChanged.connect(self.market_changed)
+        # form.addWidget(self.market_box)
 
         self.music_button = QPushButton("Edit Level's Music...", self)
         self.music_button.clicked.connect(self.edit_music)
@@ -112,13 +112,13 @@ class PropertiesMenu(QWidget):
     def set_current(self, current):
         self.current = current
 
-        self.title_box.edit.setText(current.title)
+        self.title_box.edit.setText(current.name)
         self.nid_box.edit.setText(current.nid)
         if current.party:
             self.party_box.edit.setValue(current.party)
         else:
             self.party_box.edit.setValue("None")
-        self.market_box.edit.setChecked(current.market_flag)
+        # self.market_box.edit.setChecked(current.market_flag)
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
         self.loss_condition.edit.setText(current.objective['loss'])
@@ -150,8 +150,8 @@ class PropertiesMenu(QWidget):
         else:
             self.current.party = self.party_box.edit.currentText()
 
-    def market_changed(self, state):
-        self.current.market_flag = bool(state)
+    # def market_changed(self, state):
+    #     self.current.market_flag = bool(state)
 
     def edit_music(self):
         dlg = MusicDialog(self, self.current)

@@ -170,7 +170,7 @@ class AllUnitModel(DragDropCollectionModel):
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
             klass_nid = unit.klass
-            num = TIMER.passive_counter.count
+            num = timer.get_timer().passive_counter.count
             klass = DB.classes.get(klass_nid)
             active = self.window.view.selectionModel().isSelected(index)
             pixmap = class_model.get_map_sprite_icon(klass, num, active, unit.team, unit.variant)

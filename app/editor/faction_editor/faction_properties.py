@@ -72,7 +72,7 @@ class FactionProperties(QWidget):
 
     def desc_changed(self, text=None):
         self.current.desc = self.desc_box.edit.toPlainText()
-        self.current.desc = text
+        # self.current.desc = text
 
     def set_current(self, current):
         self.current = current

@@ -13,7 +13,7 @@ from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, ClassStatAveragesModel
-from app.editor.weapon_editor.weapon_rank import WexpGainDelegate
+from app.editor.weapon_editor.weapon_rank import WexpGainDelegate, WexpGainMultiAttrModel
 from app.editor.skill_database import LearnedSkillDelegate
 from app.editor.icons import ItemIcon80
 
@@ -120,7 +120,7 @@ class ClassProperties(QWidget):
         weapon_section = QHBoxLayout()
 
         attrs = ("usable", "weapon_type", "wexp_gain")
-        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList.default(DB), "Weapon Experience", attrs, WexpGainDelegate, self)
+        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList.default(DB), "Weapon Experience", attrs, WexpGainDelegate, self, model=WexpGainMultiAttrModel)
         self.wexp_gain_widget.model.checked_columns = {0}  # Add checked column
         weapon_section.addWidget(self.wexp_gain_widget)
 

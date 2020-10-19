@@ -28,8 +28,6 @@ class LevelObject():
         level.objective = {k: v for k, v in prefab.objective.items()}
 
         level.units = Data([UnitObject.from_prefab(prefab) for prefab in prefab.units])
-        
-        level.fog_of_war = prefab.fog_of_war
 
         return level
 
@@ -40,7 +38,6 @@ class LevelObject():
                   'music': self.music,
                   'objective': self.objective,
                   'units': [unit.nid for unit in self.units],
-                  'fog_of_war': self.fog_of_war,
                   }
         return s_dict
 
@@ -55,7 +52,5 @@ class LevelObject():
         level.objective = s_dict['objective']
 
         level.units = Data([game.get_unit(unit_nid) for unit_nid in s_dict['units']])
-
-        level.fog_of_war = s_dict['fog_of_war']
 
         return level

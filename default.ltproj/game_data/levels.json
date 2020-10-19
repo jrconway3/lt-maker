@@ -94,8 +94,7 @@
                 ],
                 "generic": false
             }
-        ],
-        "fog_of_war": null
+        ]
     },
     {
         "nid": "1",
@@ -300,7 +299,6 @@
                 "desc": null,
                 "generic": true
             }
-        ],
-        "fog_of_war": null
+        ]
     }
 ]

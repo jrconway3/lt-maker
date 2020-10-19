@@ -39,6 +39,13 @@ class MapView(QGraphicsView):
         self.current_map = tilemap
         self.update_view()
 
+    def check_position(self, level_prefab, pos):
+        for unit in level_prefab.units:
+            if unit.starting_position[0] == pos[0] and \
+                    unit.starting_position[1] == pos[1]:
+                return unit
+        return None
+
     def clear_scene(self):
         self.scene.clear()
 
@@ -102,7 +109,7 @@ class MapView(QGraphicsView):
                 if event.button() == self.settings.value('place_button', Qt.RightButton):
                     current_unit = self.main_editor.unit_painter_menu.get_current()
                     if current_unit:
-                        under_unit = self.main_editor.current_level.check_position(pos)
+                        under_unit = self.check_position(self.main_editor.current_level, pos)
                         if under_unit:
                             print("Removing Unit")
                             under_unit.starting_position = None
@@ -118,7 +125,7 @@ class MapView(QGraphicsView):
                             self.main_editor.status_bar.showMessage(message)
                         self.update_view()
                 elif event.button() == self.settings.value('select_button', Qt.LeftButton):
-                    under_unit = self.main_editor.current_level.check_position(pos)
+                    under_unit = self.check_position(self.main_editor.current_level, pos)
                     if under_unit:
                         idx = self.main_editor.current_level.units.index(under_unit.nid)
                         self.main_editor.unit_painter_menu.select(idx)

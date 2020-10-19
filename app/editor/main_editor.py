@@ -31,6 +31,7 @@ from app.editor.weapon_editor.weapon_tab import WeaponDatabase
 from app.editor.item_editor.item_tab import ItemDatabase
 from app.editor.terrain_editor.terrain_tab import TerrainDatabase
 from app.editor.stat_editor.stat_tab import StatTypeDatabase
+from app.editor.constant_tab import ConstantDatabase
 from app.editor.tag_widget import TagDialog
 from app.editor.mcost_dialog import McostDialog
 from app.editor.translation_widget import TranslationDialog
@@ -199,7 +200,7 @@ class MainEditor(QMainWindow):
                             "Movement Costs": self.edit_mcost,
                             "Stats": StatTypeDatabase.edit,
                             "Equations": self.edit_equations,
-                            # "Constants": self.edit_constants,
+                            "Constants": ConstantDatabase.edit,
                             "Translations": self.edit_translations
                             }
         self.database_actions = {}
@@ -266,7 +267,7 @@ class MainEditor(QMainWindow):
         self.database_button.setIcon(QIcon('icons/database.png'))
         self.database_button.setPopupMode(QToolButton.InstantPopup)
         database_menu = QMenu("Database", self)
-        for action in self.database_actions:
+        for action in self.database_actions.values():
             database_menu.addAction(action)
         self.database_button.setMenu(database_menu)
         self.database_button_action = QWidgetAction(self)
@@ -277,7 +278,7 @@ class MainEditor(QMainWindow):
         self.resource_button.setIcon(QIcon('icons/resource.png'))
         self.resource_button.setPopupMode(QToolButton.InstantPopup)
         resource_menu = QMenu("Resource", self)
-        for action in self.resource_actions:
+        for action in self.resource_actions.values():
             resource_menu.addAction(action)
         self.resource_button.setMenu(resource_menu)
         self.resource_button_action = QWidgetAction(self)

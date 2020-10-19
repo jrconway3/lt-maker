@@ -1,1087 +1,870 @@
 [
     [
         "Aircalibur",
-        "Anima",
-        "Aircalibur.ogg"
+        null
     ],
     [
         "FireBall",
-        "Anima",
-        "FireBall.ogg"
+        null
     ],
     [
         "Bolting1",
-        "Anima",
-        "Bolting1.ogg"
+        null
     ],
     [
         "Bolting2",
-        "Anima",
-        "Bolting2.ogg"
+        null
     ],
     [
         "ElfireHit",
-        "Anima",
-        "ElfireHit.ogg"
+        null
     ],
     [
         "Fimbulvetr1",
-        "Anima",
-        "Fimbulvetr1.ogg"
+        null
     ],
     [
         "Fimbulvetr2",
-        "Anima",
-        "Fimbulvetr2.ogg"
+        null
     ],
     [
         "FireCharge",
-        "Anima",
-        "FireCharge.ogg"
+        null
     ],
     [
         "FireHit",
-        "Anima",
-        "FireHit.ogg"
+        null
     ],
     [
         "Forblaze1",
-        "Anima",
-        "Forblaze1.ogg"
+        null
     ],
     [
         "Forblaze2",
-        "Anima",
-        "Forblaze2.ogg"
+        null
     ],
     [
         "Gust",
-        "Anima",
-        "Gust.ogg"
+        null
     ],
     [
         "Thunder",
-        "Anima",
-        "Thunder.ogg"
+        null
     ],
     [
         "Wind",
-        "Anima",
-        "Wind.ogg"
+        null
     ],
     [
         "WindWave",
-        "Anima",
-        "WindWave.ogg"
+        null
     ],
     [
         "Apocalypse1",
-        "Dark",
-        "Apocalypse1.ogg"
+        null
     ],
     [
         "Apocalypse2",
-        "Dark",
-        "Apocalypse2.ogg"
+        null
     ],
     [
         "Apocalypse3",
-        "Dark",
-        "Apocalypse3.ogg"
+        null
     ],
     [
         "EckesachsRanged",
-        "Dark",
-        "EckesachsRanged.ogg"
+        null
     ],
     [
         "Eclipse1",
-        "Dark",
-        "Eclipse1.ogg"
+        null
     ],
     [
         "Eclipse2",
-        "Dark",
-        "Eclipse2.ogg"
+        null
     ],
     [
         "Eclipse3",
-        "Dark",
-        "Eclipse3.ogg"
+        null
     ],
     [
         "Ereshkigal1",
-        "Dark",
-        "Ereshkigal1.ogg"
+        null
     ],
     [
         "Ereshkigal2",
-        "Dark",
-        "Ereshkigal2.ogg"
+        null
     ],
     [
         "Fenrir1",
-        "Dark",
-        "Fenrir1.ogg"
+        null
     ],
     [
         "Fenrir2",
-        "Dark",
-        "Fenrir2.ogg"
+        null
     ],
     [
         "Fenrir3",
-        "Dark",
-        "Fenrir3.ogg"
+        null
     ],
     [
         "Fenrir4",
-        "Dark",
-        "Fenrir4.ogg"
+        null
     ],
     [
         "Flux1",
-        "Dark",
-        "Flux1.ogg"
+        null
     ],
     [
         "Flux2",
-        "Dark",
-        "Flux2.ogg"
+        null
     ],
     [
         "Gespenst1",
-        "Dark",
-        "Gespenst1.ogg"
+        null
     ],
     [
         "Gespenst2",
-        "Dark",
-        "Gespenst2.ogg"
+        null
     ],
     [
         "Gespenst3",
-        "Dark",
-        "Gespenst3.ogg"
+        null
     ],
     [
         "Gleipnir",
-        "Dark",
-        "Gleipnir.ogg"
+        null
     ],
     [
         "GleipnirHit",
-        "Dark",
-        "GleipnirHit.ogg"
+        null
     ],
     [
         "Luna1",
-        "Dark",
-        "Luna1.ogg"
+        null
     ],
     [
         "Luna2",
-        "Dark",
-        "Luna2.ogg"
+        null
     ],
     [
         "Naglfar",
-        "Dark",
-        "Naglfar.ogg"
+        null
     ],
     [
         "NaglfarHit",
-        "Dark",
-        "NaglfarHit.ogg"
+        null
     ],
     [
         "Nosferatu1",
-        "Dark",
-        "Nosferatu1.ogg"
+        null
     ],
     [
         "Nosferatu2",
-        "Dark",
-        "Nosferatu2.ogg"
+        null
     ],
     [
         "Nosferatu3",
-        "Dark",
-        "Nosferatu3.ogg"
+        null
     ],
     [
         "Aura1",
-        "Light",
-        "Aura1.ogg"
+        null
     ],
     [
         "Aura2",
-        "Light",
-        "Aura2.ogg"
+        null
     ],
     [
         "Aura3",
-        "Light",
-        "Aura3.ogg"
+        null
     ],
     [
         "Aureola1",
-        "Light",
-        "Aureola1.ogg"
+        null
     ],
     [
         "Aureola2",
-        "Light",
-        "Aureola2.ogg"
+        null
     ],
     [
         "Aureola3",
-        "Light",
-        "Aureola3.ogg"
+        null
     ],
     [
         "Divine1",
-        "Light",
-        "Divine1.ogg"
+        null
     ],
     [
         "Divine2",
-        "Light",
-        "Divine2.ogg"
+        null
     ],
     [
         "Divine3",
-        "Light",
-        "Divine3.ogg"
+        null
     ],
     [
         "Ivaldi1",
-        "Light",
-        "Ivaldi1.ogg"
+        null
     ],
     [
         "Ivaldi2",
-        "Light",
-        "Ivaldi2.ogg"
+        null
     ],
     [
         "Lightning1",
-        "Light",
-        "Lightning1.ogg"
+        null
     ],
     [
         "Lightning2",
-        "Light",
-        "Lightning2.ogg"
+        null
     ],
     [
         "Luce1",
-        "Light",
-        "Luce1.ogg"
+        null
     ],
     [
         "Luce2",
-        "Light",
-        "Luce2.ogg"
+        null
     ],
     [
         "Luce3",
-        "Light",
-        "Luce3.ogg"
+        null
     ],
     [
         "Purge1",
-        "Light",
-        "Purge1.ogg"
+        null
     ],
     [
         "Purge2",
-        "Light",
-        "Purge2.ogg"
+        null
     ],
     [
         "Purge3",
-        "Light",
-        "Purge3.ogg"
+        null
     ],
     [
         "Purge4",
-        "Light",
-        "Purge4.ogg"
+        null
     ],
     [
         "Shine",
-        "Light",
-        "Shine.ogg"
+        null
     ],
     [
         "Map_Step_Armor1",
-        "MapStep",
-        "Map_Step_Armor1.ogg"
+        null
     ],
     [
         "Map_Step_Armor2",
-        "MapStep",
-        "Map_Step_Armor2.ogg"
+        null
     ],
     [
         "Map_Step_FDragon",
-        "MapStep",
-        "Map_Step_FDragon.ogg"
+        null
     ],
     [
         "Map_Step_Flier",
-        "MapStep",
-        "Map_Step_Flier.ogg"
+        null
     ],
     [
         "Map_Step_Infantry1",
-        "MapStep",
-        "Map_Step_Infantry1.ogg"
+        null
     ],
     [
         "Map_Step_Infantry2",
-        "MapStep",
-        "Map_Step_Infantry2.ogg"
+        null
     ],
     [
         "Map_Step_Mounted1",
-        "MapStep",
-        "Map_Step_Mounted1.ogg"
+        null
     ],
     [
         "Map_Step_Mounted2",
-        "MapStep",
-        "Map_Step_Mounted2.ogg"
+        null
     ],
     [
         "Map_Step_Mounted3",
-        "MapStep",
-        "Map_Step_Mounted3.ogg"
+        null
     ],
     [
         "CrimsonEye",
-        "MonsterSpells",
-        "CrimsonEye.ogg"
+        null
     ],
     [
         "DemonLight",
-        "MonsterSpells",
-        "DemonLight.ogg"
+        null
     ],
     [
         "DemonLightHit",
-        "MonsterSpells",
-        "DemonLightHit.ogg"
+        null
     ],
     [
         "DemonSurge",
-        "MonsterSpells",
-        "DemonSurge.ogg"
+        null
     ],
     [
         "EvilEye",
-        "MonsterSpells",
-        "EvilEye.ogg"
+        null
     ],
     [
         "Shadowshot",
-        "MonsterSpells",
-        "Shadowshot.ogg"
+        null
     ],
     [
         "ShadowshotHit",
-        "MonsterSpells",
-        "ShadowshotHit.ogg"
+        null
     ],
     [
         "Stone",
-        "MonsterSpells",
-        "Stone.ogg"
+        null
     ],
     [
         "StoneHit",
-        "MonsterSpells",
-        "StoneHit.ogg"
+        null
     ],
     [
         "DebuffRecover",
-        "OtherItems",
-        "DebuffRecover.ogg"
+        null
     ],
     [
         "HealBoop",
-        "OtherItems",
-        "HealBoop.ogg"
+        null
     ],
     [
         "MapHeal",
-        "OtherItems",
-        "MapHeal.ogg"
+        null
     ],
     [
         "Poison",
-        "OtherItems",
-        "Poison.ogg"
+        null
     ],
     [
         "PureWater",
-        "OtherItems",
-        "PureWater.ogg"
+        null
     ],
     [
         "Rally",
-        "OtherItems",
-        "Rally.ogg"
+        null
     ],
     [
         "Torch",
-        "OtherItems",
-        "Torch.ogg"
+        null
     ],
     [
         "Barrier",
-        "Staff",
-        "Barrier.ogg"
+        null
     ],
     [
         "Berserk",
-        "Staff",
-        "Berserk.ogg"
+        null
     ],
     [
         "Fortify",
-        "Staff",
-        "Fortify.ogg"
+        null
     ],
     [
         "Hammerne",
-        "Staff",
-        "Hammerne.ogg"
+        null
     ],
     [
         "Heal1",
-        "Staff",
-        "Heal1.ogg"
+        null
     ],
     [
         "Heal2",
-        "Staff",
-        "Heal2.ogg"
+        null
     ],
     [
         "HealInit",
-        "Staff",
-        "HealInit.ogg"
+        null
     ],
     [
         "Mend",
-        "Staff",
-        "Mend.ogg"
+        null
     ],
     [
         "Recover",
-        "Staff",
-        "Recover.ogg"
+        null
     ],
     [
         "Restore",
-        "Staff",
-        "Restore.ogg"
+        null
     ],
     [
         "Silence1",
-        "Staff",
-        "Silence1.ogg"
+        null
     ],
     [
         "Silence2",
-        "Staff",
-        "Silence2.ogg"
+        null
     ],
     [
         "SilenceCrack",
-        "Staff",
-        "SilenceCrack.ogg"
+        null
     ],
     [
         "Sleep1",
-        "Staff",
-        "Sleep1.ogg"
+        null
     ],
     [
         "Sleep2",
-        "Staff",
-        "Sleep2.ogg"
+        null
     ],
     [
         "UnlockStaff",
-        "Staff",
-        "UnlockStaff.ogg"
+        null
     ],
     [
         "Warp",
-        "Staff",
-        "Warp.ogg"
+        null
     ],
     [
         "WarpEnd",
-        "Staff",
-        "WarpEnd.ogg"
+        null
     ],
     [
         "ArmorShift",
-        null,
-        "ArmorShift.ogg"
+        null
     ],
     [
         "Attack Hit 1",
-        null,
-        "Attack Hit 1.ogg"
+        null
     ],
     [
         "Attack Hit 2",
-        null,
-        "Attack Hit 2.ogg"
+        null
     ],
     [
         "Attack Hit 3",
-        null,
-        "Attack Hit 3.ogg"
+        null
     ],
     [
         "Attack Hit 4",
-        null,
-        "Attack Hit 4.ogg"
+        null
     ],
     [
         "Attack Hit 5",
-        null,
-        "Attack Hit 5.ogg"
+        null
     ],
     [
         "Attack Miss 2",
-        null,
-        "Attack Miss 2.ogg"
+        null
     ],
     [
         "Attack Miss 3",
-        null,
-        "Attack Miss 3.ogg"
+        null
     ],
     [
         "Axe Pull",
-        null,
-        "Axe Pull.ogg"
+        null
     ],
     [
         "Axe Push",
-        null,
-        "Axe Push.ogg"
+        null
     ],
     [
         "Battle Cry",
-        null,
-        "Battle Cry.ogg"
+        null
     ],
     [
         "BindingBladeRanged",
-        null,
-        "BindingBladeRanged.ogg"
+        null
     ],
     [
         "Bow Miss",
-        null,
-        "Bow Miss.ogg"
+        null
     ],
     [
         "Bow",
-        null,
-        "Bow.ogg"
+        null
     ],
     [
         "BrightFlash",
-        null,
-        "BrightFlash.ogg"
+        null
     ],
     [
         "CombatDeath",
-        null,
-        "CombatDeath.ogg"
+        null
     ],
     [
         "Critical Hit 1",
-        null,
-        "Critical Hit 1.ogg"
+        null
     ],
     [
         "Critical Hit 2",
-        null,
-        "Critical Hit 2.ogg"
+        null
     ],
     [
         "Critical Kill",
-        null,
-        "Critical Kill.ogg"
+        null
     ],
     [
         "CritInit",
-        null,
-        "CritInit.ogg"
+        null
     ],
     [
         "CyclopsCrit",
-        null,
-        "CyclopsCrit.ogg"
+        null
     ],
     [
         "Dance1",
-        null,
-        "Dance1.ogg"
+        null
     ],
     [
         "Dance2",
-        null,
-        "Dance2.ogg"
+        null
     ],
     [
         "Death",
-        null,
-        "Death.ogg"
+        null
     ],
     [
         "DruidCrit",
-        null,
-        "DruidCrit.ogg"
+        null
     ],
     [
         "Error",
-        null,
-        "Error.ogg"
+        null
     ],
     [
         "Experience Gain Old",
-        null,
-        "Experience Gain Old.ogg"
+        null
     ],
     [
         "Experience Gain",
-        null,
-        "Experience Gain.ogg"
+        null
     ],
     [
         "Final Hit",
-        null,
-        "Final Hit.ogg"
+        null
     ],
     [
         "First Stat Up",
-        null,
-        "First Stat Up.ogg"
+        null
     ],
     [
         "Foot Step",
-        null,
-        "Foot Step.ogg"
+        null
     ],
     [
         "FormationSelect",
-        null,
-        "FormationSelect.ogg"
+        null
     ],
     [
         "General Step",
-        null,
-        "General Step.ogg"
+        null
     ],
     [
         "GoldExchange",
-        null,
-        "GoldExchange.ogg"
+        null
     ],
     [
         "Heavy Foot Steps 1",
-        null,
-        "Heavy Foot Steps 1.ogg"
+        null
     ],
     [
         "Heavy Spear Spin",
-        null,
-        "Heavy Spear Spin.ogg"
+        null
     ],
     [
         "Heavy Wing Flap",
-        null,
-        "Heavy Wing Flap.ogg"
+        null
     ],
     [
         "Horse Step 1",
-        null,
-        "Horse Step 1.ogg"
+        null
     ],
     [
         "Horse Step 2",
-        null,
-        "Horse Step 2.ogg"
+        null
     ],
     [
         "Horse Step 3",
-        null,
-        "Horse Step 3.ogg"
+        null
     ],
     [
         "Horse Steps",
-        null,
-        "Horse Steps.ogg"
+        null
     ],
     [
         "HP_Recovery",
-        null,
-        "HP_Recovery.ogg"
+        null
     ],
     [
         "Info In",
-        null,
-        "Info In.ogg"
+        null
     ],
     [
         "Info Out",
-        null,
-        "Info Out.ogg"
+        null
     ],
     [
         "Intro",
-        null,
-        "Intro.ogg"
+        null
     ],
     [
         "Item",
-        null,
-        "Item.ogg"
+        null
     ],
     [
         "ItemBreak",
-        null,
-        "ItemBreak.ogg"
+        null
     ],
     [
         "Knight Step",
-        null,
-        "Knight Step.ogg"
+        null
     ],
     [
         "Legendary Weapon",
-        null,
-        "Legendary Weapon.ogg"
+        null
     ],
     [
         "Level Up",
-        null,
-        "Level Up.ogg"
+        null
     ],
     [
         "Level_Up_Level",
-        null,
-        "Level_Up_Level.ogg"
+        null
     ],
     [
         "Light Foot Steps 1",
-        null,
-        "Light Foot Steps 1.ogg"
+        null
     ],
     [
         "Long Wing Flap",
-        null,
-        "Long Wing Flap.ogg"
+        null
     ],
     [
         "Map In",
-        null,
-        "Map In.ogg"
+        null
     ],
     [
         "Map Out",
-        null,
-        "Map Out.ogg"
+        null
     ],
     [
         "Message",
-        null,
-        "Message.ogg"
+        null
     ],
     [
         "Miss",
-        null,
-        "Miss.ogg"
+        null
     ],
     [
         "MonkRune",
-        null,
-        "MonkRune.ogg"
+        null
     ],
     [
         "Neigh",
-        null,
-        "Neigh.ogg"
+        null
     ],
     [
         "Next Turn",
-        null,
-        "Next Turn.ogg"
+        null
     ],
     [
         "No Damage",
-        null,
-        "No Damage.ogg"
+        null
     ],
     [
         "Promotion1",
-        null,
-        "Promotion1.ogg"
+        null
     ],
     [
         "Promotion2",
-        null,
-        "Promotion2.ogg"
+        null
     ],
     [
         "Promotion3",
-        null,
-        "Promotion3.ogg"
+        null
     ],
     [
         "PromotionCrackle",
-        null,
-        "PromotionCrackle.ogg"
+        null
     ],
     [
         "Quintessence",
-        null,
-        "Quintessence.ogg"
+        null
     ],
     [
         "RefreshDance",
-        null,
-        "RefreshDance.ogg"
+        null
     ],
     [
         "RefreshDanceMap",
-        null,
-        "RefreshDanceMap.ogg"
+        null
     ],
     [
         "RefreshFlute",
-        null,
-        "RefreshFlute.ogg"
+        null
     ],
     [
         "RefreshFluteMap",
-        null,
-        "RefreshFluteMap.ogg"
+        null
     ],
     [
         "SageCrit",
-        null,
-        "SageCrit.ogg"
+        null
     ],
     [
         "SageRune",
-        null,
-        "SageRune.ogg"
+        null
     ],
     [
         "Save",
-        null,
-        "Save.ogg"
+        null
     ],
     [
         "Select 1",
-        null,
-        "Select 1.ogg"
+        null
     ],
     [
         "Select 2",
-        null,
-        "Select 2.ogg"
+        null
     ],
     [
         "Select 3",
-        null,
-        "Select 3.ogg"
+        null
     ],
     [
         "Select 4",
-        null,
-        "Select 4.ogg"
+        null
     ],
     [
         "Select 5",
-        null,
-        "Select 5.ogg"
+        null
     ],
     [
         "Select 6",
-        null,
-        "Select 6.ogg"
+        null
     ],
     [
         "ShamanRune",
-        null,
-        "ShamanRune.ogg"
+        null
     ],
     [
         "Sheathe",
-        null,
-        "Sheathe.ogg"
+        null
     ],
     [
         "SkillActivate",
-        null,
-        "SkillActivate.ogg"
+        null
     ],
     [
         "StageClear",
-        null,
-        "StageClear.ogg"
+        null
     ],
     [
         "Start",
-        null,
-        "Start.ogg"
+        null
     ],
     [
         "Stat Up",
-        null,
-        "Stat Up.ogg"
+        null
     ],
     [
         "Status_Character",
-        null,
-        "Status_Character.ogg"
+        null
     ],
     [
         "Status_Page_Change",
-        null,
-        "Status_Page_Change.ogg"
+        null
     ],
     [
         "Step Back 1",
-        null,
-        "Step Back 1.ogg"
+        null
     ],
     [
         "StrategistRune",
-        null,
-        "StrategistRune.ogg"
+        null
     ],
     [
         "Summon 2",
-        null,
-        "Summon 2.ogg"
+        null
     ],
     [
         "Summon",
-        null,
-        "Summon.ogg"
+        null
     ],
     [
         "Sword Whoosh",
-        null,
-        "Sword Whoosh.ogg"
+        null
     ],
     [
         "Throw 1",
-        null,
-        "Throw 1.ogg"
+        null
     ],
     [
         "Throw 2",
-        null,
-        "Throw 2.ogg"
+        null
     ],
     [
         "Throw 3",
-        null,
-        "Throw 3.ogg"
+        null
     ],
     [
         "TradeRight",
-        null,
-        "TradeRight.ogg"
+        null
     ],
     [
         "TurnwheelIn1",
-        null,
-        "TurnwheelIn1.ogg"
+        null
     ],
     [
         "TurnwheelIn2",
-        null,
-        "TurnwheelIn2.ogg"
+        null
     ],
     [
         "TurnwheelOut",
-        null,
-        "TurnwheelOut.ogg"
+        null
     ],
     [
         "TurnwheelTurn",
-        null,
-        "TurnwheelTurn.ogg"
+        null
     ],
     [
         "Unlock",
-        null,
-        "Unlock.ogg"
+        null
     ],
     [
         "Unsheathe",
-        null,
-        "Unsheathe.ogg"
+        null
     ],
     [
         "ValkyrieCharge",
-        null,
-        "ValkyrieCharge.ogg"
+        null
     ],
     [
         "VillageDestroyed",
-        null,
-        "VillageDestroyed.ogg"
+        null
     ],
     [
         "Wall Attack",
-        null,
-        "Wall Attack.ogg"
+        null
     ],
     [
         "Weapon Click",
-        null,
-        "Weapon Click.ogg"
+        null
     ],
     [
         "Weapon Pull",
-        null,
-        "Weapon Pull.ogg"
+        null
     ],
     [
         "Weapon Push",
-        null,
-        "Weapon Push.ogg"
+        null
     ],
     [
         "Weapon Shine",
-        null,
-        "Weapon Shine.ogg"
+        null
     ],
     [
         "Weapon Swing",
-        null,
-        "Weapon Swing.ogg"
+        null
     ],
     [
         "Whistle",
-        null,
-        "Whistle.ogg"
+        null
     ]
 ]

@@ -48,11 +48,7 @@ class PanoramaBackground():
 
         self.last_update = engine.get_time()
 
-    def draw(self, surf):
-        image = self.panorama.images[self.counter]
-        if image:
-            engine.blit_center(surf, image)
-
+    def update(self):
         if engine.get_time() - self.last_update > self.speed:
             self.counter += 1
             if self.counter >= self.panorama.num_frames:
@@ -61,6 +57,13 @@ class PanoramaBackground():
             if self.counter == 0 and not self.loop:
                 return True
         return False
+
+    def draw(self, surf):
+        image = self.panorama.images[self.counter]
+        if image:
+            engine.blit_center(surf, image)
+
+        return self.update()
 
 class ScrollingBackground(PanoramaBackground):
     scroll_speed = 25
@@ -73,7 +76,7 @@ class ScrollingBackground(PanoramaBackground):
 
     def draw(self, surf):
         current_time = engine.get_time()
-        image = self.panorama.get_img_frame()
+        image = self.panorama.images[self.counter]
     
         if image:
             # Handle scroll
@@ -84,12 +87,8 @@ class ScrollingBackground(PanoramaBackground):
                 surf.blit(image, (x_counter, 0))
                 x_counter += width
 
-        if current_time - self.last_update > self.speed:
-            self.panorama.increment_frame()
-            self.last_update += self.speed
-            if self.panorama.idx == 0 and not self.loop:
-                return True
-        return False
+        return self.update()
+
 
 class TransitionBackground():
     speed = 25

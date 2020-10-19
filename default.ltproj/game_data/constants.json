@@ -80,24 +80,20 @@
         false
     ],
     [
-        "steal",
-        "Nonweapons"
-    ],
-    [
         "num_save_slots",
         3
     ],
     [
         "attack_zero_hit",
-        true
+        false
     ],
     [
         "attack_zero_dam",
-        true
+        false
     ],
     [
         "zero_move",
-        false
+        true
     ],
     [
         "game_nid",
@@ -125,7 +121,7 @@
     ],
     [
         "exp_magnitude",
-        10
+        10.0
     ],
     [
         "exp_offset",
@@ -133,7 +129,7 @@
     ],
     [
         "kill_multiplier",
-        3
+        2.5
     ],
     [
         "boss_bonus",
@@ -153,7 +149,7 @@
     ],
     [
         "heal_curve",
-        0.0
+        1.0
     ],
     [
         "heal_magnitude",
@@ -161,10 +157,10 @@
     ],
     [
         "heal_offset",
-        0.0
+        7.0
     ],
     [
         "heal_min",
-        11
+        5
     ]
 ]

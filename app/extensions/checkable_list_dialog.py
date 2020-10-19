@@ -1,51 +1,51 @@
-from PyQt5.QtWidgets import QDialog, QTreeView, QDialogButtonBox, QVBoxLayout
+# from PyQt5.QtWidgets import QDialog, QTreeView, QDialogButtonBox, QVBoxLayout
 from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex
 
-from app.engine import item_component
+# from app.engine import item_component
 
-class CheckableListDialog(QDialog):
-    def __init__(self, data, title, parent=None):
-        super().__init__(parent)
+# class CheckableListDialog(QDialog):
+#     def __init__(self, data, title, parent=None):
+#         super().__init__(parent)
 
-        self.window = parent
-        self._data = data
-        self.current_components = self.window.current.components
+#         self.window = parent
+#         self._data = data
+#         self.current_components = self.window.current.components
 
-        self.setWindowTitle(title)
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+#         self.setWindowTitle(title)
+#         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
-        self.model = ComponentModel(data, self.current_components, self)
+#         self.model = ComponentModel(data, self.current_components, self)
 
-        self.view = QTreeView()
-        self.view.setModel(self.model)
-        self.view.header().hide()
-        self.view.clicked.connect(self.on_click)
+#         self.view = QTreeView()
+#         self.view.setModel(self.model)
+#         self.view.header().hide()
+#         self.view.clicked.connect(self.on_click)
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.view)
+#         layout = QVBoxLayout(self)
+#         layout.addWidget(self.view)
 
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
-        layout.addWidget(self.buttonbox)
-        self.buttonbox.accepted.connect(self.accept)
-        self.buttonbox.rejected.connect(self.reject)
+#         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+#         layout.addWidget(self.buttonbox)
+#         self.buttonbox.accepted.connect(self.accept)
+#         self.buttonbox.rejected.connect(self.reject)
 
-    def get_checked(self):
-        components = item_component.get_item_components()
-        # remove components that were already present
-        checked = self.model.checked - set(self.model.already_present.keys())
-        # sort based off position in item_components
-        sorted_components = sorted(checked, key=lambda x: [c.nid for c in components].index(x))
-        return sorted_components
+#     def get_checked(self):
+#         components = item_component.get_item_components()
+#         # remove components that were already present
+#         checked = self.model.checked - set(self.model.already_present.keys())
+#         # sort based off position in item_components
+#         sorted_components = sorted(checked, key=lambda x: [c.nid for c in components].index(x))
+#         return sorted_components
 
-    def on_click(self, index):
-        # Only if clickable
-        if bool(self.model.flags(index) & Qt.ItemIsEnabled):
-            nid_clicked = self.model._data[index.row()].nid
-            if nid_clicked in self.model.checked:
-                self.model.checked.discard(nid_clicked)
-            else:
-                self.model.checked.add(nid_clicked)
-            self.model.dataChanged.emit(index, index)
+#     def on_click(self, index):
+#         # Only if clickable
+#         if bool(self.model.flags(index) & Qt.ItemIsEnabled):
+#             nid_clicked = self.model._data[index.row()].nid
+#             if nid_clicked in self.model.checked:
+#                 self.model.checked.discard(nid_clicked)
+#             else:
+#                 self.model.checked.add(nid_clicked)
+#             self.model.dataChanged.emit(index, index)
 
 class ComponentModel(QAbstractItemModel):
     def __init__(self, data, already_present, parent=None):

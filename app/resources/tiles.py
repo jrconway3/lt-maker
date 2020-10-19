@@ -160,7 +160,7 @@ class LayerGrid(Prefab):
         s_dict['sprite_grid'] = {}
         for coord, tile_sprite in self.sprite_grid.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
-            s_dict['sprite_grid'][str_coord] = tile_sprite.serialize()
+            s_dict['sprite_grid'][str_coord] = tile_sprite.save()
         return s_dict
 
     @classmethod

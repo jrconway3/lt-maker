@@ -42,9 +42,9 @@ class MusicCatalog(ManifestCatalog):
             new_song = Song.restore(s_dict)
             new_song.set_full_path(os.path.join(loc, new_song.nid + '.ogg'))
             if new_song.battle_full_path:
-                new_song.set_battle_full_path(os.path.join(loc, new_song.nid + '-intro.ogg'))
+                new_song.set_battle_full_path(os.path.join(loc, new_song.nid + '-battle.ogg'))
             if new_song.intro_full_path:
-                new_song.set_intro_full_path(os.path.join(loc, new_song.nid + '-battle.ogg'))
+                new_song.set_intro_full_path(os.path.join(loc, new_song.nid + '-intro.ogg'))
             self.append(new_song)
 
     def save(self, loc):

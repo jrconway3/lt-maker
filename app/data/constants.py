@@ -21,7 +21,9 @@ class ConstantCatalog(Data):
     def restore(self, ser_data):
         # Assign each constant with the correct value
         for nid, value in ser_data:
-            self.get(nid).value = value
+            constant = self.get(nid)
+            if constant:
+                constant.value = value
 
     def value(self, val):
         return self.get(val).value
@@ -56,7 +58,7 @@ constants = ConstantCatalog([
     Constant('zero_move', "Show Movement as 0 if AI does not move", bool, False, 'ai'),
     Constant('game_nid', "Game Unique Identifier", str, "LT", 'title'),
     Constant('title', "Game Title", str, "Lex Talionis Game", 'title'),
-    Constant('kill_wexp', "Double weapon exp gained on kill", bool, True, 'wexp'),
+    Constant('kill_wexp', "Kills give double weapon exp", bool, True, 'wexp'),
     Constant('double_wexp', "Each hit when doubling grants weapon exp", bool, True, 'wexp'),
     Constant('miss_wexp', "Gain weapon exp even on miss", bool, True, 'wexp'),
     # Experience constants below

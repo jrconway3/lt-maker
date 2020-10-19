@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QSpinBox, QItemDelegate
+from PyQt5.QtWidgets import QItemDelegate
 
 from app.utilities import str_utils
 from app.utilities.data import Data
@@ -6,7 +6,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, PropertyBox, DeletionDialog
 from app.extensions.list_dialogs import MultiAttrListDialog
-from app.extensions.list_models import MultiAttrListModel
+from app.extensions.list_models import MultiAttrListModel, DefaultMultiAttrListModel
 
 from app.data.weapons import WeaponRank
 from app.data import item_components
@@ -79,8 +79,29 @@ class WexpGainDelegate(QItemDelegate):
 
     def createEditor(self, parent, option, index):
         if index.column() == self.int_column:
-            editor = QSpinBox(parent)
-            editor.setRange(0, 999)
+            editor = ComboBox(parent)
+            editor.setEditable(True)
+            for rank in DB.weapon_ranks:
+                editor.addItem(rank.rank)
             return editor
         else:
             return None
+
+class WexpGainMultiAttrModel(DefaultMultiAttrListModel):
+    def setData(self, index, value, role):
+        if not index.isValid():
+            return False
+        data = self._data[index.row()]
+        attr = self._headers[index.column()]
+        current_value = getattr(data, attr)
+        if attr == 'wexp_gain':
+            if value in DB.weapon_ranks.keys():
+                value = DB.weapon_ranks.get(value).requirement
+            elif str_utils.is_int(value):
+                value = int(value)
+            else:
+                value = 0
+        self.change_watchers(data, attr, current_value, value)
+        setattr(data, attr, value)
+        self.dataChanged.emit(index, index)
+        return True

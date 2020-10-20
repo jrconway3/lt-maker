@@ -5,19 +5,16 @@
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -28,20 +25,17 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -3
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -52,20 +46,17 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -4
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -76,14 +67,13 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -2
             },
             {
                 "action": "Move_to",
-                "target": "Position",
-                "target_spec": [
+                "target": [
+                    "Position",
                     "Starting"
                 ],
                 "view_range": -4
@@ -91,7 +81,6 @@
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -102,20 +91,17 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -1
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -126,20 +112,20 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -2
             },
             {
                 "action": "Attack",
-                "target": "Tile",
-                "target_spec": null,
+                "target": [
+                    "Tag",
+                    "Tile"
+                ],
                 "view_range": -4
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -150,22 +136,17 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -2
             },
             {
                 "action": "Interact",
-                "target": "Event",
-                "target_spec": [
-                    "Destructible"
-                ],
+                "target": "Destructible",
                 "view_range": -4
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -176,23 +157,23 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -2
             },
             {
                 "action": "Move_to",
-                "target": "Ally",
-                "target_spec": [
-                    "Tag",
-                    "Boss"
+                "target": [
+                    "Ally",
+                    [
+                        "Tag",
+                        "Boss"
+                    ]
                 ],
                 "view_range": -4
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -203,23 +184,23 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -2
             },
             {
                 "action": "Move_to",
-                "target": "Ally",
-                "target_spec": [
-                    "Class",
-                    "Wagon"
+                "target": [
+                    "Ally",
+                    [
+                        "Class",
+                        "Wagon"
+                    ]
                 ],
                 "view_range": -4
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -230,20 +211,17 @@
         "behaviours": [
             {
                 "action": "Attack",
-                "target": "Unit",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -4
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -253,21 +231,21 @@
         "nid": "Heal",
         "behaviours": [
             {
-                "action": "Attack",
-                "target": "Ally",
-                "target_spec": null,
+                "action": "Support",
+                "target": "None",
                 "view_range": -3
             },
             {
-                "action": "Move_away_from",
-                "target": "Enemy",
-                "target_spec": null,
+                "action": "Move away from",
+                "target": [
+                    "Enemy",
+                    "None"
+                ],
                 "view_range": -3
             },
             {
                 "action": "None",
                 "target": "None",
-                "target_spec": null,
                 "view_range": 0
             }
         ],
@@ -278,24 +256,17 @@
         "behaviours": [
             {
                 "action": "Steal",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -2
             },
             {
                 "action": "Interact",
-                "target": "Event",
-                "target_spec": [
-                    "Locked"
-                ],
+                "target": "Locked",
                 "view_range": -4
             },
             {
                 "action": "Interact",
-                "target": "Event",
-                "target_spec": [
-                    "Hidden_Escape"
-                ],
+                "target": "Hidden_Escape",
                 "view_range": -4
             }
         ],
@@ -306,24 +277,17 @@
         "behaviours": [
             {
                 "action": "Interact",
-                "target": "Event",
-                "target_spec": [
-                    "Enemy_Seize"
-                ],
+                "target": "Enemy_Seize",
                 "view_range": -2
             },
             {
                 "action": "Attack",
-                "target": "Enemy",
-                "target_spec": null,
+                "target": "None",
                 "view_range": -2
             },
             {
                 "action": "Interact",
-                "target": "Event",
-                "target_spec": [
-                    "Enemy_Seize"
-                ],
+                "target": "Enemy_Seize",
                 "view_range": -4
             }
         ],

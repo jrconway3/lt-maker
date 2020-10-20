@@ -17,6 +17,9 @@ class ObjBox(PropertyBox):
             b.setMaximumWidth(40)
             self.add_button(b)
 
+    def setValue(self, val):
+        self.edit.setValue(val)
+
 class UnitBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None, title="Unit"):
         from app.editor.unit_editor.unit_model import UnitModel

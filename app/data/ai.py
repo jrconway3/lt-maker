@@ -1,10 +1,10 @@
 from app.utilities.data import Data, Prefab
 
-AI_ActionTypes = ['None', 'Attack', 'Steal', 'Interact', 'Move_to', 'Move_away_from']
-AI_TargetTypes = ['None', 'Enemy', 'Ally', 'Unit', 'Position', 'Tile', 'Event']
+AI_ActionTypes = ['None', 'Attack', 'Support', 'Steal', 'Interact', 'Move_to', 'Move_away_from']
+AI_TargetTypes = ['None', 'Enemy', 'Ally', 'Unit', 'Position', 'Event']
 unit_spec = ['All', 'Class', 'Tag', 'Name', 'Faction', 'ID']
 event_types = ['Seize', 'Escape', 'Locked', 'Destructible', 'Hidden_Escape', 'Enemy_Seize']
-AI_TargetSpecifications = [[], unit_spec, unit_spec, unit_spec, ['Starting', 'Custom'], [], event_types]
+AI_TargetSpecifications = [[], unit_spec, unit_spec, unit_spec, event_types, AI_TargetTypes, AI_TargetTypes]
 # View Range
 # (Don't look | Movement*2 + Maximum Item Range | Entire Map | Custom Range (Integer))
 
@@ -39,15 +39,14 @@ class AIPrefab(Prefab):
         return cls(None, 0)
 
 class AIBehaviour(Prefab):
-    def __init__(self, action: str, target: str, target_spec, view_range: int):
+    def __init__(self, action: str, target, view_range: int):
         self.action: str = action
-        self.target: str = target
-        self.target_spec = target_spec
+        self.target = target
         self.view_range: int = view_range
 
     @classmethod
     def DoNothing(cls):
-        return cls('None', 'None', None, 0)
+        return cls('None', 'None', 0)
 
     @classmethod
     def default(cls):

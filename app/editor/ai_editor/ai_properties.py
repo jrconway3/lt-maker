@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QGroupBox, QRadioButton, \
     QVBoxLayout, QComboBox, QStackedWidget
+from PyQt5.QtCore import Qt
 
 import app.data.ai as ai
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox
-from app.extensions.custom_widgets import ClassBox, UnitBox, FactionBox, TagBox
+from app.editor.custom_widgets import ClassBox, UnitBox, FactionBox
 from app.utilities import str_utils
 
 # Target Specifications
@@ -36,20 +37,21 @@ class UnitSpecification(QWidget):
         self.box2 = QStackedWidget(self)
         self.box2.addWidget(ComboBox(self))
         class_box = ClassBox(self)
-        class_box.currentIndexChanged.connect(self.sub_spec_changed)
+        class_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(class_box)
-        tag_box = TagBox(self)
+        tag_box = ComboBox(self)
+        tag_box.addItems([tag.nid for tag in DB.tags])
         tag_box.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(tag_box)
         name_box = ComboBox(self)
-        name_box.currentIndexChanged.connect(self.sub_spec_changed)
         name_box.addItems([unit.name for unit in DB.units])
+        name_box.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(name_box)
         faction_box = FactionBox(self)
-        faction_box.currentIndexChanged.connect(self.sub_spec_changed)
+        faction_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(faction_box)
         unit_box = UnitBox(self)
-        unit_box.currentIndexChanged.connect(self.sub_spec_changed)
+        unit_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(unit_box)
 
         self.layout.addWidget(self.box1)
@@ -156,7 +158,7 @@ class PositionSpecification(QWidget):
     def set_current(self, target_spec):
         print("Set Current target spec", flush=True)
         print(target_spec, flush=True)
-        if target_spec == ["Starting"]:
+        if target_spec == ["Starting"] or target_spec == "Starting":
             self.window.current.target_spec = "Starting"
             self.starting.setChecked(True)
         else:
@@ -191,8 +193,6 @@ class BehaviourBox(QGroupBox):
                 target_spec = UnitSpecification(self)
             elif target == "Position":
                 target_spec = PositionSpecification(self)
-            elif target == "Tile":
-                target_spec = NullSpecification(self)
             elif target == "Event":
                 target_spec = EventSpecification(self)
             self.target_spec.addWidget(target_spec)
@@ -214,15 +214,24 @@ class BehaviourBox(QGroupBox):
         self.setLayout(self.layout)
 
     def action_changed(self, index):
-        action = self.action.currentText()
+        action = self.action.currentText().replace(' ', '_')
         self.current.action = action
 
     def target_changed(self, index):
-        target = self.target.currentText().replace(' ', '_')
-        self.current.target = target
+        print("target_changed")
+        target = self.target.currentText()
+        print(target)
+        if target == 'None':
+            print("Set Target Spec to None")
+            self.current.target = 'None'
+            self.target_spec.setCurrentIndex(0)
+            return
+        self.current.target[0] = target
         # Swap the specification
-        idx = ai.AI_TargetTypes.index(self.current.target)
+        idx = ai.AI_TargetTypes.index(target)
         self.target_spec.setCurrentIndex(idx)
+        print(self.current.target[0])
+        print(index, flush=True)
 
     def check_view_range(self):
         cur_val = self.view_range.currentText()
@@ -233,10 +242,33 @@ class BehaviourBox(QGroupBox):
 
     def set_current(self, behaviour):
         self.current = behaviour
-        self.action.setValue(behaviour.action)
-        self.target.setValue(behaviour.target)
-        target_spec = self.target_spec.currentWidget()
-        target_spec.set_current(behaviour.target_spec)
+        print("Behaviour Set Current")
+        print(behaviour.action)
+        print(behaviour.target)
+        action = behaviour.action.replace('_', ' ')
+        self.action.setValue(action)
+        if behaviour.action in ('Move_to', 'Move_away_from'):
+            self.target.show()
+            print(behaviour.target[0])
+            print(behaviour.target[1])
+            self.target.setValue(behaviour.target[0])
+            target_spec = self.target_spec.currentWidget()
+            print(behaviour.target[1], flush=True)
+            target_spec.set_current(behaviour.target[1])
+        else:
+            print("Target Set Value None")
+            self.target.setValue('None')
+            self.target_spec.setCurrentIndex(0)
+            self.target.hide()
+            if behaviour.action in ('Attack', 'Support', 'Steal'):
+                self.target_spec.setCurrentIndex(1)  # Units
+                target_spec = self.target_spec.currentWidget()
+                target_spec.set_current(behaviour.target)
+            elif behaviour.action == 'Interact':
+                self.target_spec.setCurrentIndex(5)  # Event
+                target_spec = self.target_spec.currentWidget()
+                target_spec.set_current(behaviour.target)
+
         if behaviour.view_range < 0:
             correct_index = -behaviour.view_range - 1
             self.view_range.setCurrentIndex(correct_index)
@@ -263,6 +295,7 @@ class AIProperties(QWidget):
         self.priority_box = PropertyBox("Priority", QSpinBox, self)
         self.priority_box.setToolTip("Higher priority AIs move first")
         self.priority_box.edit.setRange(0, 255)
+        self.priority_box.edit.setAlignment(Qt.AlignRight)
         self.priority_box.edit.valueChanged.connect(self.priority_changed)
         top_section.addWidget(self.priority_box)
 
@@ -304,6 +337,8 @@ class AIProperties(QWidget):
 
     def set_current(self, current):
         self.current = current
+        print("AI Current")
+        print(current.nid)
         self.nid_box.edit.setText(current.nid)
         self.priority_box.edit.setValue(current.priority)
         for idx, behaviour in enumerate(current.behaviours):

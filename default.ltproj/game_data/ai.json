@@ -236,7 +236,7 @@
                 "view_range": -3
             },
             {
-                "action": "Move away from",
+                "action": "Move_away_from",
                 "target": [
                     "Enemy",
                     "None"
@@ -261,7 +261,7 @@
             },
             {
                 "action": "Interact",
-                "target": "Locked",
+                "target": "None",
                 "view_range": -4
             },
             {

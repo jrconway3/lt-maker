@@ -52,5 +52,12 @@ class AIBehaviour(Prefab):
     def default(cls):
         return cls.DoNothing()
 
+    def save(self):
+        s_dict = {}
+        s_dict['action'] = self.save_attr('action', self.action)
+        s_dict['target'] = self.save_attr('target', self.target)
+        s_dict['view_range'] = self.save_attr('view_range', self.view_range)
+        return s_dict
+
 class AICatalog(Data):
     datatype = AIPrefab

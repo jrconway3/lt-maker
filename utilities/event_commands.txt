@@ -1,0 +1,6 @@
+u;add_portrait;Portrait;Position;
+    - Mirror, LowPriority, Expressions, Immediate, NoBlock
+r;remove_portrait;Portrait
+    - Immediate, NoBlock
+s;speak;Speaker;Text
+    - Position, Width

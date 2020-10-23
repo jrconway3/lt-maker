@@ -469,7 +469,7 @@ class TitleSaveState(State):
                 name = 'overworld'
                 self.menu.set_name(self.menu.current_index, name)
             else:
-                next_level_nid = game.game_constants['next_level_nid']
+                next_level_nid = game.game_vars['_next_level_nid']
                 name = DB.levels.get(next_level_nid).title
                 self.menu.set_text(self.menu.current_index, name)
             self.menu.set_color(self.menu.current_index, 'green')
@@ -484,7 +484,7 @@ class TitleSaveState(State):
             current_state = game.state.state[-1]
             print(game.state.state, flush=True)
 
-            next_level_nid = game.game_constants['next_level_nid']
+            next_level_nid = game.game_vars['_next_level_nid']
             game.load_states(['turn_change'])
             game.start_level(next_level_nid)
             print(game.state.state, flush=True)

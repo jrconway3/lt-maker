@@ -40,6 +40,20 @@ def make_translucent_blend(image, alpha):
 
     return image
 
+# Making a blended color translucent is the same as making it black
+def make_black_colorkey(image, black):
+    """
+    blackness measured from 0.0 to 1.0, where 0.0 is no change to color
+    """
+    black = 1 - black
+    black = int(255 * black)
+    black = utils.clamp(black, 0, 255)
+    temp = engine.create_surface((image.get_width(), image.get_height()), transparent=True)
+    temp.blit(image, (0, 0))
+    engine.fill(temp, (black, black, black), None, engine.BLEND_RGB_MULT)
+
+    return temp
+
 def make_white(image, white):
     """
     whiteness measured from 0.0 to 1.0, where 0.0 is no change to color

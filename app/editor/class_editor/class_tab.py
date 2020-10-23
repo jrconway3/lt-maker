@@ -46,9 +46,14 @@ if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
+    from app import dark_theme
+    d = dark_theme.QDarkBGPalette()
+    d.set_app(app)
     from app.resources.resources import RESOURCES
     RESOURCES.load('default.ltproj')
     DB.load('default.ltproj')
     window = SingleDatabaseEditor(ClassDatabase)
+    # MEME
+    window.setStyleSheet("QDialog {background-image:url(bg.png)};")
     window.show()
     app.exec_()

@@ -112,11 +112,11 @@ class AIController():
     def smart_retreat(self):
         valid_positions = self.get_true_valid_moves()
 
-        if self.behaviour.targets == 'Enemy':
+        if self.behaviour.target[0] == 'Enemy':
             target_positions = {u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)}
-        elif self.behaviour.targets == 'Ally':
+        elif self.behaviour.target[0] == 'Ally':
             target_positions = {u.position for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)}
-        elif self.behaviour.targets == 'Unit':
+        elif self.behaviour.target[0] == 'Unit':
             target_positions = {u.position for u in game.level.units if u.position}
 
         zero_move = max(target_system.find_potential_range(self.unit, True, True))
@@ -227,8 +227,11 @@ class PrimaryAI():
         if self.behaviour.action == "Attack":
             self.items = [item for item in item_funcs.get_all_items(self.unit) if 
                           item_system.available(self.unit, item)]
-
-        self.all_targets = self.get_all_targets(self.unit)
+            self.all_targets = {u for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)}
+        elif self.behaviour.action == 'Support':
+            self.items = [item for item in item_funcs.get_all_items(self.unit) if 
+                          item_system.available(self.unit, item)]
+            self.all_targets = {u for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)}
 
         logger.info("Testing Items: %s", self.items)
         
@@ -250,17 +253,6 @@ class PrimaryAI():
             self.unit.equip(self.items[self.item_index])
             self.get_all_valid_targets()
             self.possible_moves = self.get_possible_moves()
-
-    def get_all_targets(self, unit) -> set:
-        if self.behaviour.target == "Enemy":
-            targets = {u for u in game.level.units if u.position and skill_system.check_enemy(unit, u)}
-        elif self.behaviour.target == "Unit":
-            targets = {u for u in game.level.units if u.position}
-        elif self.behaviour.target == "Ally":
-            targets = {u for u in game.level.units if u.position and skill_system.check_ally(unit, u)}
-        elif self.behaviour.target == "Tile":
-            targets = set()  # TODO add destroyable tiles
-        return targets
 
     def get_valid_targets(self, unit, item, valid_moves) -> list:
         item_range = item_system.get_range(unit, item)
@@ -449,29 +441,23 @@ class SecondaryAI():
 
         # Determine all targets
         if self.behaviour.action == "Attack":
-            if self.behaviour.target == "Enemy":
-                self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)]
-            elif self.behaviour.target == "Unit":
-                self.all_targets = [u.position for u in game.level.units if u.position]
-            elif self.behaviour.target == "Ally":
-                self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)]
-            elif self.behaviour.target == "Tile":
-                # TODO add breakable tiles
-                self.all_targets = []
+            self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)]
+        elif self.behaviour.action == 'Support':
+            self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)]
         elif self.behaviour.action == "Move_to":
             # Move to a specific position
-            if self.behaviour.target == "Position":
-                if self.behaviour.target_spec == ["Starting"]:
+            if self.behaviour.target[0] == "Position":
+                if self.behaviour.target[1] == "Starting":
                     self.all_targets = [self.unit.starting_position]
                 else:
                     self.all_targets = [tuple(self.behaviour.target_spec)]
-            elif self.behaviour.target == "Ally":
+            elif self.behaviour.target[0] == "Ally":
                 self.all_targets = [u for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)]
-                if self.behaviour.target_spec:
-                    if self.behaviour.target_spec[0] == "Tag":
-                        self.all_targets = [u.position for u in self.all_targets if self.behaviour.target_spec[1] in u.tags]
-                    elif self.behaviour.target_spec[0] == "Class":
-                        self.all_targets = [u.position for u in self.all_targets if u.klass == self.behaviour.target_spec[1]]
+                target_spec = self.behaviour.target[1]
+                if target_spec[0] == "Tag":
+                    self.all_targets = [u.position for u in self.all_targets if target_spec[1] in u.tags]
+                elif target_spec[0] == "Class":
+                    self.all_targets = [u.position for u in self.all_targets if u.klass == target_spec[1]]
                 else:
                     self.all_targets = [u.position for u in self.all_targets]
 

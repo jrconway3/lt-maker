@@ -37,6 +37,9 @@ class TurnChangeState(MapState):
             # game.state.change('status_upkeep') 
             game.state.change('phase_change')
             # EVENTS TRIGGER HERE
+            game.events.trigger('turn_change')
+            if game.turncount - 1 <= 0:  # Beginning of the level
+                game.events.trigger('level_start')
         else:
             game.state.change('ai')
             # game.state.change('status_upkeep')
@@ -156,7 +159,7 @@ class FreeState(MapState):
             if len(DB.levels) > current_level_index + 1:
                 # ASSUMES NO OVERWORLD
                 next_level = DB.levels[current_level_index + 1]
-                game.game_constants['next_level_nid'] = next_level.nid
+                game.game_vars['_next_level_nid'] = next_level.nid
                 game.state.clear()
                 logger.info('Creating save...')
                 game.memory['save_kind'] = 'start'
@@ -264,7 +267,7 @@ class OptionMenuState(MapState):
                 # game.state.change('unit_menu')
                 # game.state.change('transition_out')
             elif selection == 'Turnwheel':
-                if cf.SETTINGS['debug'] or game.game_constants.get('current_turnwheel_uses', 1) > 0:
+                if cf.SETTINGS['debug'] or game.game_vars.get('_current_turnwheel_uses', 1) > 0:
                     game.state.change('turnwheel')
                 else:
                     alert = banner.Custom("Turnwheel_empty")
@@ -637,7 +640,7 @@ class ItemChildState(MapState):
             if item_system.target_restrict(self.cur_unit, item, defender, splash):
                 options.append("Use")
         if not item_system.locked(self.cur_unit, item):
-            if 'convoy' in game.game_constants:
+            if 'convoy' in game.game_vars:
                 options.append('Storage')
             else:
                 options.append('Discard')

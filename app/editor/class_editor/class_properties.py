@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QLabel, QTextEdit
+    QVBoxLayout, QLabel, QTextEdit
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt
 
@@ -36,18 +36,15 @@ class ClassProperties(QWidget):
 
         top_section = QHBoxLayout()
 
+        main_section = QGridLayout()
+
         self.icon_edit = ItemIcon80(self)
-        top_section.addWidget(self.icon_edit)
-
-        horiz_spacer = QSpacerItem(40, 10, QSizePolicy.Fixed, QSizePolicy.Fixed)
-        top_section.addSpacerItem(horiz_spacer)
-
-        name_section = QVBoxLayout()
+        main_section.addWidget(self.icon_edit, 0, 0, 2, 2, Qt.AlignHCenter)
 
         self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
-        name_section.addWidget(self.nid_box)
+        main_section.addWidget(self.nid_box, 0, 2)
 
         # self.short_name_box = PropertyBox("Short Display Name", QLineEdit, self)
         # self.short_name_box.edit.setMaxLength(10)
@@ -57,39 +54,35 @@ class ClassProperties(QWidget):
         self.name_box = PropertyBox("Display Name", QLineEdit, self)
         self.name_box.edit.setMaxLength(13)
         self.name_box.edit.textChanged.connect(self.name_changed)
-        name_section.addWidget(self.name_box)
-
-        top_section.addLayout(name_section)
-
-        main_section = QGridLayout()
+        main_section.addWidget(self.name_box, 1, 2)
 
         self.desc_box = PropertyBox("Description", QTextEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
         font_height = QFontMetrics(self.desc_box.edit.font())
         self.desc_box.edit.setFixedHeight(font_height.lineSpacing() * 3 + 20)
-        main_section.addWidget(self.desc_box, 0, 0, 1, 3)
+        main_section.addWidget(self.desc_box, 2, 0, 1, 2)
 
         self.movement_box = PropertyBox("Movement Type", ComboBox, self)
         self.movement_box.edit.addItems(DB.mcost.unit_types)
         self.movement_box.edit.currentIndexChanged.connect(self.movement_changed)
-        main_section.addWidget(self.movement_box, 0, 3)
+        main_section.addWidget(self.movement_box, 2, 2)
 
         self.tier_box = PropertyBox("Tier", QSpinBox, self)
         self.tier_box.edit.setRange(0, 5)
         self.tier_box.edit.setAlignment(Qt.AlignRight)
         self.tier_box.edit.valueChanged.connect(self.tier_changed)
-        main_section.addWidget(self.tier_box, 1, 0)
+        main_section.addWidget(self.tier_box, 3, 0)
 
         self.promotes_from_box = PropertyBox("Promotes From", ComboBox, self)
         self.promotes_from_box.edit.addItems(["None"] + DB.classes.keys())
         self.promotes_from_box.edit.currentIndexChanged.connect(self.promotes_from_changed)
-        main_section.addWidget(self.promotes_from_box, 1, 1, 1, 2)
+        main_section.addWidget(self.promotes_from_box, 3, 1)
 
         self.max_level_box = PropertyBox("Max Level", QSpinBox, self)
         self.max_level_box.edit.setRange(1, 255)
         self.max_level_box.edit.setAlignment(Qt.AlignRight)
         self.max_level_box.edit.valueChanged.connect(self.max_level_changed)
-        main_section.addWidget(self.max_level_box, 1, 3)
+        main_section.addWidget(self.max_level_box, 3, 2)
 
         tag_section = QHBoxLayout()
 

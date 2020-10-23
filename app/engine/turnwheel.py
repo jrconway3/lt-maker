@@ -397,9 +397,9 @@ class TurnwheelDisplay():
         FONT['text-blue'].blit(count_str, count_bg, (24 - count_width/2, 3))
         surf.blit(count_bg, (4, WINHEIGHT - 28 - self.transition))
         # Num uses
-        if game.game_constants.get('max_turnwheel_uses', -1) > 0:
+        if game.game_vars.get('max_turnwheel_uses', -1) > 0:
             uses_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
-            uses_text = str(game.game_constants['current_turnwheel_uses']) + ' Left'
+            uses_text = str(game.game_vars['_current_turnwheel_uses']) + ' Left'
             x = 48 - FONT['text-blue'].width(uses_text) - 8
             FONT['text-blue'].blit(uses_text, uses_bg, (x, 4))
             surf.blit(uses_bg, (WINWIDTH - 52, WINHEIGHT - 28 - self.transition))
@@ -466,7 +466,7 @@ class TurnwheelState(MapState):
                 self.display.fade_out()
                 self.turnwheel_effect()
                 self.bg.fade_out()
-                game.game_constants['current_turnwheel_uses'] -= 1
+                game.game_vars['_current_turnwheel_uses'] -= 1
             elif self.name != 'force_turnwheel' and not game.action_log.locked:
                 self.back_out()
             else:

@@ -3,11 +3,12 @@ import json
 
 from app.data import constants, stats, equations, tags, weapons, factions, terrain, mcost, \
     minimap, items, klass, units, parties, ai, translations, skills, levels
+from app.events import event_prefab
 
 class Database(object):
     save_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                        "weapons", "factions", "items", "skills", "tags", "classes", 
-                       "units", "ai", "parties", "translations", "levels")
+                       "units", "ai", "parties", "translations", "levels", "events")
 
     def __init__(self):
         self.constants = constants.constants
@@ -29,6 +30,7 @@ class Database(object):
         self.ai = ai.AICatalog()
 
         self.levels = levels.LevelCatalog()
+        self.events = event_prefab.EventCatalog()
 
         self.translations = translations.TranslationCatalog()
 

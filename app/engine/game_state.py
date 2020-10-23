@@ -17,7 +17,7 @@ class GameState():
         self.clear()
 
     def clear(self):
-        self.game_constants = Counter()
+        self.game_vars = Counter()
         self.memory = {}
 
         self.state = state_machine.StateMachine()
@@ -44,7 +44,7 @@ class GameState():
         self.parties = {}
         self.current_party = None
         self.current_level = None
-        self.game_constants.clear()
+        self.game_vars.clear()
 
         # Set up random seed
         if cf.SETTINGS['random_seed'] >= 0:
@@ -52,7 +52,7 @@ class GameState():
         else:
             random_seed = random.randint(0, 1023)
         static_random.set_seed(random_seed)
-        self.game_constants['_random_seed'] = random_seed
+        self.game_vars['_random_seed'] = random_seed
 
         # Set up overworld  TODO
         if DB.constants.value('overworld'):
@@ -69,9 +69,11 @@ class GameState():
         Cleans up variables that need to be reset at the end of each level
         """
         from app.engine import turnwheel
-        self.level_constants = Counter()
+        from app.events import event_manager
+        self.level_vars = Counter()
         self.turncount = 0
         self.action_log = turnwheel.ActionLog()
+        self.events = event_manager.EventManager()
 
     def generic(self):
         """
@@ -132,8 +134,8 @@ class GameState():
                   'level': self.current_level.save() if self.current_level else None,
                   'turncount': self.turncount,
                   'playtime': self.playtime,
-                  'game_constants': self.game_constants,
-                  'level_constants': self.level_constants,
+                  'game_vars': self.game_vars,
+                  'level_vars': self.level_vars,
                   'parties': [party.save() for party in self.parties.values()],
                   'current_party': self.current_party,
                   'state': self.state.save(),
@@ -158,8 +160,8 @@ class GameState():
         from app.engine.objects.party import PartyObject
 
         logger.info("Loading Game...")
-        self.game_constants = Counter(s_dict.get('game_constants', {}))
-        self.level_constants = Counter(s_dict.get('level_constants', {}))
+        self.game_vars = Counter(s_dict.get('game_vars', {}))
+        self.level_vars = Counter(s_dict.get('level_vars', {}))
         self.playtime = float(s_dict['playtime'])
         self.parties = {nid: PartyObject.restore(party) for nid, party in s_dict['parties'].items()}
         self.current_party = s_dict['current_party']

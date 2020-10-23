@@ -23,9 +23,9 @@ def restore_component(dat):
     copy = base_class(value)
     return copy
 
-templates = {'Weapon': ('weapon', 'value', 'target_enemy', 'min_range', 'max_range', 'damage', 'hit', 'crit', 'weight', 'level_exp', 'weapon_type', 'weapon_rank'),
-             'Spell': ('spell', 'value', 'min_range', 'max_range', 'weapon_type', 'weapon_rank'),
-             'Usable': ('value', 'target_ally', 'uses')}
+templates = {'Weapon Template': ('weapon', 'value', 'target_enemy', 'min_range', 'max_range', 'damage', 'hit', 'crit', 'weight', 'level_exp', 'weapon_type', 'weapon_rank'),
+             'Spell Template': ('spell', 'value', 'min_range', 'max_range', 'weapon_type', 'weapon_rank'),
+             'Usable Template': ('value', 'target_ally', 'uses')}
 
 def get_templates():
     return templates.items()

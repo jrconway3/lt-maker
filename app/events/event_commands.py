@@ -17,6 +17,9 @@ class EventCommand(Prefab):
     def save(self):
         return self.nid, self.values
 
+    def to_plain_text(self):
+        return ';'.join([self.nid] + self.values)
+
 class Wait(EventCommand):
     nid = "wait"
     tag = "general"
@@ -105,5 +108,15 @@ def restore_command(dat):
     for command in subclasses:
         if command.nid == nid:
             copy = command(values)
+            return copy
+    return None
+
+def parse_text(text):
+    arguments = text.split(';')
+    command_nid = arguments[0]
+    subclasses = EventCommand.__subclasses__()
+    for command in subclasses:
+        if command.nid == command_nid or command.nickname == command_nid:
+            copy = command(arguments[1:])
             return copy
     return None

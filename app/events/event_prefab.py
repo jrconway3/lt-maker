@@ -1,10 +1,13 @@
 from app.utilities.data import Data, Prefab
 from app.events import event_commands
 
+all_triggers = ['level_start', 'turn_change']
+
 class EventPrefab(Prefab):
     def __init__(self, nid):
         self.nid = nid
         self.trigger = None
+        self.level_nid = None
         self.condition: str = "True"
         self.commands = []
 
@@ -32,4 +35,5 @@ class EventCatalog(Data):
     def get(self, trigger, level_nid):
         # For now just returns events
         # Ignores level_nid
-        return [event for event in self._list if event.trigger == trigger]
+        return [event for event in self._list if event.trigger == trigger and
+                (not event.level_nid or event.level_nid == level_nid)]

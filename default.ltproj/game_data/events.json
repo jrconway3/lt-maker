@@ -2,22 +2,40 @@
     {
         "nid": "Intro",
         "trigger": "level_start",
+        "level_nid": null,
         "condition": "True",
         "commands": [
             [
                 "add_portrait",
-                ["Eirika", "Left"]
+                [
+                    "Eirika",
+                    "Left"
+                ]
             ],
-            [   "bop_portrait",
-                ["Eirika"]
+            [
+                "bop_portrait",
+                [
+                    "Eirika"
+                ]
             ],
             [
                 "move_portrait",
-                ["Eirika", "FarRight"]
+                [
+                    "Eirika",
+                    "FarRight"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
             ],
             [
                 "remove_portrait",
-                ["Eirika"]
+                [
+                    "Eirika"
+                ]
             ]
         ]
     }

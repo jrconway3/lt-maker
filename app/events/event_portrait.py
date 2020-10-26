@@ -66,6 +66,9 @@ class EventPortrait():
         self.bop_state = False
         self.last_bop = None
 
+    def get_width(self):
+        return 96
+
     def bop(self):
         self.bops_remaining = 2
         self.bop_state = False
@@ -92,7 +95,7 @@ class EventPortrait():
     def update_talk(self, current_time):
         # update mouth
         if self.talk_on and current_time - self.last_talk_update > self.next_talk_update:
-            self.last_talk_update = self.next_talk_update
+            self.last_talk_update = current_time
             chance = random.randint(1, 10)
             if self.talk_state == 0:
                 # 10% chance to skip to state 2    

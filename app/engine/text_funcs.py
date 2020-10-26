@@ -25,6 +25,8 @@ def split(font, string, num_lines, max_width):
             else:
                 continue
 
+        if which_line >= len(lines):
+            lines.append([]) # This shouldn't happen normally
         lines[which_line].append(character)
         length_so_far = font.width(''.join(lines[which_line]))
         if num_lines > 1 and length_so_far >= total_length // num_lines - 5:
@@ -34,12 +36,12 @@ def split(font, string, num_lines, max_width):
 
     return [''.join(line) for line in lines]
 
-def line_chunk(string):
+def line_chunk(string: str) -> list:
     chunks = string.strip().split(' ')
     chunks = [x for x in chunks if x]  # Remove empty chunks
     return chunks
 
-def line_wrap(font, string, width):
+def line_wrap(font, string: str, width: int) -> list:
     """
     Adapted from text wrap module
     """

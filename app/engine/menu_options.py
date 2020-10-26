@@ -1,7 +1,5 @@
 import math
 
-from app.data.database import DB
-
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, image_mods, icons, help_menu, text_funcs, item_system

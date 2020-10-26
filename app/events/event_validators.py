@@ -107,6 +107,7 @@ validators = {validator.__name__: validator for validator in Validator.__subclas
 def validate(var_type, text):
     validator = validators.get(var_type)
     if validator:
-        return validator.validate(text)
+        v = validator()
+        return v.validate(text)
     else:
         return text

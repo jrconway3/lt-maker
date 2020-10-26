@@ -2,6 +2,7 @@ from app.engine import engine
 from app.resources.resources import RESOURCES
 from app.engine.sound import SOUNDTHREAD
 from app.events.event_portrait import EventPortrait
+from app.engine import dialog
 from app.engine.game_state import game
 
 import logging
@@ -33,6 +34,7 @@ class Event():
 
     def update(self):
         current_time = engine.get_time()
+        # print(self.state)
 
         if self.state != self.prev_state:
             self.prev_state = self.state
@@ -49,6 +51,13 @@ class Event():
             else:
                 self.process()
 
+        elif self.state == 'dialog':
+            if self.text_boxes:
+                if self.text_boxes[-1].is_done():
+                    self.state = 'processing'
+                if not self.text_boxes[-1].processing:
+                    self.reset_portraits()
+
     def draw(self, surf):
         if self.background:
             self.background.draw(surf)
@@ -60,6 +69,17 @@ class Event():
         sorted_portraits = sorted(self.portraits.values(), key=lambda x: x.priority)
         for portrait in sorted_portraits:
             portrait.draw(surf)
+
+        # Draw text/dialog boxes
+        to_draw = []
+        for dialog_box in reversed(self.text_boxes):
+            if not dialog_box.is_done():
+                to_draw.insert(0, dialog_box)
+            if dialog_box.solo_flag:
+                break
+        for dialog_box in to_draw:
+            dialog_box.update()
+            dialog_box.draw(surf)
 
         return surf   
 
@@ -81,7 +101,12 @@ class Event():
         pass
 
     def hurry_up(self):
-        pass
+        if self.text_boxes:
+            if self.text_boxes[-1].processing:
+                self.text_boxes[-1].hurry_up()
+            else:
+                SOUNDTHREAD.play_sfx('Select 1')
+                self.text_boxes[-1].unpause()
 
     def parse(self, command):
         values = command.values
@@ -107,6 +132,9 @@ class Event():
         elif command.nid == 'sound':
             sound = command.values[0]
             SOUNDTHREAD.play_sfx(sound)
+
+        elif command.nid == 'speak':
+            self.speak(command)
 
         elif command.nid == 'add_portrait':
             self.add_portrait(command)
@@ -220,3 +248,13 @@ class Event():
         else:
             self.wait_time = engine.get_time() + portrait.travel_mag * portrait.movement_speed + 33
             self.state = 'waiting'
+
+    def speak(self, command):
+        values, flags = self.parse(command)
+
+        speaker = values[0]
+        text = values[1]
+
+        new_dialog = dialog.Dialog(text, portrait=self.portraits.get(speaker), background='message_bg_base')
+        self.text_boxes.append(new_dialog)
+        self.state = 'dialog'

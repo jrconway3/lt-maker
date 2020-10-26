@@ -103,3 +103,8 @@ def blend_colors(color1, color2, t):
         new_color.append(int(chroma * t) + color1[idx])
 
     return new_color
+
+def resize(image, scale):
+    x_scale, y_scale = scale
+    new_scale = int(image.get_width() * x_scale), int(image.get_height() * y_scale)
+    return engine.transform_scale(image, new_scale)

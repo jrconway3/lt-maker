@@ -21,7 +21,7 @@ class EventState(MapState):
             self.event.skip()
 
         elif event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
-            if self.event.state == 'dialogue':
+            if self.event.state == 'dialog':
                 self.event.hurry_up()
 
     def update(self):

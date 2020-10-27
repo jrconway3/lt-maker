@@ -6,6 +6,18 @@
         "condition": "True",
         "commands": [
             [
+                "change_background",
+                [
+                    "Hill"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "open"
+                ]
+            ],
+            [
                 "add_portrait",
                 [
                     "Eirika",
@@ -16,7 +28,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "How convenient.{w}"
+                    "How convenient.|This is revolutionary!"
                 ]
             ],
             [

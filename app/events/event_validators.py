@@ -52,6 +52,14 @@ class Slide(Validator):
             return text
         return None
 
+class Direction(Validator):
+    valid_directions = ["Open", "Close", "open", "close"]
+
+    def validate(self, text):
+        if text in self.valid_directions:
+            return text
+        return None
+
 class ExpressionList(Validator):
     valid_expressions = ["NoSmile", "Smile", "NormalBlink", "CloseEyes", "HalfCloseEyes", "OpenEyes"]
 

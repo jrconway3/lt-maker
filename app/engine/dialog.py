@@ -63,6 +63,10 @@ class Dialog():
     def format_text(self, text):
         # Pipe character replacement
         text = text.replace('|', '{w}{br}')
+        if text.endswith('{no_wait}'):
+            text = text[:-4]
+        elif not text.endswith('{w}'):
+            text += '{w}'
         command = None
         processed_text = []
         for character in text:

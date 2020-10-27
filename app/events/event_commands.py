@@ -91,7 +91,7 @@ class Transition(EventCommand):
     nickname = "t"
     tag = "background"
 
-    optional_keywords = ['Speed', 'Color3']
+    optional_keywords = ['Direction', 'Speed', 'Color3']
 
 class Background(EventCommand):
     # Also does remove background

@@ -1,8 +1,9 @@
-from app.engine import engine
+from app.constants import WINWIDTH, WINHEIGHT, FRAMERATE
 from app.resources.resources import RESOURCES
 from app.engine.sound import SOUNDTHREAD
 from app.events.event_portrait import EventPortrait
-from app.engine import dialog
+from app.utilities import utils
+from app.engine import dialog, engine, background
 from app.engine.game_state import game
 
 import logging
@@ -11,6 +12,9 @@ logger = logging.getLogger(__name__)
 screen_positions = {'OffscreenLeft': -96, 'FarLeft': -24, 'Left': 0, 'MidLeft': 24, 'MidRight': 120, 'Right': 144, 'FarRight': 168, 'OffscreenRight': 240}
 
 class Event():
+    _transition_speed = 15 * FRAMERATE
+    _transition_color = (0, 0, 0)
+
     def __init__(self, commands, unit=None, unit2=None, position=None):
         self.commands = commands
         self.command_idx = 0
@@ -31,6 +35,13 @@ class Event():
 
         # Handles keeping the order that unit sprites should be drawn
         self.priority_counter = 1
+
+        # For transition
+        self.transition_state = None
+        self.transition_progress = 0
+        self.transition_update = 0
+        self.transition_speed = self._transition_speed
+        self.transition_color = self._transition_color
 
     def update(self):
         current_time = engine.get_time()
@@ -58,6 +69,15 @@ class Event():
                 if not self.text_boxes[-1].processing:
                     self.reset_portraits()
 
+        # Handle transition
+        if self.transition_state:
+            perc = (current_time - self.transition_update) / self.transition_speed
+            if self.transition_state == 'open':
+                perc = 1 - perc
+            self.transition_progress = utils.clamp(perc, 0, 1)
+            if perc < 0:
+                self.transition_state = None
+
     def draw(self, surf):
         if self.background:
             self.background.draw(surf)
@@ -80,6 +100,12 @@ class Event():
         for dialog_box in to_draw:
             dialog_box.update()
             dialog_box.draw(surf)
+
+        # Fade to black
+        if self.transition_state:
+            s = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
+            s.fill((*self.transition_color, int(255 * self.transition_progress)))
+            surf.blit(s, (0, 0))
 
         return surf   
 
@@ -120,9 +146,10 @@ class Event():
     def run_command(self, command):
         logger.info('Command %s', command.nid)
         logger.info('Command Values %s', command.values)
+        current_time = engine.get_time()
 
         if command.nid == 'wait':
-            self.wait_time = engine.get_time() + int(command.values[0])
+            self.wait_time = current_time + int(command.values[0])
             self.state = 'waiting'
 
         elif command.nid == 'music':
@@ -132,6 +159,37 @@ class Event():
         elif command.nid == 'sound':
             sound = command.values[0]
             SOUNDTHREAD.play_sfx(sound)
+
+        elif command.nid == 'change_background':
+            panorama = command.values[0]
+            panorama = RESOURCES.panoramas.get(panorama)
+            if not panorama:
+                return
+            self.background = background.PanoramaBackground(panorama)
+            if 'keep_portraits' in command.values:
+                pass
+            else:
+                self.portraits.clear()
+
+        elif command.nid == 'transition':
+            values, flags = self.parse(command)
+            if len(values) > 0:
+                self.transition_state = values[0].lower()
+            elif self.transition_state == 'close':
+                self.transition_state = 'open'
+            else:
+                self.transition_state = 'close'
+            if len(values) > 1:
+                self.transition_speed = max(1, int(values[1]))
+            else:
+                self.transition_speed = self._transition_speed
+            if len(values) > 2:
+                self.transition_color = tuple(int(_) for _ in values[2].split(','))
+            else:
+                self.transition_color = self._transition_color
+            self.transition_update = current_time
+            self.wait_time = current_time + int(self.transition_speed * 1.33)
+            self.state = 'waiting'
 
         elif command.nid == 'speak':
             self.speak(command)

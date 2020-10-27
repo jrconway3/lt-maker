@@ -11,9 +11,10 @@ class EventState(MapState):
 
     def begin(self):
         logger.info("Begin Event State")
-        self.event = game.events.get()
-        if self.event:
-            game.cursor.hide()
+        if not self.event:
+            self.event = game.events.get()
+            if self.event:
+                game.cursor.hide()
 
     def take_input(self, event):
         if event == 'START' or event == 'BACK':

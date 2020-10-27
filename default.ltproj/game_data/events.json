@@ -32,6 +32,26 @@
                 ]
             ],
             [
+                "change_background",
+                ["keep_portraits"]
+            ],
+            [
+                "disp_cursor",
+                ["t"]
+            ],
+            [
+                "wait",
+                ["1000"]
+            ],
+            [
+                "move_cursor",
+                ["Eirika"]
+            ],
+            [
+                "wait",
+                ["1000"]
+            ],
+            [
                 "bop_portrait",
                 [
                     "Eirika"

@@ -110,6 +110,25 @@ class Color3(Validator):
             return text
         return None
 
+class Bool(Validator):
+    valid_bools = ['t', 'true', '1', 'y', 'yes', 'f', 'false', '0', 'n', 'no']
+
+    def validate(self, text):
+        if text.lower() in self.valid_bools:
+            return text
+        return None
+
+class Position(Validator):
+    def validate(self, text):
+        if ',' not in text:
+            return None
+        text = text.split(',')
+        if len(text) != 2:
+            return None
+        if all(str_utils.is_int(t) and 0 <= int(t) <= 1024 for t in text):
+            return text
+        return None
+
 validators = {validator.__name__: validator for validator in Validator.__subclasses__()}
 
 def validate(var_type, text):

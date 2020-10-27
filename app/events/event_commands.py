@@ -99,8 +99,29 @@ class Background(EventCommand):
     nickname = "b"
     tag = "background"
 
-    keywords = ['Panorama']
+    optional_keywords = ['Panorama']
     flags = ["keep_portraits"]
+
+class DispCursor(EventCommand):
+    nid = "disp_cursor"
+    tag = "cursor"
+    keywords = ["Bool"]
+
+class MoveCursor(EventCommand):
+    nid = "move_cursor"
+    nickname = "set_cursor"
+    tag = "cursor"
+    
+    keywords = ["Position"]
+    flags = ["immediate"]
+
+class WinGame(EventCommand):
+    nid = 'win_game'
+    tag = "general"
+
+class LoseGame(EventCommand):
+    nid = 'lose_game'
+    tag = "general"
 
 def restore_command(dat):
     nid, values = dat

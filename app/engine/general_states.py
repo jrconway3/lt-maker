@@ -465,9 +465,6 @@ class CantoWaitState(MapState):
 class MoveCameraState(MapState):
     name = 'move_camera'
 
-    def begin(self):
-        game.cursor.hide()
-
     def update(self):
         super().update()
         if game.camera.at_rest():

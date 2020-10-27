@@ -69,6 +69,9 @@ class Event():
                 if not self.text_boxes[-1].processing:
                     self.reset_portraits()
 
+        elif self.state == 'paused':
+            self.state = 'processing'
+
         # Handle transition
         if self.transition_state:
             perc = (current_time - self.transition_update) / self.transition_speed
@@ -144,8 +147,7 @@ class Event():
         return true_values, flags
 
     def run_command(self, command):
-        logger.info('Command %s', command.nid)
-        logger.info('Command Values %s', command.values)
+        logger.info('%s: %s', command.nid, command.values)
         current_time = engine.get_time()
 
         if command.nid == 'wait':
@@ -161,12 +163,16 @@ class Event():
             SOUNDTHREAD.play_sfx(sound)
 
         elif command.nid == 'change_background':
-            panorama = command.values[0]
-            panorama = RESOURCES.panoramas.get(panorama)
-            if not panorama:
-                return
-            self.background = background.PanoramaBackground(panorama)
-            if 'keep_portraits' in command.values:
+            values, flags = self.parse(command)
+            if len(values) > 0:
+                panorama = command.values[0]
+                panorama = RESOURCES.panoramas.get(panorama)
+                if not panorama:
+                    return
+                self.background = background.PanoramaBackground(panorama)
+            else:
+                self.background = None
+            if 'keep_portraits' in flags:
                 pass
             else:
                 self.portraits.clear()
@@ -216,6 +222,30 @@ class Event():
                 self.wait_time = engine.get_time() + 666
                 self.state = 'waiting'
 
+        elif command.nid == 'disp_cursor':
+            b = command.values[0]
+            if b.lower() in ('1', 't', 'true', 'y', 'yes'):
+                game.cursor.show()
+            else:
+                game.cursor.hide()
+
+        elif command.nid == 'move_cursor':
+            values, flags = self.parse(command)
+            position = self.parse_pos(values[0])
+            print(position)
+            game.cursor.set_pos(position)
+            if 'immediate' in flags:
+                pass
+            else:
+                game.state.change('move_camera')
+                self.state = 'paused'  # So that the message will leave the update loop
+
+        elif command.nid == 'win_game':
+            game.level_vars['_win_game'] = True
+
+        elif command.nid == 'lose_game':
+            game.level_vars['_lose_game'] = True
+            
     def add_portrait(self, command):
         values, flags = self.parse(command)
         name = values[0]
@@ -316,3 +346,11 @@ class Event():
         new_dialog = dialog.Dialog(text, portrait=self.portraits.get(speaker), background='message_bg_base')
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
+
+    def parse_pos(self, text):
+        position = None
+        if ',' in text:
+            position = tuple(int(_) for _ in text.split(','))
+        elif game.get_unit(text):
+            position = game.get_unit(text).position
+        return position

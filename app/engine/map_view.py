@@ -26,20 +26,20 @@ class MapView():
         self.x2_counter.update(current_time)
 
     def draw_units(self, surf):
-        culled_units = [unit for unit in game.level.units if unit.position]
+        culled_units = [unit for unit in game.level.units if unit.position or unit.sprite.fake_position]
         if game.level.fog_of_war:
             culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position)]
-        draw_units = sorted(culled_units, key=lambda unit: unit.position[1])
+        draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
         for unit in draw_units:
-            if not unit.sprite:
-                unit.sprite = unit_sprite.UnitSprite(unit)
             if not unit.sound:
                 unit.sound = unit_sound.UnitSound(unit)
             unit.sprite.update()
             unit.sound.update()
-            surf = unit.sprite.draw(surf)
+            if unit.position or unit.sprite.fake_position:
+                surf = unit.sprite.draw(surf)
         for unit in draw_units:
-            surf = unit.sprite.draw_hp(surf)
+            if unit.position or unit.sprite.fake_position:
+                surf = unit.sprite.draw_hp(surf)
 
     def draw(self):
         map_image = game.level.tilemap.get_full_image()

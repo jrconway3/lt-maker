@@ -12,23 +12,40 @@ class SolverState():
     def process(self, solver, actions, playback):
         return None
 
+    def process_command(self, command):
+        if command in ('hit2', 'crit2', 'miss2'):
+            return 'defender'
+        elif command in ('hit1', 'crit1', 'miss1'):
+            return 'attacker'
+        elif command == 'end':
+            return None
+        return None
+
 class InitState(SolverState):
     def get_next_state(self, solver):
-        if solver.defender_has_vantage():
-            return 'defender'
+        command = solver.get_script()
+        if command == '--':
+            if solver.defender_has_vantage():
+                return 'defender'
+            else:
+                return 'attacker'
         else:
-            return 'attacker'
+            return self.process_command(command) 
 
 class AttackerState(SolverState):
     def get_next_state(self, solver):
-        if solver.attacker_alive() and solver.main_target_alive():
-            if solver.allow_counterattack() and \
-                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
-                return 'defender'
-            elif solver.item_has_uses() and \
-                    solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
-                return 'attacker'
-        return None
+        command = solver.get_script()
+        if command == '--':
+            if solver.attacker_alive() and solver.main_target_alive():
+                if solver.allow_counterattack() and \
+                        solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
+                    return 'defender'
+                elif solver.item_has_uses() and \
+                        solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
+                    return 'attacker'
+            return None
+        else:
+            return self.process_command(command)
 
     def process(self, solver, actions, playback):
         playback.append(('attacker_phase',))
@@ -42,13 +59,17 @@ class AttackerState(SolverState):
 
 class DefenderState(SolverState):
     def get_next_state(self, solver):
-        if solver.attacker_alive() and solver.main_target_alive():
-            if solver.item_has_uses() and \
-                    solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
-                return 'attacker'
-            elif solver.allow_counterattack() and \
-                    solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
-                return 'defender'
+        command = solver.get_script()
+        if command == '--':
+            if solver.attacker_alive() and solver.main_target_alive():
+                if solver.item_has_uses() and \
+                        solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
+                    return 'attacker'
+                elif solver.allow_counterattack() and \
+                        solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
+                    return 'defender'
+        else:
+            return self.process_command(command)
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))
@@ -62,7 +83,7 @@ class CombatPhaseSolver():
               'attacker': AttackerState,
               'defender': DefenderState}
 
-    def __init__(self, attacker, main_target, splash, item):
+    def __init__(self, attacker, main_target, splash, item, script=None):
         self.attacker = attacker
         self.main_target = main_target
         self.splash = splash
@@ -70,6 +91,10 @@ class CombatPhaseSolver():
         self.target_item = self.main_target.get_weapon()
         self.state = InitState()
         self.num_attacks, self.num_defends = 0, 0
+
+        # For event combats
+        self.script = reversed(script) or []
+        self.current_command = '--'
 
     def get_state(self):
         return self.state
@@ -85,6 +110,13 @@ class CombatPhaseSolver():
             self.state = self.states[next_state]()
         else:
             self.state = None
+
+    def get_script(self):
+        if self.script:
+            self.current_command = self.script.pop()
+        else:
+            self.current_command = '--'
+        return self.current_command
 
     def generate_roll(self):
         rng_mode = DB.constants.get('rng').value
@@ -103,12 +135,24 @@ class CombatPhaseSolver():
 
     def process(self, actions, playback, attacker, defender, item, mode):
         to_hit = combat_calcs.compute_hit(attacker, defender, item, mode)
-        roll = self.generate_roll()
+
+        if self.current_command in ('hit1', 'hit2', 'crit1', 'crit2'):
+            roll = -1
+        elif self.current_command in ('miss1', 'miss2'):
+            roll = 100
+        else:
+            roll = self.generate_roll()
+
         if roll < to_hit:
             crit = False
-            if DB.constants.get('crit').value:
+            if DB.constants.get('crit').value or self.current_command in ('crit1', 'crit2'):
                 to_crit = combat_calcs.compute_crit(attacker, defender, item, mode)
-                crit_roll = self.generate_crit_roll()
+                if self.current_command in ('crit1', 'crit2'):
+                    crit_roll = -1
+                elif self.current_command in ('hit1', 'hit2', 'miss1', 'miss2'):
+                    crit_roll = 100
+                else:
+                    crit_roll = self.generate_crit_roll()
                 if crit_roll < to_crit:
                     crit = True
             if crit:

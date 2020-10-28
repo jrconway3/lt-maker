@@ -61,6 +61,12 @@ class TileMapObject(Prefab):
 
         return self
 
+    def check_bounds(self, pos):
+        return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
+
+    def on_border(self, pos):
+        return pos[0] == 0 or pos[1] == 0 or pos[0] == self.width - 1 or pos[1] == self.height - 1
+
     def get_terrain(self, pos):
         for layer in reversed(self.layers):
             if layer.visible and pos in layer.terrain:

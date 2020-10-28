@@ -98,9 +98,9 @@ class MovementManager():
                         unit.movement_left -= mcost
                     unit.position = new_position
                     # Handle camera following moving unit
-                    if not data.event:
-                        if not self.camera_follow:
-                            self.camera_follow = unit_nid
+                    # if not data.event:
+                    if not self.camera_follow:
+                        self.camera_follow = unit_nid
                     if self.camera_follow == unit_nid:
                         game.cursor.set_pos(unit.position)
 

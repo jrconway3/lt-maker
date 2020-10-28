@@ -1,5 +1,6 @@
 from app.constants import WINWIDTH, WINHEIGHT
 from app.engine import engine, image_mods
+from app.utilities import utils
 
 class SpriteBackground():
     def __init__(self, image, fade=True):
@@ -89,10 +90,9 @@ class ScrollingBackground(PanoramaBackground):
 
         return self.update()
 
-
 class TransitionBackground():
     speed = 25
-    fade_speed = 4
+    fade_speed = int(50 * 16.66)
 
     def __init__(self, image, fade=True):
         self.counter = 0
@@ -102,9 +102,10 @@ class TransitionBackground():
         self.width = image.get_width()
         self.height = image.get_height()
         self.y_movement = True
+        self.fade_update = 0
 
-        if self.fade:
-            self.fade = 100
+        if fade:
+            self.fade = 1
             self.state = 'in'
         else:
             self.fade = 0
@@ -112,6 +113,9 @@ class TransitionBackground():
 
     def set_y_movement(self, val):
         self.y_movement = val
+
+    def set_update(self, val):
+        self.last_update = val
 
     def update(self):
         current_time = engine.get_time()
@@ -121,10 +125,15 @@ class TransitionBackground():
         self.last_update = current_time
 
         if self.state == 'in':
-            self.fade -= current_time / self.fade_speed
+            if not self.fade_update:
+                self.fade_update = current_time
+            perc = current_time - self.fade_update
+            perc = utils.clamp(perc / self.fade_speed, 0, 1)
+            self.fade = 1 - perc
             if self.fade <= 0:
                 self.fade = 0
                 self.state = 'normal'
+        return self.state == 'normal'
 
     def draw(self, surf):
         xindex = -self.counter
@@ -134,20 +143,9 @@ class TransitionBackground():
             else:
                 yindex = 0
             while yindex < WINHEIGHT:
-                # left = self.counter if xindex < 0 else 0
-                # top = self.counter if yindex < 0 else 0
-                # if xindex > WINWIDTH:
-                #     right = self.width - utilities.clamp((xindex + self.width - WINWIDTH), 0, self.width)
-                # else:
-                #     right = self.width
-                # if yindex > WINHEIGHT:
-                #     top = self.height - utilities.clamp((yindex + self.height - WINHEIGHT), 0, self.height)
-                # else:
-                #     top = self.height
-                # surf = engine.subsurface(self.image, (left, top, right - left, bottom - top))
                 image = self.image
                 if self.fade:
-                    image = image_mods.make_translucent(image, self.fade / 100.)
+                    image = image_mods.make_translucent(image, self.fade)
                 surf.blit(image, (xindex, yindex))
                 yindex += self.height
             xindex += self.width

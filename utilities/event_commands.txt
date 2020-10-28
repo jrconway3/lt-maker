@@ -51,3 +51,5 @@ remove_unit;Unit;RemoveType
     - NoBlock
 interact_unit;Unit;Unit;Script
     # For instance, Unit1Hit, Unit2Crit, End
+
+give_item;Unit;Item;no_banner

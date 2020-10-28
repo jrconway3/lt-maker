@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QPlainTextEdit
-from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat
+from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor
 from PyQt5.QtCore import QRegularExpression, Qt
 
 from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox
@@ -17,12 +17,13 @@ class Rule():
     _format: QTextCharFormat
 
 class Highlighter(QSyntaxHighlighter):
-    def __init__(self, parent):
+    def __init__(self, parent, window):
         super().__init__(parent)
+        self.window = window
         self.highlight_rules = []
 
         function_head_format = QTextCharFormat()
-        function_head_format.setForeground(Qt.blue)
+        function_head_format.setForeground(QColor(102, 217, 239))
         function_head_format.setFontItalic(True)
         self.function_head_rule = Rule(
             QRegularExpression("^(.*?);"), function_head_format)
@@ -68,7 +69,9 @@ class Highlighter(QSyntaxHighlighter):
             true_values = values[:num_keywords]
             for idx, value in enumerate(true_values):
                 validator = command.keywords[idx]
-                text = event_validators.validate(validator, value)
+                level_nid = self.window.current.level_nid
+                level = DB.levels.get(level_nid)
+                text = event_validators.validate(validator, value, level)
                 if text is None:
                     broken_args.append(idx + 1)
             return broken_args
@@ -94,7 +97,7 @@ class EventProperties(QWidget):
         self.font.setFixedPitch(True)
         self.font.setPointSize(10)
         self.text_box.setFont(self.font)
-        self.highlighter = Highlighter(self.text_box.document())
+        self.highlighter = Highlighter(self.text_box.document(), self)
 
         main_section = QHBoxLayout()
         self.setLayout(main_section)
@@ -149,7 +152,7 @@ class EventProperties(QWidget):
         if idx == 0:
             self.current.level_nid = None
         else:
-            self.current.level_nid = DB.levels[idx - 1]
+            self.current.level_nid = DB.levels[idx - 1].nid
 
     def condition_changed(self, text):
         self.current.condition = text

@@ -71,7 +71,7 @@ class Move(Action):
     """
     A basic, user-directed move
     """
-    def __init__(self, unit, new_pos, path=None):
+    def __init__(self, unit, new_pos, path=None, event=False):
         self.unit = unit
         self.old_pos = self.unit.position
         self.new_pos = new_pos
@@ -81,11 +81,12 @@ class Move(Action):
 
         self.path = path
         self.has_moved = self.unit.has_moved
+        self.event = event
 
     def do(self):
         if self.path is None:
             self.path = game.cursor.path
-        game.moving_units.begin_move(self.unit, self.path)
+        game.moving_units.begin_move(self.unit, self.path, self.event)
 
     def execute(self):
         game.leave(self.unit)
@@ -121,6 +122,11 @@ class SimpleMove(Move):
         self.unit.position = self.new_pos
         game.arrive(self.unit)
 
+    def execute(self):
+        game.leave(self.unit)
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
+
     def reverse(self):
         game.leave(self.unit)
         self.unit.position = self.old_pos
@@ -136,12 +142,11 @@ class Warp(SimpleMove):
     def do(self):
         self.unit.sprite.set_transition('warp_move')
         self.unit.sprite.set_next_position(self.new_pos)
-        # Initiate warp flowers
 
-    def execute(self):
-        game.leave(self.unit)
-        self.unit.position = self.new_pos
-        game.arrive(self.unit)
+class FadeMove(SimpleMove):
+    def do(self):
+        self.unit.sprite.set_transition('fade_move')
+        self.unit.sprite.set_next_position(self.new_pos)
 
 class ArriveOnMap(Action):
     def __init__(self, unit, pos):
@@ -155,6 +160,29 @@ class ArriveOnMap(Action):
     def reverse(self):
         game.leave(self.unit)
         self.place_on_map.reverse()
+
+class WarpIn(ArriveOnMap):
+    def do(self):
+        self.place_on_map.do()
+        self.unit.sprite.set_transition('warp_in')
+        game.arrive(self.unit)
+
+class FadeIn(ArriveOnMap):
+    def do(self):
+        self.place_on_map.do()
+        if game.tilemap.on_border(self.unit.position):
+            if self.unit.position[0] == 0:
+                self.unit.sprite.offset = [-TILEWIDTH, 0]
+            elif self.unit.position[0] == game.tilemap.width - 1:
+                self.unit.sprite.offset = [TILEWIDTH, 0]
+            elif self.unit.position[1] == 0:
+                self.unit.sprite.offset = [0, -TILEHEIGHT]
+            elif self.unit.position[1] == game.tilemap.height - 1:
+                self.unit.sprite.offset = [0, TILEHEIGHT]
+            self.unit.sprite.set_transition('fake_in')
+        else:
+            self.unit.sprite.set_transition('fade_in')
+        game.arrive(self.unit)
 
 class PlaceOnMap(Action):
     def __init__(self, unit, pos):
@@ -178,9 +206,36 @@ class LeaveMap(Action):
         game.leave(self.unit)
         self.remove_from_map.do()
 
+    def execute(self):
+        game.leave(self.unit)
+        self.remove_from_map.do()
+
     def reverse(self):
         self.remove_from_map.reverse()
         game.arrive(self.unit)
+
+class WarpOut(LeaveMap):
+    def do(self):
+        game.leave(self.unit)
+        self.unit.sprite.set_transition('warp_out')
+        self.remove_from_map.do()
+
+class FadeOut(LeaveMap):
+    def do(self):
+        game.leave(self.unit)
+        if game.tilemap.on_border(self.unit.position):
+            if self.unit.position[0] == 0:
+                self.unit.sprite.offset = [-2, 0]
+            elif self.unit.position[0] == game.tilemap.width - 1:
+                self.unit.sprite.offset = [2, 0]
+            elif self.unit.position[1] == 0:
+                self.unit.sprite.offset = [0, -2]
+            elif self.unit.position[1] == game.tilemap.height - 1:
+                self.unit.sprite.offset = [0, 2]
+            self.unit.sprite.set_transition('fake_out')
+        else:
+            self.unit.sprite.set_transition('fade_out')
+        self.remove_from_map.do()
 
 class RemoveFromMap(Action):
     def __init__(self, unit):
@@ -398,34 +453,16 @@ class PutItemInConvoy(Action):
 
     def do(self):
         game.convoy.append(self.item)
-        game.alerts.append(banner.SentToConvoy(self.item))
-        game.state.change('alert')
-
-    def execute(self):
-        game.convoy.append(self.item)
 
     def reverse(self, gameStateObj):
         game.convoy.remove(self.item)
 
 class GiveItem(Action):
-    def __init__(self, unit, item, choice=True):
+    def __init__(self, unit, item):
         self.unit = unit
         self.item = item
-        self.choice = choice
 
-    # with banner
     def do(self):
-        if self.unit.team == 'player' or len(self.unit.items) < DB.constants.get('max_items').value:
-            self.unit.add_item(self.item)
-            if self.choice:
-                game.alerts.append(banner.AcquiredItem(self.unit, self.item))
-            else:
-                game.alerts.append(banner.NoChoiceAcquiredItem(self.unit, self.item))
-            game.state.change('alert')
-
-    # there shouldn't be any time this is called where the player has not already checked 
-    # that there are less than cf.CONSTANTS['max_items'] items in their inventory
-    def execute(self):
         if self.unit.team == 'player' or len(self.unit.items) < DB.constants.get('max_items').value:
             self.unit.add_item(self.item)
 

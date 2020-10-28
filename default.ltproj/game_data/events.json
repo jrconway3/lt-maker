@@ -2,66 +2,13 @@
     {
         "nid": "Intro",
         "trigger": "level_start",
-        "level_nid": null,
+        "level_nid": "DEBUG",
         "condition": "True",
         "commands": [
             [
-                "change_background",
-                [
-                    "Hill"
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "open"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Eirika",
-                    "Left"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "How convenient.|This is revolutionary!"
-                ]
-            ],
-            [
-                "change_background",
-                ["keep_portraits"]
-            ],
-            [
-                "disp_cursor",
-                ["t"]
-            ],
-            [
-                "wait",
-                ["1000"]
-            ],
-            [
-                "move_cursor",
-                ["Eirika"]
-            ],
-            [
-                "wait",
-                ["1000"]
-            ],
-            [
-                "bop_portrait",
+                "remove_unit",
                 [
                     "Eirika"
-                ]
-            ],
-            [
-                "move_portrait",
-                [
-                    "Eirika",
-                    "FarRight"
                 ]
             ],
             [
@@ -71,9 +18,48 @@
                 ]
             ],
             [
-                "remove_portrait",
+                "move_unit",
                 [
-                    "Eirika"
+                    "Seth",
+                    "0,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Eirika",
+                    "3,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Eirika",
+                    "Iron Sword"
                 ]
             ]
         ]

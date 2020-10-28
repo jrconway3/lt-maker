@@ -58,7 +58,6 @@ class RemovePortrait(EventCommand):
 
 class MovePortrait(EventCommand):
     nid = "move_portrait"
-    nickname = "mov"
     tag = "dialogue"
 
     keywords = ['Portrait', 'ScreenPosition']
@@ -122,6 +121,46 @@ class WinGame(EventCommand):
 class LoseGame(EventCommand):
     nid = 'lose_game'
     tag = "general"
+
+class AddUnit(EventCommand):
+    nid = 'add_unit'
+    nickname = 'add'
+    tag = 'unit'
+
+    keywords = ["Unit"]
+    optional_keywords = ["Position", "EntryType", "Placement"]
+
+class MoveUnit(EventCommand):
+    nid = 'move_unit'
+    nickname = 'move'
+    tag = 'unit'
+
+    keywords = ["Unit"]
+    optional_keywords = ["Position", "MovementType", "Placement"]
+    flags = ['no_block']
+
+class RemoveUnit(EventCommand):
+    nid = 'remove_unit'
+    nickname = 'remove'
+    tag = 'unit'
+
+    keywords = ["Unit"]
+    optional_keywords = ["RemoveType"]
+
+class InteractUnit(EventCommand):
+    nid = 'interact_unit'
+    nickname = 'interact'
+    tag = 'unit'
+
+    keywords = ["Unit", "Unit"]
+    optional_keywords = ["Script", "Ability"]
+
+class GiveItem(EventCommand):
+    nid = 'give_item'
+    tag = 'unit'
+    
+    keywords = ["GlobalUnit", "Item"]
+    flags = ['no_banner']
 
 def restore_command(dat):
     nid, values = dat

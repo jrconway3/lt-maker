@@ -1,9 +1,12 @@
 from app.constants import WINWIDTH, WINHEIGHT, FRAMERATE
 from app.resources.resources import RESOURCES
 from app.engine.sound import SOUNDTHREAD
+from app.data.database import DB
 from app.events.event_portrait import EventPortrait
 from app.utilities import utils
-from app.engine import dialog, engine, background
+from app.engine import dialog, engine, background, target_system, action, \
+    interaction, item_funcs, item_system, banner
+from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
 
 import logging
@@ -245,7 +248,22 @@ class Event():
 
         elif command.nid == 'lose_game':
             game.level_vars['_lose_game'] = True
-            
+
+        elif command.nid == 'add_unit':
+            self.add_unit(command)
+
+        elif command.nid == 'remove_unit':
+            self.remove_unit(command)
+
+        elif command.nid == 'move_unit':
+            self.move_unit(command)
+
+        elif command.nid == 'interact_unit':
+            self.interact_unit(command)
+
+        elif command.nid == 'give_item':
+            self.give_item(command)
+
     def add_portrait(self, command):
         values, flags = self.parse(command)
         name = values[0]
@@ -347,6 +365,232 @@ class Event():
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
 
+    def add_unit(self, command):
+        values, flags = self.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return 
+        if unit.position:
+            print("Unit already on map!")
+            return
+        if unit.dead:
+            print("Unit is dead!")
+            return
+        if len(values) > 1:
+            position = self.parse_pos(values[1])
+        else:
+            position = unit.starting_position
+        if not position:
+            print("No position found!")
+            return
+        if len(values) > 2:
+            entry_type = values[2]
+        else:
+            entry_type = 'fade'
+        if len(values) > 3:
+            placement = values[3]
+        else:
+            placement = 'giveup'
+        position = self.check_placement(position, placement)
+        if not position:
+            return None
+
+        if entry_type == 'warp':
+            action.do(action.WarpIn(unit, position))
+        elif entry_type == 'fade':
+            action.do(action.FadeIn(unit, position))
+        else:  # immediate
+            action.do(action.ArriveOnMap(unit, position))
+
+    def move_unit(self, command):
+        values, flags = self.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit.position:
+            print("Unit not on map!")
+            return
+
+        if len(values) > 1:
+            position = self.parse_pos(values[1])
+        else:
+            position = unit.starting_position
+        if not position:
+            print("No position found!")
+            return
+
+        if len(values) > 2:
+            movement_type = values[2]
+        else:
+            movement_type = 'normal'
+        if len(values) > 3:
+            placement = values[3]
+        else:
+            placement = 'giveup'
+        position = self.check_placement(position, placement)
+        if not position:
+            return None
+
+        if movement_type == 'immediate':
+            action.do(action.Teleport(unit, position))
+        elif movement_type == 'warp':
+            action.do(action.Warp(unit, position))
+        elif movement_type == 'fade':
+            action.do(action.FadeMove(unit, position))
+        elif movement_type == 'normal':
+            path = target_system.get_path(unit, position)
+            action.do(action.Move(unit, position, path, event=True))
+
+        if 'no_block' in flags:
+            pass
+        else:
+            self.state = 'paused'
+            game.state.change('movement')
+
+    def remove_unit(self, command):
+        values, flags = self.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return 
+        if not unit.position:
+            print("Unit not on map!")
+            return
+        if len(values) > 1:
+            remove_type = values[1]
+        else:
+            remove_type = 'fade'
+
+        if remove_type == 'warp':
+            action.do(action.WarpOut(unit))
+        elif remove_type == 'fade':
+            action.do(action.FadeOut(unit))
+        else:  # immediate
+            action.do(action.LeaveMap(unit))
+
+    def interact_unit(self, command):
+        values, flags = self.parse(command)
+        unit1 = self.get_unit(values[0])
+        unit2 = self.get_unit(values[1])
+        if not unit1 or not unit1.position:
+            print("Couldn't find %s" % unit1)
+            return 
+        if not unit2 or not unit2.position:
+            print("Couldn't find %s" % unit2)
+            return 
+
+        if len(values) > 2:
+            script = values[2]
+        else:
+            script = None
+
+        items = item_funcs.get_all_items(unit1)
+        # Get item
+        if len(values) > 3:
+            item_nid = values[3]
+            for i in items:
+                if item_nid == i.nid:
+                    item = i
+                    break
+        else:
+            if items:
+                item = items[0]
+            else:
+                print("Unit does not have item!")
+                return
+
+        combat = interaction.engage(unit1, [unit2.position], item, script=script)
+        game.combat_instance = combat
+        game.state.change('combat')
+
+    def check_placement(self, position, placement):
+        current_occupant = game.board.get_unit(position)
+        if current_occupant:
+            if placement == 'giveup':
+                logger.info("Unit already present on tile %s", position)
+                return None
+            elif placement == 'stack':
+                return position
+            elif placement == 'closest':
+                position = target_system.get_nearest_open_tile(unit, position)
+                if not position:
+                    logger.info("Somehow wasn't able to find a nearby open tile")
+                    return None
+                return position
+            elif placement == 'push':
+                current_occupant = game.get_unit(current_occupant)
+                new_pos = target_system.get_nearest_open_tile(current_occupant, position)
+                action.do(action.Push(current_occupant, new_pos))
+                return position
+        else:
+            return position
+
+    def give_item(self, command):
+        values, flags = self.parse(command)
+        if values[0].lower() == 'convoy':
+            unit = None
+        else:
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit with nid %s" % values[0])
+                return
+        item_nid = values[1]
+        if item_nid in DB.items.keys():
+            item_prefab = DB.items.get(item_nid)
+            item = ItemObject.from_prefab(item_prefab)
+            item_system.init(unit, item)
+        else:
+            print("Couldn't find item with nid %s" % item_nid)
+            return
+        if 'no_banner' in flags:
+            banner_flag = False
+        else:
+            banner_flag = True
+
+        if unit:
+            accessory = item_system.is_accessory(unit, item)
+            if accessory and len(unit.accessories) >= DB.constants.value('num_accessories'):
+                if 'no_choice' in flags:
+                    action.do(action.PutItemInConvoy(item))
+                    if banner_flag:
+                        game.alerts.append(banner.SentToConvoy(item))
+                        game.state.change('alert')
+                        self.state = 'paused'
+                else:
+                    action.do(action.GiveItem(unit, item))
+                    game.cursor.cur_unit = unit
+                    game.state.change('item_discard')
+                    self.state = 'paused'
+                    if banner_flag:
+                        game.alerts.append(banner.AcquiredItem(self.unit, self.item))
+                        game.state.change('alert')
+            elif not accessory and len(unit.nonaccessories) >= DB.constants.value('num_items'):
+                if 'no_choice' in flags:
+                    action.do(action.PutItemInConvoy(item))
+                    if banner_flag:
+                        game.alerts.append(banner.SentToConvoy(item))
+                        game.state.change('alert')
+                        self.state = 'paused'
+                else:
+                    action.do(action.GiveItem(unit, item))
+                    game.cursor.cur_unit = unit
+                    game.state.change('item_discard')
+                    self.state = 'paused'
+                    if banner_flag: 
+                        game.alerts.append(banner.AcquiredItem(unit, item))
+                        game.state.change('alert')
+            else:
+                action.do(action.GiveItem(unit, item))
+                if banner_flag: 
+                    game.alerts.append(banner.AcquiredItem(unit, item))
+                    game.state.change('alert')
+                    self.state = 'paused'
+        else:
+            action.do(action.PutItemInConvoy(item))
+            if banner_flag:
+                game.alerts.append(banner.SentToConvoy(item))
+                game.state.change('alert')
+                self.state = 'paused'
+
     def parse_pos(self, text):
         position = None
         if ',' in text:
@@ -354,3 +598,11 @@ class Event():
         elif game.get_unit(text):
             position = game.get_unit(text).position
         return position
+
+    def get_unit(self, text):
+        if text in ('{unit}', '{unit1}'):
+            return self.unit
+        elif text == '{unit2}':
+            return self.unit2
+        else:
+            return game.get_unit(text)

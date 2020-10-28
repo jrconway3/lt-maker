@@ -686,6 +686,67 @@ class ItemChildState(MapState):
         surf = self.menu.draw(surf)
         return surf
 
+class ItemDiscardState(MapState):
+    name = 'item_discard'
+
+    def start(self):
+        game.cursor.hide()
+        self.cur_unit = game.cursor.cur_unit
+        options = self.cur_unit.items
+        self.menu = menus.Choice(self.cur_unit, options)
+
+        if 'convoy' in game.game_vars:
+            self.pennant = banner.Pennant('Choose item to send to storage')
+        else:
+            self.pennant = banner.Pennant('Choose item to discard')
+
+    def begin(self):
+        self.menu.update_options(self.cur_unit.items)
+        # Don't need to do this if we are under items
+        if (len(self.cur_unit.accessories) <= DB.constants.value('max_accessories') and
+                len(self.cur_unit.nonaccessories) <= DB.constants.value('max_items')):
+            game.state.back()
+            return 'repeat'
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
+            SOUNDTHREAD.play_sfx('Error')
+
+        elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
+            selection = self.menu.get_current()
+            game.memory['option_owner'] = selection
+            game.memory['option_item'] = selection
+            game.memory['option_unit'] = self.cur_unit
+            game.memory['option_menu'] = self.menu
+            game.state.change('option_child')
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        if self.pennant:
+            draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
+            self.pennant.draw(surf, draw_on_top)
+        surf = self.menu.draw(surf)
+        return surf
+
 class TradeState(MapState):
     name = 'trade'
 

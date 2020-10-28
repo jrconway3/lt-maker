@@ -60,6 +60,7 @@ class StateMachine():
              'menu': general_states.MenuState,
              'item': general_states.ItemState,
              'item_child': general_states.ItemChildState,
+             'item_discard': general_states.ItemDiscardState,
              'targeting': general_states.TargetingState,
              'trade': general_states.TradeState,
              'weapon_choice': general_states.WeaponChoiceState,

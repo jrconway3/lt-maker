@@ -36,6 +36,7 @@ from app.editor.tag_widget import TagDialog
 from app.editor.mcost_dialog import McostDialog
 from app.editor.translation_widget import TranslationDialog
 from app.editor.equation_widget import EquationDialog
+from app.editor.event_editor.event_tab import EventDatabase
 
 # Resources
 from app.editor.icon_editor import icon_tab
@@ -226,7 +227,7 @@ class MainEditor(QMainWindow):
         for name, func in resource_actions.items():
             self.resource_actions[name] = QAction("Edit %s..." % name, self, triggered=func)
 
-        self.modify_events_act = QAction(QIcon(f'{icon_folder}/event.png'), "Edit Events", self, shortcut="S", triggered=self.edit_events)
+        self.modify_events_act = QAction(QIcon(f'{icon_folder}/event.png'), "Edit Events", self, triggered=EventDatabase.edit)
 
     def create_menus(self):
         file_menu = QMenu("File", self)

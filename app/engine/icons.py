@@ -22,6 +22,15 @@ def get_item_icon(item):
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
     return image
 
+def draw_item(surf, item, topleft, cooldown=False):
+    image = get_item_icon(item)
+    if not image:
+        return None
+
+    surf.blit(image, topleft)
+
+    return surf
+
 def get_skill_icon(skill):
     if not skill:
         return None
@@ -37,7 +46,7 @@ def get_skill_icon(skill):
     return image
 
 def draw_skill(surf, skill, topleft, compact=True):
-    image = get_skill_icon(skill.nid)
+    image = get_skill_icon(skill)
     if not image:
         return None
 

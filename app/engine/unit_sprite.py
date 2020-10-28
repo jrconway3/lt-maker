@@ -7,6 +7,7 @@ from app.data.database import DB
 from app.utilities import utils
 
 from app.engine.sprites import SPRITES
+from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, image_mods, health_bar, equations
 import app.engine.config as cf
 from app.engine.game_state import game
@@ -61,7 +62,7 @@ class UnitSprite():
         self.transition_counter = 0
         self.transition_time = 450
 
-        self.transition_position = None  # For escape and rescue, etc...
+        self.fake_position = None  # For escape and rescue, etc...
         self.net_position = None
         self.offset = [0, 0]
 
@@ -106,10 +107,29 @@ class UnitSprite():
         self.transition_state = new_state
         self.transition_counter = self.transition_time  # 450
 
-        if self.transition_state == 'fake_in':
+        if self.transition_state == 'normal':
+            self.offset = [0, 0]
+            self.fake_position = None
+        elif self.transition_state == 'fake_in':
+            self.fake_position = None
             self.change_state('fake_transition_in')
         elif self.transition_state in ('fake_out', 'rescue'):
+            self.fake_position = self.unit.position
             self.change_state('fake_transition_out')
+        elif self.transition_state == 'fade_in':
+            self.fake_position = None
+        elif self.transition_state == 'fade_out':
+            self.fake_position = self.unit.position
+        elif self.transition_state == 'fade_move':
+            self.fake_position = self.unit.position
+        elif self.transition_state == 'warp_in':
+            SOUNDTHREAD.play_sfx('WarpEnd')
+        elif self.transition_state == 'warp_out':
+            SOUNDTHREAD.play_sfx('Warp')
+            self.fake_position = self.unit.position
+        elif self.transition_state == 'warp_move':
+            SOUNDTHREAD.play_sfx('Warp')
+            self.fake_position = self.unit.position
 
     def change_state(self, new_state):
         self.state = new_state
@@ -134,9 +154,8 @@ class UnitSprite():
             self.net_position = (-pos[0], -pos[1])
             self.handle_net_position(self.net_position)
         elif self.state == 'fake_transition_out':
-            pos = (self.unit.position[0] + utils.clamp(self.offset[0], -1, 1),
-                   self.unit.position[1] + utils.clamp(self.offset[1], -1, 1))
-            pos = (pos[0] - self.unit.position[0], pos[1] - self.unit.position[1])
+            pos = (utils.clamp(self.offset[0], -1, 1),
+                   utils.clamp(self.offset[1], -1, 1))
             self.net_position = pos
             self.handle_net_position(self.net_position)
         elif self.state == 'selected':
@@ -179,8 +198,7 @@ class UnitSprite():
         elif self.state == 'moving':
             next_position = game.moving_units.get_next_position(self.unit.nid)
             if not next_position:
-                self.offset = [0, 0]
-                self.transition_state = 'normal'
+                self.set_transition('normal')
                 return
             self.net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
             last_update = game.moving_units.get_last_update(self.unit.nid)
@@ -214,17 +232,18 @@ class UnitSprite():
             if abs(self.offset[0]) > TILEWIDTH or abs(self.offset[1]) > TILEHEIGHT:
                 self.set_transition('normal')
                 self.change_state('normal')
-                self.offset = [0, 0]
-
-                game.leave(self.unit)
-                self.unit.position = None
 
     def update_transition(self):
         self.transition_counter -= engine.get_delta()
         if self.transition_counter < 0:
             self.transition_counter = 0
-            if self.transition_state == 'fade_out':
-                self.transition_state = 'normal'
+            self.fake_position = None
+            if self.transition_state in ('fade_out', 'warp_out', 'fade_in', 'warp_in'):
+                self.set_transition('normal')
+            elif self.transition_state == 'fade_move':
+                self.set_transition('fade_in')
+            elif self.transition_state == 'warp_move':
+                self.set_transition('warp_in')
 
     def select_frame(self, image):
         if self.image_state == 'passive' or self.image_state == 'gray':
@@ -243,14 +262,26 @@ class UnitSprite():
 
     def draw(self, surf):
         image = self.create_image(self.image_state)
-        x, y = self.unit.position
+        if self.fake_position:
+            x, y = self.fake_position
+        elif self.unit.position:
+            x, y = self.unit.position
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
 
         if self.unit.is_dying:
             image = image_mods.make_white(image.convert_alpha(), 1)
-            progress = (self.transition_time - self.transition_counter) / self.transition_time
+            progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
             image = image_mods.make_translucent(image, progress)
+
+        # Handle transitions
+        if self.transition_state in ('fade_out', 'warp_out', 'fade_move', 'warp_move'):
+            progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
+            image = image_mods.make_translucent(image.convert_alpha(), progress)
+        elif self.transition_state in ('fade_in', 'warp_in'):
+            progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
+            progress = 1 - progress
+            image = image_mods.make_translucent(image.convert_alpha(), progress)
 
         if self.flicker:
             starting_time, total_time, color = self.flicker
@@ -293,7 +324,10 @@ class UnitSprite():
 
     def draw_hp(self, surf):
         current_time = engine.get_time()
-        x, y = self.unit.position
+        if self.fake_position:
+            x, y = self.fake_position
+        elif self.unit.position:
+            x, y = self.unit.position
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
 

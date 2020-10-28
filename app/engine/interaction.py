@@ -6,7 +6,7 @@ from app.engine.game_state import game
 def has_animation(attacker, item, main_target, splash):
     return False
 
-def engage(attacker, position, item, skip=False):
+def engage(attacker, position, item, skip=False, script=None):
     # Does one round of combat
     if len(position) > 1:
         # Multiple targets
@@ -20,11 +20,11 @@ def engage(attacker, position, item, skip=False):
     else:
         main_target, splash = item_system.splash(attacker, item, position[0])
     if skip:
-        combat = SimpleCombat(attacker, item, main_target, splash)
+        combat = SimpleCombat(attacker, item, main_target, splash, script)
     elif has_animation(attacker, item, main_target, splash):
-        combat = AnimationCombat(attacker, item, main_target, splash)
+        combat = AnimationCombat(attacker, item, main_target, splash, script)
     else:
-        combat = MapCombat(attacker, item, position[0], main_target, splash)
+        combat = MapCombat(attacker, item, position[0], main_target, splash, script)
     return combat
 
 class SimpleCombat():
@@ -33,9 +33,9 @@ class SimpleCombat():
     some reason, an animation combat cannot be used and the attacker
     has no position
     """
-    def __init__(self, attacker, item, main_target, splash):
+    def __init__(self, attacker, item, main_target, splash, script):
         self.attacker = attacker
-        self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item)
+        self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item, script)
         while self.state_machine.get_state():
             self.actions, self.playback = self.state_machine.do()
             self._apply_actions()

@@ -23,6 +23,25 @@ def find_manhattan_spheres(rng: set, x: int, y: int) -> set:
             main_set.add((x + i, y - r + magn))
     return main_set
 
+def get_nearest_open_tile(self, unit, position):
+    r = 0
+    _abs = abs
+    while r < 10:
+        for x in range(-r, r + 1):
+            magn = _abs(x)
+            n1 = position[0] + x, position[1] + r - magn
+            n2 = position[0] + x, position[1] - r + magn
+            if not game.board.check_bounds(n1) and game.board.get_unit(n1):
+                mcost = game.movement.get_mcost(unit, n1)
+                if mcost < 5:
+                    return n1
+            elif not game.board.check_bounds(n1) and game.board.get_unit(n1):
+                mcost = game.movement.get_mcost(unit, n2)
+                if mcost < 5:
+                    return n2
+        r += 1
+    return None
+
 def distance_to_closest_enemy(unit, pos=None):
     if pos is None:
         pos = unit.position

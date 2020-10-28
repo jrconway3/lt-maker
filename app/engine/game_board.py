@@ -61,6 +61,9 @@ class GameBoard(object):
         # Key: Aura, Value: Set of positions
         self.known_auras = {}  
 
+    def check_bounds(self, pos):
+        return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
+
     # For movement
     def init_grid(self, mode, tilemap):
         cells = []

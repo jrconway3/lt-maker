@@ -78,7 +78,7 @@ class UnitObject(Prefab):
         self._has_traded = False
         self._has_moved = False
 
-        self.sprite = None
+        self._sprite = None
         self.sound = None
         self.battle_anim = None
 
@@ -111,10 +111,25 @@ class UnitObject(Prefab):
         self.exp = int(utils.clamp(val, 0, 100))
 
     @property
+    def sprite(self):
+        if not self._sprite:
+            from app.engine import unit_sprite
+            self._sprite = unit_sprite.UnitSprite(self)
+        return self._sprite
+    
+    @property
     def tags(self):
         unit_tags = self._tags
         class_tags = DB.classes.get(self.klass).tags
         return unit_tags + class_tags
+
+    @property
+    def accessories(self):
+        return [item for item in self.items if item_system.is_accessory(self, item)]
+
+    @property
+    def nonaccessories(self):
+        return [item for item in self.items if not item_system.is_accessory(self, item)]
 
     def calculate_needed_wexp_from_items(self):
         for item in item_funcs.get_all_items(self):

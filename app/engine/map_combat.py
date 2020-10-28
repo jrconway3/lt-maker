@@ -14,7 +14,7 @@ from app.engine.game_state import game
 class MapCombat():
     ai_combat = False
 
-    def __init__(self, attacker, item, position, main_target, splash):
+    def __init__(self, attacker, item, position, main_target, splash, script):
         self.target_position = position
         self.attacker = attacker
         self.defender = main_target
@@ -23,7 +23,7 @@ class MapCombat():
         self.item = item
         self.def_item = self.defender.get_weapon() if self.defender else None
 
-        self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item)
+        self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item, script)
 
         self.last_update = engine.get_time()
         self.state = 'begin_phase'

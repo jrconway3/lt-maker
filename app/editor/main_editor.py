@@ -21,6 +21,8 @@ from app.editor.map_view import MapView
 from app.editor.level_menu import LevelDatabase
 from app.editor.property_menu import PropertiesMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
+from app.editor.region_painter_menu import RegionMenu
+from app.editor.unit_group_painter_menu import UnitGroupPainterMenu
 
 # Databases
 from app.editor.unit_editor.unit_tab import UnitDatabase
@@ -45,13 +47,6 @@ from app.editor.panorama_editor.panorama_tab import PanoramaDatabase
 from app.editor.map_sprite_editor.map_sprite_tab import MapSpriteDatabase
 
 __version__ = VERSION
-
-class EventTileMenu(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
-
-    def on_visibility_changed(self, state):
-        pass
 
 class ReinforcementGroupsMenu(QWidget):
     def __init__(self, parent):
@@ -356,13 +351,9 @@ class MainEditor(QMainWindow):
         # self.terrain_painter_menu = TerrainPainterMenu(self)
         # self.docks['Terrain'].setWidget(self.terrain_painter_menu)
 
-        # self.docks['Triggers'] = Dock("Triggers", self)
-        # self.trigger_region_menu = TriggerRegionMenu(self)
-        # self.docks['Triggers'].setWidget(self.trigger_region_menu)
-
-        self.docks['Event Tiles'] = Dock("Event Tiles", self)
-        self.event_tile_menu = EventTileMenu(self)
-        self.docks['Event Tiles'].setWidget(self.event_tile_menu)
+        self.docks['Regions'] = Dock("Regions", self)
+        self.trigger_region_menu = RegionMenu(self)
+        self.docks['Regions'].setWidget(self.region_menu)
 
         self.docks['Units'] = Dock("Units", self)
         self.unit_painter_menu = UnitPainterMenu(self)
@@ -371,6 +362,10 @@ class MainEditor(QMainWindow):
         # self.docks['Reinforcements'] = Dock("Reinforcements", self)
         # self.reinforcement_groups_menu = ReinforcementGroupsMenu(self)
         # self.docks['Reinforcements'].setWidget(self.reinforcement_groups_menu)
+
+        self.docks['Groups'] = Dock("Groups", self)
+        self.group_painter_menu = UnitGroupPainterMenu(self)
+        self.docks['Groups'].setWidget(self.group_painter_menu)
 
         for title, dock in self.docks.items():
             dock.setAllowedAreas(Qt.RightDockWidgetArea)

@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import QPushButton, QLineEdit, \
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QBrush, QColor
 
-from app import utilities
+from app.utilities import str_utils
+from app.utilities.data import Data
 from app.data.level_units import GenericUnit
 from app.data.database import DB
 
@@ -29,7 +30,7 @@ class UnitPainterMenu(QWidget):
         if self.current_level:
             self._data = self.current_level.units
         else:
-            self._data = []
+            self._data = Data()
 
         grid = QVBoxLayout()
         self.setLayout(grid)
@@ -110,7 +111,6 @@ class UnitPainterMenu(QWidget):
             idx = self._data.index(created_unit.nid)
             index = self.model.index(idx)
             self.view.setCurrentIndex(index)
-            self.last_touched_generic = created_unit
             self.window.update_view()
             return created_unit
         return None
@@ -201,7 +201,7 @@ class AllUnitModel(DragDropCollectionModel):
     def duplicate(self, idx):
         obj = self._data[idx]
         if obj.generic:
-            new_nid = utilities.get_next_generic_nid(obj.nid, self._data.keys())
+            new_nid = str_utils.get_next_generic_nid(obj.nid, self._data.keys())
             serialized_obj = obj.serialize()
             new_obj = GenericUnit.restore(serialized_obj)
             new_obj.nid = new_nid
@@ -320,12 +320,12 @@ class GenericUnitDialog(Dialog):
         if unit:
             self.current = unit
         elif example:
-            new_nid = utilities.get_next_generic_nid(example.nid, units.keys())
+            new_nid = str_utils.get_next_generic_nid(example.nid, units.keys())
             self.current = GenericUnit(
                 new_nid, example.variant, example.level, example.klass, example.faction,
                 example.starting_items, example.team, example.ai)
         else:
-            new_nid = utilities.get_next_generic_nid(101, units.keys())
+            new_nid = str_utils.get_next_generic_nid(101, units.keys())
             assert len(DB.classes) > 0 and len(DB.factions) > 0 and len(DB.items) > 0 and len(DB.ai) > 0
             self.current = GenericUnit(
                 new_nid, None, 1, DB.classes[0].nid, DB.factions[0].nid,

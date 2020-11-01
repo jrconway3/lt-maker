@@ -1,4 +1,5 @@
 from collections import Counter
+import colorsys
 
 class Multiset(Counter):
     def __contains__(self, item):
@@ -39,6 +40,14 @@ def process_terms(terms):
 
 def dot_product(a: tuple, b: tuple) -> float:
     return sum(a[i] * b[i] for i in range(len(b)))
+
+def hash_to_color(h: int) -> tuple:
+    hue = h % 359
+    saturation_array = lightness_array = [0.35, 0.5, 0.65]
+    saturation = saturation_array[h // 360 % len(saturation_array)]
+    lightness = lightness_array[h * saturation // 360 % len(lightness_array)]
+    color = colorsys.hls_to_rgb(hue / 360., lightness / 360., saturation / 360.)
+    return tuple([int(_ * 255) for _ in color])
 
 def farthest_away_pos(pos, valid_moves: set, enemy_pos: set):
     if valid_moves and enemy_pos:

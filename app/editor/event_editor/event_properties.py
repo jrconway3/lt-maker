@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
-    QPlainTextEdit
+    QPlainTextEdit, QComboBox
 from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor
 from PyQt5.QtCore import QRegularExpression, Qt
 
@@ -111,9 +111,12 @@ class EventProperties(QWidget):
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
 
         self.trigger_box = PropertyBox("Trigger", ComboBox, self)
+        self.trigger_box.edit.setPlaceholderText("Choose Triggering Action")
         self.trigger_box.edit.addItem("None")
-        self.trigger_box.edit.addItems(event_prefab.all_triggers)
-        self.trigger_box.edit.currentIndexChanged.connect(self.trigger_changed)
+        self.trigger_box.edit.addItems([trigger.nid for trigger in event_prefab.all_triggers])
+        self.trigger_box.edit.setEditable(True)
+        self.trigger_box.edit.setInsertPolicy(QComboBox.NoInsert)
+        self.trigger_box.edit.lineEdit().editingFinished.connect(self.trigger_changed)
 
         self.level_nid_box = PropertyBox("Level", ComboBox, self)
         self.level_nid_box.edit.addItem("Global")
@@ -121,6 +124,7 @@ class EventProperties(QWidget):
         self.level_nid_box.edit.currentIndexChanged.connect(self.level_nid_changed)
 
         self.condition_box = PropertyBox("Condition", QLineEdit, self)
+        self.condition_box.edit.setPlaceholderText("Condition required for event to fire")
         self.condition_box.edit.textChanged.connect(self.condition_changed)
         
         grid.addWidget(QHLine(), 2, 0)
@@ -142,11 +146,12 @@ class EventProperties(QWidget):
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
-    def trigger_changed(self, idx):
-        if idx == 0:
+    def trigger_changed(self):
+        cur_val = self.trigger_box.edit.currentText()
+        if cur_val == 'None':
             self.current.trigger = None
         else:
-            self.current.trigger = event_prefab.all_triggers[idx - 1]
+            self.current.trigger = cur_val
 
     def level_nid_changed(self, idx):
         if idx == 0:

@@ -20,6 +20,8 @@ class LevelPrefab(Prefab):
                           'loss': ''}
 
         self.units = Data()
+        self.regions = Data()
+        self.unit_groups = Data()
 
         # self.fog_of_war = 0  # Range units can default see in fog of war
 

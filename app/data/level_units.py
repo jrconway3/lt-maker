@@ -55,3 +55,9 @@ class UniqueUnit(Prefab):
             prefab = DB.units.get(self.nid)
             return getattr(prefab, attr)
         return None
+
+@dataclass
+class UnitGroup(Prefab):
+    nid: str = None
+    units: list = None
+    positions: list = None

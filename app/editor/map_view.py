@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, QSettings
-from PyQt5.QtGui import QPixmap, QPainter
+from PyQt5.QtGui import QPixmap, QPainter, QColor
 
+from app.utilities import utils
 from app.sprites import SPRITES
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.database import DB
@@ -60,6 +61,10 @@ class MapView(QGraphicsView):
             self.paint_units()
         elif self.main_editor.dock_visibility['Units']:
             self.paint_units()
+        elif self.main_editor.dock_visibility['Regions']:
+            self.paint_regions()
+        elif self.main_editor.dock_visibility['Groups']:
+            self.paint_units()
         else:
             self.paint_units()
         self.show_map()
@@ -91,6 +96,28 @@ class MapView(QGraphicsView):
                         cursor_sprite.pixmap = QPixmap(cursor_sprite.full_path)
                     cursor_image = cursor_sprite.pixmap.toImage().copy(0, 64, 32, 32)
                     painter.drawImage(coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
+            painter.end()
+
+    def paint_regions(self):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for region in self.main_editor.current_level.regions:
+                if not region.position:
+                    continue
+                x, y = region.position
+                width, height = region.size
+                color = utils.has_to_color(hash(region.nid))
+                pixmap = QPixmap(width * TILEWIDTH, height * TILEHEIGHT)
+                pixmap.fill(QColor(color))
+                painter.drawImage(x * TILEWIDTH, y * TILEHEIGHT, pixmap.toImage())
+            current_region = self.main_editor.region_painter_menu.get_current()
+            if current_region and current_region.position:
+                x, y = current_region.position
+                width, height = current_region.size
+                painter.setBrush(Qt.NoBrush)
+                painter.setPen(Qt.yellow)
+                painter.drawRect(x * TILEWIDTH, y * TILEHEIGHT, width * TILEWIDTH, height * TILEHEIGHT)
             painter.end()
 
     def show_map(self):

@@ -37,13 +37,16 @@ class UnitGroupMenu(QWidget):
         grid.addWidget(self.group_list)
 
         self.create_button = QPushButton("Create New Group")
-        self.create_button.clicked.connect(self.create_group)
+        self.create_button.clicked.connect(self.create_new_group)
         grid.addWidget(self.create_button)
 
     def create_new_group(self):
         nid = str_utils.get_next_name('New Group', self._data.keys())
         new_group = UnitGroup(nid, Data(), [])
         self._data.append(new_group)
+
+    def on_visibility_changed(self, state):
+        pass
 
 class GroupList(WidgetList):
     def add_group(self, group):

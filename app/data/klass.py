@@ -38,6 +38,14 @@ class Klass(Prefab):
     def get_stat_lists(self):
         return [self.bases, self.growths, self.promotion, self.growth_bonus, self.max_stats]
 
+    def get_skills(self):
+        return [skill[1] for skill in self.learned_skills]
+
+    def replace_skill_nid(self, old_nid, new_nid):
+        for item in self.learned_skills:
+            if item[1] == old_nid:
+                item[1] = new_nid
+
     def save_attr(self, name, value):
         if name == 'learned_skills':
             value = [skill.save() for skill in value]

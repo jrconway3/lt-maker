@@ -53,6 +53,14 @@ class ItemBox(ObjBox):
             database = Data([d for d in DB.items if d is not exclude])
         super().__init__("Item", ItemModel, database, parent, button)
 
+class SkillBox(ObjBox):
+    def __init__(self, parent=None, button=False, exclude=None):
+        from app.editor.skill_editor.skill_model import SkillModel
+        database = DB.skills
+        if exclude:
+            database = Data([d for d in DB.skills if d is not exclude])
+        super().__init__("Item", SkillModel, database, parent, button)
+
 class AIBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
         from app.editor.ai_editor.ai_model import AIModel

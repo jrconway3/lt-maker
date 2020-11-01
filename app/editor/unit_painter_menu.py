@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QPushButton, QLineEdit, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
-    QVBoxLayout, QHBoxLayout, QMessageBox
+    QVBoxLayout, QHBoxLayout, QMessageBox, QApplication
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QBrush, QColor
 
@@ -181,7 +181,7 @@ class AllUnitModel(DragDropCollectionModel):
         elif role == Qt.ForegroundRole:
             unit = self._data[index.row()]
             if unit.starting_position:
-                return QBrush()
+                return QBrush(QApplication.palette().text().color())
             else:
                 return QBrush(QColor("red"))
         return None

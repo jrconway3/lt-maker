@@ -22,7 +22,7 @@ from app.editor.level_menu import LevelDatabase
 from app.editor.property_menu import PropertiesMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
 from app.editor.region_painter_menu import RegionMenu
-from app.editor.unit_group_painter_menu import UnitGroupPainterMenu
+from app.editor.unit_group_painter_menu import UnitGroupMenu
 
 # Databases
 from app.editor.unit_editor.unit_tab import UnitDatabase
@@ -352,8 +352,8 @@ class MainEditor(QMainWindow):
         # self.docks['Terrain'].setWidget(self.terrain_painter_menu)
 
         self.docks['Regions'] = Dock("Regions", self)
-        self.trigger_region_menu = RegionMenu(self)
-        self.docks['Regions'].setWidget(self.region_menu)
+        self.region_painter_menu = RegionMenu(self)
+        self.docks['Regions'].setWidget(self.region_painter_menu)
 
         self.docks['Units'] = Dock("Units", self)
         self.unit_painter_menu = UnitPainterMenu(self)
@@ -364,7 +364,7 @@ class MainEditor(QMainWindow):
         # self.docks['Reinforcements'].setWidget(self.reinforcement_groups_menu)
 
         self.docks['Groups'] = Dock("Groups", self)
-        self.group_painter_menu = UnitGroupPainterMenu(self)
+        self.group_painter_menu = UnitGroupMenu(self)
         self.docks['Groups'].setWidget(self.group_painter_menu)
 
         for title, dock in self.docks.items():
@@ -524,10 +524,9 @@ class MainEditor(QMainWindow):
                 self.addDockWidget(Qt.RightDockWidgetArea, dock)
 
             # Order is REALLY IMPORTANT. Must tabify before show.
-            self.tabifyDockWidget(self.docks['Properties'], self.docks['Event Tiles'])
-            # self.tabifyDockWidget(self.docks['Terrain'], self.docks['Event Tiles'])
-            self.tabifyDockWidget(self.docks['Event Tiles'], self.docks['Units'])
-            # self.tabifyDockWidget(self.docks['Units'], self.docks['Reinforcements'])
+            self.tabifyDockWidget(self.docks['Properties'], self.docks['Regions'])
+            self.tabifyDockWidget(self.docks['Regions'], self.docks['Units'])
+            self.tabifyDockWidget(self.docks['Units'], self.docks['Groups'])
 
             for title, dock in self.docks.items():
                 dock.show()

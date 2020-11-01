@@ -9,6 +9,7 @@ from app.utilities.data import Data
 from app.extensions.custom_gui import PropertyBox, ComboBox, RightClickListView
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.custom_widgets import SkillBox
+from app.events import regions
 
 class RegionMenu(QWidget):
     def __init__(self, parent):
@@ -46,7 +47,7 @@ class RegionMenu(QWidget):
         self.last_touched_region = None
         self.display = None
 
-    def on_visibiity_changed(self, state):
+    def on_visibility_changed(self, state):
         pass
 
     def tick(self):
@@ -67,9 +68,9 @@ class RegionMenu(QWidget):
 
     def on_item_changed(self, curr, prev):
         if self._data:
-            region = self._data[curr.row()]
-            self.map_view.center_on_pos(region.center)
-            self.modify_region_widget.set_current(region)
+            reg = self._data[curr.row()]
+            self.map_view.center_on_pos(reg.center)
+            self.modify_region_widget.set_current(reg)
 
     def get_current(self):
         for index in self.view.selectionModel().selectedIndexes():
@@ -79,7 +80,7 @@ class RegionMenu(QWidget):
         return None
 
     def create_region(self, example=None):
-        created_region = Region.default()
+        created_region = regions.Region.default()
         self._data.append(created_region)
         self.model.update()
         # Select the region
@@ -94,16 +95,17 @@ class RegionModel(DragDropCollectionModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
-            region = self._data[index.row()]
-            text = region.nid + ': ' + region.region_type
-            if region.region_type == 'Status':
-                text += ' ' + region.sub_nid
-            elif region.region_type == 'Event':
-                text += ' ' + region.sub_nid
-                text += '\n' + region.condition
+            reg = self._data[index.row()]
+            text = reg.nid + ': ' + reg.region_type
+            if reg.region_type == 'Status':
+                text += ' ' + reg.sub_nid
+            elif reg.region_type == 'Event':
+                text += ' ' + reg.sub_nid
+                text += '\n' + reg.condition
             return text
         elif role == Qt.DecorationRole:
-            color = utils.hash_to_color(hash(region.nid))
+            reg = self._data[index.row()]
+            color = utils.hash_to_color(hash(reg.nid))
             pixmap = QPixmap(32, 32)
             pixmap.fill(QColor(color))
             return QIcon(pixmap)
@@ -129,33 +131,33 @@ class ModifyRegionWidget(QWidget):
         self.current = current
 
         self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
-        new_nid = str_utils.get_next_generic_nid(self.current, self._data.keys())
-        self.nid_box.edit.setText(new_nid)
+        # new_nid = str_utils.get_next_generic_nid(self.current.nid, self._data.keys())
+        # self.nid_box.edit.setText(new_nid)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         layout.addWidget(self.nid_box)
 
         self.region_type_box = PropertyBox("Region Type", ComboBox, self)
-        self.region_type_box.edit.addItems(region.region_types)
-        self.region_type_box.edit.setValue(self.current.region_type)
+        self.region_type_box.edit.addItems(regions.region_types)
+        # self.region_type_box.edit.setValue(self.current.region_type)
         self.region_type_box.edit.currentIndexChanged.connect(self.region_type_changed)
         layout.addWidget(self.region_type_box)
 
         self.sub_nid_box = PropertyBox("Event Name", QLineEdit, self)
-        if self.current.sub_nid and self.current.region_type == 'Event':
-            self.sub_nid_box.edit.setText(self.current.sub_nid)
-        self.sub_nid_box.textChanged.connect(self.sub_nid_changed)
+        # if self.current.sub_nid and self.current.region_type == 'Event':
+        #     self.sub_nid_box.edit.setText(self.current.sub_nid)
+        self.sub_nid_box.edit.textChanged.connect(self.sub_nid_changed)
         layout.addWidget(self.sub_nid_box)
 
         self.condition_box = PropertyBox("Condition", QLineEdit, self)
-        self.condition_box.edit.setText(self.current.condition)
-        self.condition_box.textChanged.connect(self.condition_changed)
+        # self.condition_box.edit.setText(self.current.condition)
+        self.condition_box.edit.textChanged.connect(self.condition_changed)
         layout.addWidget(self.condition_box)
 
         self.status_box = SkillBox(self) 
-        if self.current.sub_nid and self.current.region_type == 'Status':
-            self.status_box.edit.setText(self.current.sub_nid)
-        self.status_box.currentIndexChanged.connect(self.status_changed)
+        # if self.current.sub_nid and self.current.region_type == 'Status':
+        #     self.status_box.edit.setText(self.current.sub_nid)
+        self.status_box.edit.currentIndexChanged.connect(self.status_changed)
         layout.addWidget(self.status_box)
 
         self.sub_nid_box.hide()

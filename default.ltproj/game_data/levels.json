@@ -94,7 +94,9 @@
                 ],
                 "generic": false
             }
-        ]
+        ],
+        "regions": [],
+        "unit_groups": []
     },
     {
         "nid": "1",
@@ -299,6 +301,8 @@
                 "desc": null,
                 "generic": true
             }
-        ]
+        ],
+        "regions": [],
+        "unit_groups": []
     }
 ]

@@ -64,10 +64,24 @@ class MapView(QGraphicsView):
         elif self.main_editor.dock_visibility['Regions']:
             self.paint_regions()
         elif self.main_editor.dock_visibility['Groups']:
-            self.paint_units()
+            self.paint_groups()
         else:
             self.paint_units()
         self.show_map()
+
+    def draw_unit(self, painter, unit, position, opacity=False):
+        # Draw unit map sprite
+        klass_nid = unit.klass
+        num = timer.get_timer().passive_counter.count
+        klass = DB.classes.get(klass_nid)
+        pixmap = class_model.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
+        coord = unit.starting_position
+        if pixmap:
+            if opacity:
+                painter.setOpacity(0.25)
+            painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
+        else:
+            pass  # TODO: for now  # Need a fallback option... CITIZEN??
 
     def paint_units(self):
         if self.working_image:
@@ -76,16 +90,7 @@ class MapView(QGraphicsView):
             for unit in self.main_editor.current_level.units:
                 if not unit.starting_position:
                     continue
-                # Draw unit map sprite
-                klass_nid = unit.klass
-                num = timer.get_timer().passive_counter.count
-                klass = DB.classes.get(klass_nid)
-                pixmap = class_model.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
-                coord = unit.starting_position
-                if pixmap:
-                    painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
-                else:
-                    pass  # TODO: for now  # Need a fallback option... CITIZEN??
+                self.draw_unit(painter, unit, unit.starting_position)
             # Highlight current unit with cursor
             current_unit = self.main_editor.unit_painter_menu.get_current()
             if current_unit and current_unit.starting_position:
@@ -98,6 +103,27 @@ class MapView(QGraphicsView):
                     painter.drawImage(coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
             painter.end()
 
+    def paint_groups(self):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for group in self.main_editor.current_level.unit_groups:
+                for unit in group.units:
+                    position = group.positions.get(unit.nid)
+                    if not position:
+                        continue
+                    self.draw_unit(painter, unit, position, opacity=True)
+            # Draw current group
+            current_group = self.main_editor.group_painter_menu.get_current()
+            if current_group:
+                for unit in current_group.units:
+                    position = current_group.positions.get(unit.nid)
+                    if not position:
+                        continue
+                    # With full opacity
+                    self.draw_unit(painter, unit, position)
+            painter.end()
+
     def paint_regions(self):
         if self.working_image:
             painter = QPainter()
@@ -107,7 +133,7 @@ class MapView(QGraphicsView):
                     continue
                 x, y = region.position
                 width, height = region.size
-                color = utils.has_to_color(hash(region.nid))
+                color = utils.hash_to_color(hash(region.nid))
                 pixmap = QPixmap(width * TILEWIDTH, height * TILEHEIGHT)
                 pixmap.fill(QColor(color))
                 painter.drawImage(x * TILEWIDTH, y * TILEHEIGHT, pixmap.toImage())

@@ -2,7 +2,7 @@ from app.utilities.data import Data
 
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
-from app.event.region import Region
+from app.events.regions import Region
 from app.data.level_units import UnitGroup
 
 # Main Level Object used by engine

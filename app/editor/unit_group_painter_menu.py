@@ -48,6 +48,13 @@ class UnitGroupMenu(QWidget):
     def on_visibility_changed(self, state):
         pass
 
+    def get_current(self):
+        for index in self.group_list.selectedIndexes():
+            idx = index.row()
+            if len(self._data) > 0 and idx < len(self._data):
+                return self._data[idx]
+        return None
+
 class GroupList(WidgetList):
     def add_group(self, group):
         item = QListWidgetItem()

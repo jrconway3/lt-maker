@@ -8,6 +8,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
 import app.utilities as str_utils
+from app.editor.tile_editor import tile_tab
 
 class MusicDialog(SimpleDialog):
     def __init__(self, parent, current):
@@ -166,7 +167,7 @@ class PropertiesMenu(QWidget):
             self.current.objective[key] = self.loss_condition.edit.text()
 
     def select_tilemap(self):
-        res, ok = ResourceEditor.get(self.main_editor, "Tilemaps")
+        res, ok = tile_tab.get_tilemaps()
         if ok:
             nid = res.nid
             self.current.tilemap = nid

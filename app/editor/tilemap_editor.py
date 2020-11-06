@@ -11,6 +11,7 @@ from app.resources.resources import RESOURCES
 from app.resources.tiles import LayerGrid
 from app.data.database import DB
 
+from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.base_database_gui import ResourceCollectionModel
@@ -150,7 +151,7 @@ class MapEditorView(QGraphicsView):
             mouse_pos = self.current_mouse_position
             topleft = min(coords)
             for coord in coords:
-                im = tileset.pixmaps[coord].toImage()
+                im = tileset.subpixmaps[coord].toImage()
                 rel_coord = coord[0] - topleft[0], coord[1] - topleft[1]
                 true_pos = mouse_pos[0] + rel_coord[0], mouse_pos[1] + rel_coord[1]                
                 painter.drawImage(true_pos[0] * TILEWIDTH,
@@ -871,9 +872,8 @@ class TileSetMenu(QWidget):
         self.toolbar.addAction(self.delete_action)
 
     def new(self):
-        from app.editor.resource_editor import ResourceEditor
-        resource_editor = self.window.window.window.window
-        res, ok = ResourceEditor.get(resource_editor.window, "Tilesets")
+        from app.editor.tile_editor import tile_tab
+        res, ok = tile_tab.get_tilesets()
         if ok:
             nid = res.nid
             self.current.tilesets.append(nid)
@@ -942,7 +942,7 @@ class TileSetView(MapEditorView):
 
         painter = QPainter()
         painter.begin(image)
-        for coord, pixmap in self.tileset.pixmaps.items():
+        for coord, pixmap in self.tileset.subpixmaps.items():
             im = pixmap.toImage()
             painter.drawImage(coord[0] * self.tilewidth, coord[1] * self.tileheight, im)
             if coord in self.current_coords:

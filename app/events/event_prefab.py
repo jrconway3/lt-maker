@@ -2,23 +2,24 @@ from app.utilities.data import Data, Prefab
 from app.events import event_commands
 
 class Trigger(object):
-    def __init__(self, nid, unit1=False, unit2=False, position=False):
+    def __init__(self, nid, unit1=False, unit2=False, position=False, region=False):
         self.nid: str = nid
         self.unit1: bool = unit1
         self.unit2: bool = unit2
         self.position: bool = position
+        self.region: bool = region
 
 all_triggers = Data([
     Trigger('level_start'),
+    Trigger('level_end'),
     Trigger('turn_change'),
     Trigger('enemy_turn_change'),
-    Trigger('unit_death'),
-    Trigger('unit_wait'),
-    Trigger('unit_level_up'),
-    Trigger('combat_start'),
-    Trigger('combat_end'),
-    Trigger('on_talk'),
-    Trigger('end_level'),
+    Trigger('unit_death', True, False, True),
+    Trigger('unit_wait', True, False, True),
+    Trigger('unit_level_up', True, False, True),
+    Trigger('combat_start', True, True, True),
+    Trigger('combat_end', True, True, True),
+    Trigger('on_talk', True, True, True),
     Trigger('before_base'),
     Trigger('on_title_screen'),
 ])

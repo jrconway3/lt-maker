@@ -1,0 +1,159 @@
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtCore import QDir, QSettings, Qt
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
+
+import os
+
+from app.constants import TILEWIDTH, TILEHEIGHT
+from app.resources.resources import RESOURCES
+from app.resources.tiles import TileSet, TileMapPrefab
+
+from app.utilities.data import Data
+from app.data.database import DB
+
+from app.editor.base_database_gui import ResourceCollectionModel
+from app.extensions.custom_gui import DeletionDialog
+from app.editor.tilemap_editor import MapEditor
+
+from app.utilities import str_utils
+
+class TileSetModel(ResourceCollectionModel):
+    def __init__(self, data, window):
+        super().__init__(data, window)
+        for tileset in self._data:
+            tileset.set_pixmap(QPixmap(tileset.full_path))
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            tileset = self._data[index.row()]
+            text = tileset.nid
+            return text
+        elif role == Qt.DecorationRole:
+            tileset = self._data[index.row()]
+            pixmap = tileset.pixmap
+            return QIcon(pixmap)
+        return None
+        
+    def create_new(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        if ok:
+            for fn in fns:
+                if fn.endswith('.png'):
+                    nid = os.path.split(fn)[-1][:-4]
+                    pix = QPixmap(fn)
+                    nid = str_utils.get_next_name(nid, RESOURCES.tilesets.keys())
+                    if pix.width() % TILEWIDTH != 0:
+                        QMessageBox.critical(self, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
+                        continue
+                    elif pix.height() % TILEHEIGHT != 0:
+                        QMessageBox.critical(self, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
+                        continue
+                    new_tileset = TileSet(nid, fn)
+                    new_tileset.set_pixmap(pix)
+                    RESOURCES.tilesets.append(new_tileset)
+                else:
+                    QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!") 
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.setValue("last_open_path", parent_dir)
+
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_tilemaps = [tilemap for tilemap in RESOURCES.tilemaps if nid in tilemap.tilesets]
+        if affected_tilemaps:
+            affected = Data(affected_tilemaps)
+            model = TileMapModel
+            msg = "Deleting Tileset <b>%s</b> would affect these tilemaps."
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        super().delete(idx)
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        # What uses tilesets
+        # Tilemaps use tilesets
+        for tilemap in RESOURCES.tilemaps:
+            for idx, nid in enumerate(tilemap.tilesets):
+                if nid == old_nid:
+                    tilemap.tilesets[idx] = new_nid
+            for layer in tilemap.layers:
+                for coord, tile_sprite in layer.sprite_grid.items():
+                    if tile_sprite.tileset_nid == old_nid:
+                        tile_sprite.tileset_nid = new_nid
+
+def create_tilemap_pixmap(tilemap):
+    base_layer = tilemap.layers.get('base')
+    image = QImage(tilemap.width * TILEWIDTH,
+                   tilemap.height * TILEHEIGHT,
+                   QImage.Format_ARGB32)
+
+    painter = QPainter()
+    painter.begin(image)
+    for coord, tile_sprite in base_layer.sprite_grid.items():
+        tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+        pix = tileset.get_pixmap(tile_sprite.tileset_position)
+        if pix:
+            painter.drawImage(coord[0] * TILEWIDTH,
+                              coord[1] * TILEHEIGHT,
+                              pix.toImage())
+    painter.end()
+    tilemap.pixmap = QPixmap.fromImage(image)
+
+class TileMapModel(ResourceCollectionModel):
+    def __init__(self, data, window):
+        super().__init__(data, window)
+        for tilemap in self._data:
+            create_tilemap_pixmap(tilemap)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            tilemap = self._data[index.row()]
+            text = tilemap.nid
+            return text
+        elif role == Qt.DecorationRole:
+            tilemap = self._data[index.row()]
+            pixmap = tilemap.pixmap
+            if pixmap:
+                return QIcon(pixmap)
+        return None
+
+    def create_new(self):
+        new_nid = str_utils.get_next_name('New Tilemap', self._data.keys())
+        new_tilemap = TileMapPrefab(new_nid)
+        map_editor = MapEditor(self.window, new_tilemap)
+        map_editor.exec_()
+        create_tilemap_pixmap(new_tilemap)
+        RESOURCES.tilemaps.append(new_tilemap)
+        
+    def delete(self, idx):
+        # Check to see what is using me?
+        res = self._data[idx]
+        nid = res.nid
+        affected_levels = [level for level in DB.levels if level.tilemap == nid]
+        if affected_levels:
+            affected = Data(affected_levels)
+            from app.editor.level_menu import LevelModel
+            model = LevelModel
+            msg = "Deleting Tilemap <b>%s</b> would affect these levels."
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
+            if ok:
+                pass
+            else:
+                return
+        super().delete(idx)
+
+    def nid_change_watchers(self, icon, old_nid, new_nid):
+        # What uses tilemaps
+        # Levels use tilemaps
+        for level in DB.levels:
+            if level.tilemap == old_nid:
+                level.tilemap = new_nid

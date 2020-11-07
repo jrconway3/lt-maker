@@ -1,65 +1,89 @@
 [
     {
         "nid": "Intro",
-        "trigger": "level_start",
+        "trigger": null,
         "level_nid": "DEBUG",
         "condition": "True",
         "commands": [
             [
                 "remove_unit",
                 [
-                    "Eirika"
+                    "Eirika",
+                    "immediate"
                 ]
             ],
             [
-                "wait",
+                "remove_unit",
                 [
-                    "1000"
+                    "Seth",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Seth",
+                    "14,9"
                 ]
             ],
             [
                 "move_unit",
                 [
                     "Seth",
-                    "0,0"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "remove_unit",
-                [
-                    "Seth"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
+                    "8,5"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Eirika",
-                    "3,0"
+                    "9,5"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "1"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "2"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Princess Eirika! This way! I can see no more of Grado's men.|If we've made it this far, we've surely earned a moment's rest."
                 ]
             ],
             [
                 "wait",
                 [
                     "1000"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "Eirika",
-                    "Iron Sword"
                 ]
             ]
         ]

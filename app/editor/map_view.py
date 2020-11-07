@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt, QSettings, pyqtSignal
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 
 from app.utilities import utils
@@ -11,9 +11,11 @@ from app.editor import timer
 from app.editor.class_editor import class_model
 import app.editor.tilemap_editor as tilemap_editor
 
-class MapView(QGraphicsView):
+class SimpleMapView(QGraphicsView):
     min_scale = 1
     max_scale = 4
+    position_clicked = pyqtSignal(int, int)
+    position_moved = pyqtSignal(int, int)
     
     def __init__(self, window=None):
         super().__init__()
@@ -26,6 +28,7 @@ class MapView(QGraphicsView):
         self.setMinimumSize(WINWIDTH, WINHEIGHT)
         self.setStyleSheet("background-color:rgb(128, 128, 128);")
 
+        self.current_level = None
         self.current_map = None
         self.pixmap = None
         self.screen_scale = 1
@@ -40,15 +43,92 @@ class MapView(QGraphicsView):
         self.current_map = tilemap
         self.update_view()
 
+    def set_current_level(self, level):
+        self.current_level = level
+
+    def clear_scene(self):
+        self.scene.clear()
+
+    def update_view(self):
+        if self.current_map:
+            image = tilemap_editor.draw_tilemap(self.current_map)
+            pixmap = QPixmap.fromImage(image)
+            self.working_image = pixmap
+        else:
+            return
+        self.paint_units(self.current_level)
+        self.show_map()
+
+    def draw_unit(self, painter, unit, position, opacity=False):
+        # Draw unit map sprite
+        klass_nid = unit.klass
+        num = timer.get_timer().passive_counter.count
+        klass = DB.classes.get(klass_nid)
+        pixmap = class_model.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
+        coord = unit.starting_position
+        if pixmap:
+            if opacity:
+                painter.setOpacity(0.25)
+            painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
+        else:
+            pass  # TODO: for now  # Need a fallback option... CITIZEN??
+
+    def paint_units(self, current_level):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for unit in current_level.units:
+                if not unit.starting_position:
+                    continue
+                self.draw_unit(painter, unit, unit.starting_position)
+            painter.end()
+
+    def show_map(self):
+        if self.working_image:
+            self.clear_scene()
+            self.scene.addPixmap(self.working_image)
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+
+        if self.current_map and self.current_map.check_bounds(pos):
+            self.position_clicked.emit(*pos)
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+
+        if self.current_map and self.current_map.check_bounds(pos):
+            self.position_moved.emit(*pos)
+        else:
+            self.position_moved.emit(-1, -1)
+
+    def zoom_in(self):
+        if self.screen_scale < self.max_scale:
+            self.screen_scale += 1
+            self.scale(2, 2)
+
+    def zoom_out(self):
+        if self.screen_scale > self.min_scale:
+            self.screen_scale -= 1
+            self.scale(0.5, 0.5)
+
+    def wheelEvent(self, event):
+        if event.angleDelta().y() > 0:
+            self.zoom_in()
+        elif event.angleDelta().y() < 0:
+            self.zoom_out()
+
+class MapView(SimpleMapView):
     def check_position(self, level_prefab, pos):
         for unit in level_prefab.units:
             if unit.starting_position[0] == pos[0] and \
                     unit.starting_position[1] == pos[1]:
                 return unit
         return None
-
-    def clear_scene(self):
-        self.scene.clear()
 
     def update_view(self):
         if self.current_map:
@@ -68,20 +148,6 @@ class MapView(QGraphicsView):
         else:
             self.paint_units()
         self.show_map()
-
-    def draw_unit(self, painter, unit, position, opacity=False):
-        # Draw unit map sprite
-        klass_nid = unit.klass
-        num = timer.get_timer().passive_counter.count
-        klass = DB.classes.get(klass_nid)
-        pixmap = class_model.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
-        coord = unit.starting_position
-        if pixmap:
-            if opacity:
-                painter.setOpacity(0.25)
-            painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
-        else:
-            pass  # TODO: for now  # Need a fallback option... CITIZEN??
 
     def paint_units(self):
         if self.working_image:
@@ -146,11 +212,6 @@ class MapView(QGraphicsView):
                 painter.drawRect(x * TILEWIDTH, y * TILEHEIGHT, width * TILEWIDTH, height * TILEHEIGHT)
             painter.end()
 
-    def show_map(self):
-        if self.working_image:
-            self.clear_scene()
-            self.scene.addPixmap(self.working_image)
-
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
         scene_pos = self.mapToScene(event.pos())
@@ -200,22 +261,6 @@ class MapView(QGraphicsView):
     def mouseReleaseEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
-
-    def zoom_in(self):
-        if self.screen_scale < self.max_scale:
-            self.screen_scale += 1
-            self.scale(2, 2)
-
-    def zoom_out(self):
-        if self.screen_scale > self.min_scale:
-            self.screen_scale -= 1
-            self.scale(0.5, 0.5)
-
-    def wheelEvent(self, event):
-        if event.angleDelta().y() > 0:
-            self.zoom_in()
-        elif event.angleDelta().y() < 0:
-            self.zoom_out()
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)

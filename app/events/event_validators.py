@@ -121,6 +121,8 @@ class Position(Validator):
         if level and level.tilemap:
             tilemap = RESOURCES.tilemaps.get(level.tilemap)
             x, y = text
+            x = int(x)
+            y = int(y)
             if 0 <= x < tilemap.width and 0 <= y < tilemap.height:
                 return text
             return None

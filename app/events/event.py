@@ -2,6 +2,7 @@ from app.constants import WINWIDTH, WINHEIGHT, FRAMERATE
 from app.resources.resources import RESOURCES
 from app.engine.sound import SOUNDTHREAD
 from app.data.database import DB
+from app.events import event_commands
 from app.events.event_portrait import EventPortrait
 from app.utilities import utils
 from app.engine import dialog, engine, background, target_system, action, \
@@ -140,15 +141,6 @@ class Event():
                 SOUNDTHREAD.play_sfx('Select 1')
                 self.text_boxes[-1].unpause()
 
-    def parse(self, command):
-        values = command.values
-        num_keywords = len(command.keywords)
-        true_values = values[:num_keywords]
-        flags = {v for v in values[num_keywords:] if v in command.flags}
-        optional_keywords = [v for v in values[num_keywords:] if v not in flags]
-        true_values += optional_keywords
-        return true_values, flags
-
     def run_command(self, command):
         logger.info('%s: %s', command.nid, command.values)
         current_time = engine.get_time()
@@ -166,7 +158,7 @@ class Event():
             SOUNDTHREAD.play_sfx(sound)
 
         elif command.nid == 'change_background':
-            values, flags = self.parse(command)
+            values, flags = event_commands.parse(command)
             if len(values) > 0:
                 panorama = command.values[0]
                 panorama = RESOURCES.panoramas.get(panorama)
@@ -181,7 +173,7 @@ class Event():
                 self.portraits.clear()
 
         elif command.nid == 'transition':
-            values, flags = self.parse(command)
+            values, flags = event_commands.parse(command)
             if len(values) > 0:
                 self.transition_state = values[0].lower()
             elif self.transition_state == 'close':
@@ -213,7 +205,7 @@ class Event():
             self.move_portrait(command)
 
         elif command.nid == 'bop_portrait':
-            values, flags = self.parse(command)
+            values, flags = event_commands.parse(command)
             name = values[0]
             portrait = self.portraits.get(name)
             if not portrait:
@@ -233,7 +225,7 @@ class Event():
                 game.cursor.hide()
 
         elif command.nid == 'move_cursor':
-            values, flags = self.parse(command)
+            values, flags = event_commands.parse(command)
             position = self.parse_pos(values[0])
             print(position)
             game.cursor.set_pos(position)
@@ -265,7 +257,7 @@ class Event():
             self.give_item(command)
 
     def add_portrait(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         name = values[0]
         unit = game.get_unit(name)
         if unit:
@@ -314,7 +306,7 @@ class Event():
         return True
 
     def remove_portrait(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         name = values[0]
         if name not in self.portraits:
             return False
@@ -332,7 +324,7 @@ class Event():
             self.state = 'waiting'
 
     def move_portrait(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         name = values[0]
         portrait = self.portraits.get(name)
         if not portrait:
@@ -356,7 +348,7 @@ class Event():
             self.state = 'waiting'
 
     def speak(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
 
         speaker = values[0]
         text = values[1]
@@ -366,7 +358,7 @@ class Event():
         self.state = 'dialog'
 
     def add_unit(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
         if not unit:
             print("Couldn't find unit %s" % values[0])
@@ -404,7 +396,7 @@ class Event():
             action.do(action.ArriveOnMap(unit, position))
 
     def move_unit(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
         if not unit.position:
             print("Unit not on map!")
@@ -447,7 +439,7 @@ class Event():
             game.state.change('movement')
 
     def remove_unit(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
         if not unit:
             print("Couldn't find unit %s" % values[0])
@@ -468,7 +460,7 @@ class Event():
             action.do(action.LeaveMap(unit))
 
     def interact_unit(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         unit1 = self.get_unit(values[0])
         unit2 = self.get_unit(values[1])
         if not unit1 or not unit1.position:
@@ -525,7 +517,7 @@ class Event():
             return position
 
     def give_item(self, command):
-        values, flags = self.parse(command)
+        values, flags = event_commands.parse(command)
         if values[0].lower() == 'convoy':
             unit = None
         else:

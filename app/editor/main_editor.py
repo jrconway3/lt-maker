@@ -33,6 +33,7 @@ from app.editor.weapon_editor.weapon_tab import WeaponDatabase
 from app.editor.item_editor.item_tab import ItemDatabase
 from app.editor.terrain_editor.terrain_tab import TerrainDatabase
 from app.editor.stat_editor.stat_tab import StatTypeDatabase
+from app.editor.ai_editor.ai_tab import AIDatabase
 from app.editor.constant_tab import ConstantDatabase
 from app.editor.tag_widget import TagDialog
 from app.editor.mcost_dialog import McostDialog
@@ -198,7 +199,7 @@ class MainEditor(QMainWindow):
                             "Weapon Types": WeaponDatabase.edit,
                             "Items": ItemDatabase.edit,
                             # "Skills": partial(self.get_editor, skill_tab),
-                            # "AI": partial(self.get_editor, ai_tab),
+                            "AI": AIDatabase.edit,
                             "Terrain": TerrainDatabase.edit,
                             "Movement Costs": self.edit_mcost,
                             "Stats": StatTypeDatabase.edit,

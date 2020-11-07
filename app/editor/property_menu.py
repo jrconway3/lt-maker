@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
-import app.utilities as str_utils
+from app.utilities import str_utils
 from app.editor.tile_editor import tile_tab
 
 class MusicDialog(SimpleDialog):

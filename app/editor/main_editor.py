@@ -342,7 +342,7 @@ class MainEditor(QMainWindow):
         self.docks = {}
 
         self.docks['Properties'] = Dock("Properties", self)
-        self.properties_menu = PropertiesMenu(self)
+        self.properties_menu = PropertiesMenu(self.level_menu.view, self)
         self.docks['Properties'].setWidget(self.properties_menu)
 
         # self.docks['Tiles'] = Dock("Tiles", self)

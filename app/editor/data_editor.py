@@ -31,16 +31,16 @@ class SingleDatabaseEditor(QDialog):
     def accept(self):
         settings = QSettings("rainlash", "Lex Talionis")
         current_proj = settings.value("current_proj", None)
-        if current_proj:
-            DB.serialize(current_proj)
+        # if current_proj:
+        #     DB.serialize(current_proj)
         super().accept()
 
     def reject(self):
         self.restore()
         settings = QSettings("rainlash", "Lex Talionis")
         current_proj = settings.value("current_proj", None)
-        if current_proj:
-            DB.serialize(current_proj)
+        # if current_proj:
+        #     DB.serialize(current_proj)
         super().reject()
 
     def save(self):

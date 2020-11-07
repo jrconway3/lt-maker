@@ -49,10 +49,10 @@ class MusicDialog(SimpleDialog):
             self.boxes[key].edit.setText(nid)
 
 class PropertiesMenu(QWidget):
-    def __init__(self, parent):
+    def __init__(self, level_view, parent):
         super().__init__(parent)
         self.main_editor = parent
-        self.current = None
+        self.view = level_view
 
         self.setStyleSheet("font: 10pt;")
 
@@ -108,10 +108,18 @@ class PropertiesMenu(QWidget):
         form.addWidget(self.map_box)
 
         if self.main_editor.current_level:
-            self.set_current(self.main_editor.current_level)
+            self.set_current()
 
-    def set_current(self, current):
-        self.current = current
+    @property
+    def current(self):
+        indices = self.view.selectionModel().selectedIndexes()
+        idx = indices[0].row()
+        return self.view.model()._data[idx]
+
+    def set_current(self):
+        current = self.current
+        if not current:
+            return
 
         self.title_box.edit.setText(current.name)
         self.nid_box.edit.setText(current.nid)
@@ -119,15 +127,14 @@ class PropertiesMenu(QWidget):
             self.party_box.edit.setValue(current.party)
         else:
             self.party_box.edit.setValue("None")
+        
         # self.market_box.edit.setChecked(current.market_flag)
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
         self.loss_condition.edit.setText(current.objective['loss'])
 
     def on_visibility_changed(self, state):
-        if state:
-            if self.main_editor.current_level is not self.current:
-                self.set_current(self.main_editor.current_level)
+        self.set_current()
 
     def nid_changed(self, text):
         self.current.nid = text

@@ -65,11 +65,12 @@ class SimpleMapView(QGraphicsView):
         num = timer.get_timer().passive_counter.count
         klass = DB.classes.get(klass_nid)
         pixmap = class_model.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
-        coord = unit.starting_position
+        coord = position
         if pixmap:
             if opacity:
-                painter.setOpacity(0.25)
+                painter.setOpacity(0.33)
             painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
+            painter.setOpacity(1.0)
         else:
             pass  # TODO: for now  # Need a fallback option... CITIZEN??
 
@@ -227,7 +228,10 @@ class MapView(SimpleMapView):
                         if under_unit:
                             print("Removing Unit")
                             under_unit.starting_position = None
-                        if current_unit.starting_position:
+                        if under_unit is current_unit:
+                            message = "Removed unit %s from map" % (current_unit.nid)
+                            self.main_editor.status_bar.showMessage(message)
+                        elif current_unit.starting_position:
                             print("Move Unit")
                             current_unit.starting_position = pos
                             message = "Moved unit %s to (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
@@ -245,6 +249,39 @@ class MapView(SimpleMapView):
                         self.main_editor.unit_painter_menu.select(idx)
                     else:
                         self.main_editor.unit_painter_menu.deselect()
+            # Groups
+            elif self.main_editor.dock_visibility['Groups']:
+                if event.button() == self.settings.value('place_button', Qt.RightButton):
+                    current_group = self.main_editor.group_painter_menu.get_current()
+                    current_unit = self.main_editor.group_painter_menu.get_current_unit()
+                    if current_unit:
+                        if current_group.positions.get(current_unit.nid) == pos:
+                            del current_group.positions[current_unit.nid]
+                            message = "Removing unit %s from map" % (current_unit.nid)
+                        else:
+                            current_group.positions[current_unit.nid] = pos
+                            message = "Group %s unit %s's position to (%d, %d)" % (current_group.nid, current_unit.nid, pos[0], pos[1])
+                        self.main_editor.status_bar.showMessage(message)
+                        self.update_view()
+                elif event.button() == self.settings.value('select_button', Qt.LeftButton):
+                    current_group = self.main_editor.group_painter_menu.get_current()
+                    under_unit = None
+                    for unit_nid, position in current_group.positions.items():
+                        if pos == position:
+                            under_unit = current_group.units.get(unit_nid)
+                            break
+                    for group in self.main_editor.current_level.unit_groups:
+                        if under_unit:
+                            break
+                        for unit_nid, position in group.positions.items():
+                            if pos == position:
+                                current_group = group
+                                under_unit = group.units.get(unit_nid)
+                                break
+                    if under_unit:
+                        self.main_editor.group_painter_menu.select(current_group, under_unit.nid)
+                    else:
+                        self.main_editor.group_painter_menu.deselect()
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)

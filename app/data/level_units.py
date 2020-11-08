@@ -60,19 +60,17 @@ class UniqueUnit(Prefab):
 class UnitGroup(Prefab):
     nid: str = None
     units: list = None  # Actually unit, not unit nid
-    positions: list = None
+    positions: dict = None
 
     def save_attr(self, name, value):
         if name == 'units':
-            value = [unit.save() for unit in value]
+            value = [unit.nid for unit in value]
         else:
             value = super().save_attr(name, value)
         return value
 
-    def restore_attr(self, name, value):
-        if name == 'units':
-            value = Data([GenericUnit.restore(unit_data) if unit_data['generic'] 
-                          else UniqueUnit.restore(unit_data) for unit_data in value])
-        else:
-            value = super().restore_attr(name, value)
-        return value
+    @classmethod
+    def restore(cls, value, units):
+        self = cls(value['nid'], [], value['positions'])
+        self.units = Data([units.get(unit_nid) for unit_nid in value['units']])
+        return self

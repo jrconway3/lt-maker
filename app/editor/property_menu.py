@@ -149,7 +149,7 @@ class PropertiesMenu(QWidget):
         self.main_editor.update_view()
 
     def title_changed(self, text):
-        self.current.title = text
+        self.current.name = text
         self.main_editor.update_view()
 
     def party_changed(self, idx):

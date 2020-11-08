@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from app.utilities.data import Data, Prefab
-from app.data.level_units import UniqueUnit, GenericUnit
+from app.data.level_units import UniqueUnit, GenericUnit, UnitGroup
 
 class LevelPrefab(Prefab):
     def __init__(self, nid, name):
@@ -28,6 +28,8 @@ class LevelPrefab(Prefab):
     def save_attr(self, name, value):
         if name == 'units':
             value = [unit.save() for unit in value]
+        elif name == 'unit_groups':
+            value = [unit_group.save() for unit_group in value]
         else:
             value = super().save_attr(name, value)
         return value
@@ -36,6 +38,8 @@ class LevelPrefab(Prefab):
         if name == 'units':
             value = Data([GenericUnit.restore(unit_data) if unit_data['generic'] 
                           else UniqueUnit.restore(unit_data) for unit_data in value])
+        elif name == 'unit_groups':
+            value = Data([UnitGroup.restore(val, self.units) for val in value])
         else:
             value = super().restore_attr(name, value)
         return value

@@ -28,9 +28,19 @@ class SingleDatabaseEditor(QDialog):
 
         self.setWindowTitle(self.tab.windowTitle())
 
+        # Restore Geometry
+        settings = QSettings("rainlash", "Lex Talionis")
+        geometry = settings.value(self._type() + " geometry")
+        if geometry:
+            self.restoreGeometry(geometry)
+        state = settings.value(self._type() + " state")
+        if state:
+            self.tab.splitter.restoreState(state)
+
     def accept(self):
         settings = QSettings("rainlash", "Lex Talionis")
         current_proj = settings.value("current_proj", None)
+        self.save_geometry()
         # if current_proj:
         #     DB.serialize(current_proj)
         super().accept()
@@ -39,6 +49,7 @@ class SingleDatabaseEditor(QDialog):
         self.restore()
         settings = QSettings("rainlash", "Lex Talionis")
         current_proj = settings.value("current_proj", None)
+        self.save_geometry()
         # if current_proj:
         #     DB.serialize(current_proj)
         super().reject()
@@ -52,6 +63,19 @@ class SingleDatabaseEditor(QDialog):
         
     def apply(self):
         self.save()
+
+    def closeEvent(self, event):
+        self.save_geometry()
+        super().closeEvent(event)
+
+    def _type(self):
+        return self.tab.__class__.__name__
+
+    def save_geometry(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        settings.setValue(self._type() + " geometry", self.saveGeometry())
+        settings.setValue(self._type() + " state", self.tab.splitter.saveState())
+        print(self._type(), "Save Geometry")
 
 class SingleResourceEditor(QDialog):
     def __init__(self, tab, resource_types=None, parent=None):

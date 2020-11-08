@@ -89,6 +89,10 @@ class MainEditor(QMainWindow):
         self.default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
         self.resize(*self.default_size)
 
+        geometry = self.settings.value("geometry")
+        if geometry:
+            self.restoreGeometry(geometry)
+
         self.map_view = MapView(self)
         self.setCentralWidget(self.map_view)
 
@@ -139,6 +143,8 @@ class MainEditor(QMainWindow):
         self.test_current_act.setEnabled(True)
         self.set_current_tilemap(level.tilemap)
         self.unit_painter_menu.set_current_level(level)
+        self.group_painter_menu.set_current_level(level)
+        self.region_painter_menu.set_current_level(level)
         self.update_view()
 
     def set_current_tilemap(self, tilemap_nid):
@@ -506,6 +512,7 @@ class MainEditor(QMainWindow):
             event.accept()
         else:
             event.ignore()
+        self.settings.setValue("geometry", self.saveGeometry())
 
     # def undo(self):
     #     self.status_bar.showMessage('Undo: %s' % self.undo_stack.undoText())

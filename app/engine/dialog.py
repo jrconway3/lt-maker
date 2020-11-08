@@ -102,7 +102,6 @@ class Dialog():
             return 120
 
     def determine_width(self):
-        print("determine_width")
         width = 0
         current_line = ''
         for command in self.text_commands:

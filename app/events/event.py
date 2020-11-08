@@ -442,6 +442,7 @@ class Event():
             placement = 'giveup'
         position = self.check_placement(position, placement)
         if not position:
+            print("Couldn't get a good position %s %s %s" % (movement_type, placement))
             return None
 
         if movement_type == 'immediate':
@@ -535,9 +536,10 @@ class Event():
                 unit = self.copy_unit(unit)
             elif unit.position:
                 continue
-            position = group.position.get(unit.nid)
+            position = group.positions.get(unit.nid)
             if not position:
                 continue
+            position = tuple(position)
             position = self.check_placement(position, placement)
             if entry_type == 'warp':
                 action.do(action.WarpIn(unit, position))
@@ -550,15 +552,15 @@ class Event():
         values, flags = event_commands.parse(command)
         group1 = game.level.unit_groups.get(values[0])
         if not group1:
-            print("Couldn't find group %s" % values[0])
+            print("Couldn't find group1 %s" % values[0])
             return
         use_starting_positions = False
-        if values[1].lower() == 'Starting':
+        if values[1].lower() == 'starting':
             use_starting_positions = True
         else:
             group2 = game.level.unit_groups.get(values[1])
             if not group2:
-                print("Couldn't find group %s" % values[1])
+                print("Couldn't find group2 %s" % values[1])
                 return
         if len(values) > 2:
             movement_type = values[2]
@@ -581,6 +583,7 @@ class Event():
                     continue
             else:
                 continue
+            position = tuple(position)
             position = self.check_placement(position, placement)
             if movement_type == 'immediate':
                 action.do(action.Teleport(unit, position))

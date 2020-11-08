@@ -74,3 +74,9 @@ class UnitGroup(Prefab):
         self = cls(value['nid'], [], value['positions'])
         self.units = Data([units.get(unit_nid) for unit_nid in value['units']])
         return self
+
+    @classmethod
+    def from_prefab(cls, prefab, units):
+        self = cls(prefab.nid, [], prefab.positions)
+        self.units = Data([units.get(unit.nid) for unit in prefab.units])
+        return self

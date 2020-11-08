@@ -44,6 +44,15 @@
                 "add_unit",
                 [
                     "Eirika",
+                    "8,5",
+                    "immediate",
+                    "stack"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Eirika",
                     "9,5"
                 ]
             ],
@@ -183,7 +192,7 @@
                 "move_unit",
                 [
                     "Eirika",
-                    "Seth"
+                    "4,5"
                 ]
             ],
             [
@@ -205,7 +214,7 @@
                 "speak",
                 [
                     "Seth",
-                    "Your highness, I won\u2019t lie to you. This will not be an easy ride.|Please, take this rapier. If something should happen to me|you must continue to Frelia, alone if need be."
+                    "Your highness, I won't lie to you. This will not be an easy ride.|Please, take this rapier. If something should happen to me|you must continue to Frelia, alone if need be."
                 ]
             ],
             [

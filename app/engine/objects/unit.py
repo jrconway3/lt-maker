@@ -11,7 +11,7 @@ class UnitObject(Prefab):
     def from_prefab(cls, prefab):
         self = cls()
         self.nid = prefab.nid
-        self.position = self.previous_position = self.starting_position = tuple(prefab.starting_position)
+        self.position = self.previous_position = tuple(prefab.starting_position)
         self.team = prefab.team
         self.party = 0
         self.klass = prefab.klass

@@ -18,6 +18,7 @@ class Cursor():
         self.cursor_counter = generic3counter(20*FRAMERATE, 2*FRAMERATE, 8*FRAMERATE)
         self.position = (0, 0)
         self.cur_unit = None
+        self.path = None
         self.draw_state = 0
         self.speed_state = False
 

@@ -39,7 +39,7 @@ class Portrait(Validator):
         return None
 
 class ScreenPosition(Validator):
-    valid_positions = ["OffscreenLeft", "FarLeft", "Left", "CenterLeft", "CenterRight", "Right", "FarRight", "OffscreenRight"]
+    valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "Right", "FarRight", "OffscreenRight"]
 
     def validate(self, text, level):
         if text in self.valid_positions:
@@ -115,6 +115,8 @@ class Position(Validator):
             return None
         text = text.split(',')
         if len(text) != 2:
+            if text in level.units.keys():
+                return text
             return None
         if not all(str_utils.is_int(t) for t in text):
             return None
@@ -139,6 +141,15 @@ class Unit(Validator):
             return text
         return None
 
+class Group(Validator):
+    def validate(self, text, level):
+        if not level:
+            return None
+        nids = [g.nid for g in level.unit_groups]
+        if text in nids:
+            return text
+        return None
+
 class GlobalUnit(Validator):
     def validate(self, text, level):
         if level:
@@ -148,6 +159,17 @@ class GlobalUnit(Validator):
         if text.lower() == 'convoy':
             return text
         elif text in DB.units.keys():
+            return text
+        return None
+
+class StartingGroup(Validator):
+    def validate(self, text, level):
+        if not level:
+            return None
+        if text.lower == 'starting':
+            return text
+        nids = [g.nid for g in level.unit_groups]
+        if text in nids:
             return text
         return None
 

@@ -77,23 +77,33 @@ class Highlighter(QSyntaxHighlighter):
                 running_length += len(section) + 1
 
     def validate_line(self, line) -> list:
-        command = event_commands.parse_text(line)
-        if command:
-            true_values, flags = event_commands.parse(command)
-            broken_args = []
-            for idx, value in enumerate(true_values):
-                if idx >= len(command.keywords):
-                    validator = command.optional_keywords[idx - len(command.keywords)]
-                else:
-                    validator = command.keywords[idx]
-                level_nid = self.window.current.level_nid
-                level = DB.levels.get(level_nid)
-                text = event_validators.validate(validator, value, level)
-                if text is None:
-                    broken_args.append(idx + 1)
-            return broken_args
-        else:
-            return [0]  # First arg is broken
+        try:
+            command = event_commands.parse_text(line)
+            if command:
+                true_values, flags = event_commands.parse(command)
+                broken_args = []
+                for idx, value in enumerate(true_values):
+                    if idx >= len(command.keywords):
+                        i = idx - len(command.keywords)
+                        if i < len(command.optional_keywords):
+                            validator = command.optional_keywords[i]
+                        elif value in flags:
+                            continue
+                        else:
+                            broken_args.append(idx + 1)
+                            continue
+                    else:
+                        validator = command.keywords[idx]
+                    level_nid = self.window.current.level_nid
+                    level = DB.levels.get(level_nid)
+                    text = event_validators.validate(validator, value, level)
+                    if text is None:
+                        broken_args.append(idx + 1)
+                return broken_args
+            else:
+                return [0]  # First arg is broken
+        except:
+            return []
 
 class LineNumberArea(QWidget):
     def __init__(self, parent):
@@ -207,7 +217,7 @@ class EventProperties(QWidget):
         self.trigger_box = PropertyBox("Trigger", ComboBox, self)
         items = self.get_trigger_items("Global")
         self.trigger_box.edit.addItems(items)
-        self.trigger_box.edit.currentIndexChanged.connect(self.trigger_changed)
+        self.trigger_box.edit.activated.connect(self.trigger_changed)
 
         self.level_nid_box = PropertyBox("Level", ComboBox, self)
         self.level_nid_box.edit.addItem("Global")
@@ -273,20 +283,20 @@ class EventProperties(QWidget):
             self.show_map_dialog.done(0)
             self.show_map_dialog = None
 
-    def show_commands(self):
-        # Modeless dialog
-        if not self.show_commands_dialog:
-            self.show_commands_dialog = ShowCommandsDialog(self)
-        self.show_commands_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.show_commands_dialog.setWindowFlags(self.show_commands_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
-        self.show_commands_dialog.show()
-        self.show_commands_dialog.raise_()
-        # self.show_commands_dialog.activateWindow()
+    # def show_commands(self):
+    #     # Modeless dialog
+    #     if not self.show_commands_dialog:
+    #         self.show_commands_dialog = ShowCommandsDialog(self)
+    #     self.show_commands_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
+    #     self.show_commands_dialog.setWindowFlags(self.show_commands_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
+    #     self.show_commands_dialog.show()
+    #     self.show_commands_dialog.raise_()
+    #     # self.show_commands_dialog.activateWindow()
 
-    def close_commands(self):
-        if self.show_commands_dialog:
-            self.show_commands_dialog.done(0)
-            self.show_commands_dialog = None
+    # def close_commands(self):
+    #     if self.show_commands_dialog:
+    #         self.show_commands_dialog.done(0)
+    #         self.show_commands_dialog = None
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -364,7 +374,7 @@ class EventProperties(QWidget):
     
     def hideEvent(self, event):
         self.close_map()
-        self.close_commands()
+        # self.close_commands()
 
 class ShowMapDialog(QDialog):
     def __init__(self, current_level, parent=None):

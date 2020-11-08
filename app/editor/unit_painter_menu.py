@@ -172,7 +172,10 @@ class AllUnitModel(DragDropCollectionModel):
             klass_nid = unit.klass
             num = timer.get_timer().passive_counter.count
             klass = DB.classes.get(klass_nid)
-            active = self.window.view.selectionModel().isSelected(index)
+            if self.window.view:
+                active = self.window.view.selectionModel().isSelected(index)
+            else:
+                active = False
             pixmap = class_model.get_map_sprite_icon(klass, num, active, unit.team, unit.variant)
             if pixmap:
                 return QIcon(pixmap)

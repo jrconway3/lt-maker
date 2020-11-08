@@ -156,6 +156,36 @@ class InteractUnit(EventCommand):
     keywords = ["Unit", "Unit"]
     optional_keywords = ["Script", "Ability"]
 
+class AddGroup(EventCommand):
+    nid = 'add_group'
+    tag = 'unit'
+
+    keywords = ["Group"]
+    optional_keywords = ["EntryType", "Placement"]
+
+class CreateGroup(EventCommand):
+    nid = 'create_group'
+    tag = 'unit'
+
+    keywords = ["Group"]
+    optional_keywords = ["EntryType", "Placement"]
+
+class MorphGroup(EventCommand):
+    nid = 'morph_group'
+    nickname = 'move_group'
+    tag = 'unit'
+
+    keywords = ["Group", "StartingGroup"]
+    optional_keywords = ["MovementType", "Placement"]
+    flags = ['no_block']
+
+class RemoveGroup(EventCommand):
+    nid = 'remove_group'
+    tag = 'unit'
+
+    keywords = ["Group"]
+    optional_keywords = ["RemoveType"]
+
 class GiveItem(EventCommand):
     nid = 'give_item'
     tag = 'unit'

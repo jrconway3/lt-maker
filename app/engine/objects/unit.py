@@ -11,7 +11,7 @@ class UnitObject(Prefab):
     def from_prefab(cls, prefab):
         self = cls()
         self.nid = prefab.nid
-        self.position = self.previous_position = tuple(prefab.starting_position)
+        self.position = self.previous_position = self.starting_position = tuple(prefab.starting_position)
         self.team = prefab.team
         self.party = 0
         self.klass = prefab.klass
@@ -79,7 +79,7 @@ class UnitObject(Prefab):
         self._has_moved = False
 
         self._sprite = None
-        self.sound = None
+        self._sound = None
         self.battle_anim = None
 
         self.current_move = None  # Holds the move action the unit last used
@@ -116,6 +116,13 @@ class UnitObject(Prefab):
             from app.engine import unit_sprite
             self._sprite = unit_sprite.UnitSprite(self)
         return self._sprite
+
+    @property
+    def sound(self):
+        if not self._sound:
+            from app.engine import unit_sound
+            self._sound = unit_sound.UnitSound(self)
+        return self._sound
     
     @property
     def tags(self):

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.utilities.data import Prefab
+from app.utilities.data import Data, Prefab
 
 @dataclass 
 class GenericUnit(Prefab):
@@ -59,5 +59,20 @@ class UniqueUnit(Prefab):
 @dataclass
 class UnitGroup(Prefab):
     nid: str = None
-    units: list = None
+    units: list = None  # Actually unit, not unit nid
     positions: list = None
+
+    def save_attr(self, name, value):
+        if name == 'units':
+            value = [unit.save() for unit in value]
+        else:
+            value = super().save_attr(name, value)
+        return value
+
+    def restore_attr(self, name, value):
+        if name == 'units':
+            value = Data([GenericUnit.restore(unit_data) if unit_data['generic'] 
+                          else UniqueUnit.restore(unit_data) for unit_data in value])
+        else:
+            value = super().restore_attr(name, value)
+        return value

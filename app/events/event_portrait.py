@@ -21,7 +21,7 @@ class EventPortrait():
     closesmile = (64, 80, 32, 16)
 
     transition_speed = 233  # 14 frames
-    movement_speed = 6  # Each frame move ~6 pixels
+    movement_speed = 10  # milliseconds per pixel
 
     def __init__(self, portrait, position, priority, transition=False, slide=None, mirror=False, expressions=None):
         self.portrait = portrait
@@ -64,14 +64,16 @@ class EventPortrait():
         # For bop
         self.bops_remaining = 0
         self.bop_state = False
+        self.bop_height = 2
         self.last_bop = None
 
     def get_width(self):
         return 96
 
-    def bop(self):
-        self.bops_remaining = 2
+    def bop(self, num=2, height=2):
+        self.bops_remaining = num
         self.bop_state = False
+        self.bop_height = height
         self.last_bop = engine.get_time()
 
     def move(self, position):
@@ -194,16 +196,24 @@ class EventPortrait():
             if -self.movement_speed <= diff_pos[0] <= self.movement_speed:
                 self.position = self.next_position
                 self.moving = False
+                self.bop_state = False
+                # self.bop(num=1, height=1)
             else:
+                # TODO: actually a lerp
+                # 15 frames (250 ms) to lerp 24 pixels 
                 perc = (current_time - self.start_movement_time) / (self.travel_mag * self.movement_speed)
+                if perc > 0.5:
+                    self.bop_state = True
+                    self.bop_height = 1
+                travel_mag = perc
                 angle = math.atan2(self.travel[1], self.travel[0])
-                updated_position = (self.orig_position[0] + self.travel[0] * perc * math.cos(angle), 
-                                    self.orig_position[1] + self.travel[1] * perc * math.sin(angle))
+                updated_position = (self.orig_position[0] + abs(self.travel[0]) * travel_mag * math.cos(angle), 
+                                    self.orig_position[1] + abs(self.travel[1]) * travel_mag * math.sin(angle))
                 self.position = updated_position                
 
         if self.bops_remaining:
-            if current_time - self.last_bop > 150:
-                self.last_bop += 150
+            if current_time - self.last_bop > 135:
+                self.last_bop += 135
                 if self.bop_state:
                     self.bops_remaining -= 1
                 self.bop_state = not self.bop_state
@@ -229,7 +239,7 @@ class EventPortrait():
             position = position[0] + int(24 * self.transition_progress), self.position[1]
 
         if self.bop_state:
-            position = position[0], position[1] + 2
+            position = position[0], position[1] + self.bop_height
 
         surf.blit(image, position)
 

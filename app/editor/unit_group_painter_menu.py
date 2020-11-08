@@ -22,7 +22,6 @@ class UnitGroupMenu(QWidget):
         self.window = parent
         self.main_editor = self.window
         self.map_view = self.main_editor.map_view
-        self.current_level = self.main_editor.current_level
         if self.current_level:
             self._data = self.current_level.unit_groups
         else:
@@ -40,10 +39,15 @@ class UnitGroupMenu(QWidget):
         self.create_button.clicked.connect(self.create_new_group)
         grid.addWidget(self.create_button)
 
+    @property
+    def current_level(self):
+        return self.window.current_level
+
     def create_new_group(self):
         nid = str_utils.get_next_name('New Group', self._data.keys())
         new_group = UnitGroup(nid, Data(), [])
         self._data.append(new_group)
+        self.group_list.add_group(new_group)
 
     def on_visibility_changed(self, state):
         pass
@@ -58,7 +62,7 @@ class UnitGroupMenu(QWidget):
 class GroupList(WidgetList):
     def add_group(self, group):
         item = QListWidgetItem()
-        group_widget = GroupWidget(self.parent())
+        group_widget = GroupWidget(group, self.parent())
         item.setSizeHint(group_widget.sizeHint())
         self.addItem(item)
         self.setItemWidget(item, group_widget)
@@ -73,15 +77,14 @@ class GroupList(WidgetList):
         return None
 
 class GroupWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, group, parent=None):
         super().__init__(parent)
         self.window = parent
-        self.current_level = self.window.current_level
-        self.current_group = None
+        self._data = group
 
         self.layout = QGridLayout(self)
         self.layout.setSpacing(0)
-        self.layout.addContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
         self.nid_box = QLineEdit(self)
@@ -105,21 +108,31 @@ class GroupWidget(QWidget):
         self.model.positions = {}
         self.view.setModel(self.model)
         self.view.setIconSize(QSize(32, 32))
-        self.inventory_delegate = InventoryDelegate(self._data)
+        self.inventory_delegate = InventoryDelegate(Data())
         self.view.setItemDelegate(self.inventory_delegate)
 
         self.layout.addWidget(self.view, 3, 0, 1, 2)
 
-        timer.get_time().tick_elapsed.connect(self.tick)
+        timer.get_timer().tick_elapsed.connect(self.tick)
+
+        self.set_current(self._data)
 
     def tick(self):
         self.model.layoutChanged.emit()
 
-    def set_current(self, current_group):
-        self.current_group = current_group
-        self.model._data = self.current_group.units
-        self.model.positions = self.current_group.positions
+    @property
+    def current_level(self):
+        return self.window.current_level
+
+    def on_item_changed(self, curr, prev):
+        pass
+
+    def set_current(self, group):
+        self._data = group
+        self.model._data = self._data.units
+        self.model.positions = self._data.positions
         self.model.update()
+        self.inventory_delegate._data = self._data.units
 
     def select(self, idx):
         index = self.model.index(idx)
@@ -131,33 +144,39 @@ class GroupWidget(QWidget):
     def add_new_unit(self):
         unit_nid, ok = SelectUnitDialog.get_unit_nid(self)
         if ok:
-            if unit_nid in self.current_group.units.keys():
+            if unit_nid in self._data.units.keys():
                 QMessageBox.critical(self, "Error!", "%s already present in group!" % unit_nid)
             else:
                 unit = self.current_level.units.get(unit_nid)
-                self.current_group.units.append(unit)
+                print(unit_nid, unit)
+                print(self.current_level.units)
+                self._data.units.append(unit)
 
 class SelectUnitDialog(Dialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Load Unit")
         self.window = parent
+        self.view = None
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
         self.unit_box = ObjBox("Units", AllUnitModel, self.window.current_level.units, self)
         self.unit_box.edit.setIconSize(QSize(32, 32))
-        self.unit_box.view().setUniformItemSize(True)
+        self.unit_box.edit.view().setUniformItemSizes(True)
+        self.view = self.unit_box.edit.view()
 
         layout.addWidget(self.unit_box)
+        layout.addWidget(self.buttonbox)
 
     @classmethod
     def get_unit_nid(cls, parent):
         dialog = cls(parent)
         result = dialog.exec_()
         if result == QDialog.Accepted:
-            unit_nid = dialog.unit_box.edit.currentText()
+            idx = dialog.unit_box.edit.currentIndex()
+            unit_nid = dialog.window.current_level.units[idx].nid
             return unit_nid, True
         else:
             return None, False

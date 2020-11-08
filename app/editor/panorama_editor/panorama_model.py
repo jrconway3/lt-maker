@@ -22,6 +22,9 @@ class PanoramaModel(ResourceCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             panorama = self._data[index.row()]
+            if not panorama.pixmaps:
+                for path in panorama.get_all_paths():
+                    panorama.pixmaps.append(QPixmap(path))        
             counter = int(time.time() * 1000 // 125) % len(panorama.pixmaps)
             pixmap = panorama.pixmaps[counter]
             if pixmap:
@@ -52,7 +55,7 @@ class PanoramaModel(ResourceCollectionModel):
                     pixs = [QPixmap(i) for i in ims]
                     movie_prefix = str_utils.get_next_name(movie_prefix, [d.nid for d in RESOURCES.panoramas])
                     if all(pix.width() >= WINWIDTH and pix.height() >= WINHEIGHT for pix in pixs):
-                        new_panorama = Panorama(movie_prefix, full_path, pixs)
+                        new_panorama = Panorama(movie_prefix, full_path, len(pixs))
                         RESOURCES.panoramas.append(new_panorama)
                     else:
                         QMessageBox.critical(self.window, "Error", "Image must be at least %dx%d pixels in size" % (WINWIDTH, WINHEIGHT))

@@ -13,7 +13,16 @@ from app.engine.game_state import game
 import logging
 logger = logging.getLogger(__name__)
 
-screen_positions = {'OffscreenLeft': -96, 'FarLeft': -24, 'Left': 0, 'MidLeft': 24, 'MidRight': 120, 'Right': 144, 'FarRight': 168, 'OffscreenRight': 240}
+screen_positions = {'OffscreenLeft': -96, 
+                    'FarLeft': -24,
+                    'Left': 0,
+                    'MidLeft': 24,
+                    'CenterLeft': 24,
+                    'CenterRight': 120,
+                    'MidRight': 120,
+                    'Right': 144,
+                    'FarRight': 168,
+                    'OffscreenRight': 240}
 
 class Event():
     _transition_speed = 15 * FRAMERATE
@@ -253,6 +262,18 @@ class Event():
         elif command.nid == 'interact_unit':
             self.interact_unit(command)
 
+        elif command.nid == 'add_group':
+            self.add_group(command)
+
+        elif command.nid == 'create_group':
+            self.add_group(command, create=True)
+
+        elif command.nid == 'remove_group':
+            self.remove_group(command)
+
+        elif command.nid == 'morph_group':
+            self.morph_group(command)
+
         elif command.nid == 'give_item':
             self.give_item(command)
 
@@ -273,7 +294,7 @@ class Event():
         pos = values[1]
         if pos in screen_positions:
             position = [screen_positions[pos], 80]
-            mirror = pos in ('OffscreenLeft', 'FarLeft', 'Left', 'CenterLeft')
+            mirror = 'Left' in pos
         else:
             position = [int(p) for p in pos.split(',')]
             mirror = False
@@ -335,6 +356,7 @@ class Event():
             position = [screen_positions[pos], 80]
         else:
             position = [int(p) for p in pos.split(',')]
+        print(position)
 
         if 'immediate' in flags:
             portrait.quick_move(position)
@@ -494,6 +516,106 @@ class Event():
         game.combat_instance = combat
         game.state.change('combat')
 
+    def add_group(self, command, create=False):
+        values, flags = event_commands.parse(command)
+        group = game.level.unit_groups.get(values[0])
+        if not group:
+            print("Couldn't find group %s" % values[0])
+            return
+        if len(values) > 1:
+            entry_type = values[1]
+        else:
+            entry_type = 'fade'
+        if len(values) > 2:
+            placement = values[2]
+        else:
+            placement = 'giveup'
+        for unit in group.units:
+            if create:
+                unit = self.copy_unit(unit)
+            elif unit.position:
+                continue
+            position = group.position.get(unit.nid)
+            if not position:
+                continue
+            position = self.check_placement(position, placement)
+            if entry_type == 'warp':
+                action.do(action.WarpIn(unit, position))
+            elif entry_type == 'fade':
+                action.do(action.FadeIn(unit, position))
+            else:  # immediate
+                action.do(action.ArriveOnMap(unit, position))
+
+    def morph_group(self, command):
+        values, flags = event_commands.parse(command)
+        group1 = game.level.unit_groups.get(values[0])
+        if not group1:
+            print("Couldn't find group %s" % values[0])
+            return
+        use_starting_positions = False
+        if values[1].lower() == 'Starting':
+            use_starting_positions = True
+        else:
+            group2 = game.level.unit_groups.get(values[1])
+            if not group2:
+                print("Couldn't find group %s" % values[1])
+                return
+        if len(values) > 2:
+            movement_type = values[2]
+        else:
+            movement_type = 'normal'
+        if len(values) > 3:
+            placement = values[3]
+        else:
+            placement = 'giveup'
+        for unit in group1.units:
+            if not unit.position:
+                continue
+            if use_starting_positions:
+                position = unit.starting_position
+                if not position:
+                    continue
+            elif unit.nid in group2.positions:
+                position = group2.positions.get(unit.nid)
+                if not position:
+                    continue
+            else:
+                continue
+            position = self.check_placement(position, placement)
+            if movement_type == 'immediate':
+                action.do(action.Teleport(unit, position))
+            elif movement_type == 'warp':
+                action.do(action.Warp(unit, position))
+            elif movement_type == 'fade':
+                action.do(action.FadeMove(unit, position))
+            elif movement_type == 'normal':
+                path = target_system.get_path(unit, position)
+                action.do(action.Move(unit, position, path, event=True))
+        if 'no_block' in flags:
+            pass
+        else:
+            self.state = 'paused'
+            game.state.change('movement')
+
+    def remove_group(self, command):
+        values, flags = event_commands.parse(command)
+        group = game.level.unit_groups.get(values[0])
+        if not group:
+            print("Couldn't find group %s" % values[0])
+            return
+        if len(values) > 1:
+            remove_type = values[1]
+        else:
+            remove_type = 'fade'
+        for unit in group.units:
+            if unit.position:
+                if remove_type == 'warp':
+                    action.do(action.WarpOut(unit))
+                elif remove_type == 'fade':
+                    action.do(action.FadeOut(unit))
+                else:  # immediate
+                    action.do(action.LeaveMap(unit))
+
     def check_placement(self, position, placement):
         current_occupant = game.board.get_unit(position)
         if current_occupant:
@@ -503,7 +625,7 @@ class Event():
             elif placement == 'stack':
                 return position
             elif placement == 'closest':
-                position = target_system.get_nearest_open_tile(unit, position)
+                position = target_system.get_nearest_open_tile(current_occupant, position)
                 if not position:
                     logger.info("Somehow wasn't able to find a nearby open tile")
                     return None

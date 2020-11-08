@@ -102,6 +102,7 @@ class Dialog():
             return 120
 
     def determine_width(self):
+        print("determine_width")
         width = 0
         current_line = ''
         for command in self.text_commands:
@@ -110,31 +111,35 @@ class Dialog():
                 width = max(width, max(self.font.width(s) for s in split_lines))
                 if len(split_lines) == 1:
                     width += 16
+                current_line = ''
             elif command.startswith('{'):
                 pass
             else:
                 current_line += command
+        print(current_line)
         if current_line:
             split_lines = self.get_lines_from_block(current_line)
             width = max(width, max(self.font.width(s) for s in split_lines))
             # Account for "waiting cursor"
             if len(split_lines) == 1:
                 width += 16
+        print(width)
         return width
 
     def determine_size(self):
         self.text_width = self.determine_width()
         self.text_width = utils.clamp(self.text_width, 48, WINWIDTH - 16)
-        self.width = self.text_width + 16
+        self.width = self.text_width + 24 + 8 - self.text_width%8
         self.text_height = self.font.height * self.num_lines
         self.text_height = max(self.text_height, 16)
-        self.height = self.text_height + 8
+        self.height = self.text_height + 16
 
     def get_lines_from_block(self, block):
         num_lines = self.num_lines
         if len(block) <= 24:
             num_lines = 1
         lines = text_funcs.split(self.font, block, num_lines, WINWIDTH - 16)
+        print(lines)
         return lines
 
     def _next_line(self):
@@ -224,7 +229,7 @@ class Dialog():
         display_lines = self.text_lines[-self.num_lines:]
         for idx, line in enumerate(display_lines):
             x_pos = self.position[0] + 8
-            y_pos = self.position[1] + 4 + 16 * idx
+            y_pos = self.position[1] + 8 + 16 * idx
             self.font.blit(line, surf, (x_pos, y_pos))
             end_x_pos = x_pos + self.font.width(line)
             end_y_pos = y_pos
@@ -232,20 +237,21 @@ class Dialog():
         return end_x_pos, end_y_pos
 
     def draw_tail(self, surf, portrait):
-        portrait_pos = portrait.position[0] + portrait.get_width()
+        portrait_pos = portrait.position[0] + portrait.get_width()//2
         mirror = portrait_pos < WINWIDTH//2
         if mirror:
             tail_surf = engine.flip_horiz(self.tail)
         else:
             tail_surf = self.tail
         y_pos = self.position[1] + self.background.get_height() - 2
-        x_pos = portrait_pos + 28 if mirror else portrait_pos - 36
+        x_pos = portrait_pos + 20 if mirror else portrait_pos - 36
         # If we wouldn't actually be on the dialog box
         if x_pos > self.background.get_width() + self.position[0] - 24:
             x_pos = self.position[0] + self.background.get_width() - 24
         elif x_pos < self.position[0] + 8:
             x_pos = self.position + 8
 
+        tail_surf = image_mods.make_translucent(tail_surf, .05)
         surf.blit(tail_surf, (x_pos, y_pos))
 
     def draw(self, surf):
@@ -255,7 +261,8 @@ class Dialog():
                 bg = image_mods.make_translucent(bg, 1 - self.transition_progress)
                 surf.blit(bg, (self.position[0], self.position[1] + self.height - bg.get_height()))
             else:
-                surf.blit(self.background, self.position)
+                bg = image_mods.make_translucent(self.background, .05)
+                surf.blit(bg, self.position)
 
         if not self.transition:
             # Draw message tail
@@ -265,7 +272,7 @@ class Dialog():
             end_pos = self.draw_text(surf)
 
             if not self.processing:
-                cursor_pos = 2 + end_pos[0], \
+                cursor_pos = 4 + end_pos[0], \
                     6 + end_pos[1] + self.cursor_offset[self.cursor_offset_index]
                 surf.blit(self.cursor, cursor_pos)
 

@@ -1,7 +1,7 @@
 [
     {
         "nid": "Intro",
-        "trigger": null,
+        "trigger": "level_start",
         "level_nid": "DEBUG",
         "condition": "True",
         "commands": [
@@ -16,6 +16,13 @@
                 "remove_unit",
                 [
                     "Seth",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "Enemy1",
                     "immediate"
                 ]
             ],
@@ -43,7 +50,7 @@
             [
                 "transition",
                 [
-                    "1"
+                    "close"
                 ]
             ],
             [
@@ -55,7 +62,7 @@
             [
                 "transition",
                 [
-                    "2"
+                    "open"
                 ]
             ],
             [
@@ -77,7 +84,161 @@
                 "speak",
                 [
                     "Seth",
-                    "Princess Eirika! This way! I can see no more of Grado's men.|If we've made it this far, we've surely earned a moment's rest."
+                    "Princess Eirika! This way! I can see no more of Grado's men.|If we've made it this far, we've surely earned a moment's rest.|Please forgive my grabbing you so...brusquely earlier."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Don't be foolish, Seth.|If it weren't for you, I would never have made it out of the castle.|You are the reason I'm still alive. You have my gratitude."
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Eirika",
+                    "CenterRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "And whoever that man was, he was clearly after me...|It's my fault that you received such a grave wound.|Allow me to treat it, I--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Your Highness, I can't allow an injury like this to be an obstacle.|We have more important matters to attend to. We must press on to Frelia.|We must fulfill His Majesty's wishes."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "...|I wonder how my father fares alone in the castle. Do you think he's safe?|And what of my brother on the Grado front. We've heard nothing from him for days."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "King Fado and Prince Ephraim are both valiant and brave men.|I doubt even the might of the Grado Empire can hold them in check.|More important to me, Your Highness, is that you look to your own safety.|How sad the two of them would be if something were to happen to you.|We must reach Frelia to ensure the day of your happy reunion."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Yes, of course. You're right.|Until I'm reunited with my father and brother, I must not despair.|Come, Seth. Let us go."
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "open"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Seth",
+                    "4,4"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Once we cross that bridge, we will be in Frelia, near Border Mulan.|Let us proceed, Princess Eirika."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Eirika",
+                    "Seth"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Your highness, I won\u2019t lie to you. This will not be an easy ride.|Please, take this rapier. If something should happen to me|you must continue to Frelia, alone if need be."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Eirika",
+                    "Rapier"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "Enemy1"
+                ]
+            ],
+            [
+                "morph_group",
+                [
+                    "Enemy1",
+                    "Starting"
                 ]
             ],
             [

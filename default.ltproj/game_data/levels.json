@@ -41,7 +41,7 @@
                 "generic": false
             },
             {
-                "nid": 101,
+                "nid": "101",
                 "variant": null,
                 "level": 1,
                 "klass": "Fighter",
@@ -96,8 +96,7 @@
             }
         ],
         "regions": [],
-        "unit_groups": [],
-        "title": "Prologue"
+        "unit_groups": []
     },
     {
         "nid": "1",

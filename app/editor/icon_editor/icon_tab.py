@@ -37,6 +37,8 @@ class IconTab(QWidget):
         self.button.clicked.connect(self.model.append)
         self.layout.addWidget(self.button, 1, 0, 1, 1)
 
+        self.display = None
+
     def update_list(self):
         # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))                
         self.model.layoutChanged.emit()
@@ -57,7 +59,7 @@ class IconTab(QWidget):
 
 class IconListView(QListView):
     def delete(self, index):
-        self.model().delete(index)
+        self.model().delete(index.row())
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)

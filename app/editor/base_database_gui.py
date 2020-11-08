@@ -156,6 +156,7 @@ class CollectionModel(QAbstractListModel):
         self.create_new()
         view = self.window.view
         self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+        self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1)
         view.setCurrentIndex(last_index)
         self.update_watchers(self.rowCount() - 1)

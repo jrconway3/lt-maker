@@ -158,9 +158,9 @@ class MapSpriteProperties(QWidget):
         elif self.current_color == 1:
             frame = editor_utilities.color_convert(frame, editor_utilities.enemy_colors)
         elif self.current_color == 2:
-            frame = editor_utilities.color_convert(frame, editor_utilities.other_colors)
-        elif self.current_color == 3:
             frame = editor_utilities.color_convert(frame, editor_utilities.enemy2_colors)
+        elif self.current_color == 3:
+            frame = editor_utilities.color_convert(frame, editor_utilities.other_colors)
         frame = QPixmap.fromImage(frame)
         self.frame_view.set_image(frame)
         self.frame_view.show_image()

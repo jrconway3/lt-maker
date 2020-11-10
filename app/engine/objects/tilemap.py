@@ -92,7 +92,7 @@ class TileMapObject(Prefab):
         return s_dict
 
     @classmethod
-    def deserialize(cls, s_dict):
+    def restore(cls, s_dict):
         prefab = RESOURCES.tilemaps.get(s_dict['nid'])
         self = cls.from_prefab(prefab)
         self.restore_layers(s_dict['layers'])

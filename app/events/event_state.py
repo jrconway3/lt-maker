@@ -23,6 +23,7 @@ class EventState(MapState):
 
         elif event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
             if self.event.state == 'dialog':
+                SOUNDTHREAD.play_sfx('Select 1')
                 self.event.hurry_up()
 
     def update(self):

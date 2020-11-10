@@ -28,6 +28,9 @@ class Event():
     _transition_speed = 15 * FRAMERATE
     _transition_color = (0, 0, 0)
 
+    skippable = {"speak", "transition", "wait", "bop_portrait",
+                 "sound"}
+
     def __init__(self, commands, unit=None, unit2=None, position=None):
         self.commands = commands
         self.command_idx = 0
@@ -48,6 +51,10 @@ class Event():
 
         # Handles keeping the order that unit sprites should be drawn
         self.priority_counter = 1
+        self.do_skip = False
+
+        self.if_stack = [] # Keeps track of how many ifs we've encountered while searching for the bad ifs 'end'.
+        self.parse_stack = [] # Keeps track of whether we've encountered a truth this level or not
 
         # For transition
         self.transition_state = None
@@ -107,15 +114,16 @@ class Event():
             portrait.draw(surf)
 
         # Draw text/dialog boxes
-        to_draw = []
-        for dialog_box in reversed(self.text_boxes):
-            if not dialog_box.is_done():
-                to_draw.insert(0, dialog_box)
-            if dialog_box.solo_flag:
-                break
-        for dialog_box in to_draw:
-            dialog_box.update()
-            dialog_box.draw(surf)
+        if self.state == 'dialog':
+            to_draw = []
+            for dialog_box in reversed(self.text_boxes):
+                if not dialog_box.is_done():
+                    to_draw.insert(0, dialog_box)
+                if dialog_box.solo_flag:
+                    break
+            for dialog_box in to_draw:
+                dialog_box.update()
+                dialog_box.draw(surf)
 
         # Fade to black
         if self.transition_state:
@@ -131,16 +139,70 @@ class Event():
     def process(self):
         while self.command_idx < len(self.commands) and self.state == 'processing':
             command = self.commands[self.command_idx]
-
-            self.run_command(command)
+            if self.handle_conditional(command):
+                if self.do_skip and command.nid in self.skippable:
+                    pass
+                else:
+                    self.run_command(command)
             self.command_idx += 1
+
+    def handle_conditional(self, command) -> bool:
+        """
+        Returns true if the processor should be processing this command
+        """
+        if command.nid == 'if':
+            if not self.if_stack or self.if_stack[-1]:
+                truth = eval(command.values[0])
+                self.if_stack.append(truth)
+                self.parse_stack.append(truth)
+            else:
+                self.if_stack.append(False)
+                self.parse_stack.append(False)
+            return False
+        elif command.nid == 'elif':
+            if not self.if_stack:
+                logger.error("Syntax Error somewhere in script. 'elif' needs to be after if statement.")
+                return False
+            # If we haven't encountered a truth yet
+            if not self.parse_stack[-1]:
+                truth = eval(command.values[0])
+                self.if_stack[-1] = truth
+                self.parse_stack[-1] = truth
+            else:
+                self.if_stack[-1] = False
+            return False
+        elif command.nid == 'else':
+            if not self.if_stack:
+                logger.error("Syntax Error somewhere in script. 'else' needs to be after if statement.")
+                return False
+            # If the most recent is False but the rest below are non-existent or true
+            if not self.parse_stack[-1]:
+                self.if_stack[-1] = True
+                self.parse_stack[-1] = True
+            else:
+                self.if_stack[-1] = False
+            return False
+        elif command.nid == 'end':
+            self.if_stack.pop()
+            self.parse_stack.pop()
+            return False
+
+        if self.if_stack and not self.if_stack[-1]:
+            return False
+        return True
 
     def reset_portraits(self):
         for portrait in self.portraits.values():
             portrait.stop_talking()
 
     def skip(self):
-        pass
+        self.do_skip = True
+        if self.state != 'paused':
+            self.state = 'processing'
+        self.transition_state = None
+        if self.text_boxes:
+            self.text_boxes[-1].unpause()
+            self.text_boxes[-1].hurry_up()
 
     def hurry_up(self):
         if self.text_boxes:
@@ -238,7 +300,7 @@ class Event():
             position = self.parse_pos(values[0])
             print(position)
             game.cursor.set_pos(position)
-            if 'immediate' in flags:
+            if 'immediate' in flags or self.do_skip:
                 pass
             else:
                 game.state.change('move_camera')
@@ -308,7 +370,7 @@ class Event():
             mirror = not mirror
 
         transition = True
-        if 'immediate' in flags:
+        if 'immediate' in flags or self.do_skip:
             transition = False
 
         slide = None
@@ -318,7 +380,7 @@ class Event():
         new_portrait = EventPortrait(portrait, position, priority, transition, slide, mirror)
         self.portraits[name] = new_portrait
 
-        if 'immediate' in flags or 'no_block' in flags:
+        if 'immediate' in flags or 'no_block' in flags or self.do_skip:
             pass
         else:
             self.wait_time = engine.get_time() + new_portrait.transition_speed + 33  # 16 frames
@@ -332,13 +394,13 @@ class Event():
         if name not in self.portraits:
             return False
 
-        if 'immediate' in flags:
+        if 'immediate' in flags or self.do_skip:
             portrait = self.portraits.pop(name)
         else:
             portrait = self.portraits[name]
             portrait.end()
 
-        if 'immediate' in flags or 'no_block' in flags:
+        if 'immediate' in flags or 'no_block' in flags or self.do_skip:
             pass
         else:
             self.wait_time = engine.get_time() + portrait.transition_speed + 33
@@ -358,12 +420,12 @@ class Event():
             position = [int(p) for p in pos.split(',')]
         print(position)
 
-        if 'immediate' in flags:
+        if 'immediate' in flags or self.do_skip:
             portrait.quick_move(position)
         else:
             portrait.move(position)
 
-        if 'immediate' in flags or 'no_block' in flags:
+        if 'immediate' in flags or 'no_block' in flags or self.skip:
             pass
         else:
             self.wait_time = engine.get_time() + portrait.travel_mag * portrait.movement_speed + 33
@@ -410,7 +472,9 @@ class Event():
         if not position:
             return None
 
-        if entry_type == 'warp':
+        if self.do_skip:
+            action.do(action.ArriveOnMap(unit, position))
+        elif entry_type == 'warp':
             action.do(action.WarpIn(unit, position))
         elif entry_type == 'fade':
             action.do(action.FadeIn(unit, position))
@@ -445,7 +509,7 @@ class Event():
             print("Couldn't get a good position %s %s %s" % (movement_type, placement))
             return None
 
-        if movement_type == 'immediate':
+        if movement_type == 'immediate' or self.do_skip:
             action.do(action.Teleport(unit, position))
         elif movement_type == 'warp':
             action.do(action.Warp(unit, position))
@@ -455,7 +519,7 @@ class Event():
             path = target_system.get_path(unit, position)
             action.do(action.Move(unit, position, path, event=True))
 
-        if 'no_block' in flags:
+        if 'no_block' in flags or self.do_skip:
             pass
         else:
             self.state = 'paused'
@@ -475,7 +539,9 @@ class Event():
         else:
             remove_type = 'fade'
 
-        if remove_type == 'warp':
+        if self.do_skip:
+            action.do(action.LeaveMap(unit))
+        elif remove_type == 'warp':
             action.do(action.WarpOut(unit))
         elif remove_type == 'fade':
             action.do(action.FadeOut(unit))
@@ -541,7 +607,9 @@ class Event():
                 continue
             position = tuple(position)
             position = self.check_placement(position, placement)
-            if entry_type == 'warp':
+            if self.do_skip:
+                action.do(action.ArriveOnMap(unit, position))
+            elif entry_type == 'warp':
                 action.do(action.WarpIn(unit, position))
             elif entry_type == 'fade':
                 action.do(action.FadeIn(unit, position))
@@ -585,7 +653,7 @@ class Event():
                 continue
             position = tuple(position)
             position = self.check_placement(position, placement)
-            if movement_type == 'immediate':
+            if movement_type == 'immediate' or self.do_skip:
                 action.do(action.Teleport(unit, position))
             elif movement_type == 'warp':
                 action.do(action.Warp(unit, position))
@@ -594,7 +662,8 @@ class Event():
             elif movement_type == 'normal':
                 path = target_system.get_path(unit, position)
                 action.do(action.Move(unit, position, path, event=True))
-        if 'no_block' in flags:
+
+        if 'no_block' in flags or self.do_skip:
             pass
         else:
             self.state = 'paused'
@@ -612,7 +681,9 @@ class Event():
             remove_type = 'fade'
         for unit in group.units:
             if unit.position:
-                if remove_type == 'warp':
+                if self.do_skip:
+                    action.do(action.LeaveMap(unit))
+                elif remove_type == 'warp':
                     action.do(action.WarpOut(unit))
                 elif remove_type == 'fade':
                     action.do(action.FadeOut(unit))
@@ -655,6 +726,7 @@ class Event():
             item_prefab = DB.items.get(item_nid)
             item = ItemObject.from_prefab(item_prefab)
             item_system.init(unit, item)
+            game.register_item(item)
         else:
             print("Couldn't find item with nid %s" % item_nid)
             return

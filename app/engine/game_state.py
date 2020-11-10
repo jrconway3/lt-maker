@@ -163,14 +163,14 @@ class GameState():
         self.game_vars = Counter(s_dict.get('game_vars', {}))
         self.level_vars = Counter(s_dict.get('level_vars', {}))
         self.playtime = float(s_dict['playtime'])
-        self.parties = {nid: PartyObject.restore(party) for nid, party in s_dict['parties'].items()}
+        self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.current_party = s_dict['current_party']
         self.turncount = int(s_dict['turncount'])
 
         self.state.load_states(s_dict['state'][0], s_dict['state'][1])
 
         self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
-        self.status_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skill']}
+        self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])

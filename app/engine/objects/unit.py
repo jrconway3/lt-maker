@@ -289,8 +289,8 @@ class UnitObject(Prefab):
 
         # TODO remove temporary statuses
         self.position = None
-        if self.sprite:
-            self.sprite.change_state('normal')
+        if self._sprite:
+            self._sprite.change_state('normal')
         self.reset()
 
     def save(self):
@@ -319,7 +319,7 @@ class UnitObject(Prefab):
                   'skills': [skill.uid for skill in self.skills],
                   'current_hp': self.current_hp,
                   'current_mana': self.current_mana,
-                  'fatigue': self.current_fatigue,
+                  'current_fatigue': self.current_fatigue,
                   'traveler': self.traveler,
                   'dead': self.dead,
                   'finished': self._finished,
@@ -364,6 +364,8 @@ class UnitObject(Prefab):
 
         self.traveler = s_dict['traveler']
 
+        self.equipped_weapon = None
+        self.equipped_accessory = None
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
 
@@ -375,8 +377,8 @@ class UnitObject(Prefab):
         self._has_traded = False
         self._has_moved = False
 
-        self.sprite = None
-        self.sound = None
+        self._sprite = None
+        self._sound = None
         self.battle_anim = None
 
         self.current_move = None  # Holds the move action the unit last used

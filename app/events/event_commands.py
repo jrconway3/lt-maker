@@ -20,6 +20,26 @@ class EventCommand(Prefab):
     def to_plain_text(self):
         return ';'.join([self.nid] + self.values)
 
+class If(EventCommand):
+    nid = "if"
+    tag = "flow"
+
+    keywords = ['Condition']
+
+class Elif(EventCommand):
+    nid = "elif"
+    tag = "flow"
+
+    keywords = ['Condition']
+
+class Else(EventCommand):
+    nid = "else"
+    tag = "flow"
+
+class End(EventCommand):
+    nid = "end"
+    tag = "flow"
+
 class Wait(EventCommand):
     nid = "wait"
     tag = "general"

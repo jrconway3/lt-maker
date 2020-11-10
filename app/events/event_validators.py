@@ -12,6 +12,9 @@ class OptionValidator(Validator):
             return text
         return None
 
+class Condition(Validator):
+    pass
+
 class Time(Validator):
     def validate(self, text, level):
         if str_utils.is_int(text):
@@ -166,7 +169,7 @@ class StartingGroup(Validator):
     def validate(self, text, level):
         if not level:
             return None
-        if text.lower == 'starting':
+        if text.lower() == 'starting':
             return text
         nids = [g.nid for g in level.unit_groups]
         if text in nids:

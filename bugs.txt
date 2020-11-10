@@ -12,11 +12,8 @@ skills
 regions
 ai event tiles
 
-suspend doesn't work
-
 painting in the tile editor
-
-attacking in engine doesn't work
 
 Prep / Base / Overworld / Supports / Combat Animations / Difficulty Modes / Status Menu / Unit Menu / Minimap / 
 Saving and loading projects / Freezing Code
+Saving and Loading and Restarting chapters

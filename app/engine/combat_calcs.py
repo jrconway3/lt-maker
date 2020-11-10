@@ -4,11 +4,13 @@ from app.engine import equations, item_system
 
 def get_weapon_rank_bonus(unit, item):
     weapon_type = item_system.weapon_type(unit, item)
-    highest_rank_bonus = None
-    for weapon_rank in DB.weapon_ranks:
-        if unit.wexp[weapon_type] >= weapon_rank.requirement:
-            highest_rank_bonus = weapon_rank.bonus
-    return highest_rank_bonus
+    rank_bonus = DB.weapons.get(weapon_type).rank_bonus
+    wexp = unit.wexp[weapon_type]
+    for combat_bonus in rank_bonus:
+        if combat_bonus.weapon_rank == 'All' or \
+                DB.weapon_ranks.get(combat_bonus.weapon_rank).requirement >= wexp:
+            return combat_bonus
+    return None
 
 def compute_advantage(unit1, unit2, item1, item2, advantage=True):
     if not item1 or not item2:

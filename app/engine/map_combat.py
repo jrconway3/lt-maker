@@ -416,7 +416,7 @@ class MapCombat():
         if DB.constants.value('miss_wexp'):
             marks += self.get_from_playback('mark_miss')
         marks = [mark for mark in marks if mark[1] == unit]
-        wexp = item_system.wexp(unit, item, target)
+        wexp = item_system.wexp(self.playback, unit, item, target)
 
         if DB.constants.value('double_wexp'):
             for mark in marks:
@@ -438,7 +438,7 @@ class MapCombat():
         for mark in marks:
             attacker = mark[1]
             defender = mark[2]
-            exp = item_system.exp(attacker, item, defender)
+            exp = item_system.exp(self.playback, attacker, item, defender)
             if defender.is_dying:
                 exp *= int(DB.constants.get('kill_multiplier').value)
                 if 'Boss' in defender.tags:

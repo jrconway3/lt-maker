@@ -93,7 +93,7 @@ class CombatPhaseSolver():
         self.num_attacks, self.num_defends = 0, 0
 
         # For event combats
-        self.script = reversed(script) or []
+        self.script = reversed(script) if script else []
         self.current_command = '--'
 
     def get_state(self):

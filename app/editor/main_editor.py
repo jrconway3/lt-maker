@@ -573,7 +573,7 @@ class MainEditor(QMainWindow):
         dialog.exec_()
 
     def edit_mcost(self):
-        dialog = McostDialog.create()
+        dialog = McostDialog(self)
         dialog.exec_()
 
     def edit_equations(self):   

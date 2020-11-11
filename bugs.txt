@@ -1,9 +1,3 @@
-load unit
-create unit generic
-
-mcost dialog
-mcost dialog columns
-
 constants dialog confusing?
 ending constants dialog
 
@@ -14,6 +8,8 @@ ai event tiles
 
 painting in the tile editor
 
-Prep / Base / Overworld / Supports / Combat Animations / Difficulty Modes / Status Menu / Unit Menu / Minimap / 
+Swap light and dark icons whenever theme changes
+
+Prep / Base / Overworld / Supports / Combat Animations / Difficulty Modes / Status Menu / Unit Menu / Minimap / Fog of War / Line of Sight
 Saving and loading projects / Freezing Code
 Saving and Loading and Restarting chapters

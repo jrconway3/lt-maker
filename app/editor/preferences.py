@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QApplication
 from PyQt5.QtCore import Qt, QSettings
 
+from app import dark_theme
 from app.extensions.custom_gui import ComboBox, PropertyBox, Dialog
 
 name_to_button = {'L-click': Qt.LeftButton,
@@ -66,6 +67,8 @@ class PreferencesDialog(Dialog):
 
     def theme_changed(self, idx):
         choice = self.theme.edit.currentText()
+        ap = QApplication.instance()
+        dark_theme.set(ap, idx)
 
     def accept(self):
         self.settings.setValue('select_button', name_to_button[self.select.edit.currentText()])

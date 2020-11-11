@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialogButtonBox, QTableView, QInputDialog, QHeaderView, \
     QGridLayout, QPushButton, QLineEdit, QStyledItemDelegate, QAction, QMenu, QMessageBox, \
-    QDialog
-from PyQt5.QtGui import QDoubleValidator, QFontMetrics, QBrush, QColor
+    QDialog, QApplication
+from PyQt5.QtGui import QDoubleValidator, QFontMetrics, QBrush, QColor, QPalette
 from PyQt5.QtWidgets import QStyle, QProxyStyle
 from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt, QSize
@@ -58,7 +58,7 @@ class McostDialog(SimpleDialog):
 
 class VerticalTextHeaderStyle(QProxyStyle):
     def __init__(self, fontHeight):
-        super().__init__()
+        super().__init__("Fusion")
         self.half_font_height = fontHeight / 2
 
     def drawControl(self, element, option, painter, parent=None):
@@ -69,6 +69,12 @@ class VerticalTextHeaderStyle(QProxyStyle):
             painter.rotate(-90)
             painter.drawText(0, 0, header.text)
             painter.restore()
+        elif (element == QStyle.CE_HeaderSection):
+            super().drawControl(element, option, painter, parent)
+            # pass
+        elif (element == QStyle.CE_HeaderEmptyArea):
+            super().drawControl(element, option, painter, parent)
+            # pass
         else:
             super().drawControl(element, option, painter, parent)
 
@@ -360,7 +366,8 @@ class GridModel(QAbstractTableModel):
             elif index.column() == self.marked_col:
                 return QBrush(QColor("gray"))
             else:
-                return QBrush()
+                palette = QApplication.palette()
+                return QBrush(palette.color(QPalette.Text))
         return None
 
     def setData(self, index, value, role):

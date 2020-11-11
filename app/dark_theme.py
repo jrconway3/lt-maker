@@ -25,6 +25,8 @@ BLUEPRIMARY = QColor(91, 105, 117, 232)
 BLUESECONDARY = QColor(69, 66, 89, 232)
 BLUETERTIARY = QColor(128, 143, 137, 232)
 
+base_palette = QPalette()
+
 def css_rgb(color, a=False):
     """Get a CSS `rgb` or `rgba` string from a `QtGui.QColor`."""
     return ("rgba({}, {}, {}, {})" if a else "rgb({}, {}, {})").format(*color.getRgb())
@@ -138,3 +140,30 @@ class QBlueBGPalette(QDarkPalette):
         self.setColor(QPalette.Disabled, QPalette.WindowText, DISABLED)
         self.setColor(QPalette.Disabled, QPalette.Text, DISABLED)
         self.setColor(QPalette.Disabled, QPalette.ButtonText, DISABLED)
+
+def set(app, theme_idx):
+    """
+    Unfortunately for now, icon colors don't change until restart
+    """
+    if theme_idx == 0:
+        app.setStyle("Fusion")
+        app.setPalette(base_palette)
+    elif theme_idx == 1:
+        d = QDarkPalette()
+        d.set_app(app)
+    elif theme_idx == 2:
+        d = QDiscordPalette()
+        d.set_app(app)
+    elif theme_idx == 3:
+        d = QDarkBGPalette()
+        d.set_app(app)
+    elif theme_idx == 4:
+        d = QBlueBGPalette()
+        d.set_app(app)
+
+    if theme_idx == 3:
+        app.setStyleSheet("QDialog {background-image: url(bg.png)};")
+    elif theme_idx == 4:
+        app.setStyleSheet("QDialog {background-image: url(bg2.png)};")
+    else:
+        app.setStyleSheet("QDialog {background-image: none;")

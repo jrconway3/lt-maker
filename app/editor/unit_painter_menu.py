@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon, QBrush, QColor
 
 from app.utilities import str_utils
 from app.utilities.data import Data
-from app.data.level_units import GenericUnit
+from app.data.level_units import GenericUnit, UniqueUnit
 from app.data.database import DB
 
 from app.editor import timer
@@ -253,7 +253,8 @@ class LoadUnitDialog(Dialog):
             self.current = current
         else:
             assert len(DB.units) > 0 and len(DB.ai) > 0
-            self.current = DB.create_unit_unique(DB.units[0].nid, 'player', DB.ai[0].nid)
+            nid = DB.units[0].nid
+            self.current = UniqueUnit(nid, 'player', DB.ai[0].nid)
 
         self.unit_box = UnitBox(self, button=True)
         self.unit_box.edit.setValue(self.current.nid)
@@ -377,6 +378,11 @@ class GenericUnitDialog(Dialog):
 
         self.set_current(self.current)
 
+        timer.get_timer().tick_elapsed.connect(self.tick)
+
+    def tick(self):
+        self.class_box.model.dataChanged.emit(self.class_box.model.index(0), self.class_box.model.index(self.class_box.model.rowCount()))
+
     def team_changed(self, val):
         self.current.team = self.team_box.edit.currentText()
         self.class_box.model.display_team = self.current.team
@@ -385,7 +391,7 @@ class GenericUnitDialog(Dialog):
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()
         self.level_box.edit.setMaximum(DB.classes.get(self.current.klass).max_level)
-        self.check_color()
+        # self.check_color()
         if self.averages_dialog:
             self.averages_dialog.update()
 
@@ -408,22 +414,22 @@ class GenericUnitDialog(Dialog):
     def ai_changed(self, val):
         self.current.ai = self.ai_box.edit.currentText()
 
-    def check_color(self):
-        # See which ones can actually be wielded
-        color_list = []
-        for item_nid, droppable in self.current.starting_items:
-            item = DB.items.get(item_nid)
-            if droppable:
-                color_list.append(Qt.darkGreen)
-            elif not can_wield(self.current, item, prefab=False):
-                color_list.append(Qt.red)
-            else:
-                color_list.append(Qt.black)
-        self.item_widget.set_color(color_list)
+    # def check_color(self):
+    #     # See which ones can actually be wielded
+    #     color_list = []
+    #     for item_nid, droppable in self.current.starting_items:
+    #         item = DB.items.get(item_nid)
+    #         if droppable:
+    #             color_list.append(Qt.darkGreen)
+    #         elif not can_wield(self.current, item, prefab=False):
+    #             color_list.append(Qt.red)
+    #         else:
+    #             color_list.append(Qt.black)
+    #     self.item_widget.set_color(color_list)
 
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()
-        self.check_color()
+        # self.check_color()
 
     def display_averages(self):
         # Modeless dialog

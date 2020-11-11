@@ -126,7 +126,8 @@ class SimpleMapView(QGraphicsView):
 class MapView(SimpleMapView):
     def check_position(self, level_prefab, pos):
         for unit in level_prefab.units:
-            if unit.starting_position[0] == pos[0] and \
+            if unit.starting_position and \
+                    unit.starting_position[0] == pos[0] and \
                     unit.starting_position[1] == pos[1]:
                 return unit
         return None

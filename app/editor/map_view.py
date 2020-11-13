@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, QSettings, pyqtSignal
-from PyQt5.QtGui import QPixmap, QPainter, QColor
+from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush
 
 from app.utilities import utils
 from app.sprites import SPRITES
@@ -34,6 +34,9 @@ class SimpleMapView(QGraphicsView):
         self.screen_scale = 1
 
         self.working_image = None
+
+        self.current_mouse_pos = None
+        self.region_select = None
 
     def center_on_pos(self, pos):
         self.centerOn(pos[0]*TILEWIDTH, pos[1]*TILEHEIGHT)
@@ -104,6 +107,7 @@ class SimpleMapView(QGraphicsView):
 
         if self.current_map and self.current_map.check_bounds(pos):
             self.position_moved.emit(*pos)
+            self.current_mouse_pos = pos
         else:
             self.position_moved.emit(-1, -1)
 
@@ -201,17 +205,32 @@ class MapView(SimpleMapView):
                     continue
                 x, y = region.position
                 width, height = region.size
-                color = utils.hash_to_color(hash(region.nid))
+                color = utils.hash_to_color(utils.strhash(region.nid))
                 pixmap = QPixmap(width * TILEWIDTH, height * TILEHEIGHT)
-                pixmap.fill(QColor(color))
+                pixmap.fill(QColor(*color))
+                painter.setOpacity(0.75)
                 painter.drawImage(x * TILEWIDTH, y * TILEHEIGHT, pixmap.toImage())
             current_region = self.main_editor.region_painter_menu.get_current()
-            if current_region and current_region.position:
-                x, y = current_region.position
-                width, height = current_region.size
-                painter.setBrush(Qt.NoBrush)
-                painter.setPen(Qt.yellow)
-                painter.drawRect(x * TILEWIDTH, y * TILEHEIGHT, width * TILEWIDTH, height * TILEHEIGHT)
+            if current_region:
+                if current_region.position:
+                    x, y = current_region.position
+                    width, height = current_region.size
+                    painter.setBrush(Qt.NoBrush)
+                    painter.setPen(Qt.yellow)
+                    painter.setOpacity(0.75)
+                    painter.drawRect(x * TILEWIDTH, y * TILEHEIGHT, width * TILEWIDTH, height * TILEHEIGHT)
+                elif self.region_select:
+                    left = min(self.region_select[0], self.current_mouse_pos[0])
+                    right = max(self.region_select[0], self.current_mouse_pos[0])
+                    top = min(self.region_select[1], self.current_mouse_pos[1])
+                    bottom = max(self.region_select[1], self.current_mouse_pos[1])
+                    width = right - left + 1
+                    height = bottom - top + 1
+                    color = utils.hash_to_color(utils.strhash(current_region.nid))
+                    # painter.setBrush(Qt.DiagCrossPattern)
+                    # painter.setPen()
+                    painter.setOpacity(0.75)
+                    painter.fillRect(left * TILEWIDTH, top * TILEHEIGHT, width * TILEWIDTH, height * TILEHEIGHT, QBrush(QColor(*color), Qt.DiagCrossPattern))
             painter.end()
 
     def mousePressEvent(self, event):
@@ -283,6 +302,12 @@ class MapView(SimpleMapView):
                         self.main_editor.group_painter_menu.select(current_group, under_unit.nid)
                     else:
                         self.main_editor.group_painter_menu.deselect()
+            elif self.main_editor.dock_visibility['Regions']:
+                if event.button() == self.settings.value('place_button', Qt.RightButton):
+                    current_region = self.main_editor.region_painter_menu.get_current()
+                    # Remove position for current region if it has one
+                    current_region.position = None
+                    self.region_select = pos
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
@@ -290,15 +315,48 @@ class MapView(SimpleMapView):
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and self.current_map.check_bounds(pos):
+            self.current_mouse_pos = pos
             self.main_editor.set_position_bar(pos)
-            self.main_editor.set_terrain(self.current_map.get_terrain(pos))
+            
+            if self.main_editor.dock_visibility['Regions']:
+                current_region = None
+                for region in self.main_editor.current_level.regions:
+                    if region.position and region.contains(pos):
+                        current_region = region
+                        break
+                if current_region:
+                    self.main_editor.set_message("Region ID: %s" % current_region.nid)
+                else:
+                    self.main_editor.set_message(None)
+            else:
+                terrain_nid = self.current_map.get_terrain(pos)
+                terrain = DB.terrain.get(terrain_nid)
+                if terrain:
+                    self.main_editor.set_message("%s: %s" % (terrain.nid, terrain.name))
+                else:
+                    self.main_editor.set_message(None)
         else:
             self.main_editor.set_position_bar(None)
-            self.main_editor.set_terrain(None)
+            self.main_editor.set_message(None)
 
     def mouseReleaseEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+
+        if self.current_map and self.current_map.check_bounds(pos):
+            if self.region_select and self.main_editor.dock_visibility['Regions']:
+                if event.button() == self.settings.value('place_button', Qt.RightButton):
+                    current_region = self.main_editor.region_painter_menu.get_current()
+                    prev_pos = self.region_select
+                    top = min(prev_pos[1], pos[1])
+                    left = min(prev_pos[0], pos[0])
+                    right = max(prev_pos[0], pos[0])
+                    bottom = max(prev_pos[1], pos[1])
+                    width = right - left
+                    height = bottom - top
+                    current_region.position = (left, top)
+                    current_region.size = [width + 1, height + 1]
+                    self.region_select = None
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)

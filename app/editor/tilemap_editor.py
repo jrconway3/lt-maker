@@ -3,7 +3,7 @@ from enum import IntEnum
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
     QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, QSettings
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
@@ -31,6 +31,10 @@ def draw_tilemap(tilemap):
         if layer.visible:
             for coord, tile_sprite in layer.sprite_grid.items():
                 tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+                if not tileset:
+                    print(coord, tile_sprite, tile_sprite.tileset_nid)
+                    print(tileset)
+                    print(RESOURCES.tilesets)
                 if not tileset.pixmap:
                     tileset.set_pixmap(QPixmap(tileset.full_path))
                 pix = tileset.get_pixmap(tile_sprite.tileset_position)
@@ -341,7 +345,7 @@ class MapEditorView(QGraphicsView):
                     new_coord_y = y%h + topleft[1]
                     if (new_coord_x, new_coord_y) in coords:
                         current_layer.set_sprite(
-                            (x, y), tileset, (new_coord_x, new_coord_y))
+                            (x, y), tileset.nid, (new_coord_x, new_coord_y))
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -486,19 +490,26 @@ class MapEditor(QDialog):
         self.view.update_view()
 
     def create_actions(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        theme = settings.value("theme", 0)
+        if theme == 0:
+            icon_folder = 'icons'
+        else:
+            icon_folder = 'dark_icons'
+
         paint_group = QActionGroup(self)
-        self.brush_action = QAction(QIcon("icons/brush.png"), "&Brush", self, shortcut="B", triggered=self.set_brush)
+        self.brush_action = QAction(QIcon(f"{icon_folder}/brush.png"), "&Brush", self, shortcut="B", triggered=self.set_brush)
         self.brush_action.setCheckable(True)
         paint_group.addAction(self.brush_action)
-        self.paint_action = QAction(QIcon("icons/fill.png"), "&Fill", self, shortcut="F", triggered=self.set_fill)
+        self.paint_action = QAction(QIcon(f"{icon_folder}/fill.png"), "&Fill", self, shortcut="F", triggered=self.set_fill)
         self.paint_action.setCheckable(True)
         paint_group.addAction(self.paint_action)
-        self.erase_action = QAction(QIcon("icons/eraser.png"), "&Erase", self, shortcut="E", triggered=self.set_erase)
+        self.erase_action = QAction(QIcon(f"{icon_folder}/eraser.png"), "&Erase", self, shortcut="E", triggered=self.set_erase)
         self.erase_action.setCheckable(True)
         paint_group.addAction(self.erase_action)
-        self.resize_action = QAction(QIcon("icons/resize.png"), "&Resize", self, shortcut="R", triggered=self.resize)
+        self.resize_action = QAction(QIcon(f"{icon_folder}/resize.png"), "&Resize", self, shortcut="R", triggered=self.resize)
 
-        self.terrain_action = QAction(QIcon("icons/terrain.png"), "&Terrain Mode", self, shortcut="T", triggered=self.terrain_mode_toggle)
+        self.terrain_action = QAction(QIcon(f"{icon_folder}/terrain.png"), "&Terrain Mode", self, shortcut="T", triggered=self.terrain_mode_toggle)
         self.terrain_action.setCheckable(True)
 
     def void_right_selection(self):
@@ -771,9 +782,16 @@ class LayerMenu(QWidget):
             self.window.update_view()
 
     def create_actions(self):
-        self.new_action = QAction(QIcon("icons/file-plus.png"), "New Layer", triggered=self.new)
-        self.duplicate_action = QAction(QIcon("icons/duplicate.png"), "Duplicate Layer", triggered=self.duplicate)
-        self.delete_action = QAction(QIcon("icons/x-circle.png"), "Delete Layer", triggered=self.delete)
+        settings = QSettings("rainlash", "Lex Talionis")
+        theme = settings.value("theme", 0)
+        if theme == 0:
+            icon_folder = 'icons'
+        else:
+            icon_folder = 'dark_icons'
+
+        self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "New Layer", triggered=self.new)
+        self.duplicate_action = QAction(QIcon(f"{icon_folder}/duplicate.png"), "Duplicate Layer", triggered=self.duplicate)
+        self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Delete Layer", triggered=self.delete)
         self.delete_action.setEnabled(False)
 
     def create_toolbar(self):
@@ -862,8 +880,15 @@ class TileSetMenu(QWidget):
         self.view.update_view()
 
     def create_actions(self):
-        self.new_action = QAction(QIcon("icons/file-plus.png"), "Load Tileset", triggered=self.new)
-        self.delete_action = QAction(QIcon("icons/x-circle.png"), "Unload Tileset", triggered=self.delete)
+        settings = QSettings("rainlash", "Lex Talionis")
+        theme = settings.value("theme", 0)
+        if theme == 0:
+            icon_folder = 'icons'
+        else:
+            icon_folder = 'dark_icons'
+
+        self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "Load Tileset", triggered=self.new)
+        self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Unload Tileset", triggered=self.delete)
         self.delete_action.setEnabled(False)
 
     def create_toolbar(self):

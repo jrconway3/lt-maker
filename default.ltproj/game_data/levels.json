@@ -325,7 +325,50 @@
                 "generic": true
             }
         ],
-        "regions": [],
+        "regions": [
+            {
+                "nid": "House1",
+                "region_type": "Event",
+                "position": [
+                    13,
+                    6
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True"
+            },
+            {
+                "nid": "House2",
+                "region_type": "Event",
+                "position": [
+                    10,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True"
+            },
+            {
+                "nid": "Gate",
+                "region_type": "Event",
+                "position": [
+                    2,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Seize",
+                "condition": "True"
+            }
+        ],
         "unit_groups": []
     }
 ]

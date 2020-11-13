@@ -100,6 +100,7 @@ class MainEditor(QMainWindow):
         self.create_menus()
         self.create_toolbar()
         self.create_statusbar()
+        self.set_icons()
 
         self.current_level = None
 
@@ -158,43 +159,65 @@ class MainEditor(QMainWindow):
         self.level_menu.update_view()
         self.map_view.update_view()
 
-    # === Create Menu ===
-    def create_actions(self):
-        self.current_proj = None
-
-        theme = self.settings.value("theme", 0)
+    def set_icons(self, force_theme=None):
+        if force_theme is None:
+            theme = self.settings.value("theme", 0)
+        else:
+            theme = force_theme
         if theme == 0:
             icon_folder = 'icons'
         else:
             icon_folder = 'dark_icons'
 
-        self.new_act = QAction(QIcon(f'{icon_folder}/file-plus.png'), "&New Project...", self, shortcut="Ctrl+N", triggered=self.new)
-        self.open_act = QAction(QIcon(f'{icon_folder}/folder.png'), "&Open Project...", self, shortcut="Ctrl+O", triggered=self.open)
-        self.save_act = QAction(QIcon(f'{icon_folder}/save.png'), "&Save Project", self, shortcut="Ctrl+S", triggered=self.save)
-        self.save_as_act = QAction(QIcon(f'{icon_folder}/save.png'), "Save Project As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
+        self.new_act.setIcon(QIcon(f'{icon_folder}/file-plus.png'))
+        self.open_act.setIcon(QIcon(f'{icon_folder}/folder.png'))
+        self.save_act.setIcon(QIcon(f'{icon_folder}/save.png'))
+        self.save_as_act.setIcon(QIcon(f'{icon_folder}/save.png'))
+        self.quit_act.setIcon(QIcon(f'{icon_folder}/x.png'))
+        self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
+        self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
+        self.test_current_act.setIcon(QIcon(f'{icon_folder}/play.png'))
+        self.test_full_act.setIcon(QIcon(f'{icon_folder}/play_all.png'))
+        self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))
+        self.back_to_main_act.setIcon(QIcon(f'{icon_folder}/left_arrow.png'))
+
+        self.modify_events_act.setIcon(QIcon(f'{icon_folder}/event.png'))
+        
+        self.database_button.setIcon(QIcon(f'{icon_folder}/database.png'))
+        self.resource_button.setIcon(QIcon(f'{icon_folder}/resource.png'))
+        self.test_button.setIcon(QIcon(f'{icon_folder}/play.png'))
+
+    # === Create Menu ===
+    def create_actions(self):
+        self.current_proj = None
+
+        self.new_act = QAction("&New Project...", self, shortcut="Ctrl+N", triggered=self.new)
+        self.open_act = QAction("&Open Project...", self, shortcut="Ctrl+O", triggered=self.open)
+        self.save_act = QAction("&Save Project", self, shortcut="Ctrl+S", triggered=self.save)
+        self.save_as_act = QAction("Save Project As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
         # self.build_act = QAction(QIcon(), "Build Project...", self, shortcut="Ctrl+B", triggered=self.build_project)
-        self.quit_act = QAction(QIcon(f'{icon_folder}/x.png'), "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
+        self.quit_act = QAction("&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
 
         # self.undo_act = QAction(QIcon(f'{icon_folder}/corner-up-left.png'), "Undo", self, shortcut="Ctrl+Z", triggered=self.undo)
         # self.redo_act = QAction(QIcon(f'{icon_folder}/corner-up-right.png'), "Redo", self, triggered=self.redo)
         # self.redo_act.setShortcuts(["Ctrl+Y", "Ctrl+Shift+Z"])
 
-        self.zoom_in_act = QAction(QIcon(f'{icon_folder}/zoom_in.png'), "Zoom in", self, shortcut="Ctrl++", triggered=self.map_view.zoom_in)
-        self.zoom_out_act = QAction(QIcon(f'{icon_folder}/zoom_out.png'), "Zoom out", self, shortcut="Ctrl+-", triggered=self.map_view.zoom_out)
+        self.zoom_in_act = QAction("Zoom in", self, shortcut="Ctrl++", triggered=self.map_view.zoom_in)
+        self.zoom_out_act = QAction("Zoom out", self, shortcut="Ctrl+-", triggered=self.map_view.zoom_out)
 
         self.preferences_act = QAction("&Preferences...", self, triggered=self.edit_preferences)
         self.about_act = QAction("&About", self, triggered=self.about)
         self.check_for_updates_act = QAction("Check for updates...", self, triggered=self.check_for_updates)
 
         # Test actions
-        self.test_current_act = QAction(QIcon(f'{icon_folder}/play.png'), "Test Current Chapter...", self, shortcut="F5", triggered=self.test_play_current)
+        self.test_current_act = QAction("Test Current Chapter...", self, shortcut="F5", triggered=self.test_play_current)
         self.test_current_act.setEnabled(False)
-        self.test_full_act = QAction(QIcon(f'{icon_folder}/play_all.png'), "Test Full Game...", self, shortcut="Ctrl+F5", triggered=self.test_play)
+        self.test_full_act = QAction("Test Full Game...", self, shortcut="Ctrl+F5", triggered=self.test_play)
         # self.balance_act = QAction("Preload Units...", self, triggered=self.edit_preload_units)
 
         # Toolbar actions
-        self.modify_level_act = QAction(QIcon(f'{icon_folder}/map.png'), "Edit Level", self, shortcut="E", triggered=self.edit_level)
-        self.back_to_main_act = QAction(QIcon(f'{icon_folder}/left_arrow.png'), "Back", self, shortcut="E", triggered=self.edit_global)
+        self.modify_level_act = QAction("Edit Level", self, shortcut="E", triggered=self.edit_level)
+        self.back_to_main_act = QAction("Back", self, shortcut="E", triggered=self.edit_global)
 
         # Database actions
         database_actions = {"Units": UnitDatabase.edit,
@@ -230,7 +253,7 @@ class MainEditor(QMainWindow):
         for name, func in resource_actions.items():
             self.resource_actions[name] = QAction("Edit %s..." % name, self, triggered=func)
 
-        self.modify_events_act = QAction(QIcon(f'{icon_folder}/event.png'), "Edit Events", self, triggered=EventDatabase.edit)
+        self.modify_events_act = QAction("Edit Events", self, triggered=EventDatabase.edit)
 
     def create_menus(self):
         file_menu = QMenu("File", self)
@@ -270,17 +293,10 @@ class MainEditor(QMainWindow):
         self.menuBar().addMenu(help_menu)
 
     def create_toolbar(self):
-        theme = self.settings.value("theme", 0)
-        if theme == 0:
-            icon_folder = 'icons'
-        else:
-            icon_folder = 'dark_icons'
-
         self.toolbar = self.addToolBar("Edit")
         self.toolbar.addAction(self.modify_level_act)
 
         self.database_button = QToolButton(self)
-        self.database_button.setIcon(QIcon(f'{icon_folder}/database.png'))
         self.database_button.setPopupMode(QToolButton.InstantPopup)
         database_menu = QMenu("Database", self)
         for action in self.database_actions.values():
@@ -291,7 +307,6 @@ class MainEditor(QMainWindow):
         self.toolbar.addAction(self.database_button_action)
 
         self.resource_button = QToolButton(self)
-        self.resource_button.setIcon(QIcon(f'{icon_folder}/resource.png'))
         self.resource_button.setPopupMode(QToolButton.InstantPopup)
         resource_menu = QMenu("Resource", self)
         for action in self.resource_actions.values():
@@ -304,7 +319,6 @@ class MainEditor(QMainWindow):
         self.toolbar.addAction(self.modify_events_act)
 
         self.test_button = QToolButton(self)
-        self.test_button.setIcon(QIcon(f'{icon_folder}/play.png'))
         self.test_button.setPopupMode(QToolButton.InstantPopup)
         test_menu = QMenu("Test", self)
         test_menu.addAction(self.test_current_act)
@@ -329,9 +343,9 @@ class MainEditor(QMainWindow):
         else:
             self.position_bar.setText("")
 
-    def set_terrain(self, terrain):
-        if terrain:
-            self.status_bar.showMessage("Terrain")
+    def set_message(self, msg):
+        if msg:
+            self.status_bar.showMessage(msg)
         else:
             self.status_bar.clearMessage()
 

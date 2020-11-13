@@ -1,7 +1,8 @@
 import math
 
 from PyQt5.QtWidgets import QGridLayout, QLineEdit, QSpinBox, QHBoxLayout, \
-    QVBoxLayout, QGroupBox, QTreeView, QWidget, QDoubleSpinBox, QLabel, QSizePolicy
+    QVBoxLayout, QGroupBox, QTreeView, QWidget, QDoubleSpinBox, QLabel, QSizePolicy, \
+    QSplitter, QFrame
 from PyQt5.QtCore import Qt, QAbstractItemModel
 
 from app.utilities.data import Data
@@ -12,6 +13,7 @@ from app.extensions.custom_gui import PropertyBox, ComboBox
 from app.editor.base_database_gui import DatabaseTab
 from app.editor.data_editor import SingleDatabaseEditor
 from app.extensions.checkable_list_dialog import ComponentModel
+from app.extensions.frame_layout import FrameLayout
 
 class BoolConstantsModel(ComponentModel):
     def __init__(self, data, parent=None):
@@ -365,8 +367,9 @@ class ConstantDatabase(DatabaseTab):
         self.setWindowTitle('%s Editor' % self.title)
         self.setStyleSheet("font: 10pt")
 
+        self.left_frame = QFrame(self)
         self.layout = QGridLayout(self)
-        self.setLayout(self.layout)
+        self.left_frame.setLayout(self.layout)
 
         bool_section = QGroupBox(self)
         bool_constants = Data([d for d in self._data if d.attr == bool])
@@ -387,25 +390,43 @@ class ConstantDatabase(DatabaseTab):
         misc_section = self.create_section(misc_constants)
         misc_section.setTitle("Miscellaneous Constants")
 
-        exp_section = QGroupBox(self)
-        exp_layout = QVBoxLayout()
-        exp_section.setLayout(exp_layout)
-        exp_widget = ExperienceWidget(self._data, self)
-        exp_layout.addWidget(exp_widget)
-        exp_section.setTitle("Combat Experience Constants")
+        # exp_section = QGroupBox(self)
+        # exp_layout = QVBoxLayout()
+        # exp_section.setLayout(exp_layout)
+        # exp_widget = ExperienceWidget(self._data, self)
+        # exp_layout.addWidget(exp_widget)
+        # exp_section.setTitle("Combat Experience Constants")
 
-        heal_section = QGroupBox(self)
-        heal_layout = QVBoxLayout()
-        heal_section.setLayout(heal_layout)
+        exp_section = FrameLayout(self, "Combat Experience Constants")
+        exp_widget = ExperienceWidget(self._data, self)
+        exp_section.addWidget(exp_widget)
+
+        # heal_section = QGroupBox(self)
+        # heal_layout = QVBoxLayout()
+        # heal_section.setLayout(heal_layout)
+        # heal_widget = MiscExperienceWidget(self._data, self)
+        # heal_layout.addWidget(heal_widget)
+        # heal_section.setTitle("Miscellaneous Experience Constants")
+
+        heal_section = FrameLayout(self, "Miscellaneous Experience Constants")
         heal_widget = MiscExperienceWidget(self._data, self)
-        heal_layout.addWidget(heal_widget)
-        heal_section.setTitle("Miscellaneous Experience Constants")
+        heal_section.addWidget(heal_widget)
 
         self.layout.addWidget(battle_section, 0, 0)
         self.layout.addWidget(misc_section, 0, 1)
         self.layout.addWidget(exp_section, 1, 0, 1, 2)
         self.layout.addWidget(heal_section, 2, 0, 1, 2)
-        self.layout.addWidget(bool_section, 0, 2, 3, 1)
+        # self.layout.addWidget(bool_section, 0, 2, 3, 1)
+
+        self.splitter = QSplitter(self)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.addWidget(self.left_frame)
+        self.splitter.addWidget(bool_section)
+        self.splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
+
+        self.true_layout = QHBoxLayout(self)
+        self.setLayout(self.true_layout)
+        self.true_layout.addWidget(self.splitter)
 
     def create_section(self, constants):
         section = QGroupBox(self)

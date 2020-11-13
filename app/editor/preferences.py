@@ -69,6 +69,7 @@ class PreferencesDialog(Dialog):
         choice = self.theme.edit.currentText()
         ap = QApplication.instance()
         dark_theme.set(ap, idx)
+        self.window.set_icons(idx)  # Change icons of main editor
 
     def accept(self):
         self.settings.setValue('select_button', name_to_button[self.select.edit.currentText()])

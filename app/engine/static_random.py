@@ -1,4 +1,6 @@
 # https://en.wikipedia.org/wiki/Linear_congruential_generator
+from app.utilities import utils
+
 class LCG(object):
     def __init__(self, seed=1):
         self.state = seed
@@ -51,7 +53,7 @@ def get_growth():
     return r.growth_random.randint(0, 99)
 
 def get_levelup(u_id, lvl):
-    return LCG(hash(u_id) + lvl + r.seed)
+    return LCG(utils.strhash(u_id) + lvl + r.seed)
 
 def get_combat_random_state():
     return r.combat_random.state

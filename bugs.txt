@@ -1,14 +1,7 @@
-constants dialog confusing?
-ending constants dialog
-
 music / sfx
 skills
 regions
 ai event tiles
-
-painting in the tile editor
-
-Swap light and dark icons whenever theme changes
 
 Prep / Base / Overworld / Supports / Combat Animations / Difficulty Modes / Status Menu / Unit Menu / Minimap / Fog of War / Line of Sight
 Saving and loading projects / Freezing Code

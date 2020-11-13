@@ -44,8 +44,11 @@ class RegionMenu(QWidget):
         self.modify_region_widget = ModifyRegionWidget(self._data, self)
         grid.addWidget(self.modify_region_widget)
 
+        if not len(self._data):
+            self.modify_region_widget.setEnabled(False)
+
         self.last_touched_region = None
-        self.display = None
+        self.display = self.modify_region_widget
 
     def on_visibility_changed(self, state):
         pass
@@ -53,11 +56,20 @@ class RegionMenu(QWidget):
     def tick(self):
         pass
 
+    def update_list(self):
+        self.model.layoutChanged.emit()
+        self.window.update_view()
+
     def set_current_level(self, level):
         self.current_level = level
         self._data = self.current_level.regions
         self.model._data = self._data
         self.model.update()
+        self.modify_region_widget._data = self._data
+        if len(self._data):
+            self.modify_region_widget.setEnabled(True)
+        else:
+            self.modify_region_widget.setEnabled(False)
 
     def select(self, idx):
         index = self.model.index(idx)
@@ -69,7 +81,8 @@ class RegionMenu(QWidget):
     def on_item_changed(self, curr, prev):
         if self._data:
             reg = self._data[curr.row()]
-            self.map_view.center_on_pos(reg.center)
+            if reg.position:
+                self.map_view.center_on_pos(reg.center)
             self.modify_region_widget.set_current(reg)
 
     def get_current(self):
@@ -80,8 +93,10 @@ class RegionMenu(QWidget):
         return None
 
     def create_region(self, example=None):
-        created_region = regions.Region.default()
+        nid = str_utils.get_next_name('New Region', self._data.keys())
+        created_region = regions.Region(nid)
         self._data.append(created_region)
+        self.modify_region_widget.setEnabled(True)
         self.model.update()
         # Select the region
         idx = self._data.index(created_region.nid)
@@ -98,16 +113,19 @@ class RegionModel(DragDropCollectionModel):
             reg = self._data[index.row()]
             text = reg.nid + ': ' + reg.region_type
             if reg.region_type == 'Status':
-                text += ' ' + reg.sub_nid
+                if reg.sub_nid:
+                    text += ' ' + reg.sub_nid
             elif reg.region_type == 'Event':
-                text += ' ' + reg.sub_nid
-                text += '\n' + reg.condition
+                if reg.sub_nid:
+                    text += ' ' + reg.sub_nid
+                if reg.condition:
+                    text += '\n' + reg.condition
             return text
         elif role == Qt.DecorationRole:
             reg = self._data[index.row()]
-            color = utils.hash_to_color(hash(reg.nid))
+            color = utils.hash_to_color(utils.strhash(reg.nid))
             pixmap = QPixmap(32, 32)
-            pixmap.fill(QColor(color))
+            pixmap.fill(QColor(*color))
             return QIcon(pixmap)
         return None
 
@@ -131,8 +149,6 @@ class ModifyRegionWidget(QWidget):
         self.current = current
 
         self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
-        # new_nid = str_utils.get_next_generic_nid(self.current.nid, self._data.keys())
-        # self.nid_box.edit.setText(new_nid)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         layout.addWidget(self.nid_box)
@@ -165,19 +181,24 @@ class ModifyRegionWidget(QWidget):
         self.status_box.hide()
 
     def nid_changed(self, text):
-        self.current.nid = text
-        self.window.update_list()
+        if self.current:
+            self.current.nid = text
+            self.window.update_list()
 
     def nid_done_editing(self):
+        if not self.current:
+            return
         # Check validity of nid!
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Region ID %s already in use' % self.current.nid)
-            self.current.nid = str_utils.get_next_generic_nid(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
     def region_type_changed(self, index):
+        if not self.current:
+            return
         self.current.region_type = self.region_type_box.edit.currentText()
         if self.current.region_type in ('Normal', 'Formation'):
             self.sub_nid_box.hide()
@@ -194,12 +215,15 @@ class ModifyRegionWidget(QWidget):
 
     def sub_nid_changed(self, text):
         self.current.sub_nid = text
+        self.window.update_list()
 
     def condition_changed(self, text):
         self.current.condition = text
+        self.window.update_list()
 
     def status_changed(self, index):
         self.current.sub_nid = self.status_box.edit.currentText()
+        self.window.update_list()
 
     def set_current(self, current):
         self.current = current
@@ -207,6 +231,8 @@ class ModifyRegionWidget(QWidget):
         self.region_type_box.edit.setValue(current.region_type)
         self.condition_box.edit.setText(current.condition)
         if current.region_type == 'Status':
-            self.status_box.setValue(current.sub_nid)
+            self.status_box.edit.setValue(current.sub_nid)
         elif current.region_type == 'Event':
-            self.sub_nid_box.setText(current.sub_nid)
+            self.sub_nid_box.edit.setText(current.sub_nid)
+        else:
+            self.sub_nid_box.edit.setText('')

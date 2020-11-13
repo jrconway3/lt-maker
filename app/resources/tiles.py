@@ -178,7 +178,7 @@ class LayerGrid(Prefab):
 class TileSprite(Prefab):
     def __init__(self, tileset_nid, tileset_position, parent):
         self.parent = parent
-        self.tileset_nid = tileset_nid
+        self.tileset_nid: str = tileset_nid
         self.tileset_position = tileset_position
 
     def save(self):

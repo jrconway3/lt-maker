@@ -1,5 +1,5 @@
 from collections import Counter
-import colorsys
+import colorsys, hashlib
 
 class Multiset(Counter):
     def __contains__(self, item):
@@ -41,12 +41,21 @@ def process_terms(terms):
 def dot_product(a: tuple, b: tuple) -> float:
     return sum(a[i] * b[i] for i in range(len(b)))
 
+def strhash(s: str) -> int:
+    """
+    Converts a string to a corresponding integer
+    """
+    h = hashlib.md5(s.encode('utf-8'))
+    h = int(h.hexdigest(), base=16)
+    return h
+
 def hash_to_color(h: int) -> tuple:
     hue = h % 359
     saturation_array = lightness_array = [0.35, 0.5, 0.65]
     saturation = saturation_array[h // 360 % len(saturation_array)]
-    lightness = lightness_array[h * saturation // 360 % len(lightness_array)]
-    color = colorsys.hls_to_rgb(hue / 360., lightness / 360., saturation / 360.)
+    idx = int(h * saturation // 360 % len(lightness_array))
+    lightness = lightness_array[idx]
+    color = colorsys.hls_to_rgb(hue / 360., lightness, saturation)
     return tuple([int(_ * 255) for _ in color])
 
 def farthest_away_pos(pos, valid_moves: set, enemy_pos: set):
@@ -80,3 +89,20 @@ def smart_farthest_away_pos(position, valid_moves: set, enemy_pos: set):
         return sorted(valid_moves, key=lambda move: dot_product((move[0] - position[0], move[1] - position[1]), (avg_x, avg_y)))[-1]
     else:
         return None
+
+# Testing
+if __name__ == '__main__':
+    c = Counter()
+    # import time
+    # orig_time = time.time_ns()
+    with open('../../../english_corpus.txt') as corpus:
+        for line in corpus:
+            i = strhash(line)
+            b = i % 359
+            c[b] += 1
+    for n in range(1000000):
+        i = strhash(str(n))
+        b = i % 359
+        c[b] += 1
+    # print((time.time_ns() - orig_time)/1e6)
+    print(sorted(c.items()))

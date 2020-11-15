@@ -266,6 +266,59 @@ class ResourceView(RightClickView):
 class ResourceListView(ResourceView, QListView):
     pass
 
+class SFXView(RightClickView):
+    def __init__(self, action_funcs=None, parent=None):
+        super().__init__(action_funcs, parent)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+        self.setDragEnabled(False)
+        self.setAcceptDrops(False)
+        self.setDropIndicatorShown(False)
+        self.setDragDropMode(0)
+
+    def check_index(self, index):
+        return True
+
+    def customMenuRequested(self, pos):
+        index = self.indexAt(pos)
+        if not self.check_index(index):
+            return
+
+        menu = QMenu(self)
+        new_action = QAction("New", self, triggered=lambda: self.new(index))
+        menu.addAction(new_action)
+
+        # Check to see if we're actually selecting something
+        if index.isValid():
+            modify_action = QAction("Modify", self, triggered=lambda: self.modify(index))
+            menu.addAction(modify_action)
+            delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
+            menu.addAction(delete_action)
+            if self.can_rename and not self.can_rename(self.model(), index):
+                modify_action.setEnabled(False)
+            if self.can_delete and not self.can_delete(self.model(), index):
+                delete_action.setEnabled(False)
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+    def modify(self, index):
+        indices = self.selectionModel().selectedIndexes()
+        self.model().modify(indices)
+
+    def delete(self, index):
+        indices = self.selectionModel().selectedIndexes()
+        for index in indices:
+            self.model().delete(index)
+
+    def new(self, index):
+        new_index = self.model().new(index)
+        if new_index:
+            self.setCurrentIndex(new_index)
+
+class SFXTableView(SFXView, QTableView):
+    def mousePressEvent(self, event):
+        QTableView.mousePressEvent(self, event)
+
 class ResourceMultiselectListView(ResourceListView):
     def __init__(self, action_funcs=None, parent=None):
         super().__init__(action_funcs, parent)

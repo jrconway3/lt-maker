@@ -388,11 +388,7 @@ class SoundController():
     def play_sfx(self, sound, loop=False):
         sfx = SFX.get(sound)
         if sfx:
-            if sound == 'Select 5':
-                # Cursor sound is muted
-                sfx.set_volume(self.global_sfx_volume * .5)
-            else:
-                sfx.set_volume(self.global_sfx_volume)
+            sfx.set_volume(self.global_sfx_volume)
             if loop:
                 sfx.play(-1)
             else:

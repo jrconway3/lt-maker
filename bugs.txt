@@ -1,7 +1,7 @@
 music / sfx
 skills
-regions
 ai event tiles
+event tile support in engine
 
 Prep / Base / Overworld / Supports / Combat Animations / Difficulty Modes / Status Menu / Unit Menu / Minimap / Fog of War / Line of Sight
 Saving and loading projects / Freezing Code

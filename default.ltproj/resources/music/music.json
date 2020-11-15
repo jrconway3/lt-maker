@@ -2,21 +2,25 @@
     [
         "Chapter Sound",
         false,
-        false
+        false,
+        10.543991088867188
     ],
     [
         "Distant Roads",
         false,
-        false
+        false,
+        108.78333282470703
     ],
     [
         "Quiet Burn",
         false,
-        true
+        true,
+        146.2334747314453
     ],
     [
         "Shadow of the Enemy",
         false,
-        false
+        false,
+        48.018798828125
     ]
 ]

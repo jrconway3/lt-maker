@@ -307,8 +307,13 @@ class SFXView(RightClickView):
 
     def delete(self, index):
         indices = self.selectionModel().selectedIndexes()
-        for index in indices:
+        orig_rows = [index.row() for index in indices]
+        rows = []
+        for i, index in enumerate(indices):
+            if orig_rows[i] in rows:
+                continue  # Already deleted 
             self.model().delete(index)
+            rows.append(orig_rows[i])
 
     def new(self, index):
         new_index = self.model().new(index)
@@ -318,6 +323,14 @@ class SFXView(RightClickView):
 class SFXTableView(SFXView, QTableView):
     def mousePressEvent(self, event):
         QTableView.mousePressEvent(self, event)
+
+class MusicTableView(SFXTableView):
+    """
+    Music can only be singly selected
+    """
+    def __init__(self, action_funcs=None, parent=None):
+        super().__init__(action_funcs, parent)
+        self.setSelectionMode(QAbstractItemView.SingleSelection)
 
 class ResourceMultiselectListView(ResourceListView):
     def __init__(self, action_funcs=None, parent=None):

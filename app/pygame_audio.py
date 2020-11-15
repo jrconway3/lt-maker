@@ -26,6 +26,12 @@ class PygameAudioPlayer(object):
         else:
             return 0
 
+    def find_length(self, sfx):
+        if not self.initiated:
+            self.initiate()
+        self.current_sfx = pygame.mixer.Sound(sfx.full_path)
+        return self.current_sfx.get_length()  # Seconds
+
     def play(self, fn, loop=False):
         """
         Returns whether the song was actually re-loaded or just unpaused

@@ -1,3 +1,5 @@
+import math
+
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QToolButton, \
     QLabel, QStyle, QVBoxLayout, QSlider
 from PyQt5.QtCore import Qt
@@ -12,6 +14,9 @@ class AudioWidget(QWidget):
         self.window = parent
         self._data = self.window._data
         self.current = None
+
+        self.setMaximumHeight(70)
+        self.play_on_release = False
 
         self.playing: bool = False
         self.paused: bool = False
@@ -44,13 +49,17 @@ class AudioWidget(QWidget):
         hbox_layout = QHBoxLayout()
         self.setLayout(layout)
 
-        hbox_layout.addWidget(self.play_button, Qt.AlignRight)
-        hbox_layout.addWidget(self.loop_button, Qt.AlignLeft)
+        hbox_layout.addWidget(self.play_button)
+        hbox_layout.addWidget(self.loop_button)
+        hbox_layout.setAlignment(Qt.AlignLeft)
 
+        second_hbox_layout = QHBoxLayout()
+        second_hbox_layout.addLayout(hbox_layout)
         self.nid_label = QLabel("")
         self.nid_label.setStyleSheet("font-weight: bold")
-        layout.addWidget(self.nid_label, Qt.AlignHCenter)
-        layout.addLayout(hbox_layout)
+        self.nid_label.setAlignment(Qt.AlignCenter)
+        second_hbox_layout.addWidget(self.nid_label)
+        layout.addLayout(second_hbox_layout)
 
         time_layout = QHBoxLayout()
         time_layout.setAlignment(Qt.AlignTop)
@@ -67,7 +76,7 @@ class AudioWidget(QWidget):
         seconds = int(val / 1000 % 60)
         thru_song = "%02d:%02d" % (minutes, seconds)
         minutes = int(self.duration / 1000 / 60)
-        seconds = int(self.duration / 1000 % 60)
+        seconds = math.ceil(self.duration / 1000 % 60)
         song_length = "%02d:%02d" % (minutes, seconds)
         self.time_label.setText(thru_song + " / " + song_length)
 
@@ -125,16 +134,20 @@ class AudioWidget(QWidget):
         self.loop = val
 
     def slider_pressed(self):
-        self.paused = True
+        if not self.paused:
+            self.pause()
+            self.play_on_release = True
         self.music_player.preset_position()
-        # self.music_player.pause()
 
     def slider_released(self):
         cur = float(self.time_slider.value())
         print("Slider Released: %s" % cur)
         self.music_player.set_position(cur)
-        # self.music_player.unpause()
-        self.paused = False
+        if self.play_on_release:
+            self.play()
+        else:
+            self.paused = False
+        self.play_on_release = False
 
     def play_sfx(self, sfx):
         fn = sfx.full_path
@@ -153,3 +166,6 @@ class AudioWidget(QWidget):
     def stop_sfx(self):
         self.playing = False
         self.music_player.stop()
+
+    def find_length(self, sfx):
+        return self.music_player.find_length(sfx)

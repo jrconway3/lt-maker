@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, \
 
 
 from app.resources.resources import RESOURCES
-from app.extensions.custom_gui import SFXTableView
+from app.extensions.custom_gui import SFXTableView, MusicTableView
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
 from app.editor.sound_editor.audio_widget import AudioWidget
-from app.editor.sound_editor.sound_model import SFXModel, ProxyModel
+from app.editor.sound_editor.sound_model import SFXModel, MusicModel, ProxyModel
 
-class SFXTab(QWidget):
-    def __init__(self, data, title, parent=None):
+class SoundTab(QWidget):
+    def __init__(self, data, title, model, view, parent=None):
         super().__init__(parent)
         self.window = parent
         self._data = data
@@ -22,10 +22,10 @@ class SFXTab(QWidget):
         self.setLayout(self.layout)
         self.setMinimumWidth(360)
 
-        self.model = SFXModel(data, self)
+        self.model = model(data, self)
         self.proxy_model = ProxyModel()
         self.proxy_model.setSourceModel(self.model)
-        self.view = SFXTableView(None, self)
+        self.view = view(None, self)
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.view.setModel(self.proxy_model)
@@ -38,10 +38,14 @@ class SFXTab(QWidget):
 
         self.audio_widget = AudioWidget(self)
 
+        for sfx in self._data:
+            if not sfx.length:
+                sfx.length = self.audio_widget.find_length(sfx)
+
         self.layout.addWidget(self.audio_widget)
         self.layout.addWidget(self.view)
 
-        self.button = QPushButton("Add New SFX...")
+        self.button = QPushButton("Add New %s..." % self.title)
         self.button.clicked.connect(self.append)
         self.layout.addWidget(self.button)
 
@@ -51,6 +55,9 @@ class SFXTab(QWidget):
             self.view.setCurrentIndex(last_index)
 
     def reset(self):
+        pass
+
+    def update_list(self):
         pass
 
     def get_selected(self):
@@ -71,13 +78,22 @@ class SFXTab(QWidget):
             self.audio_widget.set_current(sfx)
             self.audio_widget.play()
 
-class SFXDatabase(SFXTab):
+class SFXDatabase(SoundTab):
     @classmethod
     def create(cls, parent=None):
         data = RESOURCES.sfx
         title = "SFX"
 
-        dialog = cls(data, title, parent)
+        dialog = cls(data, title, SFXModel, SFXTableView, parent)
+        return dialog
+
+class MusicDatabase(SoundTab):
+    @classmethod
+    def create(cls, parent=None):
+        data = RESOURCES.music
+        title = "Music"
+
+        dialog = cls(data, title, MusicModel, SFXTableView, parent)
         return dialog
 
 def get_sfx():
@@ -89,6 +105,15 @@ def get_sfx():
     else:
         return None, False
 
+def get_music():
+    window = SingleResourceEditor(MusicDatabase, ['music'])
+    result = window.exec_()
+    if result == QDialog.Accepted:
+        selected_music = window.tab.get_selected()
+        return selected_music, True
+    else:
+        return None, False
+
 # Testing
 # Run "python -m app.editor.sound_editor.sound_tab"
 if __name__ == '__main__':
@@ -97,8 +122,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     RESOURCES.load('default.ltproj')
     # DB.load('default.ltproj')
-    # window = MultiResourceEditor((TileSetDatabase, TileMapDatabase), 
-                                 # ("tilesets", "tilemaps"))
-    window = SingleResourceEditor(SFXDatabase, ['sfx'])
+    window = MultiResourceEditor((MusicDatabase, SFXDatabase), 
+                                 ("music", "sfx"))
+    # window = SingleResourceEditor(SFXDatabase, ['sfx'])
     window.show()
     app.exec_()

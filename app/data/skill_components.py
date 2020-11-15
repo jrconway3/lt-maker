@@ -1,14 +1,6 @@
-from app.utilities import str_utils
+from app.data.components import Component
 
-class SkillComponent():
-    nid: str = None
-    desc: str = None
-    author: str = 'rainlash'
+tags = ['base', 'movement', 'status', 'extra']
 
-    @property
-    def name(self):
-        name = self.__class__.__name__
-        return str_utils.camel_case(name)
-
-    def defines(self, function_name):
-        return hasattr(self, function_name)
+class SkillComponent(Component):
+    skill = None

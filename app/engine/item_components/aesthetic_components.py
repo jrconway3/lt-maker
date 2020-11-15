@@ -1,4 +1,5 @@
-from app.data.item_components import ItemComponent, Type
+from app.data.item_components import ItemComponent
+from app.data.components import Type
 
 class MapHitColor(ItemComponent):
     nid = 'map_hit_color'

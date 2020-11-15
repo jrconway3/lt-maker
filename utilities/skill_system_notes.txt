@@ -31,6 +31,7 @@ stat_bonuses StatList [0, 0,...]
 dynamic_damage input target mode int 0
 dynamic_resist input target mode int 0
 damage_multiplier input target mode float 1
+resist_multiplier input target mode float 1
 dynamic_accuracy input target mode int 0
 dynamic_avoid input target mode int 0
 dynamic_crit_accuracy input target mode int 0
@@ -58,9 +59,181 @@ check_proc -- called at the beginning of the combat phase
 on_hit  has_playback  # Called whenever user hits
 on_crit  has_playback  # Called whenever user crits
 on_miss  has_playback  # Called whenever user misses
+on_take_damage  has_playback  # Called whenever the user takes damage
 on_equip  # called whenever an item becomes equipped
 on_unequip  # called whenever an item becomes unequipped
 on_receive_skill  # called whenever the unit receives an additional skill
+on_remove  # Called whenever this skill is removed from the unit
+on_use_ability  # Called whenever this skill is used
 
 # Animation
 unit_sprite_mod None extra sprite
+
+
+Canto
+class_skill
+has_canto
+    unit has not attacked
+
+Regeneration
+on_upkeep
+    action.ChangeHP(unit.hp / 5)
+    also upkeep animation
+
+Poisoned
+negative
+stat_change
+    STR -2, SKL -2, SPD -2, MAG -2, etc.
+unit_sprite_mod
+    extra poison sprite
+on_upkeep (time)
+    remove self 
+
+Stoneskin
+stat_change
+    SPD - 4
+on_upkeep (time)
+    remove self
+resist_multiplier 
+    0.5
+
+Stunned
+negative
+on_upkeep (time)
+    remove self
+stat_change
+    MOV -99
+can_use_item
+    False
+can_select
+    False
+unit_sprite_mod
+    extra stun sprite
+
+Silenced
+negative
+on_upkeep (time)
+    remove self
+can_use_item
+    if item is magic False
+unit_sprite_mod
+    extra silence sprite
+
+Ephemeral
+negative
+on_upkeep (time)
+on_remove
+    kill self
+
+Fortune
+on_upkeep (time)
+    remove self
+modify_hit
+    50
+
+Bloodcrazed
+on_end_combat (gain_status_after_kill)
+on_end_combat (gain_status_after_attack)
+on_end_combat (gain_status_after_active_skill)
+
+Merchant
+modify_buy_value value
+    0.5 * value
+
+Paragon
+exp_multiplier
+
+Fleet of Foot
+on_init
+    Change unit's movement type
+on_remove
+    Change unit's movement type back
+
+Evasion
+dynamic_avoid
+    mode == 'Splash', Avoid +1000
+
+Miracle
+charge (start full)
+init 
+    num_charges = 1
+on_end_chapter
+    num_charges = 1
+on_use_ability
+    num_charges -= 1
+on_end_combat
+    if num_charges > 0
+        set hp back to 1
+
+
+Barrier
+charge
+init
+    num_charges = 1
+on_upkeep (time)
+    remove self
+on_charged
+    enable status
+Barrier
+on_take_damage
+    if num_charges > 0
+        don't
+
+Healtouch
+on_heal
+
+Live to Serve
+on_heal
+
+Steal
+enable_ability Steal
+
+Critical
+charge (charge max) (start empty)
+init
+    num_charges = 0
+on_end_chapter
+    num_charges = 0
+on_use_ability
+    num_charges = 0
+charge method (stat)
+on_end_combat
+    num_charges += stat
+combat_art
+status Critical Mod
+
+Always Crits
+modify_crit
+    + 10000
+
+Luna
+charge (charge max) (start empty)
+init
+    num_charges = 0
+on_end_chapter
+    num_charges = 0
+on_use_ability
+    num_charges = 0
+charge method (stat)
+on_end_combat
+    num_charges += stat
+combat_art
+status Lune Mod
+
+Luna Mod
+dynamic_damage += targets defense
+
+Sol Mod
+on_damage
+    heal self
+
+Cleave Mod
+aoe_mod
+??
+
+Longshot
+modify_maximum_range
+
+
+
+

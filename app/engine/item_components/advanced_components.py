@@ -1,4 +1,5 @@
-from app.data.item_components import ItemComponent, Type
+from app.data.item_components import ItemComponent
+from app.data.components import Type
 
 class MultiItem(ItemComponent):
     nid = 'multi_item'

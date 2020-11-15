@@ -1,6 +1,6 @@
 from app.utilities import utils
 from app.data.database import DB
-from app.engine import equations, item_system
+from app.engine import equations, item_system, skill_system
 
 def get_weapon_rank_bonus(unit, item):
     weapon_type = item_system.weapon_type(unit, item)
@@ -255,7 +255,8 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
         for _ in range(equations.parser.crit_add(unit)):
             might += total_might
 
-    might *= item_system.damage_multiplier(unit, item, target, mode)
+    might *= skill_system.damage_multiplier(unit, item, target, mode)
+    might *= skill_system.resist_multiplier(target, item, unit, mode)
 
     return int(max(DB.constants.get('min_damage').value, might))
 

@@ -101,7 +101,7 @@ default_hooks += formula
 target_hooks = ('wexp', 'exp')
 
 dynamic_hooks = ('dynamic_damage', 'dynamic_accuracy', 'dynamic_crit_accuracy', 
-                 'dynamic_attack_speed')
+                 'dynamic_attack_speed', 'dynamic_multiattacks')
 modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
                 'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
                 'modify_defense_speed')
@@ -268,20 +268,6 @@ def splash_positions(unit, item, position) -> set:
     if not positions:
         return {position}
     return positions
-
-def damage_multiplier(unit, item, target, mode) -> float:
-    mult = 1
-    for component in item.components:
-        if component.defines('damage_multiplier'):
-            mult *= component.damage_multiplier(unit, item, target, mode)
-    return mult
-
-def dynamic_multiattacks(unit, item, target, mode) -> int:
-    num_attacks = 0
-    for component in item.components:
-        if component.defines('dynamic_multiattacks'):
-            num_attacks += component.dynamic_multiattacks(unit, item, target, mode)
-    return num_attacks
 
 def find_hp(actions, target):
     from app.engine import action

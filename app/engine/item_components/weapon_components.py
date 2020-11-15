@@ -1,6 +1,7 @@
 from app.data.database import DB
 
-from app.data.item_components import ItemComponent, Type
+from app.data.item_components import ItemComponent
+from app.data.components import Type
 
 from app.engine import action, combat_calcs, equations, item_system, image_mods, engine
 

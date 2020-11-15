@@ -439,10 +439,11 @@ class MapCombat():
             attacker = mark[1]
             defender = mark[2]
             exp = item_system.exp(self.playback, attacker, item, defender)
+            exp *= skill_system.exp_multiplier(attacker, defender)
             if defender.is_dying:
-                exp *= int(DB.constants.get('kill_multiplier').value)
+                exp *= float(DB.constants.value('kill_multiplier'))
                 if 'Boss' in defender.tags:
-                    exp += int(DB.constants.get('boss_bonus').value)
+                    exp += int(DB.constants.value('boss_bonus'))
             total_exp += exp
 
         return total_exp

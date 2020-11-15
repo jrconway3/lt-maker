@@ -60,7 +60,6 @@ attack_speed_formula! ATTACK_SPEED
 defense_speed_formula! DEFENSE_SPEED
 
 dynamic_damage input target mode int 0
-damage_multiplier input target mode float 1
 dynamic_accuracy input target mode int 0
 dynamic_crit_accuracy input target mode int 0
 dynamic_attack_speed input target mode int 0

@@ -44,6 +44,7 @@ from app.editor.event_editor.event_tab import EventDatabase
 # Resources
 from app.editor.icon_editor import icon_tab
 from app.editor.tile_editor import tile_tab
+from app.editor.sound_editor import sound_tab
 from app.editor.portrait_editor.portrait_tab import PortraitDatabase
 from app.editor.panorama_editor.panorama_tab import PanoramaDatabase
 from app.editor.map_sprite_editor.map_sprite_tab import MapSpriteDatabase
@@ -247,7 +248,7 @@ class MainEditor(QMainWindow):
                             "Map Sprites": MapSpriteDatabase.edit,
                             # "Combat Animations": self.edit_combat_animations,
                             "Tilemaps": self.edit_tilemaps,
-                            # "Sounds": self.edit_sounds,
+                            "Sounds": self.edit_sounds
                             }
         self.resource_actions = {}
         for name, func in resource_actions.items():
@@ -604,6 +605,10 @@ class MainEditor(QMainWindow):
 
     def edit_tilemaps(self):
         dialog = tile_tab.get_full_editor()
+        dialog.exec_()
+
+    def edit_sounds(self):
+        dialog = sound_tab.get_full_editor()
         dialog.exec_()
 
     def edit_events(self):

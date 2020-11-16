@@ -570,14 +570,14 @@ class Trade(Simple):
         # Draw Portraits
         # Owner
         owner_surf = engine.create_surface((96, 80), transparent=True)
-        icons.draw_portrait(owner_surf, self.owner.nid, (0, 0))
+        icons.draw_portrait(owner_surf, self.owner, (0, 0))
         owner_surf = engine.subsurface(owner_surf, (0, 3, 96, 68))
         owner_surf = engine.flip_horiz(owner_surf)
         surf.blit(owner_surf, (11 + 52 - 48, 0))
 
         # Partner
         partner_surf = engine.create_surface((96, 80), transparent=True)
-        icons.draw_portrait(partner_surf, self.partner.nid, (0, 0))
+        icons.draw_portrait(partner_surf, self.partner, (0, 0))
         partner_surf = engine.subsurface(partner_surf, (0, 3, 96, 68))
         surf.blit(partner_surf, (125 + 52 - 48, 0))
 

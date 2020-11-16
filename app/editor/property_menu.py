@@ -1,13 +1,14 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, \
-    QWidget, QCheckBox, QPushButton, QMessageBox, QLabel
+    QWidget, QPushButton, QMessageBox, QLabel
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox, SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
 from app.utilities import str_utils
+from app.editor.sound_editor import sound_tab
 from app.editor.tile_editor import tile_tab
 
 class MusicDialog(SimpleDialog):
@@ -42,7 +43,7 @@ class MusicDialog(SimpleDialog):
                 self.boxes[key].edit.setText(value)
 
     def access_music_resources(self, key):
-        res, ok = ResourceEditor.get(self, "Music")
+        res, ok = sound_tab.get_music()
         if ok:
             nid = res.nid
             self.current.music[key] = nid
@@ -145,8 +146,14 @@ class PropertiesMenu(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_int(self.current.nid, other_nids)
+        self.nid_change_watchers(DB.levels.find_key(self.current), self.current.nid)            
         DB.levels.update_nid(self.current, self.current.nid)
         self.main_editor.update_view()
+
+    def nid_change_watchers(self, old_nid, new_nid):
+        for event in DB.events:
+            if event.level_nid == old_nid:
+                event.level_nid = new_nid
 
     def title_changed(self, text):
         self.current.name = text

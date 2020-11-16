@@ -481,7 +481,7 @@ class LevelUpScreen():
         # Blit unit's pic
         right = WINWIDTH - 4
         bottom = WINHEIGHT + self.unit_scroll_offset
-        icons.draw_portrait(surf, self.unit.nid, bottomright=(right, bottom))
+        icons.draw_portrait(surf, self.unit, bottomright=(right, bottom))
 
         # Update and draw animations
         self.animations = [a for a in self.animations if not a.update()]

@@ -81,10 +81,10 @@ class Weight(ItemComponent):
     value = 0
 
     def modify_attack_speed(self, unit, item):
-        return -2 * max(0, self.value - equations.parser.constitution(unit))
+        return -1 * max(0, self.value - equations.parser.constitution(unit))
 
     def modify_defense_speed(self, unit, item):
-        return -2 * max(0, self.value - equations.parser.constitution(unit))
+        return -1 * max(0, self.value - equations.parser.constitution(unit))
 
 class Effective(ItemComponent):
     nid = 'effective'
@@ -96,8 +96,8 @@ class Effective(ItemComponent):
     expose = Type.Int
     value = 0
 
-    def effective(self, unit, item):
-        return self.value
+    def init(self, unit, item):
+        item.data['effective'] = self.value
 
 class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
@@ -110,7 +110,7 @@ class EffectiveTag(ItemComponent):
 
     def dynamic_damage(self, unit, item, target, mode=None) -> int:
         if any(tag in target.tags for tag in self.value):
-            return item_system.effective(unit, item)
+            return item.data.get('effective', 0)
         return 0
 
     def item_icon_mod(self, unit, item, target, sprite):

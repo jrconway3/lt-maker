@@ -70,6 +70,9 @@ class EventPortrait():
     def get_width(self):
         return 96
 
+    def set_expression(self, expression_list):
+        self.expressions = expression_list
+
     def bop(self, num=2, height=2):
         self.bops_remaining = num
         self.bop_state = False

@@ -482,10 +482,11 @@ class InfoMenuState(State):
         surf = engine.create_surface((96, WINHEIGHT), transparent=True)
         surf.blit(SPRITES.get('info_unit'), (8, 122))
 
-        im = icons.get_portrait(self.unit.nid)
-        x_pos = (im.get_width() - 80)//2
-        portrait_surf = engine.subsurface(im, (x_pos, 0, 80, 72))
-        surf.blit(portrait_surf, (8, 8))
+        im = icons.get_portrait(self.unit)
+        if im:
+            x_pos = (im.get_width() - 80)//2
+            portrait_surf = engine.subsurface(im, (x_pos, 0, 80, 72))
+            surf.blit(portrait_surf, (8, 8))
 
         FONT['text-white'].blit_center(self.unit.name, surf, (48, 80))
         self.info_graph.register((24, 80, 56, 24), self.unit.desc, 'all')
@@ -754,8 +755,8 @@ class InfoMenuState(State):
 
         if weapon:
             rng = item_funcs.get_range_string(self.unit, weapon)
-            dam = str(item_system.damage(self.unit, weapon))
-            acc = str(item_system.hit(self.unit, weapon))
+            dam = str(combat_calcs.damage(self.unit, weapon))
+            acc = str(combat_calcs.accuracy(self.unit, weapon))
         else:
             rng, dam, acc = '--', '--', '--'
 

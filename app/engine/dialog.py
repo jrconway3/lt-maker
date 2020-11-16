@@ -127,8 +127,10 @@ class Dialog():
 
     def determine_size(self):
         self.text_width = self.determine_width()
-        self.text_width = utils.clamp(self.text_width, 48, WINWIDTH - 16)
-        self.width = self.text_width + 24 + 8 - self.text_width%8
+        self.text_width = utils.clamp(self.text_width, 48, WINWIDTH - 32)
+        self.width = self.text_width + 24 - self.text_width%8
+        if self.width < 200:
+            self.width += 8
         self.text_height = self.font.height * self.num_lines
         self.text_height = max(self.text_height, 16)
         self.height = self.text_height + 16

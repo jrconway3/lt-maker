@@ -478,7 +478,7 @@ class UIView():
             bg_surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
             shimmer = SPRITES.get('menu_shimmer1')
             bg_surf.blit(shimmer, (bg_surf.get_width() - shimmer.get_width() - 1, bg_surf.get_height() - shimmer.get_height() - 5))
-            bg_surf = image_mods.make_transluenct(bg_surf, .1)
+            bg_surf = image_mods.make_translucent(bg_surf, .1)
             width, height = bg_surf.get_width(), bg_surf.get_height()
 
             running_height = -10
@@ -520,4 +520,85 @@ class UIView():
         surf.blit(self.spell_info_disp, topleft)
         if defender:
             surf.blit(unit_surf, u_topleft)
+        return surf
+
+class ItemDescriptionPanel():
+    """
+    The panel that shows up in the weapon selection state
+    opposite the selection menu
+    """
+
+    def __init__(self, unit, item):
+        self.unit = unit
+        self.item = item
+        self.surf = None
+
+    def set_item(self, item):
+        self.item = item
+        self.surf = None
+
+    def create_surf(self):
+        width, height = 96, 56
+        sub_bg_surf = base_surf.create_base_surf(width, height, 'menu_bg_base_opaque')
+        bg_surf = engine.create_surface((width + 2, height + 4), transparent=True)
+        bg_surf.blit(sub_bg_surf, (2, 4))
+        bg_surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
+        bg_surf = image_mods.make_translucent(bg_surf, .1)
+
+        weapon = item_system.is_weapon(self.unit, self.item)
+        available = item_system.available(self.unit, self.item)
+
+        if weapon and available:
+            top = 4
+            left = 2
+            affin_width = FONT['text-white'].width('Affin')
+            FONT['text-white'].blit('Affin', bg_surf, (left + width//2 - 16//2 - affin_width//2, top + 4))
+            FONT['text-white'].blit('Atk', bg_surf, (5 + left, top + 20))
+            FONT['text-white'].blit('Hit', bg_surf, (5 + left, top + 36))
+            FONT['text-white'].blit('Crit', bg_surf, (width//2 + 5 + left, top + 20))
+            FONT['text-white'].blit('Avo', bg_surf, (width//2 + 5 + left, top + 36))
+
+            damage = combat_calcs.damage(self.unit, self.item)
+            accuracy = combat_calcs.accuracy(self.unit, self.item)
+            crit = combat_calcs.crit_accuracy(self.unit, self.item)
+            avoid = combat_calcs.avoid(self.unit)
+
+            FONT['text-blue'].blit_right(str(damage), bg_surf, (left + width//2 - 3, top + 20))
+            FONT['text-blue'].blit_right(str(accuracy), bg_surf, (left + width//2 - 3, top + 36))
+            FONT['text-blue'].blit_right(str(crit), bg_surf, (left + width - 10, top + 20))
+            FONT['text-blue'].blit_right(str(avoid), bg_surf, (left + width - 10, top + 36))
+
+            weapon_type = item_system.weapon_type(self.unit, self.item)
+            if weapon_type:
+                icons.draw_weapon(bg_surf, weapon_type, (left + width//2 - 16//2 + affin_width//2 + 8, top + 4))
+            else:
+                FONT['text-blue'].blit('--', bg_surf, (left + width//2 - 16//2 + affin_width + 8, top + 4))
+
+        else:
+            if self.item.desc:
+                desc = self.item.desc
+            else:
+                desc = "Cannot wield."
+            lines = text_funcs.ine_wrap(FONT['text-white'], desc, width - 8)
+            for idx, line in enumerate(lines):
+                FONT['text-white'].blit(line, bg_surf, (4 + 2, 8 + idx * 16))
+
+        return bg_surf
+
+    def draw(self, surf):
+        if not self.item:
+            return surf
+        if not self.surf:
+            self.surf = self.create_surf()
+
+        portrait = icons.get_portrait(self.unit)
+        if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
+            topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
+            surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
+        else:
+            topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
+            portrait = engine.flip_horiz(portrait)
+            surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
+
+        surf.blit(self.surf, topleft)
         return surf

@@ -2,7 +2,7 @@
     {
         "nid": "Intro",
         "trigger": "level_start",
-        "level_nid": "DEBUG",
+        "level_nid": "0",
         "condition": "True",
         "commands": [
             [
@@ -128,7 +128,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "...|I wonder how my father fares alone in the castle. Do you think he's safe?|And what of my brother on the Grado front. We've heard nothing from him for days."
+                    "...|I wonder how my father fares alone in the castle. Do you think he's safe?|And what of my brother on the Grado front? We've heard nothing from him for days."
                 ]
             ],
             [
@@ -196,6 +196,30 @@
                 ]
             ],
             [
+                "move_cursor",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "disp_cursor",
+                [
+                    "1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "disp_cursor",
+                [
+                    "0"
+                ]
+            ],
+            [
                 "add_portrait",
                 [
                     "Eirika",
@@ -214,7 +238,7 @@
                 "speak",
                 [
                     "Seth",
-                    "Your highness, I won't lie to you. This will not be an easy ride.|Please, take this rapier. If something should happen to me|you must continue to Frelia, alone if need be."
+                    "Your highness, I won't lie to you. This will not be an easy ride.|Please, take this rapier.{br}If something should happen to me|you must continue to Frelia,{br}alone if need be."
                 ]
             ],
             [
@@ -254,6 +278,281 @@
                 "wait",
                 [
                     "1000"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "O'Neill"
+                ]
+            ],
+            [
+                "disp_cursor",
+                [
+                    "1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "disp_cursor",
+                [
+                    "0"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "O'Neill",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "O'Neill",
+                    "You there! Renais dogs! Where do you think you're going?"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "O'Neill"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "MidLeft",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Grado's men...|Stand back, Princess Eirika."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "It's all right, Seth.|My brother has taught me something of swordplay.|I will stand with you."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ]
+        ]
+    },
+    {
+        "nid": "EirikaDeath",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "self.unit.nid == 'Eirika'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Brother... I'm sorry."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Eirika",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "lose_game",
+                []
+            ]
+        ]
+    },
+    {
+        "nid": "SethDeath",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "self.unit.nid == 'Seth'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Urgh...|My apologies. I must withdraw."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Seth",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ]
+        ]
+    },
+    {
+        "nid": "ONeillDeath",
+        "trigger": "unit_death",
+        "level_nid": "0",
+        "condition": "self.unit.nid == \"O'Neill\"",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "O'Neill",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "What? How?"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "O'Neill",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "O'Neill"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ]
+        ]
+    },
+    {
+        "nid": "Outro",
+        "trigger": "level_end",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Princess, are you injured?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "What? Oh, no... I'm fine, Seth."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "But you look so pale..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "I'm fine... Fine.|...This is war, isn't it? It's not at all like the games I used to play with my brother or Lyon.|I never thought-- I didn't know it would this...savage.|Are words useless? Is strength all that matters?|It's so sad... Why would the Grado Empire do this? To what end would they start a war?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Princess..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "...Don't worry, Seth. I won't give in to sorrow.|Let's get moving. I'm not broken, and I won't stop until I see Renais restored.|I won't stop until I'm reunited with my father and brother."
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ]
         ]

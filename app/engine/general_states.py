@@ -9,7 +9,8 @@ from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
 from app.engine import engine, action, menus, interaction, image_mods, \
-    banner, save, phase, skill_system, target_system, item_system, item_funcs
+    banner, save, phase, skill_system, target_system, item_system, \
+    item_funcs, ui_view
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
 
@@ -848,6 +849,7 @@ class WeaponChoiceState(MapState):
         self.cur_unit.sprite.change_state('chosen')
         options = self.get_options(self.cur_unit)
         self.menu = menus.Choice(self.cur_unit, options)
+        self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
         self.disp_attacks(self.cur_unit, self.menu.get_current())
 
     def proceed(self):
@@ -861,12 +863,18 @@ class WeaponChoiceState(MapState):
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
+            current = self.menu.get_current()
+            self.item_desc_panel.set_item(current)
             game.highlight.remove_highlights()
-            self.disp_attacks(self.cur_unit, self.menu.get_current())
+            self.disp_attacks(self.cur_unit, current)
+
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
+            current = self.menu.get_current()
+            self.item_desc_panel.set_item(current)
             game.highlight.remove_highlights()
+            self.disp_attacks(self.cur_unit, current)
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
@@ -889,6 +897,7 @@ class WeaponChoiceState(MapState):
     def draw(self, surf):
         surf = super().draw(surf)
         surf = self.menu.draw(surf)
+        surf = self.item_desc_panel.draw(surf)
         return surf
 
     def end(self):

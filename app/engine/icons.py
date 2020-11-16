@@ -96,21 +96,28 @@ def draw_faction(surf, faction, topleft):
     surf.blit(image, topleft)
     return surf
 
-def get_portrait(nid):
-    image = RESOURCES.portraits.get(nid)
-    if not image:
-        return None
-
-    if not image.image:
-        image.image = engine.image_load(image.full_path)
-    image = engine.subsurface(image.image, (0, 0, 96, 80))
+def get_portrait(unit):
+    image = RESOURCES.portraits.get(unit.portrait_nid)
+    if image:
+        if not image.image:
+            image.image = engine.image_load(image.full_path)
+        image = engine.subsurface(image.image, (0, 0, 96, 80))
+    else:  # Generic class portrait
+        klass = DB.classes.get(unit.klass)
+        image = RESOURCES.icons80.get(klass.icon_nid)
+        if not image:
+            return None
+        if not image.image:
+            image.image = engine.image_load(image.full_path)
+        image = engine.subsurface(image.image, (klass.icon_index[0] * 80, klass.icon_index[1] * 72, 80, 72))
+        
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 
     return image
 
-def draw_portrait(surf, nid, topleft=None, bottomright=None):
-    image = get_portrait(nid)
+def draw_portrait(surf, unit, topleft=None, bottomright=None):
+    image = get_portrait(unit)
     if not image:
         return None
 

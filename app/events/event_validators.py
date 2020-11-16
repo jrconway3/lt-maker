@@ -114,12 +114,13 @@ class Bool(OptionValidator):
 
 class Position(Validator):
     def validate(self, text, level):
-        if ',' not in text:
-            return None
         text = text.split(',')
-        if len(text) != 2:
-            if text in level.units.keys():
+        if len(text) == 1:
+            text = text[0]
+            if level and text in level.units.keys():
                 return text
+            return None
+        if len(text) > 2:
             return None
         if not all(str_utils.is_int(t) for t in text):
             return None

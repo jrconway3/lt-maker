@@ -85,7 +85,7 @@ class QDiscordPalette(QDarkPalette):
         self.setColor(QPalette.Button, DISPRIMARY)
         self.setColor(QPalette.ButtonText, WHITE)
         self.setColor(QPalette.BrightText, RED)
-        self.setColor(QPalette.Link, DISTERTIARY)
+        self.setColor(QPalette.Link, TERTIARY)
         self.setColor(QPalette.Highlight, DISTERTIARY)
         self.setColor(QPalette.HighlightedText, WHITE)
 

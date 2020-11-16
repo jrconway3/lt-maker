@@ -24,6 +24,10 @@ class Defaults():
         return unit2.position and unit1.team == unit2.team and check_ally(unit1, unit2)
 
     @staticmethod
+    def exp_multiplier(unit1, unit2) -> bool:
+        return 1.0
+
+    @staticmethod
     def sight_range(unit) -> int:
         return 0
 
@@ -32,7 +36,7 @@ default_behaviours = ('has_canto', 'pass_through', 'vantage', 'class_skill', 'fe
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'sight_range')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier')
 # Takes in unit, item, target, mode, returns bonus
 dynamic_hooks = ('dynamic_damage', 'dynamic_resist', 'dynamic_accuracy', 'dynamic_avoid', 
                  'dynamic_crit_accuracy', 'dynamic_crit_avoid', 'dynamic_attack_speed', 'dynamic_defense_speed',

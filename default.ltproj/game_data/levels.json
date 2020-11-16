@@ -1,6 +1,6 @@
 [
     {
-        "nid": "DEBUG",
+        "nid": "0",
         "name": "Prologue",
         "tilemap": "Prologue",
         "party": null,
@@ -15,8 +15,8 @@
             "base": null
         },
         "objective": {
-            "simple": "Defeat Boss",
-            "win": "Defeat Boss",
+            "simple": "Defeat boss",
+            "win": "Defeat boss",
             "loss": "Eirika dies"
         },
         "units": [

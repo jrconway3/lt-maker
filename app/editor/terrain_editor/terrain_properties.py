@@ -11,8 +11,9 @@ from app.data.database import DB
 from app.extensions.custom_gui import ComboBox, PropertyBox
 from app.editor.custom_widgets import MovementCostBox
 from app.editor.mcost_dialog import McostDialog
+from app.editor.skill_editor import skill_model
 from app.extensions.color_icon import ColorIcon
-from app import utilities
+from app.utilities import str_utils
 
 class TerrainProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -69,9 +70,21 @@ class TerrainProperties(QWidget):
         self.movement_box.button.clicked.connect(self.access_movement_grid)
         movement_section.addWidget(self.movement_box)
 
+        self.status_box = PropertyBox("Status", ComboBox, self)
+        self.status_box.edit.addItem("None")
+        for skill in DB.skills:
+            pixmap = skill_model.get_pixmap(skill)
+            if pixmap:
+                self.status_box.edit.addItem(QIcon(pixmap), skill.nid)
+            else:
+                self.status_box.edit.addItem(skill.nid)
+        self.status_box.edit.setIconSize(QSize(16, 16))
+        self.status_box.edit.currentIndexChanged.connect(self.status_changed)
+
         main_section.addWidget(self.minimap_box)
         main_section.addWidget(self.platform_box)
         main_section.addLayout(movement_section)
+        main_section.addWidget(self.status_box)
 
         total_section = QVBoxLayout()
         self.setLayout(total_section)
@@ -88,7 +101,7 @@ class TerrainProperties(QWidget):
         other_nids = [terrain.nid for terrain in DB.terrain.values() if terrain is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Terrain ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_int(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_int(self.current.nid, other_nids)
         DB.terrain.update_nid(self.current, self.current.nid)
         self.window.update_list()
 
@@ -104,6 +117,13 @@ class TerrainProperties(QWidget):
 
     def movement_changed(self, index):
         self.current.mtype = self.movement_box.edit.currentText()
+
+    def status_changed(self, index):
+        status = self.status_box.edit.currentText()
+        if status == 'None':
+            self.current.status = None
+        else:
+            self.current.status = status
 
     def access_movement_grid(self):
         dlg = McostDialog()
@@ -124,6 +144,11 @@ class TerrainProperties(QWidget):
         self.minimap_box.edit.setValue(current.minimap)
         self.platform_box.edit.setValue(current.platform)
         self.movement_box.edit.setValue(current.mtype)
+        if current.status:
+            self.status_box.edit.setValue(current.status)
+        else:
+            self.status_box.edit.setValue("None")
+
         # Icon
         color = current.color
         self.icon_edit.change_color(QColor(color[0], color[1], color[2]).name())

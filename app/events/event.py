@@ -288,6 +288,15 @@ class Event():
                 self.wait_time = engine.get_time() + 666
                 self.state = 'waiting'
 
+        elif command.nid == 'expression':
+            values, flags = event_commands.parse(command)
+            name = values[0]
+            portrait = self.portraits.get(name)
+            if not portrait:
+                return False
+            expression_list = values[1].split(',')
+            portrait.set_expression(expression_list)
+
         elif command.nid == 'disp_cursor':
             b = command.values[0]
             if b.lower() in ('1', 't', 'true', 'y', 'yes'):

@@ -334,6 +334,7 @@ class EventProperties(QWidget):
 
         # Update trigger box to match current level
         self.trigger_box.edit.clear()
+        print(self.trigger_box.edit.count())
         if idx == 0:
             self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
         else:
@@ -354,13 +355,13 @@ class EventProperties(QWidget):
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
-        self.trigger_box.edit.clear()
+        # self.trigger_box.edit.clear()
         if current.level_nid:
             self.level_nid_box.edit.setValue(current.level_nid)
-            self.trigger_box.edit.addItems(self.get_trigger_items(current.level_nid))
+            # self.trigger_box.edit.addItems(self.get_trigger_items(current.level_nid))
         else:
             self.level_nid_box.edit.setValue('Global')
-            self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
+            # self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
         self.trigger_box.edit.setValue(current.trigger)
         self.condition_box.edit.setText(current.condition)
 

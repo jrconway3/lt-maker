@@ -44,9 +44,9 @@ class UnitPrefab(Prefab):
                 item[0] = new_nid
 
     def replace_skill_nid(self, old_nid, new_nid):
-        for item in self.learned_skills:
-            if item[1] == old_nid:
-                item[1] = new_nid
+        for skill in self.learned_skills:
+            if skill.skill_nid == old_nid:
+                skill.skill_nid = new_nid
 
     def restore_attr(self, name, value):
         if name in ('bases', 'growths'):

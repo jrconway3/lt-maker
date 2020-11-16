@@ -8,43 +8,43 @@ from app.data.database import DB
 from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.base_database_gui import DatabaseTab
 
-import app.engine.item_component_access as ICA
+import app.engine.skill_component_access as SCA
 
-from app.editor.item_editor import item_model, item_import
+from app.editor.skill_editor import skill_model, skill_import
 from app.editor.component_properties import ComponentProperties
 
-class ItemProperties(ComponentProperties):
-    title = "Item"
-    get_components = staticmethod(ICA.get_item_components)
-    get_templates = staticmethod(ICA.get_templates)
+class SkillProperties(ComponentProperties):
+    title = "Skill"
+    get_components = staticmethod(SCA.get_skill_components)
+    get_templates = staticmethod(SCA.get_templates)
 
-class ItemDatabase(DatabaseTab):
+class SkillDatabase(DatabaseTab):
     allow_import_from_lt = True
 
     @classmethod
     def create(cls, parent=None):
-        data = DB.items
-        title = "Item"
-        right_frame = ItemProperties
+        data = DB.skills
+        title = "Skill"
+        right_frame = SkillProperties
         deletion_criteria = None
-        collection_model = item_model.ItemModel
+        collection_model = skill_model.SkillModel
         dialog = cls(data, title, right_frame, deletion_criteria, collection_model, parent)
         return dialog
 
     def import_data(self):
         settings = QSettings("rainlash", "Lex Talionis")
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
-        fn, ok = QFileDialog.getOpenFileName(self, "Import items from items.xml", starting_path, "Items XML (items.xml);;All Files(*)")
-        if ok and fn.endswith('items.xml'):
+        fn, ok = QFileDialog.getOpenFileName(self, "Import skills from status.xml", starting_path, "Status XML (status.xml);;All Files(*)")
+        if ok and fn.endswith('status.xml'):
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)
-            new_items = item_import.get_from_xml(parent_dir, fn)
-            for item in new_items:
-                self._data.append(item)
+            new_skills = skill_import.get_from_xml(parent_dir, fn)
+            for skill in new_skills:
+                self._data.append(skill)
             self.update_list()
 
 # Testing
-# Run "python -m app.editor.item_editor.item_tab" from main directory
+# Run "python -m app.editor.skill_editor.skill_tab" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
@@ -52,6 +52,6 @@ if __name__ == '__main__':
     from app.resources.resources import RESOURCES
     RESOURCES.load('default.ltproj')
     DB.load('default.ltproj')
-    window = SingleDatabaseEditor(ItemDatabase)
+    window = SingleDatabaseEditor(SkillDatabase)
     window.show()
     app.exec_()

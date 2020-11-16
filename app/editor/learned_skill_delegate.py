@@ -1,6 +1,10 @@
 from PyQt5.QtWidgets import QSpinBox, QItemDelegate
+from PyQt5.QtGui import QIcon
+
+from app.data.database import DB
 
 from app.extensions.custom_gui import ComboBox
+from app.editor.skill_editor import skill_model
 
 class LearnedSkillDelegate(QItemDelegate):
     int_column = 0
@@ -13,9 +17,13 @@ class LearnedSkillDelegate(QItemDelegate):
             return editor
         elif index.column() == self.skill_column:
             editor = ComboBox(parent)
-            editor.addItem("None")
-            # for status_effect in DB.status_effects:
-                # editor.addItem((status_effect.icon, status_effect.nid))
+            # editor.addItem("None")
+            for skill in DB.skills:
+                pixmap = skill_model.get_pixmap(skill)
+                if pixmap:
+                    editor.addItem(QIcon(pixmap), skill.nid)
+                else:
+                    editor.addItem(skill.nid)
             return editor
         else:
             return super().createEditor(parent, option, index)

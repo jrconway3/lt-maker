@@ -5,7 +5,7 @@ from app.utilities.data import Data
 from app.data.database import DB
 from app.data import items
 
-from app.data.item_components import Type
+from app.data.components import Type
 
 import app.engine.item_component_access as ICA
 

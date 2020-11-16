@@ -20,3 +20,8 @@ def restore_component(dat):
     base_class = _skill_components.get(nid)
     copy = base_class(value)
     return copy
+
+templates = {}
+
+def get_templates():
+    return templates.items()

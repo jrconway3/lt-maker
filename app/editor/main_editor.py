@@ -31,6 +31,7 @@ from app.editor.party_editor.party_tab import PartyDatabase
 from app.editor.class_editor.class_tab import ClassDatabase
 from app.editor.weapon_editor.weapon_tab import WeaponDatabase
 from app.editor.item_editor.item_tab import ItemDatabase
+from app.editor.skill_editor.skill_tab import SkillDatabase
 from app.editor.terrain_editor.terrain_tab import TerrainDatabase
 from app.editor.stat_editor.stat_tab import StatTypeDatabase
 from app.editor.ai_editor.ai_tab import AIDatabase
@@ -228,7 +229,7 @@ class MainEditor(QMainWindow):
                             "Tags": self.edit_tags,
                             "Weapon Types": WeaponDatabase.edit,
                             "Items": ItemDatabase.edit,
-                            # "Skills": partial(self.get_editor, skill_tab),
+                            "Skills": SkillDatabase.edit,
                             "AI": AIDatabase.edit,
                             "Terrain": TerrainDatabase.edit,
                             "Movement Costs": self.edit_mcost,

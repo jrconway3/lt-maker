@@ -17,7 +17,7 @@ from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWi
 from app.editor.custom_widgets import ClassBox
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, UnitStatAveragesModel
-from app.editor.skill_database import LearnedSkillDelegate
+from app.editor.learned_skill_delegate import LearnedSkillDelegate
 from app.editor.item_list_widget import ItemListWidget
 from app.editor.weapon_editor import weapon_model
 from app.editor.icons import UnitPortrait

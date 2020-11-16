@@ -14,7 +14,7 @@ from app.extensions.multi_select_combo_box import MultiSelectComboBox
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, ClassStatAveragesModel
 from app.editor.weapon_editor.weapon_rank import WexpGainDelegate, WexpGainMultiAttrModel
-from app.editor.skill_database import LearnedSkillDelegate
+from app.editor.learned_skill_delegate import LearnedSkillDelegate
 from app.editor.icons import ItemIcon80
 
 from app.editor.class_editor import class_model

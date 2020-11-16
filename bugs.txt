@@ -1,6 +1,7 @@
-skills
+skills in combat calcs, etc.
 ai event tiles
 event tile support in engine
+item system and skill system event calls
 
 Prep / Base / Overworld / Supports / Combat Animations / Difficulty Modes / Status Menu / Unit Menu / Minimap / Fog of War / Line of Sight
 Saving and loading projects / Freezing Code

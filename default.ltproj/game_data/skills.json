@@ -1,1 +1,18 @@
-[]
+[
+    {
+        "nid": "Canto",
+        "name": "Canto",
+        "desc": "Can move again after certain actions.",
+        "icon_nid": "Skills",
+        "icon_index": [
+            1,
+            4
+        ],
+        "components": [
+            [
+                "canto",
+                null
+            ]
+        ]
+    }
+]

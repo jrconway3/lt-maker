@@ -176,6 +176,11 @@ class InteractUnit(EventCommand):
     keywords = ["Unit", "Unit"]
     optional_keywords = ["Script", "Ability"]
 
+class SetCurrentHP(EventCommand):
+    nid = 'set_current_hp'
+    tag = 'unit'
+    keywords = ["Unit", "PositiveInteger"]
+
 class AddGroup(EventCommand):
     nid = 'add_group'
     tag = 'unit'

@@ -31,8 +31,8 @@ class ClassDatabase(DatabaseTab):
     def import_data(self):
         settings = QSettings("rainlash", "Lex Talionis")
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
-        fn, ok = QFileDialog.getOpenFileName(self, "Import units from units.xml", starting_path, "Units XML (units.xml);;All Files(*)")
-        if ok and fn.endswith('units.xml'):
+        fn, ok = QFileDialog.getOpenFileName(self, "Import classes from class_info.xml", starting_path, "Class Info XML (class_info.xml);;All Files(*)")
+        if ok and fn.endswith('class_info.xml'):
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)
             new_units = class_import.get_from_xml(parent_dir, fn)

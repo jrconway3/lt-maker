@@ -38,6 +38,16 @@ class AIPrefab(Prefab):
     def default(cls):
         return cls(None, 0)
 
+    def has_unit_spec(self, spec_type, spec_nid) -> bool:
+        for behaviour in self.behaviours:
+            if behaviour.has_unit_spec(spec_type, spec_nid):
+                return True
+        return False
+
+    def change_unit_spec(self, spec_type, old_nid, new_nid):
+        for behaviour in self.behaviours:
+            behaviour.change_unit_spec(spec_type, old_nid, new_nid)
+
 class AIBehaviour(Prefab):
     def __init__(self, action: str, target, view_range: int):
         self.action: str = action
@@ -58,6 +68,19 @@ class AIBehaviour(Prefab):
         s_dict['target'] = self.save_attr('target', self.target)
         s_dict['view_range'] = self.save_attr('view_range', self.view_range)
         return s_dict
+
+    def has_unit_spec(self, spec_type, spec_nid):
+        if self.target[0] in ('Enemy', "Ally", "Unit"):
+            if len(self.target[1]) == 2:
+                if self.target[1][0] == spec_type and self.target[1][1] == spec_nid:
+                    return True
+        return False
+
+    def change_unit_spec(self, spec_type, old_nid, new_nid):
+        if self.target[0] in ('Enemy', "Ally", "Unit"):
+            if len(self.target[1]) == 2:
+                if self.target[1][0] == spec_type and self.target[1][1] == old_nid:
+                    self.target[1][1] = new_nid
 
 class AICatalog(Data):
     datatype = AIPrefab

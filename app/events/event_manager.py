@@ -6,7 +6,8 @@ class EventManager():
     def __init__(self):
         self.events = []  # A stack of events
 
-    def trigger(self, trigger):
+    def trigger(self, trigger, unit=None, unit2=None, position=None, region=None):
+        unit1 = unit
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
             print(event_prefab.trigger, event_prefab.condition)
@@ -14,7 +15,7 @@ class EventManager():
                 triggered_events.append(event_prefab)
 
         for event_prefab in triggered_events:
-            new_event = Event(event_prefab.commands)
+            new_event = Event(event_prefab.commands, unit, unit2, position, region)
             self.events.append(new_event)
             game.state.change('event')
 

@@ -29,6 +29,8 @@ class PushableIcon16(QPushButton):
     def render(self):
         if self._nid:
             res = self.database.get(self._nid)
+            if not res:
+                return
             if not res.pixmap:
                 res.pixmap = QPixmap(res.full_path)
             if res.pixmap.width() > 0 and res.pixmap.height() > 0:

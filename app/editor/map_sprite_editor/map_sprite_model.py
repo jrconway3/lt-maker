@@ -83,6 +83,8 @@ class MapSpriteModel(ResourceCollectionModel):
                 return
             parent_dir = os.path.split(fn)[0]
             settings.setValue("last_open_path", parent_dir)
+        else:
+            return
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
         fn, mok = QFileDialog.getOpenFileName(self.window, "Choose Moving Map Sprite", starting_path)
         if mok:

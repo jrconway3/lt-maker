@@ -11,6 +11,7 @@ class Icon():
         self.pixmap = None
 
         self.parent_nid = None
+        self.icon_index = (0, 0)
 
     def set_full_path(self, full_path):
         self.full_path = full_path

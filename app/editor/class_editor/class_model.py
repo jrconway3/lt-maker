@@ -81,11 +81,7 @@ class ClassModel(DragDropCollectionModel):
         nid = klass.nid
         affected_units = [unit for unit in DB.units if unit.klass == nid]
         affected_classes = [k for k in DB.classes if k.promotes_from == nid or nid in k.turns_into]
-        affected_ais = [ai for ai in DB.ai if 
-                        any(behaviour.target_spec and 
-                            behaviour.target_spec[0] == "Class" and 
-                            behaviour.target_spec[1] == nid 
-                            for behaviour in ai.behaviours)]
+        affected_ais = [ai for ai in DB.ai if ai.has_unit_spec("Class", nid)]
         affected_levels = [level for level in DB.levels if any(unit.klass == nid for unit in level.units)]
         if affected_units or affected_classes or affected_ais or affected_levels:
             if affected_units:
@@ -122,9 +118,7 @@ class ClassModel(DragDropCollectionModel):
                 k.promotes_from = new_nid
             k.turns_into = [new_nid if elem == old_nid else elem for elem in k.turns_into]
         for ai in DB.ai:
-            for behaviour in ai.behaviours:
-                if behaviour.target_spec and behaviour.target_spec[0] == "Class" and behaviour.target_spec[1] == old_nid:
-                    behaviour.target_spec[1] = new_nid
+            ai.change_unit_spec("Class", old_nid, new_nid)
         for level in DB.levels:
             for unit in level.units:
                 if unit.klass == old_nid:

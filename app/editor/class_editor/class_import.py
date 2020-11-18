@@ -5,6 +5,7 @@ from app.utilities import str_utils, utils
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.data.klass import Klass
+from app.data.skills import LearnedSkill
 
 from app.data import stats, weapons
 
@@ -58,6 +59,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
         growth_bonus = stats.StatList.default(DB)
 
         learned_skills = str_utils.skill_parser(klass.find('skills').text)
+        learned_skills = [LearnedSkill(*l) for l in learned_skills]
 
         # Create weapon experience
         wexp = klass.find('wexp_gain').text.split(',')
@@ -71,11 +73,14 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
                 num = DB.weapon_ranks.get(w).requirement
             else:
                 num = int(w)
-            if weapon_order[idx] in DB.weapons.keys():
-                gain = wexp_gain.get(weapon_order[idx])
-                gain.wexp_gain = num
-                if num > 0:
-                    gain.usable = True
+            try:
+                if weapon_order[idx] in DB.weapons.keys():
+                    gain = wexp_gain.get(weapon_order[idx])
+                    gain.wexp_gain = num
+                    if num > 0:
+                        gain.usable = True
+            except IndexError as e:
+                print("Failed to determine weapon experience")
 
         icon_nid = 'Generic_Portrait_%s' % nid
         if icon_nid not in RESOURCES.icons80.keys():

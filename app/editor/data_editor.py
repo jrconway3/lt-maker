@@ -98,11 +98,21 @@ class SingleResourceEditor(QDialog):
 
         self.setWindowTitle(self.tab.windowTitle())
 
+        # Restore Geometry
+        settings = QSettings("rainlash", "Lex Talionis")
+        geometry = settings.value(self._type() + " geometry")
+        if geometry:
+            self.restoreGeometry(geometry)
+        state = settings.value(self._type() + " state")
+        if state:
+            self.tab.splitter.restoreState(state)
+
     def accept(self):
         settings = QSettings("rainlash", "Lex Talionis")
         current_proj = settings.value("current_proj", None)
         if current_proj:
             RESOURCES.save(current_proj, self.resource_types)
+        self.save_geometry()
         super().accept()
 
     def reject(self):
@@ -110,12 +120,28 @@ class SingleResourceEditor(QDialog):
         current_proj = settings.value("current_proj", None)
         if current_proj:
             RESOURCES.reload(current_proj)
+        self.save_geometry()
         super().reject()
 
-class MultiResourceEditor(QDialog):
+    def closeEvent(self, event):
+        self.save_geometry()
+        super().closeEvent(event)
+
+    def _type(self):
+        return self.tab.__class__.__name__
+
+    def save_geometry(self):
+        settings = QSettings("rainlash", "Lex Talionis")
+        settings.setValue(self._type() + " geometry", self.saveGeometry())
+        if hasattr(self.tab, 'splitter'):
+            settings.setValue(self._type() + " state", self.tab.splitter.saveState())
+        print(self._type(), "Save Geometry")
+
+class MultiResourceEditor(SingleResourceEditor):
     def __init__(self, tabs, resource_types, parent=None):
-        super().__init__(parent)
+        QDialog.__init__(self, parent)
         self.window = parent
+        self.tabs = tabs
         self.resource_types = resource_types
         self.setWindowTitle("Resource Editor")
         self.setStyleSheet("font: 10pt;")
@@ -140,6 +166,12 @@ class MultiResourceEditor(QDialog):
         self.current_tab = self.tab_bar.currentWidget()
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
+        # Restore Geometry
+        settings = QSettings("rainlash", "Lex Talionis")
+        geometry = settings.value(self._type() + " geometry")
+        if geometry:
+            self.restoreGeometry(geometry)
+
     def on_tab_changed(self, idx):
         # Make each tab individually resizable
         for i in range(self.tab_bar.count()):
@@ -153,16 +185,13 @@ class MultiResourceEditor(QDialog):
         self.current_tab.update_list()
         self.current_tab.reset()
 
-    def accept(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        current_proj = settings.value("current_proj", None)
-        if current_proj:
-            RESOURCES.save(current_proj, self.resource_types)
-        super().accept()
+    def _type(self):
+        s = ''
+        for tab in self.tabs:
+            s += tab.__class__.__name__
+        return s
 
-    def reject(self):
+    def save_geometry(self):
         settings = QSettings("rainlash", "Lex Talionis")
-        current_proj = settings.value("current_proj", None)
-        if current_proj:
-            RESOURCES.reload(current_proj)
-        super().reject()
+        settings.setValue(self._type() + " geometry", self.saveGeometry())
+        print(self._type(), "Save Geometry")

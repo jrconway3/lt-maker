@@ -15,6 +15,12 @@ class OptionValidator(Validator):
 class Condition(Validator):
     pass
 
+class PositiveInteger(Validator):
+    def validate(self, text, level):
+        if str_utils.is_int(text) and int(text) > 0:
+            return int(text)
+        return None
+
 class Time(Validator):
     def validate(self, text, level):
         if str_utils.is_int(text):

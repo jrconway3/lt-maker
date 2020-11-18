@@ -31,7 +31,7 @@ class Event():
     skippable = {"speak", "transition", "wait", "bop_portrait",
                  "sound"}
 
-    def __init__(self, commands, unit=None, unit2=None, position=None):
+    def __init__(self, commands, unit=None, unit2=None, position=None, region=None):
         self.commands = commands
         self.command_idx = 0
 
@@ -40,6 +40,7 @@ class Event():
         self.unit = self.unit1 = unit
         self.unit2 = unit2
         self.position = position
+        self.region = region
 
         self.portraits = {}
         self.text_boxes = []

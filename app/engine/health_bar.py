@@ -57,8 +57,9 @@ class MapHealthBar(HealthBar):
         index_pixel = int(12 * fraction_hp) + 1
 
         surf.blit(self.health_outline, (left, top + 13))
-        bar = engine.subsurface(self.health_bar, (0, 0, index_pixel, 1))
-        surf.blit(bar, (left + 1, top + 14))
+        if fraction_hp > 0:
+            bar = engine.subsurface(self.health_bar, (0, 0, index_pixel, 1))
+            surf.blit(bar, (left + 1, top + 14))
 
         return surf
 

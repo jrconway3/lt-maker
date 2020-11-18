@@ -365,6 +365,13 @@
                 [
                     "Seth"
                 ]
+            ],
+            [
+                "set_current_hp",
+                [
+                    "Seth",
+                    "13"
+                ]
             ]
         ]
     },
@@ -372,7 +379,7 @@
         "nid": "EirikaDeath",
         "trigger": "unit_death",
         "level_nid": null,
-        "condition": "self.unit.nid == 'Eirika'",
+        "condition": "unit.nid == 'Eirika'",
         "commands": [
             [
                 "add_portrait",
@@ -417,7 +424,7 @@
         "nid": "SethDeath",
         "trigger": "unit_death",
         "level_nid": null,
-        "condition": "self.unit.nid == 'Seth'",
+        "condition": "unit.nid == 'Seth'",
         "commands": [
             [
                 "add_portrait",
@@ -452,7 +459,7 @@
         "nid": "ONeillDeath",
         "trigger": "unit_death",
         "level_nid": "0",
-        "condition": "self.unit.nid == \"O'Neill\"",
+        "condition": "unit.nid == \"O'Neill\"",
         "commands": [
             [
                 "add_portrait",

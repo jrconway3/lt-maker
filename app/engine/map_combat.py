@@ -308,6 +308,7 @@ class MapCombat():
         self.turnwheel_death_messages(all_units)
 
         self.handle_state_stack()
+        game.events.trigger('combat_end', self.attacker, self.defender, self.attacker.position)
         self.handle_item_gain()
         a_broke, d_broke = self.find_broken_items()
 
@@ -453,6 +454,9 @@ class MapCombat():
             if unit.is_dying:
                 game.state.change('dying')
                 break
+        for unit in units:
+            if unit.is_dying:
+                game.events.trigger('unit_death', unit, position=unit.position)
 
     def check_equipped_items(self):
         if not item_system.available(self.attacker, self.item):

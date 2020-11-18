@@ -836,10 +836,7 @@
         "tier": 1,
         "movement_group": "Regular",
         "promotes_from": null,
-        "turns_into": [
-            "Hero",
-            "Ranger"
-        ],
+        "turns_into": [],
         "tags": [
             "Sword"
         ],
@@ -1117,10 +1114,7 @@
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
-        "turns_into": [
-            "Assassin",
-            "Rogue"
-        ],
+        "turns_into": [],
         "tags": [
             "Sword"
         ],
@@ -2248,9 +2242,7 @@
         "tier": 1,
         "movement_group": "Light Cav",
         "promotes_from": null,
-        "turns_into": [
-            "Falcoknight"
-        ],
+        "turns_into": [],
         "tags": [
             "Mounted"
         ],
@@ -3091,10 +3083,7 @@
         "tier": 1,
         "movement_group": "Pirates",
         "promotes_from": null,
-        "turns_into": [
-            "Berserker",
-            "Warrior"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -3925,10 +3914,7 @@
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
-        "turns_into": [
-            "Sniper",
-            "Ranger"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -4199,15 +4185,12 @@
     },
     {
         "nid": "Monk",
-        "name": "Cleric",
+        "name": "Monk",
         "desc": "Kind-hearted healers.",
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [
-            "Bishop",
-            "Sage"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -4483,10 +4466,7 @@
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [
-            "Bishop",
-            "Valkyrie"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -4762,10 +4742,7 @@
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [
-            "Sage",
-            "Mage_Knight"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -5041,10 +5018,7 @@
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [
-            "Druid",
-            "Summoner"
-        ],
+        "turns_into": [],
         "tags": [],
         "max_level": 20,
         "bases": [

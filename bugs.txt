@@ -1,4 +1,3 @@
-skills in combat calcs, etc.
 ai event tiles
 event tile support in engine
 item system and skill system event calls

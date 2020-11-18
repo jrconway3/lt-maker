@@ -41,7 +41,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
         # Create weapon experience
         wexp = unit.find('wexp').text.split(',')
         wexp_gain = weapons.WexpGainList.default(DB)
-        weapon_order = ['Sword', 'Lance', 'Axe', 'Bow', 'Light', 'Anima', 'Dark']
+        weapon_order = ['Sword', 'Lance', 'Axe', 'Bow', 'Staff', 'Light', 'Anima', 'Dark']
         if os.path.exists(parent_dir + '/weapon_triangle.txt'):
             with open(parent_dir + '/weapon_triangle.txt') as wfn:
                 weapon_order = [l.strip().split(';')[0] for l in wfn.readlines() if l.strip()]
@@ -50,11 +50,14 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
                 num = DB.weapon_ranks.get(w).requirement
             else:
                 num = int(w)
-            if weapon_order[idx] in DB.weapons.keys():
-                gain = wexp_gain.get(weapon_order[idx])
-                gain.wexp_gain = num
-                if num > 0:
-                    gain.usable = True
+            try:
+                if weapon_order[idx] in DB.weapons.keys():
+                    gain = wexp_gain.get(weapon_order[idx])
+                    gain.wexp_gain = num
+                    if num > 0:
+                        gain.usable = True
+            except IndexError as e:
+                print("Failed to determine weapon experience")
 
         inventory = unit.find('inventory').text
         items = []

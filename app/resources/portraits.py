@@ -3,11 +3,11 @@ import os
 from app.resources.base_catalog import ManifestCatalog
 
 class Portrait():
-    def __init__(self, nid, full_path=None):
+    def __init__(self, nid, full_path=None, pix=None):
         self.nid = nid
         self.full_path = full_path
         self.image = None
-        self.pixmap = None
+        self.pixmap = pix
 
         self.blinking_offset = [0, 0]
         self.smiling_offset = [0, 0]

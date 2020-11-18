@@ -290,6 +290,18 @@ class InfoMenuState(State):
             elif event == 'BACK':
                 self.back()
                 return
+            elif event == 'SELECT':
+                mouse_position = INPUT.get_mouse_position()
+                if mouse_position:
+                    mouse_x, mouse_y = mouse_position
+                    if mouse_x < 8:
+                        self.move_left()
+                    elif mouse_x > WINWIDTH - 8:
+                        self.move_right()
+                    elif mouse_y < 8:
+                        self.move_up()
+                    elif mouse_y > WINHEIGHT - 8:
+                        self.move_down()
 
             if 'RIGHT' in directions:
                 self.move_right()
@@ -340,18 +352,7 @@ class InfoMenuState(State):
             return
         if self.info_flag:
             self.info_graph.handle_mouse(mouse_position)
-        elif not self.transition:
-            # Move left, right, up or down
-            mouse_x, mouse_y = mouse_position
-            if mouse_x < 8:
-                self.move_left()
-            elif mouse_x > WINWIDTH - 8:
-                self.move_right()
-            elif mouse_y < 8:
-                self.move_up()
-            elif mouse_y > WINHEIGHT - 8:
-                self.move_down()
-
+        
     def update(self):
         # Up and Down
         if self.next_unit:

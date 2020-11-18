@@ -345,9 +345,12 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
         while klass.turns_into:
             true_levels += max_level
             klass = DB.classes.get(klass.turns_into[0])  
-            max_level = klass.max_level
-            for i in [1] + list(range(5, max_level, 5)) + [max_level]:
-                self._rows.append((klass.nid, i, i + true_levels))
+            if klass:
+                max_level = klass.max_level
+                for i in [1] + list(range(5, max_level, 5)) + [max_level]:
+                    self._rows.append((klass.nid, i, i + true_levels))
+            else:
+                return
 
     def set_current(self, current):
         self.current = current

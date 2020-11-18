@@ -64,7 +64,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
         # Create weapon experience
         wexp = klass.find('wexp_gain').text.split(',')
         wexp_gain = weapons.WexpGainList.default(DB)
-        weapon_order = ['Sword', 'Lance', 'Axe', 'Bow', 'Light', 'Anima', 'Dark']
+        weapon_order = ['Sword', 'Lance', 'Axe', 'Bow', 'Staff', 'Light', 'Anima', 'Dark']
         if os.path.exists(parent_dir + '/weapon_triangle.txt'):
             with open(parent_dir + '/weapon_triangle.txt') as wfn:
                 weapon_order = [l.strip().split(';')[0] for l in wfn.readlines() if l.strip()]
@@ -97,4 +97,9 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
             tags, max_level, bases, growths, growth_bonus, promotion, maxes, 
             learned_skills, wexp_gain, icon_nid, icon_index, map_sprite_nid)
         class_list.append(new_class)
+
+    # Turns into
+    valid_nids = [_.nid for _ in class_list]
+    for klass in class_list:
+        klass.turns_into = [k for k in klass.turns_into if DB.classes.get(k) or k in valid_nids]
     return class_list

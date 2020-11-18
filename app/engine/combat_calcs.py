@@ -54,9 +54,10 @@ def accuracy(unit, item=None):
     if weapon_rank_bonus:
         accuracy += int(weapon_rank_bonus.accuracy)
 
+    accuracy += skill_system.modify_accuracy(unit, item)
+
     # TODO
     # Support Bonus
-    # Status Bonus
 
     return accuracy
 
@@ -66,6 +67,7 @@ def avoid(unit, item_to_avoid=None):
     else:
         equation = item_system.avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
+    avoid += skill_system.modify_avoid(unit, item_to_avoid)
     return avoid
 
 def crit_accuracy(unit, item=None):
@@ -85,6 +87,8 @@ def crit_accuracy(unit, item=None):
     if weapon_rank_bonus:
         crit_accuracy += int(weapon_rank_bonus.crit)
 
+    crit_accuracy += skill_system.modify_crit_accuracy(unit, item)
+
     return crit_accuracy
 
 def crit_avoid(unit, item_to_avoid=None):
@@ -93,6 +97,7 @@ def crit_avoid(unit, item_to_avoid=None):
     else:
         equation = item_system.crit_avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
+    avoid += skill_system.modify_crit_avoid(unit, item_to_avoid)
     return avoid
 
 def damage(unit, item=None):
@@ -112,9 +117,9 @@ def damage(unit, item=None):
     if weapon_rank_bonus:
         might += int(weapon_rank_bonus.damage)
 
+    might += item_system.modify_damage(unit, item)
     # TODO
     # Support bonus
-    # Status bonus
 
     return might
 
@@ -124,6 +129,7 @@ def defense(unit, item_to_avoid=None):
     else:
         equation = item_system.defense_formula(unit, item_to_avoid)
         res = equations.parser.get(equation, unit)
+    res += skill_system.modify_resist(unit, item_to_avoid)
     return res
 
 def attack_speed(unit, item=None):
@@ -139,9 +145,9 @@ def attack_speed(unit, item=None):
     if weapon_rank_bonus:
         attack_speed += int(weapon_rank_bonus.attack_speed)
 
+    attack_speed = skill_system.modify_attack_speed(unit, item)
     # TODO
     # Support bonus
-    # Status bonus
 
     return attack_speed
 
@@ -151,6 +157,7 @@ def defense_speed(unit, item_to_avoid=None):
     else:
         equation = item_system.defense_speed_formula(unit, item_to_avoid)
         speed = equations.parser.get(equation, unit)
+    speed += skill_system.modify_defense_speed(unit, item_to_avoid)
     return speed
 
 def compute_hit(unit, target, item=None, mode=None):
@@ -185,6 +192,9 @@ def compute_hit(unit, target, item=None, mode=None):
 
     hit -= avoid(target, item)
 
+    hit += skill_system.dynamic_accuracy(unit, item, target, mode)
+    hit -= skill_system.dynamic_avoid(target, item, unit, mode)
+
     return utils.clamp(hit, 0, 100)
 
 def compute_crit(unit, target, item=None, mode=None):
@@ -216,6 +226,9 @@ def compute_crit(unit, target, item=None, mode=None):
     crit += triangle_bonus
 
     crit -= crit_avoid(target, item)
+
+    crit += skill_system.dynamic_crit_accuracy(unit, item, target, mode)
+    crit -= skill_system.dynamic_crit_avoid(target, item, unit, mode)
 
     return utils.clamp(crit, 0, 100)
 
@@ -255,6 +268,9 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
         for _ in range(equations.parser.crit_add(unit)):
             might += total_might
 
+    might += skill_system.dynamic_damage(unit, item, target, mode)
+    might -= skill_system.dynamic_resist(target, item, unit, mode)
+
     might *= skill_system.damage_multiplier(unit, item, target, mode)
     might *= skill_system.resist_multiplier(target, item, unit, mode)
 
@@ -290,7 +306,9 @@ def outspeed(unit, target, item, mode=None) -> bool:
 
     speed -= defense_speed(target, item)
 
-    # Skills and Status TODO
+    speed += skill_system.dynamic_attack_speed(unit, item, target, mode)
+    speed -= skill_system.dynamic_defense_speed(target, item, unit, mode)
+
     return 2 if speed >= equations.parser.speed_to_double(unit) else 1
 
 def compute_multiattacks(unit, target, item=None, mode=None):
@@ -301,5 +319,6 @@ def compute_multiattacks(unit, target, item=None, mode=None):
 
     num_attacks = 1
     num_attacks += item_system.dynamic_multiattacks(unit, item, target, mode)
+    num_attacks += skill_system.dynamic_multiattacks(unit, item, target, mode)
 
     return num_attacks

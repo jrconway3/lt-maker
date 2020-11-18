@@ -144,23 +144,27 @@ class Color3ItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         color = self._data.value
         self.color = ColorIcon(QColor(*color).name(), self)
+        self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 
     def on_value_changed(self, val):
-        color = self.color.color().getRgb()
-        self._data.value = color
+        color = QColor(self.color.color())
+        r, g, b = color.red(), color.green(), color.blue()
+        self._data.value = (r, g, b)
 
 class Color4ItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         color = self._data.value
         self.color = AlphaColorIcon(QColor(*color).name(), self)
+        self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 
     def on_value_changed(self, val):
-        color = self.color.color().getRgba()
-        self._data.value = color
+        color = QColor(self.color.color())
+        r, g, b, a = color.red(), color.green(), color.blue(), color.alpha()
+        self._data.value = (r, g, b, a)
 
 # Delegates
 class UnitDelegate(QItemDelegate):
@@ -238,6 +242,10 @@ def get_display_widget(component, parent):
         c = WeaponTypeItemComponent(component, parent)
     elif component.expose == Type.WeaponRank:
         c = WeaponRankItemComponent(component, parent)
+    elif component.expose == Type.Color3:
+        c = Color3ItemComponent(component, parent)
+    elif component.expose == Type.Color4:
+        c = Color4ItemComponent(component, parent)
     elif isinstance(component.expose, tuple):
         delegate = None
         if component.expose[1] == Type.Unit:

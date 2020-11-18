@@ -337,6 +337,13 @@ class MapCombat():
                 game.memory['exp'] = (self.defender, exp, None, 'init')
                 game.state.change('exp')
 
+        # Skill system end combat clean up
+        skill_system.end_combat(self.playback, self.attacker, self.item, self.defender)
+        if self.defender:
+            skill_system.end_combat(self.playback, self.defender, self.def_item, self.attacker)
+        for unit in self.splash:
+            skill_system.end_combat(self.playback, unit, None, None)
+
         self.handle_death(all_units)
 
         self.check_equipped_items()

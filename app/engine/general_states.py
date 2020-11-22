@@ -10,7 +10,7 @@ import app.engine.config as cf
 from app.engine.game_state import game
 from app.engine import engine, action, menus, interaction, image_mods, \
     banner, save, phase, skill_system, target_system, item_system, \
-    item_funcs, ui_view
+    item_funcs, ui_view, info_menu
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
 
@@ -106,13 +106,7 @@ class FreeState(MapState):
         game.cursor.take_input()
         
         if event == 'INFO':
-            if game.cursor.get_hover():
-                game.memory['next_state'] = 'info_menu'
-                game.memory['current_unit'] = game.cursor.get_hover()
-                game.state.change('transition_to')
-            else:
-                SOUNDTHREAD.play_sfx('Select 3')
-                game.boundary.toggle_all_enemy_attacks()
+            info_menu.handle_info()
 
         elif event == 'AUX':
             pass
@@ -144,33 +138,6 @@ class FreeState(MapState):
     def update(self):
         super().update()
         game.highlight.handle_hover()
-
-        # If all units are dead TODO move to dialog
-        if not any(unit.team == 'player' for unit in game.level.units if unit.position):
-            logger.info("Player loses!")
-            game.state.clear()
-            game.state.change('title_start')
-            game.state.change('game_over')
-            return 'repeat'
-        # Win when rout
-        if not any(unit.team not in ('player', 'other') for unit in game.level.units if unit.position):
-            logger.info("Player wins!")
-            current_level_index = DB.levels.index(game.level.nid)
-            game.clean_up()
-            if len(DB.levels) > current_level_index + 1:
-                # ASSUMES NO OVERWORLD
-                next_level = DB.levels[current_level_index + 1]
-                game.game_vars['_next_level_nid'] = next_level.nid
-                game.state.clear()
-                logger.info('Creating save...')
-                game.memory['save_kind'] = 'start'
-                game.state.change('title_save')
-                return 'repeat'
-            else:
-                logger.info("No more levels!")
-                game.state.clear()
-                game.state.change('title_start')
-                return 'repeat'
 
         # Auto-end turn
         # Check to see if all ally units have completed their turns and no unit is active and the game is in the free state.
@@ -746,88 +713,6 @@ class ItemDiscardState(MapState):
             draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
             self.pennant.draw(surf, draw_on_top)
         surf = self.menu.draw(surf)
-        return surf
-
-class TradeState(MapState):
-    name = 'trade'
-
-    def begin(self):
-        game.cursor.hide()
-        self.initiator = game.cursor.cur_unit
-        self.initiator.sprite.change_state('chosen')
-        self.partner = game.cursor.get_hover()
-
-        self.menu = menus.Trade(self.initiator, self.partner, self.initiator.items, self.partner.items)
-
-    def do_trade(self):
-        item1 = self.menu.selected_option().get()
-        item2 = self.menu.get_current_option().get()
-
-        if (item1 is item2) or (item1 and item1.locked) or (item2 and item2.locked):
-            self.menu.unset_selected_option()
-            # Play error sound
-            return
-
-        if self.menu.other_hand[0] == 0:
-            if self.menu.selecting_hand[0] == 0:
-                action.do(action.TradeItem(self.initiator, self.initiator, item1, item2))
-            else:
-                action.do(action.TradeItem(self.initiator, self.partner, item1, item2))
-        else:
-            if self.menu.selecting_hand[0] == 0:
-                action.do(action.TradeItem(self.partner, self.initiator, item1, item2))
-            else:
-                action.do(action.TradeItem(self.partner, self.partner, item1, item2))
-        action.do(action.HasTraded(self.initiator))
-
-        self.menu.unset_selected_option()
-        self.menu.update_options(self.initiator.items, self.partner.items)
-
-    def take_input(self, event):
-        first_push = self.fluid.update()
-        directions = self.fluid.get_directions()
-
-        self.menu.handle_mouse()
-        if 'DOWN' in directions:
-            if self.menu.move_down(first_push):
-                SOUNDTHREAD.play_sfx('Select 6')
-        elif 'UP' in directions:
-            if self.menu.move_up(first_push):
-                SOUNDTHREAD.play_sfx('Select 6')
-
-        if event == 'RIGHT':
-            if self.menu.move_right():
-                SOUNDTHREAD.play_sfx('TradeRight')
-        elif event == 'LEFT':
-            if self.menu.move_left():
-                SOUNDTHREAD.play_sfx('TradeRight')
-
-        elif event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
-            if self.menu.selected_option():
-                self.menu.unset_selected_option()
-            else:
-                # game.state.change('menu')
-                game.state.back()
-                game.state.back()
-
-        elif event == 'SELECT':
-            SOUNDTHREAD.play_sfx('Select 1')
-            if self.menu.selected_option():
-                self.do_trade()
-            else:
-                self.menu.set_selected_option()
-
-        elif event == 'INFO':
-            self.menu.toggle_info()
-
-    def update(self):
-        super().update()
-        self.menu.update()
-
-    def draw(self, surf):
-        surf = super().draw(surf)
-        self.menu.draw(surf)
         return surf
 
 class WeaponChoiceState(MapState):

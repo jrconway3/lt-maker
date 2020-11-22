@@ -12,10 +12,19 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.input_manager import INPUT
 from app.engine.state import State
 from app.engine import engine, background, menu_options, help_menu, gui, \
-    unit_sprite, icons, image_mods, item_funcs, item_system, equations, \
+    unit_sprite, icons, image_mods, item_funcs, equations, \
     combat_calcs, menus
 from app.engine.game_state import game
 from app.engine.fluid_scroll import FluidScroll
+
+def handle_info():
+    if game.cursor.get_hover():
+        game.memory['next_state'] = 'info_menu'
+        game.memory['current_unit'] = game.cursor.get_hover()
+        game.state.change('transition_to')
+    else:
+        SOUNDTHREAD.play_sfx('Select 3')
+        game.boundary.toggle_all_enemy_attacks()
 
 @dataclass
 class BoundingBox():
@@ -182,9 +191,11 @@ class InfoMenuState(State):
 
         # Unit to be displayed
         self.unit = game.memory.get('current_unit')
-        self.scroll_units = [unit for unit in game.level.units if not unit.dead and unit.team == self.unit.team]
-        if self.unit.position:
-            self.scroll_units = [unit for unit in self.scroll_units if unit.position]
+        self.scroll_units = game.memory.get('scroll_units')
+        if self.scroll_units is None:
+            self.scroll_units = [unit for unit in game.level.units if not unit.dead and unit.team == self.unit.team]
+            if self.unit.position:
+                self.scroll_units = [unit for unit in self.scroll_units if unit.position]
         
         self.state = game.memory.get('info_menu_state', info_states[0])
         self.growth_flag = False
@@ -732,10 +743,14 @@ class InfoMenuState(State):
             surf.blit(SPRITES.get('equipment_highlight'), (8, 32 + 16 * index_of_weapon))
 
         # Blit items
-        for idx, item in enumerate(self.unit.items):
+        for idx, item in enumerate(self.unit.nonaccessories):
             item_option = menu_options.FullItemOption(idx, item)
             item_option.draw(surf, 8, idx * 16 + 24)
             self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment')
+        for idx, item in enumerate(self.unit.accessories):
+            item_option = menu_options.FullItemOption(idx, item)
+            item_option.draw(surf, 8, DB.constants.value('num_items') * 16 + idx * 16 + 24)
+            self.info_graph.register((96 + 8, DB.constants.value('num_items') * 16 + idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment')
 
         # Battle stats
         battle_surf = SPRITES.get('battle_info')

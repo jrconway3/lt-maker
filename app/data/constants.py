@@ -28,6 +28,9 @@ class ConstantCatalog(Data):
     def value(self, val):
         return self.get(val).value
 
+    def total_items(self):
+        return self.value('num_items') + self.value('num_accessories')
+
 tags = ['title', 'features', 'inventory', 'line_of_sight', 'leveling', 'ai', 'wexp', 'other']
 
 constants = ConstantCatalog([

@@ -1,4 +1,5 @@
 from app.constants import WINWIDTH, WINHEIGHT
+from app.resources.resources import RESOURCES
 from app.engine import engine, image_mods
 from app.utilities import utils
 
@@ -149,3 +150,17 @@ class TransitionBackground():
                 surf.blit(image, (xindex, yindex))
                 yindex += self.height
             xindex += self.width
+
+def create_background(self, bg_name):
+    panorama = RESOURCES.panoramas.get(bg_name)
+    if not panorama:
+        panorama = RESOURCES.panoramas.get('default_background')
+    if panorama:
+        if panorama.num_frames > 1:
+            return PanoramaBackground(panorama)
+        else:
+            bg = ScrollingBackground(panorama)
+            bg.scroll_speed = 50  # Make it move slower
+            return bg
+    else:
+        return None

@@ -36,6 +36,19 @@ def get_all_items(unit) -> list:
             items.append(item)
     return items
 
+def get_all_tradeable_items(unit) -> list:
+    items = []
+    for item in unit.items:
+        if not item_system.locked(unit, item):
+            items.append(item)
+    return items
+
+def inventory_full(unit, item) -> bool:
+    if item_system.is_accessory(unit, item):
+        return len(unit.accessories) >= DB.constants.value('num_accessories')
+    else:
+        return len(unit.nonaccessories) >= DB.constants.value('num_items')
+
 def get_range_string(unit, item):
     if unit:
         item_range = item_system.get_range(unit, item)

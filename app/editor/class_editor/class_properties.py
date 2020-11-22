@@ -131,6 +131,7 @@ class ClassProperties(QWidget):
         self.combat_anim_label.setMaximumWidth(64)
         self.combat_anim_box = QPushButton("Choose Combat Animation...")
         self.combat_anim_box.clicked.connect(self.select_combat_anim)
+        self.combat_anim_box.setEnabled(False)
 
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)

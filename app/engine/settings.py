@@ -1,5 +1,3 @@
-from app.resources.resources import RESOURCES
-
 from app.constants import WINWIDTH, WINHEIGHT
 
 from app.engine import config as cf
@@ -45,21 +43,8 @@ class SettingsMenuState(State):
     in_level = False
     show_map = False
 
-    def create_background(self):
-        panorama = RESOURCES.panoramas.get('settings_background')
-        if not panorama:
-            panorama = RESOURCES.panoramas.get('default_background')
-        if panorama:
-            if panorama.num_frames > 1:
-                self.bg = background.PanoramaBackground(panorama)
-            else:
-                self.bg = background.ScrollingBackground(panorama)
-                self.bg.scroll_speed = 50  # Make it move slower
-        else:
-            self.bg = None
-
     def start(self):
-        self.create_background()
+        self.bg = background.create_background('settings_background')
         # top_menu_left, top_menu_right, config, controls, get_input
         self.state = 'top_menu_left'
 

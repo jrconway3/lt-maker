@@ -187,7 +187,7 @@ class GameState():
                 self.arrive(unit)
 
     def clean_up(self):
-        from app.engine import item_system
+        from app.engine import item_system, item_funcs
 
         for unit in self.unit_registry.values():
             self.leave(unit)
@@ -209,11 +209,10 @@ class GameState():
                 if not DB.constants.value('permadeath'):
                     unit.dead = False  # Resurrect unit
                 elif DB.constants.value('convoy_on_death'):
-                    for item in unit.items:
-                        if not item.locked:
-                            unit.remove_item(item)
-                            # Put the item in the unit's party's convoy
-                            self.parties[unit.party].convoy.append(item)
+                    for item in item_funcs.get_all_tradeable_items(unit):
+                        unit.remove_item(item)
+                        # Put the item in the unit's party's convoy
+                        self.parties[unit.party].convoy.append(item)
 
         # Remove unnecessary information between levels
         self.sweep()
@@ -226,7 +225,11 @@ class GameState():
     @property
     def tilemap(self):
         return self.current_level.tilemap
-    
+
+    @property
+    def party(self):
+        return self.parties[self.current_party]
+
     def register_unit(self, unit):
         logger.info("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
@@ -256,6 +259,9 @@ class GameState():
         skill = self.item_registry.get(skill_uid)
         return skill
 
+    def get_party(self, party_nid):
+        return self.parties.get(party_nid)
+
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):
         if unit.position:
@@ -274,6 +280,24 @@ class GameState():
                 self.boundary.arrive(unit)
             # Tiles
             # Auras
+
+    def check_for_region(self, position, region_type):
+        raise NotImplementedError
+
+    def get_all_formation_spots(self) -> list:
+        legal_spots = set()
+        for region in game.level.regions:
+            if region.region_type == 'Formation':
+                for x in range(region.size[0]):
+                    for y in range(region.size[1]):
+                        legal_spots.add((region.position[0] + x, region.position[1] + y))
+        return legal_spots
+
+    def get_next_formation_spot(self) -> tuple:
+        legal_spots = sorted(self.get_all_formation_spots())
+        if legal_spots:
+            return legal_spots[0]
+        return None
 
 game = GameState()
 

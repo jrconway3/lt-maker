@@ -1,3 +1,5 @@
+from app.data.database import DB
+
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import MapState
 from app.engine.game_state import game
@@ -50,6 +52,20 @@ class EventState(MapState):
         logger.debug("Ending Event")
         if game.level_vars.get('_win_game'):
             logger.info("Player Wins!")
+            current_level_index = DB.levels.index(game.level.nid)
+            game.clean_up()
+            if current_level_index < len(DB.levels) - 1:
+                # Assumes no overworld
+                next_level = DB.levels[current_level_index + 1]
+                game.game_vars['_next_level_nid'] = next_level.nid
+                game.state.clear()
+                logger.info('Creating save...')
+                game.memory['save_kind'] = 'start'
+                game.state.change('title_save')
+            else:
+                logger.info('No more levels!')
+                game.state.clear()
+                game.state.change('title_start')
         elif game.level_vars.get('_lose_game'):
             game.state.clear()
             game.state.change('title_start')

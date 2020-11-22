@@ -11,6 +11,43 @@ from app.engine.base_surf import create_base_surf
 from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
 
+def draw_unit_items(surf, topleft, unit, include_top=False, include_bottom=True, include_face=False, right=True, shimmer=0):
+    x, y = topleft
+    if include_top:
+        white_surf = SPRITES.get('prep_top')
+        surf.blit(white_surf, (x - 6, y - white_surf.get_height()))
+        icons.draw_chibi(surf, unit.portrait_nid, (x + 3, y - 35))
+        FONT['text-white'].blit_center(unit.name, surf, (x + 68, y - 35))
+        FONT['text-blue'].blit_right(str(unit.level), surf, (x + 72, y - 19))
+        FONT['text-blue'].blit_right(str(unit.exp), surf, (x + 97, y - 19))
+
+    if include_bottom:
+        bg_surf = create_base_surf(104, 16 * DB.constants.total_items() + 8, 'menu_bg_base')
+        if shimmer:
+            img = SPRITES.get('menu_shimmer%d' % shimmer)
+            bg_surf.blit(img, (bg_surf.get_width() - img.get_width() - 1, bg_surf.get_height() - img.get_height() - 5))
+        bg_surf = image_mods.make_translucent(bg_surf, 0.1)
+        if include_top:
+            y -= 4
+        surf.blit(bg_surf, (x, y))
+
+        if include_face:
+            face_image = icons.get_portrait(unit)
+            if right:
+                face_image = engine.flip_horiz(face_image)
+            face_image = image_mods.make_translucent(face_image, 0.5)
+            left = x + bg_surf.get_width()//2 + 1
+            top = y + bg_surf.get_width()//2 - 1
+            engine.blit_center(surf, face_image, (left, top))
+        
+        # Blit items
+        for idx, item in enumerate(unit.nonaccessories):
+            item_option = menu_options.FullItemOption(idx, item)
+            item_option.draw(surf, 8, idx * 16 + 24)
+        for idx, item in enumerate(unit.accessories):
+            item_option = menu_options.FullItemOption(idx, item)
+            item_option.draw(surf, 8, DB.constants.value('num_items') * 16 + idx * 16 + 24)
+
 class Cursor():
     def __init__(self, sprite=None):
         self.counter = 0

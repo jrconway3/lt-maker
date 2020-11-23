@@ -104,7 +104,7 @@ class PrepPickUnitsState(State):
         unstuck_units = [unit for unit in player_units if unit not in stuck_units]
 
         units = stuck_units + unstuck_units
-        self.menu = menus.UnitSelect(units, (6, 2), (110, 24))
+        self.menu = menus.Table(None, units, (6, 2), (110, 24))
 
         self.bg = background.create_background('rune_background')
         game.memory['prep_bg'] = self.bg
@@ -316,7 +316,7 @@ class PrepManageState(State):
     def start(self):
         units = game.get_units_in_party()
         units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
-        self.menu = menus.UnitSelect(units, (4, 3), 'center')       
+        self.menu = menus.Table(None, units, (4, 3), 'center')       
 
         # Display
         self.quick_disp = self.create_quick_disp()
@@ -405,9 +405,8 @@ class PrepManageSelectState(State):
                 ignore[1] = False
         if 'prep_market' in game.game_vars:
             ignore[5] = False
-        self.select_menu = menus.Choice(self.unit, options, (128, 80))
+        self.select_menu = menus.Table(self.unit, options, (3, 2), (128, 80))
         self.select_menu.set_ignore(ignore)
-        self.select_menu.set_tabling(3, 2)
 
     def take_input(self, event):
         first_push = self.fluid.update()

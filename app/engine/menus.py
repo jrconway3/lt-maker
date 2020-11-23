@@ -9,6 +9,7 @@ from app.engine import engine, image_mods, icons, help_menu, menu_options
 from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
 from app.engine.objects.item import ItemObject
+from app.engine.objects.unit import UnitObject
 from app.engine.game_state import game
 
 def draw_unit_items(surf, topleft, unit, include_top=False, include_bottom=True, include_face=False, right=True, shimmer=0):
@@ -645,6 +646,241 @@ class Trade(Simple):
                     if self.selecting_hand[0] == 0:
                         self.cursor_right()
                     self.selecting_hand = (1, idx)
+
+class Table(Simple):
+    def __init__(self, owner, options, layout, topleft=None, background='menu_bg_base', info=None):
+        super().__init__(owner, options, topleft, background, info)
+        
+        self.rows, self.columns = layout
+        self.limit = self.rows
+        self.gem = True
+        self.shimmer = 0
+
+        self.stationary_cursor = Cursor()
+        self.fake_cursor_idx = None
+
+    def create_options(self, options, info_descs=None):
+        self.options.clear()
+        for idx, option in enumerate(options):
+            if isinstance(option, UnitObject):
+                option = menu_options.UnitOption(idx, option)
+            else:
+                option = menu_options.BasicOption(idx, option)
+            self.options.append(option)
+
+    def _move_down(self, first_push=True):
+        if first_push:
+            self.current_index += self.columns
+            if self.current_index > len(self.options) - 1:
+                # If there is an option to the left
+                # If odd number of options and we are on the same row as it
+                if len(self.options) % self.columns and self.current_index // self.columns == len(self.options) // self.columns:
+                    self.current_index = len(self.options) - 1
+                else:
+                    self.current_index = self.current_index % self.columns
+                    self.scroll = 0
+            elif self.current_index > self.scroll + self.limit - 2:
+                self.scroll += 1
+            else:
+                self.cursor.y_offset -= 1
+        else:
+            if self.current_index < len(self.options) - self.columns:
+                self.current_index += self.columns
+                if self.current_index > self.scroll + self.limit - 2:
+                    self.scroll += 1
+                self.cursor.y_offset -= 1
+        if self.limit < len(self.options):
+            self.scroll = min(len(self.options) - self.limit, self.scroll)
+
+    def _move_up(self, first_push=True):
+        if first_push:
+            self.current_index -= self.columns
+            if self.current_index < 0:
+                column_idx = self.current_index % self.columns
+                self.current_index = len(self.options) - 1
+                while self.current_index % self.columns != column_idx:
+                    self.current_index -= 1
+                self.scroll = self.current_index - self.limit + 1
+            elif self.current_index < self.scroll + 1:
+                self.scroll -= 1
+            else:
+                self.cursor.y_offset += 1
+        else:
+            if self.current_index > 0:
+                self.current_index -= self.columns
+                if self.current_index < self.scroll + 1:
+                    self.scroll -= 1
+                self.cursor.y_offset += 1
+        self.scroll = max(0, self.scroll)
+
+    def _move_left(self, first_push=True):
+        if first_push:
+            self.current_index -= 1
+            if self.current_index < 0:
+                self.current_index = len(self.options) - 1
+                self.scroll = self.current_index - self.limit + 1
+            elif self.current_index < self.scroll + 1:
+                self.scroll -= 1
+            else:
+                self.cursor.y_offset += 1
+        else:
+            if self.current_index > 0:
+                self.current_index -= 1
+                if self.current_index < self.scroll + 1:
+                    self.scroll -= 1
+                self.cursor.y_offset += 1
+        self.scroll = max(0, self.scroll)
+
+    def _move_right(self, first_push=True):
+        if first_push:
+            self.current_index += 1
+            if self.current_index > len(self.options) - 1:
+                self.current_index = 0
+                self.scroll = 0
+            elif self.current_index > self.scroll + self.limit - 2:
+                self.scroll += 1
+            else:
+                self.cursor.y_offset -= 1
+        else:
+            if self.current_index < len(self.options) - 1:
+                self.current_index += 1
+                if self.current_index > self.scroll + self.limit - 2:
+                    self.scroll += 1
+                self.cursor.y_offset -= 1
+        if self.limit < len(self.options):
+            self.scroll = min(len(self.options) - self.limit, self.scroll)
+
+    def move_down(self, first_push=True):
+        if all(option.ignore for option in self.options):
+            return
+
+        if first_push:
+            self._move_down(True)
+            while self.options[self.current_index].ignore:
+                self._move_down(True)
+
+        else:
+            if any(not option.ignore for option in self.options[self.current_index + 1:]):
+                self._move_down(False)
+                while self.options[self.current_index].ignore:
+                    self._move_down(False)
+
+    def move_up(self, first_push=True):
+        if all(option.ignore for option in self.options):
+            return
+
+        if first_push:
+            self._move_up(True)
+            while self.options[self.current_index].ignore:
+                self._move_up(True)
+
+        else:
+            if any(not option.ignore for option in self.options[:self.current_index]):
+                self._move_up(False)
+                while self.options[self.current_index].ignore:
+                    self._move_up(False)
+
+    def move_right(self, first_push=True):
+        if all(option.ignore for option in self.options):
+            return
+
+        if first_push:
+            self._move_right(True)
+            while self.options[self.current_index].ignore:
+                self._move_right(True)
+
+        else:
+            if any(not option.ignore for option in self.options[self.current_index + 1:]):
+                self._move_right(False)
+                while self.options[self.current_index].ignore:
+                    self._move_right(False)
+
+    def move_left(self, first_push=True):
+        if all(option.ignore for option in self.options):
+            return
+
+        if first_push:
+            self._move_left(True)
+            while self.optionss[self.current_index].ignore:
+                self._move_left(True)
+
+        else:
+            if any(not option.ignore for option in self.options[:self.current_index]):
+                self._move_left(False)
+                while self.options[self.current_index].ignore:
+                    self._move_left(False)
+
+    def get_menu_width(self):
+        max_width = max(option.width() for option in self.options)
+        return (max_width - max_width%8) * self.columns
+
+    def get_menu_height(self):
+        max_height = max(option.height() for option in self.options)
+        return (max_height - max_height%8) * self.rows
+
+    def create_bg_surf(self):
+        bg_surf = create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
+        surf = engine.create_surface((bg_surf.get_width(), bg_surf.get_height()), transparent=True)
+        surf.blit(bg_surf)
+        if self.gem:
+            surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
+        if self.shimmer != 0:
+            sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
+            surf.blit(sprite, (surf.get_width() - sprite.get_width() - 1, surf.get_height() - sprite.get_height() - 5))
+            surf = image_mods.make_translucent(surf, .1)
+        surf = image_mods.make_translucent(surf, .1)
+        return surf
+
+    def draw(self, surf):
+        topleft = self.get_topleft()
+        bg_surf = self.create_bg_surf
+        surf.blit(bg_surf, (topleft[0] - 2, topleft[1] - 4))
+
+        if len(self.options) > self.rows * self.columns:
+            self.draw_scroll_bar(surf, topleft)
+
+        start_index = self.scroll * self.columns
+        end_index = (self.scroll + self.limit) * self.columns
+        choices = self.options[start_index:end_index]
+        menu_width = self.get_menu_width()
+        width = max(option.width() for option in self.options)
+        height = max(option.height() for option in self.options)
+        if choices:
+            for idx, choice in enumerate(choices):
+                top = topleft[1] + 4 + (idx // self.columns * height)
+                left = topleft[0] + (idx % self.columns * width)
+
+                if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
+                    choice.draw_highlight(surf, left, top, menu_width)
+                if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
+                    choice.draw_highlight(surf, left, top, menu_width)
+                choice.draw(surf, left, top)
+                if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
+                    self.stationary_cursor.draw(surf, left, top)
+                if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
+                    self.cursor.draw(surf, left, top)
+
+        else:
+            FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
+
+    # For mouse handling
+    def get_rects(self):
+        topleft = self.get_topleft()
+
+        start_index = self.scroll * self.columns
+        end_index = (self.scroll + self.limit) * self.columns
+        choices = self.options[start_index:end_index]
+        width = max(option.width() for option in self.options)
+        height = max(option.height() for option in self.options)
+
+        idxs, rects = [], []
+        for idx, choice in enumerate(choices):
+            top = topleft[1] + 4 + (idx // self.columns * height)
+            left = topleft[0] + (idx % self.columns * width)
+            rect = (left, top, width, height)
+            rects.append(rect)
+            idxs.append(start_index + idx)
+        return idxs, rects
 
 class Main(Simple):
     def __init__(self, options, option_bg):

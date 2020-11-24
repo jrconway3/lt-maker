@@ -5,7 +5,8 @@ from app.utilities import utils
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
-from app.engine import engine, image_mods, icons, help_menu, menu_options
+from app.engine import engine, image_mods, icons, help_menu, menu_options, \
+    item_system, gui
 from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
 from app.engine.objects.item import ItemObject
@@ -655,15 +656,21 @@ class Table(Simple):
         self.limit = self.rows
         self.gem = True
         self.shimmer = 0
+        self.mode = None
 
         self.stationary_cursor = Cursor()
         self.fake_cursor_idx = None
+
+    def set_mode(self, mode):
+        self.mode = mode
+        self.update_options()
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
             if isinstance(option, UnitObject):
                 option = menu_options.UnitOption(idx, option)
+                option.set_mode(self.mode)
             else:
                 option = menu_options.BasicOption(idx, option)
             self.options.append(option)
@@ -842,7 +849,6 @@ class Table(Simple):
         start_index = self.scroll * self.columns
         end_index = (self.scroll + self.limit) * self.columns
         choices = self.options[start_index:end_index]
-        menu_width = self.get_menu_width()
         width = max(option.width() for option in self.options)
         height = max(option.height() for option in self.options)
         if choices:
@@ -851,10 +857,11 @@ class Table(Simple):
                 left = topleft[0] + (idx % self.columns * width)
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top, menu_width)
-                if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
-                    choice.draw_highlight(surf, left, top, menu_width)
-                choice.draw(surf, left, top)
+                    choice.draw_highlight(surf, left, top)
+                elif idx + (self.scroll * self.columns) == self.fake_cursor_idx:
+                    choice.draw_highlight(surf, left, top)
+                else:
+                    choice.draw(surf, left, top)
                 if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
                     self.stationary_cursor.draw(surf, left, top)
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
@@ -881,6 +888,172 @@ class Table(Simple):
             rects.append(rect)
             idxs.append(start_index + idx)
         return idxs, rects
+
+class Convoy():
+    def __init__(self, owner, topleft, disp_value=None):
+        self.owner = owner  # Unit that's at the convoy
+        self.topleft = topleft
+        self.disp_value = disp_value
+
+        self.order = [w.nid for w in DB.weapons]
+        self.build_menus()
+
+        self.selection_index = 0  # 0 is inventory, 1+ is convoy
+        self.menu_index = 0  # Position for convoy
+        self.locked = False  # Whether you are locked to convoy or inventory
+
+        # Handle arrows
+        x, y = self.topleft
+        menu_width = 160 if self.disp_value else 120
+        self.left_arrow = gui.ScrollArrow('left', (x - 4, y - 14))
+        self.right_arrow = gui.ScrollArrow('right', (x + menu_width - 4, y - 14), 0.5)
+
+    def build_menus(self):
+        sorted_dict = self.get_sorted_dict()
+        self.menus = {}
+        if self.disp_value:
+            pass
+        else:
+            for w_type in self.order:
+                new_menu = Choice(self.owner, sorted_dict[w_type], self.topleft)
+                new_menu.set_limit(7)
+                new_menu.set_hard_limit(True)
+                new_menu.gem = False
+                new_menu.shimmer = 2
+                self.menus[w_type] = new_menu
+
+        # TODO have it support accessories vs nonaccessories
+        self.inventory = Choice(self.owner, self.owner.items, (0, 0))
+        self.inventory.set_limit(DB.constants.total_items())
+        self.inventory.set_hard_limit(True)
+        self.inventory.gem = False
+        self.inventory.shimmer = 2
+
+    def get_sorted_dict(self):
+        convoy = game.party.convoy
+        sorted_dict = {}
+
+        for w_type in self.order:
+            sorted_dict[w_type] = [item for item in convoy if item_system.weapon_type(self.unit, item) == w_type] 
+        sorted_dict['Consumable'] = [item for item in convoy if item_system.weapon_type(self.unit, item) is None]
+        for key, value in sorted_dict.items():
+            value.sort(key=lambda item: item_system.special_sort(self.unit, item))
+            value.sort(key=lambda item: item.name)
+            value.sort(key=lambda item: item_system.sell_price(self.unit, item))
+
+        return sorted_dict
+
+    def update_options(self):
+        sorted_dict = self.get_sorted_dict()
+        for name, menu in self.menus.items():
+            menu.update_options(sorted_dict[name])
+
+    def get_current(self):
+        if self.selection_index == 0:
+            return self.inventory.get_current()
+        else:
+            return self.menus[self.order[self.selection_index - 1]].get_current()
+
+    def get_current_index(self):
+        if self.selection_index == 0:
+            return self.inventory.get_current_index()
+        else:
+            return self.menus[self.order[self.selection_index - 1]].get_current_index()
+
+    def get_context(self):
+        if self.selection_index == 0:
+            return 'inventory'
+        else:
+            return 'convoy'
+
+    def move_to_inventory(self):
+        self.selection_index = 0
+        self.locked = True
+
+    def move_to_convoy(self):
+        self.selection_index = self.menu_index + 1
+        self.locked = True
+
+    def unlock(self):
+        self.locked = False
+
+    def move_down(self, first_push=True):
+        if self.selection_index == 0:
+            self.inventory.move_down(first_push)
+        else:
+            self.menus[self.order[self.selection_index - 1]].move_down(first_push)
+
+    def move_up(self, first_push=True):
+        if self.selection_index == 0:
+            self.inventory.move_up(first_push)
+        else:
+            self.menus[self.order[self.selection_index - 1]].move_up(first_push)
+
+    def move_left(self, first_push=True):
+        if self.selection_index == 0:
+            if self.locked:
+                return
+            if first_push:
+                self.selection_index = len(self.order)
+                self.menu_index = len(self.order) - 1
+        elif self.selection_index == 1:
+            if self.locked:
+                self.selection_index = len(self.order)
+                self.menu_index = len(self.order) - 1
+            else:
+                self.selection_index = 0
+        else:
+            self.selection_index -= 1
+            self.menu_index = self.selection_index - 1
+            self.left_arrow.pulse()
+
+    def move_right(self, first_push=True):
+        if self.selection_index == 0:
+            if self.locked:
+                return
+            if first_push:
+                self.selection_index = 1
+                self.menu_index = 0
+        elif self.selection_index == len(self.order):
+            if self.locked:
+                self.selection_index = 1
+                self.menu_index = 0
+            else:
+                self.selection_index = 0
+        else:
+            self.selection_index += 1
+            self.menu_index = self.selection_index - 1
+            self.right_arrow.pulse()
+
+    def toggle_info(self):
+        pass
+
+    def update(self):
+        self.menus[self.order[self.menu_index]].update()
+        self.inventory.update()
+
+    def draw(self, surf):
+        self.menus[self.order[self.menu_index]].draw(surf)
+        self.inventory.draw(surf)
+
+        # Draw item icons
+        dist = 120//len(self.order) - 1
+        for idx, weapon_nid in enumerate(self.order):
+            if idx == self.selection_index - 1:
+                pass
+            else:
+                weapon_type = DB.weapons.get(weapon_nid)
+                topleft = self.topleft[0] + (len(self.order) - 1 - idx) * dist + 4, self.topleft[1] - 14
+                icons.draw_weapon(surf, weapon_type, topleft, gray=True)
+        for idx, weapon_nid in enumerate(self.order):
+            if idx == self.selection_index - 1:
+                weapon_type = DB.weapons.get(weapon_nid)
+                icons.draw_weapon(surf, weapon_type, topleft)
+                surf.blit(SPRITES.get('weapon_shine'), (self.topleft[0] + idx * dist + 4, self.topelft[1] - 14))
+                
+        self.left_arrow.draw(surf)
+        self.right_arrow.draw(surf)
+        return surf
 
 class Main(Simple):
     def __init__(self, options, option_bg):

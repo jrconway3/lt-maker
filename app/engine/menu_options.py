@@ -170,8 +170,8 @@ class ItemOption(BasicOption):
 
     def get_color(self):
         owner = game.get_unit(self.item.owner_nid)
-        main_font = 'text_grey'
-        uses_font = 'text_grey'
+        main_font = 'text-grey'
+        uses_font = 'text-grey'
         if self.color:
             main_font = self.color
             uses_font = self.color
@@ -190,8 +190,6 @@ class ItemOption(BasicOption):
             return help_menu.HelpDialog(self.item.desc)
 
     def draw(self, surf, x, y):
-        main_font = 'text_grey'
-        uses_font = 'text_grey'
         icon = icons.get_item_icon(self.item)
         if icon:
             surf.blit(icon, (x + 2, y))
@@ -210,8 +208,6 @@ class FullItemOption(ItemOption):
         return 120
 
     def draw(self, surf, x, y):
-        main_font = 'text-grey'
-        uses_font = 'text-grey'
         icon = icons.get_item_icon(self.item)
         if icon:
             surf.blit(icon, (x + 2, y))
@@ -229,3 +225,66 @@ class FullItemOption(ItemOption):
         FONT[uses_font].blit_right(uses_string_a, surf, (x + 96, y))
         FONT['text-white'].blit("/", surf, (x + 98, y))
         FONT[uses_font].blit_right(uses_string_b, surf, (x + 120, y))
+
+class UnitOption(BasicOption):
+    def __init__(self, idx, unit):
+        self.idx = idx
+        self.unit = unit
+        self.help_box = None
+        self.color = None
+        self.ignore = False
+        self.mode = None
+
+    def get(self):
+        return self.unit
+
+    def set_text(self, text):
+        pass
+
+    def set_unit(self, unit):
+        self.unit = unit
+
+    def set_mode(self, mode):
+        self.mode = mode
+
+    def width(self):
+        return 60
+
+    def height(self):
+        return 16
+
+    def get_color(self):
+        font = 'text-white'
+        if self.color:
+            font = self.color
+        elif self.mode == 'position':
+            if not self.unit.position:
+                font = 'text-grey'
+            elif self.unit.position and not game.check_for_region(self.unit.position, 'Formation'):
+                font = 'text-green'
+            else:
+                font = 'text-white'
+        return font
+
+    def get_help_box(self):
+        return None
+
+    def draw_map_sprite(self, surf, x, y, highlight=False):
+        map_sprite = self.unit.sprite.create_image('passive')
+        if self.mode == 'position' and not self.unit.position:
+            map_sprite = self.unit.sprite.create_image('gray')
+        elif highlight:
+            map_sprite = self.unit.sprite.create_image('active')
+        surf.blit(map_sprite, (x, y))
+
+    def draw_text(self, surf, x, y):
+        font = self.get_color()
+        FONT[font].blit(self.unit.name, surf, (x + 20, y))
+
+    def draw(self, surf, x, y):
+        self.draw_map_sprite(surf, x, y)
+        self.draw_text(surf, x, y)
+
+    def draw_highlight(self, surf, x, y):
+        self.draw_map_sprite(surf, x, y, highlight=True)
+        self.draw_text(surf, x, y)

@@ -564,7 +564,7 @@ class PrepItemsState(State):
                 if context == 'inventory':
                     if current:
                         self.state = 'owner_item'
-                        topleft = (0, 0)
+                        topleft = (80, self.menu.get_current_index() * 16)
                         options = ['Store', 'Trade']
                         if item_system.can_use(self.unit, current) and \
                                 item_system.available(self.unit, current) and \
@@ -581,7 +581,7 @@ class PrepItemsState(State):
                                 item_system.available(self.unit, current) and \
                                 item_system.can_use_in_base(self.unit, current):
                             self.state = 'convoy_item'
-                            topleft = (0, 0)
+                            topleft = (80, self.menu.get_current_index() * 16)
                             if item_funcs.inventory_full(self.unit, current):
                                 options = ['Trade', 'Use']
                             else:

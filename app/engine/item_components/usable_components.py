@@ -28,6 +28,9 @@ class Uses(ItemComponent):
         action.do(action.RemoveItem(unit, item))
         return True
 
+    def special_sort(self, unit, item):
+        return item.data['uses']
+
 class ChapterUses(ItemComponent):
     nid = 'c_uses'
     desc = "Number of uses per chapter for item. (Refreshes after each chapter)"
@@ -52,6 +55,9 @@ class ChapterUses(ItemComponent):
     def on_end_chapter(self, unit, item):
         # Don't need to use action here because it will be end of chapter
         item.data['c_uses'] = item.data['starting_c_uses']
+
+    def special_sort(self, unit, item):
+        return item.data['uses']
 
 class HPCost(ItemComponent):
     nid = 'hp_cost'

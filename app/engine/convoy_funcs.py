@@ -1,8 +1,8 @@
 from app.engine.game_state import game
 
-def can_restock(item):
+def can_restock(item) -> bool:
     convoy = game.party.convoy
-    return item.uses and item.data['uses'] < item.data['starting_uses'] and item.nid in [i.nid for i in convoy]
+    return bool(item.uses and item.data['uses'] < item.data['starting_uses'] and item.nid in [i.nid for i in convoy])
 
 def restock(item):
     convoy = game.party.convoy

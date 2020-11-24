@@ -10,7 +10,7 @@ class EmptyOption():
         self.idx = idx
         self.help_box = None
         self.color = None
-        self.ignore = False
+        self.ignore = True
 
     def get(self):
         return None
@@ -225,6 +225,47 @@ class FullItemOption(ItemOption):
         FONT[uses_font].blit_right(uses_string_a, surf, (x + 96, y))
         FONT['text-white'].blit("/", surf, (x + 98, y))
         FONT[uses_font].blit_right(uses_string_b, surf, (x + 120, y))
+
+class ValueItemOption(ItemOption):
+    def __init__(self, idx, item, disp_value):
+        super().__init__(idx, item)
+        self.disp_value = disp_value
+
+    def width(self):
+        return 160
+
+    def draw(self, surf, x, y):
+        icon = icons.get_item_icon(self.item)
+        if icon:
+            surf.blit(icon, (x + 2, y))
+        main_font, uses_font = self.get_color()
+        FONT[main_font].blit(self.item.name, surf, (x + 20, y))
+
+        uses_string = '--'
+        if self.item.data.get('uses') is not None:
+            uses_string = str(self.item.data['uses'])
+        elif self.item.get('c_uses') is not None:
+            uses_string = str(self.item.data['c_uses'])
+        FONT[uses_font].blit_right(uses_string, surf, (x + 96, y))
+
+        value_font = 'text-grey'
+        owner = game.get_unit(self.item.owner_nid)
+        if self.disp_value == 'buy':
+            value = item_system.buy_price(owner, self.item)
+            if value:
+                value_string = str(self.value)
+                if value <= game.get_money():
+                    value_font = 'text-white'
+            else:
+                value_string = '--'
+        elif self.disp_value == 'sell':
+            value = item_system.sell_price(owner, self.item)
+            if value:
+                value_string = str(self.value)
+                value_font = 'text-white'
+            else:
+                value_string = '--'
+        FONT[value_font].blit_right(value_string, surf, (self.get_width() - 2, y))
 
 class UnitOption(BasicOption):
     def __init__(self, idx, unit):

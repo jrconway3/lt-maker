@@ -13,7 +13,7 @@ class UnitObject(Prefab):
         self.nid = prefab.nid
         self.position = self.previous_position = tuple(prefab.starting_position)
         self.team = prefab.team
-        self.party = 0
+        self.party = None
         self.klass = prefab.klass
         self.variant = prefab.variant
         self.level = prefab.level
@@ -21,7 +21,6 @@ class UnitObject(Prefab):
         self.generic = prefab.generic
 
         self.ai = prefab.ai
-        self.ai_group = 0
 
         self.items = item_funcs.create_items(self, prefab.starting_items)
 
@@ -305,7 +304,6 @@ class UnitObject(Prefab):
                   'exp': self.exp,
                   'generic': self.generic,
                   'ai': self.ai,
-                  'ai_group': self.ai_group,
                   'items': [item.uid for item in self.items],
                   'name': self.name,
                   'desc': self.desc,
@@ -340,7 +338,6 @@ class UnitObject(Prefab):
         self.generic = s_dict['generic']
 
         self.ai = s_dict['ai']
-        self.ai_group = s_dict['ai_group']
 
         self.items = [game.get_item(item_uid) for item_uid in s_dict['items']]
 

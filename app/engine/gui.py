@@ -1,6 +1,7 @@
 import math
 from app import counters
 from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 from app.engine import engine, image_mods
 
 class DamageNumber():
@@ -212,3 +213,41 @@ class Logo():
         self.next_texture = new_image
         self.transition_counter = self.height//2
         self.state = 'out'
+
+def PopUpDisplay():
+    def __init__(self, topright):
+        self.topright = topright
+        self.update_num = -200
+
+    def start(self, text):
+        self.update_num = 100
+        if isinstance(text, int):
+            money = text
+            if money >= 0:
+                font = FONT['text-green']
+            else:
+                font = FONT['text-red']
+            my_str = str(money)
+            if money >= 0:
+                my_str = '+' + my_str
+        else:
+            font = FONT['text-blue']
+            my_str = str(text)
+        self.width = font.width(my_str) + 8
+        self.surf = engine.create_surface((self.width, 16), transparent=True)
+        font.blit(my_str, self.surf, (0, 0))
+
+    def draw(self, surf):
+        if self.update_num > -200:
+            self.update_num -= 5
+            # Fade in and move up
+            if self.update_num > 0:
+                my_surf = image_mods.make_translucent(self.surf, self.update_num/100.)
+                surf.blit(my_surf, (self.topright[0] - self.width + 8, self.topright[1] + self.update_num//5))
+            # Fade out
+            else:
+                if self.update_num < -100:
+                    my_surf = image_mods.make_translucent(self.surf, (-self.update_num - 100)/100.)
+                else:
+                    my_surf = self.surf
+                surf.blit(my_surf, (self.topright[0] - self.width + 8, self.topright[1]))

@@ -77,7 +77,13 @@ class StateMachine():
              'prep_pick_units': prep.PrepPickUnitsState,
              'prep_formation': prep.PrepFormationState,
              'prep_formation_select': prep.PrepFormationSelectState,
+             'prep_manage': prep.PrepManageState,
+             'prep_manage_select': prep.PrepManageSelectState,
+             'prep_trade_select': prep.PrepTradeSelectState,
+             'prep_trade': trade.PrepTradeState,
              'prep_items': prep.PrepItemsState,
+             'prep_restock': prep.PrepRestockState,
+             'prep_market': prep.PrepMarketState
              }
 
         if starting_states:

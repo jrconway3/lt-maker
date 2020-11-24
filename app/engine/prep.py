@@ -13,7 +13,7 @@ from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine import menus, banner, action, base_surf, background, \
     info_menu, engine, equations, item_funcs, text_funcs, image_mods, \
-    convoy_funcs, item_system, interaction
+    convoy_funcs, item_system, interaction, gui
 
 class PrepMainState(MapState):
     name = 'prep_main'
@@ -678,5 +678,197 @@ class PrepItemsState(State):
 class PrepRestockState(State):
     name = 'prep_restock'
 
+    def start(self):
+        self.bg = game.memory['prep_bg']
+        self.unit = game.memory['current_unit']
+        self.unit_menu = game.memory['manage_menu']
+
+        topleft = (6, 72)
+        self.menu = menus.Inventory(self.unit, self.unit.items, topleft)
+        ignore = [not convoy_funcs.can_restock(item) for item in self.unit.items]
+        self.menu.set_ignore(ignore)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 5')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 5')
+            self.menu.move_up(first_push)
+
+        if event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
+            item = self.menu.get_current()
+            convoy_funcs.restock(item)
+            ignore = [not convoy_funcs.can_restock(item) for item in self.unit.items]
+            if all(ignore):
+                self.menu.set_ignore(ignore)
+                game.state.back()
+            else:
+                self.menu.set_ignore(ignore)
+
+        elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
+            game.state.back()
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
+            if self.menu.info_flag:
+                SOUNDTHREAD.play_sfx('Info In')
+            else:
+                SOUNDTHREAD.play_sfx('Info Out')
+
+    def update(self):
+        self.menu.update()
+        self.unit_menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        self.unit_menu.draw(surf)
+        self.menu.draw(surf)
+        return surf
+
 class PrepMarketState(State):
     name = 'prep_market'
+
+    def start(self):
+        self.unit = game.memory['current_unit']
+        self.sell_menu = menus.Market(self.unit, None, (WINWIDTH - 124, 40), disp_value='sell')
+        market_items = item_funcs.create_items(self.unit, game.market_items)
+        self.buy_menu = menus.Market(self.unit, market_items, (WINWIDTH - 124, 40), disp_value='buy')
+        self.display_menu = self.buy_menu
+        self.sell_menu.set_take_input(False)
+        self.buy_menu.set_take_input(False)
+
+        self.state = 'free'
+        options = ["Buy", "Sell"]
+        self.choice_menu = menus.Choice(self.unit, options, (16, 16), 'menu_bg_brown')
+        self.choice_menu.gem = False
+        self.menu = self.choice_menu
+
+        self.money_surf = base_surf.create_base_surf(56, 24)
+        g_surf = engine.subsurface(SPRITES.get('golden_words'), (40, 47, 11, 11))
+        self.money_surf.blit(g_surf, (45, 8))
+        self.money_counter_disp = gui.PopUpDisplay((66, WINHEIGHT - 40))
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def update_options(self):
+        self.buy_menu.update_options()
+        self.sell_menu.update_options()
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+        elif 'LEFT' in directions:
+            SOUNDTHREAD.play_sfx('TradeRight')
+            self.menu.move_left(first_push)
+        elif 'RIGHT' in directions:
+            SOUNDTHREAD.play_sfx('TradeRight')
+            self.menu.move_right(first_push)
+
+        if event == 'SELECT':
+            if self.state == 'buy':
+                item = self.menu.get_current()
+                if item:
+                    value = item_system.buy_price(self.unit, item)
+                    if game.get_money() - value >= 0:
+                        SOUNDTHREAD.play_sfx('GoldExchange')
+                        game.set_money(game.get_money() - value)
+                        self.money_counter_disp.start(-value)
+                        new_item = item_funcs.create_items(self.unit, item.nid)[0]
+                        game.register_item(new_item)
+                        if not item_funcs.inventory_full(self.unit, new_item):
+                            self.unit.add_item(new_item)
+                        else:
+                            new_item.owner_nid = None
+                            game.party.convoy.append(new_item)
+                        self.update_options()
+                    else:
+                        # You don't have enough money
+                        SOUNDTHREAD.play_sfx('Select 4')
+                else:
+                    # You didn't choose anything to buy
+                    SOUNDTHREAD.play_sfx('Select 4')
+            elif self.state == 'sell':
+                item = self.menu.get_current()
+                if item:
+                    value = item_system.sell_price(self.unit, item)
+                    if value:
+                        SOUNDTHREAD.play_sfx('GoldExchange')
+                        game.set_money(game.get_money() + value)
+                        self.money_counter_disp.start(value)
+                        if item.owner_nid:
+                            owner = game.get_unit(item.owner_nid)
+                            owner.remove_item(item)
+                        else:
+                            game.convoy.remove(item)
+                        self.update_options()
+                    else:
+                        # No value, can't be sold
+                        SOUNDTHREAD.play_sfx('Select 4')
+                else:
+                    # You didn't choose anything to sell
+                    SOUNDTHREAD.play_sfx('Select 4')
+            elif self.state == 'free':
+                current = self.menu.get_current()
+                if current == 'Buy':
+                    self.menu = self.buy_menu
+                    self.state = 'buy'
+                    self.display_menu = self.buy_menu
+                else:
+                    self.menu = self.sell_menu
+                    self.state = 'sell'
+                    self.display_menu = self.sell_menu
+                self.menu.set_take_input(True)
+
+        elif event == 'BACK':
+            if self.state == 'buy' or self.state == 'sell':
+                if self.menu.info_flag:
+                    self.menu.toggle_info()
+                    SOUNDTHREAD.play_sfx('Info Out')
+                else:
+                    SOUNDTHREAD.play_sfx('Select 4')
+                    self.state = 'free'
+                    self.menu.set_take_input(False)
+                    self.menu = self.choice_menu
+            else:
+                SOUNDTHREAD.play_sfx('Select 4')
+                game.state.change('transition_pop')
+
+        elif event == 'INFO':
+            if self.state == 'buy' or self.state == 'sell':
+                self.menu.toggle_info()
+                if self.menu.info_flag:
+                    SOUNDTHREAD.play_sfx('Info In')
+                else:
+                    SOUNDTHREAD.play_sfx('Info Out')
+
+    def update(self):
+        self.menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        self.choice_menu.draw(surf)
+        self.display_menu.draw(surf)
+        # Money
+        surf.blit(self.money_surf, (10, WINHEIGHT - 24))
+        FONT['text-blue'].blit(str(game.get_money()), surf, (16, WINHEIGHT - 20))
+        self.money_counter_disp.draw(surf)
+
+        return surf

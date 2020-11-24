@@ -61,6 +61,7 @@ class GameState():
             self.overworld = None
 
         self.records = []
+        self.market_items = []
         self.sweep()
         self.generic()
 
@@ -112,6 +113,10 @@ class GameState():
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         self.current_level = LevelObject.from_prefab(level_prefab, tilemap)
+        # Assign every unit the levels party if they don't already have one
+        for unit in self.current_level.units:
+            if not unit.party:
+                unit.party = self.current_level.party
         self.set_up_game_board(self.current_level.tilemap)
 
         for unit in self.current_level.units:
@@ -139,7 +144,8 @@ class GameState():
                   'parties': [party.save() for party in self.parties.values()],
                   'current_party': self.current_party,
                   'state': self.state.save(),
-                  'action_log': self.action_log.save()
+                  'action_log': self.action_log.save(),
+                  'market_items': self.market_items,  # Item nids
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
@@ -172,6 +178,8 @@ class GameState():
         self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
+
+        self.market_items = s_dict.get('market_items', [])
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
 
@@ -298,6 +306,12 @@ class GameState():
         if legal_spots:
             return legal_spots[0]
         return None
+
+    def get_money(self):
+        return self.party.money
+
+    def set_money(self, val):
+        self.party.money = val
 
 game = GameState()
 

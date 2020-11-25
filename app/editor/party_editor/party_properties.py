@@ -41,7 +41,7 @@ class PartyProperties(QWidget):
         self.window.update_list()
 
     def nid_change_watchers(self, old_nid, new_nid):
-        self.window.model.change_nid(old_nid, new_nid)
+        self.window.left_frame.model.change_nid(old_nid, new_nid)
 
     def nid_done_editing(self):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]

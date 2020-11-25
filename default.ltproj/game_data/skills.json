@@ -9,5 +9,16 @@
             4
         ],
         "components": []
+    },
+    {
+        "nid": "Regeneration",
+        "name": "Regeneration",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            1,
+            2
+        ],
+        "components": []
     }
 ]

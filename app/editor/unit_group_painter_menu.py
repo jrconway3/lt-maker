@@ -73,6 +73,8 @@ class UnitGroupMenu(QWidget):
         return None
 
     def select_group(self, group):
+        print("Group Nid: %s" % group.nid)
+        print(self._data.keys(), [d.nid for d in self._data])
         idx = self._data.index(group.nid)
         self.group_list.setCurrentRow(idx)
 
@@ -99,14 +101,16 @@ class GroupList(WidgetList):
         item.setSizeHint(group_widget.sizeHint())
         self.addItem(item)
         self.setItemWidget(item, group_widget)
-        self.index_list.append(group.nid)
+        self.index_list.append(group)
         return item
 
     def remove_group(self, group):
-        if group.nid in self.index_list:
-            idx = self.index_list.index(group.nid)
-            self.index_list.remove(group.nid)
+        if group in self.index_list:
+            idx = self.index_list.index(group)
+            self.index_list.remove(group)
             return self.takeItem(idx)
+        else:
+            print("Cannot find group in index_list")
         return None
 
 class GroupWidget(QWidget):

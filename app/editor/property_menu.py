@@ -2,7 +2,7 @@ from functools import partial
 
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, \
     QWidget, QPushButton, QMessageBox, QLabel
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent
 
 from app.data.database import DB
 
@@ -54,6 +54,7 @@ class PropertiesMenu(QWidget):
         super().__init__(parent)
         self.main_editor = parent
         self.view = level_view
+        self.installEventFilter(self)
 
         self.setStyleSheet("font: 10pt;")
 
@@ -70,9 +71,7 @@ class PropertiesMenu(QWidget):
         form.addWidget(self.title_box)
 
         self.party_box = PropertyBox("Party", ComboBox, self)
-        self.party_box.edit.addItem("None")
-        for party in DB.parties:
-            self.party_box.edit.addItem(party.nid)
+        self.update_party_box()
         self.party_box.edit.currentIndexChanged.connect(self.party_changed)
         form.addWidget(self.party_box)
 
@@ -111,6 +110,13 @@ class PropertiesMenu(QWidget):
         if self.main_editor.current_level:
             self.set_current()
 
+    def update_party_box(self):
+        # Update party box
+        self.party_box.edit.clear()
+        self.party_box.edit.addItem("None")
+        for party in DB.parties:
+            self.party_box.edit.addItem(party.nid)
+
     @property
     def current(self):
         indices = self.view.selectionModel().selectedIndexes()
@@ -124,6 +130,7 @@ class PropertiesMenu(QWidget):
 
         self.title_box.edit.setText(current.name)
         self.nid_box.edit.setText(current.nid)
+        self.update_party_box()
         if current.party:
             self.party_box.edit.setValue(current.party)
         else:
@@ -187,3 +194,15 @@ class PropertiesMenu(QWidget):
             self.current.tilemap = nid
             self.main_editor.set_current_tilemap(nid)
             self.main_editor.update_view()
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.WindowActivate:
+            print("PropertyMenu has gained focus")
+            self.set_current()
+        elif event.type() == QEvent.WindowDeactivate:
+            print("PropertyMenu has lost focus")
+        elif event.type() == QEvent.FocusIn:
+            print("widget has gained keyboard focus")
+        elif event.type() == QEvent.FocusOut:
+            print("widget has lost keyboard focus")
+        return super().eventFilter(obj, event)

@@ -54,7 +54,7 @@ class Regeneration(SkillComponent):
     tag = "status"
 
     expose = Type.Float
-    vaule = 0.2
+    value = 0.2
 
     def on_upkeep(self, unit):
         max_hp = equations.parser.hitpoints(unit)

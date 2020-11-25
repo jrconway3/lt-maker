@@ -179,7 +179,7 @@
         "minimap": "Fort",
         "platform": "Fort",
         "mtype": "Fort",
-        "status": null
+        "status": "Regeneration"
     },
     {
         "nid": "32",

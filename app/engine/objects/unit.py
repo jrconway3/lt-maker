@@ -2,7 +2,7 @@ from app.utilities import utils
 from app.utilities.data import Prefab
 from app.data.database import DB
 
-from app.engine import equations, item_system, item_funcs
+from app.engine import equations, item_system, item_funcs, skill_system
 from app.engine.game_state import game
 
 # Main unit object used by engine
@@ -108,6 +108,9 @@ class UnitObject(Prefab):
 
     def set_exp(self, val):
         self.exp = int(utils.clamp(val, 0, 100))
+
+    def stat_bonus(self, stat):
+        return skill_system.stat_change(self, stat)
 
     @property
     def sprite(self):

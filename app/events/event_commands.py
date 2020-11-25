@@ -200,8 +200,8 @@ class MorphGroup(EventCommand):
     nickname = 'move_group'
     tag = 'unit'
 
-    keywords = ["Group", "StartingGroup"]
-    optional_keywords = ["MovementType", "Placement"]
+    keywords = ["StartingGroup", "StartingGroup"]
+    optional_keywords = ["MovementType", "Placement", "Group"]
     flags = ['no_block']
 
 class RemoveGroup(EventCommand):
@@ -217,6 +217,18 @@ class GiveItem(EventCommand):
     
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
+
+class Prep(EventCommand):
+    nid = 'prep'
+    tag = 'general'
+
+    optional_keywords = ["Bool"]
+
+class Shop(EventCommand):
+    nid = 'shop'
+    tag = 'general'
+
+    keywords = ["ItemList"]
 
 def get_commands():
     return EventCommand.__subclasses__()

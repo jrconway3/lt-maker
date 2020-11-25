@@ -238,6 +238,11 @@ class GameState():
     def party(self):
         return self.parties[self.current_party]
 
+    def get_units_in_party(self, party=None):
+        if party is None:
+            party = self.current_party
+        return [unit for unit in self.unit_registry.items() if unit.team == 'player' and not unit.dead and not unit.generic and unit.party == party]
+
     def register_unit(self, unit):
         logger.info("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit

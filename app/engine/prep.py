@@ -372,7 +372,7 @@ class PrepManageState(State):
             game.memory['current_unit'] = self.menu.get_current()
             game.state.change('transition_to')
         elif event == 'START':
-            game.optimize_all()
+            convoy_funcs.optimize_all()
 
     def update(self):
         self.menu.update()
@@ -441,7 +441,7 @@ class PrepManageSelectState(State):
             elif choice == 'Restock':
                 game.state.change('prep_restock')
             elif choice == 'Optimize':
-                game.optimize(self.unit)
+                convoy_funcs.optimize(self.unit)
             elif choice == 'Market':
                 game.memory['next_state'] = 'prep_market'
                 game.state.change('transition_to')

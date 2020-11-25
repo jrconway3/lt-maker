@@ -61,6 +61,33 @@ class Regeneration(SkillComponent):
         hp_change = max_hp * self.value
         action.do(action.ChangeHP(unit, hp_change))
 
+class Defense(SkillComponent):
+    nid = 'defense'
+    desc = "Gives +X defense"
+    tag = 'combat'
+
+    expose = Type.Int
+    value = 1
+
+    def stat_change(self, unit):
+        return {'DEF': self.value}
+
+class Avoid(SkillComponent):
+    nid = 'avoid'
+    desc = "Gives +X avoid"
+    tag = 'combat'
+
+    expose = Type.Int
+    value = 20
+
+    def modify_avoid(self, unit, item_to_avoid):
+        return self.value
+
+class Hidden(SkillComponent):
+    nid = 'hidden'
+    desc = "Status will not show up on screen"
+    tag = "base"
+
 class Time(SkillComponent):
     nid = 'time'
     desc = "Lasts for some number of turns"

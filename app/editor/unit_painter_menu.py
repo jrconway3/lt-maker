@@ -135,7 +135,7 @@ class UnitPainterMenu(QWidget):
         idx = index.row()
         unit = self._data[idx]
         if unit.generic:
-            serialized_unit = unit.serialize()
+            serialized_unit = unit.save()
             unit, ok = GenericUnitDialog.get_unit(self, unit=unit)
             if ok:
                 pass
@@ -205,7 +205,7 @@ class AllUnitModel(DragDropCollectionModel):
         obj = self._data[idx]
         if obj.generic:
             new_nid = str_utils.get_next_generic_nid(obj.nid, self._data.keys())
-            serialized_obj = obj.serialize()
+            serialized_obj = obj.save()
             new_obj = GenericUnit.restore(serialized_obj)
             new_obj.nid = new_nid
             new_obj.starting_position = None

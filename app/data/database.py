@@ -54,10 +54,12 @@ class Database(object):
 
         to_save = self.save()
         for key, value in to_save.items():
+            temp_save_loc = os.path.join(data_dir, key + '_temp.json')
             save_loc = os.path.join(data_dir, key + '.json')
             print("Serializing %s to %s" % (key, save_loc))
-            with open(save_loc, 'w') as serialize_file:
+            with open(temp_save_loc, 'w') as serialize_file:
                 json.dump(value, serialize_file, indent=4)
+            os.replace(temp_save_loc, save_loc)
 
         print("Done serializing!")
 

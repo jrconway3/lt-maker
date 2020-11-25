@@ -151,3 +151,12 @@ def can_use_weapon(unit, item) -> bool:
                 if not component.can_use_weapon(unit, item):
                     return False
     return True
+
+def stat_change(unit, stat) -> int:
+    bonus = 0
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('stat_change'):
+                d = component.stat_change(unit)
+                bonus += d.get(stat, 0)
+    return bonus

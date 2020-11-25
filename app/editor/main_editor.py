@@ -122,6 +122,7 @@ class MainEditor(QMainWindow):
         self.map_view.update_view()
 
         timer.get_timer().tick_elapsed.connect(self.map_view.update_view)
+        timer.get_timer().autosave_timer.timeout.connect(self.autosave)
 
     def on_clean_changed(self, clean):
         # Change Title
@@ -508,6 +509,18 @@ class MainEditor(QMainWindow):
 
     def save_as(self):
         self.save(True)
+
+    def autosave(self):
+        autosave_dir = os.path.abspath('autosave.ltproj')
+        # Make directory for saving if it doesn't already exist
+        if not os.path.isdir(autosave_dir):
+            os.mkdir(autosave_dir)
+
+        self.status_bar.showMessage('Autosaving project to %s...' % autosave_dir)
+
+        # Actually save project
+        RESOURCES.save(autosave_dir)
+        DB.serialize(autosave_dir)
 
     def maybe_save(self):
         # if not self.undo_stack.isClean():

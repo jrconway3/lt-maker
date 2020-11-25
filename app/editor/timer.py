@@ -17,6 +17,10 @@ class Timer(QWidget):
         self.main_timer.setInterval(timer_speed)
         self.main_timer.start()
 
+        self.autosave_timer = QTimer()
+        self.autosave_timer.setInterval(5 * 60 * 1000)
+        self.autosave_timer.start()
+
         framerate = constants.FRAMERATE
         self.passive_counter = counters.generic3counter(int(32*framerate), int(4*framerate))
         self.active_counter = counters.generic3counter(int(13*framerate), int(6*framerate))

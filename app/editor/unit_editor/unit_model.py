@@ -44,11 +44,7 @@ class UnitModel(DragDropCollectionModel):
         # check to make sure nothing else is using me!!!
         unit = self._data[idx]
         nid = unit.nid
-        affected_ais = [ai for ai in DB.ai if 
-                        any(behaviour.target_spec and 
-                        behaviour.target_spec[0] == "Unit" and 
-                        behaviour.target_spec[1] == nid 
-                        for behaviour in ai.behaviours)]
+        affected_ais = [ai for ai in DB.ai if ai.has_unit_spec("Unit", nid)]
         if affected_ais:
             from app.editor.ai_database import AIModel
             model = AIModel
@@ -65,9 +61,7 @@ class UnitModel(DragDropCollectionModel):
 
     def change_nid(self, old_nid, new_nid):
         for ai in DB.ai:
-            for behaviour in ai.behaviours:
-                if behaviour.target_spec and behaviour.target_spec[0] == "Unit" and behaviour.target_spec[1] == old_nid:
-                    behaviour.target_spec[1] = new_nid
+            ai.change_unit_spec("Unit", old_nid, new_nid)
 
     def create_new(self):
         nids = [d.nid for d in self._data]

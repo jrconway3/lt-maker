@@ -193,7 +193,7 @@
                 "generic": false
             },
             {
-                "nid": 101,
+                "nid": "101",
                 "variant": null,
                 "level": 2,
                 "klass": "Soldier",
@@ -391,7 +391,7 @@
                 "nid": "Enemy1",
                 "units": [
                     "Breguet",
-                    101,
+                    "101",
                     "102",
                     "103",
                     "104",
@@ -426,10 +426,6 @@
                     "103": [
                         1,
                         8
-                    ],
-                    "101": [
-                        1,
-                        6
                     ]
                 }
             },
@@ -437,7 +433,7 @@
                 "nid": "EnemySpawn",
                 "units": [
                     "Breguet",
-                    101,
+                    "101",
                     "102",
                     "103",
                     "104",
@@ -471,6 +467,354 @@
                     ],
                     "106": [
                         2,
+                        9
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "nid": "2",
+        "name": "Chapter 2",
+        "tilemap": "Chapter 2",
+        "party": null,
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "prep": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "",
+            "win": "",
+            "loss": ""
+        },
+        "units": [
+            {
+                "nid": "Eirika",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    2
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Seth",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    0,
+                    1
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Franz",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    1,
+                    1
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Gilliam",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    0,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Vanessa",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Moulder",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Ross",
+                "team": "other",
+                "ai": "Guard",
+                "starting_position": [
+                    10,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Garcia",
+                "team": "other",
+                "ai": "Defend",
+                "starting_position": [
+                    10,
+                    4
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Bone",
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    9,
+                    14
+                ],
+                "generic": false
+            },
+            {
+                "nid": 101,
+                "variant": null,
+                "level": 2,
+                "klass": "Brigand",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    12,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    10,
+                    12
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    7,
+                    14
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ],
+                    [
+                        "Vulnerary",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    11
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 1,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    14,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 2,
+                "klass": "Brigand",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    1,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    0,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Village1",
+                "region_type": "Event",
+                "position": [
+                    4,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True"
+            },
+            {
+                "nid": "Village2",
+                "region_type": "Event",
+                "position": [
+                    7,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True"
+            },
+            {
+                "nid": "VIllage3",
+                "region_type": "Event",
+                "position": [
+                    1,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True"
+            },
+            {
+                "nid": "Armory",
+                "region_type": "Event",
+                "position": [
+                    5,
+                    7
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True"
+            }
+        ],
+        "unit_groups": [
+            {
+                "nid": "BanditReinforcements",
+                "units": [
+                    "106",
+                    "107"
+                ],
+                "positions": {
+                    "106": [
+                        0,
+                        9
+                    ],
+                    "107": [
+                        0,
                         9
                     ]
                 }

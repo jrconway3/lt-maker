@@ -7,6 +7,7 @@ saves/*.pmeta
 saves/*.ini
 saves/progress_log.txt
 debug.log.*
+autosave*
 
 # Builds
 build/

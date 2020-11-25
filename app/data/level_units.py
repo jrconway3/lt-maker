@@ -56,6 +56,15 @@ class UniqueUnit(Prefab):
             return getattr(prefab, attr)
         return None
 
+    def save(self):
+        s_dict = {}
+        s_dict['nid'] = self.nid
+        s_dict['team'] = self.team
+        s_dict['ai'] = self.ai
+        s_dict['starting_position'] = self.starting_position
+        s_dict['generic'] = self.generic
+        return s_dict
+
 @dataclass
 class UnitGroup(Prefab):
     nid: str = None

@@ -626,20 +626,42 @@ class Event():
             else:  # immediate
                 action.do(action.ArriveOnMap(unit, position))
 
+    def _move_unit(self, movement_type, placement, unit, position):
+        position = tuple(position)
+        position = self.check_placement(position, placement)
+        if movement_type == 'immediate' or self.do_skip:
+            action.do(action.Teleport(unit, position))
+        elif movement_type == 'warp':
+            action.do(action.Warp(unit, position))
+        elif movement_type == 'fade':
+            action.do(action.FadeMove(unit, position))
+        elif movement_type == 'normal':
+            path = target_system.get_path(unit, position)
+            action.do(action.Move(unit, position, path, event=True))
+
+    def _add_unit(self, placement, unit, position):
+        position = tuple(position)
+        action.do(action.ArriveOnMap(unit, position))
+
     def morph_group(self, command):
         values, flags = event_commands.parse(command)
-        group1 = game.level.unit_groups.get(values[0])
-        if not group1:
-            print("Couldn't find group1 %s" % values[0])
-            return
-        use_starting_positions = False
-        if values[1].lower() == 'starting':
-            use_starting_positions = True
+        special_position1 = None
+        if values[0].lower() in ('east', 'west', 'north', 'south'):
+            special_position1 = values[0].lower()
+        else:
+            group1 = game.level.unit_groups.get(values[0])
+            if not group1:
+                print("Couldn't find group1 %s" % values[0])
+                return
+        special_position2 = None
+        if values[1].lower() in ('starting', 'east', 'west', 'north', 'south'):
+            special_position2 = values[1].lower()
         else:
             group2 = game.level.unit_groups.get(values[1])
             if not group2:
                 print("Couldn't find group2 %s" % values[1])
                 return
+
         if len(values) > 2:
             movement_type = values[2]
         else:
@@ -648,30 +670,77 @@ class Event():
             placement = values[3]
         else:
             placement = 'giveup'
-        for unit in group1.units:
-            if not unit.position:
-                continue
-            if use_starting_positions:
-                position = unit.starting_position
-                if not position:
-                    continue
-            elif unit.nid in group2.positions:
-                position = group2.positions.get(unit.nid)
-                if not position:
-                    continue
+        if len(values) > 4:
+            force_group = values[4]
+        else:
+            force_group = None
+
+        if special_position1 and special_position2:
+            if force_group:
+                group = game.level.unit_groups.get(force_group)
+                if not group:
+                    print("Couldn't find group %s" % force_group)
+                    return
             else:
-                continue
-            position = tuple(position)
-            position = self.check_placement(position, placement)
-            if movement_type == 'immediate' or self.do_skip:
-                action.do(action.Teleport(unit, position))
-            elif movement_type == 'warp':
-                action.do(action.Warp(unit, position))
-            elif movement_type == 'fade':
-                action.do(action.FadeMove(unit, position))
-            elif movement_type == 'normal':
-                path = target_system.get_path(unit, position)
-                action.do(action.Move(unit, position, path, event=True))
+                print("Need to specify group!")
+                return
+            # Can only be Direction -> Starting
+            for unit in group.units:
+                if special_position2 == 'starting':
+                    position = unit.starting_position
+                    if not position:
+                        continue
+                else:
+                    continue
+                if special_position1 == 'west':
+                    self._add_unit(unit, (0, position[1]))
+                elif special_position1 == 'east':
+                    self._add_unit(unit, (game.tilemap.width, position[1]))
+                elif special_position1 == 'north':
+                    self._add_unit(unit, (position[0], 0))
+                elif special_position1 == 'south':
+                    self._add_unit(unit, (position[0], game.tilemap.height))
+                self._move_unit(movement_type, placement, unit, position)
+        elif special_position1:
+            for unit in group2.units:
+                if unit.nid in group2.positions:
+                    position = group2.positions.get(unit.nid)
+                    if not position:
+                        continue
+                else:
+                    continue
+                if special_position1 == 'west':
+                    self._add_unit(unit, (0, position[1]))
+                elif special_position1 == 'east':
+                    self._add_unit(unit, (game.tilemap.width, position[1]))
+                elif special_position1 == 'north':
+                    self._add_unit(unit, (position[0], 0))
+                elif special_position1 == 'south':
+                    self._add_unit(unit, (position[0], game.tilemap.height))
+                self._move_unit(movement_type, placement, unit, position)
+        else:
+            for unit in group1.units:
+                if not unit.position:
+                    continue
+                if special_position2 == 'starting':
+                    position = unit.starting_position
+                    if not position:
+                        continue
+                elif special_position2 == 'west':
+                    position = (0, unit.position[1])
+                elif special_position2 == 'east':
+                    position = (game.tilemap.width, unit.position[1])
+                elif special_position2 == 'north':
+                    position = (unit.position[0], 0)
+                elif special_position2 == 'east':
+                    position = (unit.position[0], game.tilemap.height)
+                elif unit.nid in group2.positions:
+                    position = group2.positions.get(unit.nid)
+                    if not position:
+                        continue
+                else:
+                    continue
+                self._move_unit(movement_type, placement, unit, position)
 
         if 'no_block' in flags or self.do_skip:
             pass

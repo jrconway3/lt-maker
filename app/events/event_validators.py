@@ -178,6 +178,8 @@ class StartingGroup(Validator):
             return None
         if text.lower() == 'starting':
             return text
+        if text.lower() in ('east', 'north', 'south', 'west'):
+            return text
         nids = [g.nid for g in level.unit_groups]
         if text in nids:
             return text

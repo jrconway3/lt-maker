@@ -1084,3 +1084,164 @@ class AIState(MapState):
             self.cur_unit = None
             game.state.change('turn_change')
             return 'repeat'
+
+class ShopState(State):
+    name = 'shop'
+
+    def start(self):
+        self.unit = game.memory['current_unit']
+        self.flavor = game.memory['shop_flavor']
+        if self.flavor == 'vendor':
+            self.portrait = SPRITES.get('vendor_portrait')
+            self.opening_message = 'vendor_opener'
+            self.buy_message = 'vendor_buy'
+            self.back_message = 'vendor_back'
+            self.leave_message = 'vendor_leave'
+        else:
+            self.portrait = SPRITES.get('armory_portrait')
+            self.opening_message = 'armory_opener'
+            self.buy_message = 'armory_buy'
+            self.back_message = 'armory_back'
+            self.leave_message = 'armory_leave'
+
+        items = game.memory['shop_items']
+        my_items = item_funcs.get_all_tradeable_items(self.unit)
+        topleft = (44, 14)
+        self.sell_menu = menus.Shop(self.unit, my_items, topleft, disp_value='sell')
+        self.sell_menu.set_limit(5)
+        self.sell_menu.set_hard_limit(True)
+        self.sell_menu.gem = False
+        self.sell_menu.shimmer = 2
+        self.buy_menu = menus.Shop(self.unit, items, topleft, disp_value='buy')
+        self.buy_menu.set_limit(5)
+        self.buy_menu.set_hard_limit(True)
+        self.buy_menu.gem = False
+        self.buy_menu.shimmer = 2
+
+        self.choice_menu = menus.Choice(self.unit, ["Buy", "Sell"], (80, 32), background=None)
+        self.choice_menu.set_horizontal(True)
+        self.menu = None  # For input
+
+        self.state = 'open'
+        self.current_msg = self.get_dialog(self.opening_message)
+
+        self.money_counter_disp = gui.PopUpDisplay((223, 32))
+
+        self.bg = background.create_background('rune_background')
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def get_dialog(self, text):
+        return dialog.Dialog(text_funcs.translate(text))
+
+    def update_options(self):
+        self.sell_menu.update_options(item_funcs.get_all_tradeable_items(self.unit))
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions or 'RIGHT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions or 'LEFT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'SELECT':
+            if self.state == 'open':
+                SOUNDTHREAD.play_sfx('Select 1')
+                if self.current_msg.is_done():
+                    self.state = 'choice'
+                    self.menu = self.choice_menu
+                else:
+                    self.current_msg.hurry_up()
+
+            elif self.state == 'choice':
+                SOUNDTHREAD.play_sfx('Select 1')
+                current = self.choice_menu.get_current()
+                if current == 'buy':
+                    self.menu = self.buy_menu
+                    self.state = 'buy'
+                    self.current_msg = self.get_dialog(self.buy_message)
+                elif current == 'sell' and item_funcs.get_all_tradeable_items(self.unit):
+                    self.menu = self.sell_menu
+                    self.state = 'sell'
+
+            elif self.state == 'buy':
+                item = self.buy_menu.get_current()
+                if item:
+                    value = item_system.buy_price(self.unit, item)
+                    if game.get_money() - value >= 0:
+                        SOUNDTHREAD.play_sfx('GoldExchange')
+                        game.set_money(game.get_money() - value)
+                        self.money_counter_disp.start(-value)
+                        new_item = item_funcs.create_items(self.unit, item.nid)[0]
+                        game.register_item(new_item)
+                        if not item_funcs.inventory_full(self.unit, new_item):
+                            self.unit.add_item(new_item)
+                            self.current_msg = self.get_dialog('shop_buy_again')
+                        elif 'convoy' in game.game_vars:
+                            new_item.owner_nid = None
+                            game.party.convoy.append(new_item)
+                            self.current_msg = self.get_dialog('shop_convoy')
+                        else:
+                            self.current_msg = self.get_dialog('shop_max')
+                            self.state = 'choice'
+                            self.menu = self.choice_menu
+
+                        self.update_options()
+                    else:
+                        # You don't have enough money
+                        SOUNDTHREAD.play_sfx('Select 4')
+                        self.current_msg = self.get_dialog('shop_no_money')
+
+            elif self.state == 'sell':
+                item = self.sell_menu.get_current()
+                if item:
+                    value = item_system.sell_price(self.unit, item)
+                    if value:
+                        SOUNDTHREAD.play_sfx('GoldExchange')
+                        game.set_money(game.get_money() + value)
+                        self.money_counter_disp.start(value)
+                        self.unit.remove_item(item)
+                        self.current_msg = self.get_dialog('shop_sell_again')
+                        self.update_options()
+                    else:
+                        # No value, can't be sold
+                        SOUNDTHREAD.play_sfx('Select 4')
+                        self.current_msg = self.get_dialog('shop_no_value')
+                else:
+                    # You didn't choose anything to sell
+                    SOUNDTHREAD.play_sfx('Select 4')
+
+            elif self.state == 'close':
+                SOUNDTHREAD.play_sfx('Select 1')
+                if self.current_msg.is_done():
+                    game.state.change('transition_pop')
+                else:
+                    self.current_msg.hurry_up()
+
+        elif event == 'BACK':
+            if self.state == 'open' or self.state == 'close':
+                SOUNDTHREAD.play_sfx('Select 4')
+                game.state.change('transition_pop')
+            elif self.state == 'choice':
+                SOUNDTHREAD.play_sfx('Select 4')
+                self.state = 'close'
+                self.current_msg = self.get_dialog(self.leave_message)
+            elif self.state == 'buy' or self.state == 'sell':
+                if self.menu.info_flag:
+                    self.menu.toggle_info()
+                    SOUNDTHREAD.play_sfx('Info Out')
+                else:
+                    SOUNDTHREAD.play_sfx('Select 4')
+                    self.state = 'choice'
+                    self.menu = self.choice_menu
+                    self.current_msg = self.get_dialog('shop_again')
+
+        elif event == 'INFO':
+            if self.state == 'buy' or self.state == 'sell':
+                self.menu.toggle_info()

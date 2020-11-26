@@ -373,7 +373,8 @@
                     "13"
                 ]
             ]
-        ]
+        ],
+        "only_once": null
     },
     {
         "nid": "EirikaDeath",
@@ -418,7 +419,8 @@
                 "lose_game",
                 []
             ]
-        ]
+        ],
+        "only_once": null
     },
     {
         "nid": "SethDeath",
@@ -453,7 +455,8 @@
                     "Seth"
                 ]
             ]
-        ]
+        ],
+        "only_once": null
     },
     {
         "nid": "ONeillDeath",
@@ -491,12 +494,13 @@
                 "win_game",
                 []
             ]
-        ]
+        ],
+        "only_once": null
     },
     {
         "nid": "Outro",
         "trigger": "level_end",
-        "level_nid": "DEBUG",
+        "level_nid": "0",
         "condition": "True",
         "commands": [
             [
@@ -562,6 +566,36 @@
                     "Close"
                 ]
             ]
-        ]
+        ],
+        "only_once": null
+    },
+    {
+        "nid": "OnlyBoss",
+        "trigger": "unit_death",
+        "level_nid": "0",
+        "condition": "len([unit for unit in game.level.units if unit.team == 'enemy']) == 1",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "All that's left is their leader..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ]
+        ],
+        "only_once": true
     }
 ]

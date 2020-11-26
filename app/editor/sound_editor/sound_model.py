@@ -1,22 +1,17 @@
 import os, math
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QDialog
-from PyQt5.QtCore import Qt, QSettings, QDir, QAbstractTableModel
-from PyQt5.QtCore import QSortFilterProxyModel
+from PyQt5.QtCore import Qt, QSettings, QDir
 
 from app.utilities import str_utils
 from app.resources.sounds import SFX, Song
 from app.resources.resources import RESOURCES
 
+from app.editor.table_model import TableModel
 from app.editor.sound_editor.sound_dialog import ModifySFXDialog, ModifyMusicDialog
 
-class TableModel(QAbstractTableModel):
+class SoundModel(TableModel):
     rows = ['nid', 'length', 'tag']
-
-    def __init__(self, data, parent):
-        super().__init__(parent)
-        self.window = parent
-        self._data = data
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
@@ -34,12 +29,6 @@ class TableModel(QAbstractTableModel):
             else:
                 return val.capitalize()
         return None
-
-    def rowCount(self, parent=None):
-        return len(self._data)
-
-    def columnCount(self, parent=None):
-        return len(self.rows)
 
     def data(self, index, role):
         if not index.isValid():
@@ -66,57 +55,7 @@ class TableModel(QAbstractTableModel):
                 return Qt.AlignRight + Qt.AlignVCenter
         return None
 
-    def change_watchers(self, data, attr, old_value, new_value):
-        if attr == 'nid':
-            self._data.update_nid(data, new_value)
-
-    def setData(self, index, value, role):
-        if not index.isValid():
-            return False
-        d = self._data[index.row()]
-        attr = self.rows[index.column()]
-        current_value = getattr(d, attr)
-        self.change_watchers(d, attr, current_value, value)
-        setattr(d, attr, value)
-        self.dataChanged.emit(index, index)
-        return True
-
-    def flags(self, index):
-        return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
-
-    def delete(self, index):
-        if not index.isValid():
-            return False
-        idx = index.row()
-        self._data.pop(idx)
-        self.layoutChanged.emit()
-
-    def update(self):
-        self.layoutChanged.emit()
-
-    def append(self):
-        if self.create_new():
-            self.layoutChanged.emit()
-            last_index = self.index(self.rowCount() - 1, 0)
-            return last_index
-        return None
-
-    def new(self, index):
-        if self.create_new():
-            idx = index.row()
-            self._data.move_index(len(self._data) - 1, idx + 1)
-            self.layoutChanged.emit()
-            new_index = self.index(idx + 1, 0)
-            return new_index
-        return None
-
-    def modify(self, indices):
-        raise NotImplementedError
-
-    def create_new(self):
-        raise NotImplementedError
-
-class SFXModel(TableModel):
+class SFXModel(SoundModel):
     def create_new(self) -> bool:
         settings = QSettings("rainlash", "Lex Talionis")
         starting_path = str(settings.value("last_open_path", QDir.currentPath()))
@@ -153,7 +92,7 @@ class SFXModel(TableModel):
                 c.nid = saved_d[idx][0]
                 self._data.update_nid(c, c.nid)
 
-class MusicModel(TableModel):
+class MusicModel(SoundModel):
     rows = ['nid', 'length', 'extra']
 
     def create_new(self) -> bool:
@@ -196,21 +135,3 @@ class MusicModel(TableModel):
                 c.intro_full_path = saved_d[idx][1]
                 c.battle_full_path = saved_d[idx][2]
                 self._data.update_nid(c, c.nid)
-
-class ProxyModel(QSortFilterProxyModel):
-    def delete(self, index):
-        index = self.mapToSource(index)
-        self.sourceModel().delete(index)
-        self.layoutChanged.emit()
-
-    def modify(self, indices):
-        indices = [self.mapToSource(index) for index in indices]
-        self.sourceModel().modify(indices)
-
-    def new(self, index):
-        index = self.mapToSource(index)
-        new_index = self.sourceModel().new(index)
-        self.layoutChanged.emit()
-        if new_index:
-            return self.mapFromSource(new_index)
-        return None

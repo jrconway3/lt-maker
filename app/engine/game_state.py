@@ -62,6 +62,7 @@ class GameState():
 
         self.records = []
         self.market_items = []
+        self.already_triggered_events = []
         self.sweep()
         self.generic()
 
@@ -146,6 +147,7 @@ class GameState():
                   'state': self.state.save(),
                   'action_log': self.action_log.save(),
                   'market_items': self.market_items,  # Item nids
+                  'already_triggered_events': self.already_triggered_events,
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
@@ -180,6 +182,7 @@ class GameState():
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
 
         self.market_items = s_dict.get('market_items', [])
+        self.already_triggered_events = s_dict.get('already_triggered_events', [])
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
 

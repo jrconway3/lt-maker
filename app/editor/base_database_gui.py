@@ -12,70 +12,11 @@ from app.editor.data_editor import SingleDatabaseEditor
 
 from app.utilities import str_utils
 
-class DatabaseTab(QWidget):
-    allow_import_from_lt = False
-    
-    def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent, 
-                 button_text="Create %s", view_type=RightClickListView):
-        QWidget.__init__(self, parent)
-        self.window = parent
-        self._data = data
-        self.title = title
-
-        self.setWindowTitle('%s Editor' % self.title)
-        self.setStyleSheet("font: 10pt;")
-
-        self.left_frame = Collection(deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
-        self.right_frame = right_frame(self)
-        self.left_frame.set_display(self.right_frame)
-
-        self.splitter = QSplitter(self)
-        self.splitter.setChildrenCollapsible(False)
-        self.splitter.addWidget(self.left_frame)
-        self.splitter.addWidget(self.right_frame)
-        self.splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
-
-        self.layout = QHBoxLayout(self)
-        self.setLayout(self.layout)
-
-        self.layout.addWidget(self.splitter)
-
-        # Check this on startup
-        self.reset()
-
-    def update_list(self):
-        self.left_frame.update_list()
-
-    def tick(self):
-        pass
-
-    def reset(self):
-        """
-        Whenever the tab is changed, make sure to update the tab display
-        Makes sure that current is what is being displayed
-        """
-        if self.right_frame.current:
-            self.right_frame.setEnabled(True)
-            self.right_frame.set_current(self.right_frame.current)
-        else:
-            self.right_frame.setEnabled(False)
-
-    # @classmethod
-    # def edit(cls, parent=None):
-    #     dialog = cls.create(parent)
-    #     dialog.exec_()
-
-    @classmethod
-    def edit(cls):
-        window = SingleDatabaseEditor(cls)
-        window.exec_()
-
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,
                  button_text="Create %s", view_type=RightClickListView):
         super().__init__(parent)
         self.window = parent
-        self.database_editor = self.window.window
 
         self._data = self.window._data
         self.title = self.window.title
@@ -122,6 +63,64 @@ class Collection(QWidget):
 
     def update_list(self):
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))                
+
+class DatabaseTab(QWidget):
+    allow_import_from_lt = False
+    
+    def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent, 
+                 button_text="Create %s", view_type=RightClickListView, collection_type=Collection):
+        QWidget.__init__(self, parent)
+        self.window = parent
+        self._data = data
+        self.title = title
+
+        self.setWindowTitle('%s Editor' % self.title)
+        self.setStyleSheet("font: 10pt;")
+
+        self.left_frame = collection_type(deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
+        self.right_frame = right_frame(self)
+        self.left_frame.set_display(self.right_frame)
+
+        self.splitter = QSplitter(self)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.addWidget(self.left_frame)
+        self.splitter.addWidget(self.right_frame)
+        self.splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
+
+        self.layout = QHBoxLayout(self)
+        self.setLayout(self.layout)
+
+        self.layout.addWidget(self.splitter)
+
+        # Check this on startup
+        self.reset()
+
+    def update_list(self):
+        self.left_frame.update_list()
+
+    def tick(self):
+        pass
+
+    def reset(self):
+        """
+        Whenever the tab is changed, make sure to update the tab display
+        Makes sure that current is what is being displayed
+        """
+        if self.right_frame.current:
+            self.right_frame.setEnabled(True)
+            self.right_frame.set_current(self.right_frame.current)
+        else:
+            self.right_frame.setEnabled(False)
+
+    # @classmethod
+    # def edit(cls, parent=None):
+    #     dialog = cls.create(parent)
+    #     dialog.exec_()
+
+    @classmethod
+    def edit(cls):
+        window = SingleDatabaseEditor(cls)
+        window.exec_()
 
 class CollectionModel(QAbstractListModel):
     def __init__(self, data, window):

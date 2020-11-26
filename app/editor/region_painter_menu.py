@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QPushButton, QLineEdit, \
-    QWidget, QVBoxLayout, QMessageBox
+    QWidget, QVBoxLayout, QMessageBox, QCheckBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor, QPixmap
 
 from app.utilities import utils, str_utils
 from app.utilities.data import Data
 
-from app.extensions.custom_gui import PropertyBox, ComboBox, RightClickListView
+from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, ComboBox, RightClickListView
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.custom_widgets import SkillBox
 from app.events import regions
@@ -170,6 +170,10 @@ class ModifyRegionWidget(QWidget):
         self.condition_box.edit.textChanged.connect(self.condition_changed)
         layout.addWidget(self.condition_box)
 
+        self.only_once_box = PropertyCheckBox("Remove on activate?", QCheckBox, self)
+        self.only_once_box.edit.stateChanged.connect(self.only_once_changed)
+        layout.addWidget(self.only_once_box)
+
         self.status_box = SkillBox(self) 
         # if self.current.sub_nid and self.current.region_type == 'Status':
         #     self.status_box.edit.setText(self.current.sub_nid)
@@ -178,6 +182,7 @@ class ModifyRegionWidget(QWidget):
 
         self.sub_nid_box.hide()
         self.condition_box.hide()
+        self.only_once_box.hide()
         self.status_box.hide()
 
     def nid_changed(self, text):
@@ -203,14 +208,17 @@ class ModifyRegionWidget(QWidget):
         if self.current.region_type in ('Normal', 'Formation'):
             self.sub_nid_box.hide()
             self.condition_box.hide()
+            self.only_once_box.hide()
             self.status_box.hide()
         elif self.current.region_type == 'Status':
             self.sub_nid_box.hide()
             self.condition_box.hide()
+            self.only_once_box.hide()
             self.status_box.show()
         elif self.current.region_type == 'Event':
             self.sub_nid_box.show()
             self.condition_box.show()
+            self.only_once_box.show()
             self.status_box.hide()
 
     def sub_nid_changed(self, text):
@@ -221,6 +229,9 @@ class ModifyRegionWidget(QWidget):
         self.current.condition = text
         self.window.update_list()
 
+    def only_once_changed(self, state):
+        self.current.only_once = bool(state)
+
     def status_changed(self, index):
         self.current.sub_nid = self.status_box.edit.currentText()
         self.window.update_list()
@@ -230,6 +241,7 @@ class ModifyRegionWidget(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.region_type_box.edit.setValue(current.region_type)
         self.condition_box.edit.setText(current.condition)
+        self.only_once_box.edit.setText(current.only_once)
         if current.region_type == 'Status':
             self.status_box.edit.setValue(current.sub_nid)
         elif current.region_type == 'Event':

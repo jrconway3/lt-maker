@@ -31,6 +31,7 @@ class EventPrefab(Prefab):
         self.level_nid = None
         self.condition: str = "True"
         self.commands = []
+        self.only_once = False
 
     def save_attr(self, name, value):
         if name == 'commands':

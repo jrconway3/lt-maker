@@ -3,10 +3,11 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, \
 
 
 from app.resources.resources import RESOURCES
-from app.extensions.custom_gui import SFXTableView, MusicTableView
+from app.extensions.custom_gui import TableView, MultiselectTableView
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
 from app.editor.sound_editor.audio_widget import AudioWidget
-from app.editor.sound_editor.sound_model import SFXModel, MusicModel, ProxyModel
+from app.editor.sound_editor.sound_model import SFXModel, MusicModel
+from app.editor import table_model
 
 class SoundTab(QWidget):
     def __init__(self, data, title, model, view, parent=None):
@@ -23,7 +24,7 @@ class SoundTab(QWidget):
         self.setMinimumWidth(360)
 
         self.model = model(data, self)
-        self.proxy_model = ProxyModel()
+        self.proxy_model = table_model.ProxyModel()
         self.proxy_model.setSourceModel(self.model)
         self.view = view(None, self)
         self.view.setAlternatingRowColors(True)
@@ -84,7 +85,7 @@ class SFXDatabase(SoundTab):
         data = RESOURCES.sfx
         title = "SFX"
 
-        dialog = cls(data, title, SFXModel, SFXTableView, parent)
+        dialog = cls(data, title, SFXModel, MultiselectTableView, parent)
         return dialog
 
 class MusicDatabase(SoundTab):
@@ -93,7 +94,7 @@ class MusicDatabase(SoundTab):
         data = RESOURCES.music
         title = "Music"
 
-        dialog = cls(data, title, MusicModel, SFXTableView, parent)
+        dialog = cls(data, title, MusicModel, TableView, parent)
         return dialog
 
 def get_sfx():

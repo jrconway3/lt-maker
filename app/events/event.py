@@ -349,6 +349,29 @@ class Event():
         elif command.nid == 'give_item':
             self.give_item(command)
 
+        elif command.nid == 'prep':
+            values, flags = event_commands.parse(command)
+            if values[0].lower() in ('1', 't', 'true', 'y', 'yes'):
+                b = True
+            else:
+                b = False
+            game.memory['prep_pick'] = b
+            game.state.change('prep_main')
+            self.state = 'paused'  # So that the message will leave the update loop
+
+        elif command.nid == 'shop':
+            values, flags = event_commands.parse(command)
+            item_list = values[0].split(',')
+            shop_items = item_funcs.create_items(self.unit, item_list)
+            game.memory['shop_items'] = shop_items
+            game.memory['current_unit'] = self.unit
+            if len(values) > 1:
+                game.memory['shop_flavor'] = values[1].lower()
+            else:
+                game.memory['shop_flavor'] = 'armory'
+            game.state.change('shop')
+            self.state = 'paused'
+
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
         name = values[0]

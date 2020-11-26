@@ -11,13 +11,15 @@ class EventManager():
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
             print(event_prefab.trigger, event_prefab.condition)
-            if eval(event_prefab.condition):
+            if event_prefab.nid not in game.already_triggered_events and eval(event_prefab.condition):
                 triggered_events.append(event_prefab)
 
         for event_prefab in triggered_events:
             new_event = Event(event_prefab.commands, unit, unit2, position, region)
             self.events.append(new_event)
             game.state.change('event')
+            if event_prefab.only_once:
+                game.already_triggered_events.append(event_prefab.nid)
 
     def get(self):
         if self.events:

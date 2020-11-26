@@ -751,9 +751,6 @@ class PrepMarketState(State):
         self.choice_menu.gem = False
         self.menu = self.choice_menu
 
-        self.money_surf = base_surf.create_base_surf(56, 24)
-        g_surf = engine.subsurface(SPRITES.get('golden_words'), (40, 47, 11, 11))
-        self.money_surf.blit(g_surf, (45, 8))
         self.money_counter_disp = gui.PopUpDisplay((66, WINHEIGHT - 40))
 
         game.state.change('transition_in')
@@ -867,7 +864,7 @@ class PrepMarketState(State):
         self.choice_menu.draw(surf)
         self.display_menu.draw(surf)
         # Money
-        surf.blit(self.money_surf, (10, WINHEIGHT - 24))
+        surf.blit(SPRITES.get('money_bg'), (10, WINHEIGHT - 24))
         FONT['text-blue'].blit(str(game.get_money()), surf, (16, WINHEIGHT - 20))
         self.money_counter_disp.draw(surf)
 

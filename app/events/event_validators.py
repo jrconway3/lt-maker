@@ -118,6 +118,9 @@ class Color3(Validator):
 class Bool(OptionValidator):
     valid = ['t', 'true', '1', 'y', 'yes', 'f', 'false', '0', 'n', 'no']
 
+class ShopFlavor(OptionValidator):
+    valid = ['armory', 'vendor']
+
 class Position(Validator):
     def validate(self, text, level):
         text = text.split(',')
@@ -217,6 +220,13 @@ class Ability(Validator):
 class Item(Validator):
     def validate(self, text, level):
         if text in DB.items.keys():
+            return text
+        return None
+
+class ItemList(Validator):
+    def validate(self, text, level):
+        items = text.split(',')
+        if all(item in DB.items.keys() for item in items):
             return text
         return None
 

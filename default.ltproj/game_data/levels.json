@@ -338,7 +338,8 @@
                     1
                 ],
                 "sub_nid": "Visit",
-                "condition": "True"
+                "condition": "True",
+                "only_once": null
             },
             {
                 "nid": "House2",
@@ -352,7 +353,8 @@
                     1
                 ],
                 "sub_nid": "Visit",
-                "condition": "True"
+                "condition": "True",
+                "only_once": null
             },
             {
                 "nid": "Gate",
@@ -366,27 +368,11 @@
                     1
                 ],
                 "sub_nid": "Seize",
-                "condition": "True"
+                "condition": "True",
+                "only_once": null
             }
         ],
         "unit_groups": [
-            {
-                "nid": "Franz1",
-                "units": [
-                    "Gilliam",
-                    "Franz"
-                ],
-                "positions": {
-                    "Gilliam": [
-                        6,
-                        0
-                    ],
-                    "Franz": [
-                        5,
-                        0
-                    ]
-                }
-            },
             {
                 "nid": "Enemy1",
                 "units": [
@@ -430,46 +416,12 @@
                 }
             },
             {
-                "nid": "EnemySpawn",
+                "nid": "Rein",
                 "units": [
-                    "Breguet",
-                    "101",
-                    "102",
-                    "103",
-                    "104",
-                    "105",
-                    "106"
+                    "Gilliam",
+                    "Franz"
                 ],
-                "positions": {
-                    "Breguet": [
-                        2,
-                        9
-                    ],
-                    "101": [
-                        1,
-                        9
-                    ],
-                    "102": [
-                        3,
-                        9
-                    ],
-                    "103": [
-                        1,
-                        9
-                    ],
-                    "104": [
-                        3,
-                        9
-                    ],
-                    "105": [
-                        2,
-                        9
-                    ],
-                    "106": [
-                        2,
-                        9
-                    ]
-                }
+                "positions": {}
             }
         ]
     },
@@ -756,7 +708,8 @@
                     1
                 ],
                 "sub_nid": "Visit",
-                "condition": "True"
+                "condition": "True",
+                "only_once": null
             },
             {
                 "nid": "Village2",
@@ -770,7 +723,8 @@
                     1
                 ],
                 "sub_nid": "Visit",
-                "condition": "True"
+                "condition": "True",
+                "only_once": null
             },
             {
                 "nid": "VIllage3",
@@ -784,7 +738,8 @@
                     1
                 ],
                 "sub_nid": "Visit",
-                "condition": "True"
+                "condition": "True",
+                "only_once": null
             },
             {
                 "nid": "Armory",
@@ -798,7 +753,8 @@
                     1
                 ],
                 "sub_nid": "Armory",
-                "condition": "True"
+                "condition": "True",
+                "only_once": null
             }
         ],
         "unit_groups": [
@@ -814,7 +770,7 @@
                         9
                     ],
                     "107": [
-                        0,
+                        1,
                         9
                     ]
                 }

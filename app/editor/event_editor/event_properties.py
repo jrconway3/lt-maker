@@ -2,11 +2,12 @@ import math
 from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
-    QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate
+    QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
+    QGridLayout, QSizePolicy
 from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette
 from PyQt5.QtCore import QRegularExpression, Qt, QSettings, QSize, QRect
 
-from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox
+from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, QHLine, ComboBox
 from app.editor import timer
 
 from app.resources.resources import RESOURCES
@@ -14,7 +15,10 @@ from app.data.database import DB
 from app.utilities import str_utils
 from app.editor.base_database_gui import CollectionModel
 from app.events import event_prefab, event_commands, event_validators
+from app.editor.event_editor import event_model
+from app.editor import table_model
 from app.editor.map_view import SimpleMapView
+from app.extensions.custom_gui import TableView
 
 @dataclass
 class Rule():
@@ -183,6 +187,66 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
 
+class EventCollection(QWidget):
+    def __init__(self, deletion_criteria, collection_model, parent,
+                 button_text="Create %s", view_type=TableView):
+        super().__init__(parent)
+        self.window = parent
+
+        self._data = self.window._data
+        self.title = self.window.title
+
+        self.display = None
+        grid = QGridLayout()
+        self.setLayout(grid)
+
+        self.model = collection_model(self._data, self)
+        self.proxy_model = table_model.ProxyModel()
+        self.proxy_model.setSourceModel(self.model)
+        self.view = view_type(None, self)
+        self.view.setAlternatingRowColors(True)
+        self.view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.view.setModel(self.proxy_model)
+        # self.view.setModel(self.model)
+        self.view.setSortingEnabled(True)
+        # self.view.clicked.connect(self.on_single_click)
+        # Remove edit on double click
+        self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # self.view.currentChanged = self.on_item_changed
+        self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
+        
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+
+        self.button = QPushButton(button_text % self.title)
+        self.button.clicked.connect(self.model.append)
+
+        grid.addWidget(self.view, 0, 0)
+        grid.addWidget(self.button, 1, 0)
+
+    def on_item_changed(self, curr, prev):
+        if self._data:
+            if curr.indexes():
+                index = curr.indexes()[0]
+                correct_index = self.proxy_model.mapToSource(index)
+                row = correct_index.row()
+            else:
+                return
+            # new_data = curr.internalPointer()  # Internal pointer is way too powerful
+            # if not new_data:
+            new_data = self._data[row]
+            if self.display:
+                self.display.set_current(new_data)
+                self.display.setEnabled(True)
+
+    def set_display(self, disp):
+        self.display = disp
+        first_index = self.model.index(0, 0)
+        self.view.setCurrentIndex(first_index)
+
+    def update_list(self):
+        # self.model.layoutChanged.emit()
+        self.proxy_model.invalidateFilter()
+
 class EventProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
@@ -227,12 +291,16 @@ class EventProperties(QWidget):
         self.condition_box = PropertyBox("Condition", QLineEdit, self)
         self.condition_box.edit.setPlaceholderText("Condition required for event to fire")
         self.condition_box.edit.textChanged.connect(self.condition_changed)
+
+        self.only_once_box = PropertyCheckBox("Trigger only once?", QCheckBox, self)
+        self.only_once_box.edit.stateChanged.connect(self.only_once_changed)
         
         grid.addWidget(QHLine(), 2, 0)
         grid.addWidget(self.nid_box, 3, 0)
         grid.addWidget(self.level_nid_box, 4, 0)
         grid.addWidget(self.trigger_box, 5, 0)
         grid.addWidget(self.condition_box, 6, 0)
+        grid.addWidget(self.only_once_box, 7, 0, Qt.AlignLeft)
 
         bottom_section = QHBoxLayout()
         main_section.addLayout(bottom_section)
@@ -321,6 +389,8 @@ class EventProperties(QWidget):
             self.current.trigger = cur_val
 
     def level_nid_changed(self, idx):
+        print("Level Nid Change")
+        print(idx)
         if idx == 0:
             self.current.level_nid = None
             self.show_map_button.setEnabled(False)
@@ -343,6 +413,9 @@ class EventProperties(QWidget):
     def condition_changed(self, text):
         self.current.condition = text
 
+    def only_once_changed(self, state):
+        self.current.only_once = bool(state)
+
     def text_changed(self):
         self.current.commands.clear()
         text = self.text_box.toPlainText()
@@ -364,6 +437,7 @@ class EventProperties(QWidget):
             # self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
         self.trigger_box.edit.setValue(current.trigger)
         self.condition_box.edit.setText(current.condition)
+        self.only_once_box.edit.setChecked(bool(current.only_once))
 
         # Convert text
         text = ''

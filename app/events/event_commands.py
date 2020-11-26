@@ -229,6 +229,7 @@ class Shop(EventCommand):
     tag = 'general'
 
     keywords = ["ItemList"]
+    optional_keywords = ["ShopFlavor"]
 
 def get_commands():
     return EventCommand.__subclasses__()

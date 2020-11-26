@@ -1,16 +1,18 @@
 from collections import OrderedDict
 
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
+from app.engine.fonts import FONT
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
 from app.engine import engine, action, menus, interaction, image_mods, \
     banner, save, phase, skill_system, target_system, item_system, \
-    item_funcs, ui_view, info_menu
+    item_funcs, ui_view, info_menu, base_surf, gui, background, dialog, \
+    text_funcs
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
 
@@ -1125,6 +1127,7 @@ class ShopState(State):
         self.state = 'open'
         self.current_msg = self.get_dialog(self.opening_message)
 
+        self.message_bg = base_surf.create_base_surf((WINWIDTH + 8, 48), 'menu_bg_clear')
         self.money_counter_disp = gui.PopUpDisplay((223, 32))
 
         self.bg = background.create_background('rune_background')
@@ -1245,3 +1248,29 @@ class ShopState(State):
         elif event == 'INFO':
             if self.state == 'buy' or self.state == 'sell':
                 self.menu.toggle_info()
+                if self.menu.info_flag:
+                    SOUNDTHREAD.play_sfx('Info In')
+                else:
+                    SOUNDTHREAD.play_sfx('Info Out')
+
+    def update(self):
+        self.current_msg.update()
+        self.menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        surf.blit(self.message_bg, (-4, 8))
+        if self.current_msg:
+            self.current_msg.draw(surf)
+        if self.state == 'sell':
+            self.sell_menu.draw(surf)
+        else:
+            self.buy_menu.draw(surf)
+        if self.state == 'choice' and self.current_msg.is_done():
+            self.choice_menu.draw(surf)
+        surf.blit(self.portrait, (3, 0))
+        
+        surf.blit(SPRITES.get('money_bg'), (172, 48))
+        FONT['text-blue'].blit_right(str(game.get_money()), surf, (223, 48))
+        self.money_counter_disp.draw(surf)

@@ -1,6 +1,7 @@
 from app.data.database import DB
 
 from app.editor.base_database_gui import DatabaseTab
+from app.extensions.custom_gui import TableView
 from app.editor.data_editor import SingleDatabaseEditor
 
 from app.editor.event_editor import event_model, event_properties
@@ -13,7 +14,8 @@ class EventDatabase(DatabaseTab):
         right_frame = event_properties.EventProperties
 
         collection_model = event_model.EventModel
-        dialog = cls(data, title, right_frame, None, collection_model, parent)
+        collection = event_properties.EventCollection
+        dialog = cls(data, title, right_frame, None, collection_model, parent, view_type=TableView, collection_type=collection)
         return dialog
 
 # Testing

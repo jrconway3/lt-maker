@@ -15,7 +15,6 @@ from app.data.database import DB
 from app.utilities import str_utils
 from app.editor.base_database_gui import CollectionModel
 from app.events import event_prefab, event_commands, event_validators
-from app.editor.event_editor import event_model
 from app.editor import table_model
 from app.editor.map_view import SimpleMapView
 from app.extensions.custom_gui import TableView
@@ -37,20 +36,36 @@ class Highlighter(QSyntaxHighlighter):
             self.func_color = Qt.blue
             self.comment_color = Qt.darkGray
             self.bad_color = Qt.red
+            self.text_color = Qt.yellow
+            self.special_text_color = Qt.violet
+            self.special_func_color = Qt.red
         else:
             self.func_color = QColor(102, 217, 239)
             self.comment_color = QColor(117, 113, 94)
             self.bad_color = QColor(249, 38, 114)
+            self.text_color = QColor(230, 219, 116)
+            self.special_text_color = QColor(174, 129, 255)
+            self.special_func_color = (249, 38, 114)
 
         function_head_format = QTextCharFormat()
         function_head_format.setForeground(self.func_color)
-        function_head_format.setFontItalic(True)
-        self.function_head_rule = Rule(
+        # First part of line with semicolon
+        self.function_head_rule1 = Rule(
             QRegularExpression("^(.*?);"), function_head_format)
-        self.highlight_rules.append(self.function_head_rule)
+        # Any line without a semicolon
+        self.function_head_rule2 = Rule(
+            QRegularExpression("^[^;]+$"), function_head_format)
+        self.highlight_rules.append(self.function_head_rule1)
+        self.highlight_rules.append(self.function_head_rule2)
+
+        self.text_format = QTextCharFormat()
+        self.text_format.setForeground(self.text_color)
+        self.special_text_format = QTextCharFormat()
+        self.special_text_format.setForeground(self.special_text_color)
 
         comment_format = QTextCharFormat()
         comment_format.setForeground(self.comment_color)
+        comment_format.setFontItalic(True)
         self.comment_rule = Rule(
             QRegularExpression("#[^\n]*"), comment_format)
         self.highlight_rules.append(self.comment_rule)
@@ -79,6 +94,26 @@ class Highlighter(QSyntaxHighlighter):
                 if idx in broken_sections:
                     self.setFormat(running_length, len(section), lint_format)
                 running_length += len(section) + 1
+
+        # Extra formatting
+        for line in lines:
+            line = line.split('#', 1)[0]
+            if not line:
+                continue
+            sections = line.split(';')
+            # Handle text format
+            if sections[0] in ('s', 'speak') and len(sections) >= 3:
+                start = len(';'.join(sections[:2])) + 1
+                self.setFormat(start, len(sections[2]), self.text_format)
+                # Handle special text format
+                special_start = 0
+                for idx, char in enumerate(sections[2]):
+                    if char == '|':
+                        self.setFormat(start + idx, 1, self.special_text_format)
+                    elif char == '{':
+                        special_start = start + idx
+                    elif char == '}':
+                        self.setFormat(special_start, start + idx - special_start + 1, self.special_text_format)
 
     def validate_line(self, line) -> list:
         try:
@@ -245,7 +280,7 @@ class EventCollection(QWidget):
 
     def update_list(self):
         # self.model.layoutChanged.emit()
-        self.proxy_model.invalidateFilter()
+        self.proxy_model.invalidate()
 
 class EventProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -387,10 +422,9 @@ class EventProperties(QWidget):
             self.current.trigger = cur_val
         else:
             self.current.trigger = cur_val
+        self.window.update_list()
 
     def level_nid_changed(self, idx):
-        print("Level Nid Change")
-        print(idx)
         if idx == 0:
             self.current.level_nid = None
             self.show_map_button.setEnabled(False)
@@ -404,11 +438,12 @@ class EventProperties(QWidget):
 
         # Update trigger box to match current level
         self.trigger_box.edit.clear()
-        print(self.trigger_box.edit.count())
         if idx == 0:
             self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
         else:
             self.trigger_box.edit.addItems(self.get_trigger_items(self.current.level_nid))
+        self.trigger_box.edit.setValue(self.current.trigger)
+        self.window.update_list()
 
     def condition_changed(self, text):
         self.current.condition = text
@@ -426,10 +461,11 @@ class EventProperties(QWidget):
                 self.current.commands.append(command)
 
     def set_current(self, current):
+        print("Event Set Current")
         self.current = current
         self.nid_box.edit.setText(current.nid)
         # self.trigger_box.edit.clear()
-        if current.level_nid:
+        if current.level_nid is not None:
             self.level_nid_box.edit.setValue(current.level_nid)
             # self.trigger_box.edit.addItems(self.get_trigger_items(current.level_nid))
         else:

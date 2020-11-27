@@ -20,6 +20,14 @@ class EventCommand(Prefab):
     def to_plain_text(self):
         return ';'.join([self.nid] + self.values)
 
+class Comment(EventCommand):
+    nid = "comment"
+    nickname = '#'
+    tag = None
+
+    def to_plain_text(self):
+        return self.values[0]
+
 class If(EventCommand):
     nid = "if"
     tag = "flow"
@@ -244,6 +252,8 @@ def restore_command(dat):
     return None
 
 def parse_text(text):
+    if text.startswith('#'):
+        return Comment([text])
     arguments = text.split(';')
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()

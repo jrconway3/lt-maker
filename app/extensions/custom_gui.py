@@ -289,6 +289,11 @@ class TableView(RightClickTableView):
             self.model().delete(index)
             rows.append(orig_rows[i])
 
+    def duplicate(self, index):
+        new_index = self.model().duplicate(index)
+        if new_index:
+            self.setCurrentIndex(new_index)
+
     def new(self, index):
         new_index = self.model().new(index)
         if new_index:

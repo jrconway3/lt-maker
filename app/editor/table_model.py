@@ -1,5 +1,10 @@
+import copy
+
 from PyQt5.QtCore import Qt, QAbstractTableModel
 from PyQt5.QtCore import QSortFilterProxyModel
+
+from app.utilities.data import Prefab
+from app.utilities import str_utils
 
 class TableModel(QAbstractTableModel):
     rows = ['nid']
@@ -59,6 +64,23 @@ class TableModel(QAbstractTableModel):
             return new_index
         return None
 
+    def duplicate(self, index):
+        idx = index.row()
+        obj = self._data[idx]
+        new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
+        if isinstance(obj, Prefab):
+            serialized_obj = obj.save()
+            print("Duplication!")
+            print(serialized_obj, flush=True)
+            new_obj = self._data.datatype.restore(serialized_obj)
+        else:
+            new_obj = copy.copy(obj)
+        new_obj.nid = new_nid
+        self._data.insert(idx + 1, new_obj)
+        self.layoutChanged.emit()
+        new_index = self.index(idx + 1, 0)
+        return new_index
+
     def modify(self, indices):
         raise NotImplementedError
 
@@ -78,6 +100,14 @@ class ProxyModel(QSortFilterProxyModel):
     def new(self, index):
         index = self.mapToSource(index)
         new_index = self.sourceModel().new(index)
+        self.layoutChanged.emit()
+        if new_index:
+            return self.mapFromSource(new_index)
+        return None
+
+    def duplicate(self, index):
+        index = self.mapToSource(index)
+        new_index = self.sourceModel().duplicate(index)
         self.layoutChanged.emit()
         if new_index:
             return self.mapFromSource(new_index)

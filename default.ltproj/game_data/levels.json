@@ -87,7 +87,7 @@
             {
                 "nid": "O'Neill",
                 "team": "enemy",
-                "ai": "Guard",
+                "ai": "Defend",
                 "starting_position": [
                     10,
                     8

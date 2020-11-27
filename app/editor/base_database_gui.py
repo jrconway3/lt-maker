@@ -1,9 +1,9 @@
+import copy
+
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
     QSizePolicy, QSplitter
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtCore import QAbstractListModel
-
-import copy
 
 from app.utilities.data import Prefab
 from app.data import items

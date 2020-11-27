@@ -1,6 +1,6 @@
 [
     {
-        "nid": "Intro",
+        "nid": "Intro0",
         "trigger": "level_start",
         "level_nid": "0",
         "condition": "True",
@@ -456,7 +456,7 @@
                 ]
             ]
         ],
-        "only_once": null
+        "only_once": false
     },
     {
         "nid": "ONeillDeath",
@@ -468,12 +468,13 @@
                 "add_portrait",
                 [
                     "O'Neill",
-                    "FarRight"
+                    "Left"
                 ]
             ],
             [
                 "speak",
                 [
+                    "O'Neill",
                     "What? How?"
                 ]
             ],
@@ -495,10 +496,10 @@
                 []
             ]
         ],
-        "only_once": null
+        "only_once": false
     },
     {
-        "nid": "Outro",
+        "nid": "Outro0",
         "trigger": "level_end",
         "level_nid": "0",
         "condition": "True",
@@ -529,7 +530,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "What? Oh, no... I'm fine, Seth."
+                    "What?|Oh, no...{br}I'm fine, Seth."
                 ]
             ],
             [
@@ -543,7 +544,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "I'm fine... Fine.|...This is war, isn't it? It's not at all like the games I used to play with my brother or Lyon.|I never thought-- I didn't know it would this...savage.|Are words useless? Is strength all that matters?|It's so sad... Why would the Grado Empire do this? To what end would they start a war?"
+                    "I'm fine... Fine.|...This is war, isn't it?|It's not at all like the games I used to play with my brother or Lyon.|I never thought-- I didn't know it would this...savage.|Are words useless? Is strength all that matters?  It's so sad...|Why would the Grado Empire do this? To what end would they start a war?"
                 ]
             ],
             [
@@ -557,7 +558,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "...Don't worry, Seth. I won't give in to sorrow.|Let's get moving. I'm not broken, and I won't stop until I see Renais restored.|I won't stop until I'm reunited with my father and brother."
+                    "...Don't worry, Seth. I won't give in to sorrow.|Let's get moving.|I'm not broken, and I won't stop until I see Renais restored.|I won't stop until I'm reunited with my father and brother."
                 ]
             ],
             [
@@ -593,6 +594,64 @@
                 "remove_portrait",
                 [
                     "Seth"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
+        "nid": "EnemyTurn2",
+        "trigger": "enemy_turn_change",
+        "level_nid": "0",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "O'Neill",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "O'Neill",
+                    "What was that? Do you think you can take me, wretched lordling?|Come! It's time you high-and-mighty knights learned to respect a true warrior!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "O'Neill"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "nid": "ONeillFight",
+        "trigger": "combat_start",
+        "level_nid": "0",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "O'Neill",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "O'Neill",
+                    "You will be the first to die!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "O'Neill"
                 ]
             ]
         ],

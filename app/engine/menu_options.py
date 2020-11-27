@@ -58,8 +58,13 @@ class BasicOption():
     def height(self):
         return 16
 
+    def get_color(self):
+        if self.ignore:
+            return 'text-grey'
+        return self.color
+
     def draw(self, surf, x, y):
-        font = FONT[self.color]
+        font = FONT[self.get_color()]
         font.blit(self.display_text, surf, (x + 6, y))
 
     def draw_highlight(self, surf, x, y, menu_width):

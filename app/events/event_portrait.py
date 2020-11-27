@@ -27,8 +27,8 @@ class EventPortrait():
         self.portrait = portrait
         if not self.portrait.image:
             self.portrait.image = engine.image_load(self.portrait.full_path)
-            self.portrait.image = self.portrait.image.convert()
-            engine.set_colorkey(self.portrait.image, COLORKEY, rleaccel=True)
+        self.portrait.image = self.portrait.image.convert()
+        engine.set_colorkey(self.portrait.image, COLORKEY, rleaccel=True)
         self.position = position
         self.priority = priority
         self.transition = transition

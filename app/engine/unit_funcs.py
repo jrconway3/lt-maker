@@ -14,15 +14,15 @@ def get_next_level_up(unit) -> dict:
         if method == 'Match':
             method = DB.constants.value('player_leveling')
 
-    r = static_random.get_levelup(unit.nid, unit.get_internal_level * 100)
+    r = static_random.get_levelup(unit.nid, unit.get_internal_level())
 
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
     klass = DB.classes.get(unit.klass)
     for nid in DB.stats.keys():
-        growth = unit.growths[nid] + klass.growth_bonus[nid]
+        growth = unit.growths[nid] + klass.growth_bonus.get(nid).value
         if method == 'Fixed':
             stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
-            stat_changes[nid] = min(stat_changes, klass.max_stats[nid] - unit.stats[nid])
+            stat_changes[nid] = min(stat_changes, klass.max_stats.get(nid).value - unit.stats[nid])
             unit.growth_points[nid] = (unit.growth_points[nid] + growth) % 100
         elif method == 'Random':
             while growth > 0:
@@ -31,7 +31,7 @@ def get_next_level_up(unit) -> dict:
                 elif r.randint(0, 99) < growth:
                     stat_changes[nid] += 1
                 growth -= 100
-            stat_changes[nid] = min(stat_changes, klass.max_stats[nid] - unit.stats[nid])
+            stat_changes[nid] = min(stat_changes[nid], klass.max_stats.get(nid).value - unit.stats[nid])
         elif method == 'Dynamic':
             # Growth points used to modify growth 
             variance = 10.  # Lower to reduce variance

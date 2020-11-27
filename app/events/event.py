@@ -349,6 +349,9 @@ class Event():
         elif command.nid == 'give_item':
             self.give_item(command)
 
+        elif command.nid == 'give_exp':
+            self.give_exp(command)
+
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
             if values[0].lower() in ('1', 't', 'true', 'y', 'yes'):
@@ -371,6 +374,18 @@ class Event():
                 game.memory['shop_flavor'] = 'armory'
             game.state.change('shop')
             self.state = 'paused'
+
+        elif command.nid == 'change_ai':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return 
+            if values[1] in DB.ai.keys():
+                unit.ai = values[1]
+            else:
+                print("Couldn't find AI %s" % values[1])
+                return
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
@@ -881,6 +896,17 @@ class Event():
                 game.alerts.append(banner.SentToConvoy(item))
                 game.state.change('alert')
                 self.state = 'paused'
+
+    def give_exp(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit with nid %s" % values[0])
+            return
+        exp = utils.clamp(int(values[1]), 0, 100)
+        game.memory['exp'] = (unit, exp, None, 'init')
+        game.state.change('exp')
+        self.state = 'paused'
 
     def parse_pos(self, text):
         position = None

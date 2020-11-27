@@ -226,6 +226,12 @@ class GiveItem(EventCommand):
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
 
+class GiveExp(EventCommand):
+    nid = 'give_exp'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "PositiveInteger"]
+
 class Prep(EventCommand):
     nid = 'prep'
     tag = 'general'
@@ -238,6 +244,12 @@ class Shop(EventCommand):
 
     keywords = ["ItemList"]
     optional_keywords = ["ShopFlavor"]
+
+class ChangeAI(EventCommand):
+    nid = 'change_ai'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "AI"]   
 
 def get_commands():
     return EventCommand.__subclasses__()

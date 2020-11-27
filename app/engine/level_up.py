@@ -9,12 +9,12 @@ from app.engine import engine, image_mods, icons, unit_funcs, action
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
-from app.engine.state import State
+from app.engine.state import State, MapState
 from app.engine.state_machine import SimpleStateMachine
 from app.engine.animations import Animation
 from app.engine.game_state import game
 
-class ExpState(State):
+class ExpState(MapState):
     name = 'exp'
     transparent = True
 
@@ -180,7 +180,7 @@ class ExpState(State):
         elif self.state.get_state() == 'level_screen':
             if not self.level_up_screen:
                 self.level_up_screen = LevelUpScreen(
-                    self.unit, self.start_changes, self.old_level, self.unit.level)
+                    self.unit, self.stat_changes, self.old_level, self.unit.level)
             if self.level_up_screen.update(current_time):
                 game.state.back()
                 if self.combat_object:
@@ -289,6 +289,7 @@ class ExpState(State):
                 game.state.back()
 
     def draw(self, surf):
+        surf = super().draw(surf)
         if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
             if self.exp_bar:
                 self.exp_bar.draw(surf)
@@ -299,13 +300,14 @@ class ExpState(State):
                 self.level_up_animation.draw(surf)
 
         elif self.state.get_state() == 'level_screen':
-            if self.level_screen:
-                self.level_screen.draw(surf)
+            if self.level_up_screen:
+                self.level_up_screen.draw(surf)
 
         return surf
 
 class LevelUpScreen():
     bg = SPRITES.get('level_screen')
+    bg = bg.convert_alpha()
     width = bg.get_width()
     height = bg.get_height()
 
@@ -328,7 +330,7 @@ class LevelUpScreen():
         self.underline_offset = 36
 
         self.animations = []
-        self.arrow_animaitons = []
+        self.arrow_animations = []
 
         self.state = 'scroll_in'
         self.start_time = 0
@@ -405,7 +407,7 @@ class LevelUpScreen():
 
                 # Number
                 increase = utils.clamp(self.stat_list[self.current_spark], 1, 7)
-                anim = RESOURCES.get('LevelUpNumber' + str(increase))
+                anim = RESOURCES.animations.get('LevelUpNumber' + str(increase))
                 if anim:
                     number_animation = Animation(anim, (pos[0] + 43, pos[1] + 49), delay=80, hold=True)
                     self.animations.append(number_animation)
@@ -435,14 +437,13 @@ class LevelUpScreen():
 
         # Render top
         klass = DB.classes.get(self.unit.klass)
-        long_name = klass.long_name
-        FONT['text-white'].blit(long_name, sprite, (12, 3))
+        FONT['text-white'].blit(klass.name, sprite, (12, 3))
         FONT['text-yellow'].blit('Lv', sprite, (self.width//2 + 12, 3))
         if self.state in ('scroll_in', 'init_wait'):
             level = str(self.old_level)
         else:
             level = str(self.new_level)
-        width = FONT['text-blue'].size(level)[0]
+        width = FONT['text-blue'].width(level)
         FONT['text-blue'].blit(level, sprite, (self.width//2 + 50 - width, 3))
 
         # Render underlines
@@ -469,10 +470,13 @@ class LevelUpScreen():
 
         # Draw stats
         for idx, stat in enumerate(DB.stats.keys()):
+            # Can only show first 8 stats on levelup
+            if idx >= len(self.stat_list):
+                continue
             pos = self.get_position(idx)
             FONT['text-yellow'].blit(stat, sprite, pos)
             text = self.unit.stats[stat] - (self.stat_list[idx] if self.current_spark < idx else 0)
-            width = FONT['text-blue'].size(str(text))[0]
+            width = FONT['text-blue'].width(str(text))
             FONT['text-blue'].blit(str(text), sprite, (pos[0] + 40 - width, pos[1]))
 
         pos = (6 - self.screen_scroll_offset, WINHEIGHT - 8 - self.height)

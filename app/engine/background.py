@@ -151,7 +151,7 @@ class TransitionBackground():
                 yindex += self.height
             xindex += self.width
 
-def create_background(self, bg_name):
+def create_background(bg_name):
     panorama = RESOURCES.panoramas.get(bg_name)
     if not panorama:
         panorama = RESOURCES.panoramas.get('default_background')

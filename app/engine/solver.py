@@ -106,6 +106,7 @@ class CombatPhaseSolver():
 
     def setup_next_state(self):
         next_state = self.state.get_next_state(self)
+        logger.debug("Next State: %s" % next_state)
         if next_state:
             self.state = self.states[next_state]()
         else:
@@ -148,13 +149,13 @@ class CombatPhaseSolver():
             if DB.constants.get('crit').value or self.current_command in ('crit1', 'crit2'):
                 to_crit = combat_calcs.compute_crit(attacker, defender, item, mode)
                 if self.current_command in ('crit1', 'crit2'):
-                    crit_roll = -1
-                elif self.current_command in ('hit1', 'hit2', 'miss1', 'miss2'):
-                    crit_roll = 100
-                else:
-                    crit_roll = self.generate_crit_roll()
-                if crit_roll < to_crit:
                     crit = True
+                elif self.current_command in ('hit1', 'hit2', 'miss1', 'miss2'):
+                    crit = False
+                elif to_crit is not None:
+                    crit_roll = self.generate_crit_roll()
+                    if crit_roll < to_crit:
+                        crit = True
             if crit:
                 item_system.on_crit(actions, playback, attacker, item, defender, mode)
                 playback.append(('mark_crit', attacker, defender))

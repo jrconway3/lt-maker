@@ -6,6 +6,13 @@
         "condition": "True",
         "commands": [
             [
+                "give_exp",
+                [
+                    "Eirika",
+                    "100"
+                ]
+            ],
+            [
                 "remove_unit",
                 [
                     "Eirika",
@@ -490,10 +497,6 @@
                 [
                     "O'Neill"
                 ]
-            ],
-            [
-                "win_game",
-                []
             ]
         ],
         "only_once": false
@@ -572,9 +575,9 @@
     },
     {
         "nid": "OnlyBoss",
-        "trigger": "unit_death",
+        "trigger": "combat_end",
         "level_nid": "0",
-        "condition": "len([unit for unit in game.level.units if unit.team == 'enemy']) == 1",
+        "condition": "len(game.get_enemy_units()) == 1",
         "commands": [
             [
                 "add_portrait",
@@ -624,6 +627,13 @@
                 [
                     "O'Neill"
                 ]
+            ],
+            [
+                "change_ai",
+                [
+                    "O'Neill",
+                    "Defend"
+                ]
             ]
         ],
         "only_once": false
@@ -656,5 +666,18 @@
             ]
         ],
         "only_once": true
+    },
+    {
+        "nid": "Win0",
+        "trigger": "combat_end",
+        "level_nid": "0",
+        "condition": "game.check_dead(\"O'Neill\")",
+        "commands": [
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false
     }
 ]

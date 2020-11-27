@@ -741,21 +741,27 @@ class AddSkill(Action):
             action.reverse()
 
 class RemoveSkill(Action):
-    def __init__(self, unit, skill_obj):
+    def __init__(self, unit, skill):
         self.unit = unit
-        self.skill_obj = skill_obj
-        self.did_remove = False
+        self.skill = skill # Skill obj or skill nid str
+        self.removed_skills = []
 
     def do(self):
-        if self.skill_obj in self.unit.skills:
-            self.unit.skills.remove(self.skill_obj)
-            self.did_remove = True
+        if isinstance(self.skill, str):
+            for skill in self.unit.skills[:]:
+                if skill.nid == self.skill:
+                    self.unit.skills.remove(skill)
+                    self.removed_skills.append(skill)
         else:
-            logger.warning("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
+            if self.skill in self.unit.skills:
+                self.unit.skills.remove(self.skill)
+                self.removed_skills.append(self.skill)
+            else:
+                logger.warning("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
 
     def reverse(self):
-        if self.did_remove:
-            self.unit.skills.append(self.skill_obj)
+        for skill in self.removed_skills:
+            self.unit.skills.append(skill)
 
 # === Master Functions for adding to the action log ===
 def do(action):

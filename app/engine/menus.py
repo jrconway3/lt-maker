@@ -113,6 +113,7 @@ class Simple():
     def set_ignore(self, ignores):
         for idx, option in enumerate(self.options):
             option.ignore = ignores[idx]
+        self.current_index = self.get_first_option().idx
 
     def set_cursor(self, val):
         self.draw_cursor = val
@@ -141,6 +142,16 @@ class Simple():
     def get_current_option(self):
         return self.options[self.current_index]
 
+    def get_first_option(self):
+        for option in self.options:
+            if not option.ignore:
+                return option
+
+    def get_last_option(self):
+        for option in reversed(self.options):
+            if not option.ignore:
+                return option
+
     def get_current_index(self):
         return self.current_index
 
@@ -152,6 +163,8 @@ class Simple():
     def move_to(self, idx):
         if engine.get_time() > self.next_scroll_time:
             scroll = self.scroll
+            if self.options[idx].ignore:
+                return
             while self.current_index < idx:
                 self.move_down()
             while self.current_index > idx:
@@ -316,8 +329,10 @@ class Choice(Simple):
         if first_push:
             super().move_down(True)
             while self.options[self.current_index].ignore:
+                self.cursor.y_offset = 0  # Reset y offset
                 super().move_down(True)
-
+            if self.get_current_option() == self.get_first_option():
+                self.cursor.y_offset = 0
         else:
             if any(not option.ignore for option in self.options[self.current_index+1:]):
                 super().move_down(False)
@@ -331,7 +346,10 @@ class Choice(Simple):
         if first_push:
             super().move_up(True)
             while self.options[self.current_index].ignore:
+                self.cursor.y_offset = 0
                 super().move_up(True)
+            if self.get_current_option() == self.get_last_option():
+                self.cursor.y_offset = 0
 
         else:
             if any(not option.ignore for option in self.options[:self.current_index]):

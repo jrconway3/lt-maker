@@ -262,10 +262,8 @@ def get_display_widget(component, parent):
             delegate = WeaponTypeDelegate
 
         if component.expose[0] == Type.List:
-            component.value = []
             c = ListItemComponent(component, parent, delegate)
         elif component.expose[0] == Type.Dict:
-            component.value = {}
             c = DictItemComponent(component, parent, delegate)
 
     else:  # TODO

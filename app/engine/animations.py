@@ -10,6 +10,7 @@ class Animation():
     def __init__(self, anim, position, delay=0, loop=0, hold=False):
         if not anim.image:
             anim.image = engine.image_load(anim.full_path)
+            anim.image = anim.image.convert_alpha()
         self.sprite = anim.image
         self.position = position
         self.frame_x, self.frame_y = anim.frame_x, anim.frame_y

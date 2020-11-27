@@ -311,7 +311,9 @@
             ],
             [
                 "prf_unit",
-                []
+                [
+                    "Eirika"
+                ]
             ],
             [
                 "effective",
@@ -319,7 +321,10 @@
             ],
             [
                 "effective_tag",
-                []
+                [
+                    "Horse",
+                    "Armor"
+                ]
             ]
         ]
     },
@@ -1117,6 +1122,10 @@
             0
         ],
         "components": [
+            [
+                "usable",
+                null
+            ],
             [
                 "value",
                 300

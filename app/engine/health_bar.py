@@ -176,14 +176,14 @@ class MapCombatInfo():
         stat_surf = self.c_surf.copy()
         # Blit hit
         if self.hit is not None:
-            hit = str(self.hit)
+            hit = str(utils.clamp(self.hit, 0, 100))
         else:
             hit = '--'
         position = stat_surf.get_width() // 2 - FONT['number-small2'].size(hit)[0] - 1, -2
         FONT['number-small2'].blit(hit, stat_surf, position)
         # Blit damage
         if self.mt is not None:
-            damage = str(self.mt)
+            damage = str(max(0, self.mt))
         else:
             damage = '--'
         position = stat_surf.get_width() - FONT['number-small2'].size(damage)[0] - 2, -2

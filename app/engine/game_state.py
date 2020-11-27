@@ -278,6 +278,18 @@ class GameState():
     def get_party(self, party_nid):
         return self.parties.get(party_nid)
 
+    def get_player_units(self):
+        return [unit for unit in self.level.units if unit.team == 'player' and unit.position and not unit.dead and not unit.is_dying]
+
+    def get_enemy_units(self):
+        return [unit for unit in self.level.units if unit.team.startswith('enemy') and unit.position and not unit.dead and not unit.is_dying]
+
+    def check_dead(self, nid):
+        return any(unit.nid == nid and (unit.dead or unit.is_dying) for unit in game.level.units)
+
+    def check_alive(self, nid):
+        return any(unit.nid == nid and not (unit.dead or unit.is_dying) for unit in game.level.units)
+
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):
         from app.engine import action
@@ -305,7 +317,8 @@ class GameState():
                 terrain_nid = self.tilemap.get_terrain(unit.position)
                 terrain = DB.terrain.get(terrain_nid)
                 if terrain.status:
-                    action.do(action.AddSkill(unit, terrain.status))
+                    new_skill = DB.skills.get(terrain.status)
+                    action.do(action.AddSkill(unit, new_skill))
             # Auras
 
     def check_for_region(self, position, region_type):

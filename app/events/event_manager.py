@@ -2,6 +2,9 @@ from app.data.database import DB
 from app.events.event import Event
 from app.engine.game_state import game
 
+import logging
+logger = logging.getLogger(__name__)
+
 class EventManager():
     def __init__(self):
         self.events = []  # A stack of events
@@ -10,7 +13,7 @@ class EventManager():
         unit1 = unit
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
-            print(event_prefab.trigger, event_prefab.condition)
+            logger.debug("%s %s %s", event_prefab.trigger, event_prefab.condition, eval(event_prefab.condition))
             if event_prefab.nid not in game.already_triggered_events and eval(event_prefab.condition):
                 triggered_events.append(event_prefab)
 

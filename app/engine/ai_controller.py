@@ -542,11 +542,12 @@ class SecondaryAI():
 
             max_damage = 0
             status_term = 0
-            items = [item for item in self.unit.items if self.unit.can_wield(item)]
+            items = [item for item in item_funcs.get_all_items(self.unit) if 
+                     item_system.available(self.unit, item)]
             for item in items:
                 if item.status:
                     status_term = 1
-                if item.weapon or item.spell:
+                if item_system.is_weapon(self.unit, item) or item_system.is_spell(self.unit, item):
                     raw_damage = combat_calcs.compute_damage(self.unit, enemy, item)
                     hit = utils.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
                     true_damage = raw_damage * hit

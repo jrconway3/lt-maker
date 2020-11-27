@@ -115,14 +115,12 @@ class Dialog():
                 pass
             else:
                 current_line += command
-        print(current_line)
         if current_line:
             split_lines = self.get_lines_from_block(current_line)
             width = max(width, max(self.font.width(s) for s in split_lines))
             # Account for "waiting cursor"
             if len(split_lines) == 1:
                 width += 16
-        print(width)
         return width
 
     def determine_size(self):
@@ -140,7 +138,6 @@ class Dialog():
         if len(block) <= 24:
             num_lines = 1
         lines = text_funcs.split(self.font, block, num_lines, WINWIDTH - 16)
-        print(lines)
         return lines
 
     def _next_line(self):

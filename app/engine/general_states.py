@@ -48,6 +48,9 @@ class TurnChangeState(MapState):
             # game.state.change('status_upkeep')
             game.state.change('phase_change')
             # game.state.change('end_step')
+            # EVENTS TRIGGER HERE
+            if game.phase.get_current() == 'enemy':
+                game.events.trigger('enemy_turn_change')
 
     def take_input(self, event):
         return 'repeat'
@@ -177,18 +180,24 @@ class OptionMenuState(MapState):
         game.cursor.hide()
         options = ['Unit', 'Objective', 'Options']
         info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
+        ignore = [True, True, False]
         if DB.constants.get('permadeath').value:
             options.append('Suspend')
             info_desc.append('Suspend_desc')
+            ignore.append(False)
         else:
             options.append('Save')
             info_desc.append('Save_desc')
+            ignore.append(False)
         options.append('End')
         info_desc.append('End_desc')
+        ignore.append(False)
         if DB.constants.get('turnwheel').value:
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
+            ignore.insert(1, False)
         self.menu = menus.Choice(None, options, info=info_desc)
+        self.menu.set_ignore(ignore)
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -590,7 +599,7 @@ class ItemState(MapState):
 
 class ItemChildState(MapState):
     name = 'item_child'
-    transparet = True
+    transparent = True
 
     def begin(self):
         parent_menu = game.memory['parent_menu']
@@ -1045,7 +1054,7 @@ class AIState(MapState):
         # Sort by distance to closest enemy (ascending)
         self.unit_list = sorted(self.unit_list, key=lambda unit: target_system.distance_to_closest_enemy(unit))
         # Sort ai groups together
-        self.unit_list = sorted(self.unit_list, key=lambda unit: unit.ai_group)
+        self.unit_list = sorted(self.unit_list, key=lambda unit: unit.get_group() or '')
         # Sort by ai priority
         self.unit_list = sorted(self.unit_list, key=lambda unit: DB.ai.get(unit.ai).priority)
         # Reverse, because we will be popping them off at the end

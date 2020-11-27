@@ -4,6 +4,8 @@ from app.engine import equations, item_system, skill_system
 
 def get_weapon_rank_bonus(unit, item):
     weapon_type = item_system.weapon_type(unit, item)
+    if not weapon_type:
+        return None
     rank_bonus = DB.weapons.get(weapon_type).rank_bonus
     wexp = unit.wexp[weapon_type]
     for combat_bonus in rank_bonus:
@@ -145,7 +147,7 @@ def attack_speed(unit, item=None):
     if weapon_rank_bonus:
         attack_speed += int(weapon_rank_bonus.attack_speed)
 
-    attack_speed = skill_system.modify_attack_speed(unit, item)
+    attack_speed += skill_system.modify_attack_speed(unit, item)
     # TODO
     # Support bonus
 
@@ -204,6 +206,8 @@ def compute_crit(unit, target, item=None, mode=None):
         return None
 
     crit = crit_accuracy(unit, item)
+    if crit is None:
+        return None
 
     # Handles things like effective accuracy
     crit += item_system.dynamic_crit_accuracy(unit, item, target, mode)
@@ -239,6 +243,8 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
         return None
 
     might = damage(unit, item)
+    if might is None:
+        return None
 
     # Handles things like effective damage
     might += item_system.dynamic_damage(unit, item, target, mode)

@@ -13,6 +13,7 @@ class ControlOption(menu_options.BasicOption):
         self.display_name = text_funcs.translate(name)
         self.icon = icon
         self.help_box = None
+        self.ignore = False
 
     def get(self):
         return self.name
@@ -41,6 +42,7 @@ class ConfigOption(menu_options.BasicOption):
         self.icon = icon
         self.help_box = None
         self.values = values
+        self.ignore = False
 
     def get(self):
         return self.name

@@ -95,7 +95,11 @@ class UnitObject(Prefab):
         return self.current_mana
 
     def set_mana(self, val):
-        self.current_mana = int(utils.clamp(val, 0, equations.parser.mana(self)))
+        if 'MANA' in DB.equations:
+            max_mana = equations.parser.mana(self)
+            self.current_mana = int(utils.clamp(val, 0, max_mana))
+        else:
+            self.current_mana = 0
 
     def get_fatigue(self):
         return self.current_fatigue
@@ -235,6 +239,15 @@ class UnitObject(Prefab):
                     return running_total
             return running_total 
 
+    def get_group(self) -> str:
+        if not game.level:
+            return None
+        groups = game.level.unit_groups
+        for group in groups:
+            if self in group.units:
+                return group.nid
+        return None
+
     @property
     def finished(self):
         return self._finished
@@ -331,7 +344,10 @@ class UnitObject(Prefab):
     def restore(cls, s_dict):
         self = cls()
         self.nid = s_dict['nid']
-        self.position = self.previous_position = tuple(s_dict['position'])
+        if s_dict['position']:
+            self.position = self.previous_position = tuple(s_dict['position'])
+        else:
+            self.position = self.previous_position = None
         self.team = s_dict['team']
         self.party = s_dict['party']
         self.klass = s_dict['klass']

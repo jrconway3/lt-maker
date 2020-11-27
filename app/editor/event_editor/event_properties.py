@@ -88,12 +88,15 @@ class Highlighter(QSyntaxHighlighter):
             if not line:
                 continue
             broken_sections = self.validate_line(line)
-            sections = line.split(';')
-            running_length = 0
-            for idx, section in enumerate(sections):
-                if idx in broken_sections:
-                    self.setFormat(running_length, len(section), lint_format)
-                running_length += len(section) + 1
+            if broken_sections == 'all':
+                self.setFormat(0, len(line), lint_format)
+            else:
+                sections = line.split(';')
+                running_length = 0
+                for idx, section in enumerate(sections):
+                    if idx in broken_sections:
+                        self.setFormat(running_length, len(section), lint_format)
+                    running_length += len(section) + 1
 
         # Extra formatting
         for line in lines:
@@ -121,6 +124,8 @@ class Highlighter(QSyntaxHighlighter):
             if command:
                 true_values, flags = event_commands.parse(command)
                 broken_args = []
+                if len(command.keywords) > len(true_values):
+                    return 'all'
                 for idx, value in enumerate(true_values):
                     if idx >= len(command.keywords):
                         i = idx - len(command.keywords)
@@ -142,7 +147,7 @@ class Highlighter(QSyntaxHighlighter):
             else:
                 return [0]  # First arg is broken
         except:
-            return []
+            return 'all'
 
 class LineNumberArea(QWidget):
     def __init__(self, parent):

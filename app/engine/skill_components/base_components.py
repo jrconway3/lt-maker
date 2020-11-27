@@ -85,7 +85,17 @@ class Avoid(SkillComponent):
 
 class Hidden(SkillComponent):
     nid = 'hidden'
-    desc = "Status will not show up on screen"
+    desc = "Skill will not show up on screen"
+    tag = "base"
+
+class ClassSkill(SkillComponent):
+    nid = 'class_skill'
+    desc = "Skill will show up on first page of info menu"
+    tag = "base"
+
+class Stack(SkillComponent):
+    nid = 'stack'
+    desc = "Skill can be applied to a unit multiple times"
     tag = "base"
 
 class Time(SkillComponent):

@@ -53,7 +53,7 @@
         "minimap": "Thicket",
         "platform": "Thicket",
         "mtype": "Thicket",
-        "status": null
+        "status": "Peak"
     },
     {
         "nid": "4",
@@ -81,7 +81,7 @@
         "minimap": "Sea",
         "platform": "Lake",
         "mtype": "Sea",
-        "status": null
+        "status": "Avoid10"
     },
     {
         "nid": "11",
@@ -95,7 +95,7 @@
         "minimap": "Sea",
         "platform": "Sea",
         "mtype": "Sea",
-        "status": null
+        "status": "Avoid10"
     },
     {
         "nid": "12",
@@ -123,7 +123,7 @@
         "minimap": "Hill",
         "platform": "Hill",
         "mtype": "Hill",
-        "status": null
+        "status": "Mountain"
     },
     {
         "nid": "21",
@@ -137,7 +137,7 @@
         "minimap": "Mountain",
         "platform": "Mountain",
         "mtype": "Mountain",
-        "status": null
+        "status": "Peak"
     },
     {
         "nid": "22",
@@ -165,7 +165,7 @@
         "minimap": "House",
         "platform": "House",
         "mtype": "Normal",
-        "status": null
+        "status": "Avoid10"
     },
     {
         "nid": "31",
@@ -179,7 +179,7 @@
         "minimap": "Fort",
         "platform": "Fort",
         "mtype": "Fort",
-        "status": "Regeneration"
+        "status": "Fort"
     },
     {
         "nid": "32",
@@ -193,6 +193,34 @@
         "minimap": "Throne",
         "platform": "Gate",
         "mtype": "Throne",
-        "status": null
+        "status": "Fort"
+    },
+    {
+        "nid": "33",
+        "name": "Armory",
+        "color": [
+            168,
+            1,
+            4,
+            255
+        ],
+        "minimap": "Shop",
+        "platform": "Armory",
+        "mtype": "Normal",
+        "status": "Avoid10"
+    },
+    {
+        "nid": "35",
+        "name": "Village",
+        "color": [
+            85,
+            0,
+            0,
+            255
+        ],
+        "minimap": "House",
+        "platform": "Village",
+        "mtype": "Normal",
+        "status": "Avoid10"
     }
 ]

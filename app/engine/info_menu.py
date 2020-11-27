@@ -792,11 +792,11 @@ class InfoMenuState(State):
 
     def create_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
-        statuses = [skill for skill in self.unit.skills if not (skill.class_skill or skill.hidden)][:6]
+        skills = [skill for skill in self.unit.skills if not (skill.class_skill or skill.hidden)][:6]
 
-        for idx, status in enumerate(statuses):
-            left_pos = idx * (WINWIDTH - 96) // len(statuses)
-            icons.draw_skill(surf, status, (left_pos + 8, 4), compact=False)
+        for idx, skill in enumerate(skills):
+            left_pos = idx * 24
+            icons.draw_skill(surf, skill, (left_pos + 8, 4), compact=False)
 
         return surf
 
@@ -805,10 +805,10 @@ class InfoMenuState(State):
 
     def create_class_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
-        class_skills = [skill for skill in self.unit.skills if skill.class_skill and not skill.hidden]
+        class_skills = [skill for skill in self.unit.skills if skill.class_skill and not skill.hidden][:6]
 
         for idx, skill in enumerate(class_skills):
-            left_pos = idx * (WINWIDTH - 96) // 6
+            left_pos = idx * 24
             icons.draw_skill(surf, (left_pos + 8, 4))
 
         return surf

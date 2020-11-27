@@ -1,4 +1,5 @@
 from app.utilities.data import Data, Prefab
+import app.engine.skill_component_access as SCA
 
 class LearnedSkill(Prefab):
     def __init__(self, level, skill_nid):
@@ -49,13 +50,13 @@ class SkillPrefab(Prefab):
 
     @classmethod
     def restore(cls, dat):
-        item_components = Data()
-        # components = [ICS.restore_component(val) for val in dat['components']]
-        # for component in components:
-        #     item_components.append(component)
+        skill_components = Data()
+        components = [SCA.restore_component(val) for val in dat['components']]
+        for component in components:
+            skill_components.append(component)
         i = cls(dat['nid'], dat['name'], dat['desc'],
                 dat['icon_nid'], dat['icon_index'],
-                item_components)
+                skill_components)
         return i
 
 class SkillCatalog(Data):

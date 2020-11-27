@@ -8,18 +8,40 @@
             1,
             4
         ],
-        "components": []
+        "components": [
+            [
+                "canto",
+                null
+            ]
+        ]
     },
     {
-        "nid": "Regeneration",
-        "name": "Regeneration",
+        "nid": "Fort",
+        "name": "Fort",
         "desc": "",
         "icon_nid": "Skills",
         "icon_index": [
             1,
             2
         ],
-        "components": []
+        "components": [
+            [
+                "regeneration",
+                0.2
+            ],
+            [
+                "avoid",
+                20
+            ],
+            [
+                "defense",
+                2
+            ],
+            [
+                "hidden",
+                null
+            ]
+        ]
     },
     {
         "nid": "Forest",
@@ -30,6 +52,107 @@
             0,
             0
         ],
-        "components": []
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "defense",
+                1
+            ],
+            [
+                "avoid",
+                20
+            ]
+        ]
+    },
+    {
+        "nid": "Mountain",
+        "name": "Mountain",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "defense",
+                1
+            ],
+            [
+                "avoid",
+                30
+            ]
+        ]
+    },
+    {
+        "nid": "Peak",
+        "name": "Peak",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "defense",
+                2
+            ],
+            [
+                "avoid",
+                40
+            ]
+        ]
+    },
+    {
+        "nid": "Avoid10",
+        "name": "Avoid10",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "avoid",
+                10
+            ]
+        ]
+    },
+    {
+        "nid": "Avoid5",
+        "name": "Avoid5",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "avoid",
+                5
+            ]
+        ]
     }
 ]

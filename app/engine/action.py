@@ -9,6 +9,9 @@ from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Action():
     def __init__(self):
         pass
@@ -711,6 +714,48 @@ class RecordRandomState(Action):
 
     def reverse(self):
         static_random.set_combat_random_state(self.old)
+
+class AddSkill(Action):
+    def __init__(self, unit, skill_obj):
+        self.unit = unit
+        self.skill_obj = skill_obj
+        self.subactions = []
+
+    def do(self):
+        # Remove any skills with previous name
+        if not self.skill_obj.stack and self.skill_obj.nid in [skill.nid for skill in self.unit.skills]:
+            logger.info("Skill %s already present" % self.skill_obj.nid)
+            for skill in self.unit.skills:
+                if skill.nid == self.skill_obj.nid:
+                    self.subactions.append(RemoveSkill(self.unit, skill))
+        for action in self.subactions:
+            action.execute()
+        self.unit.skills.append(self.skill_obj)
+
+    def reverse(self):
+        if self.skill_obj in self.unit.skills:
+            self.unit.skills.remove(self.skill_obj)
+        else:
+            logger.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
+        for action in self.subactions:
+            action.reverse()
+
+class RemoveSkill(Action):
+    def __init__(self, unit, skill_obj):
+        self.unit = unit
+        self.skill_obj = skill_obj
+        self.did_remove = False
+
+    def do(self):
+        if self.skill_obj in self.unit.skills:
+            self.unit.skills.remove(self.skill_obj)
+            self.did_remove = True
+        else:
+            logger.warning("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
+
+    def reverse(self):
+        if self.did_remove:
+            self.unit.skills.append(self.skill_obj)
 
 # === Master Functions for adding to the action log ===
 def do(action):

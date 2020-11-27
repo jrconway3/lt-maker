@@ -280,21 +280,32 @@ class GameState():
 
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):
+        from app.engine import action
         if unit.position:
             logger.info("Leave %s %s", unit.nid, unit.position)
             if not test:
                 self.board.set_unit(unit.position, None)
                 self.boundary.leave(unit)
             # Tiles
+            terrain_nid = self.tilemap.get_terrain(unit.position)
+            terrain = DB.terrain.get(terrain_nid)
+            if terrain.status:
+                action.do(action.RemoveSkill(unit, terrain.status))
         # Auras
 
     def arrive(self, unit, test=False):
+        from app.engine import skill_system, action
         if unit.position:
             logger.info("Arrive %s %s", unit.nid, unit.position)
             if not test:
                 self.board.set_unit(unit.position, unit)
                 self.boundary.arrive(unit)
             # Tiles
+            if not skill_system.ignore_terrain(unit):
+                terrain_nid = self.tilemap.get_terrain(unit.position)
+                terrain = DB.terrain.get(terrain_nid)
+                if terrain.status:
+                    action.do(action.AddSkill(unit, terrain.status))
             # Auras
 
     def check_for_region(self, position, region_type):

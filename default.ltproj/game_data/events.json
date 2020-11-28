@@ -501,6 +501,24 @@
         "condition": "True",
         "commands": [
             [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
                 "add_portrait",
                 [
                     "Seth",
@@ -635,7 +653,7 @@
         "nid": "ONeillFight",
         "trigger": "combat_start",
         "level_nid": "0",
-        "condition": "True",
+        "condition": "unit.nid == \"O'Neill\"",
         "commands": [
             [
                 "add_portrait",
@@ -669,6 +687,136 @@
             [
                 "win_game",
                 []
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "nid": "House1",
+        "trigger": "Visit",
+        "level_nid": "1",
+        "condition": "region.nid == 'House1'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "House"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man1",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "The rumors are true, aren't they? The Grado army's taken over the castle|It looks like they've seized the castle gate, too.|Smart work--the gate provides defense and heals wounds to boot.|They must be fierce warriors to have taken the gate. Watch yourself."
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "nid": "House2",
+        "trigger": "Visit",
+        "level_nid": "1",
+        "condition": "region.nid == 'House2'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "House"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man2",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "That knight encamped at the castle was wearing the finest armor I've seen.|It looked like it could turn aside alomst any blade you swing at it.|I know my armor, though. I wager a good rapier or armorslayer could get through it."
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false

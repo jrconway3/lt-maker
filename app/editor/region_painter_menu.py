@@ -51,7 +51,7 @@ class RegionMenu(QWidget):
         self.display = self.modify_region_widget
 
     def on_visibility_changed(self, state):
-        pass
+        self.set_current_level(self.main_editor.current_level)
 
     def tick(self):
         pass
@@ -68,6 +68,10 @@ class RegionMenu(QWidget):
         self.modify_region_widget._data = self._data
         if len(self._data):
             self.modify_region_widget.setEnabled(True)
+            reg = self._data[0]
+            if reg.position:
+                self.map_view.center_on_pos(reg.center)
+            self.modify_region_widget.set_current(reg)
         else:
             self.modify_region_widget.setEnabled(False)
 
@@ -170,7 +174,7 @@ class ModifyRegionWidget(QWidget):
         self.condition_box.edit.textChanged.connect(self.condition_changed)
         layout.addWidget(self.condition_box)
 
-        self.only_once_box = PropertyCheckBox("Remove on activate?", QCheckBox, self)
+        self.only_once_box = PropertyCheckBox("Only once?", QCheckBox, self)
         self.only_once_box.edit.stateChanged.connect(self.only_once_changed)
         layout.addWidget(self.only_once_box)
 
@@ -241,7 +245,7 @@ class ModifyRegionWidget(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.region_type_box.edit.setValue(current.region_type)
         self.condition_box.edit.setText(current.condition)
-        self.only_once_box.edit.setText(current.only_once)
+        self.only_once_box.edit.setChecked(bool(current.only_once))
         if current.region_type == 'Status':
             self.status_box.edit.setValue(current.sub_nid)
         elif current.region_type == 'Event':

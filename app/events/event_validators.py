@@ -45,6 +45,8 @@ class Portrait(Validator):
             return text
         elif text in RESOURCES.portraits.keys():
             return text
+        elif text in ('{unit}', '{unit1}', '{unit2}'):
+            return text
         return None
 
 class AI(Validator):
@@ -158,6 +160,8 @@ class Unit(Validator):
         nids = [u.nid for u in level.units]
         if text in nids:
             return text
+        elif text in ('{unit}', '{unit1}', '{unit2}'):
+            return True
         return None
 
 class Group(Validator):
@@ -179,6 +183,8 @@ class GlobalUnit(Validator):
             return text
         elif text in DB.units.keys():
             return text
+        elif text in ('{unit}', '{unit1}', '{unit2}'):
+            return True
         return None
 
 class StartingGroup(Validator):
@@ -206,7 +212,7 @@ class MovementType(OptionValidator):
 class RemoveType(OptionValidator):
     valid = ['fade', 'immediate', 'warp']
 
-class Script(Validator):
+class CombatScript(Validator):
     valid_commands = ['hit1', 'hit2', 'crit1', 'crit2', 'miss1', 'miss2', '--', 'end']
 
     def validate(self, text, level):

@@ -52,6 +52,7 @@ class MapCombat():
         # Only for the very first phase
         if self.state == 'init':
             if self._skip or current_time > 200:
+                game.events.trigger('combat_start', self.attacker, self.defender, self.attacker.position)
                 self.state = 'begin_phase'
                 self.last_update = engine.get_time()
 

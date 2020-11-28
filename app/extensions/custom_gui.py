@@ -143,6 +143,8 @@ class PropertyCheckBox(QWidget):
 
         layout = QHBoxLayout()
         self.setLayout(layout)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         # self.label = QLabel(label, self)
         # self.label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -179,7 +181,6 @@ class RightClickView():
         menu.addAction(new_action)
         # Check to see if we're actually selecting something
         if index.isValid():
-            print(self.can_delete, self.can_duplicate, self.can_rename, flush=True)
             duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index))
             menu.addAction(duplicate_action)
             delete_action = QAction("Delete", self, triggered=lambda: self.delete(index))
@@ -288,6 +289,9 @@ class TableView(RightClickTableView):
                 continue  # Already deleted 
             self.model().delete(index)
             rows.append(orig_rows[i])
+
+    # def delete(self, index):
+    #     self.model().delete(index)
 
     def duplicate(self, index):
         new_index = self.model().duplicate(index)

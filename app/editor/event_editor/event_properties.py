@@ -285,7 +285,8 @@ class EventCollection(QWidget):
 
     def update_list(self):
         # self.model.layoutChanged.emit()
-        self.proxy_model.invalidate()
+        # self.proxy_model.invalidate()
+        self.proxy_model.layoutChanged.emit()
 
 class EventProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -466,7 +467,6 @@ class EventProperties(QWidget):
                 self.current.commands.append(command)
 
     def set_current(self, current):
-        print("Event Set Current")
         self.current = current
         self.nid_box.edit.setText(current.nid)
         # self.trigger_box.edit.clear()

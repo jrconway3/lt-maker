@@ -182,7 +182,7 @@ class InteractUnit(EventCommand):
     tag = 'unit'
 
     keywords = ["Unit", "Unit"]
-    optional_keywords = ["Script", "Ability"]
+    optional_keywords = ["CombatScript", "Ability"]
 
 class SetCurrentHP(EventCommand):
     nid = 'set_current_hp'

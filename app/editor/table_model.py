@@ -42,6 +42,7 @@ class TableModel(QAbstractTableModel):
         if not index.isValid():
             return False
         idx = index.row()
+        self.layoutAboutToBeChanged.emit()
         self._data.pop(idx)
         self.layoutChanged.emit()
 
@@ -49,15 +50,21 @@ class TableModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def append(self):
+        self.layoutAboutToBeChanged.emit()
         if self.create_new():
             self.layoutChanged.emit()
             last_index = self.index(self.rowCount() - 1, 0)
             return last_index
+        else:
+            self.layoutChanged.emit()
         return None
 
     def new(self, index):
+        if not index.isValid():
+            return False
         if self.create_new():
             idx = index.row()
+            self.layoutAboutToBeChanged.emit()
             self._data.move_index(len(self._data) - 1, idx + 1)
             self.layoutChanged.emit()
             new_index = self.index(idx + 1, 0)
@@ -65,6 +72,8 @@ class TableModel(QAbstractTableModel):
         return None
 
     def duplicate(self, index):
+        if not index.isValid():
+            return False
         idx = index.row()
         obj = self._data[idx]
         new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
@@ -76,6 +85,7 @@ class TableModel(QAbstractTableModel):
         else:
             new_obj = copy.copy(obj)
         new_obj.nid = new_nid
+        self.layoutAboutToBeChanged.emit()
         self._data.insert(idx + 1, new_obj)
         self.layoutChanged.emit()
         new_index = self.index(idx + 1, 0)
@@ -90,6 +100,7 @@ class TableModel(QAbstractTableModel):
 class ProxyModel(QSortFilterProxyModel):
     def delete(self, index):
         index = self.mapToSource(index)
+        self.layoutAboutToBeChanged.emit()
         self.sourceModel().delete(index)
         self.layoutChanged.emit()
 
@@ -99,6 +110,7 @@ class ProxyModel(QSortFilterProxyModel):
 
     def new(self, index):
         index = self.mapToSource(index)
+        self.layoutAboutToBeChanged.emit()
         new_index = self.sourceModel().new(index)
         self.layoutChanged.emit()
         if new_index:
@@ -107,8 +119,10 @@ class ProxyModel(QSortFilterProxyModel):
 
     def duplicate(self, index):
         index = self.mapToSource(index)
+        self.layoutAboutToBeChanged.emit()
         new_index = self.sourceModel().duplicate(index)
         self.layoutChanged.emit()
         if new_index:
-            return self.mapFromSource(new_index)
+            new_index = self.mapFromSource(new_index)
+            return new_index
         return None

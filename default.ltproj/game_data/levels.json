@@ -339,7 +339,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": null
+                "only_once": true
             },
             {
                 "nid": "House2",
@@ -354,7 +354,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": null
+                "only_once": true
             },
             {
                 "nid": "Gate",
@@ -368,8 +368,8 @@
                     1
                 ],
                 "sub_nid": "Seize",
-                "condition": "True",
-                "only_once": null
+                "condition": "unit.nid == 'Eirika'",
+                "only_once": false
             }
         ],
         "unit_groups": [

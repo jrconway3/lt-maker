@@ -13,9 +13,12 @@ class EventManager():
         unit1 = unit
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
-            logger.debug("%s %s %s", event_prefab.trigger, event_prefab.condition, eval(event_prefab.condition))
-            if event_prefab.nid not in game.already_triggered_events and eval(event_prefab.condition):
-                triggered_events.append(event_prefab)
+            try:
+                logger.debug("%s %s %s", event_prefab.trigger, event_prefab.condition, eval(event_prefab.condition))
+                if event_prefab.nid not in game.already_triggered_events and eval(event_prefab.condition):
+                    triggered_events.append(event_prefab)
+            except:
+                logger.error("Error with Conditional: %s" % event_prefab.condition)
 
         for event_prefab in triggered_events:
             new_event = Event(event_prefab.commands, unit, unit2, position, region)

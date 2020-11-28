@@ -26,7 +26,7 @@ class MapCombat():
         self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item, script)
 
         self.last_update = engine.get_time()
-        self.state = 'begin_phase'
+        self.state = 'init'
         self.hp_bar_time = 400
 
         self._skip = False
@@ -49,8 +49,14 @@ class MapCombat():
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
 
+        # Only for the very first phase
+        if self.state == 'init':
+            if self._skip or current_time > 200:
+                self.state = 'begin_phase'
+                self.last_update = engine.get_time()
+
         # print("Map Combat %s" % self.state)
-        if self.state == 'begin_phase':
+        elif self.state == 'begin_phase':
             # Get playback
             if not self.state_machine.get_state():
                 self.clean_up()
@@ -109,7 +115,7 @@ class MapCombat():
                 self.last_update = engine.get_time()
 
         elif self.state == 'sound':
-            if self._skip or current_time > 400:
+            if self._skip or current_time > 250:
                 if self.defender and self.defender.sprite.state == 'combat_attacker':
                     self.defender.sprite.change_state('combat_anim')
                 else:
@@ -122,12 +128,7 @@ class MapCombat():
                 self.last_update = engine.get_time()
 
         elif self.state == 'anim':
-            if self._skip or current_time > 400:
-                if self.defender and self.defender.sprite.state == 'combat_anim':
-                    self.defender.sprite.change_state('combat_attacker')
-                else:
-                    self.attacker.sprite.change_state('combat_attacker')
-
+            if self._skip or current_time > 83:
                 self._handle_playback()
                 self._apply_actions()
 
@@ -137,7 +138,7 @@ class MapCombat():
                 if self.health_bars:
                     self.hp_bar_time = max(hp_bar.get_time_for_change() for hp_bar in self.health_bars.values())
                 else:
-                    self.hp_bar_time = 400
+                    self.hp_bar_time = 0
                 self.state = 'hp_bar_wait'
                 self.last_update = engine.get_time()
 
@@ -147,7 +148,11 @@ class MapCombat():
                 self.last_update = engine.get_time()
 
         elif self.state == 'end_phase':
-            if self._skip or current_time > 400:
+            if self._skip or current_time > 550:
+                if self.defender and self.defender.sprite.state == 'combat_anim':
+                    self.defender.sprite.change_state('combat_attacker')
+                else:
+                    self.attacker.sprite.change_state('combat_attacker')
                 self._end_phase()
                 self.state_machine.setup_next_state()
                 self.state = 'begin_phase'
@@ -205,7 +210,17 @@ class MapCombat():
         for brush in self.playback:
             if brush[0] == 'unit_tint':
                 color = brush[2]
-                brush[1].sprite.begin_flicker(400, color)
+                brush[1].sprite.begin_flicker(333, color)
+            elif brush[0] == 'crit_tint':
+                color = brush[2]
+                brush[1].sprite.begin_flicker(33, color)
+                # Delay five frames
+                brush[1].sprite.start_flicker(83, 33, color)
+                # Delay five more frames
+                brush[1].sprite.start_flicker(166, 333, color, fade_out=True)
+            elif brush[0] == 'crit_vibrate':
+                # In 10 frames, start vibrating for 12 frames
+                brush[1].sprite.start_vibrate(166, 200)
             elif brush[0] == 'hit_sound':
                 sound = brush[1]
                 SOUNDTHREAD.play_sfx(sound)

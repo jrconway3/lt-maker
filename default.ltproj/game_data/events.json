@@ -6,13 +6,6 @@
         "condition": "True",
         "commands": [
             [
-                "give_exp",
-                [
-                    "Eirika",
-                    "100"
-                ]
-            ],
-            [
                 "remove_unit",
                 [
                     "Eirika",

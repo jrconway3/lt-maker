@@ -13,7 +13,7 @@ class Dialog():
     solo_flag = True
     cursor = SPRITES.get('waiting_cursor')
     cursor_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
-    transition_speed = 166
+    transition_speed = 166  # 10 frames
 
     def __init__(self, text, portrait=None, background=None):
         self.plain_text = text
@@ -255,8 +255,11 @@ class Dialog():
     def draw(self, surf):
         if self.background:
             if self.transition:
-                bg = image_mods.resize(self.background, (1, .5 + self.transition_progress/2.))
-                bg = image_mods.make_translucent(bg, 1 - self.transition_progress)
+                # bg = image_mods.resize(self.background, (1, .5 + self.transition_progress/2.))
+                new_width = self.background.get_width() - 10 + int(10*self.transition_progress)
+                new_height = self.background.get_height() - 10 + int(10*self.transition_progress)
+                bg = engine.transform_scale(self.background, (new_width, new_height))
+                bg = image_mods.make_translucent(bg, .05 + .7 * (1 - self.transition_progress))
                 surf.blit(bg, (self.position[0], self.position[1] + self.height - bg.get_height()))
             else:
                 bg = image_mods.make_translucent(self.background, .05)

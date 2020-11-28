@@ -1,3 +1,5 @@
+import random
+
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
 from app.engine.sprites import SPRITES
@@ -11,8 +13,8 @@ team_dict = {'player': 'blue',
              'enemy2': 'purple'}
 
 class HealthBar():
-    time_for_change_max = 200
-    speed = 2 * FRAMERATE   # 2 frames an hp point
+    time_for_change_min = 200
+    speed = FRAMERATE   # 1 frame for each hp point
 
     def __init__(self, unit):
         self.unit = unit
@@ -22,7 +24,7 @@ class HealthBar():
         self.total_hp = equations.parser.hitpoints(self.unit)
 
         self.transition_flag = False
-        self.time_for_change = self.time_for_change_max
+        self.time_for_change = self.time_for_change_min
         self.last_update = 0
 
     def set_hp(self, val):
@@ -33,7 +35,7 @@ class HealthBar():
         # Check to see if we should begin showing transition
         if self.displayed_hp != self.unit.get_hp() and not self.transition_flag:
             self.transition_flag = True
-            self.time_for_change = max(self.time_for_change_max, abs(self.displayed_hp - self.unit.get_hp()) * self.speed)
+            self.time_for_change = max(self.time_for_change_min, abs(self.displayed_hp - self.unit.get_hp()) * self.speed)
             self.last_update = engine.get_time()
 
         # Check to see if we should update
@@ -47,8 +49,8 @@ class HealthBar():
                 self.transition_flag = False
 
 class MapHealthBar(HealthBar):
-    time_for_change_max = 12 * 50
-    speed = 3 * FRAMERATE
+    time_for_change_min = 200
+    speed = FRAMERATE
     health_outline = SPRITES.get('map_health_outline')
     health_bar = SPRITES.get('map_health_bar')
 
@@ -158,7 +160,7 @@ class MapCombatInfo():
         elif num == 2:  # Kill
             self.shake_set = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
         elif num == 3:  # Crit
-            self.shake_set = [(3, 3), (0, 0), (0, 0), (-3, -3), (0, 0), (0, 0), (3, 3), (0, 0), (-3, -3), (0, 0), (3, 3), (0, 0), (-3, -3), (3, 3), (0, 0)]
+            self.shake_set = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)]
 
     def reset_shake(self):
         self.shake_set = [(0, 0)]  # How the hp bar will shake

@@ -88,6 +88,7 @@ class TitleOption():
         self.option_bg_name = option_bg_name
 
         self.color = 'chapter-grey'
+        self.ignore = False
 
     def get(self):
         return self.text
@@ -143,6 +144,7 @@ class ChapterSelectOption(TitleOption):
         self.option_bg_name = option_bg_name + '_' + bg_color
 
         self.color = 'chapter-grey'
+        self.ignore = False
 
     def draw_flicker(self, surf, x, y):
         left = x - self.width()//2

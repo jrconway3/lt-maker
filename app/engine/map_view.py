@@ -1,8 +1,8 @@
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
 
-from app.counters import generic3counter, simplecounter
+from app.counters import generic3counter, simplecounter, movement_counter
 
-from app.engine import engine, unit_sprite, unit_sound
+from app.engine import engine
 from app.engine.game_state import game
 
 class MapView():
@@ -11,7 +11,7 @@ class MapView():
         self.active_sprite_counter = generic3counter(13 * FRAMERATE, 6 * FRAMERATE)
         self.move_sprite_counter = simplecounter((10 * FRAMERATE, 5 * FRAMERATE, 10 * FRAMERATE, 5 * FRAMERATE))
         self.fast_move_sprite_counter = simplecounter((6 * FRAMERATE, 3 * FRAMERATE, 6 * FRAMERATE, 3 * FRAMERATE))
-        self.attack_movement_counter = generic3counter(4 * FRAMERATE, 3 * FRAMERATE, 4 * FRAMERATE)
+        self.attack_movement_counter = movement_counter()
         self.arrow_counter = simplecounter((16 * FRAMERATE, 16 * FRAMERATE, 16 * FRAMERATE))
         self.x2_counter = simplecounter([3 * FRAMERATE] * 18)
 
@@ -31,8 +31,6 @@ class MapView():
             culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
         for unit in draw_units:
-            if not unit.sound:
-                unit.sound = unit_sound.UnitSound(unit)
             unit.sprite.update()
             unit.sound.update()
             if unit.position or unit.sprite.fake_position:

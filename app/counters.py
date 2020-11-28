@@ -56,6 +56,26 @@ class simplecounter():
             return True
         return False
 
+class movement_counter():
+    def __init__(self):
+        self.count = 0
+        self.movement = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 3, 2, 1]
+        self.started = False
+
+    def value(self):
+        return self.movement[self.count]
+
+    def update(self, current_time):
+        if self.started:
+            self.count += 1
+            if self.count >= len(self.movement):
+                self.count = 0
+                self.started = False
+
+    def reset(self):
+        self.started = True
+        self.count = 0
+
 class arrow_counter():
     def __init__(self, offset=0):
         self.arrow_counter = offset

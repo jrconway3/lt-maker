@@ -66,7 +66,9 @@ class UnitSprite():
         self.net_position = None
         self.offset = [0, 0]
 
-        self.flicker = None
+        self.flicker = []
+        self.vibrate = []
+        self.vibrate_counter = 0
 
         self.load_sprites()
 
@@ -98,10 +100,13 @@ class UnitSprite():
         game.map_view.attack_movement_counter.reset()
 
     def begin_flicker(self, total_time, color):
-        self.flicker = (engine.get_time(), total_time, color)
+        self.flicker.append((engine.get_time(), total_time, color, False))
 
-    def end_flicker(self):
-        self.flicker = None
+    def start_flicker(self, start_time, total_time, color, fade_out=False):
+        self.flicker.append((engine.get_time() + start_time, total_time, color, fade_out))
+
+    def start_vibrate(self, start_time, total_time):
+        self.vibrate.append((engine.get_time() + start_time, total_time))
 
     def set_transition(self, new_state):
         self.transition_state = new_state
@@ -190,8 +195,8 @@ class UnitSprite():
             else:
                 self.image_state = 'passive'
         elif self.state == 'combat_anim':
-            self.offset[0] = utils.clamp(self.net_position[0], -1, 1) * game.map_view.attack_movement_counter.count
-            self.offset[1] = utils.clamp(self.net_position[1], -1, 1) * game.map_view.attack_movement_counter.count
+            self.offset[0] = utils.clamp(self.net_position[0], -1, 1) * game.map_view.attack_movement_counter.value()
+            self.offset[1] = utils.clamp(self.net_position[1], -1, 1) * game.map_view.attack_movement_counter.value()
         elif self.state == 'chosen':
             self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
@@ -246,7 +251,9 @@ class UnitSprite():
                 self.set_transition('warp_in')
 
     def select_frame(self, image):
-        if self.image_state == 'passive' or self.image_state == 'gray':
+        if self.unit.is_dying:
+            return image[0].copy()
+        elif self.image_state == 'passive' or self.image_state == 'gray':
             return image[game.map_view.passive_sprite_counter.count].copy()
         elif self.image_state == 'active':
             return image[game.map_view.active_sprite_counter.count].copy()
@@ -269,10 +276,14 @@ class UnitSprite():
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
 
-        if self.unit.is_dying:
-            image = image_mods.make_white(image.convert_alpha(), 1)
-            progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
-            image = image_mods.make_translucent(image, progress)
+        self.vibrate_counter += 1
+        for vibrate in self.vibrate[:]:
+            starting_time, total_time = vibrate
+            if engine.get_time() >= starting_time:
+                if engine.get_time() > starting_time + total_time:
+                    self.vibrate.remove(vibrate)
+                    continue
+                left += (1 if self.vibrate_counter % 2 else -1)
 
         # Handle transitions
         if self.transition_state in ('fade_out', 'warp_out', 'fade_move', 'warp_move'):
@@ -283,15 +294,18 @@ class UnitSprite():
             progress = 1 - progress
             image = image_mods.make_translucent(image.convert_alpha(), progress)
 
-        if self.flicker:
-            starting_time, total_time, color = self.flicker
-            time_passed = engine.get_time() - starting_time
-            if time_passed >= total_time:
-                self.end_flicker()
-            else:
-                color = tuple((total_time - time_passed) * float(c) // total_time for c in color)
+        for flicker in self.flicker[:]:
+            starting_time, total_time, color, fade_out = flicker
+            if engine.get_time() >= starting_time:
+                if engine.get_time() > starting_time + total_time:
+                    self.flicker.remove(flicker)
+                    continue
+                if fade_out:
+                    time_passed = engine.get_time() - starting_time
+                    color = tuple((total_time - time_passed) * float(c) // total_time for c in color)
                 image = image_mods.change_color(image.convert_alpha(), color)
-        elif game.boundary.draw_flag and self.unit in game.boundary.displaying_units:
+
+        if not self.flicker and game.boundary.draw_flag and self.unit in game.boundary.displaying_units:
             image = image_mods.change_color(image.convert_color, (80, 0, 0))
 
         if game.action_log.hovered_unit is self.unit:

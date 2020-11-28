@@ -1,7 +1,7 @@
 [
     {
         "nid": "HP",
-        "name": "Hit Points",
+        "name": "HP",
         "maximum": 60,
         "desc": "Hit points. The unit is removed from the battle if HP reaches 0."
     },

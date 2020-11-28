@@ -23,6 +23,7 @@ class DeathManager():
             if death_counter == 0:
                 SOUNDTHREAD.play_sfx('Death')
             elif death_counter == 1:
+                unit.sprite.start_flicker(0, 450, (255, 255, 255), fade_out=False)
                 unit.sprite.set_transition('fade_out')
 
             self.dying_units[unit_nid] += 1

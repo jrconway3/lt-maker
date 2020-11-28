@@ -95,7 +95,7 @@ class ExpState(MapState):
         # Wait before starting to increment exp
         elif self.state.get_state() == 'exp_wait':
             self.exp_bar.update(self.old_exp)
-            if current_time - self.start_time > 400:
+            if current_time - self.start_time > 466:
                 self.state.change('exp0')
                 self.start_time = current_time
                 SOUNDTHREAD.play_sfx('Experience Gain', True)
@@ -155,7 +155,7 @@ class ExpState(MapState):
                 SOUNDTHREAD.stop_sfx('Experience Gain')
 
             # Extra time to account for pause at end
-            if current_time - self.start_time >= self.total_time_for_exp + 500:
+            if current_time - self.start_time >= self.total_time_for_exp + 333:
                 self.stat_changes = unit_funcs.get_next_level_up(self.unit)
                 action.do(action.IncLevel(self.unit))
                 action.do(action.ApplyLevelUp(self.unit, self.stat_changes))
@@ -311,8 +311,8 @@ class LevelUpScreen():
     width = bg.get_width()
     height = bg.get_height()
 
-    spark_time = 320
-    level_up_wait = 1960
+    spark_time = 350
+    level_up_wait = 1366
 
     underline = SPRITES.get('stat_underline')
 
@@ -357,15 +357,20 @@ class LevelUpScreen():
         return False
 
     def update(self, current_time):
-        if self.state == 'scroll_in':
-            self.unit_scroll_offset = max(0, self.unit_scroll_offset - 10)
-            self.screen_scroll_offset = max(0, self.screen_scroll_offset - 20)
+        if self.state == 'init_pause':
+            if current_time - self.start_time > 268:
+                self.state = 'scroll_in'
+                self.start_time = current_time
+
+        elif self.state == 'scroll_in':
+            self.unit_scroll_offset = max(0, self.unit_scroll_offset - 8)
+            self.screen_scroll_offset = max(0, self.screen_scroll_offset - 16)
             if self.unit_scroll_offset == 0 and self.screen_scroll_offset == 0:
                 self.state = 'init_wait'
                 self.start_time = current_time
 
         elif self.state == 'init_wait':
-            if current_time - self.start_time > 320:
+            if current_time - self.start_time > 500:
                 if self.old_level == self.new_level:  # No level up spark
                     self.state = 'get_next_spark'
                 else:
@@ -474,7 +479,8 @@ class LevelUpScreen():
             if idx >= len(self.stat_list):
                 continue
             pos = self.get_position(idx)
-            FONT['text-yellow'].blit(stat, sprite, pos)
+            name = DB.stats.get(stat).name
+            FONT['text-yellow'].blit(name, sprite, pos)
             text = self.unit.stats[stat] - (self.stat_list[idx] if self.current_spark < idx else 0)
             width = FONT['text-blue'].width(str(text))
             FONT['text-blue'].blit(str(text), sprite, (pos[0] + 40 - width, pos[1]))

@@ -52,7 +52,11 @@ class Database(object):
             os.mkdir(data_dir)
         print("Serializing data in %s..." % data_dir)
 
+        import time
+        start = time.time_ns()/1e6
+
         to_save = self.save()
+        # This section is what takes so long!
         for key, value in to_save.items():
             temp_save_loc = os.path.join(data_dir, key + '_temp.json')
             save_loc = os.path.join(data_dir, key + '.json')
@@ -61,6 +65,8 @@ class Database(object):
                 json.dump(value, serialize_file, indent=4)
             os.replace(temp_save_loc, save_loc)
 
+        end = time.time_ns()/1e6
+        print("Time Taken: %s ms" % (end - start))
         print("Done serializing!")
 
     def load(self, proj_dir):

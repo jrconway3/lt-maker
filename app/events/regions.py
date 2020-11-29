@@ -14,6 +14,10 @@ class Region(Prefab):
         self.only_once = False
 
     @property
+    def area(self):
+        return self.size[0] * self.size[1]
+
+    @property
     def center(self) -> tuple:
         if self.position:
             x = int(self.position[0] + self.size[0] // 2)

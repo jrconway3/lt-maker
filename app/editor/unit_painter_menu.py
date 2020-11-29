@@ -320,20 +320,26 @@ class GenericUnitDialog(Dialog):
 
         self.averages_dialog = None
 
-        units = self.window._data
+        self._data = self.window._data
         if unit:
             self.current = unit
         elif example:
-            new_nid = str_utils.get_next_generic_nid(example.nid, units.keys())
+            new_nid = str_utils.get_next_generic_nid(example.nid, self._data.keys())
             self.current = GenericUnit(
                 new_nid, example.variant, example.level, example.klass, example.faction,
                 example.starting_items, example.team, example.ai)
         else:
-            new_nid = str_utils.get_next_generic_nid(101, units.keys())
+            new_nid = str_utils.get_next_generic_nid("101", self._data.keys())
             assert len(DB.classes) > 0 and len(DB.factions) > 0 and len(DB.items) > 0 and len(DB.ai) > 0
             self.current = GenericUnit(
                 new_nid, None, 1, DB.classes[0].nid, DB.factions[0].nid,
                 [(DB.items[0].nid, False)], 'player', DB.ai[0].nid)
+
+        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
+        self.nid_box.edit.setPlaceholderText("Unique ID")
+        self.nid_box.edit.textChanged.connect(self.nid_changed)
+        self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
+        layout.addWidget(self.nid_box)
 
         self.team_box = PropertyBox("Team", ComboBox, self)
         self.team_box.edit.addItems(DB.teams)
@@ -382,6 +388,21 @@ class GenericUnitDialog(Dialog):
 
     def tick(self):
         self.class_box.model.dataChanged.emit(self.class_box.model.index(0), self.class_box.model.index(self.class_box.model.rowCount()))
+
+    def nid_changed(self, text):
+        if self.current:
+            self.current.nid = text
+
+    def nid_done_editing(self):
+        if not self.current:
+            return
+        # Check validity of nid!
+        other_nids = [d.nid for d in self._data.values() if d is not self.current]
+        other_nids += DB.units.keys()  # Can't use these either
+        if self.current.nid in other_nids:
+            QMessageBox.warning(self.window, 'Warning', 'Unit ID %s already in use' % self.current.nid)
+            new_nid = str_utils.get_next_generic_nid("101", other_nids)
+            self.current.nid = new_nid
 
     def team_changed(self, val):
         self.current.team = self.team_box.edit.currentText()
@@ -446,6 +467,7 @@ class GenericUnitDialog(Dialog):
 
     def set_current(self, current):
         self.current = current
+        self.nid_box.edit.setText(current.nid)
         self.team_box.edit.setValue(current.team)
         self.level_box.edit.setValue(current.level)
         self.class_box.edit.setValue(current.klass)

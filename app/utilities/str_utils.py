@@ -23,7 +23,7 @@ def get_next_int(name, names):
                 return test_name
             counter += 1
 
-def get_next_generic_nid(name, names):
+def get_next_generic_nid(name: str, names):
     if name not in names:
         return name
     else:

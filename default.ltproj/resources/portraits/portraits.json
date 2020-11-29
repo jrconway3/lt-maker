@@ -187,6 +187,17 @@
         ]
     },
     {
+        "nid": "Tana",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    },
+    {
         "nid": "Bone",
         "blinking_offset": [
             24,
@@ -217,6 +228,28 @@
         "smiling_offset": [
             16,
             48
+        ]
+    },
+    {
+        "nid": "SoldierBlue",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
+        "nid": "SoldierRed",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
         ]
     }
 ]

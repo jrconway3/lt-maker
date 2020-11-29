@@ -200,7 +200,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Iron Lance",
                         false
                     ]
                 ],
@@ -222,7 +222,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Iron Lance",
                         false
                     ]
                 ],
@@ -244,7 +244,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Iron Axe",
                         false
                     ]
                 ],
@@ -266,7 +266,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Iron Axe",
                         false
                     ]
                 ],
@@ -288,7 +288,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Iron Axe",
                         false
                     ]
                 ],
@@ -310,7 +310,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Iron Lance",
                         false
                     ]
                 ],
@@ -320,6 +320,96 @@
                     8,
                     3
                 ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 2,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "GreenCav",
+                "variant": null,
+                "level": 1,
+                "klass": "Cavalier",
+                "faction": "Soldier",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "GreenMerc",
+                "variant": null,
+                "level": 1,
+                "klass": "Mercenary",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "other",
+                "ai": "None",
+                "starting_position": null,
                 "name": null,
                 "desc": null,
                 "generic": true
@@ -369,6 +459,21 @@
                 ],
                 "sub_nid": "Seize",
                 "condition": "unit.nid == 'Eirika'",
+                "only_once": false
+            },
+            {
+                "nid": "EnemyRein",
+                "region_type": "Normal",
+                "position": [
+                    0,
+                    0
+                ],
+                "size": [
+                    8,
+                    10
+                ],
+                "sub_nid": "",
+                "condition": "True",
                 "only_once": false
             }
         ],
@@ -420,6 +525,36 @@
                 "units": [
                     "Gilliam",
                     "Franz"
+                ],
+                "positions": {}
+            },
+            {
+                "nid": "EnemyRein",
+                "units": [
+                    "107",
+                    "108",
+                    "109"
+                ],
+                "positions": {
+                    "107": [
+                        13,
+                        9
+                    ],
+                    "108": [
+                        13,
+                        8
+                    ],
+                    "109": [
+                        12,
+                        9
+                    ]
+                }
+            },
+            {
+                "nid": "EirikaSeth",
+                "units": [
+                    "Eirika",
+                    "Seth"
                 ],
                 "positions": {}
             }
@@ -537,7 +672,7 @@
                 "generic": false
             },
             {
-                "nid": 101,
+                "nid": "101",
                 "variant": null,
                 "level": 2,
                 "klass": "Brigand",
@@ -709,7 +844,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": null
+                "only_once": false
             },
             {
                 "nid": "Village2",

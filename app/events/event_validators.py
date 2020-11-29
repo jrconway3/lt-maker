@@ -243,9 +243,14 @@ class ItemList(Validator):
         return None
 
 validators = {validator.__name__: validator for validator in Validator.__subclasses__()}
+option_validators = {validator.__name__: validator for validator in OptionValidator.__subclasses__()}
 
 def validate(var_type, text, level):
     validator = validators.get(var_type)
+    if validator:
+        v = validator()
+        return v.validate(text, level)
+    validator = option_validators.get(var_type)
     if validator:
         v = validator()
         return v.validate(text, level)

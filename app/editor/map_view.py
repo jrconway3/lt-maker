@@ -208,7 +208,12 @@ class MapView(SimpleMapView):
                 color = utils.hash_to_color(utils.strhash(region.nid))
                 pixmap = QPixmap(width * TILEWIDTH, height * TILEHEIGHT)
                 pixmap.fill(QColor(*color))
-                painter.setOpacity(0.75)
+                if region.area == 1:
+                    painter.setOpacity(0.75)
+                else:
+                    # Makes bigger regions less opaque
+                    o = 20 - min(20, region.area)
+                    painter.setOpacity(0.25 + o * .025)
                 painter.drawImage(x * TILEWIDTH, y * TILEHEIGHT, pixmap.toImage())
             current_region = self.main_editor.region_painter_menu.get_current()
             if current_region:

@@ -308,7 +308,6 @@ class Event():
         elif command.nid == 'move_cursor':
             values, flags = event_commands.parse(command)
             position = self.parse_pos(values[0])
-            print(position)
             game.cursor.set_pos(position)
             if 'immediate' in flags or self.do_skip:
                 pass
@@ -466,7 +465,6 @@ class Event():
             position = [screen_positions[pos], 80]
         else:
             position = [int(p) for p in pos.split(',')]
-        print(position)
 
         if 'immediate' in flags or self.do_skip:
             portrait.quick_move(position)

@@ -467,6 +467,21 @@ class MenuState(MapState):
         game.cursor.set_pos(self.cur_unit.position)
 
         options = []
+
+        # Handle region event options
+        self.valid_regions = []
+        for region in game.level.regions:
+            if region.region_type == 'Event' and region.contains(self.cur_unit.position):
+                try:
+                    logger.debug("Testing region: %s %s", region.condition, eval(region.condition))
+                    # No duplicates
+                    if eval(region.condition) and region.sub_nid not in options:
+                        options.append(region.sub_nid)
+                        self.valid_regions.append(region)
+                except:
+                    logger.error("Condition {%s} could not be evaluated" % region.condition)
+
+        # Handle regular ability options
         self.target_dict = OrderedDict()
         for ability in ABILITIES:
             t = ability.targets(self.cur_unit)
@@ -536,6 +551,14 @@ class MenuState(MapState):
                 game.state.clear()
                 game.state.change('free')
                 action.do(action.Wait(self.cur_unit))
+            # A region event
+            elif selection in [region.sub_nid for region in self.valid_regions]:
+                for region in self.valid_regions:
+                    if region.sub_nid == selection:
+                        game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
+                        if region.only_once:
+                            # No longer exists
+                            game.level.regions.remove(region)
             else:  # Selection is one of the other abilities
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('targeting')

@@ -1,14 +1,18 @@
-Skills
-AI
-Constants
-
-Tileset / Tilemaps
-Music
-SFX
+Later on:
 Combat Anims / Palettes as a separate tab?
 Combat Effects
-
+Combat Palettes
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
-Levels
+Overworld
+Supports
+
+Turnwheel mouse support better
+Autotiles
+
+# More possible
+Dialog box pops up when saving and autosaving
+event editor:
+Add Shift + Tab tabs back
+Add Ctrl + F and Ctrl H find and replace

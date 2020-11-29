@@ -91,6 +91,8 @@ class Resources():
 
     def save(self, proj_dir, specific=None):
         print("Starting Resource Serialization...")
+        import time
+        start = time.time_ns()/1e6
         # Make the directory to save this resource pack in
         if not os.path.exists(proj_dir):
             os.mkdir(proj_dir)
@@ -108,6 +110,8 @@ class Resources():
                 os.mkdir(data_dir)
             getattr(self, data_type).save(data_dir)
 
+        end = time.time_ns()/1e6
+        print("Time Taken: %s ms" % (end - start))
         print('Done Resource Serializing!')
 
 RESOURCES = Resources()

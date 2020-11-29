@@ -33,11 +33,11 @@ class Highlighter(QSyntaxHighlighter):
         settings = QSettings('rainlash', 'Lex Talionis')
         theme = settings.value('theme', 0)
         if theme == 0:
-            self.func_color = Qt.blue
+            self.func_color = QColor(52, 103, 174)
             self.comment_color = Qt.darkGray
             self.bad_color = Qt.red
-            self.text_color = Qt.yellow
-            self.special_text_color = Qt.violet
+            self.text_color = QColor(63, 109, 58)
+            self.special_text_color = Qt.darkMagenta
             self.special_func_color = Qt.red
         else:
             self.func_color = QColor(102, 217, 239)

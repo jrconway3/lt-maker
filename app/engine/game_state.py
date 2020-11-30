@@ -74,6 +74,7 @@ class GameState():
         from app.events import event_manager
         self.level_vars = Counter()
         self.turncount = 0
+        self.talk_options = []
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
 
@@ -147,6 +148,7 @@ class GameState():
                   'state': self.state.save(),
                   'action_log': self.action_log.save(),
                   'market_items': self.market_items,  # Item nids
+                  'talk_options': self.talk_options,
                   'already_triggered_events': self.already_triggered_events,
                   }
         meta_dict = {'playtime': self.playtime,
@@ -183,6 +185,7 @@ class GameState():
 
         self.market_items = s_dict.get('market_items', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
+        self.talk_options = s_dict.get('talk_options', [])
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
 

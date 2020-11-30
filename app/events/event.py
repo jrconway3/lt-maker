@@ -351,6 +351,26 @@ class Event():
         elif command.nid == 'give_exp':
             self.give_exp(command)
 
+        elif command.nid == 'change_ai':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return 
+            if values[1] in DB.ai.keys():
+                action.do(action.ChangeAI(unit, values[1]))
+            else:
+                print("Couldn't find AI %s" % values[1])
+                return
+
+        elif command.nid == 'add_talk':
+            values, flags = event_commands.parse(command)
+            action.do(action.AddTalk(values[0], values[1]))
+
+        elif command.nid == 'remove_talk':
+            values, flags = event_commands.parse(command)
+            action.do(action.RemoveTalk(values[0], values[1]))
+
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
             if values[0].lower() in ('1', 't', 'true', 'y', 'yes'):
@@ -373,18 +393,6 @@ class Event():
                 game.memory['shop_flavor'] = 'armory'
             game.state.change('shop')
             self.state = 'paused'
-
-        elif command.nid == 'change_ai':
-            values, flags = event_commands.parse(command)
-            unit = self.get_unit(values[0])
-            if not unit:
-                print("Couldn't find unit %s" % values[0])
-                return 
-            if values[1] in DB.ai.keys():
-                unit.ai = values[1]
-            else:
-                print("Couldn't find AI %s" % values[1])
-                return
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)

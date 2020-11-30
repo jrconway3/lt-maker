@@ -49,6 +49,19 @@ def get_adj_allies(unit) -> list:
     adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
     return adj_allies
 
+class TalkAbility(Ability):
+    name = 'Talk'
+
+    @staticmethod
+    def targets(unit) -> set:
+        adj_allies = get_adj_allies(unit)
+        return set([u.position for u in adj_allies if (unit.nid, u.nid) in game.talk_options])
+
+    @staticmethod
+    def do(self, unit):
+        u = game.board.get_unit(game.cursor.position)
+        game.events.trigger('on_talk', unit, u, unit.position)
+
 class DropAbility(Ability):
     name = "Drop"
 

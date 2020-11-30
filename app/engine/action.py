@@ -699,6 +699,45 @@ class UpdateUnitRecords(Action):
 
     # TODO Implement rest of this
 
+class ChangeAI(Action):
+    def __init__(self, unit, ai):
+        self.unit = unit
+        self.ai = ai
+        self.old_ai = self.unit.ai
+
+    def do(self):
+        self.unit.ai = self.ai
+
+    def reverse(self):
+        self.unit.ai = self.old_ai
+
+class AddTalk(Action):
+    def __init__(self, unit1_nid, unit2_nid):
+        self.unit1 = unit1_nid
+        self.unit2 = unit2_nid
+
+    def do(self):
+        game.talk_options.append((self.unit1, self.unit2))
+
+    def reverse(self):
+        if (self.unit1, self.unit2) in game.talk_options:
+            game.talk_options.remove((self.unit1, self.unit2))
+
+class RemoveTalk(Action):
+    def __init__(self, unit1_nid, unit2_nid):
+        self.unit1 = unit1_nid
+        self.unit2 = unit2_nid
+        self.did_remove = False
+
+    def do(self):
+        if (self.unit1, self.unit2) in game.talk_options:
+            game.talk_options.remove((self.unit1, self.unit2))
+            self.did_remove = True
+
+    def reverse(self):
+        if self.did_remove:
+            game.talk_options.append((self.unit1, self.unit2))
+
 class RecordRandomState(Action):
     run_on_load = True  # TODO is this necessary?
 

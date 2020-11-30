@@ -232,6 +232,24 @@ class GiveExp(EventCommand):
 
     keywords = ["GlobalUnit", "PositiveInteger"]
 
+class ChangeAI(EventCommand):
+    nid = 'change_ai'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "AI"] 
+
+class AddTalk(EventCommand):
+    nid = 'add_talk'
+    tag = 'unit'
+
+    keywords = ["Unit", "Unit"]
+
+class RemoveTalk(EventCommand):
+    nid = 'remove_talk'
+    tag = 'unit'
+
+    keywords = ["Unit", "Unit"]
+
 class Prep(EventCommand):
     nid = 'prep'
     tag = 'general'
@@ -243,13 +261,7 @@ class Shop(EventCommand):
     tag = 'general'
 
     keywords = ["ItemList"]
-    optional_keywords = ["ShopFlavor"]
-
-class ChangeAI(EventCommand):
-    nid = 'change_ai'
-    tag = 'unit'
-
-    keywords = ["GlobalUnit", "AI"]   
+    optional_keywords = ["ShopFlavor"]  
 
 def get_commands():
     return EventCommand.__subclasses__()

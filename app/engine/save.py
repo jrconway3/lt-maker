@@ -1,4 +1,4 @@
-import os, shutil
+import os, shutil, glob
 import threading
 
 try:
@@ -6,16 +6,18 @@ try:
 except ImportError:
     import pickle
 
+from app.utilities import str_utils
 from app.data.database import DB
 
 import app.engine.config as cf
 from app.engine.objects.item import ItemObject
+from app.engine.objects.skill import SkillObject
 
 import logging
 logger = logging.getLogger(__name__)
 
 SAVE_THREAD = None
-GAME_NID = str(DB.constants.get('game_nid').value)
+GAME_NID = str(DB.constants.value('game_nid'))
 SUSPEND_LOC = 'saves/' + GAME_NID + '-suspend.pmeta'
 
 class SaveSlot():
@@ -67,11 +69,19 @@ def save_io(s_dict, meta_dict, slot=None, force_loc=None):
     if meta_dict['kind'] == 'start':
         r_save = 'saves/' + GAME_NID + '-restart' + str(slot) + '.p'
         r_save_meta = 'saves/' + GAME_NID + '-restart' + str(slot) + '.pmeta'
+        # Handle preload saves
+        preload_saves = glob.glob('saves/' + GAME_NID + '-preload-' + str(meta_dict['level_nid']) + '-*.p')
+        nids = [p.split('-')[-1][:-2] for p in preload_saves]
+        unique_nid = str(str_utils.get_next_int('0', nids))
+        preload_save = 'saves/' + GAME_NID + '-preload-' + str(meta_dict['level_nid']) + '-' + unique_nid + '.p'
+        preload_save_meta = 'saves/' + GAME_NID + '-preload-' + str(meta_dict['level_nid']) + '-' + unique_nid + '.pmeta'
         # If the slot I'm overwriting is a start of map
         # Then rename it to restart file
         if save_loc != r_save:
             shutil.copy(save_loc, r_save)
             shutil.copy(meta_loc, r_save_meta)
+        shutil.copy(save_loc, preload_save)
+        shutil.copy(meta_loc, preload_save_meta)
 
 def suspend_game(game_state, kind, slot=None):
     """
@@ -106,10 +116,10 @@ def set_next_uids(game_state):
         ItemObject.next_uid = max(game_state.item_registry.keys()) + 1
     else:
         ItemObject.next_uid = 100
-    # if game_state.status_registry:
-    #     Status.next_uid = max(game_state.status_registry.keys()) + 1
-    # else:
-    #     Status.next_uid = 100
+    if game_state.skill_registry:
+        SkillObject.next_uid = max(game_state.skill_registry.keys()) + 1
+    else:
+        SkillObject.next_uid = 100
 
 def load_saves():
     save_slots = []
@@ -132,7 +142,6 @@ def remove_suspend():
         os.remove(SUSPEND_LOC)
 
 def get_save_title(save_slots):
-    print(save_slots)
     options = [save_slot.get_name() for save_slot in save_slots]
     colors = ['green' for save_slot in save_slots]
     return options, colors

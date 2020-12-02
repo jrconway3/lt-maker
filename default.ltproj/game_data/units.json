@@ -2313,7 +2313,9 @@
         "variant": null,
         "level": 4,
         "klass": "Knight",
-        "tags": [],
+        "tags": [
+            "Boss"
+        ],
         "bases": [
             [
                 "HP",
@@ -2398,7 +2400,12 @@
                 20
             ]
         ],
-        "starting_items": [],
+        "starting_items": [
+            [
+                "Iron Lance",
+                false
+            ]
+        ],
         "learned_skills": [],
         "wexp_gain": [
             [

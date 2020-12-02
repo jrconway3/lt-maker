@@ -498,7 +498,7 @@
         "nid": "DeathGilliam",
         "trigger": "unit_death",
         "level_nid": null,
-        "condition": "unit.nid == 'Gilliam",
+        "condition": "unit.nid == 'Gilliam'",
         "commands": [
             [
                 "add_portrait",
@@ -722,6 +722,19 @@
         "only_once": true
     },
     {
+        "nid": "Win0",
+        "trigger": "combat_end",
+        "level_nid": "0",
+        "condition": "game.check_dead(\"O'Neill\")",
+        "commands": [
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false
+    },
+    {
         "nid": "EnemyTurn2",
         "trigger": "enemy_turn_change",
         "level_nid": "0",
@@ -790,7 +803,7 @@
         "nid": "FightBreguet",
         "trigger": "combat_start",
         "level_nid": "1",
-        "condition": "unit.nid == \"Breguet\" or unit2.nid == \"Breguet\"",
+        "condition": "(unit.nid == \"Breguet\" and unit2.team == 'player') or (unit2.nid == \"Breguet\" and unit.team == 'player')",
         "commands": [
             [
                 "add_portrait",
@@ -1096,6 +1109,41 @@
         "condition": "True",
         "commands": [
             [
+                "add_talk",
+                [
+                    "Eirika",
+                    "Franz"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Seth",
+                    "Franz"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "Enemy1",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "Rein",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "EirikaSeth",
+                    "immediate"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "# Fade in"
@@ -1117,7 +1165,9 @@
                 "morph_group",
                 [
                     "South",
-                    "Enemy1"
+                    "Enemy1",
+                    "",
+                    "stack"
                 ]
             ],
             [
@@ -1251,6 +1301,10 @@
             ],
             [
                 "change_background",
+                []
+            ],
+            [
+                "end_skip",
                 []
             ],
             [
@@ -1553,6 +1607,10 @@
                 ]
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "transition",
                 [
                     "Open"
@@ -1651,6 +1709,10 @@
             ],
             [
                 "change_background",
+                []
+            ],
+            [
+                "end_skip",
                 []
             ],
             [
@@ -2003,5 +2065,185 @@
             ]
         ],
         "only_once": true
+    },
+    {
+        "nid": "SethFranzTalk",
+        "trigger": "on_talk",
+        "level_nid": "1",
+        "condition": "unit.nid == 'Seth' and unit2.nid == 'Franz'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Franz",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Is that you, Franz? I'm relieved to see you're still in one piece!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Franz",
+                    "Y-yes...and you as well, General.|As long as you lead us, sir, the Knights of Renais cannot lose!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Franz, you and I must work together to protect Princess Eirika.|I want you to ride with us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Franz",
+                    "Sir! With honor, sir!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Franz",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "remove_talk",
+                [
+                    "Seth",
+                    "Franz"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "nid": "EirikaFranzTalk",
+        "trigger": "on_talk",
+        "level_nid": "1",
+        "condition": "unit.nid == 'Eirika' and unit2.nid == 'Franz'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Franz",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Franz",
+                    "Princess Eirika, it is good to see you're well."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Franz, you made it through unscathed."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Franz",
+                    "Y-yes, Your Highness!|I met up with Sir Gilliam of Frelia and explained the situation in Renais.|He told me that Princess Tana was in danger as well, here at Mulan.|We rode as swiftly as we could."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Tana is here?|Franz, we must hurry!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Franz",
+                    "Understood!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Franz"
+                ]
+            ],
+            [
+                "remove_talk",
+                [
+                    "Eirika",
+                    "Franz"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "nid": "EnemyTurn1",
+        "trigger": "enemy_turn_change",
+        "level_nid": "1",
+        "condition": "game.turncount == 1",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Breguet",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Breguet",
+                    "Hm? Is that the princess of Renais?|Ha ha! It really is my lucky day! Fame and fortune ride to meet me!|Move on, you slugs!{br}Bring that girl to me!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Breguet"
+                ]
+            ]
+        ],
+        "only_once": false
     }
 ]

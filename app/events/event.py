@@ -221,6 +221,9 @@ class Event():
             self.wait_time = current_time + int(command.values[0])
             self.state = 'waiting'
 
+        elif command.nid == 'end_skip':
+            self.do_skip = False
+
         elif command.nid == 'music':
             music = command.values[0]
             SOUNDTHREAD.fade_in(music)
@@ -231,8 +234,8 @@ class Event():
 
         elif command.nid == 'change_background':
             values, flags = event_commands.parse(command)
-            if len(values) > 0:
-                panorama = command.values[0]
+            if len(values) > 0 and values[0]:
+                panorama = values[0]
                 panorama = RESOURCES.panoramas.get(panorama)
                 if not panorama:
                     return
@@ -246,17 +249,17 @@ class Event():
 
         elif command.nid == 'transition':
             values, flags = event_commands.parse(command)
-            if len(values) > 0:
+            if len(values) > 0 and values[0]:
                 self.transition_state = values[0].lower()
             elif self.transition_state == 'close':
                 self.transition_state = 'open'
             else:
                 self.transition_state = 'close'
-            if len(values) > 1:
+            if len(values) > 1 and values[1]:
                 self.transition_speed = max(1, int(values[1]))
             else:
                 self.transition_speed = self._transition_speed
-            if len(values) > 2:
+            if len(values) > 2 and values[2]:
                 self.transition_color = tuple(int(_) for _ in values[2].split(','))
             else:
                 self.transition_color = self._transition_color
@@ -387,7 +390,7 @@ class Event():
             shop_items = item_funcs.create_items(self.unit, item_list)
             game.memory['shop_items'] = shop_items
             game.memory['current_unit'] = self.unit
-            if len(values) > 1:
+            if len(values) > 1 and values[1]:
                 game.memory['shop_flavor'] = values[1].lower()
             else:
                 game.memory['shop_flavor'] = 'armory'
@@ -429,7 +432,7 @@ class Event():
             transition = False
 
         slide = None
-        if len(values) > 2:
+        if len(values) > 2 and values[2]:
             slide = values[2]
 
         new_portrait = EventPortrait(portrait, position, priority, transition, slide, mirror)
@@ -507,18 +510,18 @@ class Event():
         if unit.dead:
             print("Unit is dead!")
             return
-        if len(values) > 1:
+        if len(values) > 1 and values[1]:
             position = self.parse_pos(values[1])
         else:
             position = unit.starting_position
         if not position:
             print("No position found!")
             return
-        if len(values) > 2:
+        if len(values) > 2 and values[2]:
             entry_type = values[2]
         else:
             entry_type = 'fade'
-        if len(values) > 3:
+        if len(values) > 3 and values[3]:
             placement = values[3]
         else:
             placement = 'giveup'
@@ -542,7 +545,7 @@ class Event():
             print("Unit not on map!")
             return
 
-        if len(values) > 1:
+        if len(values) > 1 and values[1]:
             position = self.parse_pos(values[1])
         else:
             position = unit.starting_position
@@ -550,11 +553,11 @@ class Event():
             print("No position found!")
             return
 
-        if len(values) > 2:
+        if len(values) > 2 and values[2]:
             movement_type = values[2]
         else:
             movement_type = 'normal'
-        if len(values) > 3:
+        if len(values) > 3 and values[3]:
             placement = values[3]
         else:
             placement = 'giveup'
@@ -588,7 +591,7 @@ class Event():
         if not unit.position:
             print("Unit not on map!")
             return
-        if len(values) > 1:
+        if len(values) > 1 and values[1]:
             remove_type = values[1]
         else:
             remove_type = 'fade'
@@ -613,14 +616,14 @@ class Event():
             print("Couldn't find %s" % unit2)
             return 
 
-        if len(values) > 2:
-            script = values[2]
+        if len(values) > 2 and values[2]:
+            script = values[2].split(',')
         else:
             script = None
 
         items = item_funcs.get_all_items(unit1)
         # Get item
-        if len(values) > 3:
+        if len(values) > 3 and values[3]:
             item_nid = values[3]
             for i in items:
                 if item_nid == i.nid:
@@ -634,8 +637,10 @@ class Event():
                 return
 
         combat = interaction.engage(unit1, [unit2.position], item, script=script)
+        combat.event_combat = True  # Must mark this so we can come back!
         game.combat_instance = combat
         game.state.change('combat')
+        self.state = "paused"
 
     def add_group(self, command, create=False):
         values, flags = event_commands.parse(command)
@@ -643,11 +648,11 @@ class Event():
         if not group:
             print("Couldn't find group %s" % values[0])
             return
-        if len(values) > 1:
+        if len(values) > 1 and values[1]:
             entry_type = values[1]
         else:
             entry_type = 'fade'
-        if len(values) > 2:
+        if len(values) > 2 and values[2]:
             placement = values[2]
         else:
             placement = 'giveup'
@@ -673,6 +678,9 @@ class Event():
     def _move_unit(self, movement_type, placement, unit, position):
         position = tuple(position)
         position = self.check_placement(position, placement)
+        if not position:
+            logger.warning("Couldn't determine valid position for %s?", unit.nid)
+            return
         if movement_type == 'immediate' or self.do_skip:
             action.do(action.Teleport(unit, position))
         elif movement_type == 'warp':
@@ -683,7 +691,7 @@ class Event():
             path = target_system.get_path(unit, position)
             action.do(action.Move(unit, position, path, event=True))
 
-    def _add_unit(self, placement, unit, position):
+    def _add_unit(self, unit, position):
         position = tuple(position)
         action.do(action.ArriveOnMap(unit, position))
 
@@ -706,15 +714,15 @@ class Event():
                 print("Couldn't find group2 %s" % values[1])
                 return
 
-        if len(values) > 2:
+        if len(values) > 2 and values[2]:
             movement_type = values[2]
         else:
             movement_type = 'normal'
-        if len(values) > 3:
+        if len(values) > 3 and values[3]:
             placement = values[3]
         else:
             placement = 'giveup'
-        if len(values) > 4:
+        if len(values) > 4 and values[4]:
             force_group = values[4]
         else:
             force_group = None
@@ -739,11 +747,11 @@ class Event():
                 if special_position1 == 'west':
                     self._add_unit(unit, (0, position[1]))
                 elif special_position1 == 'east':
-                    self._add_unit(unit, (game.tilemap.width, position[1]))
+                    self._add_unit(unit, (game.tilemap.width - 1, position[1]))
                 elif special_position1 == 'north':
                     self._add_unit(unit, (position[0], 0))
                 elif special_position1 == 'south':
-                    self._add_unit(unit, (position[0], game.tilemap.height))
+                    self._add_unit(unit, (position[0], game.tilemap.height - 1))
                 self._move_unit(movement_type, placement, unit, position)
         elif special_position1:
             for unit in group2.units:
@@ -756,11 +764,11 @@ class Event():
                 if special_position1 == 'west':
                     self._add_unit(unit, (0, position[1]))
                 elif special_position1 == 'east':
-                    self._add_unit(unit, (game.tilemap.width, position[1]))
+                    self._add_unit(unit, (game.tilemap.width - 1, position[1]))
                 elif special_position1 == 'north':
                     self._add_unit(unit, (position[0], 0))
                 elif special_position1 == 'south':
-                    self._add_unit(unit, (position[0], game.tilemap.height))
+                    self._add_unit(unit, (position[0], game.tilemap.height - 1))
                 self._move_unit(movement_type, placement, unit, position)
         else:
             for unit in group1.units:
@@ -798,7 +806,7 @@ class Event():
         if not group:
             print("Couldn't find group %s" % values[0])
             return
-        if len(values) > 1:
+        if len(values) > 1 and values[1]:
             remove_type = values[1]
         else:
             remove_type = 'fade'

@@ -114,7 +114,7 @@ class GameState():
         tilemap_nid = level_prefab.tilemap
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
-        self.current_level = LevelObject.from_prefab(level_prefab, tilemap)
+        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry)
         # Assign every unit the levels party if they don't already have one
         for unit in self.current_level.units:
             if not unit.party:
@@ -155,8 +155,18 @@ class GameState():
                      'realtime': time.time(),
                      'version': VERSION,
                      'title': DB.constants.value('title'),
-                     'level_title': self.current_level.name,
                      }
+        if self.current_level:
+            meta_dict['level_title'] = self.current_level.name
+            meta_dict['level_nid'] = self.current_level.nid
+        elif self.game_vars.get('_next_level_nid'):
+            fake_level = DB.levels.get(self.game_vars.get('_next_level_nid'))
+            meta_dict['level_title'] = fake_level.name
+            meta_dict['level_nid'] = fake_level.nid
+        else:
+            meta_dict['level_title'] = 'Overworld'
+            meta_dict['level_nid'] = None
+
         self.action_log.record = True
         return s_dict, meta_dict
 
@@ -368,5 +378,23 @@ def start_level(level_nid):
         game.clear()  # Need to use old game if called twice in a row
     game.load_states(['turn_change'])
     game.build_new()
+    game.start_level(level_nid)
+    return game
+
+def load_level(level_nid, save_loc):
+    global game
+    print("Load Level %s" % level_nid)
+    if not game:
+        game = GameState()
+    else:
+        game.clear()
+    import pickle
+    from app.engine import save
+    with open(save_loc, 'rb') as fp:
+        s_dict = pickle.load(fp)
+    game.load_states(['turn_change'])
+    game.build_new()
+    game.load(s_dict)
+    save.set_next_uids(game)
     game.start_level(level_nid)
     return game

@@ -319,6 +319,14 @@ class UnitSprite():
                 color = (-120, 120, -120, diff)  # Tint image green at magnitude depending on diff
                 image = image_mods.tint_image(image.convert_alpha(), color)
 
+        cur_unit = game.cursor.get_hover()
+        if cur_unit:
+            if (cur_unit.nid, self.unit.nid) in game.talk_options:
+                frame = (engine.get_time() // 100) % 8
+                topleft = (left - 1, top - 12)
+                offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
+                surf.blit(SPRITES.get('talk_marker'), (topleft[0], topleft[1] + offset))
+
         # Each image has (self.image.get_width() - 32)//2 buggers on the
         # left and right of it, to handle any off tile spriting
         topleft = left - max(0, (image.get_width() - 16)//2), top - 24

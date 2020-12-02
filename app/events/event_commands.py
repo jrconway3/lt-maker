@@ -54,6 +54,10 @@ class Wait(EventCommand):
 
     keywords = ['Time']
 
+class EndSkip(EventCommand):
+    nid = "end_skip"
+    tag = "general"
+
 class Music(EventCommand):
     nid = "music"
     nickname = "m"

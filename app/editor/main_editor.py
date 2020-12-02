@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, glob
 from datetime import datetime
 import json
 
@@ -23,6 +23,7 @@ from app.editor.property_menu import PropertiesMenu
 from app.editor.unit_painter_menu import UnitPainterMenu
 from app.editor.region_painter_menu import RegionMenu
 from app.editor.unit_group_painter_menu import UnitGroupMenu
+from app.editor.save_viewer import SaveViewer
 
 # Databases
 from app.editor.unit_editor.unit_tab import UnitDatabase
@@ -145,6 +146,7 @@ class MainEditor(QMainWindow):
     def set_current_level(self, level):
         self.current_level = level
         self.test_current_act.setEnabled(True)
+        self.test_load_act.setEnabled(True)
         self.set_current_tilemap(level.tilemap)
         self.unit_painter_menu.set_current_level(level)
         self.group_painter_menu.set_current_level(level)
@@ -180,6 +182,7 @@ class MainEditor(QMainWindow):
         self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
         self.test_current_act.setIcon(QIcon(f'{icon_folder}/play.png'))
+        self.test_load_act.setIcon(QIcon(f'{icon_folder}/play.png'))
         self.test_full_act.setIcon(QIcon(f'{icon_folder}/play_all.png'))
         self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))
         self.back_to_main_act.setIcon(QIcon(f'{icon_folder}/left_arrow.png'))
@@ -215,7 +218,9 @@ class MainEditor(QMainWindow):
         # Test actions
         self.test_current_act = QAction("Test Current Chapter...", self, shortcut="F5", triggered=self.test_play_current)
         self.test_current_act.setEnabled(False)
-        self.test_full_act = QAction("Test Full Game...", self, shortcut="Ctrl+F5", triggered=self.test_play)
+        self.test_load_act = QAction("Test Current Chapter from Preload...", self, shortcut="Ctrl+F5", triggered=self.test_play_load)
+        self.test_load_act.setEnabled(False)
+        self.test_full_act = QAction("Test Full Game...", self, triggered=self.test_play)
         # self.balance_act = QAction("Preload Units...", self, triggered=self.edit_preload_units)
 
         # Toolbar actions
@@ -283,6 +288,7 @@ class MainEditor(QMainWindow):
 
         test_menu = QMenu("Test", self)
         test_menu.addAction(self.test_current_act)
+        test_menu.addAction(self.test_load_act)
         test_menu.addAction(self.test_full_act)
 
         help_menu = QMenu("Help", self)
@@ -325,6 +331,7 @@ class MainEditor(QMainWindow):
         self.test_button.setPopupMode(QToolButton.InstantPopup)
         test_menu = QMenu("Test", self)
         test_menu.addAction(self.test_current_act)
+        test_menu.addAction(self.test_load_act)
         test_menu.addAction(self.test_full_act)
         self.test_button.setMenu(test_menu)
         self.test_button_action = QWidgetAction(self)
@@ -368,14 +375,6 @@ class MainEditor(QMainWindow):
         self.properties_menu = PropertiesMenu(self.level_menu.view, self)
         self.docks['Properties'].setWidget(self.properties_menu)
 
-        # self.docks['Tiles'] = Dock("Tiles", self)
-        # self.tiles_menu = TileMenu(self)
-        # self.docks['Tiles'].setWidget(self.tiles_menu)
-
-        # self.docks['Terrain'] = Dock("Terrain", self)
-        # self.terrain_painter_menu = TerrainPainterMenu(self)
-        # self.docks['Terrain'].setWidget(self.terrain_painter_menu)
-
         self.docks['Regions'] = Dock("Regions", self)
         self.region_painter_menu = RegionMenu(self)
         self.docks['Regions'].setWidget(self.region_painter_menu)
@@ -383,10 +382,6 @@ class MainEditor(QMainWindow):
         self.docks['Units'] = Dock("Units", self)
         self.unit_painter_menu = UnitPainterMenu(self)
         self.docks['Units'].setWidget(self.unit_painter_menu)
-
-        # self.docks['Reinforcements'] = Dock("Reinforcements", self)
-        # self.reinforcement_groups_menu = ReinforcementGroupsMenu(self)
-        # self.docks['Reinforcements'].setWidget(self.reinforcement_groups_menu)
 
         self.docks['Groups'] = Dock("Groups", self)
         self.group_painter_menu = UnitGroupMenu(self)
@@ -589,14 +584,6 @@ class MainEditor(QMainWindow):
 
         self.global_mode = True
 
-    # def edit_database(self):
-    #     dialog = DatabaseEditor(self)
-    #     dialog.exec_()
-
-    # def edit_resources(self):
-    #     dialog = ResourceEditor(self)
-    #     dialog.exec_()
-
     def edit_tags(self):
         dialog = TagDialog.create()
         dialog.exec_()
@@ -630,17 +617,44 @@ class MainEditor(QMainWindow):
 
     def test_play(self):
         from app.engine import driver, game_state
+        timer.get_timer().stop()  # Don't need these while running game
         title = DB.constants.get('title').value
         driver.start(title, from_editor=True)
         game = game_state.start_game()
         driver.run(game)
+        timer.get_timer().start()
 
     def test_play_current(self):
         from app.engine import driver, game_state
+        timer.get_timer().stop()  # Don't need these while running game
         title = DB.constants.get('title').value
         driver.start(title, from_editor=True)
-        game = game_state.start_level(self.current_level.nid)
+        game = game_state.start_level(self.current_level.nid)    
         driver.run(game)
+        timer.get_timer().start()
+
+    def get_saved_games(self):
+        GAME_NID = str(DB.constants.value('game_nid'))
+        return glob.glob('saves/' + GAME_NID + '-preload-*-*.p')
+
+    def test_play_load(self):
+        saved_games = self.get_saved_games()
+        if saved_games:
+            save_loc = SaveViewer.get(saved_games, self)
+            if not save_loc:
+                return
+        else:
+            save_loc = None
+        from app.engine import driver, game_state
+        timer.get_timer().stop()  # Don't need these while running game
+        title = DB.constants.get('title').value
+        driver.start(title, from_editor=True)
+        if save_loc:
+            game = game_state.load_level(self.current_level.nid, save_loc)
+        else:
+            game = game_state.start_level(self.current_level.nid)    
+        driver.run(game)
+        timer.get_timer().start()
 
     def edit_preferences(self):
         dialog = PreferencesDialog(self)

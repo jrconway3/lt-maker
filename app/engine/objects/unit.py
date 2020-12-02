@@ -11,7 +11,10 @@ class UnitObject(Prefab):
     def from_prefab(cls, prefab):
         self = cls()
         self.nid = prefab.nid
-        self.position = self.previous_position = tuple(prefab.starting_position)
+        if prefab.starting_position:
+            self.position = self.previous_position = tuple(prefab.starting_position)
+        else:
+            self.position = self.previous_position = None
         self.team = prefab.team
         self.party = None
         self.klass = prefab.klass
@@ -359,6 +362,7 @@ class UnitObject(Prefab):
         self.ai = s_dict['ai']
 
         self.items = [game.get_item(item_uid) for item_uid in s_dict['items']]
+        self.items = [i for i in self.items if i]
 
         self.faction = s_dict['faction']
         self.name = s_dict['name']
@@ -372,6 +376,7 @@ class UnitObject(Prefab):
         self.starting_position = self.position
 
         self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]
+        self.skills = [s for s in self.skills if s]
 
         self.current_hp = s_dict['current_hp']
         self.current_mana = s_dict['current_mana']

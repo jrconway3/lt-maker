@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
     QGridLayout, QSizePolicy
-from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette
+from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics
 from PyQt5.QtCore import QRegularExpression, Qt, QSettings, QSize, QRect
 
 from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, QHLine, ComboBox
@@ -178,6 +178,9 @@ class CodeEditor(QPlainTextEdit):
         self.cursorPositionChanged.connect(self.line_number_area.update)
 
         self.updateLineNumberAreaWidth(0)
+        # Set tab to four spaces
+        fm = QFontMetrics(self.font())
+        self.setTabStopWidth(4 * fm.width(' '))
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.line_number_area)
@@ -226,6 +229,53 @@ class CodeEditor(QPlainTextEdit):
 
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
+
+    def keyPressEvent(self, event):
+        # Shift + Tab is not the same as catching a shift modifier + tab key
+        # Shift + Tab is a Backtab
+        if event.key() == Qt.Key_Tab:
+            cur = self.textCursor()
+            cur.insertText("    ")
+        elif event.key() == Qt.Key_Backtab:
+            cur = self.textCursor()
+            # Copy the current selection
+            pos = cur.position()  # Where a selection ends
+            anchor = cur.anchor()  # Where a selection starts (can be the same as above)
+            cur.setPosition(pos)
+            # Move the position back one, selecting the character prior to the original position
+            cur.setPosition(pos - 1, QTextCursor.KeepAnchor)
+
+            if str(cur.selectedText()) == "\t":
+                # The prior character is a tab, so delete the selection
+                cur.removeSelectedText()
+                # Reposition the cursor
+                cur.setPosition(anchor - 1)
+                cur.setPosition(pos - 1, QTextCursor.KeepAnchor)
+            elif str(cur.selectedText()) == " ":
+                # Remove up to four spaces
+                counter = 0
+                while counter < 4 and all(c == " " for c in str(cur.selectedText())):
+                    counter += 1
+                    cur.setPosition(pos - 1 - counter, QTextCursor.KeepAnchor)
+                cur.setPosition(pos - counter, QTextCursor.KeepAnchor)
+                cur.removeSelectedText()
+                # Reposition the cursor
+                cur.setPosition(anchor)
+                cur.setPosition(pos, QTextCursor.KeepAnchor)
+            else:
+                # Try all of the above, looking before the anchor
+                cur.setPosition(anchor)
+                cur.setPosition(anchor - 1, QTextCursor.KeepAnchor)
+                if str(cur.selectedText()) == "\t":
+                    cur.removeSelectedText()
+                    cur.setPosition(anchor - 1)
+                    cur.setPosition(pos - 1, QTextCursor.KeepAnchor)
+                else:
+                    # It's not a tab, so reset the selection to what it was
+                    cur.setPosition(anchor)
+                    cur.setPosition(pos, QTextCursor.KeepAnchor)
+        else:
+            return super().keyPressEvent(event)
 
 class EventCollection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,

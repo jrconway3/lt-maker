@@ -12,7 +12,9 @@ Turnwheel mouse support better
 Autotiles
 
 # More possible
+Add preloaded party editor to levels
 Dialog box pops up when saving and autosaving
 event editor:
-Add Shift + Tab tabs back
 Add Ctrl + F and Ctrl H find and replace
+
+# Crazy weird bug where if you are viewing Units or Group tab, but not Properties or Regions, game will not update!!! Fixed by removing timers!

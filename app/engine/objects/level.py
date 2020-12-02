@@ -23,7 +23,7 @@ class LevelObject():
         self.fog_of_war = 0
 
     @classmethod
-    def from_prefab(cls, prefab, tilemap):
+    def from_prefab(cls, prefab, tilemap, unit_registry):
         level = cls()
         level.nid = prefab.nid
         level.name = prefab.name
@@ -33,8 +33,18 @@ class LevelObject():
         level.music = {k: v for k, v in prefab.music.items()}
         level.objective = {k: v for k, v in prefab.objective.items()}
 
-        level.units = Data([UnitObject.from_prefab(p) for p in prefab.units])
-        level.regions = Data([Region.from_prefab(p) for p in prefab.regions])
+        # Load in units
+        level.units = Data()
+        for unit_prefab in prefab.units:
+            if unit_prefab.nid in unit_registry:
+                unit = unit_registry[unit_prefab.nid]
+                unit.starting_position = unit_prefab.starting_position
+                level.units.append(unit)
+            else:
+                new_unit = UnitObject.from_prefab(unit_prefab)
+                level.units.append(new_unit)
+
+        level.regions = Data([p for p in prefab.regions])
         level.unit_groups = Data([UnitGroup.from_prefab(p, level.units) for p in prefab.unit_groups])
 
         return level

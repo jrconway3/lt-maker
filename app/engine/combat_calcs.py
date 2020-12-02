@@ -104,7 +104,7 @@ def crit_avoid(unit, item_to_avoid=None):
 
 def damage(unit, item=None):
     if not item:
-        item = item.get_weapon()
+        item = unit.get_weapon()
     if not item:
         return None
 
@@ -136,7 +136,7 @@ def defense(unit, item_to_avoid=None):
 
 def attack_speed(unit, item=None):
     if not item:
-        item = item.get_weapon()
+        item = unit.get_weapon()
     if not item:
         return None
 

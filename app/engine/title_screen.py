@@ -186,7 +186,6 @@ class TitleLoadState(State):
         self.bg = game.memory['title_bg']
 
         options, colors = save.get_save_title(save.SAVE_SLOTS)
-        print(options, colors)
         self.menu = menus.ChapterSelect(options, colors)
         most_recent = save.SAVE_SLOTS.index(max(save.SAVE_SLOTS, key=lambda x: x.realtime))
         self.menu.move_to(most_recent)
@@ -210,11 +209,13 @@ class TitleLoadState(State):
             save_slot = save.SAVE_SLOTS[selection]
             if save_slot.kind:
                 logger.info("Loading game...")
+                game.build_new()
                 save.load_game(game, save_slot)
                 if save_slot.kind == 'start':  # Restart
                     # Restart level
+                    next_level_nid = game.game_vars['_next_level_nid']
                     game.load_states(['turn_change'])
-                    game.start_level(game.level.nid)
+                    game.start_level(next_level_nid)
                 game.memory['transition_from'] = 'Load Game'
                 game.state.change('title_wait')
                 game.state.process_temp_state()
@@ -270,9 +271,11 @@ class TitleRestartState(TitleLoadState):
             save_slot = save.RESTART_SLOTS[selection]
             if save_slot.kind:
                 logger.info("Loading game...")
+                game.build_new()
                 save.load_game(game, save_slot)
                 # Restart level
-                game.start_level(game.level.nid)
+                next_level_nid = game.game_vars['_next_level_nid']
+                game.start_level(next_level_nid)
                 game.memory['transition_from'] = 'Restart Level'
                 game.memory['title_menu'] = self.menu
                 game.state.change('title_wait')
@@ -465,7 +468,7 @@ class TitleSaveState(State):
         elif event == 'SELECT':
             # Rename selection
             self.wait_time = engine.get_time()
-            if DB.constants.get('overworld').value:
+            if DB.constants.value('overworld'):
                 name = 'overworld'
                 self.menu.set_name(self.menu.current_index, name)
             else:
@@ -483,13 +486,14 @@ class TitleSaveState(State):
 
             current_state = game.state.state[-1]
             print(game.state.state, flush=True)
-
             next_level_nid = game.game_vars['_next_level_nid']
+
             game.load_states(['turn_change'])
+            save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
+
             game.start_level(next_level_nid)
             print(game.state.state, flush=True)
 
-            save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
             game.state.state.append(current_state)
             game.state.change('transition_pop')
             print(game.state.state, flush=True)

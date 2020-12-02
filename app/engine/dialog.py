@@ -104,13 +104,21 @@ class Dialog():
     def determine_width(self):
         width = 0
         current_line = ''
+        preceded_by_wait: bool = False
         for command in self.text_commands:
             if command in ('{br}', '{break}', '{clear}'):
-                split_lines = self.get_lines_from_block(current_line)
+                if not preceded_by_wait:
+                    # Force it to be only one line
+                    split_lines = self.get_lines_from_block(current_line, 1)
+                else:
+                    split_lines = self.get_lines_from_block(current_line)
                 width = max(width, max(self.font.width(s) for s in split_lines))
                 if len(split_lines) == 1:
                     width += 16
                 current_line = ''
+                preceded_by_wait = False
+            elif command in ('{w}', '{wait}'):
+                preceded_by_wait = True
             elif command.startswith('{'):
                 pass
             else:
@@ -133,10 +141,13 @@ class Dialog():
         self.text_height = max(self.text_height, 16)
         self.height = self.text_height + 16
 
-    def get_lines_from_block(self, block):
-        num_lines = self.num_lines
-        if len(block) <= 24:
-            num_lines = 1
+    def get_lines_from_block(self, block, force_lines=None):
+        if force_lines:
+            num_lines = force_lines
+        else:
+            num_lines = self.num_lines
+            if len(block) <= 24:
+                num_lines = 1
         lines = text_funcs.split(self.font, block, num_lines, WINWIDTH - 16)
         return lines
 
@@ -148,6 +159,7 @@ class Dialog():
 
     def _next_char(self):  # Add the next character to the text_lines list
         if self.text_index >= len(self.text_commands):
+            self.processing = False
             return
         command = self.text_commands[self.text_index]
         if command == '{br}' or command == '{break}':

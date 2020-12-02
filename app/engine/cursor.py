@@ -138,7 +138,7 @@ class Cursor():
                     if modifier == (0, -1) or modifier == (1, 0):
                         self.arrows.append(Arrow(4, 0, path[idx]))
                     else:
-                        self.arrows.append(Arrow(5, 1), path[idx])
+                        self.arrows.append(Arrow(5, 1, path[idx]))
                 elif direction == (1, 1) or direction == (-1, -1):  # Topright or Bottomleft
                     if modifier == (0, -1) or modifier == (1, 0):
                         self.arrows.append(Arrow(5, 0, path[idx]))

@@ -31,6 +31,14 @@ class Timer(QWidget):
         self.active_counter.update(current_time)
         self.tick_elapsed.emit()
 
+    def start(self):
+        self.main_timer.start()
+        self.autosave_timer.start()
+
+    def stop(self):
+        self.main_timer.stop()
+        self.autosave_timer.stop()
+
 TIMER = None
 def get_timer():
     global TIMER

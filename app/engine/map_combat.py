@@ -13,6 +13,7 @@ from app.engine.game_state import game
 
 class MapCombat():
     ai_combat = False
+    event_combat = False
 
     def __init__(self, attacker, item, position, main_target, splash, script):
         self.target_position = position
@@ -383,7 +384,9 @@ class MapCombat():
             action.do(action.Message(message))
 
     def handle_state_stack(self):
-        if self.ai_combat:
+        if self.event_combat:
+            pass
+        elif self.ai_combat:
             if skill_system.has_canto(self.attacker):
                 pass
             else:

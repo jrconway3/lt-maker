@@ -28,6 +28,7 @@ def run(game):
 
         raw_events = engine.get_events()
         if raw_events == engine.QUIT:
+            engine.on_end()
             break
         event = INPUT.process_input(raw_events)
 

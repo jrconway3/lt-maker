@@ -41,8 +41,11 @@ class SaveViewer(Dialog):
         text = 'Level %s: %s\n' % (level_nid, level_name)
         self.display_box.edit.insertPlainText(text)
         self.display_box.edit.insertPlainText("Units:\n")
+        item_registry = {i['uid']: i['nid'] for i in s_dict['items']}
         for unit in s_dict['units']:
-            unit_text = '%s\n' % unit['nid']
+            items = ', '.join(item_registry.get(item) for item in unit['items'])
+            unit_text = '%s Lv %s Items: %s\n' % (unit['nid'], unit['level'], items)
+
             self.display_box.edit.insertPlainText(unit_text)
 
         self.display_box.edit.moveCursor(QTextCursor.Start)

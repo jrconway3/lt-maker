@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
-    QGridLayout, QSizePolicy
+    QGridLayout, QSizePolicy, QAction
 from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics
 from PyQt5.QtCore import QRegularExpression, Qt, QSettings, QSize, QRect
 
@@ -15,6 +15,7 @@ from app.data.database import DB
 from app.utilities import str_utils
 from app.editor.base_database_gui import CollectionModel
 from app.events import event_prefab, event_commands, event_validators
+from app.editor.event_editor import find_and_replace
 from app.editor import table_model
 from app.editor.map_view import SimpleMapView
 from app.extensions.custom_gui import TableView
@@ -349,6 +350,13 @@ class EventProperties(QWidget):
         self.text_box = CodeEditor(self)
         self.text_box.textChanged.connect(self.text_changed)
 
+        self.find_action = QAction("Find...", self, shortcut="Ctrl+F", triggered=find_and_replace.Find(self).show)
+        self.replace_action = QAction("Replace...", self, shortcut="Ctrl+H", triggered=find_and_replace.Find(self).show)
+        self.replace_all_action = QAction("Replace all...", self, shortcut="Ctrl+Shift+H", triggered=find_and_replace.Find(self).show)
+        self.addAction(self.find_action)
+        self.addAction(self.replace_action)
+        self.addAction(self.replace_all_action)
+        
         # Text setup
         self.cursor = self.text_box.textCursor()
         self.font = QFont()

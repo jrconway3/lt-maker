@@ -592,7 +592,7 @@ class ItemDescriptionPanel():
             self.surf = self.create_surf()
 
         portrait = icons.get_portrait(self.unit)
-        if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
+        if game.cursor.position[0] > TILEX // 2 + game.camera.get_x():
             topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
             surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
         else:

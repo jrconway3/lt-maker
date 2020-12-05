@@ -20,12 +20,15 @@ class EventManager():
             except:
                 logger.error("Condition {%s} could not be evaluated" % event_prefab.condition)
 
+        new_event = False
         for event_prefab in triggered_events:
             new_event = Event(event_prefab.commands, unit, unit2, position, region)
             self.events.append(new_event)
+            new_event = True
             game.state.change('event')
             if event_prefab.only_once:
                 game.already_triggered_events.append(event_prefab.nid)
+        return new_event
 
     def get(self):
         if self.events:

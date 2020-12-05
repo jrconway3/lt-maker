@@ -54,7 +54,7 @@ class ConfigOption(menu_options.BasicOption):
         return 16
 
     def move_left(self):
-        value = str(cf.SETTINGS[self.name])
+        value = cf.SETTINGS[self.name]
         if value in self.values:
             idx = self.values.index(value)
             idx = utils.clamp(idx - 1, 0, len(self.values) - 1)
@@ -63,7 +63,7 @@ class ConfigOption(menu_options.BasicOption):
             cf.SETTINGS[self.name] = self.values[0]
 
     def move_right(self):
-        value = str(cf.SETTINGS[self.name])
+        value = cf.SETTINGS[self.name]
         if value in self.values:
             idx = self.values.index(value)
             idx = utils.clamp(idx + 1, 0, len(self.values) - 1)

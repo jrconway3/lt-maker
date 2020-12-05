@@ -56,10 +56,19 @@ class Regeneration(SkillComponent):
     expose = Type.Float
     value = 0.2
 
-    def on_upkeep(self, unit):
+    def on_upkeep(self, actions, playback, unit):
         max_hp = equations.parser.hitpoints(unit)
         hp_change = max_hp * self.value
-        action.do(action.ChangeHP(unit, hp_change))
+        actions.append(action.ChangeHP(unit, hp_change))
+        # Playback
+        playback.append(('hit_sound', 'MapHeal'))
+        if hp_change >= 30:
+            name = 'MapBigHealTrans'
+        elif hp_change >= 15:
+            name = 'MapMediumHealTrans'
+        else:
+            name = 'MapSmallHealTrans'
+        playback.append(('cast_anim', name, unit))
 
 class Defense(SkillComponent):
     nid = 'defense'

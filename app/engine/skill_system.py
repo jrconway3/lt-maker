@@ -48,7 +48,7 @@ modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avo
 # Takes in unit, item, target, mode returns bonus
 multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 # Takes in unit
-simple_event_hooks = ('init', 'remove', 'on_end_chapter', 'on_upkeep', 'on_endstep')
+simple_event_hooks = ('init', 'remove', 'on_end_chapter')
 # Takes in playback, unit, item, target
 combat_event_hooks = ('start_combat', 'end_combat')
 # Takes in actions, playback, unit, item, target, mode
@@ -160,3 +160,17 @@ def stat_change(unit, stat) -> int:
                 d = component.stat_change(unit)
                 bonus += d.get(stat, 0)
     return bonus
+
+def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
+    for skill in unit.skills:
+        for component in skill.component:
+            if component.defines('on_upkeep'):
+                component.on_upkeep(actions, playback, unit)
+    return actions, playback
+
+def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
+    for skill in unit.skills:
+        for component in skill.component:
+            if component.defines('on_endstep'):
+                component.on_endstep(actions, playback, unit)
+    return actions, playback

@@ -27,7 +27,8 @@ class StateMachine():
 
     def load_states(self, starting_states=None, temp_state=None):
         from app.engine import title_screen, transitions, general_states, level_up, \
-            turnwheel, game_over, settings, info_menu, prep, trade
+            turnwheel, game_over, settings, info_menu, prep, trade, \
+            status_upkeep
         from app.events import event_state
         self.all_states = \
             {'title_start': title_screen.TitleStartState,
@@ -73,6 +74,7 @@ class StateMachine():
              'turnwheel': turnwheel.TurnwheelState,
              'game_over': game_over.GameOverState,
              'event': event_state.EventState,
+             'status_upkeep': status_upkeep.StatusUpkeepState,
              'prep_main': prep.PrepMainState,
              'prep_pick_units': prep.PrepPickUnitsState,
              'prep_formation': prep.PrepFormationState,

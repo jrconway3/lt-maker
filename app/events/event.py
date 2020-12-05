@@ -400,7 +400,7 @@ class Event():
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
         name = values[0]
-        unit = game.get_unit(name)
+        unit = self.get_unit(name)
         if unit:
             portrait = RESOURCES.portraits.get(unit.portrait_nid)
         else:
@@ -926,8 +926,8 @@ class Event():
         position = None
         if ',' in text:
             position = tuple(int(_) for _ in text.split(','))
-        elif game.get_unit(text):
-            position = game.get_unit(text).position
+        elif self.get_unit(text):
+            position = self.get_unit(text).position
         return position
 
     def get_unit(self, text):

@@ -60,6 +60,6 @@ def save_settings():
         write_out = '\n'.join([k + '=' + str(v) for k, v in SETTINGS.items()])
         fp.write(write_out)
 
-text_speed_options = list(reversed([0, 1, 5, 10, 5, 20, 32, 50, 80, 112, 150]))
+text_speed_options = list(reversed([0, 1, 5, 10, 15, 20, 32, 50, 80, 112, 150]))
 SETTINGS = read_config_file()
 print("debug: %s" % SETTINGS['debug'])

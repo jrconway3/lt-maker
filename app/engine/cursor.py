@@ -128,16 +128,19 @@ class Cursor():
                 elif direction == (0, 1):  # Down
                     self.arrows.append(Arrow(7, 0, path[idx]))
             else:  # Neither beginning nor end of path
-                direction = (path[idx + 1][0] - path[idx - 1][0], path[idx + 1][1] - path[idx - 1][1])
-                modifier = (path[idx][0] - path[idx - 1][0], path[idx][1] - path[idx - 1][1])
+                next_p = path[idx + 1]
+                current_p = path[idx]
+                prev_p = path[idx - 1]
+                direction = (next_p[0] - prev_p[0], next_p[1] - prev_p[1])
+                modifier = (current_p[0] - prev_p[0], current_p[1] - prev_p[1])
                 if direction == (2, 0) or direction == (-2, 0):  # Right or Left
                     self.arrows.append(Arrow(3, 0, path[idx]))
                 elif direction == (0, 2) or direction == (0, -2):  # Up or Down
                     self.arrows.append(Arrow(2, 0, path[idx]))
                 elif direction == (1, -1) or direction == (-1, 1):  # Topleft or Bottomright
-                    if modifier == (0, -1) or modifier == (1, 0):
+                    if modifier == (0, -1) or modifier == (-1, 0):
                         self.arrows.append(Arrow(4, 0, path[idx]))
-                    else:
+                    elif modifier == (1, 0) or modifier == (0, 1):
                         self.arrows.append(Arrow(5, 1, path[idx]))
                 elif direction == (1, 1) or direction == (-1, -1):  # Topright or Bottomleft
                     if modifier == (0, -1) or modifier == (1, 0):

@@ -36,8 +36,7 @@ class TurnChangeState(MapState):
         if game.phase.get_current() == 'player':
             action.do(action.IncrementTurn())
             game.state.change('free')
-            # TODO
-            # game.state.change('status_upkeep') 
+            game.state.change('status_upkeep') 
             game.state.change('phase_change')
             # EVENTS TRIGGER HERE
             game.events.trigger('turn_change')
@@ -45,7 +44,7 @@ class TurnChangeState(MapState):
                 game.events.trigger('level_start')
         else:
             game.state.change('ai')
-            # game.state.change('status_upkeep')
+            game.state.change('status_upkeep')
             game.state.change('phase_change')
             # game.state.change('end_step')
             # EVENTS TRIGGER HERE
@@ -473,13 +472,14 @@ class MenuState(MapState):
         for region in game.level.regions:
             if region.region_type == 'Event' and region.contains(self.cur_unit.position):
                 try:
+                    unit = self.cur_unit  # For condition
                     logger.debug("Testing region: %s %s", region.condition, eval(region.condition))
                     # No duplicates
                     if eval(region.condition) and region.sub_nid not in options:
                         options.append(region.sub_nid)
                         self.valid_regions.append(region)
                 except:
-                    logger.error("Condition {%s} could not be evaluated" % region.condition)
+                    logger.error("Region condition {%s} could not be evaluated" % region.condition)
 
         # Handle regular ability options
         self.target_dict = OrderedDict()
@@ -501,7 +501,7 @@ class MenuState(MapState):
 
         self.menu = menus.Choice(self.cur_unit, options)
         self.menu.set_limit(8)
-        self.menu.set_color(['text_green' if option not in self.normal_options else 'text-white' for option in options])
+        self.menu.set_color(['text-green' if option not in self.normal_options else 'text-white' for option in options])
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -555,10 +555,12 @@ class MenuState(MapState):
             elif selection in [region.sub_nid for region in self.valid_regions]:
                 for region in self.valid_regions:
                     if region.sub_nid == selection:
-                        game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
-                        if region.only_once:
+                        did_trigger = game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
+                        if did_trigger and region.only_once:
                             # No longer exists
-                            game.level.regions.remove(region)
+                            game.level.regions.delete(region)
+                        if did_trigger:
+                            action.do(action.HasAttacked(self.cur_unit))
             else:  # Selection is one of the other abilities
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('targeting')

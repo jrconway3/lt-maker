@@ -60,7 +60,9 @@ class TalkAbility(Ability):
     @staticmethod
     def do(self, unit):
         u = game.board.get_unit(game.cursor.position)
-        game.events.trigger('on_talk', unit, u, unit.position)
+        did_trigger = game.events.trigger('on_talk', unit, u, unit.position)
+        if did_trigger:
+            game.talk_options.remove((unit.nid, u.nid))
 
 class DropAbility(Ability):
     name = "Drop"

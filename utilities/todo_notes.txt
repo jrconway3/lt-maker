@@ -14,5 +14,4 @@ Autotiles
 # More possible
 Dialog box pops up when saving and autosaving
 
-# New Project
-Set up constants
+Check exp

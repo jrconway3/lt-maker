@@ -851,7 +851,7 @@ class TargetingState(MapState):
         closest_pos = self.selection.get_closest(self.cur_unit.position)
         game.cursor.set_pos(closest_pos)
 
-        self.pennant = banner.Pennant(self.name)
+        self.pennant = banner.Pennant(self.ability.name)
 
     def begin(self):
         game.cursor.combat_show()

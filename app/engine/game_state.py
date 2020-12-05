@@ -181,6 +181,7 @@ class GameState():
 
         logger.info("Loading Game...")
         self.game_vars = Counter(s_dict.get('game_vars', {}))
+        static_random.set_seed(self.game_vars.get('_random_seed', 0))
         self.level_vars = Counter(s_dict.get('level_vars', {}))
         self.playtime = float(s_dict['playtime'])
         self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}

@@ -604,7 +604,7 @@ class ApplyLevelUp(Action):
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
     def reverse(self):
-        negative_changes = {(k, -v) for k, v in self.stat_changes.items()}
+        negative_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_stat_changes(self.unit, negative_changes)
 
 class GainWexp(Action):

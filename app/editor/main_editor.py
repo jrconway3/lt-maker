@@ -24,6 +24,7 @@ from app.editor.unit_painter_menu import UnitPainterMenu
 from app.editor.region_painter_menu import RegionMenu
 from app.editor.unit_group_painter_menu import UnitGroupMenu
 from app.editor.save_viewer import SaveViewer
+from app.editor.new_game_dialog import NewGameDialog
 
 # Databases
 from app.editor.unit_editor.unit_tab import UnitDatabase
@@ -401,13 +402,18 @@ class MainEditor(QMainWindow):
 
     def new(self):
         if self.maybe_save():
-            # Return to global
-            if not self.global_mode:
-                self.edit_global()
+            result = NewGameDialog.get()
+            if result:
+                # Return to global
+                if not self.global_mode:
+                    self.edit_global()
+                identifier, title = result
 
-            DB.load('default.ltproj')
-            # self.undo_stack.setClean()
-            self.set_window_title('Untitled')
+                DB.load('default.ltproj')
+                DB.constants.get('game_nid').set_value(identifier)
+                DB.constants.get('title').set_value(title)
+                self.set_window_title('Untitled')
+                self.save_as()
             self.update_view()
 
     def open(self):

@@ -106,6 +106,7 @@ def load_game(game_state, save_slot):
     save_loc = save_slot.save_loc
     with open(save_loc, 'rb') as fp:
         s_dict = pickle.load(fp)
+    game_state.build_new()
     game_state.load(s_dict)
     game_state.current_save_slot = save_slot
 

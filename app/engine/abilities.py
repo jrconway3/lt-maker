@@ -58,12 +58,14 @@ class TalkAbility(Ability):
         return set([u.position for u in adj_allies if (unit.nid, u.nid) in game.talk_options])
 
     @staticmethod
-    def do(self, unit):
+    def do(unit):
         u = game.board.get_unit(game.cursor.position)
+        game.state.back()
+        action.do(action.HasTraded(unit))
         did_trigger = game.events.trigger('on_talk', unit, u, unit.position)
-        if did_trigger:
+        if did_trigger and (unit.nid, u.nid) in game.talk_options:
             game.talk_options.remove((unit.nid, u.nid))
-
+        
 class DropAbility(Ability):
     name = "Drop"
 
@@ -158,7 +160,7 @@ class TradeAbility(Ability):
         return set([u.position for u in adj_allies if unit.team == u.team])
 
     @staticmethod
-    def do(self, unit):
+    def do(unit):
         game.state.change('trade')
 
 ABILITIES = Ability.__subclasses__()

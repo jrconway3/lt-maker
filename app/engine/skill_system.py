@@ -163,7 +163,7 @@ def stat_change(unit, stat) -> int:
 
 def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
-        for component in skill.component:
+        for component in skill.components:
             if component.defines('on_upkeep'):
                 component.on_upkeep(actions, playback, unit)
     return actions, playback

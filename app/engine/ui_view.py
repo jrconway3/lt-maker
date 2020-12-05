@@ -299,6 +299,9 @@ class UIView():
         self.attack_info_disp = None
         self.attack_info_offset = 80
 
+    def reset_attack_info(self):
+        self.attack_info_disp = None
+
     def draw_attack_info(self, surf, attacker, defender):
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, defender)

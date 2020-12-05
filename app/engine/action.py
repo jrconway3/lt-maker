@@ -738,6 +738,48 @@ class RemoveTalk(Action):
         if self.did_remove:
             game.talk_options.append((self.unit1, self.unit2))
 
+class AddRegion(Action):
+    def __init__(self, region):
+        self.region = region
+        self.did_add = False
+
+    def do(self):
+        if self.region.nid in game.level.regions:
+            pass
+        else:
+            game.level.regions.append(self.region)
+            self.did_add = True
+
+    def reverse(self):
+        if self.did_add:
+            game.level.regions.delete(self.region)
+
+class ChangeRegionCondition(Action):
+    def __init__(self, region, condition):
+        self.region = region
+        self.old_condition = self.region.condition
+        self.new_condition = condition
+
+    def do(self):
+        self.region.condition = self.new_condition
+
+    def reverse(self):
+        self.region.condition = self.old_condition
+        
+class RemoveRegion(Action):
+    def __init__(self, region):
+        self.region = region
+        self.did_remove = False
+
+    def do(self):
+        if self.region.nid in game.level.regions.keys():
+            game.level.regions.delete(self.region)
+            self.did_remove = True
+
+    def reverse(self):
+        if self.did_remove:
+            game.level.regions.append(self.region)
+
 class RecordRandomState(Action):
     run_on_load = True  # TODO is this necessary?
 

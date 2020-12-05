@@ -418,7 +418,7 @@
         "regions": [
             {
                 "nid": "House1",
-                "region_type": "Event",
+                "region_type": "event",
                 "position": [
                     13,
                     6
@@ -433,7 +433,7 @@
             },
             {
                 "nid": "House2",
-                "region_type": "Event",
+                "region_type": "event",
                 "position": [
                     10,
                     4
@@ -448,7 +448,7 @@
             },
             {
                 "nid": "Gate",
-                "region_type": "Event",
+                "region_type": "event",
                 "position": [
                     2,
                     2
@@ -463,7 +463,7 @@
             },
             {
                 "nid": "EnemyRein",
-                "region_type": "Normal",
+                "region_type": "normal",
                 "position": [
                     0,
                     0
@@ -833,7 +833,7 @@
         "regions": [
             {
                 "nid": "Village1",
-                "region_type": "Event",
+                "region_type": "event",
                 "position": [
                     4,
                     2
@@ -848,7 +848,7 @@
             },
             {
                 "nid": "Village2",
-                "region_type": "Event",
+                "region_type": "event",
                 "position": [
                     7,
                     2
@@ -863,7 +863,7 @@
             },
             {
                 "nid": "VIllage3",
-                "region_type": "Event",
+                "region_type": "event",
                 "position": [
                     1,
                     12
@@ -878,7 +878,7 @@
             },
             {
                 "nid": "Armory",
-                "region_type": "Event",
+                "region_type": "event",
                 "position": [
                     5,
                     7

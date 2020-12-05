@@ -15,6 +15,19 @@ class OptionValidator(Validator):
 class Condition(Validator):
     pass
 
+class Nid(Validator):
+    """
+    Any nid will do, because we cannot know what
+    objects will have been created
+    """
+    pass
+
+class SubRegionType(Validator):
+    """
+    Any string will do
+    """
+    pass
+
 class PositiveInteger(Validator):
     def validate(self, text, level):
         if str_utils.is_int(text) and int(text) > 0:
@@ -153,6 +166,15 @@ class Position(Validator):
             return text
         return None
 
+class Size(Validator):
+    def validate(self, text, level):
+        text = text.split(',')
+        if len(text) > 2:
+            return None
+        if not all(str_utils.is_int(t) and int(t) > 0 for t in text):
+            return None
+        return text
+
 class Unit(Validator):
     def validate(self, text, level):
         if not level:
@@ -211,6 +233,9 @@ class MovementType(OptionValidator):
 
 class RemoveType(OptionValidator):
     valid = ['fade', 'immediate', 'warp']
+
+class RegionType(OptionValidator):
+    valud = ['normal', 'event', 'status', 'formation']
 
 class CombatScript(Validator):
     valid_commands = ['hit1', 'hit2', 'crit1', 'crit2', 'miss1', 'miss2', '--', 'end']

@@ -9,7 +9,7 @@ from app.engine import engine, image_mods, icons, unit_funcs, action
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
-from app.engine.state import State, MapState
+from app.engine.state import MapState
 from app.engine.state_machine import SimpleStateMachine
 from app.engine.animations import Animation
 from app.engine.game_state import game

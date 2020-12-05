@@ -397,7 +397,7 @@ class TurnwheelDisplay():
         FONT['text-blue'].blit(count_str, count_bg, (24 - count_width/2, 3))
         surf.blit(count_bg, (4, WINHEIGHT - 28 - self.transition))
         # Num uses
-        if game.game_vars.get('max_turnwheel_uses', -1) > 0:
+        if game.game_vars.get('_max_turnwheel_uses', -1) > 0:
             uses_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
             uses_text = str(game.game_vars['_current_turnwheel_uses']) + ' Left'
             x = 48 - FONT['text-blue'].width(uses_text) - 8

@@ -2,7 +2,7 @@ from app.constants import WINWIDTH, WINHEIGHT, FRAMERATE
 from app.resources.resources import RESOURCES
 from app.engine.sound import SOUNDTHREAD
 from app.data.database import DB
-from app.events import event_commands
+from app.events import event_commands, regions
 from app.events.event_portrait import EventPortrait
 from app.utilities import utils
 from app.engine import dialog, engine, background, target_system, action, \
@@ -318,6 +318,26 @@ class Event():
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 
+        elif command.nid == 'game_var':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            to_eval = values[1]
+            try:
+                val = eval(to_eval)
+                game.game_vars[nid] = val
+            except:
+                logger.error("Could not evaluate {%s}" % to_eval)
+
+        elif command.nid == 'level_var':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            to_eval = values[1]
+            try:
+                val = eval(to_eval)
+                game.level_vars[nid] = val
+            except:
+                logger.error("Could not evaluate {%s}" % to_eval)
+
         elif command.nid == 'win_game':
             game.level_vars['_win_game'] = True
 
@@ -373,6 +393,27 @@ class Event():
         elif command.nid == 'remove_talk':
             values, flags = event_commands.parse(command)
             action.do(action.RemoveTalk(values[0], values[1]))
+
+        elif command.nid == 'add_region':
+            self.add_region(command)
+
+        elif command.nid == 'region_condition':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            if nid in game.level.regions.keys():
+                region = game.level.regions.get(nid)
+                action.do(action.ChangeRegionCondition(region, values[1]))
+            else:
+                print("Couldn't find Region %s" % nid)
+
+        elif command.nid == 'remove_region':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            if nid in game.level.regions.keys():
+                region = game.level.regions.get(nid)
+                action.do(action.RemoveRegion(region))
+            else:
+                print("Couldn't find Region %s" % nid)
 
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
@@ -921,6 +962,33 @@ class Event():
         game.memory['exp'] = (unit, exp, None, 'init')
         game.state.change('exp')
         self.state = 'paused'
+
+    def add_region(self, command):
+        values, flags = event_commands.parse(command)
+        nid = values[0]
+        if nid in game.level.regions.keys():
+            print("Region nid %s already present!" % nid)
+            return
+        position = self.parse_pos(values[1])
+        size = self.parse_pos(values[2])
+        if not size:
+            size = (1, 1)
+        region_type = values[3].lower()
+        if len(values) > 4 and values[4]:
+            sub_region_type = values[4]
+        else:
+            sub_region_type = None
+
+        new_region = regions.Region(nid)
+        new_region.region_type = region_type
+        new_region.position = position
+        new_region.size = size
+        new_region.sub_nid = sub_region_type
+
+        if 'only_once' in flags:
+            new_region.only_once = True
+
+        action.do(action.AddRegion(new_region))
 
     def parse_pos(self, text):
         position = None

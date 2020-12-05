@@ -116,10 +116,10 @@ class RegionModel(DragDropCollectionModel):
         if role == Qt.DisplayRole:
             reg = self._data[index.row()]
             text = reg.nid + ': ' + reg.region_type
-            if reg.region_type == 'Status':
+            if reg.region_type == 'status':
                 if reg.sub_nid:
                     text += ' ' + reg.sub_nid
-            elif reg.region_type == 'Event':
+            elif reg.region_type == 'event':
                 if reg.sub_nid:
                     text += ' ' + reg.sub_nid
                 if reg.condition:
@@ -208,18 +208,18 @@ class ModifyRegionWidget(QWidget):
     def region_type_changed(self, index):
         if not self.current:
             return
-        self.current.region_type = self.region_type_box.edit.currentText()
-        if self.current.region_type in ('Normal', 'Formation'):
+        self.current.region_type = self.region_type_box.edit.currentText().lower()
+        if self.current.region_type in ('normal', 'formation'):
             self.sub_nid_box.hide()
             self.condition_box.hide()
             self.only_once_box.hide()
             self.status_box.hide()
-        elif self.current.region_type == 'Status':
+        elif self.current.region_type == 'status':
             self.sub_nid_box.hide()
             self.condition_box.hide()
             self.only_once_box.hide()
             self.status_box.show()
-        elif self.current.region_type == 'Event':
+        elif self.current.region_type == 'event':
             self.sub_nid_box.show()
             self.condition_box.show()
             self.only_once_box.show()
@@ -246,9 +246,9 @@ class ModifyRegionWidget(QWidget):
         self.region_type_box.edit.setValue(current.region_type)
         self.condition_box.edit.setText(current.condition)
         self.only_once_box.edit.setChecked(bool(current.only_once))
-        if current.region_type == 'Status':
+        if current.region_type == 'status':
             self.status_box.edit.setValue(current.sub_nid)
-        elif current.region_type == 'Event':
+        elif current.region_type == 'event':
             self.sub_nid_box.edit.setText(current.sub_nid)
         else:
             self.sub_nid_box.edit.setText('')

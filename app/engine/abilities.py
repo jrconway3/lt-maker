@@ -63,8 +63,8 @@ class TalkAbility(Ability):
         game.state.back()
         action.do(action.HasTraded(unit))
         did_trigger = game.events.trigger('on_talk', unit, u, unit.position)
-        if did_trigger and (unit.nid, u.nid) in game.talk_options:
-            game.talk_options.remove((unit.nid, u.nid))
+        if did_trigger:
+            action.do(action.RemoveTalk(unit, u))
         
 class DropAbility(Ability):
     name = "Drop"

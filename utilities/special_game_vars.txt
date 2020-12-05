@@ -1,0 +1,13 @@
+Special Game Vars
+
+_random_seed
+_next_level_nid
+_current_turnwheel_uses
+_max_turnwheel_uses
+_convoy
+_fatigue
+_prep_market
+
+Special Level Vars
+_win_game
+_lose_game

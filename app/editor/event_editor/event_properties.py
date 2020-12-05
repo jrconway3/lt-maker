@@ -356,7 +356,7 @@ class EventProperties(QWidget):
         self.addAction(self.find_action)
         self.addAction(self.replace_action)
         self.addAction(self.replace_all_action)
-        
+
         # Text setup
         self.cursor = self.text_box.textCursor()
         self.font = QFont()
@@ -421,7 +421,7 @@ class EventProperties(QWidget):
         for level in DB.levels:
             if level_nid == 'Global' or level_nid == level.nid: 
                 for region in level.regions:
-                    if region.region_type == 'Event':
+                    if region.region_type == 'event':
                         all_custom_triggers.add(region.sub_nid)
         all_items += list(all_custom_triggers)
         all_items += [trigger.nid for trigger in event_prefab.all_triggers]

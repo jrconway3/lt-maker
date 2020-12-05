@@ -341,7 +341,7 @@ class GameState():
     def get_all_formation_spots(self) -> list:
         legal_spots = set()
         for region in game.level.regions:
-            if region.region_type == 'Formation':
+            if region.region_type == 'formation':
                 for x in range(region.size[0]):
                     for y in range(region.size[1]):
                         legal_spots.add((region.position[0] + x, region.position[1] + y))

@@ -147,6 +147,18 @@ class MoveCursor(EventCommand):
     keywords = ["Position"]
     flags = ["immediate"]
 
+class GameVar(EventCommand):
+    nid = 'game_var'
+    tag = 'general'
+
+    keywords = ["Nid", "Condition"]
+
+class LevelVar(EventCommand):
+    nid = 'level_var'
+    tag = 'general'
+
+    keywords = ["Nid", "Condition"]
+
 class WinGame(EventCommand):
     nid = 'win_game'
     tag = "general"
@@ -253,6 +265,26 @@ class RemoveTalk(EventCommand):
     tag = 'unit'
 
     keywords = ["Unit", "Unit"]
+
+class AddRegion(EventCommand):
+    nid = 'add_region'
+    tag = 'general'
+
+    keywords = ["Nid", "Position", "Size", "RegionType"]
+    optional_keywords = ["SubRegionType"]
+    flags = ["only_once"]
+
+class RegionCondition(EventCommand):
+    nid = 'region_condition'
+    tag = 'general'
+
+    keywords = ["Nid", "Condition"]
+
+class RemoveRegion(EventCommand):
+    nid = 'remove_region'
+    tag = 'general'
+
+    keywords = ["Nid"]
 
 class Prep(EventCommand):
     nid = 'prep'

@@ -142,7 +142,7 @@ class PrepPickUnitsState(State):
             else:
                 possible_position = game.get_next_formation_spot()
                 is_fatigued = False
-                if DB.constants.value('fatigue') and game.game_vars['fatigue'] == 1:
+                if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
                     if unit.current_fatigue >= equations.parser.max_fatigue(unit):
                         is_fatigued = True  
                 if possible_position and not is_fatigued:
@@ -396,14 +396,14 @@ class PrepManageSelectState(State):
 
         options = ['Trade', 'Restock', 'Give all', 'Optimize', 'Items', 'Market']
         ignore = [False, True, True, True, True, True]
-        if 'convoy' in game.game_vars:
+        if '_convoy' in game.game_vars:
             ignore = [False, True, True, False, False, True]
             tradeable_items = item_funcs.get_all_tradeable_items(self.unit)
             if tradeable_items:
                 ignore[2] = False
             if any(convoy_funcs.can_restock(item) for item in tradeable_items):
                 ignore[1] = False
-        if 'prep_market' in game.game_vars:
+        if '_prep_market' in game.game_vars:
             ignore[5] = False
         self.select_menu = menus.Table(self.unit, options, (3, 2), (128, 80))
         self.select_menu.set_ignore(ignore)

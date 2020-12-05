@@ -470,7 +470,7 @@ class MenuState(MapState):
         # Handle region event options
         self.valid_regions = []
         for region in game.level.regions:
-            if region.region_type == 'Event' and region.contains(self.cur_unit.position):
+            if region.region_type == 'event' and region.contains(self.cur_unit.position):
                 try:
                     unit = self.cur_unit  # For condition
                     logger.debug("Testing region: %s %s", region.condition, eval(region.condition))
@@ -557,8 +557,7 @@ class MenuState(MapState):
                     if region.sub_nid == selection:
                         did_trigger = game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
                         if did_trigger and region.only_once:
-                            # No longer exists
-                            game.level.regions.delete(region)
+                            action.do(action.RemoveRegion(region))
                         if did_trigger:
                             action.do(action.HasAttacked(self.cur_unit))
             else:  # Selection is one of the other abilities
@@ -641,7 +640,7 @@ class ItemChildState(MapState):
             if item_system.target_restrict(self.cur_unit, item, defender, splash):
                 options.append("Use")
         if not item_system.locked(self.cur_unit, item):
-            if 'convoy' in game.game_vars:
+            if '_convoy' in game.game_vars:
                 options.append('Storage')
             else:
                 options.append('Discard')
@@ -699,7 +698,7 @@ class ItemDiscardState(MapState):
         options = self.cur_unit.items
         self.menu = menus.Choice(self.cur_unit, options)
 
-        if 'convoy' in game.game_vars:
+        if '_convoy' in game.game_vars:
             self.pennant = banner.Pennant('Choose item to send to storage')
         else:
             self.pennant = banner.Pennant('Choose item to discard')
@@ -942,9 +941,9 @@ class CombatTargetingState(MapState):
             new_position = self.selection.get_right(game.cursor.position)
             game.cursor.set_pos(new_position)
 
-        new_position = self.selection.handle_mouse()
-        if new_position:
-            game.cursor.set_pos(new_position)
+        mouse_position = self.selection.handle_mouse()
+        if mouse_position:
+            game.cursor.set_pos(mouse_position)
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
@@ -966,8 +965,9 @@ class CombatTargetingState(MapState):
                 game.combat_instance = combat
                 game.state.change('combat')
 
-        if directions:
+        if directions or mouse_position:
             SOUNDTHREAD.play_sfx('Select 6')
+            game.ui_view.reset_attack_info()
             self.display_single_attack()
 
     def draw(self, surf):
@@ -1220,7 +1220,7 @@ class ShopState(State):
                         if not item_funcs.inventory_full(self.unit, new_item):
                             self.unit.add_item(new_item)
                             self.current_msg = self.get_dialog('shop_buy_again')
-                        elif 'convoy' in game.game_vars:
+                        elif '_convoy' in game.game_vars:
                             new_item.owner_nid = None
                             game.party.convoy.append(new_item)
                             self.current_msg = self.get_dialog('shop_convoy')

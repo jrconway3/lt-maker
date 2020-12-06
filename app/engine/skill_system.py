@@ -48,7 +48,7 @@ modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avo
 # Takes in unit, item, target, mode returns bonus
 multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 # Takes in unit
-simple_event_hooks = ('init', 'remove', 'on_end_chapter')
+simple_event_hooks = ('on_end_chapter', )
 # Takes in playback, unit, item, target
 combat_event_hooks = ('start_combat', 'end_combat')
 # Takes in actions, playback, unit, item, target, mode
@@ -174,3 +174,25 @@ def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
             if component.defines('on_endstep'):
                 component.on_endstep(actions, playback, unit)
     return actions, playback
+
+def init(unit, skill):
+    for component in skill.components:
+        if component.defines('init'):
+            component.init(unit)
+
+def remove(unit, skill):
+    for component in skill.components:
+        if component.defines('remove'):
+            component.remove(unit)
+
+def get_text(skill) -> str:
+    for component in skill.components:
+        if component.defines('text'):
+            return component.text()
+    return None
+
+def get_cooldown(skill) -> float:
+    for component in skill.components:
+        if component.defines('cooldown'):
+            return component.cooldown()
+    return None

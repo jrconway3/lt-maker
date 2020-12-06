@@ -6,7 +6,7 @@ from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine
+from app.engine import engine, skill_system
 
 def get_item_icon(item):
     if not item:
@@ -51,7 +51,7 @@ def draw_skill(surf, skill, topleft, compact=True):
         return None
 
     surf.blit(image, topleft)
-    frac = skill.get_cooldown()
+    frac = skill_system.get_cooldown(skill)
     if frac is not None:
         cooldown_surf = SPRITES.get('icon_cooldown')
         index = utils.clamp(int(8 * frac), 0, 8)
@@ -61,7 +61,7 @@ def draw_skill(surf, skill, topleft, compact=True):
     if compact:
         pass
     else:
-        text = skill.get_text()
+        text = skill_system.get_text(skill)
         if text is not None:
             FONT['text-blue'].blit(text, surf, (topleft[0] + 16, topleft[1]))
     

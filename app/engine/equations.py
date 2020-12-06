@@ -25,7 +25,7 @@ class Parser():
     def create_replacement_dict(self):
         dic = {}
         for stat in DB.stats:
-            dic[stat.nid] = ("unit.stats['%s'] + unit.stat_bonus('%s')" % (stat.nid, stat.nid))
+            dic[stat.nid] = ("(unit.stats['%s'] + unit.stat_bonus('%s'))" % (stat.nid, stat.nid))
         for nid in self.equations.keys():
             dic[nid] = ("equations['%s'](equations, unit)" % nid)
         return dic

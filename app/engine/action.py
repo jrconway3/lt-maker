@@ -742,6 +742,7 @@ class AddRegion(Action):
     def __init__(self, region):
         self.region = region
         self.did_add = False
+        self.subactions = []
 
     def do(self):
         if self.region.nid in game.level.regions:
@@ -749,9 +750,21 @@ class AddRegion(Action):
         else:
             game.level.regions.append(self.region)
             self.did_add = True
+            # Remember to add the status from the unit
+            if self.region.region_type == 'status':
+                for unit in game.level.units:
+                    if unit.position and self.region.contains(unit.position):
+                        new_skill = DB.skills.get(self.region.sub_nid)
+                        self.subactions.append(AddSkill(unit, new_skill))
+            for act in self.subactions:
+                act.do()
 
     def reverse(self):
         if self.did_add:
+            for act in self.subactions:
+                act.reverse()
+            self.subactions.clear()
+            
             game.level.regions.delete(self.region)
 
 class ChangeRegionCondition(Action):
@@ -765,20 +778,34 @@ class ChangeRegionCondition(Action):
 
     def reverse(self):
         self.region.condition = self.old_condition
-        
+
 class RemoveRegion(Action):
     def __init__(self, region):
         self.region = region
         self.did_remove = False
+        self.subactions = []
 
     def do(self):
         if self.region.nid in game.level.regions.keys():
+            # Remember to remove the status from the unit
+            if self.region.region_type == 'status':
+                for unit in game.level.units:
+                    if unit.position and self.region.contains(unit.position):
+                        self.subactions.append(RemoveSkill(unit, self.region.sub_nid))
+
+            for act in self.subactions:
+                act.do()
+
             game.level.regions.delete(self.region)
             self.did_remove = True
 
     def reverse(self):
         if self.did_remove:
             game.level.regions.append(self.region)
+
+            for act in self.subactions:
+                act.reverse()
+            self.subactions.clear()
 
 class RecordRandomState(Action):
     run_on_load = True  # TODO is this necessary?

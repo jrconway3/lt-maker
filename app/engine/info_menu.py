@@ -809,7 +809,7 @@ class InfoMenuState(State):
 
         for idx, skill in enumerate(class_skills):
             left_pos = idx * 24
-            icons.draw_skill(surf, (left_pos + 8, 4))
+            icons.draw_skill(surf, skill, (left_pos + 8, 4))
 
         return surf
 

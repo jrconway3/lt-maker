@@ -324,7 +324,15 @@ class UnitSprite():
         topleft = left - max(0, (image.get_width() - 16)//2), top - 24
         surf.blit(image, topleft)
 
-        cur_unit = game.cursor.get_hover()
+        # Talk Options
+        if game.state.current() == 'free':
+            cur_unit = game.cursor.get_hover()
+        elif game.state.current() in ('move', 'menu', 'item', 'item_child', 'item_discard',
+                                      'weapon_choice', 'spell_choice', 'targeting',
+                                      'combat_targeting'):
+            cur_unit = game.cursor.cur_unit
+        else:
+            cur_unit = None
         if cur_unit:
             if (cur_unit.nid, self.unit.nid) in game.talk_options:
                 frame = (engine.get_time() // 100) % 8

@@ -2,7 +2,7 @@ from app.utilities import utils
 from app.utilities.data import Prefab
 from app.data.database import DB
 
-from app.engine import equations, item_system, item_funcs, skill_system
+from app.engine import equations, item_system, item_funcs, skill_system, unit_funcs
 from app.engine.game_state import game
 
 # Main unit object used by engine
@@ -54,7 +54,8 @@ class UnitObject(Prefab):
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}
 
-        self.skills = []
+        # Handle skills
+        self.skills = unit_funcs.get_starting_skills(self)
 
         self.current_hp = equations.parser.hitpoints(self)
         if 'MANA' in DB.equations:

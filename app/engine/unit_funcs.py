@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine import static_random
+from app.engine import static_random, item_funcs
 
 import logging
 logger = logging.getLogger(__name__)
@@ -63,3 +63,22 @@ def apply_stat_changes(unit, stat_changes: dict, in_base: bool = True):
     if in_base:
         unit.set_hp(1000)
         unit.set_mana(1000)
+
+def get_starting_skills(unit) -> list:
+    klass_obj = DB.classes.get(unit.klass)
+    current_klass = klass_obj
+    all_klasses = [klass_obj]
+    while current_klass and current_klass.tier > 1:
+        if klass_obj.promotes_from:
+            current_klass = DB.classes.get(klass_obj.promotes_from)
+            all_klasses.append(current_klass)
+        else:
+            break
+    all_klasses.reverse()
+    
+    skills_to_add = []
+    for idx, klass in enumerate(all_klasses):
+        for learned_skill in klass.learned_skills:
+            if learned_skill.level <= unit.level or klass != klass_obj:
+                skills_to_add.append(learned_skill.skill_nid)
+    return item_funcs.create_skills(unit, skills_to_add)

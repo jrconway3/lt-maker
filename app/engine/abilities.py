@@ -73,7 +73,7 @@ class DropAbility(Ability):
     def targets(unit) -> set:
         if unit.traveler and not unit.has_attacked:
             good_pos = set()
-            adj_positions = target_system.get_adjacent_positions(unit)
+            adj_positions = target_system.get_adjacent_positions(unit.position)
             traveler = unit.traveler
             for adj_pos in adj_positions:
                 if not game.board.get_unit(adj_pos) and game.moving_units.get_mcost(unit, adj_pos) <= equations.parser.movement(traveler):

@@ -43,6 +43,8 @@ class StatusUpkeepState(MapState):
                 self.playback.clear()
                 skill_system.on_upkeep(self.actions, self.playback, self.cur_unit)
                 if (self.actions or self.playback) and self.cur_unit.position:
+                    game.cursor.set_pos(self.cur_unit.position)
+                    self.cur_unit.sprite.change_state('selected')
                     self.health_bar = health_bar.MapCombatInfo('splash', self.cur_unit, None, None, None)
                     self.state = 'start'
                     self.last_update = engine.get_time()
@@ -66,6 +68,7 @@ class StatusUpkeepState(MapState):
 
         elif self.state == 'running':
             if engine.get_time() > self.last_update + self.time_for_change:
+                self.cur_unit.sprite.change_state('normal')
                 self.state = 'processing'
                 self.cur_unit = None
 

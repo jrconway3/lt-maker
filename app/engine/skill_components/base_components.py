@@ -120,7 +120,10 @@ class Time(SkillComponent):
         self.skill.data['turns'] = self.value
         self.skill.data['starting_turns'] = self.value
 
-    def on_upkeep(self, unit):
+    def on_upkeep(self, actions, playback, unit):
         self.skill.data['turns'] -= 1
         if self.skill.data['turns'] <= 0:
             action.do(action.RemoveSkill(unit, self.skill))
+
+    def text(self) -> str:
+        return str(self.skill.data['turns'])

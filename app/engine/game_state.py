@@ -125,6 +125,8 @@ class GameState():
             self.register_unit(unit)
             for item in unit.items:
                 self.register_item(item)
+            for skill in unit.skills:
+                self.register_skill(skill)
         for unit in self.current_level.units:
             self.arrive(unit)
 
@@ -135,6 +137,12 @@ class GameState():
 
     def save(self):
         self.action_log.record = False
+        # Units need to leave before saving -- this is so you don't 
+        # have to save region and terrain statuses
+        if self.current_level:
+            for unit in self.current_level.units:
+                self.leave(unit, True)
+
         s_dict = {'units': [unit.save() for unit in self.unit_registry.values()],
                   'items': [item.save() for item in self.item_registry.values()],
                   'skills': [skill.save() for skill in self.skill_registry.values()],
@@ -166,6 +174,11 @@ class GameState():
         else:
             meta_dict['level_title'] = 'Overworld'
             meta_dict['level_nid'] = None
+
+        # Now have units actually arrive on map
+        if self.current_level:
+            for unit in self.current_level.units:
+                self.arrive(unit, True)
 
         self.action_log.record = True
         return s_dict, meta_dict
@@ -286,7 +299,7 @@ class GameState():
         return item
 
     def get_skill(self, skill_uid):
-        skill = self.item_registry.get(skill_uid)
+        skill = self.skill_registry.get(skill_uid)
         return skill
 
     def get_party(self, party_nid):

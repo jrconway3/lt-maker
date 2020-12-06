@@ -16,5 +16,4 @@ Dialog box pops up when saving and autosaving
 
 Check exp?
 
-Check InfoMenu Help menu when switching between ites
 Add Info for skills in InfoMenu

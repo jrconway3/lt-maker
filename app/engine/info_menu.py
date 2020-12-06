@@ -32,6 +32,7 @@ class BoundingBox():
     aabb: tuple = None
     help_box: help_menu.HelpDialog = None
     state: str = None
+    first: bool = False
 
 info_states = ('personal_data', 'equipment', 'support_skills')
 
@@ -43,35 +44,44 @@ class InfoGraph():
         self.last_bb = None
         self.current_state = None
         self.cursor = menus.Cursor()
+        self.first_bb = None
 
     def clear(self):
         self.registry = {state: [] for state in info_states}
         self.registry.update({'growths': []})
         self.current_bb = None
+        self.last_bb = None
+        self.first_bb = None
 
     def set_current_state(self, state):
         self.current_state = state
 
-    def register(self, aabb, help_box, state):
+    def register(self, aabb, help_box, state, first=False):
         if isinstance(help_box, str):
             help_box = help_menu.HelpDialog(help_box)
 
         if state == 'all':
             for s in self.registry:
                 idx = len(self.registry[s])
-                self.registry[s].append(BoundingBox(idx, aabb, help_box, s))
+                self.registry[s].append(BoundingBox(idx, aabb, help_box, s, first))
         else:
             idx = len(self.registry[state])
-            self.registry[state].append(BoundingBox(idx, aabb, help_box, state))
+            self.registry[state].append(BoundingBox(idx, aabb, help_box, state, first))
 
     def set_transition_in(self):
         if self.last_bb and self.last_bb.state == self.current_state:
             self.current_bb = self.last_bb
             self.current_bb.help_box.set_transition_in()
         elif self.registry:
-            # For now, just use first help dialog
-            self.current_bb = self.registry[self.current_state][0]
-            self.current_bb.help_box.set_transition_in()
+            for bb in self.registry[self.current_state]:
+                if bb.first:
+                    self.current_bb = bb
+                    self.current_bb.help_box.set_transition_in()
+                    break
+            else:
+                # For now, just use first help dialog
+                self.current_bb = self.registry[self.current_state][0]
+                self.current_bb.help_box.set_transition_in()
 
     def set_transition_out(self):
         if self.current_bb:
@@ -637,10 +647,10 @@ class InfoMenuState(State):
             growth = self.unit.growths.get(stat_nid)
             FONT['text-blue'].blit_right(str(growth), surf, (47, 16 * idx + 24))
 
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('LCK'), surf, (111, 24)))
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('MOV'), surf, (111, 40)))
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('CON'), surf, (111, 56)))
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('HP'), surf, (111, 72)))
+        FONT['text-blue'].blit_right(str(self.unit.growths.get('LCK')), surf, (111, 24))
+        FONT['text-blue'].blit_right(str(self.unit.growths.get('MOV')), surf, (111, 40))
+        FONT['text-blue'].blit_right(str(self.unit.growths.get('CON')), surf, (111, 56))
+        FONT['text-blue'].blit_right(str(self.unit.growths.get('HP')), surf, (111, 72))
 
         if self.unit.traveler:
             trav = game.get_unit(self.unit.traveler)
@@ -666,7 +676,7 @@ class InfoMenuState(State):
         for idx, stat in enumerate(stat_list):
             name = DB.stats.get(stat).name
             FONT['text-yellow'].blit(name, surf, (8, 24 + 16 * idx))
-            self.info_graph.register((96 + 8, 24 + 16 * idx, 64, 16), '%s_desc' % stat, state)
+            self.info_graph.register((96 + 8, 24 + 16 * idx, 64, 16), '%s_desc' % stat, state, first=(idx == 0))
 
         FONT['text-yellow'].blit(DB.stats.get('LCK').name, surf, (72, 24))
         self.info_graph.register((96 + 72, 24, 64, 16), 'LCK_desc', state)
@@ -726,7 +736,7 @@ class InfoMenuState(State):
                 # Add text
                 pos = (offset + 7 + x_pos//2, 4)
                 FONT['text-blue'].blit_center(weapon_rank.nid, surf, pos)
-                self.info_graph.register((96 + pos[0] - x_pos//2 - 8, 24 + pos[1], x_pos, 16), "%s mastery level: %d" % (DB.weapons.get(weapon).name, value), 'support_skills')
+                self.info_graph.register((96 + pos[0] - x_pos//2 - 8, 24 + pos[1], x_pos, 16), "%s mastery level: %d" % (DB.weapons.get(weapon).name, value), 'support_skills', first=(idx==0))
 
         return surf
 
@@ -746,11 +756,11 @@ class InfoMenuState(State):
         for idx, item in enumerate(self.unit.nonaccessories):
             item_option = menu_options.FullItemOption(idx, item)
             item_option.draw(surf, 8, idx * 16 + 24)
-            self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment')
+            self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0))
         for idx, item in enumerate(self.unit.accessories):
             item_option = menu_options.FullItemOption(idx, item)
             item_option.draw(surf, 8, DB.constants.value('num_items') * 16 + idx * 16 + 24)
-            self.info_graph.register((96 + 8, DB.constants.value('num_items') * 16 + idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment')
+            self.info_graph.register((96 + 8, DB.constants.value('num_items') * 16 + idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0 and not self.unit.nonaccessories))
 
         # Battle stats
         battle_surf = SPRITES.get('battle_info')
@@ -797,6 +807,7 @@ class InfoMenuState(State):
         for idx, skill in enumerate(skills):
             left_pos = idx * 24
             icons.draw_skill(surf, skill, (left_pos + 8, 4), compact=False)
+            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 20, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name), 'support_skills')
 
         return surf
 
@@ -810,6 +821,8 @@ class InfoMenuState(State):
         for idx, skill in enumerate(class_skills):
             left_pos = idx * 24
             icons.draw_skill(surf, skill, (left_pos + 8, 4))
+            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 32, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name), 'personal_data')
+            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 32, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name), 'growths')
 
         return surf
 

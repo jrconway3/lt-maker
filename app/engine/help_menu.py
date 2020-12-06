@@ -1,6 +1,7 @@
 from app.constants import WINWIDTH, WINHEIGHT
 from app.data.database import DB
 
+from app.utilities import utils
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 import app.engine.config as cf
@@ -17,16 +18,7 @@ class HelpDialog():
         self.transition_in = False
         self.transition_out = 0
 
-        if not desc:
-            desc = ''
-        desc = text_funcs.translate(desc)
-        # Hard set num lines if desc is very short
-        if '\n' in desc:
-            self.lines = desc.splitlines()
-        else:
-            if len(desc) < 24:
-                num_lines = 1
-            self.lines = text_funcs.split(self.font, desc, num_lines, WINWIDTH - 8)
+        self.build_lines(desc, num_lines)
 
         greater_line_len = max([self.font.width(line) for line in self.lines])
         if self.name:
@@ -46,12 +38,26 @@ class HelpDialog():
     def get_height(self):
         return self.help_surf.get_height()
 
+    def build_lines(self, desc, num_lines):
+        if not desc:
+            desc = ''
+        desc = text_funcs.translate(desc)
+        # Hard set num lines if desc is very short
+        if '\n' in desc:
+            self.lines = desc.splitlines()
+        else:
+            if len(desc) < 24:
+                num_lines = 1
+            self.lines = text_funcs.split(self.font, desc, num_lines, WINWIDTH - 8)
+
     def set_transition_in(self):
         self.transition_in = True
+        self.transition_out = 0
+        self.start_time = engine.get_time()
 
     def handle_transition_in(self, time, h_surf):
         if self.transition_in:
-            progress = (time - self.start_time) / 130.
+            progress = utils.clamp((time - self.start_time) / 130., 0, 1)
             if progress >= 1:
                 self.transition_in = False
             else:
@@ -94,6 +100,7 @@ class HelpDialog():
         if time > self.last_time + 1000:  # If it's been at least a second since last update
             self.start_time = time - 16
             self.transition_in = True
+            self.transition_out = 0
         self.last_time = time
 
         help_surf = engine.copy_surface(self.help_surf)

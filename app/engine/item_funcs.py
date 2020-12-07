@@ -69,8 +69,11 @@ def create_skills(unit, skill_nid_list: list) -> list:
     skills = []
     for skill_nid in skill_nid_list:
         skill_prefab = DB.skills.get(skill_nid)
-        skill = SkillObject.from_prefab(skill_prefab)
-        skill.owner_nid = unit.nid
-        skill_system.init(unit, skill)
-        skills.append(skill)
+        if skill_prefab:
+            skill = SkillObject.from_prefab(skill_prefab)
+            skill.owner_nid = unit.nid
+            skill_system.init(unit, skill)
+            skills.append(skill)
+        else:
+            print("Couldn't find skill %s" % skill_nid)
     return skills

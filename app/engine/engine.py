@@ -184,6 +184,9 @@ def joystick_avail():
 def get_joystick():
     return pygame.joystick.Joystick(0)
 
+def get_mouse_pos():
+    return pygame.mouse.get_pos()
+
 # === loop functions ===
 DISPLAYSURF = None
 SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])

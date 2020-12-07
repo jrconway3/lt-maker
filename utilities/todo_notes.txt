@@ -7,7 +7,7 @@ Book pages frames with a number under them?
 
 Overworld
 Supports
-
+Base
 Turnwheel mouse support better
 Autotiles
 
@@ -15,5 +15,3 @@ Autotiles
 Dialog box pops up when saving and autosaving
 
 Check exp?
-
-Add Info for skills in InfoMenu

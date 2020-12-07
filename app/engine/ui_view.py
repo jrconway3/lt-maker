@@ -76,8 +76,9 @@ class UIView():
         # === Final drawing
         # Should be in topleft, unless cursor is in topleft, in which case it should be in bottomleft
         if self.unit_info_disp:
+            # If in top and not in right
             if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
-                    not (game.cursor.position[1] > TILEX // 2 + game.camera.get_x() - 1):
+                    not (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1):
                 surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
             else:
                 surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))

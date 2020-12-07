@@ -33,6 +33,8 @@ class Cursor():
         self.border_position = None  # Last position within movement borders
         self.stopped_at_move_border = False
 
+        self.mouse_mode: bool = False
+
     def get_hover(self):
         return game.board.get_unit(self.position)
 
@@ -185,24 +187,35 @@ class Cursor():
         # Handle keyboard first
         if 'LEFT' in directions and self.position[0] > 0:
             self.move(-1, 0)
-            game.camera.set_x(self.position[0])
+            game.camera.cursor_x(self.position[0])
+            self.mouse_mode = False
         elif 'RIGHT' in directions and self.position[0] < game.tilemap.width - 1:
             self.move(1, 0)
-            game.camera.set_x(self.position[0])
+            game.camera.cursor_x(self.position[0])
+            self.mouse_mode = False
 
         if 'UP' in directions and self.position[1] > 0:
             self.move(0, -1)
-            game.camera.set_y(self.position[1])
+            game.camera.cursor_y(self.position[1])
+            self.mouse_mode = False
         elif 'DOWN' in directions and self.position[1] < game.tilemap.height - 1:
             self.move(0, 1)
-            game.camera.set_y(self.position[1])
+            game.camera.cursor_y(self.position[1])
+            self.mouse_mode = False
 
         # Handle mouse
         mouse_position = INPUT.get_mouse_position()
         if mouse_position:
+            self.mouse_mode = True
+        if self.mouse_mode:
+            # Get the actual mouse position, irrespective if actually used recently
+            mouse_position = INPUT.get_real_mouse_position()
             new_pos = mouse_position[0] // TILEWIDTH, mouse_position[1] // TILEHEIGHT
+            new_pos = int(new_pos[0] + game.camera.get_x()), int(new_pos[1] + game.camera.get_y())
             dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
             self.move(dpos[0], dpos[1], mouse=True)
+            game.camera.cursor_x(self.position[0])
+            game.camera.cursor_y(self.position[1])
 
     def update(self):
         self.cursor_counter.update(engine.get_time())

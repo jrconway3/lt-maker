@@ -32,7 +32,7 @@ class Defaults():
         return 0
 
 # Takes in unit, returns False if not present
-default_behaviours = ('has_canto', 'pass_through', 'vantage', 'class_skill', 'feat', 'negative', 'ignore_terrain')
+default_behaviours = ('has_canto', 'pass_through', 'vantage', 'class_skill', 'feat', 'negative', 'ignore_terrain', 'ignore_region_status')
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'sight_range')
 # Takes in unit and target, returns default value

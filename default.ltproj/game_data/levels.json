@@ -576,9 +576,9 @@
             "base": null
         },
         "objective": {
-            "simple": "",
-            "win": "",
-            "loss": ""
+            "simple": "Rout",
+            "win": "Defeat all enemies",
+            "loss": "Eirika dies"
         },
         "units": [
             {

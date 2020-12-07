@@ -43,7 +43,7 @@ class Collection(QWidget):
         grid.addWidget(self.button, 1, 0)
 
         if self.window.allow_import_from_lt:
-            self.import_button = QPushButton("Import from Lex Talionis...")
+            self.import_button = QPushButton("Import Legacy data file...")
             self.import_button.clicked.connect(self.window.import_data)
             grid.addWidget(self.import_button, 2, 0)
 

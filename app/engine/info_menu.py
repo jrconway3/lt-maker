@@ -639,7 +639,7 @@ class InfoMenuState(State):
         return surf
 
     def create_growths_surf(self):
-        surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT))
+        surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
         stat_list = ('STR', 'MAG', 'SKL', 'SPD', 'DEF', 'RES')
         self.blit_stat_titles(surf, growths=True)
 

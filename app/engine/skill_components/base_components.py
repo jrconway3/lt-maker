@@ -93,6 +93,17 @@ class Avoid(SkillComponent):
     def modify_avoid(self, unit, item_to_avoid):
         return self.value
 
+class IgnoreTerrain(SkillComponent):
+    nid = 'ignore_terrain'
+    desc = "Unit will not be affected by terrain"
+    tag = 'base'
+
+    def ignore_terrain(self, unit):
+        return True
+
+    def ignore_region_status(self, unit):
+        return True
+
 class Hidden(SkillComponent):
     nid = 'hidden'
     desc = "Skill will not show up on screen"

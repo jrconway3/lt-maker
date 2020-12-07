@@ -18,6 +18,25 @@ class Camera():
         self.pan_speed = 0.125  
         self.pan_targets = []
 
+    def cursor_x(self, x):
+        if x <= self.target_x + 2:
+            self.target_x -= 1
+        elif x >= (TILEX + self.target_x - 3):
+            self.target_x += 1
+
+    def cursor_y(self, y):
+        if y <= self.target_y + 2:
+            self.target_y -= 1
+        elif y >= (TILEY + self.target_y - 3):
+            self.target_y += 1
+
+    def mouse_xy(self, x, y):
+        """
+        Gives mouse position
+        """
+        self.cursor_x(x)
+        self.cursor_y(y)
+
     def set_x(self, x):
         self.target_x = x
 

@@ -351,10 +351,11 @@ class GameState():
                     new_skill = DB.skills.get(terrain.status)
                     action.do(action.AddSkill(unit, new_skill))
             # Regions
-            for region in game.level.regions:
-                if region.region_type == 'status' and region.contains(unit.position):
-                    new_skill = DB.skills.get(region.sub_nid)
-                    action.do(action.AddSkill(unit, new_skill))
+            if not skill_system.ignore_region_status(unit):
+                for region in game.level.regions:
+                    if region.region_type == 'status' and region.contains(unit.position):
+                        new_skill = DB.skills.get(region.sub_nid)
+                        action.do(action.AddSkill(unit, new_skill))
             # Auras
 
     def check_for_region(self, position, region_type):

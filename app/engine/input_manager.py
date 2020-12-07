@@ -1,3 +1,5 @@
+from app.constants import WINWIDTH, WINHEIGHT
+
 from app.engine import engine
 from app.engine import config as cf
 
@@ -52,6 +54,18 @@ class InputManager():
             return (self.current_mouse_position[0] // cf.SETTINGS['screen_size'],
                     self.current_mouse_position[1] // cf.SETTINGS['screen_size'])
         else:
+            return None
+
+    def get_real_mouse_position(self):
+        """
+        # Works whether or not mouse has been moved recently
+        """
+        mouse_pos = engine.get_mouse_pos()
+        mouse_pos = (mouse_pos[0] // cf.SETTINGS['screen_size'],
+                     mouse_pos[1] // cf.SETTINGS['screen_size'])
+        if mouse_pos[0] >= 0 and mouse_pos[1] >= 0 and mouse_pos[0] < WINWIDTH and mouse_pos[1] < WINHEIGHT:
+            return mouse_pos
+        else:  # Returns None if mouse is not in screen
             return None
 
     def update(self):

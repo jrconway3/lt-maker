@@ -426,7 +426,7 @@ class Event():
 
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
-            if values[0].lower() in ('1', 't', 'true', 'y', 'yes'):
+            if values and values[0].lower() in ('1', 't', 'true', 'y', 'yes'):
                 b = True
             else:
                 b = False

@@ -2245,5 +2245,44 @@
             ]
         ],
         "only_once": false
+    },
+    {
+        "nid": "Intro2",
+        "trigger": "level_start",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "This is the prep screen!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "prep",
+                []
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ]
+        ],
+        "only_once": false
     }
 ]

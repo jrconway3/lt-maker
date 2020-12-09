@@ -255,17 +255,17 @@ class MapView(SimpleMapView):
                             under_unit.starting_position = None
                         if under_unit is current_unit:
                             message = "Removed unit %s from map" % (current_unit.nid)
-                            self.main_editor.status_bar.showMessage(message)
+                            self.main_editor.set_message(message)
                         elif current_unit.starting_position:
                             print("Move Unit")
                             current_unit.starting_position = pos
                             message = "Moved unit %s to (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
-                            self.main_editor.status_bar.showMessage(message)
+                            self.main_editor.set_message(message)
                         else:
                             print("Place Unit")
                             current_unit.starting_position = pos
                             message = "Placed unit %s at (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
-                            self.main_editor.status_bar.showMessage(message)
+                            self.main_editor.set_message(message)
                         self.update_view()
                 elif event.button() == self.settings.value('select_button', Qt.LeftButton):
                     under_unit = self.check_position(self.main_editor.current_level, pos)
@@ -286,7 +286,7 @@ class MapView(SimpleMapView):
                         else:
                             current_group.positions[current_unit.nid] = pos
                             message = "Group %s unit %s's position to (%d, %d)" % (current_group.nid, current_unit.nid, pos[0], pos[1])
-                        self.main_editor.status_bar.showMessage(message)
+                        self.main_editor.set_message(message)
                         self.update_view()
                 elif event.button() == self.settings.value('select_button', Qt.LeftButton):
                     current_group = self.main_editor.group_painter_menu.get_current()
@@ -322,6 +322,7 @@ class MapView(SimpleMapView):
         if self.current_map and self.current_map.check_bounds(pos):
             self.current_mouse_pos = pos
             self.main_editor.set_position_bar(pos)
+            under_unit = self.check_position(self.main_editor.current_level, pos)
             
             if self.main_editor.dock_visibility['Regions']:
                 current_region = None
@@ -333,6 +334,8 @@ class MapView(SimpleMapView):
                     self.main_editor.set_message("Region ID: %s" % current_region.nid)
                 else:
                     self.main_editor.set_message(None)
+            elif self.main_editor.dock_visibility['Units'] and under_unit:
+                self.main_editor.set_message("%s" % under_unit.nid)
             else:
                 terrain_nid = self.current_map.get_terrain(pos)
                 terrain = DB.terrain.get(terrain_nid)

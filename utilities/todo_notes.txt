@@ -15,3 +15,9 @@ Autotiles
 Dialog box pops up when saving and autosaving
 
 Check exp?
+
+Check settings menu with mouse
+Work with Prep Menu
+Confirm Help Menus are identical to in-game
+Confirm Items screen is identical
+

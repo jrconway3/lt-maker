@@ -24,13 +24,13 @@ class PrepMainState(MapState):
         game.cursor.autocursor()
         game.boundary.hide()
 
-        imgs = RESOURCES.panoramas.get('focus_fade')
+        imgs = SPRITES.get('focus_fade').convert_alpha()
         self.bg = PanoramaBackground(imgs) if imgs else None
 
         options = ['Manage', 'Formation', 'Options', 'Save', 'Fight']
         if game.memory['prep_pick']:
             options.insert(0, 'Pick Units')
-        self.menu = menus.Choice(None, options)
+        self.menu = menus.Choice(None, options, topleft='center')
 
         # Force place any required units
         for unit in game.get_units_in_party():
@@ -72,7 +72,7 @@ class PrepMainState(MapState):
                 game.state.change('transition_to')
             elif selection == 'Save':
                 game.memory['save_kind'] = 'prep'
-                game.memory['next_state'] = 'start_save'
+                game.memory['next_state'] = 'title_save'
                 game.state.change('transition_to')
             elif selection == 'Fight':
                 if any(unit.position for unit in game.level.units):

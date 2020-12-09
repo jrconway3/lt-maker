@@ -19,7 +19,7 @@ def create_items(unit, item_nid_list: list) -> list:
         item = ItemObject.from_prefab(item_prefab)
         item.owner_nid = unit.nid
         item.droppable = droppable
-        item_system.init(unit, item)
+        item_system.init(item)
         items.append(item)
     return items
 
@@ -72,7 +72,7 @@ def create_skills(unit, skill_nid_list: list) -> list:
         if skill_prefab:
             skill = SkillObject.from_prefab(skill_prefab)
             skill.owner_nid = unit.nid
-            skill_system.init(unit, skill)
+            skill_system.init(skill)
             skills.append(skill)
         else:
             print("Couldn't find skill %s" % skill_nid)

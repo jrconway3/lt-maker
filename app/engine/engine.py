@@ -154,8 +154,16 @@ def transform_rotate(surf, degrees):
 def get_key_name(key_code):
     return pygame.key.name(key_code)
 
+key_map = {"enter": pygame.K_RETURN,
+           "tab": pygame.K_TAB,
+           "backspace": pygame.K_BACKSPACE,
+           "pageup": pygame.K_PAGEUP,
+           }
+
+events = []
 def get_events():
-    events = []
+    global events
+    events.clear()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()

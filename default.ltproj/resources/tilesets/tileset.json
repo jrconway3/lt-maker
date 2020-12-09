@@ -10,5 +10,9 @@
     {
         "nid": "Chpt2",
         "terrain_grid": {}
+    },
+    {
+        "nid": "SacredStonesBase",
+        "terrain_grid": {}
     }
 ]

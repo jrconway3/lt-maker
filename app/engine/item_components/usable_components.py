@@ -11,7 +11,7 @@ class Uses(ItemComponent):
     expose = Type.Int
     value = 1
 
-    def init(self, unit, item):
+    def init(self, item):
         item.data['uses'] = self.value
         item.data['starting_uses'] = self.value
 
@@ -39,7 +39,7 @@ class ChapterUses(ItemComponent):
     expose = Type.Int
     value = 1
 
-    def init(self, unit, item):
+    def init(self, item):
         item.data['c_uses'] = self.value
         item.data['starting_c_uses'] = self.value
 
@@ -101,7 +101,7 @@ class Cooldown(ItemComponent):
     expose = Type.Int
     value = 1
 
-    def init(self, unit, item):
+    def init(self, item):
         item.data['cooldown'] = 0
 
     def available(self, unit, item) -> bool:

@@ -210,7 +210,7 @@ class ClassProperties(QWidget):
             self.current.promotes_from = p
 
     def movement_changed(self, index):
-        self.movement_group = self.movement_box.edit.currentText()
+        self.current.movement_group = self.movement_box.edit.currentText()
 
     def max_level_changed(self, val):
         self.current.max_level = val

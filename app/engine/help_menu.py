@@ -17,8 +17,9 @@ class HelpDialog():
         self.last_time = self.start_time = 0
         self.transition_in = False
         self.transition_out = 0
+        self.num_lines = num_lines
 
-        self.build_lines(desc, num_lines)
+        self.build_lines(desc)
 
         greater_line_len = max([self.font.width(line) for line in self.lines])
         if self.name:
@@ -26,8 +27,8 @@ class HelpDialog():
 
         self.width = greater_line_len + 24
         if self.name:
-            num_lines += 1
-        self.height = self.font.height * num_lines + 16
+            self.num_lines += 1
+        self.height = self.font.height * self.num_lines + 16
 
         self.help_surf = base_surf.create_base_surf(self.width, self.height, 'message_bg_base') 
         self.h_surf = engine.create_surface((self.width, self.height + 3), transparent=True)
@@ -38,7 +39,7 @@ class HelpDialog():
     def get_height(self):
         return self.help_surf.get_height()
 
-    def build_lines(self, desc, num_lines):
+    def build_lines(self, desc):
         if not desc:
             desc = ''
         desc = text_funcs.translate(desc)
@@ -47,8 +48,8 @@ class HelpDialog():
             self.lines = desc.splitlines()
         else:
             if len(desc) < 24:
-                num_lines = 1
-            self.lines = text_funcs.split(self.font, desc, num_lines, WINWIDTH - 8)
+                self.num_lines = 1
+            self.lines = text_funcs.split(self.font, desc, self.num_lines, WINWIDTH - 8)
 
     def set_transition_in(self):
         self.transition_in = True

@@ -111,7 +111,7 @@ modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avo
                 'modify_defense_speed')
 
 # None of these are exclusive
-event_hooks = ('init', 'on_use', 'on_not_usable', 'on_end_chapter', 'on_upkeep', 'on_endstep',
+event_hooks = ('on_use', 'on_not_usable', 'on_end_chapter', 'on_upkeep', 'on_endstep',
                'on_equip', 'on_unequip', 'on_hold', 'on_drop')
 
 exclusive_hooks = false_hooks + default_hooks
@@ -330,3 +330,8 @@ def item_icon_mods(unit, item, target, sprite):
         if component.defines('item_icon_mods'):
             sprite = component.item_icon_mods(unit, item, target, sprite)
     return sprite
+
+def init(item):
+    for component in item.components:
+        if component.defines('init'):
+            component.init(item)

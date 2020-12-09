@@ -137,10 +137,12 @@ class Simple():
             self.options.append(option)
 
     def get_current(self):
-        return self.options[self.current_index].get()
+        if self.options:
+            return self.options[self.current_index].get()
 
     def get_current_option(self):
-        return self.options[self.current_index]
+        if self.options:
+            return self.options[self.current_index]
 
     def get_first_option(self):
         for option in self.options:

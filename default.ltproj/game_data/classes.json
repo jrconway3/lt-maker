@@ -2237,10 +2237,10 @@
     },
     {
         "nid": "Pegasus_Knight",
-        "name": "Pegasus Knigh",
+        "name": "Peg. Knigh",
         "desc": "Knights who soar through the skies.",
         "tier": 1,
-        "movement_group": "Light Cav",
+        "movement_group": "Fliers",
         "promotes_from": null,
         "turns_into": [],
         "tags": [

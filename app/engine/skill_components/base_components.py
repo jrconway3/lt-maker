@@ -127,7 +127,7 @@ class Time(SkillComponent):
     expose = Type.Int
     value = 2
 
-    def init(self, unit):
+    def init(self, skill):
         self.skill.data['turns'] = self.value
         self.skill.data['starting_turns'] = self.value
 

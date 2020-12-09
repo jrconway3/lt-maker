@@ -386,6 +386,15 @@ class Event():
                 print("Couldn't find AI %s" % values[1])
                 return
 
+        elif command.nid == 'set_current_hp':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return 
+            hp = int(values[1])
+            action.do(action.SetHP(unit, hp))
+
         elif command.nid == 'add_talk':
             values, flags = event_commands.parse(command)
             action.do(action.AddTalk(values[0], values[1]))
@@ -897,7 +906,7 @@ class Event():
         if item_nid in DB.items.keys():
             item_prefab = DB.items.get(item_nid)
             item = ItemObject.from_prefab(item_prefab)
-            item_system.init(unit, item)
+            item_system.init(item)
             game.register_item(item)
         else:
             print("Couldn't find item with nid %s" % item_nid)

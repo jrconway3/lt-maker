@@ -214,19 +214,30 @@ class UIView():
 
         return surf
 
+    def prepare_attack_info(self):
+        self.attack_info_disp = None
+        self.attack_info_offset = 80
+
+    def reset_info(self):
+        self.attack_info_disp = None
+        self.spell_info_disp = None
+
     def create_attack_info(self, attacker, defender):
         def blit_num(surf, num, x_pos, y_pos):
+            if num is None:
+                FONT['text-blue'].blit_right('--', surf, (x_pos, y_pos))
+                return
             if not isinstance(num, str) and num >= 100:
                 surf.blit(SPRITES.get('blue_100'), (x_pos - 16, y_pos))
             else:
                 FONT['text-blue'].blit_right(str(num), surf, (x_pos, y_pos))
 
         grandmaster = DB.constants.get('rng').value == 'Grandmaster'
-        crit = DB.constants.get('crit').value
+        crit_flag = DB.constants.value('crit')
 
         if grandmaster:
             surf = SPRITES.get('attack_info_grandmaster').copy()
-        elif crit:
+        elif crit_flag:
             surf = SPRITES.get('attack_info_crit').copy()
         else:
             surf = SPRITES.get('attack_info').copy()
@@ -236,7 +247,7 @@ class UIView():
         FONT['text-white'].blit(attacker.name, surf, (43 - width//2, 3))
         # Enemy name
         y_pos = 84
-        if not crit:
+        if not crit_flag:
             y_pos -= 16
         if grandmaster:
             y_pos -= 16
@@ -246,7 +257,7 @@ class UIView():
         if defender.get_weapon():
             width = FONT['text-white'].width(defender.get_weapon().name)
             y_pos = 100
-            if not crit:
+            if not crit_flag:
                 y_pos -= 16
             if grandmaster:
                 y_pos -= 16
@@ -266,7 +277,7 @@ class UIView():
             hit = combat_calcs.compute_hit(attacker, defender, attacker.get_weapon(), 'Attack')
             blit_num(surf, hit, 64, 51)
             # Blit crit if applicable
-            if crit:
+            if crit_flag:
                 c = combat_calcs.compute_crit(attacker, defender, attacker.get_weapon(), 'Attack')
                 blit_num(surf, c, 64, 67)
         # Enemy Hit and Mt
@@ -274,7 +285,7 @@ class UIView():
                 utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, defender.get_weapon()):
             e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'Defense')
             e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'Defense')
-            if crit:
+            if crit_flag:
                 e_crit = combat_calcs.compute_crit(defender, attacker, defender.get_weapon(), 'Defense')
             else:
                 e_crit = 0
@@ -291,17 +302,10 @@ class UIView():
         else:
             blit_num(surf, e_mt, 20, 35)
             blit_num(surf, e_hit, 20, 51)
-            if crit:
+            if crit_flag:
                 blit_num(surf, e_crit, 20, 67)
 
         return surf
-
-    def prepare_attack_info(self):
-        self.attack_info_disp = None
-        self.attack_info_offset = 80
-
-    def reset_attack_info(self):
-        self.attack_info_disp = None
 
     def draw_attack_info(self, surf, attacker, defender):
         if not self.attack_info_disp:
@@ -403,11 +407,13 @@ class UIView():
 
     def create_spell_info(self, attacker, defender):
         spell = attacker.get_spell()
-        if spell.spell.targets in (SpellTarget.Ally, SpellTarget.Enemy, SpellTarget.Unit):
+        if defender:
             height = 2
-            if spell.might is not None:
+            mt = combat_calcs.compute_damage(attacker, defender, attacker.get_spell(), 'Attack')
+            if mt is not None:
                 height += 1
-            if spell.hit is not None:
+            hit = combat_calcs.compute_hit(attacker, defender, attacker.get_spell(), 'Attack')
+            if hit is not None:
                 height += 1
 
             bg_surf = SPRITES.get('spell_window' + str(height))
@@ -432,17 +438,15 @@ class UIView():
             currenthp_width = FONT['text-blue'].width(currenthp)
             FONT['text-blue'].blit(currenthp, bg_surf, (width - 26 - currenthp_width, running_height))
 
-            if spell.might is not None:
+            if mt is not None:
                 running_height += 16
-                mt = combat_calcs.compute_damage(attacker, defender, spell, 'Attack')
                 FONT['text-yellow'].blit('Mt', bg_surf, (9, running_height))
                 mt_width = FONT['text-blue'].width(str(mt))
                 FONT['text-blue'].blit(str(mt), bg_surf, (width - 5 - mt_width, running_height))
 
-            if spell.hit is not None:
+            if hit is not None:
                 running_height += 16
                 FONT['text-yellow'].blit('Hit', bg_surf, (9, running_height))
-                hit = combat_calcs.compute_hit(attacker, defender, spell, 'Attack')
                 if hit >= 100:
                     bg_surf.blit(SPRITES.get('blue_100'), (width - 21, running_height))
                 else:
@@ -450,10 +454,10 @@ class UIView():
                     position = width - 5 - hit_width, running_height
                     FONT['text-blue'].blit(str(hit), bg_surf, position)
 
-            if DB.constants.get('crit').value and spell.crit is not None:
+            crit = combat_calcs.compute_crit(attacker, defender, attacker.get_spell(), 'Attack')
+            if DB.constants.value('crit') and crit is not None:
                 running_height += 16
                 FONT['text-yellow'].blit('Crit', bg_surf, (9, running_height))
-                crit = combat_calcs.compute_crit(attacker, defender, spell, 'Attack')
                 if crit >= 100:
                     bg_surf.blit(SPRITES.get('blue_100'), (width - 21, running_height))
                 else:
@@ -474,7 +478,8 @@ class UIView():
 
         else:
             height = 24
-            if spell.might is not None:
+            mt = combat_calcs.damage(attacker, attacker.get_spell())
+            if mt is not None:
                 height += 16
             real_surf = base_surf.create_base_surf((80, height), 'menu_bg_base_opaque')
             bg_surf = engine.create_surface((real_surf.get_width() + 2, real_surf.get_height() + 4), transparent=True)
@@ -487,9 +492,8 @@ class UIView():
 
             running_height = -10
 
-            if spell.might is not None:
+            if mt is not None:
                 running_height += 16
-                mt = combat_calcs.damage(attacker, defender, spell, "Attack")
                 FONT['text-yellow'].blit('Mt', bg_surf, (5, running_height))
                 mt_size = FONT['text-blue'].width(str(mt))
                 FONT['text-blue'].blit(str(mt), bg_surf, (width - 5 - mt_size, running_height))
@@ -501,6 +505,9 @@ class UIView():
             FONT['text-white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
 
             return bg_surf
+
+    def prepare_spell_info(self):
+        self.spell_info_disp = None
 
     def draw_spell_info(self, surf, attacker, defender):
         if not self.spell_info_disp:
@@ -583,7 +590,7 @@ class ItemDescriptionPanel():
                 desc = self.item.desc
             else:
                 desc = "Cannot wield."
-            lines = text_funcs.ine_wrap(FONT['text-white'], desc, width - 8)
+            lines = text_funcs.line_wrap(FONT['text-white'], desc, width - 8)
             for idx, line in enumerate(lines):
                 FONT['text-white'].blit(line, bg_surf, (4 + 2, 8 + idx * 16))
 

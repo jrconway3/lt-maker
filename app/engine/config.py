@@ -60,6 +60,19 @@ def save_settings():
         write_out = '\n'.join([k + '=' + str(v) for k, v in SETTINGS.items()])
         fp.write(write_out)
 
+def save_debug_commands(commands):
+    with open('saves/debug_commands.txt', 'w') as fp:
+        write_out = '\n'.join(commands)
+        fp.write(write_out)
+
+def get_debug_commands() -> list:
+    commands = []
+    if os.path.exists('saves/debug_commands.txt'):
+        with open('saves/debug_commands.txt', 'r') as fp:
+            for line in fp.readlines():
+                commands.append(line.strip())
+    return commands
+
 text_speed_options = list(reversed([0, 1, 5, 10, 15, 20, 32, 50, 80, 112, 150]))
 SETTINGS = read_config_file()
 print("debug: %s" % SETTINGS['debug'])

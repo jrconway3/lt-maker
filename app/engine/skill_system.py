@@ -175,15 +175,20 @@ def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
                 component.on_endstep(actions, playback, unit)
     return actions, playback
 
-def init(unit, skill):
+def init(skill):
     for component in skill.components:
         if component.defines('init'):
-            component.init(unit)
+            component.init(skill)
 
-def remove(unit, skill):
+def on_add(unit, skill):
     for component in skill.components:
-        if component.defines('remove'):
-            component.remove(unit)
+        if component.defines('on_add'):
+            component.on_add(unit, skill)
+
+def on_remove(unit, skill):
+    for component in skill.components:
+        if component.defines('on_remove'):
+            component.on_remove(unit, skill)
 
 def get_text(skill) -> str:
     for component in skill.components:

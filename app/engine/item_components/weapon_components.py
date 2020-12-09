@@ -96,7 +96,7 @@ class Effective(ItemComponent):
     expose = Type.Int
     value = 0
 
-    def init(self, unit, item):
+    def init(self, item):
         item.data['effective'] = self.value
 
 class EffectiveTag(ItemComponent):

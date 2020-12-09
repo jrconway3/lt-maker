@@ -55,12 +55,13 @@ class Cursor():
         self.position = pos
         game.ui_view.remove_unit_display()
 
-    def move(self, dx, dy, mouse=False):
+    def move(self, dx, dy, mouse=False, sound=True):
         x, y = self.position
         self.position = x + dx, y + dy
 
         SOUNDTHREAD.stop_sfx('Select 5')
-        SOUNDTHREAD.play_sfx('Select 5')
+        if sound:
+            SOUNDTHREAD.play_sfx('Select 5')
 
         if game.highlight.check_in_move(self.position):
             self.border_position = self.position
@@ -209,11 +210,11 @@ class Cursor():
             self.mouse_mode = True
         if self.mouse_mode:
             # Get the actual mouse position, irrespective if actually used recently
-            mouse_position = INPUT.get_real_mouse_position()
-            new_pos = mouse_position[0] // TILEWIDTH, mouse_position[1] // TILEHEIGHT
+            mouse_pos = INPUT.get_real_mouse_position()
+            new_pos = mouse_pos[0] // TILEWIDTH, mouse_pos[1] // TILEHEIGHT
             new_pos = int(new_pos[0] + game.camera.get_x()), int(new_pos[1] + game.camera.get_y())
             dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
-            self.move(dpos[0], dpos[1], mouse=True)
+            self.move(dpos[0], dpos[1], mouse=True, sound=bool(mouse_position))
             game.camera.cursor_x(self.position[0])
             game.camera.cursor_y(self.position[1])
 

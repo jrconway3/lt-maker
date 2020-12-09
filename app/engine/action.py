@@ -649,11 +649,17 @@ class ChangeHP(Action):
     def reverse(self):
         self.unit.set_hp(self.old_hp)
 
-class ChangeTileHP(Action):
-    def __init__(self, pos, num):
-        self.position = pos
-        self.num = num
-        self.old_hp = 1
+class SetHP(Action):
+    def __init__(self, unit, new_hp):
+        self.unit = unit
+        self.new_hp = new_hp
+        self.old_hp = self.unit.get_hp()
+
+    def do(self):
+        self.unit.set_hp(self.new_hp)
+
+    def reverse(self):
+        self.unit.set_hp(self.old_hp)
 
 class Die(Action):
     def __init__(self, unit):
@@ -764,7 +770,7 @@ class AddRegion(Action):
             for act in self.subactions:
                 act.reverse()
             self.subactions.clear()
-            
+
             game.level.regions.delete(self.region)
 
 class ChangeRegionCondition(Action):
@@ -839,10 +845,12 @@ class AddSkill(Action):
         for action in self.subactions:
             action.execute()
         self.unit.skills.append(self.skill_obj)
+        skill_system.on_add(self.unit, self.skill_obj)
 
     def reverse(self):
         if self.skill_obj in self.unit.skills:
             self.unit.skills.remove(self.skill_obj)
+            skill_system.on_remove(self.unit, self.skill_obj)
         else:
             logger.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
         for action in self.subactions:
@@ -859,10 +867,12 @@ class RemoveSkill(Action):
             for skill in self.unit.skills[:]:
                 if skill.nid == self.skill:
                     self.unit.skills.remove(skill)
+                    skill_system.on_remove(self.unit, skill)
                     self.removed_skills.append(skill)
         else:
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)
+                skill_system.on_remove(self.unit, self.skill)
                 self.removed_skills.append(self.skill)
             else:
                 logger.warning("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
@@ -870,6 +880,7 @@ class RemoveSkill(Action):
     def reverse(self):
         for skill in self.removed_skills:
             self.unit.skills.append(skill)
+            skill_system.on_add(self.unit, skill)
 
 # === Master Functions for adding to the action log ===
 def do(action):

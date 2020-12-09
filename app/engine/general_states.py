@@ -195,6 +195,10 @@ class OptionMenuState(MapState):
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
             ignore.insert(1, False)
+        if cf.SETTINGS['debug']:
+            options.insert(0, 'Debug')
+            info_desc.insert(0, 'Debug_desc')
+            ignore.insert(0, False)
         self.menu = menus.Choice(None, options, info=info_desc)
         self.menu.set_ignore(ignore)
 
@@ -252,6 +256,8 @@ class OptionMenuState(MapState):
                     # Add banner sound
                     game.alerts.append(alert)
                     game.state.change('alert')
+            elif selection == 'Debug':
+                game.state.change('debug')
 
         elif event == 'INFO':
             self.menu.toggle_info()
@@ -544,9 +550,14 @@ class MenuState(MapState):
 
             if selection == 'Item':
                 game.state.change('item')
-            elif selection in ('Attack', 'Spell'):
+            elif selection == 'Attack':
                 game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
+                game.memory['ability'] = self.target_dict[selection]
                 game.state.change('weapon_choice')
+            elif selection == 'Spell':
+                game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
+                game.memory['ability'] = self.target_dict[selection]
+                game.state.change('spell_choice')
             elif selection == 'Wait':
                 game.state.clear()
                 game.state.change('free')
@@ -772,9 +783,6 @@ class WeaponChoiceState(MapState):
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
         self.disp_attacks(self.cur_unit, self.menu.get_current())
 
-    def proceed(self):
-        game.state.change('attack')
-
     def take_input(self, event):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
@@ -827,14 +835,14 @@ class SpellChoiceState(WeaponChoiceState):
     name = 'spell_choice'
 
     def get_options(self, unit) -> list:
-        options = target_system.get_all_spells()
+        options = target_system.get_all_spells(unit)
         # Skill straining
         options = [option for option in options if target_system.get_valid_targets(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
-        spell_attacks = target_system.get_spell_attacks(unit, item)
-        game.highlight.display_possible_spells(spell_attacks)
+        spell_attacks = target_system.get_attacks(unit, item)
+        game.highlight.display_possible_spell_attacks(spell_attacks)
 
 class TargetingState(MapState):
     name = 'targeting'
@@ -902,6 +910,7 @@ class CombatTargetingState(MapState):
     def start(self):
         self.cur_unit = game.cursor.cur_unit
         self.item = game.memory['item']
+        self.ability = game.memory.get('ability')
 
         self.num_targets = item_system.num_targets(self.cur_unit, self.item)
         self.current_target_idx = 0
@@ -912,7 +921,10 @@ class CombatTargetingState(MapState):
         closest_pos = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_pos)
 
-        game.ui_view.prepare_attack_info()
+        if self.ability and self.ability.name == 'Spell':
+            game.ui_view.prepare_spell_info()
+        else:
+            game.ui_view.prepare_attack_info()
         self.display_single_attack()
 
     def begin(self):
@@ -967,18 +979,21 @@ class CombatTargetingState(MapState):
 
         if directions or mouse_position:
             SOUNDTHREAD.play_sfx('Select 6')
-            game.ui_view.reset_attack_info()
+            game.ui_view.reset_info()
             self.display_single_attack()
 
     def draw(self, surf):
         surf = super().draw(surf)
         if self.cur_unit and game.cursor.get_hover():
-            game.ui_view.draw_attack_info(surf, self.cur_unit, game.cursor.get_hover())
+            if self.ability and self.ability.name == 'Spell':
+                game.ui_view.draw_spell_info(surf, self.cur_unit, game.cursor.get_hover())
+            else:
+                game.ui_view.draw_attack_info(surf, self.cur_unit, game.cursor.get_hover())
         return surf
 
     def end(self):
         game.highlight.remove_highlights()
-        game.ui_view.attack_info_disp = None
+        game.ui_view.reset_info()
 
 # class SpellTargetingState(MapState):
 #     name = 'spell_targeting'

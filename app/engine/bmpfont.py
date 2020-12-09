@@ -47,7 +47,7 @@ class BmpFont():
             string = string.upper()
         if self.all_lowercase:
             string = string.lower()
-        string = string.replace('_', ' ')
+        # string = string.replace('_', ' ')
         return string
 
     def blit(self, string, surf, pos=(0, 0)):

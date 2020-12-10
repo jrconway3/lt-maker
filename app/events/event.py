@@ -447,6 +447,21 @@ class Event():
             game.state.change('shop')
             self.state = 'paused'
 
+        elif command.nid == 'chapter_title':
+            values, flags = event_commands.parse(command)
+            if len(values) > 0 and values[0]:
+                music = values[0]
+            else:
+                music = None
+            if len(values) > 1 and values[1]:
+                custom_string = values[1]
+            else:
+                custom_string = None
+            game.memory['chapter_title_music'] = music
+            game.memory['chapter_title_title'] = custom_string
+            game.state.change('chapter_title')
+            self.state = 'paused'
+
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
         name = values[0]

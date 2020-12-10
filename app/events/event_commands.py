@@ -271,7 +271,7 @@ class AddRegion(EventCommand):
     tag = 'general'
 
     keywords = ["Nid", "Position", "Size", "RegionType"]
-    optional_keywords = ["SubRegionType"]
+    optional_keywords = ["String"]
     flags = ["only_once"]
 
 class RegionCondition(EventCommand):
@@ -298,6 +298,12 @@ class Shop(EventCommand):
 
     keywords = ["ItemList"]
     optional_keywords = ["ShopFlavor"]  
+
+class ChapterTitle(EventCommand):
+    nid = 'chapter_title'
+    tag = 'general'
+
+    optional_keywords = ["Music", "String"]
 
 def get_commands():
     return EventCommand.__subclasses__()

@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSettings
 
-# testindex == self.window.view.currentIndex()
 if __name__ == '__main__':
     ap = QApplication(sys.argv)
     ap.setWindowIcon(QIcon('main_icon.ico'))

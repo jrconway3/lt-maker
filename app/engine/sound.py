@@ -314,6 +314,9 @@ class SoundController():
     def fade_in(self, next_song, num_plays=-1):
         logger.info("Fade in %s" % next_song)
         next_song = MUSIC.get(next_song)
+        if not next_song:
+            logger.info("Song does not exist")
+            return None
 
         if self.is_playing():
             current_song = self.song_stack[-1]

@@ -2253,26 +2253,6 @@
         "condition": "True",
         "commands": [
             [
-                "add_portrait",
-                [
-                    "Eirika",
-                    "Left"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "This is the prep screen!"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Eirika"
-                ]
-            ],
-            [
                 "prep",
                 []
             ],

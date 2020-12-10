@@ -7,6 +7,8 @@ from app.engine.game_state import game
 class GameOverState(State):
     name = 'game_over'
 
+    game_over_fade = SPRITES.get('game_over_fade').convert_alpha()
+
     def start(self):
         """
         Displays the game over screen for a little transition,
@@ -46,5 +48,8 @@ class GameOverState(State):
         self.bg.draw(surf)
         text_surf = image_mods.make_translucent(self.text_surf, self.text_transparency)
         engine.blit_center(surf, text_surf)
-        surf.blit(SPRITES.get('game_over_fade'), (0, 0))
+        surf.blit(self.game_over_fade, (0, 0))
         return surf
+
+    def finish(self):
+        game.memory['transition_speed'] = 1

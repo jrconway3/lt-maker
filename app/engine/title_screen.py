@@ -468,7 +468,10 @@ class TitleSaveState(State):
         elif event == 'SELECT':
             # Rename selection
             self.wait_time = engine.get_time()
-            if DB.constants.value('overworld'):
+            if self.name == 'in_chapter_save':
+                name = game.level.name
+                self.menu.set_text(self.menu.current_index, name)
+            elif DB.constants.value('overworld'):
                 name = 'overworld'
                 self.menu.set_name(self.menu.current_index, name)
             else:
@@ -484,19 +487,22 @@ class TitleSaveState(State):
         if self.wait_time and engine.get_time() - self.wait_time > 1250 and not self.leave_flag:
             self.leave_flag = True
 
-            current_state = game.state.state[-1]
-            print(game.state.state, flush=True)
-            next_level_nid = game.game_vars['_next_level_nid']
+            if self.name == 'in_chapter_save':
+                game.state.change('transition_pop')
+            else:
+                current_state = game.state.state[-1]
+                print(game.state.state, flush=True)
+                next_level_nid = game.game_vars['_next_level_nid']
 
-            game.load_states(['turn_change'])
-            save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
+                game.load_states(['turn_change'])
+                save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
 
-            game.start_level(next_level_nid)
-            print(game.state.state, flush=True)
+                game.start_level(next_level_nid)
+                print(game.state.state, flush=True)
 
-            game.state.state.append(current_state)
-            game.state.change('transition_pop')
-            print(game.state.state, flush=True)
+                game.state.state.append(current_state)
+                game.state.change('transition_pop')
+                print(game.state.state, flush=True)
 
     def draw(self, surf):
         if self.bg:

@@ -25,6 +25,7 @@ def run(game):
     while True:
         # start = time.time_ns()
         engine.update_time()
+        # print(engine.get_delta())
 
         raw_events = engine.get_events()
         if raw_events == engine.QUIT:

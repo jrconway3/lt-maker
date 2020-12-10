@@ -1,6 +1,6 @@
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
-from app.resources.resources import RESOURCES
+# from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
@@ -8,7 +8,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
 from app.engine.state import State, MapState
 
-from app.engine.background import PanoramaBackground
+from app.engine.background import SpriteBackground
 from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine import menus, banner, action, base_surf, background, \
@@ -24,8 +24,8 @@ class PrepMainState(MapState):
         game.cursor.autocursor()
         game.boundary.hide()
 
-        imgs = SPRITES.get('focus_fade').convert_alpha()
-        self.bg = PanoramaBackground(imgs) if imgs else None
+        img = SPRITES.get('focus_fade').convert_alpha()
+        self.bg = SpriteBackground(img)
 
         options = ['Manage', 'Formation', 'Options', 'Save', 'Fight']
         if game.memory['prep_pick']:
@@ -39,11 +39,16 @@ class PrepMainState(MapState):
                 action.ArriveOnMap(unit, possible_position).do()
                 unit.reset()
 
-        game.state.change('transition_in')
-        return 'repeat'
+        self.fade_out = False
+        self.last_update = 0
+
+        # game.state.change('transition_in')
+        # return 'repeat'
         # game.events.trigger('prep_start')
 
     def take_input(self, event):
+        if self.fade_out:
+            return
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
@@ -72,12 +77,14 @@ class PrepMainState(MapState):
                 game.state.change('transition_to')
             elif selection == 'Save':
                 game.memory['save_kind'] = 'prep'
-                game.memory['next_state'] = 'title_save'
+                game.memory['next_state'] = 'in_chapter_save'
                 game.state.change('transition_to')
             elif selection == 'Fight':
                 if any(unit.position for unit in game.level.units):
                     self.bg.fade_out()
-                    game.state.back()
+                    self.menu = None
+                    self.fade_out = True
+                    self.last_update = engine.get_time()
                 else:
                     SOUNDTHREAD.play_sfx('Select 4')
                     alert = banner.Custom("Must select at least one unit!")
@@ -86,13 +93,18 @@ class PrepMainState(MapState):
 
     def update(self):
         super().update()
-        self.menu.update()
+        if self.fade_out:
+            if engine.get_time() - self.last_update > 300:
+                game.state.back()
+        elif self.menu:
+            self.menu.update()
 
     def draw(self, surf):
         surf = super().draw(surf)
         if self.bg:
             self.bg.draw(surf)
-        self.menu.draw(surf)
+        if self.menu:
+            self.menu.draw(surf)
         return surf
 
 class PrepPickUnitsState(State):

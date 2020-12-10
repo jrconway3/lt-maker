@@ -22,17 +22,17 @@ class Nid(Validator):
     """
     pass
 
-class SubRegionType(Validator):
-    """
-    Any string will do
-    """
-    pass
-
 class PositiveInteger(Validator):
     def validate(self, text, level):
         if str_utils.is_int(text) and int(text) > 0:
             return int(text)
         return None
+
+class String(Validator):
+    """
+    Any string will do
+    """
+    pass
 
 class Time(Validator):
     def validate(self, text, level):

@@ -75,7 +75,7 @@ class ConfigOption(menu_options.BasicOption):
         """
         Always move to the next one, even if it has to backwards
         """
-        value = str(cf.SETTINGS[self.name])
+        value = cf.SETTINGS[self.name]
         if value in self.values:
             idx = self.values.index(value)
             idx = (idx + 1) % len(self.values)

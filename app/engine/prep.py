@@ -332,6 +332,7 @@ class PrepManageState(State):
         units = game.get_units_in_party()
         units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, units, (4, 3), (6, 0))
+        self.menu.set_mode('unit')
 
         # Display
         self.quick_disp = self.create_quick_disp()
@@ -412,6 +413,7 @@ class PrepManageSelectState(State):
         self.bg = game.memory['prep_bg']
         self.menu = game.memory['manage_menu']
         self.unit = game.memory['current_unit']
+        self.current_index = self.menu.current_index
 
         options = ['Trade', 'Restock', 'Give all', 'Optimize', 'Items', 'Market']
         ignore = [False, True, True, True, True, True]
@@ -424,8 +426,11 @@ class PrepManageSelectState(State):
                 ignore[1] = False
         if '_prep_market' in game.game_vars:
             ignore[5] = False
-        self.select_menu = menus.Table(self.unit, options, (3, 2), (128, 80))
+        self.select_menu = menus.Table(self.unit, options, (3, 2), (120, 80))
         self.select_menu.set_ignore(ignore)
+
+    def begin(self):
+        self.menu.move_to(self.current_index)
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -433,17 +438,17 @@ class PrepManageSelectState(State):
 
         self.select_menu.handle_mouse()
         if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.select_menu.moveDown(first_push)
+            if self.select_menu.move_down(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
         elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.select_menu.moveUp(first_push)
+            if self.select_menu.move_up(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
         elif 'RIGHT' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.select_menu.moveRight(first_push)
+            if self.select_menu.move_right(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
         elif 'LEFT' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.select_menu.moveLeft(first_push)
+            if self.select_menu.move_left(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
 
         if event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
@@ -470,6 +475,7 @@ class PrepManageSelectState(State):
             game.state.back()
 
     def update(self):
+        game.map_view.update()
         self.menu.update()
         self.select_menu.update()
 
@@ -477,8 +483,8 @@ class PrepManageSelectState(State):
         if self.bg:
             self.bg.draw(surf)
         self.menu.draw(surf)
-        self.select_menu.draw(surf)
         menus.draw_unit_items(surf, (6, 72), self.unit, include_face=True, include_top=True, shimmer=2)
+        self.select_menu.draw(surf)
         draw_funds(surf)
         return surf
 
@@ -491,7 +497,7 @@ class PrepTradeSelectState(State):
         self.menu = game.memory['manage_menu']
         self.bg = game.memory['prep_bg']
         self.unit = game.memory['current_unit']
-        self.menu.set_extra_marker()
+        self.menu.set_fake_cursor(self.menu.current_index)
 
         game.state.change('transition_in')
         return 'repeat'
@@ -532,6 +538,7 @@ class PrepTradeSelectState(State):
             game.state.change('transition_to')
 
     def update(self):
+        game.map_view.update()
         self.menu.update()
 
     def draw(self, surf):
@@ -543,6 +550,9 @@ class PrepTradeSelectState(State):
         self.menu.draw(surf)
 
         return surf
+
+    def finish(self):
+        self.menu.set_fake_cursor(None)
 
 class PrepItemsState(State):
     name = 'prep_items'

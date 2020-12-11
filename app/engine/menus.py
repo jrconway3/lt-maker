@@ -29,8 +29,8 @@ def draw_unit_items(surf, topleft, unit, include_top=False, include_bottom=True,
             img = SPRITES.get('menu_shimmer%d' % shimmer)
             bg_surf.blit(img, (bg_surf.get_width() - img.get_width() - 1, bg_surf.get_height() - img.get_height() - 5))
         bg_surf = image_mods.make_translucent(bg_surf, 0.1)
-        if include_top:
-            y -= 4
+        # if include_top:
+        #     y -= 4
         surf.blit(bg_surf, (x, y))
 
         if include_face:
@@ -164,18 +164,22 @@ class Simple():
             if opt.get() == option:
                 self.current_index = idx
 
-    def move_to(self, idx):
+    def mouse_move(self, idx):
         if engine.get_time() > self.next_scroll_time:
-            scroll = self.scroll
-            if self.options[idx].ignore:
-                return
-            while self.current_index < idx:
-                self.move_down()
-            while self.current_index > idx:
-                self.move_up()
-            # If we did scroll
-            if scroll != self.scroll:  # Wait 50 milliseconds
+            did_scroll = self.move_to(idx)
+            if did_scroll:
                 self.next_scroll_time = engine.get_time() + 50
+
+    def move_to(self, idx):    
+        scroll = self.scroll
+        if self.options[idx].ignore:
+            return
+        while self.current_index < idx:
+            self.move_down(True)  # Higher idxs
+        while self.current_index > idx:
+            self.move_up(True)
+        # If we did scroll
+        return scroll != self.scroll
 
     def move_down(self, first_push=True):
         if first_push:
@@ -278,7 +282,7 @@ class Simple():
             for idx, option_rect in zip(idxs, option_rects):
                 x, y, width, height = option_rect
                 if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
-                    self.move_to(idx)
+                    self.mouse_move(idx)
 
 class Choice(Simple):
     def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
@@ -422,9 +426,10 @@ class Choice(Simple):
 
                 if idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
                     choice.draw_highlight(surf, left, top, menu_width)
-                if idx + self.scroll == self.fake_cursor_idx:
+                elif idx + self.scroll == self.fake_cursor_idx:
                     choice.draw_highlight(surf, left, top, menu_width)
-                choice.draw(surf, left, top)
+                else:
+                    choice.draw(surf, left, top)
                 if idx + self.scroll == self.fake_cursor_idx:
                     self.stationary_cursor.draw(surf, left, top)
                 if idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
@@ -453,9 +458,10 @@ class Choice(Simple):
 
                 if idx == self.current_index and self.takes_input and self.draw_cursor:
                     choice.draw_highlight(surf, left, top, width + 14)
-                if idx == self.fake_cursor_idx:
+                elif idx == self.fake_cursor_idx:
                     choice.draw_highlight(surf, left, top, width + 14)
-                choice.draw(surf, left, top)
+                else:
+                    choice.draw(surf, left, top)
                 if idx == self.fake_cursor_idx:
                     self.stationary_cursor.draw(surf, left, top)
                 if idx == self.current_index and self.takes_input and self.draw_cursor:
@@ -554,10 +560,10 @@ class Trade(Simple):
         self.partner = partner
 
         self.menu1 = Choice(self.owner, items1, (11, 68))
-        self.menu1.set_limit(DB.constants.max_items())
+        self.menu1.set_limit(DB.constants.total_items())
         self.menu1.set_hard_limit(True)  # Makes hard limit
         self.menu2 = Choice(self.partner, items2, (125, 68))
-        self.menu2.set_limit(DB.constants.max_items())
+        self.menu2.set_limit(DB.constants.total_items())
         self.menu2.set_hard_limit(True)  # Makes hard limit
         self.menu2.set_cursor(0)
 
@@ -696,7 +702,7 @@ class Trade(Simple):
             for idx, option_rect in zip(idxs1, option_rects1):
                 x, y, width, height = option_rect
                 if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
-                    self.menu1.move_to(idx)
+                    self.menu1.mouse_move(idx)
                     if self.selecting_hand[0] == 1:
                         self.cursor_left()
                     self.selecting_hand = (0, idx)
@@ -704,7 +710,7 @@ class Trade(Simple):
             for idx, option_rect in zip(idxs2, option_rects2):
                 x, y, width, height = option_rect
                 if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
-                    self.menu2.move_to(idx)
+                    self.menu2.mouse_move(idx)
                     if self.selecting_hand[0] == 0:
                         self.cursor_right()
                     self.selecting_hand = (1, idx)
@@ -726,6 +732,9 @@ class Table(Simple):
         self.mode = mode
         self.update_options()
 
+    def set_fake_cursor(self, val):
+        self.fake_cursor_idx = val
+
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
@@ -735,6 +744,23 @@ class Table(Simple):
             else:
                 option = menu_options.BasicOption(idx, option)
             self.options.append(option)
+
+    def mouse_move(self, idx):
+        if engine.get_time() > self.next_scroll_time:
+            did_scroll = self.move_to(idx)
+            if did_scroll:
+                self.next_scroll_time = engine.get_time() + 50
+
+    def move_to(self, idx):
+        scroll = self.scroll
+        if self.options[idx].ignore:
+            return
+        while self.current_index < idx:
+            self.move_right(True)
+        while self.current_index > idx:
+            self.move_left(True)
+        # If we did scroll
+        return scroll != self.scroll
 
     def _move_down(self, first_push=True):
         if first_push:
@@ -833,6 +859,8 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_down(False)
 
+        if old_index == self.current_index:
+            self.cursor.y_offset = 0
         return old_index != self.current_index
 
     def move_up(self, first_push=True):
@@ -850,6 +878,8 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_up(False)
 
+        if old_index == self.current_index:
+            self.cursor.y_offset = 0
         return old_index != self.current_index
 
     def move_right(self, first_push=True):
@@ -867,6 +897,8 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_right(False)
 
+        if old_index == self.current_index:
+            self.cursor.y_offset = 0
         return old_index != self.current_index
 
     def move_left(self, first_push=True):
@@ -884,11 +916,16 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_left(False)
 
+        if old_index == self.current_index:
+            self.cursor.y_offset = 0
         return old_index != self.current_index
 
     def get_menu_width(self):
         max_width = max(option.width() for option in self.options)
-        return (max_width - max_width%8) * self.columns + 32
+        total_width = (max_width - max_width%8) * self.columns
+        if self.mode in ('unit', 'position'):
+            total_width += 32
+        return total_width
 
     def get_menu_height(self):
         max_height = max(option.height() for option in self.options)
@@ -922,12 +959,14 @@ class Table(Simple):
         if choices:
             for idx, choice in enumerate(choices):
                 top = topleft[1] + 4 + (idx // self.columns * height)
-                left = topleft[0] + 16 + (idx % self.columns * width)
+                left = topleft[0] + (idx % self.columns * width)
+                if self.mode in ('unit', 'position'):
+                    left += 16
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top)
+                    choice.draw_highlight(surf, left, top, width)
                 elif idx + (self.scroll * self.columns) == self.fake_cursor_idx:
-                    choice.draw_highlight(surf, left, top)
+                    choice.draw_highlight(surf, left, top, width)
                 else:
                     choice.draw(surf, left, top)
                 if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
@@ -951,7 +990,9 @@ class Table(Simple):
         idxs, rects = [], []
         for idx, choice in enumerate(choices):
             top = topleft[1] + 4 + (idx // self.columns * height)
-            left = topleft[0] + 16 + (idx % self.columns * width)
+            left = topleft[0] + (idx % self.columns * width)
+            if self.mode in ('unit', 'position'):
+                left += 16
             rect = (left, top, width, height)
             rects.append(rect)
             idxs.append(start_index + idx)

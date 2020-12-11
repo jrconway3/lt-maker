@@ -94,7 +94,7 @@ class PrepTradeState(TradeState):
 
         self.menu = menus.Trade(self.initiator, self.partner, self.initiator.items, self.partner.items)
 
-        self.state.change('transition_in')
+        game.state.change('transition_in')
         return 'repeat'
 
     def update(self):

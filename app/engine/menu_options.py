@@ -74,6 +74,7 @@ class BasicOption():
             left = x + 5 + slot*width
             top = y + 9
             surf.blit(highlight_surf, (left, top))
+        self.draw(surf, x, y)
         return surf
 
 class HorizOption(BasicOption):
@@ -341,6 +342,6 @@ class UnitOption(BasicOption):
             left = x + 5 + slot*width
             top = y + 9
             surf.blit(highlight_surf, (left, top))
-            
+
         self.draw_map_sprite(surf, x, y, highlight=True)
         self.draw_text(surf, x, y)

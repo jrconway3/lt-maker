@@ -101,7 +101,7 @@ class GameState():
         # Build registries
         self.map_sprite_registry = {}
 
-    def start_level(self, level_nid):
+    def start_level(self, level_nid, with_party=None):
         """
         Done at the beginning of a new level to start the level up
         """
@@ -109,16 +109,28 @@ class GameState():
         
         from app.engine.objects.level import LevelObject
         from app.engine.objects.tilemap import TileMapObject
+        from app.engine.objects.party import PartyObject
 
         level_prefab = DB.levels.get(level_nid)
         tilemap_nid = level_prefab.tilemap
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry)
+        if with_party:
+            self.current_party = with_party
+        else:
+            self.current_party = self.current_level.party
+
+        # Build party object for new parties
+        if self.current_party not in self.parties:
+            party_prefab = DB.parties.get(self.current_party)
+            nid, name, leader = party_prefab.nid, party_prefab.name, party_prefab.leader
+            self.parties[self.current_party] = PartyObject(nid, name, leader)
+
         # Assign every unit the levels party if they don't already have one
         for unit in self.current_level.units:
             if not unit.party:
-                unit.party = self.current_level.party
+                unit.party = self.current_party
         self.set_up_game_board(self.current_level.tilemap)
 
         for unit in self.current_level.units:
@@ -359,7 +371,10 @@ class GameState():
             # Auras
 
     def check_for_region(self, position, region_type):
-        raise NotImplementedError
+        for region in game.level.regions:
+            if region.region_type == region_type and region.contains(position):
+                return region
+        return None
 
     def get_all_formation_spots(self) -> list:
         legal_spots = set()

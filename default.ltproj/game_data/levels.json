@@ -3,7 +3,7 @@
         "nid": "0",
         "name": "Prologue",
         "tilemap": "Prologue",
-        "party": null,
+        "party": "Eirika",
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -125,7 +125,7 @@
         "nid": "1",
         "name": "Chapter 1",
         "tilemap": "Chapter 1",
-        "party": null,
+        "party": "Eirika",
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -564,7 +564,7 @@
         "nid": "2",
         "name": "Chapter 2",
         "tilemap": "Chapter 2",
-        "party": null,
+        "party": "Eirika",
         "music": {
             "player_phase": null,
             "enemy_phase": null,

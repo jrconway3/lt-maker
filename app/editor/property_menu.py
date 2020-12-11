@@ -72,7 +72,7 @@ class PropertiesMenu(QWidget):
 
         self.party_box = PropertyBox("Party", ComboBox, self)
         self.update_party_box()
-        self.party_box.edit.currentIndexChanged.connect(self.party_changed)
+        self.party_box.edit.activated.connect(self.party_changed)
         form.addWidget(self.party_box)
 
         # self.market_box = PropertyCheckBox("Market Available?", QCheckBox, self)
@@ -117,9 +117,17 @@ class PropertiesMenu(QWidget):
         for party in DB.parties:
             self.party_box.edit.addItem(party.nid)
 
+        if self.current:
+            if self.current.party:
+                self.party_box.edit.setValue(self.current.party)
+            else:
+                self.party_box.edit.setValue("None")
+
     @property
     def current(self):
         indices = self.view.selectionModel().selectedIndexes()
+        if not indices:
+            return None
         idx = indices[0].row()
         return self.view.model()._data[idx]
 
@@ -131,10 +139,6 @@ class PropertiesMenu(QWidget):
         self.title_box.edit.setText(current.name)
         self.nid_box.edit.setText(current.nid)
         self.update_party_box()
-        if current.party:
-            self.party_box.edit.setValue(current.party)
-        else:
-            self.party_box.edit.setValue("None")
         
         # self.market_box.edit.setChecked(current.market_flag)
         self.quick_display.edit.setText(current.objective['simple'])
@@ -166,14 +170,12 @@ class PropertiesMenu(QWidget):
         self.current.name = text
         self.main_editor.update_view()
 
-    def party_changed(self, idx):
-        if idx == 0:
+    def party_changed(self):
+        party = self.party_box.edit.currentText()
+        if party == 'None':
             self.current.party = None
         else:
-            self.current.party = self.party_box.edit.currentText()
-
-    # def market_changed(self, state):
-    #     self.current.market_flag = bool(state)
+            self.current.party = party
 
     def edit_music(self):
         dlg = MusicDialog(self, self.current)

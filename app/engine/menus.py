@@ -37,18 +37,20 @@ def draw_unit_items(surf, topleft, unit, include_top=False, include_bottom=True,
             face_image = icons.get_portrait(unit)
             if right:
                 face_image = engine.flip_horiz(face_image)
+            face_image = face_image.convert_alpha()
+            face_image = engine.subsurface(face_image, (0, 0, 96, 76))
             face_image = image_mods.make_translucent(face_image, 0.5)
             left = x + bg_surf.get_width()//2 + 1
-            top = y + bg_surf.get_width()//2 - 1
+            top = y + bg_surf.get_height()//2 - 1 + 2
             engine.blit_center(surf, face_image, (left, top))
         
         # Blit items
         for idx, item in enumerate(unit.nonaccessories):
-            item_option = menu_options.FullItemOption(idx, item)
-            item_option.draw(surf, 8, idx * 16 + 24)
+            item_option = menu_options.ItemOption(idx, item)
+            item_option.draw(surf, topleft[0] + 2, topleft[1] + idx * 16 + 4)
         for idx, item in enumerate(unit.accessories):
-            item_option = menu_options.FullItemOption(idx, item)
-            item_option.draw(surf, 8, DB.constants.value('num_items') * 16 + idx * 16 + 24)
+            item_option = menu_options.ItemOption(idx, item)
+            item_option.draw(surf, topleft[0] + 2, topleft[1] + DB.constants.value('num_items') * 16 + idx * 16 + 4)
 
 class Cursor():
     def __init__(self, sprite=None):
@@ -709,13 +711,13 @@ class Trade(Simple):
 
 class Table(Simple):
     def __init__(self, owner, options, layout, topleft=None, background='menu_bg_base', info=None):
+        self.mode = None
         super().__init__(owner, options, topleft, background, info)
         
         self.rows, self.columns = layout
         self.limit = self.rows
-        self.gem = True
+        self.gem = False
         self.shimmer = 0
-        self.mode = None
 
         self.stationary_cursor = Cursor()
         self.fake_cursor_idx = None
@@ -745,14 +747,14 @@ class Table(Simple):
                 else:
                     self.current_index = self.current_index % self.columns
                     self.scroll = 0
-            elif self.current_index > self.scroll + self.limit - 2:
+            elif self.current_index > (self.scroll + self.limit - 2) * self.columns:
                 self.scroll += 1
             else:
                 self.cursor.y_offset -= 1
         else:
             if self.current_index < len(self.options) - self.columns:
                 self.current_index += self.columns
-                if self.current_index > self.scroll + self.limit - 2:
+                if self.current_index > (self.scroll + self.limit - 2) * self.columns:
                     self.scroll += 1
                 self.cursor.y_offset -= 1
         if self.limit < len(self.options):
@@ -766,15 +768,15 @@ class Table(Simple):
                 self.current_index = len(self.options) - 1
                 while self.current_index % self.columns != column_idx:
                     self.current_index -= 1
-                self.scroll = self.current_index - self.limit + 1
-            elif self.current_index < self.scroll + 1:
+                self.scroll = self.current_index // self.columns - self.limit + 1
+            elif self.current_index < self.scroll * self.columns + 1:
                 self.scroll -= 1
             else:
                 self.cursor.y_offset += 1
         else:
             if self.current_index > 0:
                 self.current_index -= self.columns
-                if self.current_index < self.scroll + 1:
+                if self.current_index < self.scroll * self.columns + 1:
                     self.scroll -= 1
                 self.cursor.y_offset += 1
         self.scroll = max(0, self.scroll)
@@ -784,15 +786,15 @@ class Table(Simple):
             self.current_index -= 1
             if self.current_index < 0:
                 self.current_index = len(self.options) - 1
-                self.scroll = self.current_index - self.limit + 1
-            elif self.current_index < self.scroll + 1:
+                self.scroll = self.current_index // self.columns - self.limit + 1
+            elif self.current_index < self.scroll * self.columns + 1:
                 self.scroll -= 1
             else:
                 self.cursor.y_offset += 1
         else:
             if self.current_index > 0:
                 self.current_index -= 1
-                if self.current_index < self.scroll + 1:
+                if self.current_index < self.scroll * self.columns + 1:
                     self.scroll -= 1
                 self.cursor.y_offset += 1
         self.scroll = max(0, self.scroll)
@@ -803,14 +805,14 @@ class Table(Simple):
             if self.current_index > len(self.options) - 1:
                 self.current_index = 0
                 self.scroll = 0
-            elif self.current_index > self.scroll + self.limit - 2:
+            elif self.current_index > (self.scroll + self.limit - 2) * self.columns:
                 self.scroll += 1
             else:
                 self.cursor.y_offset -= 1
         else:
             if self.current_index < len(self.options) - 1:
                 self.current_index += 1
-                if self.current_index > self.scroll + self.limit - 2:
+                if self.current_index > (self.scroll + self.limit - 2) * self.columns:
                     self.scroll += 1
                 self.cursor.y_offset -= 1
         if self.limit < len(self.options):
@@ -819,7 +821,7 @@ class Table(Simple):
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
-
+        old_index = self.current_index
         if first_push:
             self._move_down(True)
             while self.options[self.current_index].ignore:
@@ -831,10 +833,12 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_down(False)
 
+        return old_index != self.current_index
+
     def move_up(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
-
+        old_index = self.current_index
         if first_push:
             self._move_up(True)
             while self.options[self.current_index].ignore:
@@ -846,10 +850,12 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_up(False)
 
+        return old_index != self.current_index
+
     def move_right(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
-
+        old_index = self.current_index
         if first_push:
             self._move_right(True)
             while self.options[self.current_index].ignore:
@@ -861,13 +867,15 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_right(False)
 
+        return old_index != self.current_index
+
     def move_left(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
-
+        old_index = self.current_index
         if first_push:
             self._move_left(True)
-            while self.optionss[self.current_index].ignore:
+            while self.options[self.current_index].ignore:
                 self._move_left(True)
 
         else:
@@ -876,30 +884,31 @@ class Table(Simple):
                 while self.options[self.current_index].ignore:
                     self._move_left(False)
 
+        return old_index != self.current_index
+
     def get_menu_width(self):
         max_width = max(option.width() for option in self.options)
-        return (max_width - max_width%8) * self.columns
+        return (max_width - max_width%8) * self.columns + 32
 
     def get_menu_height(self):
         max_height = max(option.height() for option in self.options)
-        return (max_height - max_height%8) * self.rows
+        return (max_height - max_height%8) * self.rows + 8
 
     def create_bg_surf(self):
         bg_surf = create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
-        surf = engine.create_surface((bg_surf.get_width(), bg_surf.get_height()), transparent=True)
-        surf.blit(bg_surf)
+        surf = engine.create_surface((bg_surf.get_width() + 2, bg_surf.get_height() + 4), transparent=True)
+        surf.blit(bg_surf, (2, 4))
         if self.gem:
             surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
         if self.shimmer != 0:
             sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
             surf.blit(sprite, (surf.get_width() - sprite.get_width() - 1, surf.get_height() - sprite.get_height() - 5))
-            surf = image_mods.make_translucent(surf, .1)
         surf = image_mods.make_translucent(surf, .1)
         return surf
 
     def draw(self, surf):
         topleft = self.get_topleft()
-        bg_surf = self.create_bg_surf
+        bg_surf = self.create_bg_surf()
         surf.blit(bg_surf, (topleft[0] - 2, topleft[1] - 4))
 
         if len(self.options) > self.rows * self.columns:
@@ -913,7 +922,7 @@ class Table(Simple):
         if choices:
             for idx, choice in enumerate(choices):
                 top = topleft[1] + 4 + (idx // self.columns * height)
-                left = topleft[0] + (idx % self.columns * width)
+                left = topleft[0] + 16 + (idx % self.columns * width)
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
                     choice.draw_highlight(surf, left, top)
@@ -927,7 +936,7 @@ class Table(Simple):
                     self.cursor.draw(surf, left, top)
 
         else:
-            FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
+            FONT['text-grey'].blit("Nothing", bg_surf, (topleft[0] + 16, topleft[1] + 4))
 
     # For mouse handling
     def get_rects(self):
@@ -942,7 +951,7 @@ class Table(Simple):
         idxs, rects = [], []
         for idx, choice in enumerate(choices):
             top = topleft[1] + 4 + (idx // self.columns * height)
-            left = topleft[0] + (idx % self.columns * width)
+            left = topleft[0] + 16 + (idx % self.columns * width)
             rect = (left, top, width, height)
             rects.append(rect)
             idxs.append(start_index + idx)

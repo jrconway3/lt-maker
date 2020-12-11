@@ -14,6 +14,7 @@ from app.engine.game_state import game
 from app.engine import menus, banner, action, base_surf, background, \
     info_menu, engine, equations, item_funcs, text_funcs, image_mods, \
     convoy_funcs, item_system, interaction, gui
+from app.engine.fluid_scroll import FluidScroll
 
 class PrepMainState(MapState):
     name = 'prep_main'
@@ -67,7 +68,7 @@ class PrepMainState(MapState):
                 game.memory['next_state'] = 'prep_pick_units'
                 game.state.change('transition_to')
             elif selection == 'Manage':
-                game.memory['next_state'] = 'prep_items'
+                game.memory['next_state'] = 'prep_manage'
                 game.state.change('transition_to')
             elif selection == 'Formation':
                 self.bg.fade_out()
@@ -195,7 +196,7 @@ class PrepPickUnitsState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
-        menus.draw_items(surf, (4, 44), self.menu.get_current(), include_top=True)
+        menus.draw_unit_items(surf, (4, 44), self.menu.get_current(), include_top=True)
 
         self.draw_pick_units_card(surf)
 
@@ -318,7 +319,7 @@ def draw_funds(surf):
     FONT['text-yellow'].blit(helper, surf, (123, 143))
     FONT['text-white'].blit(': Info', surf, (123 + FONT['text-blue'].width(helper), 143))
     # Draw Funds display
-    surf.blit(SPRITES.get('FundsDisplay'), (168, 137))
+    surf.blit(SPRITES.get('funds_display'), (168, 137))
     money = str(game.get_money())
     FONT['text-blue'].blit_right(money, surf, (219, 141))
 
@@ -326,9 +327,11 @@ class PrepManageState(State):
     name = 'prep_manage'
 
     def start(self):
+        self.fluid = FluidScroll()
+
         units = game.get_units_in_party()
         units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
-        self.menu = menus.Table(None, units, (4, 3), 'center')       
+        self.menu = menus.Table(None, units, (4, 3), (6, 0))
 
         # Display
         self.quick_disp = self.create_quick_disp()
@@ -341,17 +344,18 @@ class PrepManageState(State):
         return 'repeat'
 
     def create_quick_disp(self):
-        buttons = [SPRITES.get('Buttons').subsurface(0, 165, 33, 9), SPRITES.get('Buttons').subsurface(0, 66, 14, 13)]
+        sprite = SPRITES.get('buttons')
+        buttons = [sprite.subsurface(0, 66, 14, 13), sprite.subsurface(0, 165, 33, 9)]
         font = FONT['text-white']
         commands = ['Manage', 'Optimize All']
         commands = [text_funcs.translate(c) for c in commands]
         size = (49 + max(font.width(c) for c in commands), 40)
         bg_surf = base_surf.create_base_surf(size[0], size[1], 'menu_bg_brown')
         bg_surf = image_mods.make_translucent(bg_surf, 0.1)
-        for idx, button in enumerate(buttons):
-            bg_surf.blit(button, (20 - button.get_width()//2, idx * 16 + 12 - button.get_height()))
+        bg_surf.blit(buttons[0], (20 - buttons[0].get_width()//2, 18 - buttons[0].get_height()))
+        bg_surf.blit(buttons[1], (20 - buttons[1].get_width()//2, 32 - buttons[1].get_height()))
         for idx, command in enumerate(commands):
-            font.blit(command, bg_surf, (38, idx * 16 + 4))
+            font.blit(command, bg_surf, (38, idx * 16 + 3))
         return bg_surf
 
     def take_input(self, event):
@@ -360,17 +364,17 @@ class PrepManageState(State):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_down(first_push)
+            if self.menu.move_down(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
         elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_up(first_push)
+            if self.menu.move_up(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
         elif 'LEFT' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_left(first_push)
+            if self.menu.move_left(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
         elif 'RIGHT' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_right(first_push)
+            if self.menu.move_right(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
 
         if event == 'SELECT':
             unit = self.menu.get_current()
@@ -387,13 +391,14 @@ class PrepManageState(State):
             convoy_funcs.optimize_all()
 
     def update(self):
+        game.map_view.update()
         self.menu.update()
 
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
         self.menu.draw(surf)
-        menus.draw_items(surf, (6, 72), self.menu.get_current(), include_face=True, shimmer=2)
+        menus.draw_unit_items(surf, (6, 72), self.menu.get_current(), include_face=True, shimmer=2)
         surf.blit(self.quick_disp, (WINWIDTH//2 + 10, WINHEIGHT//2 + 9))
         draw_funds(surf)
         return surf
@@ -402,6 +407,8 @@ class PrepManageSelectState(State):
     name = 'prep_manage_select'
 
     def start(self):
+        self.fluid = FluidScroll()
+
         self.bg = game.memory['prep_bg']
         self.menu = game.memory['manage_menu']
         self.unit = game.memory['current_unit']
@@ -471,7 +478,7 @@ class PrepManageSelectState(State):
             self.bg.draw(surf)
         self.menu.draw(surf)
         self.select_menu.draw(surf)
-        menus.draw_items(surf, (6, 72), self.unit, include_face=True, include_top=True, shimmer=2)
+        menus.draw_unit_items(surf, (6, 72), self.unit, include_face=True, include_top=True, shimmer=2)
         draw_funds(surf)
         return surf
 
@@ -479,6 +486,8 @@ class PrepTradeSelectState(State):
     name = 'prep_trade_select'
 
     def start(self):
+        self.fluid = FluidScroll()
+
         self.menu = game.memory['manage_menu']
         self.bg = game.memory['prep_bg']
         self.unit = game.memory['current_unit']
@@ -528,8 +537,8 @@ class PrepTradeSelectState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
-        menus.draw_items(surf, (6, 72), self.unit, include_face=True, shimmer=2)
-        menus.draw_items(surf, (126, 72), self.menu.get_current(), include_face=True, right=False, shimmer=2)
+        menus.draw_unit_items(surf, (6, 72), self.unit, include_face=True, shimmer=2)
+        menus.draw_unit_items(surf, (126, 72), self.menu.get_current(), include_face=True, right=False, shimmer=2)
         
         self.menu.draw(surf)
 
@@ -541,6 +550,8 @@ class PrepItemsState(State):
     trade_name_surf = SPRITES.get('trade_name')
 
     def start(self):
+        self.fluid = FluidScroll()
+
         self.unit = game.memory['current_unit']
         self.menu = menus.Convoy(self.unit, (WINWIDTH - 124, 40))
         
@@ -691,6 +702,8 @@ class PrepRestockState(State):
     name = 'prep_restock'
 
     def start(self):
+        self.fluid = FluidScroll()
+
         self.bg = game.memory['prep_bg']
         self.unit = game.memory['current_unit']
         self.unit_menu = game.memory['manage_menu']
@@ -749,6 +762,8 @@ class PrepMarketState(State):
     name = 'prep_market'
 
     def start(self):
+        self.fluid = FluidScroll()
+
         self.unit = game.memory['current_unit']
         self.sell_menu = menus.Market(self.unit, None, (WINWIDTH - 124, 40), disp_value='sell')
         market_items = item_funcs.create_items(self.unit, game.market_items)

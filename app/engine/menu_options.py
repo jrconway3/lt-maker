@@ -296,7 +296,7 @@ class UnitOption(BasicOption):
         self.mode = mode
 
     def width(self):
-        return 60
+        return 64
 
     def height(self):
         return 16
@@ -323,7 +323,7 @@ class UnitOption(BasicOption):
             map_sprite = self.unit.sprite.create_image('gray')
         elif highlight:
             map_sprite = self.unit.sprite.create_image('active')
-        surf.blit(map_sprite, (x, y))
+        surf.blit(map_sprite, (x - 20, y - 24))
 
     def draw_text(self, surf, x, y):
         font = self.get_color()
@@ -333,6 +333,14 @@ class UnitOption(BasicOption):
         self.draw_map_sprite(surf, x, y)
         self.draw_text(surf, x, y)
 
-    def draw_highlight(self, surf, x, y):
+    def draw_highlight(self, surf, x, y, menu_width=None):
+        # Draw actual highlight surf
+        highlight_surf = SPRITES.get('menu_highlight')
+        width = highlight_surf.get_width()
+        for slot in range((self.width() - 10)//width):
+            left = x + 5 + slot*width
+            top = y + 9
+            surf.blit(highlight_surf, (left, top))
+            
         self.draw_map_sprite(surf, x, y, highlight=True)
         self.draw_text(surf, x, y)

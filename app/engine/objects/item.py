@@ -39,7 +39,7 @@ class ItemObject():
         return None
 
     def __str__(self):
-        return self.name
+        return "Item: %s" % self.nid
 
     def __repr__(self):
         return "Item: %s %s" % (self.nid, self.uid)

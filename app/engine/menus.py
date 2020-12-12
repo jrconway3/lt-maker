@@ -172,6 +172,7 @@ class Simple():
 
     def move_to(self, idx):    
         scroll = self.scroll
+        idx = utils.clamp(idx, 0, len(self.options) - 1)
         if self.options[idx].ignore:
             return
         while self.current_index < idx:
@@ -559,10 +560,14 @@ class Trade(Simple):
         self.owner = initiator
         self.partner = partner
 
+        if len(items1) < DB.constants.total_items():
+            items1 = items1[:] + ['']
+        if len(items2) < DB.constants.total_items():
+            items2 = items2[:] + ['']
         self.menu1 = Choice(self.owner, items1, (11, 68))
         self.menu1.set_limit(DB.constants.total_items())
         self.menu1.set_hard_limit(True)  # Makes hard limit
-        self.menu2 = Choice(self.partner, items2, (125, 68))
+        self.menu2 = Choice(self.partner, items2 , (125, 68))
         self.menu2.set_limit(DB.constants.total_items())
         self.menu2.set_hard_limit(True)  # Makes hard limit
         self.menu2.set_cursor(0)
@@ -615,10 +620,15 @@ class Trade(Simple):
             return self.menu2.options[self.selecting_hand[1]]
 
     def update_options(self, items1, items2):
+        if len(items1) < DB.constants.total_items():
+            items1 = items1[:] + ['']
+        if len(items2) < DB.constants.total_items():
+            items2 = items2[:] + ['']
         self.menu1.update_options(items1)
         self.menu2.update_options(items2)
 
     def move_down(self, first_push=True):
+        old_index = self.selecting_hand[1]
         if self.selecting_hand[0] == 0:
             self.menu1.current_index = self.selecting_hand[1]
             self.menu1.move_down(first_push)
@@ -627,8 +637,10 @@ class Trade(Simple):
             self.menu2.current_index = self.selecting_hand[1]
             self.menu2.move_down(first_push)
             self.selecting_hand = (1, self.menu2.current_index)
+        return self.selecting_hand[1] != old_index
 
     def move_up(self, first_push=True):
+        old_index = self.selecting_hand[1]
         if self.selecting_hand[0] == 0:
             self.menu1.current_index = self.selecting_hand[1]
             self.menu1.move_up(first_push)
@@ -637,27 +649,32 @@ class Trade(Simple):
             self.menu2.current_index = self.selecting_hand[1]
             self.menu2.move_up(first_push)
             self.selecting_hand = (1, self.menu2.current_index)
+        return self.selecting_hand[1] != old_index
 
     def cursor_left(self):
         self.menu1.set_cursor(1)
+        self.menu1.cursor.y_offset = 0
         self.menu2.set_cursor(0)
 
     def move_left(self):
         if self.selecting_hand[0] == 1:
-            self.selecting_hand = (0, self.selecting_hand[1])
-            self.menu1.move_to(self.selecting_hand[1])
+            idx = utils.clamp(self.selecting_hand[1], 0, len([option for option in self.menu1.options if not option.ignore]) - 1)
+            self.menu1.move_to(idx)
+            self.selecting_hand = (0, self.menu1.current_index)
             self.cursor_left()
             return True
         return False
 
     def cursor_right(self):
         self.menu2.set_cursor(1)
+        self.menu2.cursor.y_offset = 0
         self.menu1.set_cursor(0)
 
     def move_right(self):
         if self.selecting_hand[0] == 0:
-            self.selecting_hand = (1, self.selecting_hand[1])
-            self.menu2.move_to(self.selecting_hand[1])
+            idx = utils.clamp(self.selecting_hand[1], 0, len([option for option in self.menu2.options if not option.ignore]) - 1)
+            self.menu2.move_to(idx)
+            self.selecting_hand = (1, self.menu2.current_index)
             self.cursor_right()
             return True
         return False
@@ -753,6 +770,7 @@ class Table(Simple):
 
     def move_to(self, idx):
         scroll = self.scroll
+        idx = utils.clamp(idx, 0, len(self.options) - 1)
         if self.options[idx].ignore:
             return
         while self.current_index < idx:

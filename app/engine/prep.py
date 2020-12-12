@@ -508,17 +508,17 @@ class PrepTradeSelectState(State):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_down(first_push)
+            if self.menu.move_down(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
         elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_up(first_push)
+            if self.menu.move_up(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
         elif 'LEFT' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_left(first_push)
+            if self.menu.move_left(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
         elif 'RIGHT' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
-            self.menu.move_right(first_push)
+            if self.menu.move_right(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
 
         if event == 'SELECT':
             unit2 = self.menu.get_current()

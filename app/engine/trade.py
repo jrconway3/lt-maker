@@ -89,6 +89,7 @@ class PrepTradeState(TradeState):
     name = 'prep_trade'
 
     def start(self):
+        self.bg = game.memory['prep_bg']
         self.initiator = game.memory['unit1']
         self.partner = game.memory['unit2']
 
@@ -101,5 +102,7 @@ class PrepTradeState(TradeState):
         self.menu.update()
 
     def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
         self.menu.draw(surf)
         return surf

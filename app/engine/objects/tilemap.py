@@ -3,9 +3,11 @@ from app.utilities.data import Data, Prefab
 
 from app.resources.resources import RESOURCES
 
-from app.engine import engine
+from app.engine import engine, image_mods
 
 class LayerObject():
+    transition_speed = 333
+
     def __init__(self, nid: str, parent):
         self.nid: str = nid
         self.parent = parent
@@ -13,8 +15,48 @@ class LayerObject():
         self.terrain = {}
         self.image = None
 
+        # For fade in
+        self.state = None
+        self.translucence = 1
+        self.start_update = 0
+
     def set_image(self, image):
         self.image = image
+
+    def get_image(self):
+        if self.state in ('fade_in', 'fade_out'):
+            return image_mods.make_translucent(self.image, self.translucence)
+        return self.image
+
+    def show(self):
+        """
+        Fades in the layer
+        """
+        if not self.visible:
+            self.visible = True
+            self.state = 'fade_in'
+            self.translucence = 1
+            self.start_update = engine.get_time()
+
+    def hide(self):
+        """
+        Fades out the layer
+        """
+        if self.visible:
+            self.state = 'fade_out'
+            self.translucence = 0
+            self.start_update = engine.get_time()
+
+    def update(self):
+        if self.state == 'fade_in':
+            self.translucence = 1 - (engine.get_time() - self.start_update)/self.transition_speed
+            if self.translucence <= 0:
+                self.state = None
+        elif self.state == 'fade_out':
+            self.translucence = (engine.get_time() - self.start_update)/self.transition_speed
+            if self.translucence >= 1:
+                self.visible = False
+                self.state = None
 
     def save(self):
         s_dict = {}
@@ -78,9 +120,13 @@ class TileMapObject(Prefab):
             image = engine.create_surface((self.width * TILEWIDTH, self.height * TILEHEIGHT), transparent=True)
             for layer in self.layers:
                 if layer.visible:
-                    image.blit(layer.image, (0, 0))
+                    image.blit(layer.get_image(), (0, 0))
             self.full_image = image
         return self.full_image
+
+    def update(self):
+        for layer in self.layers:
+            layer.update()
 
     def reset(self):
         self.full_image = None

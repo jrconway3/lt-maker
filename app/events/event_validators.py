@@ -22,6 +22,12 @@ class Nid(Validator):
     """
     pass
 
+class Integer(Validator):
+    def validate(self, text, level):
+        if str_utils.is_int(text):
+            return int(text)
+        return None
+
 class PositiveInteger(Validator):
     def validate(self, text, level):
         if str_utils.is_int(text) and int(text) > 0:
@@ -235,7 +241,7 @@ class RemoveType(OptionValidator):
     valid = ['fade', 'immediate', 'warp']
 
 class RegionType(OptionValidator):
-    valud = ['normal', 'event', 'status', 'formation']
+    valid = ['normal', 'event', 'status', 'formation']
 
 class CombatScript(Validator):
     valid_commands = ['hit1', 'hit2', 'crit1', 'crit2', 'miss1', 'miss2', '--', 'end']
@@ -266,6 +272,21 @@ class ItemList(Validator):
         if all(item in DB.items.keys() for item in items):
             return text
         return None
+
+class Party(Validator):
+    def validate(self, text, level):
+        if text in DB.parties.keys():
+            return text
+        return None
+
+class Layer(Validator):
+    def validate(self, text, level):
+        if text in level.tilemap.layers:
+            return text
+        return None
+
+class LayerTransition(OptionValidator):
+    valid = ['fade', 'immediate']
 
 validators = {validator.__name__: validator for validator in Validator.__subclasses__()}
 option_validators = {validator.__name__: validator for validator in OptionValidator.__subclasses__()}

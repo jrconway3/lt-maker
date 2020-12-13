@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
+from app.utilities import str_utils
 
 @dataclass
 class Translation(Prefab):
@@ -9,3 +10,8 @@ class Translation(Prefab):
 
 class TranslationCatalog(Data):
     datatype = Translation
+
+    def add_new_default(self, db):
+        nid = str_utils.get_next_name("word", self.keys())
+        new_translation = Translation(nid, "")
+        self.append(new_translation)

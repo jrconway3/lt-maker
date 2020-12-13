@@ -2253,8 +2253,11 @@
         "condition": "True",
         "commands": [
             [
-                "prep",
-                []
+                "shop",
+                [
+                    "Eirika",
+                    "Iron Sword,Iron Lance"
+                ]
             ],
             [
                 "wait",

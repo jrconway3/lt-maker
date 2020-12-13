@@ -92,6 +92,13 @@ class Custom(Banner):
         self.item = None
         self.figure_out_size()
 
+class Advanced(Banner):
+    def __init__(self, text: list, font: list):
+        self.text = text
+        self.font = 'text-white'
+        self.item = None
+        self.figure_out_size()
+
 class Pennant():
     """
     Lower banner that scrolls across bottom of screen

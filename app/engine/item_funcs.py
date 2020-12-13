@@ -14,7 +14,12 @@ def is_magic(unit, item) -> bool:
 
 def create_items(unit, item_nid_list: list) -> list:
     items = []
-    for item_nid, droppable in item_nid_list:
+    for val in item_nid_list:
+        if isinstance(val, tuple) or isinstance(val, list):
+            item_nid, droppable = val
+        else:
+            item_nid = val
+            droppable = False
         item_prefab = DB.items.get(item_nid)
         item = ItemObject.from_prefab(item_prefab)
         item.owner_nid = unit.nid

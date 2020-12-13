@@ -566,6 +566,24 @@ class IncItemData(Action):
         if self.keyword in self.item.data:
             self.item.data[self.keyword] -= self.value
 
+class GainMoney(Action):
+    def __init__(self, party_nid, money):
+        self.party_nid = party_nid
+        self.money = money
+        self.old_money = None
+
+    def do(self):
+        party = DB.parties.get(self.party_nid)
+        self.old_money = party.money
+        # Can't go below zero
+        if party.money + self.money < 0:
+            self.money = -party.money
+        party.money += self.money
+
+    def reverse(self):
+        party = DB.parties.get(self.party_nid)
+        party.money = self.old_money
+
 class GainExp(Action):
     def __init__(self, unit, exp_gain):
         self.unit = unit
@@ -813,9 +831,47 @@ class RemoveRegion(Action):
                 act.reverse()
             self.subactions.clear()
 
-class RecordRandomState(Action):
-    run_on_load = True  # TODO is this necessary?
+class ShowLayer(Action):
+    def __init__(self, layer_nid, transition):
+        self.layer_nid = layer_nid
+        self.transition = transition
 
+    def do(self):
+        layer = game.level.tilemap.layers.get(self.layer_nid)
+        if self.transition == 'immediate':
+            layer.visible = True
+        else:
+            layer.show()
+
+    def execute(self):
+        layer = game.level.tilemap.layers.get(self.layer_nid)
+        layer.visible = True
+
+    def reverse(self):
+        layer = game.level.tilemap.layers.get(self.layer_nid)
+        layer.visible = False
+
+class HideLayer(Action):
+    def __init__(self, layer_nid, transition):
+        self.layer_nid = layer_nid
+        self.transition = transition
+
+    def do(self):
+        layer = game.level.tilemap.layers.get(self.layer_nid)
+        if self.transition == 'immediate':
+            layer.visible = False
+        else:
+            layer.hide()
+
+    def execute(self):
+        layer = game.level.tilemap.layers.get(self.layer_nid)
+        layer.visible = False
+
+    def reverse(self):
+        layer = game.level.tilemap.layers.get(self.layer_nid)
+        layer.visible = True
+
+class RecordRandomState(Action):
     def __init__(self, old, new):
         self.old = old
         self.new = new

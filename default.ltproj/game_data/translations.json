@@ -214,5 +214,9 @@
     {
         "nid": "HP_desc",
         "text": "Hit points. The unit is removed from the battle if HP reaches 0."
+    },
+    {
+        "nid": "armory_opener",
+        "text": "This is an armory. {w}{clear}Buy something, would ya?"
     }
 ]

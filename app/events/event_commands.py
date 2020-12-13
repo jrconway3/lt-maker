@@ -242,6 +242,14 @@ class GiveItem(EventCommand):
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
 
+class GiveGold(EventCommand):
+    nid = 'give_gold'
+    tag = 'general'
+
+    keywords = ["Integer"]
+    optional_keywords = ["Party"]
+    flags = ['no_banner']
+
 class GiveExp(EventCommand):
     nid = 'give_exp'
     tag = 'unit'
@@ -268,7 +276,7 @@ class RemoveTalk(EventCommand):
 
 class AddRegion(EventCommand):
     nid = 'add_region'
-    tag = 'general'
+    tag = 'map'
 
     keywords = ["Nid", "Position", "Size", "RegionType"]
     optional_keywords = ["String"]
@@ -276,15 +284,29 @@ class AddRegion(EventCommand):
 
 class RegionCondition(EventCommand):
     nid = 'region_condition'
-    tag = 'general'
+    tag = 'map'
 
     keywords = ["Nid", "Condition"]
 
 class RemoveRegion(EventCommand):
     nid = 'remove_region'
-    tag = 'general'
+    tag = 'map'
 
     keywords = ["Nid"]
+
+class ShowLayer(EventCommand):
+    nid = 'show_layer'
+    tag = 'map'
+
+    keywords = ["Layer"]
+    optional_keywords = ["LayerTransition"]
+
+class HideLayer(EventCommand):
+    nid = 'hide_layer'
+    tag = 'map'
+
+    keywords = ["Layer"]
+    optional_keywords = ["LayerTransition"]
 
 class Prep(EventCommand):
     nid = 'prep'
@@ -296,7 +318,7 @@ class Shop(EventCommand):
     nid = 'shop'
     tag = 'general'
 
-    keywords = ["ItemList"]
+    keywords = ["Unit", "ItemList"]
     optional_keywords = ["ShopFlavor"]  
 
 class ChapterTitle(EventCommand):

@@ -11,6 +11,7 @@ class EmptyOption():
         self.help_box = None
         self.color = None
         self.ignore = True
+        self._width = 104
 
     def get(self):
         return None
@@ -19,7 +20,7 @@ class EmptyOption():
         pass
 
     def width(self):
-        return 104
+        return self._width
 
     def height(self):
         return 16
@@ -185,7 +186,7 @@ class ItemOption(BasicOption):
             uses_font = self.color
             if main_font == 'text-white':
                 uses_font = 'text-blue'
-        elif owner and item_system.available(owner, self.item):
+        elif item_system.available(owner, self.item):
             main_font = 'text-white'
             uses_font = 'text-blue'
         return main_font, uses_font
@@ -210,6 +211,27 @@ class ItemOption(BasicOption):
             uses_string = str(self.item.c_uses.value)
         left = x + self.width() - 4 - FONT[uses_font].size(uses_string)[0] - 5
         FONT[uses_font].blit(uses_string, surf, (left, y))
+
+class ConvoyItemOption(ItemOption):
+    def __init__(self, idx, item, owner):
+        super().__init__(idx, item)
+        self.owner = owner
+
+    def width(self):
+        return 112
+
+    def get_color(self):
+        main_font = 'text-grey'
+        uses_font = 'text-grey'
+        if self.color:
+            main_font = self.color
+            uses_font = self.color
+            if main_font == 'text-white':
+                uses_font = 'text-blue'
+        elif item_system.available(self.owner, self.item):
+            main_font = 'text-white'
+            uses_font = 'text-blue'
+        return main_font, uses_font
 
 class FullItemOption(ItemOption):
     def width(self):
@@ -240,7 +262,7 @@ class ValueItemOption(ItemOption):
         self.disp_value = disp_value
 
     def width(self):
-        return 160
+        return 152
 
     def draw(self, surf, x, y):
         icon = icons.get_item_icon(self.item)
@@ -254,14 +276,14 @@ class ValueItemOption(ItemOption):
             uses_string = str(self.item.data['uses'])
         elif self.item.get('c_uses') is not None:
             uses_string = str(self.item.data['c_uses'])
-        FONT[uses_font].blit_right(uses_string, surf, (x + 96, y))
+        FONT[uses_font].blit_right(uses_string, surf, (x + 100, y))
 
         value_font = 'text-grey'
         owner = game.get_unit(self.item.owner_nid)
         if self.disp_value == 'buy':
             value = item_system.buy_price(owner, self.item)
             if value:
-                value_string = str(self.value)
+                value_string = str(value)
                 if value <= game.get_money():
                     value_font = 'text-white'
             else:
@@ -269,11 +291,11 @@ class ValueItemOption(ItemOption):
         elif self.disp_value == 'sell':
             value = item_system.sell_price(owner, self.item)
             if value:
-                value_string = str(self.value)
+                value_string = str(value)
                 value_font = 'text-white'
             else:
                 value_string = '--'
-        FONT[value_font].blit_right(value_string, surf, (self.get_width() - 2, y))
+        FONT[value_font].blit_right(value_string, surf, (x + self.width() - 4, y))
 
 class UnitOption(BasicOption):
     def __init__(self, idx, unit):

@@ -16,6 +16,15 @@ def color_convert_alpha(image, conversion_dict):
     px_array.close()
     return image
 
+def make_gray(image):
+    for row in range(image.get_width()):
+        for col in range(image.get_height()):
+            color = image.get_at((row, col))
+            if color[3] != 0:
+                avg = int(color[0] * 0.298 + color[1] * 0.587 + color[2] * 0.114)
+                image.set_at((row, col), (avg, avg, avg))
+        return image
+
 def make_translucent(image, t):
     """
     transparency measured from 0.0 to 1.0, where 0.0 is fully opaque

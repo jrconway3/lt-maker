@@ -214,7 +214,7 @@ class Logo():
         self.transition_counter = self.height//2
         self.state = 'out'
 
-def PopUpDisplay():
+class PopUpDisplay():
     def __init__(self, topright):
         self.topright = topright
         self.update_num = -200

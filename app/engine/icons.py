@@ -6,7 +6,7 @@ from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine, skill_system
+from app.engine import engine, skill_system, image_mods
 
 def get_item_icon(item):
     if not item:
@@ -67,8 +67,10 @@ def draw_skill(surf, skill, topleft, compact=True):
     
     return surf
 
-def draw_weapon(surf, weapon_type, topleft):
+def draw_weapon(surf, weapon_type, topleft, gray=False):
     w_type_obj = DB.weapons.get(weapon_type)
+    if not w_type_obj:
+        return surf
     image = RESOURCES.icons16.get(w_type_obj.icon_nid)
     if not image:
         return surf
@@ -78,6 +80,9 @@ def draw_weapon(surf, weapon_type, topleft):
     image = engine.subsurface(image.image, (w_type_obj.icon_index[0] * 16, w_type_obj.icon_index[1] * 16, 16, 16))
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
+
+    if gray:
+        image = image_mods.make_gray(image)
     
     surf.blit(image, topleft)
     return surf

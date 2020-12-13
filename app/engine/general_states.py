@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
@@ -15,6 +15,7 @@ from app.engine import engine, action, menus, interaction, image_mods, \
     text_funcs
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
+from app.engine.fluid_scroll import FluidScroll
 
 import logging
 logger = logging.getLogger(__name__)
@@ -1140,6 +1141,8 @@ class ShopState(State):
     name = 'shop'
 
     def start(self):
+        self.fluid = FluidScroll()
+
         self.unit = game.memory['current_unit']
         self.flavor = game.memory['shop_flavor']
         if self.flavor == 'vendor':
@@ -1157,26 +1160,29 @@ class ShopState(State):
 
         items = game.memory['shop_items']
         my_items = item_funcs.get_all_tradeable_items(self.unit)
-        topleft = (44, 14)
+        topleft = (44, WINHEIGHT - 16 * 5 - 8 - 4)
         self.sell_menu = menus.Shop(self.unit, my_items, topleft, disp_value='sell')
         self.sell_menu.set_limit(5)
         self.sell_menu.set_hard_limit(True)
-        self.sell_menu.gem = False
-        self.sell_menu.shimmer = 2
+        self.sell_menu.gem = True
+        self.sell_menu.shimmer = 0
+        self.sell_menu.set_takes_input(False)
         self.buy_menu = menus.Shop(self.unit, items, topleft, disp_value='buy')
         self.buy_menu.set_limit(5)
         self.buy_menu.set_hard_limit(True)
-        self.buy_menu.gem = False
-        self.buy_menu.shimmer = 2
+        self.buy_menu.gem = True
+        self.buy_menu.shimmer = 0
+        self.buy_menu.set_takes_input(False)
 
-        self.choice_menu = menus.Choice(self.unit, ["Buy", "Sell"], (80, 32), background=None)
+        self.choice_menu = menus.Choice(self.unit, ["Buy", "Sell"], (120, 32), background=None)
         self.choice_menu.set_horizontal(True)
+        self.choice_menu.set_color(['convo-white', 'convo-white'])
         self.menu = None  # For input
 
         self.state = 'open'
         self.current_msg = self.get_dialog(self.opening_message)
 
-        self.message_bg = base_surf.create_base_surf((WINWIDTH + 8, 48), 'menu_bg_clear')
+        self.message_bg = base_surf.create_base_surf(WINWIDTH + 8, 48, 'menu_bg_clear')
         self.money_counter_disp = gui.PopUpDisplay((223, 32))
 
         self.bg = background.create_background('rune_background')
@@ -1185,7 +1191,12 @@ class ShopState(State):
         return 'repeat'
 
     def get_dialog(self, text):
-        return dialog.Dialog(text_funcs.translate(text))
+        d = dialog.Dialog(text_funcs.translate(text))
+        d.position = (60, 8)
+        d.text_width = WINWIDTH - 80
+        d.width = d.text_width + 16
+        d.font = FONT['convo-white']
+        return d
 
     def update_options(self):
         self.sell_menu.update_options(item_funcs.get_all_tradeable_items(self.unit))
@@ -1194,13 +1205,14 @@ class ShopState(State):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
-        self.menu.handle_mouse()
-        if 'DOWN' in directions or 'RIGHT' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down(first_push)
-        elif 'UP' in directions or 'LEFT' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up(first_push)
+        if self.menu:
+            self.menu.handle_mouse()
+            if 'DOWN' in directions or 'RIGHT' in directions:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.menu.move_down(first_push)
+            elif 'UP' in directions or 'LEFT' in directions:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.menu.move_up(first_push)
 
         if event == 'SELECT':
             if self.state == 'open':
@@ -1208,19 +1220,23 @@ class ShopState(State):
                 if self.current_msg.is_done():
                     self.state = 'choice'
                     self.menu = self.choice_menu
-                else:
+                elif self.current_msg.processing:
                     self.current_msg.hurry_up()
+                else:
+                    self.current_msg.unpause()
 
             elif self.state == 'choice':
                 SOUNDTHREAD.play_sfx('Select 1')
                 current = self.choice_menu.get_current()
-                if current == 'buy':
+                if current == 'Buy':
                     self.menu = self.buy_menu
                     self.state = 'buy'
                     self.current_msg = self.get_dialog(self.buy_message)
-                elif current == 'sell' and item_funcs.get_all_tradeable_items(self.unit):
+                    self.buy_menu.set_takes_input(True)
+                elif current == 'Sell' and item_funcs.get_all_tradeable_items(self.unit):
                     self.menu = self.sell_menu
                     self.state = 'sell'
+                    self.sell_menu.set_takes_input(True)
 
             elif self.state == 'buy':
                 item = self.buy_menu.get_current()
@@ -1243,6 +1259,7 @@ class ShopState(State):
                             self.current_msg = self.get_dialog('shop_max')
                             self.state = 'choice'
                             self.menu = self.choice_menu
+                            self.buy_menu.set_takes_input(False)
 
                         self.update_options()
                     else:
@@ -1291,6 +1308,7 @@ class ShopState(State):
                 else:
                     SOUNDTHREAD.play_sfx('Select 4')
                     self.state = 'choice'
+                    self.menu.set_takes_input(False)
                     self.menu = self.choice_menu
                     self.current_msg = self.get_dialog('shop_again')
 
@@ -1303,8 +1321,10 @@ class ShopState(State):
                     SOUNDTHREAD.play_sfx('Info Out')
 
     def update(self):
-        self.current_msg.update()
-        self.menu.update()
+        if self.current_msg:
+            self.current_msg.update()
+        if self.menu:
+            self.menu.update()
 
     def draw(self, surf):
         if self.bg:
@@ -1314,12 +1334,19 @@ class ShopState(State):
             self.current_msg.draw(surf)
         if self.state == 'sell':
             self.sell_menu.draw(surf)
+        elif self.state == 'choice' and self.current_msg.is_done() and self.choice_menu.get_current() == 'Sell':
+            self.sell_menu.draw(surf)
         else:
             self.buy_menu.draw(surf)
         if self.state == 'choice' and self.current_msg.is_done():
             self.choice_menu.draw(surf)
         surf.blit(self.portrait, (3, 0))
         
-        surf.blit(SPRITES.get('money_bg'), (172, 48))
+        money_bg = SPRITES.get('money_bg')
+        money_bg = image_mods.make_translucent(money_bg, .1)
+        surf.blit(money_bg, (172, 48))
+
         FONT['text-blue'].blit_right(str(game.get_money()), surf, (223, 48))
         self.money_counter_disp.draw(surf)
+
+        return surf

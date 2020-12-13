@@ -192,7 +192,7 @@ class Dialog():
         return word
 
     def is_done(self):
-        return self.text_index >= len(self.text_commands) and self.processing
+        return self.text_index >= len(self.text_commands)
 
     def make_background(self, background):
         surf = create_base_surf(self.width, self.height, background)

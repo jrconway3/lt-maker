@@ -104,7 +104,7 @@ def optimize(unit):
     if spells:
         for _ in range(2):
             for spell in spells:
-                if not item_system.inventory_full(unit, spell) and \
+                if not item_funcs.inventory_full(unit, spell) and \
                         spell.nid not in [i.nid for i in unit.items]:
                     take_item(spell, unit)
                     break
@@ -112,7 +112,7 @@ def optimize(unit):
         num_weapons = 4
     for _ in range(num_weapons):
         for weapon in weapons:
-            if not item_system.inventory_full(unit, weapon) and \
+            if not item_funcs.inventory_full(unit, weapon) and \
                     weapon.nid not in [i.nid for i in unit.items]:
                 take_item(weapon, unit)
                 break
@@ -120,7 +120,7 @@ def optimize(unit):
     # Distribute healing items
     healing_items = sorted([item for item in game.party.convoy if item.heal], key=lambda i: (i.heal.value, 1000 - i.data.get('uses', 0)))
     for item in reversed(healing_items):
-        if not item_system.inventory_full(unit, item) and \
+        if not item_funcs.inventory_full(unit, item) and \
                 item.nid not in [i.nid for i in unit.items]:
             take_item(item, unit)
             break
@@ -129,6 +129,10 @@ def optimize(unit):
 def take_item(item, unit):
     convoy = game.party.convoy
     convoy.remove(item)
+    unit.add_item(item)
+
+def give_item(item, owner, unit):
+    owner.remove_item(item)
     unit.add_item(item)
 
 def store_item(item, unit):
@@ -140,6 +144,12 @@ def trade_items(convoy_item, unit_item, unit):
     convoy = game.party.convoy
     idx = unit.items.index(unit_item)
     unit.remove_item(unit_item)
-    convoy.remove(convoy_item)
-    convoy.append(unit_item)
+    if convoy_item.owner_nid:
+        new_unit = game.get_unit(convoy_item.owner_nid)
+        ridx = new_unit.items.index(convoy_item)
+        new_unit.remove_item(convoy_item)
+        new_unit.insert_item(ridx, unit_item)
+    else:
+        convoy.remove(convoy_item)
+        convoy.append(unit_item)
     unit.insert_item(idx, convoy_item)

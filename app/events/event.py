@@ -85,7 +85,7 @@ class Event():
 
         elif self.state == 'dialog':
             if self.text_boxes:
-                if self.text_boxes[-1].is_done():
+                if self.text_boxes[-1].is_done() and self.text_boxes[-1].processing:
                     self.state = 'processing'
                 if not self.text_boxes[-1].processing:
                     self.reset_portraits()
@@ -118,7 +118,7 @@ class Event():
         if self.state == 'dialog':
             to_draw = []
             for dialog_box in reversed(self.text_boxes):
-                if not dialog_box.is_done():
+                if not (dialog_box.is_done() and dialog_box.processing):
                     to_draw.insert(0, dialog_box)
                 if dialog_box.solo_flag:
                     break
@@ -371,6 +371,9 @@ class Event():
         elif command.nid == 'give_item':
             self.give_item(command)
 
+        elif command.nid == 'give_gold':
+            self.give_gold(command)
+
         elif command.nid == 'give_exp':
             self.give_exp(command)
 
@@ -424,6 +427,32 @@ class Event():
             else:
                 print("Couldn't find Region %s" % nid)
 
+        elif command.nid == 'show_layer':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            if nid not in game.level.tilemap.layers:
+                print("Could not find layer %s in tilemap" % nid)
+                return
+            if len(values) > 1 and values[1]:
+                transition = values[1]
+            else:
+                transition = 'fade'
+            
+            action.do(action.ShowLayer(nid, transition))
+
+        elif command.nid == 'hide_layer':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            if nid not in game.level.tilemap.layers:
+                print("Could not find layer %s in tilemap" % nid)
+                return
+            if len(values) > 1 and values[1]:
+                transition = values[1]
+            else:
+                transition = 'fade'
+
+            action.do(action.HideLayer(nid, transition))            
+
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
             if values and values[0].lower() in ('1', 't', 'true', 'y', 'yes'):
@@ -436,12 +465,17 @@ class Event():
 
         elif command.nid == 'shop':
             values, flags = event_commands.parse(command)
-            item_list = values[0].split(',')
-            shop_items = item_funcs.create_items(self.unit, item_list)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Must have a unit visit the shop!")
+                return
+            game.memory['current_unit'] = unit
+            item_list = values[1].split(',')
+            shop_items = item_funcs.create_items(unit, item_list)
             game.memory['shop_items'] = shop_items
-            game.memory['current_unit'] = self.unit
-            if len(values) > 1 and values[1]:
-                game.memory['shop_flavor'] = values[1].lower()
+            
+            if len(values) > 2 and values[2]:
+                game.memory['shop_flavor'] = values[2].lower()
             else:
                 game.memory['shop_flavor'] = 'armory'
             game.state.change('shop')
@@ -975,6 +1009,25 @@ class Event():
                 game.alerts.append(banner.SentToConvoy(item))
                 game.state.change('alert')
                 self.state = 'paused'
+
+    def give_gold(self, command):
+        values, flags = event_commands.parse(command)
+        money = int(values[0])
+        if len(values) > 1 and values[1]:
+            party_nid = values[1]
+        else:
+            party_nid = game.current_party
+        banner_flag = 'no_banner' not in flags
+
+        action.do(action.GainMoney(party_nid, money))
+        if banner_flag:
+            if money >= 0:
+                b = banner.Advanced(['Got ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'])
+            else:
+                b = banner.Advanced(['Lost ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'])
+            game.alerts.append(b)
+            game.state.change('alert')
+            self.state = 'paused'
 
     def give_exp(self, command):
         values, flags = event_commands.parse(command)

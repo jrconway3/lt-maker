@@ -71,6 +71,7 @@ class StateMachine():
              'combat': general_states.CombatState,
              'alert': general_states.AlertState,
              'ai': general_states.AIState,
+             'shop': general_states.ShopState,
              'exp': level_up.ExpState,
              'turnwheel': turnwheel.TurnwheelState,
              'game_over': game_over.GameOverState,

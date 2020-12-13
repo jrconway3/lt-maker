@@ -95,7 +95,7 @@ class Custom(Banner):
 class Advanced(Banner):
     def __init__(self, text: list, font: list):
         self.text = text
-        self.font = 'text-white'
+        self.font = font
         self.item = None
         self.figure_out_size()
 

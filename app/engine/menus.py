@@ -257,7 +257,7 @@ class Simple():
                 return self.topleft
         elif isinstance(self.topleft, Simple):
             if game.cursor.position[0] > TILEX//2 + game.camera.get_x():
-                return (24 + self.topleft.get_menu_width(), self.topleft.current_index * 16 + 8)
+                return (-20 + self.topleft.get_menu_width(), self.topleft.current_index * 16 + 4)
             else:
                 return (WINWIDTH - 40 - self.topleft.get_menu_width(), self.topleft.current_index * 16 + 8)
         else:
@@ -290,6 +290,7 @@ class Choice(Simple):
     def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
         self.horizontal = False
         self.is_convoy = False
+        self.highlight = False
         super().__init__(owner, options, topleft, background, info)
 
         self.gem = True
@@ -304,6 +305,10 @@ class Choice(Simple):
 
     def set_total_uses(self, val):
         self.display_total_uses = val
+        self.update_options()
+
+    def set_highlight(self, val):
+        self.highlight = val
         self.update_options()
 
     def set_convoy(self, val):
@@ -431,9 +436,9 @@ class Choice(Simple):
         idxs, rects = self.get_rects()
         rect = rects[self.current_index - self.scroll]
         if topleft[0] < WINWIDTH // 2:
-            help_box.draw(surf, (rect[0], rect[1]))
+            help_box.draw(surf, (rect[0] - 4, rect[1] + 16))
         else:
-            help_box.draw(surf, (rect[0] + self.get_menu_width(), rect[1]), right=True)
+            help_box.draw(surf, (rect[0] + self.get_menu_width(), rect[1] + 16), right=True)
         return surf
 
     def vert_draw(self, surf):
@@ -455,9 +460,9 @@ class Choice(Simple):
                 top = topleft[1] + 4 + running_height
                 left = topleft[0]
 
-                if idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
+                if self.highlight and idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
                     choice.draw_highlight(surf, left, top, menu_width)
-                elif idx + self.scroll == self.fake_cursor_idx:
+                elif self.highlight and idx + self.scroll == self.fake_cursor_idx:
                     choice.draw_highlight(surf, left, top, menu_width)
                 else:
                     choice.draw(surf, left, top)
@@ -487,9 +492,9 @@ class Choice(Simple):
                 left = topleft[0] + running_width
                 width = choice.width()
 
-                if idx == self.current_index and self.takes_input and self.draw_cursor:
+                if self.highlight and idx == self.current_index and self.takes_input and self.draw_cursor:
                     choice.draw_highlight(surf, left, top, width + 14)
-                elif idx == self.fake_cursor_idx:
+                elif self.highlight and idx == self.fake_cursor_idx:
                     choice.draw_highlight(surf, left, top, width + 14)
                 else:
                     choice.draw(surf, left, top)

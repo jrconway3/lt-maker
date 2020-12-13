@@ -52,6 +52,7 @@ class Dialog():
         self.cursor_offset_index = 0
         self.text_index = 0
         self.total_num_updates = 0
+        self.y_offset = 0 # How much to move lines (for when a new line is spawned)
 
         # For transition
         self.transition = True
@@ -153,6 +154,7 @@ class Dialog():
 
     def _next_line(self):
         self.text_lines.append('')
+        self.y_offset = 16
 
     def _add_letter(self, letter):
         self.text_lines[-1] += letter
@@ -235,14 +237,30 @@ class Dialog():
 
     def draw_text(self, surf):
         end_x_pos, end_y_pos = 0, 0
+        text_surf = engine.create_surface((self.text_width, self.text_height), transparent=True)
 
         display_lines = self.text_lines[-self.num_lines:]
         for idx, line in enumerate(display_lines):
-            x_pos = self.position[0] + 8
-            y_pos = self.position[1] + 8 + 16 * idx
-            self.font.blit(line, surf, (x_pos, y_pos))
-            end_x_pos = x_pos + self.font.width(line)
-            end_y_pos = y_pos
+            x_pos = 0
+            y_pos = 16 * idx
+            if len(self.text_lines) > self.num_lines:
+                y_set = y_pos + self.y_offset
+            else:
+                y_set = y_pos
+            self.font.blit(line, text_surf, (x_pos, y_set))
+            end_x_pos = self.position[0] + 8 + x_pos + self.font.width(line)
+            end_y_pos = self.position[1] + 8 + y_pos
+
+        # Draw line that's disappearing
+        if self.y_offset and len(self.text_lines) > self.num_lines:
+            x_pos = 0
+            y_pos = -16 + self.y_offset
+            line = self.text_lines[-self.num_lines - 1]
+            self.font.blit(line, text_surf, (x_pos, y_pos))
+
+        # Update y_offset
+        self.y_offset = max(0, self.y_offset - 2)
+        surf.blit(text_surf, (self.position[0] + 8, self.position[1] + 8))
 
         return end_x_pos, end_y_pos
 

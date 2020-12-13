@@ -592,13 +592,14 @@ class ItemState(MapState):
     name = 'item'
 
     def start(self):
-        game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
         options = item_funcs.get_all_items(self.cur_unit)
         self.menu = menus.Choice(self.cur_unit, options)
 
     def begin(self):
+        game.cursor.hide()
         self.menu.update_options(item_funcs.get_all_items(self.cur_unit))
+        self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -608,21 +609,36 @@ class ItemState(MapState):
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
+            current = self.menu.get_current()
+            self.item_desc_panel.set_item(current)
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
+            current = self.menu.get_current()
+            self.item_desc_panel.set_item(current)
 
         if event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
-            game.state.back()
+            if self.menu.info_flag:
+                self.menu.toggle_info()
+                SOUNDTHREAD.play_sfx('Info Out')
+            else:
+                SOUNDTHREAD.play_sfx('Select 4')
+                game.state.back()
 
         elif event == 'SELECT':
-            SOUNDTHREAD.play_sfx('Select 1')
-            game.memory['parent_menu'] = self.menu
-            game.state.change('item_child')
+            if self.menu.info_flag:
+                pass
+            else:
+                SOUNDTHREAD.play_sfx('Select 1')
+                game.memory['parent_menu'] = self.menu
+                game.state.change('item_child')
 
         elif event == 'INFO':
             self.menu.toggle_info()
+            if self.menu.info_flag:
+                SOUNDTHREAD.play_sfx('Info In')
+            else:
+                SOUNDTHREAD.play_sfx('Info Out')
 
     def update(self):
         super().update()
@@ -630,6 +646,7 @@ class ItemState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
+        surf = self.item_desc_panel.draw(surf)
         surf = self.menu.draw(surf)
         return surf
 
@@ -658,6 +675,7 @@ class ItemChildState(MapState):
                 options.append('Discard')
 
         self.menu = menus.Choice(item, options, parent_menu)
+        self.menu.gem = False
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -695,6 +713,7 @@ class ItemChildState(MapState):
                 game.state.change('option_child')
 
     def update(self):
+        super().update()
         self.menu.update()
 
     def draw(self, surf):
@@ -1177,6 +1196,7 @@ class ShopState(State):
         self.choice_menu = menus.Choice(self.unit, ["Buy", "Sell"], (120, 32), background=None)
         self.choice_menu.set_horizontal(True)
         self.choice_menu.set_color(['convo-white', 'convo-white'])
+        self.choice_menu.set_highlight(False)
         self.menu = None  # For input
 
         self.state = 'open'
@@ -1246,7 +1266,7 @@ class ShopState(State):
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() - value)
                         self.money_counter_disp.start(-value)
-                        new_item = item_funcs.create_items(self.unit, item.nid)[0]
+                        new_item = item_funcs.create_items(self.unit, [item.nid])[0]
                         game.register_item(new_item)
                         if not item_funcs.inventory_full(self.unit, new_item):
                             self.unit.add_item(new_item)

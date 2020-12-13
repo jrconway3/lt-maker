@@ -209,7 +209,7 @@ class ItemOption(BasicOption):
             uses_string = str(self.item.uses.value)
         elif self.item.c_uses:
             uses_string = str(self.item.c_uses.value)
-        left = x + self.width() - 4 - FONT[uses_font].size(uses_string)[0] - 5
+        left = x + self.width() - 5 - FONT[uses_font].width(uses_string)
         FONT[uses_font].blit(uses_string, surf, (left, y))
 
 class ConvoyItemOption(ItemOption):
@@ -285,14 +285,14 @@ class ValueItemOption(ItemOption):
             if value:
                 value_string = str(value)
                 if value <= game.get_money():
-                    value_font = 'text-white'
+                    value_font = 'text-blue'
             else:
                 value_string = '--'
         elif self.disp_value == 'sell':
             value = item_system.sell_price(owner, self.item)
             if value:
                 value_string = str(value)
-                value_font = 'text-white'
+                value_font = 'text-blue'
             else:
                 value_string = '--'
         FONT[value_font].blit_right(value_string, surf, (x + self.width() - 4, y))

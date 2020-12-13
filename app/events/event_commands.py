@@ -242,8 +242,8 @@ class GiveItem(EventCommand):
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
 
-class GiveGold(EventCommand):
-    nid = 'give_gold'
+class GiveMoney(EventCommand):
+    nid = 'give_money'
     tag = 'general'
 
     keywords = ["Integer"]

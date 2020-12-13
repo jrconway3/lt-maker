@@ -5,19 +5,26 @@ Combat Palettes
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
+Combat Animations
 Overworld
 Supports
 Base
-Turnwheel mouse support better
+    Manage, Market?, Arena, Repair, Forge, Convos, Support, Codex (World Map, Lore, Records, Achievements/Tactics), Options, Save, Continue/Finish
+Minimap
+Turnwheel mouse support
 Autotiles
+Status Screen
+Fog of War
+Unit Menu
+Joystick Remapping
 
-# More possible
+Base > Fog of War > Combat Anims > Overworld > Autotiles > Supports
+
 Dialog box should pop up when saving and autosaving
 
-Check exp?
-
-Work with Prep Menu
+Work with Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
 Confirm Help Menus are identical to in-game (Vulnerary, Heal Staff, Iron Sword)
 Confirm Items screen is identical (same set)
-Shop Screen
+
 Item Mod effects, Combat arts, etcc.
+

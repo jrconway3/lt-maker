@@ -573,7 +573,7 @@ class GainMoney(Action):
         self.old_money = None
 
     def do(self):
-        party = DB.parties.get(self.party_nid)
+        party = game.parties.get(self.party_nid)
         self.old_money = party.money
         # Can't go below zero
         if party.money + self.money < 0:
@@ -581,7 +581,7 @@ class GainMoney(Action):
         party.money += self.money
 
     def reverse(self):
-        party = DB.parties.get(self.party_nid)
+        party = game.parties.get(self.party_nid)
         party.money = self.old_money
 
 class GainExp(Action):

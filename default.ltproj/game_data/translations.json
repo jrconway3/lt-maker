@@ -218,5 +218,65 @@
     {
         "nid": "armory_opener",
         "text": "This is an armory. {w}{clear}Buy something, would ya?"
+    },
+    {
+        "nid": "armory_buy",
+        "text": "What do ya need?"
+    },
+    {
+        "nid": "armory_back",
+        "text": "Anything else?"
+    },
+    {
+        "nid": "armory_leave",
+        "text": "Come back again."
+    },
+    {
+        "nid": "vendor_opener",
+        "text": "This is a general store. {w}{clear}How can I help you?"
+    },
+    {
+        "nid": "vendor_buy",
+        "text": "What can I get for you?"
+    },
+    {
+        "nid": "vendor_back",
+        "text": "Anything else I can do for you?"
+    },
+    {
+        "nid": "vendor_leave",
+        "text": "Drop in again."
+    },
+    {
+        "nid": "shop_again",
+        "text": "Do you need anything else?"
+    },
+    {
+        "nid": "shop_buy_again",
+        "text": "Buying anything else?"
+    },
+    {
+        "nid": "shop_sell_again",
+        "text": "Selling anything else?"
+    },
+    {
+        "nid": "shop_convoy",
+        "text": "Send it to your convoy?"
+    },
+    {
+        "nid": "shop_max",
+        "text": "Your hands are full. {w}{clear}If you had a convoy, I could send it there... {w}{clear}Anything else I can do for you?"
+    },
+    {
+        "nid": "shop_no_money",
+        "text": "Sorry. You don't have enough money."
+    },
+    {
+        "nid": "shop_check",
+        "text": "Are you sure?"
+    },
+    {
+        "nid": "shop_no_value",
+        "text": "You can't sell that here."
     }
 ]

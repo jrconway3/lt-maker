@@ -1695,6 +1695,12 @@
                 ]
             ],
             [
+                "bop_portrait",
+                [
+                    "Tana"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Tana",
@@ -2252,6 +2258,12 @@
         "level_nid": "2",
         "condition": "True",
         "commands": [
+            [
+                "give_money",
+                [
+                    "400"
+                ]
+            ],
             [
                 "shop",
                 [

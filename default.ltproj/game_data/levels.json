@@ -137,8 +137,8 @@
             "base": null
         },
         "objective": {
-            "simple": "Defeat Boss",
-            "win": "Defeat Boss",
+            "simple": "Seize Boss",
+            "win": "Seize Boss",
             "loss": "Eirika dies"
         },
         "units": [

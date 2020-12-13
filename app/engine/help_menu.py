@@ -166,8 +166,11 @@ class ItemHelpDialog(HelpDialog):
 
     def draw(self, surf, pos, right=False):
         time = engine.get_time()
+        time = engine.get_time()
         if time > self.last_time + 1000:  # If it's been at least a second since last update
             self.start_time = time - 16
+            self.transition_in = True
+            self.transition_out = 0
         self.last_time = time
 
         help_surf = engine.copy_surface(self.help_surf)

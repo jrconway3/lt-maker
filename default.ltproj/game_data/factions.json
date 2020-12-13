@@ -2,8 +2,8 @@
     {
         "nid": "Soldier",
         "name": "Soldier",
-        "desc": "dd",
-        "icon_nid": "BlankEmblem",
+        "desc": "The army of Grado, the largest nation on the entire continent",
+        "icon_nid": "KnightEmblem",
         "icon_index": [
             0,
             0

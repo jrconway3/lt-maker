@@ -371,8 +371,8 @@ class Event():
         elif command.nid == 'give_item':
             self.give_item(command)
 
-        elif command.nid == 'give_gold':
-            self.give_gold(command)
+        elif command.nid == 'give_money':
+            self.give_money(command)
 
         elif command.nid == 'give_exp':
             self.give_exp(command)
@@ -1010,7 +1010,7 @@ class Event():
                 game.state.change('alert')
                 self.state = 'paused'
 
-    def give_gold(self, command):
+    def give_money(self, command):
         values, flags = event_commands.parse(command)
         money = int(values[0])
         if len(values) > 1 and values[1]:

@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
@@ -12,7 +12,7 @@ from app.engine.game_state import game
 from app.engine import engine, action, menus, interaction, image_mods, \
     banner, save, phase, skill_system, target_system, item_system, \
     item_funcs, ui_view, info_menu, base_surf, gui, background, dialog, \
-    text_funcs
+    text_funcs, equations, menu_options
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
 from app.engine.fluid_scroll import FluidScroll
@@ -878,7 +878,7 @@ class TargetingState(MapState):
         closest_pos = self.selection.get_closest(self.cur_unit.position)
         game.cursor.set_pos(closest_pos)
 
-        self.pennant = banner.Pennant(self.ability.name)
+        self.pennant = banner.Pennant(self.ability.name + '_desc')
 
     def begin(self):
         game.cursor.combat_show()
@@ -917,8 +917,76 @@ class TargetingState(MapState):
             SOUNDTHREAD.play_sfx('Select 1')
             self.ability.do(self.cur_unit)
 
+    def draw_rescue_preview(self, surf):
+        rescuee = game.board.get_unit(game.cursor.position)
+        window = SPRITES.get('rescue_window').copy()
+        con = str(equations.parser.rescue_weight(rescuee))
+        aid = str(equations.parser.rescue_aid(self.cur_unit))
+        FONT['text-blue'].blit_right(con, window, (window.get_width() - 5, 72))
+        FONT['text-blue'].blit_right(aid, window, (window.get_width() - 5, 24))
+        rescuer_sprite = self.cur_unit.sprite.create_image('passive')
+        rescuee_sprite = rescuee.sprite.create_image('passive')
+        FONT['text-white'].blit(self.cur_unit.name, window, (32, 8))
+        FONT['text-white'].blit(rescuee.name, window, (32, 56))
+
+        if game.cursor.position[0] > TILEX//2 + game.camera.get_x() - 1:
+            topleft = (0, 0)
+        else:
+            topleft = (WINWIDTH - 4 - window.get_width(), 0)
+        surf.blit(window, topleft)
+
+        surf.blit(rescuer_sprite, (topleft[0] - 12, topleft[1] - 16))
+        surf.blit(rescuee_sprite, (topleft[0] - 12, topleft[1] - 16 + 48))
+
+        return surf
+
+    def draw_trade_preview(self, surf):
+        unit = game.board.get_unit(game.cursor.position)
+        items = unit.items
+        # Build window
+        window = SPRITES.get('trade_window')
+        width, height = window.get_width(), window.get_height()
+        top = engine.subsurface(window, (0, 0, width, 27))
+        bottom = engine.subsurface(window, (0, height - 5, width, 5))
+        middle = engine.subsurface(window, (0, height//2 + 3, width, 16))
+        size = (width, -2 + 27 + 5 + 16 * max(1, len(items)))
+        bg_surf = engine.create_surface(size, transparent=True)
+        bg_surf.blit(top, (0, 0))
+
+        for idx, item in enumerate(items):
+            bg_surf.blit(middle, (0, 27 + idx * 16))
+        if not items:
+            bg_surf.blit(middle, (0, 27))
+        bg_surf.blit(bottom, (0, size[1] - 5))
+        bg_surf = image_mods.make_translucent(bg_surf, .1)
+
+        for idx, item in enumerate(items):
+            item_option = menu_options.ItemOption(idx, item)
+            item_option.draw(bg_surf, 5, 27 + idx * 16 - 2)
+        if not items:
+            FONT['text-grey'].blit('Nothing', bg_surf, (25, 27 - 2))
+
+        unit_sprite = unit.sprite.create_image('passive')
+        FONT['text-white'].blit(unit.name, bg_surf, (32, 8))
+
+        if game.cursor.position[0] > TILEX//2 + game.camera.get_x() - 1:
+            topleft = (0, 0)
+        else:
+            topleft = (WINWIDTH - 4 - window.get_width(), 0)
+        surf.blit(bg_surf, topleft)
+
+        surf.blit(unit_sprite, (topleft[0] - 12, topleft[1] - 16))
+
+        return surf
+
     def draw(self, surf):
         surf = super().draw(surf)
+        if self.ability.name == 'Rescue':
+            self.draw_rescue_preview(surf)
+        elif self.ability.name == 'Trade':
+            self.draw_trade_preview(surf)
+        elif self.ability.name == 'Steal':
+            self.draw_trade_preview(surf)
         if self.pennant:
             draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
             self.pennant.draw(surf, draw_on_top)

@@ -583,7 +583,7 @@
                 "speak",
                 [
                     "Breguet",
-                    "What? How?"
+                    "This... this can't be...|I..."
                 ]
             ],
             [
@@ -1972,7 +1972,7 @@
                 "speak",
                 [
                     "Tana",
-                    "I heard that Renais had fallen, and I was so worried...|But I'm glad to see that you're safe...|Wait! Where is Ephraim? Is he well?"
+                    "I heard that Renais had fallen, and I was so worried...|But I'm glad to see that you're safe...{w}{clear}Wait! Where is Ephraim? Is he well?"
                 ]
             ],
             [
@@ -2176,7 +2176,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "Franz, you made it through unscathed."
+                    "Franz, you made it through unscathed..."
                 ]
             ],
             [

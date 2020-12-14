@@ -278,5 +278,13 @@
     {
         "nid": "shop_no_value",
         "text": "You can't sell that here."
+    },
+    {
+        "nid": "Rescue_desc",
+        "text": "Select a unit to rescue."
+    },
+    {
+        "nid": "Trade_desc",
+        "text": "Select which unit to trade with."
     }
 ]

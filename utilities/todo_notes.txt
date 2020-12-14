@@ -23,8 +23,9 @@ Base > Fog of War > Combat Anims > Overworld > Autotiles > Supports
 Dialog box should pop up when saving and autosaving
 
 Work with Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
-Confirm Help Menus are identical to in-game (Vulnerary, Heal Staff, Iron Sword)
-Confirm Items screen is identical (same set)
+Confirm Help Menus are identical to in-game (Heal Staff)
+Confirm Items screen is identical (Heal Staff)
 
 Item Mod effects, Combat arts, etcc.
+Steal (ability?) (or works like Rescue?)
 

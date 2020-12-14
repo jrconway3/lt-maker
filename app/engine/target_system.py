@@ -135,6 +135,15 @@ def get_path(unit, position, ally_block=False) -> list:
     path = pathfinder.process(game.board.team_grid, ally_block=ally_block)
     return path
 
+def check_path(unit, path) -> bool:
+    movement = equations.parser.movement(unit)
+    for pos in path[:-1]:  # Don't need to count the starting position
+        mcost = game.moving_units.get_mcost(unit, pos)
+        movement -= mcost
+        if movement < 0:
+            return False
+    return True
+
 def travel_algorithm(path, moves, unit, grid):
     """
     Given a long path, travels along that path as far as possible

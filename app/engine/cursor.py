@@ -67,7 +67,15 @@ class Cursor():
             self.border_position = self.position
 
         if self.display_arrows:
-            if self.border_position:
+            check_good = False
+            if self.path and self.border_position not in self.path[1:]:
+                if self.border_position not in self.path:
+                    self.path.insert(0, self.border_position)
+                check_good = target_system.check_path(self.cur_unit, self.path)
+            # See if we can keep the current path
+            if check_good:
+                pass  # Can just use original path
+            elif self.border_position:
                 self.path = target_system.get_path(self.cur_unit, self.border_position)
             else:
                 self.path = target_system.get_path(self.cur_unit, self.position)
@@ -103,6 +111,8 @@ class Cursor():
             self.set_pos(player_units[0].position)
 
     def place_arrows(self):
+        if self.path:
+            self.path.clear()
         self.display_arrows = True
 
     def construct_arrows(self, path):

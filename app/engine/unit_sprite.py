@@ -250,21 +250,21 @@ class UnitSprite():
             elif self.transition_state == 'warp_move':
                 self.set_transition('warp_in')
 
-    def select_frame(self, image):
+    def select_frame(self, image, state):
         if self.unit.is_dying:
             return image[0].copy()
-        elif self.image_state == 'passive' or self.image_state == 'gray':
+        elif state == 'passive' or state == 'gray':
             return image[game.map_view.passive_sprite_counter.count].copy()
-        elif self.image_state == 'active':
+        elif state == 'active':
             return image[game.map_view.active_sprite_counter.count].copy()
-        elif self.state == 'combat_anim':
+        elif state == 'combat_anim':
             return image[game.map_view.fast_move_sprite_counter.count].copy()
         else:
             return image[game.map_view.move_sprite_counter.count].copy()
 
     def create_image(self, state):
         image = getattr(self.map_sprite, state)
-        image = self.select_frame(image)
+        image = self.select_frame(image, state)
         return image
 
     def draw(self, surf):

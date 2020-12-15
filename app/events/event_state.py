@@ -74,7 +74,7 @@ class EventState(MapState):
             else:
                 did_trigger = game.events.trigger('level_end')
                 if did_trigger:
-                    pass
+                    game.level_vars['_level_end_triggered'] = True
                 else:
                     self.level_end()
 

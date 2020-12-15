@@ -13,6 +13,7 @@ class Banner():
         self.text = []
         self.item = None
         self.font = []
+        self.sound = None
 
     def figure_out_size(self):
         self.length = FONT['text-white'].width(''.join(self.text))
@@ -25,6 +26,9 @@ class Banner():
             self.update_flag = True
             self.time_to_start = engine.get_time()
             # play sound
+            if self.sound:
+                from app.engine.sound import SOUNDTHREAD
+                SOUNDTHREAD.play_sfx(self.sound)
 
     def draw(self, surf):
         if not self.surf:
@@ -62,6 +66,7 @@ class AcquiredItem(Banner):
             self.text = [unit.name, ' got ', article, ' ', item.name, '.']
             self.font = ['text-blue', 'text-white', 'text-white', 'text-white', 'text-blue', 'text-white']
         self.figure_out_size()
+        self.sound = 'Item'
 
 class SentToConvoy(Banner):
     def __init__(self, item):
@@ -70,34 +75,33 @@ class SentToConvoy(Banner):
         self.text = [item.name, ' sent to convoy.']
         self.font = ['text-blue', 'txt_white']
         self.figure_out_size()
+        self.sound = 'Item'
 
 class BrokenItem(Banner):
     def __init__(self, unit, item):
         super().__init__()
         self.unit = unit
         self.item = item
-        if item.booster:
-            self.text = [unit.name, ' used ', item.name, '.']
-            # self.sound = GC.SOUNDDICT['Item']
-        else:
-            self.text = [unit.name, ' broke ', item.name, '.']
-            # self.sound = GC.SOUNDDICT['ItemBreak']
+        self.text = [unit.name, ' broke ', item.name, '.']
         self.font = ['text-blue', 'text-white', 'text-blue', 'text-blue']
         self.figure_out_size()
+        self.sound = 'ItemBreak'
 
 class Custom(Banner):
-    def __init__(self, text):
+    def __init__(self, text, sound=None):
         self.text = [text]
         self.font = ['text-white']
         self.item = None
         self.figure_out_size()
+        self.sound = sound
 
 class Advanced(Banner):
-    def __init__(self, text: list, font: list):
+    def __init__(self, text: list, font: list, sound=None):
         self.text = text
         self.font = font
         self.item = None
         self.figure_out_size()
+        self.sound = sound
 
 class Pennant():
     """

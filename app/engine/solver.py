@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine import combat_calcs, item_system, skill_system, static_random
+from app.engine import combat_calcs, item_system, skill_system, static_random, action
 
 import logging
 logger = logging.getLogger(__name__)
@@ -100,17 +100,28 @@ class CombatPhaseSolver():
         return self.state
 
     def do(self):
+        old_random_state = static_random.get_combat_random_state()
+        
         actions, playback = [], []
         self.state.process(self, actions, playback)
+
+        new_random_state = static_random.get_combat_random_state()
+        action.do(action.RecordRandomState(old_random_state, new_random_state))
+
         return actions, playback
 
     def setup_next_state(self):
+        old_random_state = static_random.get_combat_random_state()
+
         next_state = self.state.get_next_state(self)
         logger.debug("Next State: %s" % next_state)
         if next_state:
             self.state = self.states[next_state]()
         else:
             self.state = None
+            
+        new_random_state = static_random.get_combat_random_state()
+        action.do(action.RecordRandomState(old_random_state, new_random_state))
 
     def get_script(self):
         if self.script:

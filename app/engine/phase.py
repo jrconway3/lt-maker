@@ -83,8 +83,10 @@ class PhaseIn():
         if self.name == 'player':
             if cf.SETTINGS['autocursor']:
                 game.cursor.autocursor()
+            elif game.memory.get('previous_cursor_position'):
+                game.cursor.set_pos(game.memory['previous_cursor_position'])
             else:
-                game.cursor.set_position(game.memory['previous_cursor_position'])
+                game.cursor.autocursor()
 
     def update(self):
         return engine.get_time() - self.starting_time >= self.t_display

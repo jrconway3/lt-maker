@@ -1022,9 +1022,9 @@ class Event():
         action.do(action.GainMoney(party_nid, money))
         if banner_flag:
             if money >= 0:
-                b = banner.Advanced(['Got ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'])
+                b = banner.Advanced(['Got ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'], 'Item')
             else:
-                b = banner.Advanced(['Lost ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'])
+                b = banner.Advanced(['Lost ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'], 'ItemBreak')
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'

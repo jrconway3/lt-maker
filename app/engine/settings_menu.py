@@ -53,8 +53,11 @@ class ConfigOption(menu_options.BasicOption):
     def height(self):
         return 16
 
+    def get_value(self):
+        return cf.SETTINGS[self.name]
+
     def move_left(self):
-        value = cf.SETTINGS[self.name]
+        value = self.get_value()
         if value in self.values:
             idx = self.values.index(value)
             idx = utils.clamp(idx - 1, 0, len(self.values) - 1)
@@ -63,7 +66,7 @@ class ConfigOption(menu_options.BasicOption):
             cf.SETTINGS[self.name] = self.values[0]
 
     def move_right(self):
-        value = cf.SETTINGS[self.name]
+        value = self.get_value()
         if value in self.values:
             idx = self.values.index(value)
             idx = utils.clamp(idx + 1, 0, len(self.values) - 1)
@@ -75,7 +78,7 @@ class ConfigOption(menu_options.BasicOption):
         """
         Always move to the next one, even if it has to backwards
         """
-        value = cf.SETTINGS[self.name]
+        value = self.get_value()
         if value in self.values:
             idx = self.values.index(value)
             idx = (idx + 1) % len(self.values)
@@ -157,6 +160,9 @@ class ChoiceOption(ConfigOption):
         self.right_arrow.draw(surf)
 
 class SimpleOption(ConfigOption):
+    def get_value(self):
+        return str(cf.SETTINGS[self.name])
+
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
         name_font = FONT['text-white']

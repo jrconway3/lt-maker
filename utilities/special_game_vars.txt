@@ -11,3 +11,4 @@ _prep_market
 Special Level Vars
 _win_game
 _lose_game
+_level_end_triggered

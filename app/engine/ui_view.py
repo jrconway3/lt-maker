@@ -52,8 +52,8 @@ class UIView():
 
         # Tile info handling
         if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain']:
-            if game.cursor.position != self.expected_coord:
-                self.tile_info_disp = self.create_tile_info(game.cursor.position)
+            # if game.cursor.position != self.expected_coord:
+            self.tile_info_disp = self.create_tile_info(game.cursor.position)
             if self.tile_info_disp:
                 self.tile_info_offset = min(self.tile_info_disp.get_width(), self.tile_info_offset)
             self.tile_info_offset -= 20

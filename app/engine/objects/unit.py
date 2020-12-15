@@ -193,7 +193,7 @@ class UnitObject(Prefab):
             if self.equipped_weapon:
                 self.unequip(self.equipped_weapon)
             self.equipped_weapon = item
-        self.insert_item(0, item)
+        # self.insert_item(0, item)
 
     def unequip(self, item):
         self.equipped_weapon = None

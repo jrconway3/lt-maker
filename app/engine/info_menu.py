@@ -149,11 +149,10 @@ class InfoGraph():
                 self.current_bb = bb
 
     def draw(self, surf):
-        for bb in self.registry[self.current_state]:
-            s = engine.create_surface((bb.aabb[2], bb.aabb[3]), transparent=True)
-            engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
-            surf.blit(s, (bb.aabb[0], bb.aabb[1]))
-
+        # for bb in self.registry[self.current_state]:
+        #     s = engine.create_surface((bb.aabb[2], bb.aabb[3]), transparent=True)
+        #     engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
+        #     surf.blit(s, (bb.aabb[0], bb.aabb[1]))
         if self.current_bb:
             right = self.current_bb.aabb[0] >= int(0.75 * WINWIDTH)
             pos = (max(0, self.current_bb.aabb[0] - 32), self.current_bb.aabb[1] + 13)

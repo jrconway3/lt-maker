@@ -61,11 +61,15 @@
     },
     {
         "nid": "Get_Input_desc",
-        "text": "Press a new key (or BACK to quit)"
+        "text": "Press a new key (or BACK to quit)."
     },
     {
         "nid": "unit_speed_desc",
         "text": "Change unit movement speed."
+    },
+    {
+        "nid": "animation_desc",
+        "text": "Show combat animations"
     },
     {
         "nid": "text_speed_desc",
@@ -89,10 +93,10 @@
     },
     {
         "nid": "confirm_end_desc",
-        "text": "Ask again before manually ending turn?."
+        "text": "Ask again before manually ending turn?"
     },
     {
-        "nid": "autoend_desc",
+        "nid": "autoend_turn_desc",
         "text": "End turn when no moves are available."
     },
     {
@@ -176,7 +180,7 @@
         "text": "Determines bonuses given to other units in supports."
     },
     {
-        "nid": "Rat_desc",
+        "nid": "Rating_desc",
         "text": "Holistic combat rating."
     },
     {
@@ -286,5 +290,9 @@
     {
         "nid": "Trade_desc",
         "text": "Select which unit to trade with."
+    },
+    {
+        "nid": "config_desc",
+        "text": "Change settings."
     }
 ]

@@ -455,10 +455,56 @@ class PutItemInConvoy(Action):
         self.item = item
 
     def do(self):
-        game.convoy.append(self.item)
+        game.party.convoy.append(self.item)
 
     def reverse(self, gameStateObj):
-        game.convoy.remove(self.item)
+        game.party.convoy.remove(self.item)
+
+class TakeItemFromConvoy(Action):
+    def __init__(self, unit, item):
+        self.unit = unit
+        self.item = item
+
+    def do(self):
+        game.party.convoy.remove(self.item)
+        self.unit.add_item(self.item)
+
+    def reverse(self):
+        self.unit.remove_item(self.item)
+        game.party.convoy.append(self.item)
+
+class MoveItem(Action):
+    def __init__(self, owner, unit, item):
+        self.owner = owner
+        self.unit = unit
+        self.item = item
+
+    def do(self):
+        self.owner.remove_item(self.item)
+        self.unit.add_item(self.item)
+
+    def reverse(self):
+        self.unit.remove_item(self.item)
+        self.owner.add_item(self.item)
+
+class TradeItemWithConvoy(Action):
+    def __init__(self, unit, convoy_item, unit_item):
+        self.unit = unit
+        self.convoy_item = convoy_item
+        self.unit_item = unit_item
+        self.unit_idx = self.unit.items.index(self.unit_item)
+
+    def do(self):
+        self.unit.remove_item(self.unit_item)
+        game.party.convoy.remove(self.convoy_item)
+        game.party.convoy.append(self.unit_item)
+        self.unit.insert_item(self.unit_idx, self.convoy_item)
+
+    def reverse(self):
+        self.unit.remove_item(self.convoy_item)
+        game.party.convoy.remove(self.unit_item)
+        game.party.convoy.append(self.convoy_item)
+        self.unit.insert_item(self.unit_idx, self.unit_item)
 
 class GiveItem(Action):
     def __init__(self, unit, item):
@@ -492,7 +538,7 @@ class DropItem(Action):
         self.item.droppable = True
         self.unit.remove_item(self.item)
 
-class DiscardItem(Action):
+class StoreItem(Action):
     def __init__(self, unit, item):
         self.unit = unit
         self.item = item
@@ -500,13 +546,13 @@ class DiscardItem(Action):
 
     def do(self):
         self.unit.remove_item(self.item)
-        game.convoy.append(self.item)
+        game.party.convoy.append(self.item)
 
     def reverse(self):
-        game.convoy.remove(self.item)
+        game.party.convoy.remove(self.item)
         self.unit.insert_item(self.item_index, self.item)
 
-class RemoveItem(DiscardItem):
+class RemoveItem(StoreItem):
     def do(self):
         self.unit.remove_item(self.item)
 

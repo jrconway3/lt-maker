@@ -137,11 +137,15 @@ def get_path(unit, position, ally_block=False) -> list:
 
 def check_path(unit, path) -> bool:
     movement = equations.parser.movement(unit)
+    prev_pos = None
     for pos in path[:-1]:  # Don't need to count the starting position
+        if prev_pos and pos not in get_adjacent_positions(prev_pos):
+            return False
         mcost = game.moving_units.get_mcost(unit, pos)
         movement -= mcost
         if movement < 0:
             return False
+        prev_pos = pos
     return True
 
 def travel_algorithm(path, moves, unit, grid):

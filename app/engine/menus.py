@@ -290,7 +290,7 @@ class Choice(Simple):
     def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
         self.horizontal = False
         self.is_convoy = False
-        self.highlight = False
+        self.highlight = True
         super().__init__(owner, options, topleft, background, info)
 
         self.gem = True
@@ -462,8 +462,8 @@ class Choice(Simple):
 
                 if self.highlight and idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
                     choice.draw_highlight(surf, left, top, menu_width)
-                elif self.highlight and idx + self.scroll == self.fake_cursor_idx:
-                    choice.draw_highlight(surf, left, top, menu_width)
+                # elif self.highlight and idx + self.scroll == self.fake_cursor_idx:
+                    # choice.draw_highlight(surf, left, top, menu_width)
                 else:
                     choice.draw(surf, left, top)
                 if idx + self.scroll == self.fake_cursor_idx:
@@ -612,7 +612,7 @@ class Trade(Simple):
         self.menu1 = Choice(self.owner, items1, (11, 68))
         self.menu1.set_limit(DB.constants.total_items())
         self.menu1.set_hard_limit(True)  # Makes hard limit
-        self.menu2 = Choice(self.partner, items2 , (125, 68))
+        self.menu2 = Choice(self.partner, items2, (125, 68))
         self.menu2.set_limit(DB.constants.total_items())
         self.menu2.set_hard_limit(True)  # Makes hard limit
         self.menu2.set_cursor(0)
@@ -634,10 +634,12 @@ class Trade(Simple):
         # handle cursor
         if self.selecting_hand[0] == 0:
             self.menu1.move_to(self.selecting_hand[1])
+            self.selecting_hand = (0, self.menu1.current_index)
             self.menu1.set_cursor(1)
             self.menu2.set_cursor(0)
         else:
             self.menu2.move_to(self.selecting_hand[1])
+            self.selecting_hand = (1, self.menu2.current_index)
             self.menu1.set_cursor(0)
             self.menu2.set_cursor(1)
 
@@ -645,15 +647,23 @@ class Trade(Simple):
         self.other_hand = self.selecting_hand
         if self.selecting_hand[0] == 0:
             self._selected_option = self.menu1.options[self.selecting_hand[1]]
-            self.selecting_hand = (1, self.selecting_hand[1])
-            self.menu2.move_to(self.selecting_hand[1])
+            good_options = [option for option in self.menu2.options if not option.ignore]
+            if len(good_options) > DB.constants.total_items():
+                self.menu2.move_to(self.selecting_hand[1])
+            else:
+                self.menu2.move_to(len(good_options) - 1)
+            self.selecting_hand = (1, self.menu2.current_index)
             self.menu1.set_fake_cursor(self.other_hand[1])
             self.menu2.set_cursor(1)
             self.menu1.set_cursor(0)
         else:
-            self._selected_option = self.menu2.options[self.selecting_hand[1]]
-            self.selecting_hand = (0, self.selecting_hand[1])
-            self.menu1.move_to(self.selecting_hand[1])
+            self._selected_option = self.menu2.options[self.selecting_hand[1]]            
+            good_options = [option for option in self.menu1.options if not option.ignore]
+            if len(good_options) > DB.constants.total_items():
+                self.menu1.move_to(self.selecting_hand[1])
+            else:
+                self.menu1.move_to(len(good_options) - 1)
+            self.selecting_hand = (0, self.menu1.current_index)
             self.menu2.set_fake_cursor(self.other_hand[1])
             self.menu1.set_cursor(1)
             self.menu2.set_cursor(0)
@@ -702,6 +712,7 @@ class Trade(Simple):
         self.menu2.set_cursor(0)
 
     def move_left(self):
+        # Can't move left if no items
         if self.selecting_hand[0] == 1:
             idx = utils.clamp(self.selecting_hand[1], 0, len([option for option in self.menu1.options if not option.ignore]) - 1)
             self.menu1.move_to(idx)

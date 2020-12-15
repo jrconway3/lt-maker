@@ -156,13 +156,13 @@ class ItemHelpDialog(HelpDialog):
         self.vals = (weapon_rank, rng, weight, might, hit, crit)
 
         if self.item.desc:
-            self.lines = text_funcs.line_wrap(self.font, self.item.desc, 164)
+            self.lines = text_funcs.line_wrap(self.font, self.item.desc, 148)
         else:
             self.lines = []
 
         size_y = 48 + self.font.height * len(self.lines)
-        self.help_surf = base_surf.create_base_surf(176, size_y, 'message_bg_base')
-        self.h_surf = engine.create_surface((176, size_y + 3), transparent=True)
+        self.help_surf = base_surf.create_base_surf(160, size_y, 'message_bg_base')
+        self.h_surf = engine.create_surface((160, size_y + 3), transparent=True)
 
     def draw(self, surf, pos, right=False):
         time = engine.get_time()
@@ -179,19 +179,19 @@ class ItemHelpDialog(HelpDialog):
             icons.draw_weapon(help_surf, weapon_type, (8, 6))
 
         self.font_yellow.blit('Rng', help_surf, (56, 6))
-        self.font_yellow.blit('Wt', help_surf, (116, 6))
+        self.font_yellow.blit('Wt', help_surf, (106, 6))
         self.font_yellow.blit('Mt', help_surf, (8, 22))
         self.font_yellow.blit('Hit', help_surf, (56, 22))
         if self.vals[5] is not None:
-            self.font_yellow.blit('Crit', help_surf, (116, 22))
+            self.font_yellow.blit('Crit', help_surf, (106, 22))
 
         self.font_blue.blit_right(str(self.vals[0]), help_surf, (50, 6))
-        self.font_blue.blit_right(str(self.vals[1]), help_surf, (108, 6))
-        self.font_blue.blit_right(str(self.vals[2]), help_surf, (156, 6))
+        self.font_blue.blit_right(str(self.vals[1]), help_surf, (100, 6))
+        self.font_blue.blit_right(str(self.vals[2]), help_surf, (144, 6))
         self.font_blue.blit_right(str(self.vals[3]), help_surf, (50, 22))
-        self.font_blue.blit_right(str(self.vals[4]), help_surf, (108, 22))
+        self.font_blue.blit_right(str(self.vals[4]), help_surf, (100, 22))
         if self.vals[5] is not None:
-            self.font_blue.blit_right(str(self.vals[5]), help_surf, (156, 22))
+            self.font_blue.blit_right(str(self.vals[5]), help_surf, (144, 22))
 
         if cf.SETTINGS['text_speed'] > 0:
             num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))

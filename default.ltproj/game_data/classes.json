@@ -1397,7 +1397,7 @@
     {
         "nid": "Soldier",
         "name": "Soldier",
-        "desc": "A generic solider",
+        "desc": "Average soliders possessing\nno special abilities.",
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
@@ -2525,7 +2525,7 @@
     {
         "nid": "Knight",
         "name": "Knight",
-        "desc": "Heavily armored knights with superior defense but poor movement.",
+        "desc": "Heavily armored knights with poor movement.",
         "tier": 1,
         "movement_group": "Armors",
         "promotes_from": null,
@@ -2803,7 +2803,7 @@
     {
         "nid": "Fighter",
         "name": "Fighter",
-        "desc": "??",
+        "desc": "Ruffians with great strength but\npoor defense.",
         "tier": 1,
         "movement_group": "Regular",
         "promotes_from": null,

@@ -2,7 +2,7 @@
     {
         "nid": "Eirika",
         "name": "Eirika",
-        "desc": "The princess of the Kingdom of Renais.\nShe's elegant and kind.",
+        "desc": "The princess of the Kingdom of\nRenais. She's elegant and kind.",
         "variant": null,
         "level": 1,
         "klass": "Eirika_Lord",
@@ -153,7 +153,7 @@
     {
         "nid": "Seth",
         "name": "Seth",
-        "desc": "A young commander of Renais. He's calm, composed, and skilled.",
+        "desc": "A young commander of Renais.\nHe's calm, composed, and skilled.",
         "variant": null,
         "level": 1,
         "klass": "Paladin",
@@ -2309,7 +2309,7 @@
     {
         "nid": "Breguet",
         "name": "Breguet",
-        "desc": "??",
+        "desc": "Commander of a Grado military force.",
         "variant": null,
         "level": 4,
         "klass": "Knight",

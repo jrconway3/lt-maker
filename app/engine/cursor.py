@@ -68,9 +68,14 @@ class Cursor():
 
         if self.display_arrows:
             check_good = False
-            if self.path and self.border_position not in self.path[1:]:
-                if self.border_position not in self.path:
-                    self.path.insert(0, self.border_position)
+            if self.path:
+                # Go back to that point
+                if self.border_position in self.path[1:]:
+                    idx = self.path[1:].index(self.border_position) + 1
+                    self.path = self.path[idx:]
+                else:
+                    if self.border_position not in self.path:
+                        self.path.insert(0, self.border_position)
                 check_good = target_system.check_path(self.cur_unit, self.path)
             # See if we can keep the current path
             if check_good:

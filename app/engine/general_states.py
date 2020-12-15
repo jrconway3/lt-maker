@@ -313,7 +313,10 @@ class OptionChildState(State):
                     item = game.memory['option_item']
                     cur_unit = game.memory['option_unit']
                     if item in cur_unit.items:
-                        action.do(action.DiscardItem(cur_unit, item))
+                        if self.menu.owner == 'Discard':
+                            action.do(action.RemoveItem(cur_unit, item))
+                        elif self.menu.owner == 'Storage':
+                            action.do(action.StoreItem(cur_unit, item))
                     if cur_unit.items:
                         game.state.back()
                         game.state.back()

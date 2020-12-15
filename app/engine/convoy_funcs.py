@@ -1,5 +1,5 @@
 import random
-from app.engine import item_system, item_funcs, equations
+from app.engine import item_system, item_funcs, equations, action
 from app.engine.game_state import game
 
 def can_restock(item) -> bool:
@@ -127,29 +127,17 @@ def optimize(unit):
     # Done!
 
 def take_item(item, unit):
-    convoy = game.party.convoy
-    convoy.remove(item)
-    unit.add_item(item)
+    action.do(action.TakeItemFromConvoy(unit, item))
 
 def give_item(item, owner, unit):
-    owner.remove_item(item)
-    unit.add_item(item)
+    action.do(action.MoveItem(owner, unit, item))
 
 def store_item(item, unit):
-    convoy = game.party.convoy
-    unit.remove_item(item)
-    convoy.append(item)
+    action.do(action.StoreItem(unit, item))
 
 def trade_items(convoy_item, unit_item, unit):
-    convoy = game.party.convoy
-    idx = unit.items.index(unit_item)
-    unit.remove_item(unit_item)
     if convoy_item.owner_nid:
         new_unit = game.get_unit(convoy_item.owner_nid)
-        ridx = new_unit.items.index(convoy_item)
-        new_unit.remove_item(convoy_item)
-        new_unit.insert_item(ridx, unit_item)
+        action.do(action.TradeItem(unit, new_unit, unit_item, convoy_item))
     else:
-        convoy.remove(convoy_item)
-        convoy.append(unit_item)
-    unit.insert_item(idx, convoy_item)
+        action.do(action.TradeItemWithConvoy(unit, convoy_item, unit_item))

@@ -206,9 +206,9 @@ class ItemOption(BasicOption):
         FONT[main_font].blit(self.item.name, surf, (x + 20, y))
         uses_string = '--'
         if self.item.uses:
-            uses_string = str(self.item.uses.value)
+            uses_string = str(self.item.data['uses'])
         elif self.item.c_uses:
-            uses_string = str(self.item.c_uses.value)
+            uses_string = str(self.item.data['c_uses'])
         left = x + self.width() - 5 - FONT[uses_font].width(uses_string)
         FONT[uses_font].blit(uses_string, surf, (left, y))
 

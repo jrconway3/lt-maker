@@ -16,7 +16,7 @@ constants = {'current_time': 0,
 
 # === engine functions ===
 def init():
-    pygame.mixer.pre_init(44100, -16, 2, 256 * 2**cf.SETTINGS['sound_buffer_size'])
+    pygame.mixer.pre_init(44100, -16, 2, 128 * 2**cf.SETTINGS['sound_buffer_size'])
     pygame.init()
     pygame.mixer.init()
 

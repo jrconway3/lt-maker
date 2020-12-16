@@ -49,13 +49,13 @@ class MultiAttrListDialog(SingleListDialog):
         if locked:
             self.model.edit_locked = locked
         self.view = RightClickTreeView(deletion_criteria, self)
-        # self.view.setDragDropOverwriteMode(False)
         self.view.setModel(self.model)
-        # self.view.setSelectionBehavior(1)  # SelectRows
         int_columns = [i for i, attr in enumerate(attrs) if type(getattr(self._data[0], attr)) == int]
         delegate = IntDelegate(self.view, int_columns)
         self.view.setItemDelegate(delegate)
         for col in range(len(attrs)):
             self.view.resizeColumnToContents(col)
+        # self.view.resize(600, 400)
+        self.resize(600, 400)
 
         self.placement(title)

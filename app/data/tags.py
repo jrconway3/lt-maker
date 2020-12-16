@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
+from app.utilities import str_utils
 
 @dataclass
 class Tag(Prefab):
@@ -20,3 +21,8 @@ class TagCatalog(Data):
         super().__init__()
         for s in strs:
             self.append(Tag(s))
+
+    def add_new_default(self, db):
+        nid = str_utils.get_next_name("New Tag", self.keys())
+        new_tag = Tag(nid)
+        self.append(new_tag)

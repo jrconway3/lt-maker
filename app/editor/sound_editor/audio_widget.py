@@ -95,7 +95,7 @@ class AudioWidget(QWidget):
                 self.stop()
                 return
             self.duration = self.music_player.get_length()
-            print(val, self.duration, val % self.duration)
+            # print(val, self.duration, val % self.duration)
             val %= self.duration
             self.time_slider.setValue(val)
             self.set_label(val)

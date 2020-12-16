@@ -191,50 +191,6 @@ class MultiAttrListModel(VirtualListModel):
     def update_watchers(self, idx):
         pass
 
-class DragDropMultiAttrListModel(MultiAttrListModel):
-    drop_to = None
-
-    def supportedDropActions(self):
-        return Qt.MoveAction
-
-    def supportedDragActions(self):
-        return Qt.MoveAction
-
-    def insertRows(self, row, count, parent):
-        if count < 1 or row < 0 or row > self.rowCount() or parent.isValid():
-            return False
-        self.drop_to = row
-        self.layoutChanged.emit()
-        return True
-
-    def do_drag_drop(self, index):
-        if self.drop_to is None:
-            return False
-        if index < self.drop_to:
-            self._data.move_index(index, self.drop_to - 1)
-            return index, self.drop_to - 1
-        else:
-            self._data.move_index(index, self.drop_to)
-            return index, self.drop_to
-
-    def removeRows(self, row, count, parent):
-        if count < 1 or row < 0 or (row + count) > self.rowCount() or parent.isValid():
-            return False
-        result = self.do_drag_drop(row)
-        self.layoutChanged.emit()
-        if result:
-            self.update_drag_watchers(result[0], result[1])
-        return True
-
-    def update_drag_watchers(self, fro, to):
-        pass
-
-    def flags(self, index):
-        if not index.isValid() or index.row() >= len(self._data) or index.model() is not self:
-            return Qt.ItemIsDropEnabled
-        else:
-            return Qt.ItemIsDragEnabled | super().flags(index)
-
 class DefaultMultiAttrListModel(MultiAttrListModel):
     def change_watchers(self, data, attr, old_value, new_value):
         if attr in self._headers and self._headers.index(attr) == self.nid_column:

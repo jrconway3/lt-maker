@@ -4,6 +4,7 @@ from app.utilities import utils
 from app.constants import WINWIDTH
 from app.engine.fonts import FONT
 from app.engine.sprites import SPRITES
+from app.engine.sound import SOUNDTHREAD
 from app.engine.base_surf import create_base_surf
 from app.engine import text_funcs, engine, image_mods
 from app.engine import config as cf
@@ -58,6 +59,9 @@ class Dialog():
         self.transition = True
         self.transition_progress = 0
         self.transition_update = engine.get_time()
+
+        # For sound
+        self.last_sound_update = 0
 
         self._next_line()
 
@@ -159,7 +163,7 @@ class Dialog():
     def _add_letter(self, letter):
         self.text_lines[-1] += letter
 
-    def _next_char(self):  # Add the next character to the text_lines list
+    def _next_char(self, sound=True):  # Add the next character to the text_lines list
         if self.text_index >= len(self.text_commands):
             self.processing = False
             return
@@ -180,8 +184,12 @@ class Dialog():
                 self._next_line()
             else:
                 self._add_letter(' ')
+                if sound:
+                    self.play_talk_boop()
         else:
             self._add_letter(command)
+            if sound:
+                self.play_talk_boop()
         self.text_index += 1
 
     def _get_next_word(self, text_index):
@@ -204,12 +212,18 @@ class Dialog():
         self.transition = False
         self.transition_progress = 0
         while self.processing:
-            self._next_char()
+            self._next_char(sound=False)
 
     def unpause(self):
         self.processing = True
         if self.portrait and not self.is_done():
             self.portrait.talk()
+
+    def play_talk_boop(self):
+        # SOUNDTHREAD.stop_sfx('Talk_Boop')
+        if cf.SETTINGS['talk_boop'] and engine.get_true_time() - self.last_sound_update > 32:
+            self.last_sound_update = engine.get_true_time()
+            SOUNDTHREAD.play_sfx('Talk_Boop')
 
     def update(self):
         current_time = engine.get_time()
@@ -227,11 +241,12 @@ class Dialog():
                 self.total_num_updates += num_updates
                 while self.total_num_updates >= 1 and self.processing:
                     self.total_num_updates -= 1
-                    self._next_char()
+                    self._next_char(sound=self.total_num_updates < 2)
                     if not self.processing:
                         self.total_num_updates = 0
             else:
                 self.hurry_up()
+                self.play_talk_boop()
 
         self.cursor_offset_index = (self.cursor_offset_index + 1) % len(self.cursor_offset)
 

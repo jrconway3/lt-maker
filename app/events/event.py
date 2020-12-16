@@ -210,7 +210,7 @@ class Event():
             if self.text_boxes[-1].processing:
                 self.text_boxes[-1].hurry_up()
             else:
-                SOUNDTHREAD.play_sfx('Select 1')
+                # SOUNDTHREAD.play_sfx('Select 1')
                 self.text_boxes[-1].unpause()
 
     def run_command(self, command):

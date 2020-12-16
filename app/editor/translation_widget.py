@@ -1,9 +1,9 @@
 from app.data.database import DB
 
 from app.extensions.list_dialogs import MultiAttrListDialog
-from app.extensions.list_models import DragDropMultiAttrListModel
+from app.extensions.list_models import MultiAttrListModel
 
-class TranslationMultiModel(DragDropMultiAttrListModel):
+class TranslationMultiModel(MultiAttrListModel):
     def create_new(self):
         self._data.add_new_default(DB)
 

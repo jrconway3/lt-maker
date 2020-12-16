@@ -6,7 +6,8 @@ class Parser():
     def __init__(self):
         self.equations = {}
         for equation in DB.equations.values():
-            self.equations[equation.nid] = self.tokenize(equation.expression)
+            if equation.expression:
+                self.equations[equation.nid] = self.tokenize(equation.expression)
         
         self.replacement_dict = self.create_replacement_dict()
 

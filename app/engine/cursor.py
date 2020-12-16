@@ -59,9 +59,17 @@ class Cursor():
         x, y = self.position
         self.position = x + dx, y + dy
 
-        SOUNDTHREAD.stop_sfx('Select 5')
-        if sound:
-            SOUNDTHREAD.play_sfx('Select 5')
+        # Cursor Sound
+        if mouse:
+            if dx == 0 and dy == 0:
+                pass
+            else:
+                SOUNDTHREAD.stop_sfx('Select 5')
+                SOUNDTHREAD.play_sfx('Select 5')
+        else:
+            SOUNDTHREAD.stop_sfx('Select 5')
+            if sound:
+                SOUNDTHREAD.play_sfx('Select 5')
 
         if game.highlight.check_in_move(self.position):
             self.border_position = self.position

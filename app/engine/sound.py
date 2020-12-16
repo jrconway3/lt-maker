@@ -29,8 +29,6 @@ class MusicDict(dict):
                 return None
         return self[val]
 
-MUSIC = MusicDict()
-
 class SoundDict(dict):
     def get(self, val):
         if val not in self:
@@ -40,8 +38,6 @@ class SoundDict(dict):
             else:
                 return None
         return self[val]
-
-SFX = SoundDict()
 
 class Channel():
     fade_in_time = 400
@@ -406,4 +402,16 @@ class SoundController():
             return sfx
         return None
 
+    def reset(self):
+        """
+        Needs to reset the sounds that are stored in memory
+        so if the main editor runs the engine again
+        we can reload everything like new
+        """
+        MUSIC.clear()
+        SFX.clear()
+        self.__init__()
+
+MUSIC = MusicDict()
+SFX = SoundDict()
 SOUNDTHREAD = SoundController()

@@ -544,16 +544,6 @@ class MainEditor(QMainWindow):
             event.ignore()
         self.settings.setValue("geometry", self.saveGeometry())
 
-    # def undo(self):
-    #     self.status_bar.showMessage('Undo: %s' % self.undo_stack.undoText())
-    #     self.undo_stack.undo()
-    #     self.update_view()
-
-    # def redo(self):
-    #     self.status_bar.showMessage('Redo: %s' % self.undo_stack.redoText())
-    #     self.undo_stack.redo()
-    #     self.update_view()
-
     def edit_level(self):
         if self.current_level:
             self.toolbar.insertAction(self.modify_level_act, self.back_to_main_act)
@@ -617,9 +607,6 @@ class MainEditor(QMainWindow):
     def edit_sounds(self):
         dialog = sound_tab.get_full_editor()
         dialog.exec_()
-
-    def edit_events(self):
-        pass
 
     def test_play(self):
         from app.engine import driver, game_state

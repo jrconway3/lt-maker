@@ -16,6 +16,7 @@ def read_config_file():
                          ('autocursor', 1),
                          ('music_volume', 0.3),
                          ('sound_volume', 0.3),
+                         ('talk_boop', 1),
                          ('autoend_turn', 1),
                          ('confirm_end', 1),
                          ('hp_map_team', 'All'),
@@ -73,6 +74,6 @@ def get_debug_commands() -> list:
                 commands.append(line.strip())
     return commands
 
-text_speed_options = list(reversed([0, 1, 5, 10, 15, 20, 32, 50, 80, 112, 150]))
+text_speed_options = list(reversed([0, 1, 5, 10, 15, 20, 32, 50, 80, 112]))
 SETTINGS = read_config_file()
 print("debug: %s" % SETTINGS['debug'])

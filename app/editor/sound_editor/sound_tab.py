@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, \
     QDialog, QAbstractItemView
 
-
 from app.resources.resources import RESOURCES
-from app.extensions.custom_gui import TableView, MultiselectTableView
+from app.extensions.custom_gui import ResourceTableView, MultiselectTableView
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
 from app.editor.sound_editor.audio_widget import AudioWidget
 from app.editor.sound_editor.sound_model import SFXModel, MusicModel
@@ -79,6 +78,14 @@ class SoundTab(QWidget):
             self.audio_widget.set_current(sfx)
             self.audio_widget.play()
 
+    def closeEvent(self, event):
+        self.audio_widget.stop()
+        super().closeEvent(event)
+
+    def hideEvent(self, event):
+        self.audio_widget.stop()
+        super().hideEvent(event)
+
 class SFXDatabase(SoundTab):
     @classmethod
     def create(cls, parent=None):
@@ -94,7 +101,7 @@ class MusicDatabase(SoundTab):
         data = RESOURCES.music
         title = "Music"
 
-        dialog = cls(data, title, MusicModel, TableView, parent)
+        dialog = cls(data, title, MusicModel, ResourceTableView, parent)
         return dialog
 
 def get_sfx():

@@ -17,6 +17,7 @@ def run(game):
     from app.engine.sound import SOUNDTHREAD
     from app.engine.input_manager import INPUT
     
+    SOUNDTHREAD.reset()
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
     SOUNDTHREAD.set_sfx_volume(cf.SETTINGS['sound_volume'])
     
@@ -29,7 +30,6 @@ def run(game):
 
         raw_events = engine.get_events()
         if raw_events == engine.QUIT:
-            engine.on_end()
             break
         event = INPUT.process_input(raw_events)
 

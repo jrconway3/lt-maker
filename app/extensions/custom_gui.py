@@ -164,6 +164,7 @@ class RightClickView():
         self.setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(4)  # QAbstractItemView.InternalMove
+        self.setDragDropOverwriteMode(False)
 
         if action_funcs:
             self.can_delete, self.can_duplicate, self.can_rename = action_funcs
@@ -302,6 +303,9 @@ class TableView(RightClickTableView):
         new_index = self.model().new(index)
         if new_index:
             self.setCurrentIndex(new_index)
+
+class ResourceTableView(ResourceView, TableView):
+    pass
 
 class MultiselectTableView(TableView):
     def __init__(self, action_funcs=None, parent=None):

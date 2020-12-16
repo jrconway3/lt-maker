@@ -19,12 +19,30 @@ from app.engine.fluid_scroll import FluidScroll
 
 def handle_info():
     if game.cursor.get_hover():
+        SOUNDTHREAD.play_sfx('Select 1')
         game.memory['next_state'] = 'info_menu'
         game.memory['current_unit'] = game.cursor.get_hover()
         game.state.change('transition_to')
     else:
         SOUNDTHREAD.play_sfx('Select 3')
         game.boundary.toggle_all_enemy_attacks()
+
+def handle_aux():
+    avail_units = [u for u in game.level.units if u.team == 'player' and u.position and not u.finished]
+    if avail_units:
+        cur_unit = game.cursor.get_hover()
+        if not cur_unit:
+            cur_unit = game.memory.get('aux_unit')
+        if not cur_unit:
+            cur_unit = avail_units[0]
+
+        if cur_unit in avail_units:
+            idx = avail_units.index(cur_unit)
+            idx = (idx + 1) % len(avail_units)
+            new_pos = avail_units[idx].position
+            game.memory['aux_unit'] = cur_unit
+            SOUNDTHREAD.play_sfx('Select 4')
+            game.cursor.set_pos(new_pos)
 
 @dataclass
 class BoundingBox():

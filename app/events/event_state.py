@@ -2,6 +2,7 @@ from app.data.database import DB
 
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import MapState
+import app.engine.config as cf
 from app.engine.game_state import game
 
 import logging
@@ -25,7 +26,8 @@ class EventState(MapState):
 
         elif event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
             if self.event.state == 'dialog':
-                SOUNDTHREAD.play_sfx('Select 1')
+                if not cf.SETTINGS['talk_boop']:
+                    SOUNDTHREAD.play_sfx('Select 1')
                 self.event.hurry_up()
 
     def update(self):

@@ -114,7 +114,7 @@ class FreeState(MapState):
             info_menu.handle_info()
 
         elif event == 'AUX':
-            pass
+            info_menu.handle_aux()
 
         elif event == 'SELECT':
             cur_pos = game.cursor.position

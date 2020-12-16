@@ -35,6 +35,7 @@ class MusicDialog(SimpleDialog):
             self.boxes[key] = box
 
         self.set_current(self.current)
+        self.setMinimumWidth(300)
 
     def set_current(self, current):
         self.current = current
@@ -45,7 +46,7 @@ class MusicDialog(SimpleDialog):
     def access_music_resources(self, key):
         res, ok = sound_tab.get_music()
         if ok:
-            nid = res.nid
+            nid = res[0].nid
             self.current.music[key] = nid
             self.boxes[key].edit.setText(nid)
 

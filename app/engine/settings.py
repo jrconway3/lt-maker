@@ -32,6 +32,7 @@ config = [('animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 0),
           ('hp_map_cull', ['None', 'Wounded', 'All'], 10),
           ('music_volume', [x/10.0 for x in range(0, 11, 1)], 15),
           ('sound_volume', [x/10.0 for x in range(0, 11, 1)], 16),
+          ('talk_boop', bool, 16),
           ('autoend_turn', bool, 14),
           ('confirm_end', bool, 14),
           ('display_hints', bool, 3)]
@@ -156,9 +157,13 @@ class SettingsMenuState(State):
             elif event == 'LEFT':
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.current_menu.move_left()
+                if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):
+                    self.update_sound()
             elif event == 'RIGHT':
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.current_menu.move_right()
+                if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):
+                    self.update_sound()
 
             elif event == 'BACK':
                 self.back()
@@ -178,12 +183,19 @@ class SettingsMenuState(State):
                 elif self.state == 'config':
                     SOUNDTHREAD.play_sfx('Select 6')
                     self.current_menu.move_next()
+                    if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):
+                        self.update_sound()
 
     def back(self):
         SOUNDTHREAD.play_sfx('Select 4')
         cf.save_settings()
+        self.update_sound()
         game.cursor.fluid.update_speed(cf.SETTINGS['cursor_speed'])
         game.state.change('transition_pop')
+
+    def update_sound(self):
+        SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
+        SOUNDTHREAD.set_sfx_volume(cf.SETTINGS['sound_volume'])
 
     def update(self):
         self.current_menu.update()

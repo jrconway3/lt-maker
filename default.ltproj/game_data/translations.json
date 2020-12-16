@@ -124,6 +124,10 @@
         "text": "Restart for change to take effect."
     },
     {
+        "nid": "talk_boop_desc",
+        "text": "Whether text should make a sound."
+    },
+    {
         "nid": "keymap_desc",
         "text": "Change keyboard bindings."
     },

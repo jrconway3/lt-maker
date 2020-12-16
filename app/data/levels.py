@@ -13,7 +13,7 @@ class LevelPrefab(Prefab):
         self.music = OrderedDict()
         music_keys = ['player_phase', 'enemy_phase', 'other_phase',
                       'player_battle', 'enemy_battle', 'other_battle',
-                      'prep', 'base']
+                      'base']
         for key in music_keys:
             self.music[key] = None
         self.objective = {'simple': '',

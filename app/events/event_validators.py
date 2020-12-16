@@ -50,6 +50,8 @@ class Music(Validator):
     def validate(self, text, level):
         if text in RESOURCES.music.keys():
             return text
+        elif text == 'None':
+            return text
         return None
 
 class Sound(Validator):
@@ -57,6 +59,11 @@ class Sound(Validator):
         if text in RESOURCES.sfx.keys():
             return text
         return None
+
+class PhaseMusic(OptionValidator):
+    valid = ['player_phase', 'enemy_phase', 'other_phase',
+             'player_battle', 'enemy_battle', 'other_battle',
+             'base']
 
 class Portrait(Validator):
     def validate(self, text, level):

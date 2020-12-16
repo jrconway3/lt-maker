@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app.constants import WINWIDTH, WINHEIGHT, VERSION
 from app.engine import engine
 
@@ -40,6 +42,12 @@ def run(game):
         SOUNDTHREAD.update(raw_events)
 
         engine.push_display(surf, engine.SCREENSIZE, engine.DISPLAYSURF)
+        # Save screenshot
+        for e in raw_events:
+            if e.type == engine.KEYDOWN and e.key == engine.key_map['`']:
+                current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
+                engine.save_surface(surf, 'LT_%s.png' % current_time)
+
         engine.update_display()
         # end = time.time_ns()
         # milliseconds_elapsed = (end - start)/1e6

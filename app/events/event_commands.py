@@ -71,6 +71,12 @@ class Sound(EventCommand):
 
     keywords = ['Sound']
 
+class ChangeMusic(EventCommand):
+    nid = 'change_music'
+    tag = 'sound'
+
+    keywords = ['PhaseMusic', 'Music']
+
 class AddPortrait(EventCommand):
     nid = "add_portrait"
     nickname = "u"

@@ -158,6 +158,7 @@ key_map = {"enter": pygame.K_RETURN,
            "tab": pygame.K_TAB,
            "backspace": pygame.K_BACKSPACE,
            "pageup": pygame.K_PAGEUP,
+           "`": pygame.K_BACKQUOTE,
            }
 
 events = []

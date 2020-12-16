@@ -226,11 +226,22 @@ class Event():
 
         elif command.nid == 'music':
             music = command.values[0]
-            SOUNDTHREAD.fade_in(music)
+            if music == 'None':
+                SOUNDTHREAD.fade_to_stop()
+            else:
+                SOUNDTHREAD.fade_in(music)
 
         elif command.nid == 'sound':
             sound = command.values[0]
             SOUNDTHREAD.play_sfx(sound)
+
+        elif command.nid == 'change_music':
+            phase = command.values[0]
+            music = command.values[1]
+            if music == 'None':
+                game.level.music[phase] = None
+            else:
+                game.level.music[phase] = music
 
         elif command.nid == 'change_background':
             values, flags = event_commands.parse(command)

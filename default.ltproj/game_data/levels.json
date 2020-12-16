@@ -11,7 +11,6 @@
             "player_battle": "Attack",
             "enemy_battle": "Defense",
             "other_battle": null,
-            "prep": null,
             "base": null
         },
         "objective": {
@@ -127,13 +126,12 @@
         "tilemap": "Chapter 1",
         "party": "Eirika",
         "music": {
-            "player_phase": null,
-            "enemy_phase": null,
+            "player_phase": "Distant Roads",
+            "enemy_phase": "Shadow of the Enemy",
             "other_phase": null,
-            "player_battle": null,
-            "enemy_battle": null,
+            "player_battle": "Attack",
+            "enemy_battle": "Defense",
             "other_battle": null,
-            "prep": null,
             "base": null
         },
         "objective": {
@@ -566,13 +564,12 @@
         "tilemap": "Chapter 2",
         "party": "Eirika",
         "music": {
-            "player_phase": null,
-            "enemy_phase": null,
+            "player_phase": "Distant Roads",
+            "enemy_phase": "Shadow of the Enemy",
             "other_phase": null,
-            "player_battle": null,
-            "enemy_battle": null,
+            "player_battle": "Attack",
+            "enemy_battle": "Defense",
             "other_battle": null,
-            "prep": null,
             "base": null
         },
         "objective": {

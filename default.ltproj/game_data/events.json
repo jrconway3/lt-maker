@@ -795,6 +795,13 @@
                 [
                     "O'Neill"
                 ]
+            ],
+            [
+                "change_music",
+                [
+                    "player_phase",
+                    "Grasp at Victory"
+                ]
             ]
         ],
         "only_once": true
@@ -1896,7 +1903,7 @@
                 "speak",
                 [
                     "Gilliam",
-                    "Princess Tana"
+                    "Princess Tana."
                 ]
             ],
             [

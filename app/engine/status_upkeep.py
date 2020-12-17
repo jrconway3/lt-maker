@@ -81,6 +81,8 @@ class StatusUpkeepState(MapState):
                 brush[1].sprite.begin_flicker(333, color)
             elif brush[0] == 'cast_sound':
                 SOUNDTHREAD.play_sfx(brush[1])
+            elif brush[0] == 'hit_sound':
+                SOUNDTHREAD.play_sfx(brush[1])
             elif brush[0] == 'cast_anim':
                 anim = RESOURCES.animations.get(brush[1])
                 pos = game.cursor.position

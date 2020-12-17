@@ -268,6 +268,18 @@ class ChangeAI(EventCommand):
 
     keywords = ["GlobalUnit", "AI"] 
 
+class AddTag(EventCommand):
+    nid = 'add_tag'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "Tag"]
+
+class RemoveTag(EventCommand):
+    nid = 'remove_tag'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "Tag"]
+
 class AddTalk(EventCommand):
     nid = 'add_talk'
     tag = 'unit'

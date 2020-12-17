@@ -74,9 +74,9 @@ class DropAbility(Ability):
         if unit.traveler and not unit.has_attacked:
             good_pos = set()
             adj_positions = target_system.get_adjacent_positions(unit.position)
-            traveler = unit.traveler
+            u = game.level.units.get(unit.traveler)
             for adj_pos in adj_positions:
-                if not game.board.get_unit(adj_pos) and game.moving_units.get_mcost(unit, adj_pos) <= equations.parser.movement(traveler):
+                if not game.board.get_unit(adj_pos) and game.moving_units.get_mcost(u, adj_pos) <= equations.parser.movement(u):
                     good_pos.add(adj_pos)
             return good_pos
         return set()
@@ -95,7 +95,7 @@ class RescueAbility(Ability):
         if not unit.traveler and not unit.has_attacked:
             adj_allies = get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
-                        equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(u)])
+                        equations.parser.rescue_aid(unit) >= equations.parser.rescue_weight(u)])
 
     @staticmethod
     def do(unit):

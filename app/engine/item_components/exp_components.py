@@ -32,6 +32,7 @@ class LevelExp(ItemComponent):
             exp_gained *= DB.constants.value('exp_magnitude')
         else:
             exp_gained = 0
+        print(exp_gained)
         return exp_gained
 
 class HealExp(ItemComponent):

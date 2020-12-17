@@ -81,6 +81,12 @@ class AI(Validator):
             return text
         return None
 
+class Tag(Validator):
+    def validate(self, text, level):
+        if text in DB.tags.keys():
+            return text
+        return None
+
 class ScreenPosition(Validator):
     valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "Right", "FarRight", "OffscreenRight"]
 

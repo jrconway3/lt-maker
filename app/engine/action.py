@@ -269,6 +269,18 @@ class LockTurnwheel(Action):
     def __init__(self, lock):
         self.lock = lock
 
+class ChangePhaseMusic(Action):
+    def __init__(self, phase, music):
+        self.phase = phase
+        self.old_music = game.level.music[phase]
+        self.new_music = music
+
+    def do(self):
+        game.level.music[self.phase] = self.new_music
+
+    def reverse(self):
+        game.level.music[self.phase] = self.old_music
+
 class Message(Action):
     def __init__(self, message):
         self.message = message
@@ -780,6 +792,33 @@ class ChangeAI(Action):
 
     def reverse(self):
         self.unit.ai = self.old_ai
+
+class AddTag(Action):
+    def __init__(self, unit, tag):
+        self.unit = unit
+        self.tag = tag
+
+    def do(self):
+        self.unit._tags.append(self.tag)
+
+    def reverse(self):
+        if self.tag in self.unit._tags:
+            self.unit._tags.remove(self.tag)
+
+class RemoveTag(Action):
+    def __init__(self, unit, tag):
+        self.unit = unit
+        self.tag = tag
+        self.did_remove = False
+
+    def do(self):
+        if self.tag in self.unit._tags:
+            self.unit._tags.remove(self.tag)
+            self.did_remove = True
+
+    def reverse(self):
+        if self.did_remove:
+            self.unit._tags.append(self.tag)
 
 class AddTalk(Action):
     def __init__(self, unit1_nid, unit2_nid):

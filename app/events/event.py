@@ -239,9 +239,9 @@ class Event():
             phase = command.values[0]
             music = command.values[1]
             if music == 'None':
-                game.level.music[phase] = None
+                action.do(action.ChangePhaseMusic(phase, None))
             else:
-                game.level.music[phase] = music
+                action.do(action.ChangePhaseMusic(phase, music))
 
         elif command.nid == 'change_background':
             values, flags = event_commands.parse(command)
@@ -399,6 +399,24 @@ class Event():
             else:
                 print("Couldn't find AI %s" % values[1])
                 return
+
+        elif command.nid == 'add_tag':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return 
+            if values[1] in DB.tags.keys():
+                action.do(action.AddTag(unit, values[1]))
+
+        elif command.nid == 'remove_tag':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return 
+            if values[1] in DB.tags.keys():
+                action.do(action.RemoveTag(unit, values[1]))
 
         elif command.nid == 'set_current_hp':
             values, flags = event_commands.parse(command)

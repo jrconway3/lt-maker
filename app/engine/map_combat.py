@@ -31,6 +31,7 @@ class MapCombat():
         self.hp_bar_time = 400
 
         self._skip = False
+        self.full_playback = []  # From all phases
         self.playback = []
         self.actions = []
 
@@ -46,6 +47,9 @@ class MapCombat():
 
     def get_from_playback(self, s):
         return [brush for brush in self.playback if brush[0] == s]
+
+    def get_from_full_playback(self, s):
+        return [brush for brush in self.full_playback if brush[0] == s]
 
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
@@ -64,6 +68,7 @@ class MapCombat():
                 self.clean_up()
                 return True
             self.actions, self.playback = self.state_machine.do()
+            self.full_playback += self.playback
             if not self.actions and not self.playback:
                 self.state_machine.setup_next_state()
                 return False
@@ -355,11 +360,11 @@ class MapCombat():
                 game.state.change('exp')
 
         # Skill system end combat clean up
-        skill_system.end_combat(self.playback, self.attacker, self.item, self.defender)
+        skill_system.end_combat(self.full_playback, self.attacker, self.item, self.defender)
         if self.defender:
-            skill_system.end_combat(self.playback, self.defender, self.def_item, self.attacker)
+            skill_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
         for unit in self.splash:
-            skill_system.end_combat(self.playback, unit, None, None)
+            skill_system.end_combat(self.full_playback, unit, None, None)
 
         self.handle_death(all_units)
 
@@ -438,12 +443,12 @@ class MapCombat():
                 game.state.change('alert')
 
     def handle_wexp(self, unit, item, target):
-        marks = self.get_from_playback('mark_hit')
-        marks += self.get_from_playback('mark_crit')
+        marks = self.get_from_full_playback('mark_hit')
+        marks += self.get_from_full_playback('mark_crit')
         if DB.constants.value('miss_wexp'):
-            marks += self.get_from_playback('mark_miss')
+            marks += self.get_from_full_playback('mark_miss')
         marks = [mark for mark in marks if mark[1] == unit]
-        wexp = item_system.wexp(self.playback, unit, item, target)
+        wexp = item_system.wexp(self.full_playback, unit, item, target)
 
         if DB.constants.value('double_wexp'):
             for mark in marks:
@@ -458,23 +463,25 @@ class MapCombat():
                 action.do(action.GainWexp(unit, item, wexp))
 
     def handle_exp(self, unit, item):
-        marks = self.get_from_playback('mark_hit')
-        marks += self.get_from_playback('mark_crit')
+        marks = self.get_from_full_playback('mark_hit')
+        marks += self.get_from_full_playback('mark_crit')
         marks = [mark for mark in marks if mark[1] == unit]
         total_exp = 0
+        all_defenders = set()
         for mark in marks:
             attacker = mark[1]
             defender = mark[2]
-            exp = item_system.exp(self.playback, attacker, item, defender)
-            print(attacker.nid, defender.nid, exp)
+            if defender in all_defenders:
+                continue  # Don't double count defenders
+            all_defenders.add(defender)
+
+            exp = item_system.exp(self.full_playback, attacker, item, defender)
             exp *= skill_system.exp_multiplier(attacker, defender)
-            print(exp)
             if defender.is_dying:
                 exp *= float(DB.constants.value('kill_multiplier'))
                 if 'Boss' in defender.tags:
                     exp += int(DB.constants.value('boss_bonus'))
             total_exp += exp
-            print("Total Exp: %s" % total_exp)
 
         return total_exp
 

@@ -791,8 +791,8 @@ class InfoMenuState(State):
         self.info_graph.register((96 + 14, top + 16, 64, 16), 'Atk_desc', 'equipment')
         FONT['text-yellow'].blit('Hit', surf, (22, top + 32))
         self.info_graph.register((96 + 14, top + 32, 64, 16), 'Hit_desc', 'equipment')
-        FONT['text-yellow'].blit('AS', surf, (78, top + 16))
-        self.info_graph.register((96 + 78, top + 16, 56, 16), 'AS_desc', 'equipment')
+        FONT['text-yellow'].blit('Crit', surf, (78, top + 16))
+        self.info_graph.register((96 + 78, top + 16, 56, 16), 'Crit_desc', 'equipment')
         FONT['text-yellow'].blit('Avoid', surf, (78, top + 32))
         self.info_graph.register((96 + 78, top + 32, 56, 16), 'Avoid_desc', 'equipment')
 
@@ -800,16 +800,15 @@ class InfoMenuState(State):
             rng = item_funcs.get_range_string(self.unit, weapon)
             dam = str(combat_calcs.damage(self.unit, weapon))
             acc = str(combat_calcs.accuracy(self.unit, weapon))
+            crt = str(combat_calcs.crit_accuracy(self.unit, weapon))
         else:
-            rng, dam, acc = '--', '--', '--'
+            rng, dam, acc, crt = '--', '--', '--', '--'
 
         avo = str(combat_calcs.avoid(self.unit))
-        attack_speed = str(combat_calcs.attack_speed(self.unit, weapon))
-
         FONT['text-blue'].blit_right(rng, surf, (127, top))
         FONT['text-blue'].blit_right(dam, surf, (71, top + 16))
         FONT['text-blue'].blit_right(acc, surf, (71, top + 32))
-        FONT['text-blue'].blit_right(attack_speed, surf, (127, top + 16))
+        FONT['text-blue'].blit_right(crt, surf, (127, top + 16))
         FONT['text-blue'].blit_right(avo, surf, (127, top + 32))
 
         return surf

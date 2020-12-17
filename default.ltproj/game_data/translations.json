@@ -212,6 +212,10 @@
         "text": "Attack Speed. If a unit has 4 or more attack speed than its opponent, it attacks twice."
     },
     {
+        "nid": "Crit_desc",
+        "text": "Chance the weapon will strike a critical blow, dealing extra damage."
+    },
+    {
         "nid": "Level_desc",
         "text": "Unit level. How experienced a unit is."
     },

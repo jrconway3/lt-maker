@@ -409,8 +409,13 @@ class PrimaryAI():
         status_term += status * min(1, accuracy * num_attacks)
         defense_term -= target_damage * target_accuracy * (1 - first_strike)
         if offense_term <= 0 and status_term <= 0:
-            logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f", offense_term, defense_term, status_term)
-            return 0
+            if lethality > 0 and DB.constants.value('attack_zero_hit'):
+                logger.info("Accuracy is bad, but continuing with stupid AI")
+            elif accuracy > 0 and DB.constants.value('attack_zero_dam'):
+                logger.info("Zero Damage, but continuing with stupid AI")
+            else:    
+                logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f", offense_term, defense_term, status_term)
+                return 0
 
         # Only here to break ties
         # Tries to minimize how far the unit should move
@@ -422,7 +427,8 @@ class PrimaryAI():
 
         logger.info("Damage: %.2f, Accuracy: %.2f", lethality, accuracy)
         logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f, Distance: %.2f", offense_term, defense_term, status_term, distance_term)
-        offense_bias = self.unit.ai.offense_bias
+        ai_prefab = DB.ai.get(self.unit.ai)
+        offense_bias = ai_prefab.offense_bias
         offense_weight = offense_bias * (1 / (offense_bias + 1))
         defense_weight = 1 - offense_weight
         terms.append((offense_term, offense_weight))
@@ -442,27 +448,31 @@ class SecondaryAI():
 
         self.available_targets = []
 
+        def unit_spec():
+            target_spec = self.behaviour.target_spec
+            if not target_spec:
+                return
+            if target_spec[0] == "Tag":
+                self.all_targets = [u.position for u in self.all_targets if target_spec[1] in u.tags]
+            elif target_spec[0] == "Class":
+                self.all_targets = [u.position for u in self.all_targets if u.klass == target_spec[1]]
+            else:
+                self.all_targets = [u.position for u in self.all_targets]
+
         # Determine all targets
-        if self.behaviour.action == "Attack":
+        if self.behaviour.target == 'Unit':
+            self.all_targets = [u.position for u in game.level.units if u.position]
+        elif self.behaviour.target == 'Enemy':
             self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)]
-        elif self.behaviour.action == 'Support':
+        elif self.behaviour.target == 'Ally':
             self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)]
-        elif self.behaviour.action == "Move_to":
-            # Move to a specific position
-            if self.behaviour.target[0] == "Position":
-                if self.behaviour.target[1] == "Starting":
-                    self.all_targets = [self.unit.starting_position]
-                else:
-                    self.all_targets = [tuple(self.behaviour.target_spec)]
-            elif self.behaviour.target[0] == "Ally":
-                self.all_targets = [u for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)]
-                target_spec = self.behaviour.target[1]
-                if target_spec[0] == "Tag":
-                    self.all_targets = [u.position for u in self.all_targets if target_spec[1] in u.tags]
-                elif target_spec[0] == "Class":
-                    self.all_targets = [u.position for u in self.all_targets if u.klass == target_spec[1]]
-                else:
-                    self.all_targets = [u.position for u in self.all_targets]
+        elif self.behaviour.target == 'Position':
+            if self.behaviour.target_spec == "Starting":
+                self.all_targets = [self.unit.starting_position]
+            else:
+                self.all_targets = [tuple(self.behaviour.target_spec)]
+        if self.behaviour.target in ('Unit', 'Enemy', 'Ally'):
+            unit_spec()
 
         self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True))
         self.double_move = self.single_move + equations.parser.movement(self.unit)

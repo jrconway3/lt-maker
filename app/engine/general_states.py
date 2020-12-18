@@ -343,7 +343,11 @@ class MoveState(MapState):
         cur_unit = game.cursor.cur_unit
         cur_unit.sprite.change_state('selected')
 
-        self.valid_moves = game.highlight.display_highlights(cur_unit)
+        if cur_unit.has_traded:
+            self.valid_moves = target_system.get_valid_moves(cur_unit)
+            game.highlight.display_moves(self.valid_moves, light=False)
+        else:
+            self.valid_moves = game.highlight.display_highlights(cur_unit)
 
         game.cursor.place_arrows()
 
@@ -360,18 +364,18 @@ class MoveState(MapState):
             SOUNDTHREAD.play_sfx('Select 4')
             game.state.clear()
             game.state.change('free')
-            if cur_unit.has_attacked:
-                action.do(action.Wait(self.cur_unit))
+            if cur_unit.has_attacked or cur_unit.has_traded:
+                action.do(action.Wait(cur_unit))
             else:
                 cur_unit.sprite.change_state('normal')
 
         elif event == 'SELECT':
             if game.cursor.position == cur_unit.position:
                 SOUNDTHREAD.play_sfx('Select 2')
-                if cur_unit.has_attacked:
+                if cur_unit.has_attacked or cur_unit.has_traded:
                     game.state.clear()
                     game.state.change('free')
-                    action.do(action.Wait(self.cur_unit))
+                    action.do(action.Wait(cur_unit))
                 else:
                     # Just move in place
                     cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
@@ -383,7 +387,7 @@ class MoveState(MapState):
                     SOUNDTHREAD.play_sfx('Error')
                 else:
                     # Sound -- ADD FOOTSTEP SOUNDS
-                    if cur_unit.has_attacked:
+                    if cur_unit.has_attacked or cur_unit.has_traded:
                         cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
                         game.state.change('canto_wait')
                     else:
@@ -449,6 +453,17 @@ class CantoWaitState(MapState):
             if self.cur_unit.current_move:
                 action.reverse(self.cur_unit.current_move)
                 self.cur_unit.current_move = None
+                game.cursor.set_pos(self.cur_unit.position)
+            game.state.back()
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
 
 class MoveCameraState(MapState):
     name = 'move_camera'
@@ -920,8 +935,7 @@ class TargetingState(MapState):
             SOUNDTHREAD.play_sfx('Select 1')
             self.ability.do(self.cur_unit)
 
-    def draw_rescue_preview(self, surf):
-        rescuee = game.board.get_unit(game.cursor.position)
+    def draw_rescue_preview(self, rescuee, surf):
         window = SPRITES.get('rescue_window').copy()
         con = str(equations.parser.rescue_weight(rescuee))
         aid = str(equations.parser.rescue_aid(self.cur_unit))
@@ -940,6 +954,28 @@ class TargetingState(MapState):
 
         surf.blit(rescuer_sprite, (topleft[0] - 12, topleft[1] - 16))
         surf.blit(rescuee_sprite, (topleft[0] - 12, topleft[1] - 16 + 48))
+
+        return surf
+
+    def draw_give_preview(self, traveler, give_to, surf):
+        window = SPRITES.get('give_window').copy()
+        con = str(equations.parser.rescue_weight(traveler))
+        aid = str(equations.parser.rescue_aid(give_to))
+        FONT['text-blue'].blit_right(con, window, (window.get_width() - 5, 24))
+        FONT['text-blue'].blit_right(aid, window, (window.get_width() - 5, 72))
+        traveler_sprite = traveler.sprite.create_image('passive')
+        give_to_sprite = give_to.sprite.create_image('passive')
+        FONT['text-white'].blit(traveler.name, window, (32, 8))
+        FONT['text-white'].blit(give_to.name, window, (32, 56))
+
+        if game.cursor.position[0] > TILEX//2 + game.camera.get_x() - 1:
+            topleft = (0, 0)
+        else:
+            topleft = (WINWIDTH - 4 - window.get_width(), 0)
+        surf.blit(window, topleft)
+
+        surf.blit(traveler_sprite, (topleft[0] - 12, topleft[1] - 16))
+        surf.blit(give_to_sprite, (topleft[0] - 12, topleft[1] - 16 + 48))
 
         return surf
 
@@ -985,7 +1021,21 @@ class TargetingState(MapState):
     def draw(self, surf):
         surf = super().draw(surf)
         if self.ability.name == 'Rescue':
-            self.draw_rescue_preview(surf)
+            rescuee = game.board.get_unit(game.cursor.position)
+            if rescuee:
+                self.draw_rescue_preview(rescuee, surf)
+        elif self.ability.name == 'Take':
+            holder = game.board.get_unit(game.cursor.position)
+            if holder and holder.traveler:
+                traveler = game.level.units.get(holder.traveler)
+                if traveler:
+                    self.draw_rescue_preview(traveler, surf)
+        elif self.ability.name == 'Give':
+            if self.cur_unit.traveler:
+                give_to = game.board.get_unit(game.cursor.position)
+                traveler = game.level.units.get(self.cur_unit.traveler)
+                if give_to and traveler:
+                    self.draw_give_preview(traveler, give_to, surf)
         elif self.ability.name == 'Trade':
             self.draw_trade_preview(surf)
         elif self.ability.name == 'Steal':

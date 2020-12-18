@@ -32,24 +32,24 @@
         "text": "No turnwheel uses remaining!"
     },
     {
-        "nid": "rescue_select",
+        "nid": "Rescue_desc",
         "text": "Select a unit to rescue."
     },
     {
-        "nid": "take_select",
+        "nid": "Take_desc",
         "text": "Take the traveler from an adjacent unit."
     },
     {
-        "nid": "drop_select",
+        "nid": "Drop_desc",
         "text": "Select which tile to drop the unit into."
     },
     {
-        "nid": "give_select",
+        "nid": "Give_desc",
         "text": "Give the traveler to an adjacent unit."
     },
     {
-        "nid": "trade_select",
-        "text": "Select a unit to trade with."
+        "nid": "Trade_desc",
+        "text": "Select which unit to trade with."
     },
     {
         "nid": "Config_desc",
@@ -290,14 +290,6 @@
     {
         "nid": "shop_no_value",
         "text": "You can't sell that here."
-    },
-    {
-        "nid": "Rescue_desc",
-        "text": "Select a unit to rescue."
-    },
-    {
-        "nid": "Trade_desc",
-        "text": "Select which unit to trade with."
     },
     {
         "nid": "config_desc",

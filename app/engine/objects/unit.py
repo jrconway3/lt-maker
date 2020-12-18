@@ -81,6 +81,12 @@ class UnitObject(Prefab):
         self._has_traded = False
         self._has_moved = False
 
+        # For rescue
+        self.has_rescued = False
+        self.has_taken = False
+        self.has_given = False
+        self.has_dropped = False
+
         self._sprite = None
         self._sound = None
         self.battle_anim = None
@@ -285,7 +291,8 @@ class UnitObject(Prefab):
         self._has_moved = val
 
     def get_action_state(self):
-        return (self._finished, self._has_attacked, self._has_traded, self._has_moved)
+        return (self._finished, self._has_attacked, self._has_traded, self._has_moved, 
+                self.has_rescued, self.has_dropped, self.has_taken, self.has_given)
 
     def set_action_state(self, state):
         self._finished = state[0]
@@ -293,11 +300,21 @@ class UnitObject(Prefab):
         self._has_traded = state[2]
         self._has_moved = state[3]
 
+        self.has_rescued = state[4]
+        self.has_dropped = state[5]
+        self.has_taken = state[6]
+        self.has_given = state[7]
+
     def reset(self):
         self._finished = False
         self._has_attacked = False
         self._has_traded = False
         self._has_moved = False
+
+        self.has_rescued = False
+        self.has_dropped = False
+        self.has_taken = False
+        self.has_given = False
 
     def clean_up(self):
         if self.traveler:

@@ -71,7 +71,7 @@ class DropAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if unit.traveler and not unit.has_attacked:
+        if unit.traveler and not unit.has_attacked and not unit.has_rescued:
             good_pos = set()
             adj_positions = target_system.get_adjacent_positions(unit.position)
             u = game.level.units.get(unit.traveler)
@@ -86,13 +86,20 @@ class DropAbility(Ability):
         game.state.change('menu')
         u = game.level.units.get(unit.traveler)
         action.do(action.Drop(unit, u, game.cursor.position))
+        if skill_system.has_canto(unit):
+            action.do(action.HasTraded(unit))
+            game.state.change('menu')
+        else:
+            game.state.change('free')
+            action.do(action.Wait(unit))
+            game.cursor.set_pos(unit.position)
 
 class RescueAbility(Ability):
     name = "Rescue"
 
     @staticmethod
     def targets(unit) -> set:
-        if not unit.traveler and not unit.has_attacked:
+        if not unit.traveler and not unit.has_attacked and not unit.has_given and not unit.has_dropped:
             adj_allies = get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
                         equations.parser.rescue_aid(unit) >= equations.parser.rescue_weight(u)])
@@ -102,6 +109,7 @@ class RescueAbility(Ability):
         u = game.board.get_unit(game.cursor.position)
         action.do(action.Rescue(unit, u))
         if skill_system.has_canto(unit):
+            action.do(action.HasTraded(unit))
             game.state.change('menu')
         else:
             game.state.change('free')
@@ -113,7 +121,7 @@ class TakeAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if not unit.traveler and not unit.has_attacked:
+        if not unit.traveler and not unit.has_attacked and not unit.has_given and not unit.has_dropped:
             adj_allies = get_adj_allies(unit)
             return set([u.position for u in adj_allies if u.traveler and
                         equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(game.level.units.get(u.traveler))])
@@ -121,6 +129,7 @@ class TakeAbility(Ability):
     @staticmethod
     def do(unit):
         u = game.board.get_unit(game.cursor.position)
+        action.do(action.HasTraded(unit))
         action.do(action.Take(unit, u))
         # Taking does not count as major action
         game.state.change('menu')
@@ -130,7 +139,7 @@ class GiveAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if unit.traveler and not unit.has_attacked:
+        if unit.traveler and not unit.has_attacked and not unit.has_taken and not unit.has_rescued:
             adj_allies = get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
                         equations.parser.rescue_aid(u) > equations.parser.rescue_weight(game.level.units.get(unit.traveler))])
@@ -138,6 +147,7 @@ class GiveAbility(Ability):
     @staticmethod
     def do(unit):
         u = game.board.get_unit(game.cursor.position)
+        action.do(action.HasTraded(unit))
         action.do(action.Give(unit, u))
         # Giving does not count as a major action
         game.state.change('menu')

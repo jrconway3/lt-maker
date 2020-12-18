@@ -364,25 +364,24 @@ class Rescue(Action):
 
     def do(self):
         self.unit.traveler = self.rescuee.nid
-        self.unit.has_attacked = True
-
         # TODO Add transition
 
         game.leave(self.rescuee)
         self.rescuee.position = None
+        self.unit.has_rescued = True
 
     def execute(self):
         self.unit.traveler = self.rescuee.nid
-        self.unit.has_attacked = True
 
         game.leave(self.rescuee)
         self.rescuee.position = None
+        self.unit.has_rescued = True
 
     def reverse(self):
         self.rescuee.position = self.old_pos
         game.arrive(self.rescuee)
-        self.unit.has_attacked = False
         self.unit.traveler = None
+        self.unit.has_rescued = False
 
 class Drop(Action):
     def __init__(self, unit, droppee, pos):
@@ -390,7 +389,6 @@ class Drop(Action):
         self.droppee = droppee
         self.pos = pos
         self.droppee_wait_action = Wait(self.droppee)
-        self.action_state = unit.get_action_state()
 
     def do(self):
         self.droppee.position = self.pos
@@ -398,9 +396,8 @@ class Drop(Action):
         self.droppee.sprite.change_state('normal')
         self.droppee_wait_action.do()
 
-        self.unit.has_attacked = True
-        self.unit.has_traded = True
         self.unit.traveler = None
+        self.unit.has_dropped = True
 
         if utils.calculate_distance(self.unit.position, self.pos) == 1:
             self.droppee.sprite.set_transition('fake_in')
@@ -413,53 +410,46 @@ class Drop(Action):
         self.droppee.sprite.change_state('normal')
         self.droppee_wait_action.execute()
 
-        self.unit.has_attacked = True
-        self.unit.has_traded = True
         self.unit.traveler = None
+        self.unit.has_dropped = True
 
     def reverse(self):
         self.unit.traveler = self.droppee.nid
-        self.unit.set_action_state(self.action_state)
 
-        self.droppee.droppee_wait_action.reverse()
+        self.droppee_wait_action.reverse()
         game.leave(self.droppee)
         self.droppee.position = None
+        self.unit.has_dropped = False
 
 class Give(Action):
     def __init__(self, unit, other):
         self.unit = unit
         self.other = other
-        self.action_state = self.unit.get_action_state()
 
     def do(self):
         self.other.traveler = self.unit.traveler
         self.unit.traveler = None
-
-        self.unit.has_traded = True
+        self.unit.has_given = True
         
     def reverse(self):
         self.unit.traveler = self.other.traveler
         self.other.traveler = None
-
-        self.unit.set_action_state(self.action_state)
+        self.unit.has_given = False
 
 class Take(Action):
     def __init__(self, unit, other):
         self.unit = unit
         self.other = other
-        self.action_state = self.unit.get_action_state()
 
     def do(self):
         self.unit.traveler = self.other.traveler
         self.other.traveler = None
-
-        self.unit.has_traded = True
+        self.unit.has_taken = True
         
     def reverse(self):
         self.other.traveler = self.unit.traveler
         self.unit.traveler = None
-
-        self.unit.set_action_state(self.action_state)
+        self.unit.has_taken = False
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
@@ -1016,7 +1006,7 @@ class RemoveSkill(Action):
                 skill_system.on_remove(self.unit, self.skill)
                 self.removed_skills.append(self.skill)
             else:
-                logger.warning("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
+                logger.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
 
     def reverse(self):
         for skill in self.removed_skills:

@@ -57,7 +57,16 @@ class MapCombat():
         # Only for the very first phase
         if self.state == 'init':
             if self._skip or current_time > 200:
+
                 game.events.trigger('combat_start', self.attacker, self.defender, self.attacker.position)
+                skill_system.start_combat(self.full_playback, self.attacker, self.item, self.defender)
+                item_system.start_combat(self.full_playback, self.attacker, self.item, self.defender)
+                if self.defender:
+                    skill_system.start_combat(self.full_playback, self.defender, self.def_item, self.attacker)
+                    item_system.start_combat(self.full_playback, self.defender, self.def_item, self.attacker)
+                for unit in self.splash:
+                    skill_system.start_combat(self.full_playback, unit, None, None)
+
                 self.state = 'begin_phase'
                 self.last_update = engine.get_time()
 
@@ -361,8 +370,10 @@ class MapCombat():
 
         # Skill system end combat clean up
         skill_system.end_combat(self.full_playback, self.attacker, self.item, self.defender)
+        item_system.end_combat(self.full_playback, self.attacker, self.item, self.defender)
         if self.defender:
             skill_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
+            item_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
         for unit in self.splash:
             skill_system.end_combat(self.full_playback, unit, None, None)
 

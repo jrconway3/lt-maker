@@ -149,18 +149,23 @@ class ItemHelpDialog(HelpDialog):
             crit = item_system.crit(self.unit, self.item)
         else:
             crit = None
-        weight = self.item.weight.value if self.item.weight else '--'
+        weight = self.item.weight.value if self.item.weight else None
         # Get range
         rng = item_funcs.get_range_string(self.unit, self.item)
 
-        self.vals = (weapon_rank, rng, weight, might, hit, crit)
+        self.vals = [weapon_rank, rng, weight, might, hit, crit]
 
         if self.item.desc:
             self.lines = text_funcs.line_wrap(self.font, self.item.desc, 148)
         else:
             self.lines = []
 
-        size_y = 48 + self.font.height * len(self.lines)
+        self.num_present = len([v for v in self.vals if v is not None])
+
+        if self.num_present > 3:
+            size_y = 48 + self.font.height * len(self.lines)
+        else:
+            size_y = 32 + self.font.height * len(self.lines)
         self.help_surf = base_surf.create_base_surf(160, size_y, 'message_bg_base')
         self.h_surf = engine.create_surface((160, size_y + 3), transparent=True)
 
@@ -177,29 +182,29 @@ class ItemHelpDialog(HelpDialog):
         weapon_type = item_system.weapon_type(self.unit, self.item)
         if weapon_type:
             icons.draw_weapon(help_surf, weapon_type, (8, 6))
-
-        self.font_yellow.blit('Rng', help_surf, (56, 6))
-        self.font_yellow.blit('Wt', help_surf, (106, 6))
-        self.font_yellow.blit('Mt', help_surf, (8, 22))
-        self.font_yellow.blit('Hit', help_surf, (56, 22))
-        if self.vals[5] is not None:
-            self.font_yellow.blit('Crit', help_surf, (106, 22))
-
         self.font_blue.blit_right(str(self.vals[0]), help_surf, (50, 6))
-        self.font_blue.blit_right(str(self.vals[1]), help_surf, (100, 6))
-        self.font_blue.blit_right(str(self.vals[2]), help_surf, (144, 6))
-        self.font_blue.blit_right(str(self.vals[3]), help_surf, (50, 22))
-        self.font_blue.blit_right(str(self.vals[4]), help_surf, (100, 22))
-        if self.vals[5] is not None:
-            self.font_blue.blit_right(str(self.vals[5]), help_surf, (144, 22))
+
+        name_positions = [(56, 6), (106, 6), (8, 22), (56, 22), (106, 22)]
+        name_positions.reverse()
+        val_positions = [(100, 6), (144, 6), (50, 22), (100, 22), (144, 22)]
+        val_positions.reverse()
+        names = ['Rng', 'Wt', 'Mt', 'Hit', 'Crit']
+        for v, n in zip(self.vals[1:], names):
+            if v is not None:
+                name_pos = name_positions.pop()
+                self.font_yellow.blit(n, help_surf, name_pos)
+                val_pos = val_positions.pop()
+                self.font_blue.blit_right(str(v), help_surf, val_pos)
 
         if cf.SETTINGS['text_speed'] > 0:
             num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))
         else:
             num_characters = 1000
+        
+        y_height = 32 if self.num_present > 3 else 16 
         for idx, line in enumerate(self.lines):
             if num_characters > 0:
-                self.font.blit(line[:num_characters], help_surf, (8, self.font.height * idx + 6 + 32))
+                self.font.blit(line[:num_characters], help_surf, (8, self.font.height * idx + 6 + y_height))
                 num_characters -= len(line)
 
         if right:

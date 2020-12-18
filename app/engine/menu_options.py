@@ -249,7 +249,7 @@ class FullItemOption(ItemOption):
         if self.item.data.get('uses') is not None:
             uses_string_a = str(self.item.data['uses'])
             uses_string_b = str(self.item.data['starting_uses'])
-        elif self.item.get('c_uses') is not None:
+        elif self.item.data.get('c_uses') is not None:
             uses_string_a = str(self.item.data['c_uses'])
             uses_string_b = str(self.item.data['starting_c_uses'])
         FONT[uses_font].blit_right(uses_string_a, surf, (x + 96, y))

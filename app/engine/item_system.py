@@ -114,6 +114,8 @@ modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avo
 event_hooks = ('on_use', 'on_not_usable', 'on_end_chapter', 'on_upkeep', 'on_endstep',
                'on_equip', 'on_unequip', 'on_hold', 'on_drop')
 
+combat_event_hooks = ('start_combat', 'end_combat')
+
 exclusive_hooks = false_hooks + default_hooks
 
 for hook in false_hooks:
@@ -178,6 +180,14 @@ for hook in event_hooks:
     for component in item.components:
         if component.defines('%s'):
             component.%s(unit, item)""" \
+        % (hook, hook, hook)
+    exec(func)
+
+for hook in combat_event_hooks:
+    func = """def %s(playback, unit, item, target):
+    for component in item.components:
+        if component.defines('%s'):
+            component.%s(playback, unit, item, target)""" \
         % (hook, hook, hook)
     exec(func)
 

@@ -15,7 +15,7 @@ class BlastAOE(ItemComponent):
     def splash(self, unit, item, position) -> tuple:
         ranges = set(range(self.value + 1))
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
-        from app.engine.item_system import item_system
+        from app.engine import item_system
         if item_system.is_spell(unit, item):
             # spell blast
             splash = [game.board.get_unit(s) for s in splash]

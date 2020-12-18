@@ -34,8 +34,12 @@ class UnitDatabase(DatabaseTab):
                 self._data.append(unit)
             self.update_list()
 
-def get():
+def get(unit_nid=None):
     window = SingleDatabaseEditor(UnitDatabase)
+    unit = DB.units.get(unit_nid)
+    if unit:
+        idx = DB.units.index(unit_nid)
+        window.tab.left_frame.set_current_row(idx)
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_unit = window.tab.right_frame.current

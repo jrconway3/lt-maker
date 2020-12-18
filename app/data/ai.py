@@ -2,17 +2,16 @@ from app.utilities.data import Data, Prefab
 
 AI_ActionTypes = ['None', 'Attack', 'Support', 'Steal', 'Interact', 'Move_to', 'Move_away_from']
 AI_TargetTypes = ['None', 'Enemy', 'Ally', 'Unit', 'Position', 'Event']
-unit_spec = ['All', 'Class', 'Tag', 'Name', 'Faction', 'ID']
-event_types = ['Seize', 'Escape', 'Locked', 'Destructible', 'Hidden_Escape', 'Enemy_Seize']
-AI_TargetSpecifications = [[], unit_spec, unit_spec, unit_spec, event_types, AI_TargetTypes, AI_TargetTypes]
+unit_spec = ['All', 'Class', 'Tag', 'Name', 'Faction', 'Party', 'ID']
 # View Range
 # (Don't look | Movement*2 + Maximum Item Range | Entire Map | Custom Range (Integer))
 
 class AIPrefab(Prefab):
-    def __init__(self, nid, priority):
+    def __init__(self, nid, priority, offense_bias=2):
         self.nid = nid
         self.behaviours = [AIBehaviour.DoNothing(), AIBehaviour.DoNothing(), AIBehaviour.DoNothing()]
         self.priority: int = priority
+        self.offense_bias: float = offense_bias
 
     def add_behaviour(self, behaviour):
         self.behaviours.append(behaviour)
@@ -30,6 +29,9 @@ class AIPrefab(Prefab):
     def restore_attr(self, name, value):
         if name == 'behaviours':
             value = [AIBehaviour.restore(b) for b in value]
+        elif name == 'offense_bias':
+            if value is None:
+                value = 2.
         else:
             value = super().restore_attr(name, value)
         return value
@@ -49,9 +51,10 @@ class AIPrefab(Prefab):
             behaviour.change_unit_spec(spec_type, old_nid, new_nid)
 
 class AIBehaviour(Prefab):
-    def __init__(self, action: str, target, view_range: int):
+    def __init__(self, action: str, target, view_range: int, target_spec=None):
         self.action: str = action
         self.target = target
+        self.target_spec = target_spec
         self.view_range: int = view_range
 
     @classmethod
@@ -61,26 +64,6 @@ class AIBehaviour(Prefab):
     @classmethod
     def default(cls):
         return cls.DoNothing()
-
-    def save(self):
-        s_dict = {}
-        s_dict['action'] = self.save_attr('action', self.action)
-        s_dict['target'] = self.save_attr('target', self.target)
-        s_dict['view_range'] = self.save_attr('view_range', self.view_range)
-        return s_dict
-
-    def has_unit_spec(self, spec_type, spec_nid):
-        if self.target[0] in ('Enemy', "Ally", "Unit"):
-            if len(self.target[1]) == 2:
-                if self.target[1][0] == spec_type and self.target[1][1] == spec_nid:
-                    return True
-        return False
-
-    def change_unit_spec(self, spec_type, old_nid, new_nid):
-        if self.target[0] in ('Enemy', "Ally", "Unit"):
-            if len(self.target[1]) == 2:
-                if self.target[1][0] == spec_type and self.target[1][1] == old_nid:
-                    self.target[1][1] = new_nid
 
 class AICatalog(Data):
     datatype = AIPrefab

@@ -341,11 +341,19 @@ class GameState():
             terrain_nid = self.tilemap.get_terrain(unit.position)
             terrain = DB.terrain.get(terrain_nid)
             if terrain.status:
-                action.do(action.RemoveSkill(unit, terrain.status))
+                act = action.RemoveSkill(unit, terrain.status)
+                if test:
+                    act.do()
+                else:
+                    action.do(act)
             # Regions
             for region in game.level.regions:
                 if region.region_type == 'status' and region.contains(unit.position):
-                    action.do(action.RemoveSkill(unit, region.sub_nid))
+                    act = action.RemoveSkill(unit, region.sub_nid)
+                    if test:
+                        act.do()
+                    else:
+                        action.do(act)
         # Auras
 
     def arrive(self, unit, test=False):
@@ -361,13 +369,21 @@ class GameState():
                 terrain = DB.terrain.get(terrain_nid)
                 if terrain.status:
                     new_skill = DB.skills.get(terrain.status)
-                    action.do(action.AddSkill(unit, new_skill))
+                    act = action.AddSkill(unit, new_skill)
+                    if test:
+                        act.do()
+                    else:
+                        action.do(act)
             # Regions
             if not skill_system.ignore_region_status(unit):
                 for region in game.level.regions:
                     if region.region_type == 'status' and region.contains(unit.position):
                         new_skill = DB.skills.get(region.sub_nid)
-                        action.do(action.AddSkill(unit, new_skill))
+                        act = action.AddSkill(unit, new_skill)
+                        if test:
+                            act.do()
+                        else:
+                            action.do(act)
             # Auras
 
     def check_for_region(self, position, region_type):

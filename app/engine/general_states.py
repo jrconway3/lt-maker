@@ -558,7 +558,7 @@ class MenuState(MapState):
                 game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('weapon_choice')
-            elif selection == 'Spell':
+            elif selection == 'Spells':
                 game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('spell_choice')
@@ -1012,7 +1012,7 @@ class CombatTargetingState(MapState):
         closest_pos = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_pos)
 
-        if self.ability and self.ability.name == 'Spell':
+        if self.ability and self.ability.name == 'Spells':
             game.ui_view.prepare_spell_info()
         else:
             game.ui_view.prepare_attack_info()
@@ -1076,7 +1076,7 @@ class CombatTargetingState(MapState):
     def draw(self, surf):
         surf = super().draw(surf)
         if self.cur_unit and game.cursor.get_hover():
-            if self.ability and self.ability.name == 'Spell':
+            if self.ability and self.ability.name == 'Spells':
                 game.ui_view.draw_spell_info(surf, self.cur_unit, game.cursor.get_hover())
             else:
                 game.ui_view.draw_attack_info(surf, self.cur_unit, game.cursor.get_hover())

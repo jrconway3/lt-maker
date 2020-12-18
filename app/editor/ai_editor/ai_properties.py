@@ -1,13 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QGroupBox, QRadioButton, \
-    QVBoxLayout, QComboBox, QStackedWidget
+    QVBoxLayout, QComboBox, QStackedWidget, QDoubleSpinBox
 from PyQt5.QtCore import Qt
 
 import app.data.ai as ai
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox
-from app.editor.custom_widgets import ClassBox, UnitBox, FactionBox
+from app.editor.custom_widgets import ClassBox, UnitBox, FactionBox, PartyBox
 from app.utilities import str_utils
 
 # Target Specifications
@@ -35,7 +35,9 @@ class UnitSpecification(QWidget):
         self.box1.currentIndexChanged.connect(self.unit_spec_changed)
 
         self.box2 = QStackedWidget(self)
-        self.box2.addWidget(ComboBox(self))
+        all_box = ComboBox(self)
+        all_box.setEnabled(False)
+        self.box2.addWidget(all_box)
         class_box = ClassBox(self)
         class_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(class_box)
@@ -50,6 +52,9 @@ class UnitSpecification(QWidget):
         faction_box = FactionBox(self)
         faction_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(faction_box)
+        party_box = PartyBox(self)
+        party_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
+        self.box2.addWidget(party_box)
         unit_box = UnitBox(self)
         unit_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(unit_box)
@@ -70,8 +75,10 @@ class UnitSpecification(QWidget):
             self.box2.setCurrentIndex(3)
         elif unit_spec == "Faction":
             self.box2.setCurrentIndex(4)
-        elif unit_spec == "ID":
+        elif unit_spec == "Party":
             self.box2.setCurrentIndex(5)
+        elif unit_spec == "ID":
+            self.box2.setCurrentIndex(6)
         else:
             self.box2.setCurrentIndex(0)
             self.box2.setEnabled(False)
@@ -82,6 +89,7 @@ class UnitSpecification(QWidget):
         self.window.current.target_spec = (unit_spec, sub_spec)
 
     def set_current(self, target_spec):
+        print("Unit Spec:", target_spec)
         if target_spec:
             self.box1.setValue(target_spec[0])
             self.box2.currentWidget().setValue(target_spec[1])
@@ -95,20 +103,19 @@ class EventSpecification(QWidget):
         self.window = parent
 
         self.layout = QHBoxLayout()
-        self.box = ComboBox(self)
-        for spec in ai.event_types:
-            self.box.addItem(spec)
-        self.box.currentIndexChanged.connect(self.spec_changed)
+        self.box = QLineEdit(self)
+        self.box.setPlaceholderText("Event Region Type")
+        self.box.textChanged.connect(self.spec_changed)
 
         self.layout.addWidget(self.box)
         self.setLayout(self.layout)
 
-    def spec_changed(self, index):
-        event = self.box.currentText()
+    def spec_changed(self, text):
+        event = self.box.text()
         self.window.current.target_spec = event
 
     def set_current(self, target_spec):
-        self.box.setValue(target_spec)
+        self.box.setText(target_spec)
 
 class PositionSpecification(QWidget):
     def __init__(self, parent=None):
@@ -156,9 +163,7 @@ class PositionSpecification(QWidget):
         self.window.current.target_spec = (x, y)
 
     def set_current(self, target_spec):
-        print("Set Current target spec", flush=True)
-        print(target_spec, flush=True)
-        if target_spec == ["Starting"] or target_spec == "Starting":
+        if target_spec == "Starting":
             self.window.current.target_spec = "Starting"
             self.starting.setChecked(True)
         else:
@@ -184,6 +189,7 @@ class BehaviourBox(QGroupBox):
         for target in ai.AI_TargetTypes:
             self.target.addItem(target)
         self.target.currentIndexChanged.connect(self.target_changed)
+        self.target.setEnabled(False)
 
         self.target_spec = QStackedWidget(self)
         for target in ai.AI_TargetTypes:
@@ -198,82 +204,89 @@ class BehaviourBox(QGroupBox):
             self.target_spec.addWidget(target_spec)
 
         self.view_range = ComboBox(self)
-        self.view_range.setEditable(True)
         self.view_range.setInsertPolicy(QComboBox.NoInsert)
         self.view_range.addItem("Max Item Range")
         self.view_range.addItem("Movement + Max Item Range")
         self.view_range.addItem("Movement*2 + Max Item Range")
         self.view_range.addItem("Entire Map")
-        self.view_range.lineEdit().editingFinished.connect(self.check_view_range)
+        self.view_range.addItem("Custom Integer")
+        self.view_range.currentIndexChanged.connect(self.check_view_range)
+
+        self.custom_view_range = QSpinBox(self)
+        self.custom_view_range.setMaximum(255)
+        self.custom_view_range.editingFinished.connect(self.check_view_range)
 
         self.layout.addWidget(self.action)
         self.layout.addWidget(self.target)
         self.layout.addWidget(self.target_spec)
         self.layout.addWidget(QLabel(" within "))
         self.layout.addWidget(self.view_range)
+        self.layout.addWidget(self.custom_view_range)
+        self.custom_view_range.hide()
         self.setLayout(self.layout)
 
     def action_changed(self, index):
         action = self.action.currentText().replace(' ', '_')
+        print("Action changed", action)
         self.current.action = action
 
+        if self.current.action in ('Move_to', 'Move_away_from'):
+            self.target.setEnabled(True)
+            self.target.setValue(self.current.target)
+            target_spec = self.target_spec.currentWidget()
+            target_spec.set_current(self.current.target_spec)
+        elif self.current.action == 'None':
+            self.target.setEnabled(False)
+            self.target.setValue('None')
+        elif self.current.action in ('Attack', 'Steal'):
+            self.target.setEnabled(False)
+            self.target.setValue('Enemy')
+            target_spec = self.target_spec.currentWidget()
+            target_spec.set_current(self.current.target_spec)
+        elif self.current.action == 'Support':
+            self.target.setEnabled(False)
+            self.target.setValue('Ally')
+            target_spec = self.target_spec.currentWidget()
+            target_spec.set_current(self.current.target_spec)
+        elif self.current.action == 'Interact':
+            self.target.setEnabled(False)
+            self.target.setValue('Event')
+            target_spec = self.target_spec.currentWidget()
+            target_spec.set_current(self.current.target_spec)
+
     def target_changed(self, index):
-        print("target_changed")
         target = self.target.currentText()
-        print(target)
-        if target == 'None':
-            print("Set Target Spec to None")
-            self.current.target = 'None'
-            self.target_spec.setCurrentIndex(0)
-            return
-        self.current.target[0] = target
+        print("Target changed", target)
+        self.current.target = target
         # Swap the specification
         idx = ai.AI_TargetTypes.index(target)
         self.target_spec.setCurrentIndex(idx)
-        print(self.current.target[0])
-        print(index, flush=True)
 
     def check_view_range(self):
         cur_val = self.view_range.currentText()
-        if str_utils.is_int(cur_val):
-            self.current.view_range = int(cur_val)
+        if cur_val == 'Custom Integer':
+            self.custom_view_range.show()
+            self.current.view_range = int(self.custom_view_range.value())
         else:
-            self.current.view_range = -1 * self.view_range.currentIndex()
+            self.custom_view_range.hide()
+            self.current.view_range = -1 * (self.view_range.currentIndex() + 1)
 
     def set_current(self, behaviour):
         self.current = behaviour
         print("Behaviour Set Current")
         print(behaviour.action)
         print(behaviour.target)
+        print(behaviour.target_spec)
         action = behaviour.action.replace('_', ' ')
         self.action.setValue(action)
-        if behaviour.action in ('Move_to', 'Move_away_from'):
-            self.target.show()
-            print(behaviour.target[0])
-            print(behaviour.target[1])
-            self.target.setValue(behaviour.target[0])
-            target_spec = self.target_spec.currentWidget()
-            print(behaviour.target[1], flush=True)
-            target_spec.set_current(behaviour.target[1])
-        else:
-            print("Target Set Value None")
-            self.target.setValue('None')
-            self.target_spec.setCurrentIndex(0)
-            self.target.hide()
-            if behaviour.action in ('Attack', 'Support', 'Steal'):
-                self.target_spec.setCurrentIndex(1)  # Units
-                target_spec = self.target_spec.currentWidget()
-                target_spec.set_current(behaviour.target)
-            elif behaviour.action == 'Interact':
-                self.target_spec.setCurrentIndex(5)  # Event
-                target_spec = self.target_spec.currentWidget()
-                target_spec.set_current(behaviour.target)
+        self.action_changed(None)
 
         if behaviour.view_range < 0:
             correct_index = -behaviour.view_range - 1
             self.view_range.setCurrentIndex(correct_index)
         else:
-            self.view_range.setEditText(str(behaviour.view_range))
+            self.custom_view_range.setValue(int(behaviour.view_range))
+            self.view_range.setCurrentIndex(4)
 
 class AIProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -298,6 +311,14 @@ class AIProperties(QWidget):
         self.priority_box.edit.setAlignment(Qt.AlignRight)
         self.priority_box.edit.valueChanged.connect(self.priority_changed)
         top_section.addWidget(self.priority_box)
+
+        self.offense_bias_box = PropertyBox("Offense Bias", QDoubleSpinBox, self)
+        self.offense_bias_box.setToolTip("Higher offense AIs weigh damage dealt over their own survival")
+        self.offense_bias_box.edit.setRange(0.01, 100)
+        self.offense_bias_box.edit.setSingleStep(0.2)
+        self.offense_bias_box.edit.setAlignment(Qt.AlignRight)
+        self.offense_bias_box.edit.valueChanged.connect(self.offense_bias_changed)
+        top_section.addWidget(self.offense_bias_box)
 
         main_section = QVBoxLayout()
 
@@ -335,11 +356,13 @@ class AIProperties(QWidget):
     def priority_changed(self, val):
         self.current.priority = int(val)
 
+    def offense_bias_changed(self, val):
+        self.current.offense_bias = float(val)
+
     def set_current(self, current):
         self.current = current
-        print("AI Current")
-        print(current.nid)
         self.nid_box.edit.setText(current.nid)
         self.priority_box.edit.setValue(current.priority)
+        self.offense_bias_box.edit.setValue(current.offense_bias)
         for idx, behaviour in enumerate(current.behaviours):
             self.behaviour_boxes[idx].set_current(behaviour)

@@ -70,5 +70,14 @@ def is_int(s: str) -> bool:
     except TypeError:
         return False
 
+def is_float(s: str) -> bool:
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+    except TypeError:
+        return False
+
 def camel_case(s: str) -> str:
     return functools.reduce(lambda a, b: a + ((b.upper() == b and (a and a[-1].upper() != a[-1])) and (' ' + b) or b), s, '')

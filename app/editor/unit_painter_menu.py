@@ -286,7 +286,7 @@ class LoadUnitDialog(Dialog):
         self.current.ai = self.ai_box.edit.currentText()
 
     def access_units(self):
-        unit, ok = unit_tab.get()
+        unit, ok = unit_tab.get(self.current.nid)
         if ok:
             self.nid_changed(unit.nid)
 

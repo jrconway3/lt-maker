@@ -29,7 +29,7 @@ class AttackAbility(Ability):
         game.highlight.display_possible_attacks(valid_attacks)
 
 class SpellAbility(Ability):
-    name = 'Spell'
+    name = 'Spells'
 
     @staticmethod
     def targets(unit) -> set:

@@ -8,5 +8,6 @@
     "Armor",
     "ZeroMove",
     "AutoPromote",
-    "NoAutoPromote"
+    "NoAutoPromote",
+    "Tile"
 ]

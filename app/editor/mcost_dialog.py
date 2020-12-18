@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt, QSize
 
 from app.utilities.data import Data
 from app.data.database import DB
-from app import utilities
+from app.utilities import str_utils
 
 from app.extensions.custom_gui import SimpleDialog, DeletionDialog
 from app.editor.custom_widgets import MovementCostBox, MovementClassBox
@@ -118,7 +118,6 @@ class ColumnHeaderView(QHeaderView):
         self.parent().selectColumn(col_idx)
 
     def insert(self, idx):
-        print(idx)
         self.parent().model().insert_col(idx)
 
     def delete(self, idx):
@@ -267,12 +266,12 @@ class GridModel(QAbstractTableModel):
         self.marked_col = None
 
     def add_new_row(self):
-        new_row_name = utilities.get_next_name('New', self._data.row_headers)
+        new_row_name = str_utils.get_next_name('New', self._data.row_headers)
         self._data.add_row(new_row_name)
         self.layoutChanged.emit()
 
     def add_new_col(self):
-        new_col_name = utilities.get_next_name('New', self._data.column_headers)
+        new_col_name = str_utils.get_next_name('New', self._data.column_headers)
         self._data.add_column(new_col_name)
         self.layoutChanged.emit()
 
@@ -286,12 +285,12 @@ class GridModel(QAbstractTableModel):
         return None
 
     def insert_col(self, idx):
-        new_col_name = utilities.get_next_name('New', self._data.column_headers)
+        new_col_name = str_utils.get_next_name('New', self._data.column_headers)
         self._data.insert_column(new_col_name, idx)
         self.layoutChanged.emit()
 
     def insert_row(self, idx):
-        new_row_name = utilities.get_next_name('New', self._data.row_headers)
+        new_row_name = str_utils.get_next_name('New', self._data.row_headers)
         self._data.insert_row(new_row_name, idx)
         self.layoutChanged.emit()        
 
@@ -307,13 +306,13 @@ class GridModel(QAbstractTableModel):
         old_header = self._data.column_headers[idx]
         new_header, ok = QInputDialog.getText(self.parent(), 'Change Movement Type', 'Header:', QLineEdit.Normal, old_header)
         if ok:
-            self._data.column_headers[idx] = utilities.get_next_name(new_header, self._data.column_headers)
+            self._data.column_headers[idx] = str_utils.get_next_name(new_header, self._data.column_headers)
 
     def change_row_header(self, idx):
         old_header = self._data.row_headers[idx]
         new_header, ok = QInputDialog.getText(self.parent(), 'Change Terrain Type', 'Header:', QLineEdit.Normal, old_header)
         if ok:
-            self._data.row_headers[idx] = utilities.get_next_name(new_header, self._data.row_headers)
+            self._data.row_headers[idx] = str_utils.get_next_name(new_header, self._data.row_headers)
 
     def copy_row(self, idx):
         self.copied_row = self._data.get_row(idx)
@@ -373,7 +372,7 @@ class GridModel(QAbstractTableModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        self._data.set((index.column(), index.row()), value)
+        self._data.set((index.column(), index.row()), float(value))
         self.dataChanged.emit(index, index)
         return True
 

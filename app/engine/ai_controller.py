@@ -121,7 +121,7 @@ class AIController():
 
         zero_move = max(target_system.find_potential_range(self.unit, True, True))
         single_move = zero_move + equations.parser.movement(self.unit)
-        double_move = self.single_move + equations.parser.movement(self.unit)
+        double_move = single_move + equations.parser.movement(self.unit)
 
         target_positions = {(pos, utils.calculate_distance(self.unit.position, pos)) for pos in target_positions}
 
@@ -335,7 +335,7 @@ class PrimaryAI():
         else:
             name = '--'
 
-        logger.info("Choice %s - Weapon: %s, Position: %s, Target: %s, Target Position: %s", tp, item, move, name, target)
+        logger.info("Choice %.3f - Weapon: %s, Position: %s, Target: %s, Target Position: %s", tp, item, move, name, target)
         if tp > self.max_tp:
             self.best_target = target
             self.best_position = move
@@ -374,8 +374,8 @@ class PrimaryAI():
     def default_priority(self, main_target, item, move):
         # Default method
         terms = []
-        offensive_term = 0
-        defensive_term = 1
+        offense_term = 0
+        defense_term = 1
         status_term = 0
 
         raw_damage = combat_calcs.compute_damage(self.unit, main_target, item, "attack")
@@ -404,12 +404,12 @@ class PrimaryAI():
             # Calculate chance I actually get to strike more than once
             num_attacks -= (target_accuracy * (1 - first_strike))
 
-        offensive_term += 3 if lethality * accuracy >= 1 else lethality * accuracy * num_attacks
-        offensive_term += crit_damage * crit_accuracy * accuracy * num_attacks
+        offense_term += 3 if lethality * accuracy >= 1 else lethality * accuracy * num_attacks
+        offense_term += crit_damage * crit_accuracy * accuracy * num_attacks
         status_term += status * min(1, accuracy * num_attacks)
-        defensive_term -= target_damage * target_accuracy * (1 - first_strike)
-        if offensive_term <= 0 and status_term <= 0:
-            logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f", offensive_term, defensive_term, status_term)
+        defense_term -= target_damage * target_accuracy * (1 - first_strike)
+        if offense_term <= 0 and status_term <= 0:
+            logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f", offense_term, defense_term, status_term)
             return 0
 
         # Only here to break ties
@@ -420,12 +420,15 @@ class PrimaryAI():
         else:
             distance_term = 1
 
-        logger.info("Damage: %s, Accuracy: %s", lethality, accuracy)
-        logger.info("Offense: %s, Defense: %s, Status: %s, Distance: %s", offensive_term, defensive_term, status_term, distance_term)
-        terms.append((offensive_term, 49))
-        terms.append((status_term, 10))
-        terms.append((defensive_term, 20))
-        terms.append((distance_term, 1))
+        logger.info("Damage: %.2f, Accuracy: %.2f", lethality, accuracy)
+        logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f, Distance: %.2f", offense_term, defense_term, status_term, distance_term)
+        offense_bias = self.unit.ai.offense_bias
+        offense_weight = offense_bias * (1 / (offense_bias + 1))
+        defense_weight = 1 - offense_weight
+        terms.append((offense_term, offense_weight))
+        terms.append((status_term, .1))
+        terms.append((defense_term, defense_weight))
+        terms.append((distance_term, .01))
 
         return utils.process_terms(terms)
 

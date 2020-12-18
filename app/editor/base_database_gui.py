@@ -61,6 +61,10 @@ class Collection(QWidget):
         first_index = self.model.index(0)
         self.view.setCurrentIndex(first_index)
 
+    def set_current_row(self, idx):
+        index = self.model.index(idx)
+        self.view.setCurrentIndex(index)
+
     def update_list(self):
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))                
 

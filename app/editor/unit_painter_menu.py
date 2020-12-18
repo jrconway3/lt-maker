@@ -404,6 +404,7 @@ class GenericUnitDialog(Dialog):
             QMessageBox.warning(self.window, 'Warning', 'Unit ID %s already in use' % self.current.nid)
             new_nid = str_utils.get_next_generic_nid("101", other_nids)
             self.current.nid = new_nid
+        self._data.update_nid(self.current, self.current.nid)
 
     def team_changed(self, val):
         self.current.team = self.team_box.edit.currentText()

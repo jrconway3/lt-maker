@@ -294,7 +294,12 @@ class Party(Validator):
 
 class Layer(Validator):
     def validate(self, text, level):
-        if text in level.tilemap.layers:
+        print(text)
+        tilemap_prefab = RESOURCES.tilemaps.get(level.tilemap)
+        print(tilemap_prefab)
+        print(tilemap_prefab.layers)
+        print(tilemap_prefab.layers.keys())
+        if text in tilemap_prefab.layers.keys():
             return text
         return None
 

@@ -669,7 +669,7 @@
                 "generic": false
             },
             {
-                "nid": "101",
+                "nid": "TopBandit",
                 "variant": null,
                 "level": 2,
                 "klass": "Brigand",
@@ -906,6 +906,44 @@
                         9
                     ]
                 }
+            },
+            {
+                "nid": "Bandits1",
+                "units": [
+                    "TopBandit",
+                    "105",
+                    "Bone",
+                    "102"
+                ],
+                "positions": {}
+            },
+            {
+                "nid": "RossGarcia",
+                "units": [
+                    "Ross",
+                    "Garcia"
+                ],
+                "positions": {
+                    "Ross": [
+                        12,
+                        3
+                    ],
+                    "Garcia": [
+                        12,
+                        3
+                    ]
+                }
+            },
+            {
+                "nid": "BlueTeam",
+                "units": [
+                    "Eirika",
+                    "Seth",
+                    "Franz",
+                    "Gilliam",
+                    "Moulder"
+                ],
+                "positions": {}
             }
         ]
     }

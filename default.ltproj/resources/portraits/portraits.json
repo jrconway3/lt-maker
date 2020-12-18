@@ -251,5 +251,16 @@
             16,
             40
         ]
+    },
+    {
+        "nid": "Bazba",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
     }
 ]

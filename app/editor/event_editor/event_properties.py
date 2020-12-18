@@ -147,7 +147,7 @@ class Highlighter(QSyntaxHighlighter):
                 return broken_args
             else:
                 return [0]  # First arg is broken
-        except:
+        except Exception as e:
             return 'all'
 
 class LineNumberArea(QWidget):

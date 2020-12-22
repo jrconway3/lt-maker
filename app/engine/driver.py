@@ -9,8 +9,15 @@ def start(title, from_editor=False):
     if from_editor:
         engine.constants['standalone'] = False
     engine.init()
-    icon = engine.image_load('main_icon.ico')
+    icon = engine.image_load('favicon.ico')
     engine.set_icon(icon)
+    # Hack to get icon to show up in windows
+    try:
+        import ctypes
+        myappid = u'rainlash.lextalionis.ltmaker.current' # arbitrary string
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    except:
+        print("Maybe not Windows?")
     engine.DISPLAYSURF = engine.build_display(engine.SCREENSIZE)
     engine.set_title(title + ' - v' + VERSION)
     print("Version: %s" % VERSION)

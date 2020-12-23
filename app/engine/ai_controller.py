@@ -226,11 +226,11 @@ class PrimaryAI():
 
         if self.behaviour.action == "Attack":
             self.items = [item for item in item_funcs.get_all_items(self.unit) if 
-                          item_system.available(self.unit, item)]
+                          item_funcs.available(self.unit, item)]
             self.all_targets = {u for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)}
         elif self.behaviour.action == 'Support':
             self.items = [item for item in item_funcs.get_all_items(self.unit) if 
-                          item_system.available(self.unit, item)]
+                          item_funcs.available(self.unit, item)]
             self.all_targets = {u for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)}
 
         logger.info("Testing Items: %s", self.items)
@@ -255,7 +255,7 @@ class PrimaryAI():
             self.possible_moves = self.get_possible_moves()
 
     def get_valid_targets(self, unit, item, valid_moves) -> list:
-        item_range = item_system.get_range(unit, item)
+        item_range = item_funcs.get_range(unit, item)
         valid_targets = item_system.ai_targets(unit, item)
         filtered_targets = set()
 
@@ -272,7 +272,7 @@ class PrimaryAI():
         item = self.items[self.item_index]
         logger.info("Determining targets for item: %s", item)
         self.valid_targets = self.get_valid_targets(self.unit, item, self.valid_moves)
-        if 0 in item_system.get_range(self.unit, item):
+        if 0 in item_funcs.get_range(self.unit, item):
             self.valid_targets += self.valid_moves  # Hack to target self in all valid positions
             self.valid_targets = list(set(self.valid_targets))  # Only uniques
         logger.info("Valid Targets: %s", self.valid_targets)
@@ -282,7 +282,7 @@ class PrimaryAI():
             # Given an item and a target, find all positions in valid_moves that I can strike the target at.
             item = self.items[self.item_index]
             target = self.valid_targets[self.target_index]
-            a = target_system.find_manhattan_spheres(item_system.get_range(self.unit, item), *target)
+            a = target_system.find_manhattan_spheres(item_funcs.get_range(self.unit, item), *target)
             b = set(self.valid_moves)
             return list(a & b)
         else:
@@ -477,8 +477,8 @@ class SecondaryAI():
         self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True))
         self.double_move = self.single_move + equations.parser.movement(self.unit)
 
-        mtype = DB.classes.get(self.unit.klass).movement_group
-        self.grid = game.board.get_grid(mtype)
+        movement_group = game.movement.get_movement_group(self.unit)
+        self.grid = game.board.get_grid(movement_group)
         self.pathfinder = \
             pathfinding.AStar(self.unit.position, None, self.grid, 
                               game.tilemap.width, game.tilemap.height, 
@@ -556,7 +556,7 @@ class SecondaryAI():
             max_damage = 0
             status_term = 0
             items = [item for item in item_funcs.get_all_items(self.unit) if 
-                     item_system.available(self.unit, item)]
+                     item_funcs.available(self.unit, item)]
             for item in items:
                 if item.status:
                     status_term = 1

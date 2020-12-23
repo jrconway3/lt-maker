@@ -19,6 +19,7 @@ class Type(IntEnum):
     Stat = 14  # Stored as Nids
     MapAnimation = 15  # Stored as Nids
     Equation = 16  # Stored as Nids
+    MovementType = 17  # Stored as Nid
     List = 100
     Dict = 101
 

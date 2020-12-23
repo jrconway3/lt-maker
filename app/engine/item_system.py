@@ -235,18 +235,6 @@ def ai_priority(unit, item, target, move) -> float:
         # Returns None when no custom ai is available
         return None
 
-def get_range(unit, item) -> set:
-    min_range, max_range = 0, 0
-    for component in item.components:
-        if component.defines('minimum_range'):
-            min_range = component.minimum_range(unit, item)
-            break
-    for component in item.components:
-        if component.defines('maximum_range'):
-            max_range = component.maximum_range(unit, item)
-            break
-    return set(range(min_range, max_range + 1))
-
 def splash(unit, item, position) -> tuple:
     """
     Returns main target and splash
@@ -291,7 +279,12 @@ def find_hp(actions, target):
             starting_hp += subaction.num
     return starting_hp
 
-def on_hit(actions, playback, unit, item, target, mode=None):
+def after_hit(actions, playback, unit, item, target, mode):
+    for component in item.components:
+        if component.defines('after_hit'):
+            component.after_hit(actions, playback, unit, item, target, mode)
+
+def on_hit(actions, playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('on_hit'):
             component.on_hit(actions, playback, unit, item, target, mode)
@@ -308,7 +301,7 @@ def on_hit(actions, playback, unit, item, target, mode=None):
     if not any(action for action in playback if action[0] == 'unit_tint'):
         playback.append(('unit_tint', target, (255, 255, 255, 255)))
 
-def on_crit(actions, playback, unit, item, target, mode=None):
+def on_crit(actions, playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('on_crit'):
             component.on_crit(actions, playback, unit, item, target, mode)
@@ -326,7 +319,7 @@ def on_crit(actions, playback, unit, item, target, mode=None):
     if not any(action for action in playback if action[0] == 'crit_tint'):
         playback.append(('crit_tint', target, (255, 255, 255, 255)))
 
-def on_miss(actions, playback, unit, item, target, mode=None):
+def on_miss(actions, playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('on_miss'):
             component.on_miss(actions, playback, unit, item, target, mode)

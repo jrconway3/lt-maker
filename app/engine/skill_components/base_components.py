@@ -13,6 +13,22 @@ class Unselectable(SkillComponent):
     def can_select(self, unit) -> bool:
         return False
 
+class CannotUseItems(SkillComponent):
+    nid = 'cannot_use_items'
+    desc = "Unit cannot use or equip any items"
+    tag = 'base'
+
+    def available(self, unit, item) -> bool:
+        return True
+
+class CannotUseMagicItems(SkillComponent):
+    nid = 'cannot_use_magic_items'
+    desc = "Unit cannot use or equip magic items"
+    tag = 'base'
+
+    def available(self, unit, item) -> bool:
+        return item.magic
+
 class IgnoreAlliances(SkillComponent):
     nid = 'ignore_alliances'
     desc = "Unit will treat all units as enemies"
@@ -22,6 +38,30 @@ class IgnoreAlliances(SkillComponent):
         return False
 
     def check_enemy(self, unit1, unit2) -> bool:
+        return True
+
+class CannotDouble(SkillComponent):
+    nid = 'cannot_double'
+    desc = "Unit cannot double"
+    tag = 'base'
+
+    def no_double(self, unit):
+        return True
+
+class CanDoubleOnDefense(SkillComponent):
+    nid = 'can_double_on_defense'
+    desc = "Unit can double while defending (extraneous if set to True in constants)"
+    tag = 'base'
+
+    def def_double(self, unit):
+        return True
+
+class Vantage(SkillComponent):
+    nid = 'vantage'
+    desc = "Unit will attack first even while defending"
+    tag = 'base'
+
+    def vantage(self, unit):
         return True
 
 class Canto(SkillComponent):
@@ -48,49 +88,14 @@ class CantoSharp(SkillComponent):
     def has_canto(self, unit) -> bool:
         return not unit.has_attacked or unit.movement_left >= equations.parser.movement(unit)
 
-class Regeneration(SkillComponent):
-    nid = 'regeneration'
-    desc = "Unit restores %% of HP at beginning of turn"
-    tag = "status"
+class MovementType(SkillComponent):
+    nid = 'movement_type'
+    desc = "Unit will have a non-default movement type"
+    tag = 'movement'
 
-    expose = Type.Float
-    value = 0.2
+    expose = Type.MovementType
 
-    def on_upkeep(self, actions, playback, unit):
-        max_hp = equations.parser.hitpoints(unit)
-        if unit.get_hp() < max_hp:
-            hp_change = max_hp * self.value
-            actions.append(action.ChangeHP(unit, hp_change))
-            # Playback
-            playback.append(('hit_sound', 'MapHeal'))
-            if hp_change >= 30:
-                name = 'MapBigHealTrans'
-            elif hp_change >= 15:
-                name = 'MapMediumHealTrans'
-            else:
-                name = 'MapSmallHealTrans'
-            playback.append(('cast_anim', name, unit))
-
-class Defense(SkillComponent):
-    nid = 'defense'
-    desc = "Gives +X defense"
-    tag = 'combat'
-
-    expose = Type.Int
-    value = 1
-
-    def stat_change(self, unit):
-        return {'DEF': self.value}
-
-class Avoid(SkillComponent):
-    nid = 'avoid'
-    desc = "Gives +X avoid"
-    tag = 'combat'
-
-    expose = Type.Int
-    value = 20
-
-    def modify_avoid(self, unit, item_to_avoid):
+    def movement_type(self, unit):
         return self.value
 
 class IgnoreTerrain(SkillComponent):
@@ -102,6 +107,52 @@ class IgnoreTerrain(SkillComponent):
         return True
 
     def ignore_region_status(self, unit):
+        return True
+
+class ChangeBuyPrice(SkillComponent):
+    nid = 'change_buy_price'
+    desc = "Unit's buy price for items is changed"
+    tag = 'base'
+
+    expose = Type.Float
+
+    def modify_buy_price(self, unit):
+        return self.value
+
+class ExpMultiplier(SkillComponent):
+    nid = 'exp_multiplier'
+    desc = "Unit receives a multiplier on exp gained"
+    tag = 'base'
+
+    expose = Type.Float
+
+    def exp_multiplier(self, unit1, unit2):
+        return self.value
+
+class EnemyExpMultiplier(SkillComponent):
+    nid = 'enemy_exp_multiplier'
+    desc = "Unit gives a multiplier to the exp gained by others in combat"
+    tag = 'base'
+
+    expose = Type.Float
+
+    def enemy_exp_multiplier(self, unit1, unit2):
+        return self.value
+
+class IgnoreRescuePenalty(SkillComponent):
+    nid = 'ignore_rescue_penalty'
+    desc = "Unit will ignore the rescue penalty"
+    tag = 'base'
+
+    def ignore_rescue_penalty(self, unit):
+        return True
+
+class Pass(SkillComponent):
+    nid = 'pass'
+    desc = "Unit can move through enemies"
+    tag = 'base'
+
+    def pass_through(self, unit):
         return True
 
 class Hidden(SkillComponent):
@@ -119,22 +170,12 @@ class Stack(SkillComponent):
     desc = "Skill can be applied to a unit multiple times"
     tag = "base"
 
-class Time(SkillComponent):
-    nid = 'time'
-    desc = "Lasts for some number of turns"
+class Feat(SkillComponent):
+    nid = 'feat'
+    desc = "Skill can be selected as a feat"
     tag = "base"
 
-    expose = Type.Int
-    value = 2
-
-    def init(self, skill):
-        self.skill.data['turns'] = self.value
-        self.skill.data['starting_turns'] = self.value
-
-    def on_upkeep(self, actions, playback, unit):
-        self.skill.data['turns'] -= 1
-        if self.skill.data['turns'] <= 0:
-            action.do(action.RemoveSkill(unit, self.skill))
-
-    def text(self) -> str:
-        return str(self.skill.data['turns'])
+class Negative(SkillComponent):
+    nid = 'negative'
+    desc = "Skill is considered detrimental"
+    tag = "base"

@@ -4,7 +4,7 @@ from app.utilities import utils
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
-from app.engine import banner, static_random, unit_funcs, equations, skill_system, item_system
+from app.engine import banner, static_random, unit_funcs, equations, skill_system, item_system, item_funcs
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
@@ -89,7 +89,7 @@ class Move(Action):
     def do(self):
         if self.path is None:
             self.path = game.cursor.path
-        game.moving_units.begin_move(self.unit, self.path, self.event)
+        game.movement.begin_move(self.unit, self.path, self.event)
 
     def execute(self):
         game.leave(self.unit)
@@ -361,14 +361,24 @@ class Rescue(Action):
         self.unit = unit
         self.rescuee = rescuee
         self.old_pos = self.rescuee.position
+        self.subactions = []
 
     def do(self):
+        self.subactions.clear()
         self.unit.traveler = self.rescuee.nid
         # TODO Add transition
 
         game.leave(self.rescuee)
         self.rescuee.position = None
         self.unit.has_rescued = True
+
+        if not skill_system.ignore_rescue_penalty(self.unit) and 'Rescue' in DB.skills.keys():
+            rescue_status = item_funcs.create_skills(self.unit, ['Rescue'])[0]
+            game.register_skill(rescue_status)
+            self.subactions.append(AddSkill(self.unit, rescue_status))
+
+        for action in self.subactions:
+            action.do()
 
     def execute(self):
         self.unit.traveler = self.rescuee.nid
@@ -377,11 +387,17 @@ class Rescue(Action):
         self.rescuee.position = None
         self.unit.has_rescued = True
 
+        for action in self.subactions:
+            action.execute()
+
     def reverse(self):
         self.rescuee.position = self.old_pos
         game.arrive(self.rescuee)
         self.unit.traveler = None
         self.unit.has_rescued = False
+
+        for action in self.subactions:
+            action.reverse()
 
 class Drop(Action):
     def __init__(self, unit, droppee, pos):
@@ -389,8 +405,10 @@ class Drop(Action):
         self.droppee = droppee
         self.pos = pos
         self.droppee_wait_action = Wait(self.droppee)
+        self.subactions = []
 
     def do(self):
+        self.subactions.clear()
         self.droppee.position = self.pos
         game.arrive(self.droppee)
         self.droppee.sprite.change_state('normal')
@@ -398,6 +416,10 @@ class Drop(Action):
 
         self.unit.traveler = None
         self.unit.has_dropped = True
+
+        self.subactions.append(RemoveSkill(self.unit, "Rescue"))
+        for action in self.subactions:
+            action.do()
 
         if utils.calculate_distance(self.unit.position, self.pos) == 1:
             self.droppee.sprite.set_transition('fake_in')
@@ -410,6 +432,9 @@ class Drop(Action):
         self.droppee.sprite.change_state('normal')
         self.droppee_wait_action.execute()
 
+        for action in self.subactions:
+            action.execute()
+
         self.unit.traveler = None
         self.unit.has_dropped = True
 
@@ -421,35 +446,70 @@ class Drop(Action):
         self.droppee.position = None
         self.unit.has_dropped = False
 
+        for action in self.subactions:
+            action.reverse()
+
 class Give(Action):
     def __init__(self, unit, other):
         self.unit = unit
         self.other = other
+        self.subactions = []
 
     def do(self):
+        self.subactions.clear()
+
         self.other.traveler = self.unit.traveler
+        if not skill_system.ignore_rescue_penalty(self.other) and 'Rescue' in DB.skills.keys():
+            rescue_status = item_funcs.create_skills(self.other, ['Rescue'])[0]
+            game.register_skill(rescue_status)
+            self.subactions.append(AddSkill(self.other, rescue_status))
+
         self.unit.traveler = None
+        self.subactions.append(RemoveSkill(self.unit, "Rescue"))
+
         self.unit.has_given = True
+
+        for action in self.subactions:
+            action.do()
         
     def reverse(self):
         self.unit.traveler = self.other.traveler
         self.other.traveler = None
         self.unit.has_given = False
 
+        for action in self.subactions:
+            action.reverse()
+
 class Take(Action):
     def __init__(self, unit, other):
         self.unit = unit
         self.other = other
+        self.subactions = []
 
     def do(self):
+        self.subactions.clear()
+
         self.unit.traveler = self.other.traveler
+        if not skill_system.ignore_rescue_penalty(self.unit) and 'Rescue' in DB.skills.keys():
+            rescue_status = item_funcs.create_skills(self.unit, ['Rescue'])[0]
+            game.register_skill(rescue_status)
+            self.subactions.append(AddSkill(self.unit, rescue_status))
+
         self.other.traveler = None
+        self.subactions.append(RemoveSkill(self.other, "Rescue"))
+
         self.unit.has_taken = True
+
+        for action in self.subactions:
+            action.do()
         
     def reverse(self):
         self.other.traveler = self.unit.traveler
         self.unit.traveler = None
         self.unit.has_taken = False
+
+        for action in self.subactions:
+            action.reverse()
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
@@ -600,19 +660,21 @@ class TradeItem(Action):
     def reverse(self):
         self.swap(self.unit1, self.unit2, self.item2, self.item1, self.item_index2, self.item_index1)
 
-class IncItemData(Action):
-    def __init__(self, item, keyword, value):
-        self.item = item
+class SetObjData(Action):
+    def __init__(self, obj, keyword, value):
+        self.obj = obj
         self.keyword = keyword
         self.value = value
+        self.old_value = None
 
     def do(self):
-        if self.keyword in self.item.data:
-            self.item.data[self.keyword] += self.value
+        if self.keyword in self.obj.data:
+            self.old_value = self.obj.data[self.keyword]
+            self.obj.data[self.keyword] = self.value
 
     def reverse(self):
-        if self.keyword in self.item.data:
-            self.item.data[self.keyword] -= self.value
+        if self.keyword in self.obj.data:
+            self.obj.data[self.keyword] = self.old_value
 
 class GainMoney(Action):
     def __init__(self, party_nid, money):
@@ -959,6 +1021,20 @@ class RecordRandomState(Action):
 
     def reverse(self):
         static_random.set_combat_random_state(self.old)
+
+class TriggerCharge(Action):
+    def __init__(self, unit, skill):
+        self.unit = unit
+        self.skill = skill
+
+    def do(self):
+        self.old_charge = self.skill.data.get('charge', None)
+        skill_system.trigger_charge(self.unit, self.skill)
+        self.new_charge = self.skill.data.get('charge', None)
+
+    def reverse(self):
+        if self.new_charge is not None:
+            self.skill.data['charge'] = self.old_charge
 
 class AddSkill(Action):
     def __init__(self, unit, skill_obj):

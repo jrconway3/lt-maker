@@ -19,10 +19,10 @@ class Uses(ItemComponent):
         return item.data['uses'] > 0
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.IncItemData(item, 'uses', -1))
+        actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
 
     def on_miss(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.IncItemData(item, 'uses', -1))
+        actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
 
     def on_not_usable(self, unit, item):
         action.do(action.RemoveItem(unit, item))
@@ -47,10 +47,10 @@ class ChapterUses(ItemComponent):
         return item.data['c_uses'] > 0
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.IncItemData(item, 'c_uses', -1))
+        actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
 
     def on_miss(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.IncItemData(item, 'c_uses', -1))
+        actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
 
     def on_end_chapter(self, unit, item):
         # Don't need to use action here because it will be end of chapter
@@ -102,11 +102,11 @@ class Cooldown(ItemComponent):
         return item.data['cooldown'] == 0
 
     def end_combat(self, playback, unit, item, target):
-        action.do(action.SetItemData(item, 'cooldown', self.value))
+        action.do(action.SetObjData(item, 'cooldown', self.value))
 
     def on_upkeep(self, unit, item):
         if item.data['cooldown'] > 0:
-            action.do(action.IncItemData(item, 'cooldown', -1))
+            action.do(action.SetObjData(item, 'cooldown', item.data['cooldown'] - 1))
 
 class PrfUnit(ItemComponent):
     nid = 'prf_unit'

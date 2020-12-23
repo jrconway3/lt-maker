@@ -2,7 +2,7 @@ import math
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine, image_mods, icons, help_menu, text_funcs, item_system
+from app.engine import engine, image_mods, icons, help_menu, text_funcs, item_system, item_funcs
 from app.engine.game_state import game
 
 class EmptyOption():
@@ -186,7 +186,7 @@ class ItemOption(BasicOption):
             uses_font = self.color
             if main_font == 'text-white':
                 uses_font = 'text-blue'
-        elif item_system.available(owner, self.item):
+        elif item_funcs.available(owner, self.item):
             main_font = 'text-white'
             uses_font = 'text-blue'
         return main_font, uses_font
@@ -228,7 +228,7 @@ class ConvoyItemOption(ItemOption):
             uses_font = self.color
             if main_font == 'text-white':
                 uses_font = 'text-blue'
-        elif item_system.available(self.owner, self.item):
+        elif item_funcs.available(self.owner, self.item):
             main_font = 'text-white'
             uses_font = 'text-blue'
         return main_font, uses_font
@@ -281,7 +281,7 @@ class ValueItemOption(ItemOption):
         value_font = 'text-grey'
         owner = game.get_unit(self.item.owner_nid)
         if self.disp_value == 'buy':
-            value = item_system.buy_price(owner, self.item)
+            value = item_funcs.buy_price(owner, self.item)
             if value:
                 value_string = str(value)
                 if value <= game.get_money():
@@ -289,7 +289,7 @@ class ValueItemOption(ItemOption):
             else:
                 value_string = '--'
         elif self.disp_value == 'sell':
-            value = item_system.sell_price(owner, self.item)
+            value = item_funcs.sell_price(owner, self.item)
             if value:
                 value_string = str(value)
                 value_font = 'text-blue'

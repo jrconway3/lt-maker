@@ -1,5 +1,6 @@
 from app.data.database import DB
 
+from app.utilities import utils
 from app.engine import item_system, skill_system
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
@@ -11,6 +12,30 @@ def is_magic(unit, item) -> bool:
     if item.magic:
         return True
     return False
+
+def available(unit, item) -> bool:
+    return item_system.available(unit, item) and skill_system.available(unit, item)
+
+def buy_price(unit, item):
+    value = item_system.buy_price(unit, item)
+    value *= skill_system.modify_buy_price(unit, item)
+    return value
+
+def sell_price(unit, item):
+    value = item_system.sell_price(unit, item)
+    value *= skill_system.modify_sell_price(unit, item)
+    return value
+
+# def can_wield(unit, item) -> bool:
+#     weapon = item_system.is_weapon(unit, item)
+#     spell = item_system.is_weapon(unit, item)
+#     avail = available(unit, item)
+#     if (weapon or spell):
+#         if avail:
+#             return True
+#         else:
+#             return False
+#     return True
 
 def create_items(unit, item_nid_list: list) -> list:
     items = []
@@ -55,9 +80,26 @@ def inventory_full(unit, item) -> bool:
     else:
         return len(unit.nonaccessories) >= DB.constants.value('num_items')
 
+def get_range(unit, item) -> set:
+    min_range, max_range = 0, 0
+    for component in item.components:
+        if component.defines('minimum_range'):
+            min_range = component.minimum_range(unit, item)
+            break
+    for component in item.components:
+        if component.defines('maximum_range'):
+            max_range = component.maximum_range(unit, item)
+            break
+
+    max_range += skill_system.modify_maximum_range(unit, item)
+    limit_max = skill_system.limit_maximum_range(unit, item)
+    max_range = utils.clamp(max_range, 0, limit_max)
+
+    return set(range(min_range, max_range + 1))
+
 def get_range_string(unit, item):
     if unit:
-        item_range = item_system.get_range(unit, item)
+        item_range = get_range(unit, item)
         min_range = min(item_range)
         max_range = max(item_range)
     else:

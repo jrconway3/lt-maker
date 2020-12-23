@@ -24,39 +24,78 @@ class Defaults():
         return unit2.position and unit1.team == unit2.team and check_ally(unit1, unit2)
 
     @staticmethod
-    def exp_multiplier(unit1, unit2) -> bool:
+    def exp_multiplier(unit1, unit2) -> float:
+        return 1.0
+
+    @staticmethod
+    def enemy_exp_multiplier(unit1, unit2) -> float:
         return 1.0
 
     @staticmethod
     def sight_range(unit) -> int:
         return 0
 
+    @staticmethod
+    def limit_maximum_range(unit, item) -> int:
+        return 1000
+
+    @staticmethod
+    def modify_maximum_range(unit, item) -> int:
+        return 0
+
+    @staticmethod
+    def movement_type(unit):
+        return None
+
+    @staticmethod
+    def modify_buy_price(unit, item) -> float:
+        return 1.0
+
+    @staticmethod
+    def modify_sell_price(unit, item) -> float:
+        return 1.0
+
 # Takes in unit, returns False if not present
-default_behaviours = ('has_canto', 'pass_through', 'vantage', 'class_skill', 'feat', 'negative', 'ignore_terrain', 'ignore_region_status')
+default_behaviours = (
+    'has_canto', 'pass_through', 'vantage', 'ignore_terrain', 
+    'ignore_region_status', 'no_double', 'def_double', 'ignore_rescue_penalty')
 # Takes in unit, returns default value
-exclusive_behaviours = ('can_select', 'sight_range')
+exclusive_behaviours = ('can_select', 'sight_range', 'movement_type')
+# Takes in unit and item, returns default value
+item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maixmum_range')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier')
+# Takes in unit, item returns bonus
+modify_hooks = (
+    'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
+    'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
+    'modify_defense_speed')
 # Takes in unit, item, target, mode, returns bonus
 dynamic_hooks = ('dynamic_damage', 'dynamic_resist', 'dynamic_accuracy', 'dynamic_avoid', 
                  'dynamic_crit_accuracy', 'dynamic_crit_avoid', 'dynamic_attack_speed', 'dynamic_defense_speed',
                  'dynamic_multiattacks')
-# Takes in unit, item returns bonus
-modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
-                'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
-                'modify_defense_speed')
 # Takes in unit, item, target, mode returns bonus
 multiply_hooks = ('damage_multiplier', 'resist_multiplier')
+
 # Takes in unit
 simple_event_hooks = ('on_end_chapter', )
 # Takes in playback, unit, item, target
-combat_event_hooks = ('start_combat', 'end_combat')
+combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat')
 # Takes in actions, playback, unit, item, target, mode
-subcombat_event_hooks = ('on_hit', 'on_crit', 'on_miss', 'on_damage', 'on_take_damage')
+subcombat_event_hooks = ('after_hit', 'after_take_hit')
+
+def condition(skill, unit) -> bool:
+    for component in skill.components:
+        if component.defines('condition'):
+            if not component.condition(unit):
+                return False
+    return True
 
 for behaviour in default_behaviours:
     func = """def %s(unit):
                   for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue
                       for component in skill.components:
                           if component.defines('%s'):
                               return component.%s(unit)
@@ -64,19 +103,11 @@ for behaviour in default_behaviours:
         % (behaviour, behaviour, behaviour)
     exec(func)
 
-for behaviour in targeted_behaviours:
-    func = """def %s(unit1, unit2):
-                  for skill in unit1.skills:
-                      for component in skill.components:
-                          if component.defines('%s'):
-                              return component.%s(unit1, unit2)
-                  return Defaults.%s(unit1, unit2)""" \
-        % (behaviour, behaviour, behaviour, behaviour)
-    exec(func)
-
 for behaviour in exclusive_behaviours:
     func = """def %s(unit):
                   for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue
                       for component in skill.components:
                           if component.defines('%s'):
                               return component.%s(unit)
@@ -84,10 +115,36 @@ for behaviour in exclusive_behaviours:
         % (behaviour, behaviour, behaviour, behaviour)
     exec(func)
 
+for behaviour in targeted_behaviours:
+    func = """def %s(unit1, unit2):
+                  for skill in unit1.skills:
+                      if not condition(skill, unit1):
+                          continue
+                      for component in skill.components:
+                          if component.defines('%s'):
+                              return component.%s(unit1, unit2)
+                  return Defaults.%s(unit1, unit2)""" \
+        % (behaviour, behaviour, behaviour, behaviour)
+    exec(func)
+
+for behaviour in item_behaviours:
+    func = """def %s(unit, item):
+                  for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue
+                      for component in skill.components:
+                          if component.defines('%s'):
+                              return component.%s(unit, item)
+                  return Defaults.%s(unit, item)""" \
+        % (behaviour, behaviour, behaviour, behaviour)
+    exec(func)
+
 for hook in modify_hooks:
     func = """def %s(unit, item):
                   val = 0
                   for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue
                       for component in skill.components:
                           if component.defines('%s'):
                               val += component.%s(unit, item)
@@ -99,6 +156,8 @@ for hook in dynamic_hooks:
     func = """def %s(unit, item, target, mode):
                   val = 0
                   for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue
                       for component in item.components:
                           if component.defines('%s'):
                               val += component.%s(unit, item, target, mode)
@@ -110,6 +169,8 @@ for hook in multiply_hooks:
     func = """def %s(unit, item, target, mode):
                   val = 1
                   for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue
                       for component in skill.components:
                           if component.defines('%s'):
                               val *= component.%s(unit, item, target, mode)
@@ -126,6 +187,17 @@ for hook in simple_event_hooks:
         % (hook, hook, hook)
     exec(func)
 
+for hook in combat_event_hooks:
+    func = """def %s(playback, unit, item, target):
+                  for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue 
+                      for component in skill.components:
+                          if component.defines('%s'):
+                              component.%s(playback, unit, item, target)""" \
+        % (hook, hook, hook)
+    exec(func)
+
 for hook in subcombat_event_hooks:
     func = """def %s(actions, playback, unit, item, target, mode):
                   for skill in unit.skills:
@@ -135,26 +207,26 @@ for hook in subcombat_event_hooks:
         % (hook, hook, hook)
     exec(func)
 
-for hook in combat_event_hooks:
-    func = """def %s(playback, unit, item, target):
-                  for skill in unit.skills:
-                      for component in skill.components:
-                          if component.defines('%s'):
-                              component.%s(playback, unit, item, target)""" \
-        % (hook, hook, hook)
-    exec(func)
 
-def can_use_weapon(unit, item) -> bool:
+
+def available(unit, item) -> bool:
+    """
+    If any hook reports false, then it is false
+    """
     for skill in unit.skills:
+        if not condition(skill, unit):
+            continue
         for component in skill.components:
-            if component.defines('can_use_weapon'):
-                if not component.can_use_weapon(unit, item):
+            if component.defines('available'):
+                if not component.available(unit, item):
                     return False
     return True
 
 def stat_change(unit, stat) -> int:
     bonus = 0
     for skill in unit.skills:
+        if not condition(skill, unit):
+            continue
         for component in skill.components:
             if component.defines('stat_change'):
                 d = component.stat_change(unit)
@@ -200,4 +272,10 @@ def get_cooldown(skill) -> float:
     for component in skill.components:
         if component.defines('cooldown'):
             return component.cooldown()
+    return None
+
+def trigger_charge(unit, skill):
+    for component in skill.components:
+        if component.defines('trigger_charge'):
+            component.trigger_charge(unit, skill)
     return None

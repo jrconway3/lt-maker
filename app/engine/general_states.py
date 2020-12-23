@@ -411,8 +411,8 @@ class MovementState(MapState):
 
     def update(self):
         super().update()
-        game.moving_units.update()
-        if len(game.moving_units) <= 0:
+        game.movement.update()
+        if len(game.movement) <= 0:
             game.state.back()
             return 'repeat'
 
@@ -679,10 +679,10 @@ class ItemChildState(MapState):
 
         options = []
         if item_system.equippable(self.cur_unit, item) and \
-                item_system.available(self.cur_unit, item):
+                item_funcs.available(self.cur_unit, item):
             options.append("Equip")
         if item_system.can_use(self.cur_unit, item) and \
-                item_system.available(self.cur_unit, item):
+                item_funcs.available(self.cur_unit, item):
             defender, splash = item_system.splash(self.cur_unit, item, self.cur_unit.position)
             if item_system.target_restrict(self.cur_unit, item, defender, splash):
                 options.append("Use")
@@ -1382,7 +1382,7 @@ class ShopState(State):
             elif self.state == 'buy':
                 item = self.buy_menu.get_current()
                 if item:
-                    value = item_system.buy_price(self.unit, item)
+                    value = item_funcs.buy_price(self.unit, item)
                     if game.get_money() - value >= 0:
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() - value)
@@ -1411,7 +1411,7 @@ class ShopState(State):
             elif self.state == 'sell':
                 item = self.sell_menu.get_current()
                 if item:
-                    value = item_system.sell_price(self.unit, item)
+                    value = item_funcs.sell_price(self.unit, item)
                     if value:
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() + value)

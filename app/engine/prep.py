@@ -616,7 +616,7 @@ class PrepItemsState(State):
                         self.state = 'owner_item'
                         options = ['Store', 'Trade']
                         if item_system.can_use(self.unit, current) and \
-                                item_system.available(self.unit, current) and \
+                                item_funcs.available(self.unit, current) and \
                                 item_system.can_use_in_base(self.unit, current):
                             options.append('Use')
                         if convoy_funcs.can_restock(current):
@@ -628,7 +628,7 @@ class PrepItemsState(State):
                 elif context == 'convoy':
                     if current:
                         if item_system.can_use(self.unit, current) and \
-                                item_system.available(self.unit, current) and \
+                                item_funcs.available(self.unit, current) and \
                                 item_system.can_use_in_base(self.unit, current):
                             self.state = 'convoy_item'
                             topleft = (80, self.menu.get_current_index() * 16)
@@ -867,7 +867,7 @@ class PrepMarketState(State):
             if self.state == 'buy':
                 item = self.menu.get_current()
                 if item:
-                    value = item_system.buy_price(self.unit, item)
+                    value = item_funcs.buy_price(self.unit, item)
                     if game.get_money() - value >= 0:
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() - value)
@@ -889,7 +889,7 @@ class PrepMarketState(State):
             elif self.state == 'sell':
                 item = self.menu.get_current()
                 if item:
-                    value = item_system.sell_price(self.unit, item)
+                    value = item_funcs.sell_price(self.unit, item)
                     if value:
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() + value)

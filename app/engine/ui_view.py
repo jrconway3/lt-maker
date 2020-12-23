@@ -5,7 +5,7 @@ from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, base_surf, image_mods, text_funcs, icons, \
-    combat_calcs, skill_system, equations, item_system
+    combat_calcs, skill_system, equations, item_system, item_funcs
 import app.engine.config as cf
 from app.engine.game_state import game
 
@@ -282,7 +282,7 @@ class UIView():
                 blit_num(surf, c, 64, 67)
         # Enemy Hit and Mt
         if item_system.can_be_countered(attacker, attacker.get_weapon()) and defender.get_weapon() and \
-                utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, defender.get_weapon()):
+                utils.calculate_distance(attacker.position, defender.position) in item_funcs.get_range(defender, defender.get_weapon()):
             e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'Defense')
             e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'Defense')
             if crit_flag:
@@ -388,8 +388,8 @@ class UIView():
         # Enemy doubling
         eweapon = defender.get_weapon()        
         if eweapon and item_system.can_be_countered(attacker, weapon):
-            if utils.calculate_distance(attacker.position, defender.position) in item_system.get_range(defender, eweapon):
-                if DB.constants.value('def_double'):
+            if utils.calculate_distance(attacker.position, defender.position) in item_funcs.get_range(defender, eweapon):
+                if DB.constants.value('def_double') or skill_system.def_double(defender):
                     e_num = combat_calcs.outspeed(defender, attacker, eweapon, 'defense')
                 else:
                     e_num = 1
@@ -557,7 +557,7 @@ class ItemDescriptionPanel():
         bg_surf = image_mods.make_translucent(bg_surf, .1)
 
         weapon = item_system.is_weapon(self.unit, self.item)
-        available = item_system.available(self.unit, self.item)
+        available = item_funcs.available(self.unit, self.item)
 
         if weapon and available:
             top = 4

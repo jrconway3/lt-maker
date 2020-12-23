@@ -48,7 +48,7 @@ def optimize_all():
         units_that_can_wield = [
             unit for unit in units
             if not item_funcs.inventory_full(unit, weapon) and
-            item_system.available(unit, weapon) and
+            item_funcs.available(unit, weapon) and
             weapon.nid not in [i.nid for i in unit.items]]
         units_that_can_wield = sorted(units_that_can_wield, key=lambda u: len(u.items), reverse=True)
         if units_that_can_wield:
@@ -62,7 +62,7 @@ def optimize_all():
         units_that_can_wield = [
             unit for unit in units
             if not item_funcs.inventory_full(unit, spell) and
-            item_system.available(unit, spell) and
+            item_funcs.available(unit, spell) and
             spell.nid not in [i.nid for i in unit.items]]
         units_that_can_wield = sorted(units_that_can_wield, key=lambda u: len(u.items), reverse=True)
         if units_that_can_wield:
@@ -90,13 +90,13 @@ def optimize(unit):
     weapons = [
         item for item in game.party.convoy 
         if item_system.is_weapon(None, item) and 
-        item_system.available(unit, item)]
+        item_funcs.available(unit, item)]
     weapons = sorted(weapons, key=lambda i: (item_system.weapon_rank(None, i), 1000 - i.data.get('uses', 0)))
     # Distribute Spells
     spells = [
         item for item in game.party.convoy 
         if item_system.is_spell(None, item) and
-        item_system.available(unit, item)]
+        item_funcs.available(unit, item)]
     spells = sorted(spells, key=lambda i: (item_system.weapon_rank(None, i), 1000 - i.data.get('uses', 0)))
 
     # Give two spells if possible

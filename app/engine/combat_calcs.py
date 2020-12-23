@@ -1,6 +1,6 @@
 from app.utilities import utils
 from app.data.database import DB
-from app.engine import equations, item_system, skill_system
+from app.engine import equations, item_system, item_funcs, skill_system
 
 def get_weapon_rank_bonus(unit, item):
     weapon_type = item_system.weapon_type(unit, item)
@@ -32,7 +32,7 @@ def compute_advantage(unit1, unit2, item1, item2, advantage=True):
     return None
 
 def can_counterattack(attacker, aweapon, defender, dweapon) -> bool:
-    if dweapon and item_system.available(defender, dweapon):
+    if dweapon and item_funcs.available(defender, dweapon):
         if item_system.can_be_countered(attacker, aweapon) and \
                 item_system.can_counter(defender, dweapon):
             if not attacker.position or attacker.position in item_system.valid_targets(defender, dweapon):
@@ -56,6 +56,7 @@ def accuracy(unit, item=None):
     if weapon_rank_bonus:
         accuracy += int(weapon_rank_bonus.accuracy)
 
+    accuracy += item_system.modify_accuracy(unit, item)
     accuracy += skill_system.modify_accuracy(unit, item)
 
     # TODO
@@ -69,6 +70,7 @@ def avoid(unit, item_to_avoid=None):
     else:
         equation = item_system.avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
+    avoid += item_system.modify_avoid(unit, item_to_avoid)
     avoid += skill_system.modify_avoid(unit, item_to_avoid)
     return avoid
 
@@ -89,6 +91,7 @@ def crit_accuracy(unit, item=None):
     if weapon_rank_bonus:
         crit_accuracy += int(weapon_rank_bonus.crit)
 
+    crit_accuracy += item_system.modify_crit_accuracy(unit, item)
     crit_accuracy += skill_system.modify_crit_accuracy(unit, item)
 
     return crit_accuracy
@@ -99,6 +102,7 @@ def crit_avoid(unit, item_to_avoid=None):
     else:
         equation = item_system.crit_avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
+    avoid += item_system.modify_crit_avoid(unit, item_to_avoid)
     avoid += skill_system.modify_crit_avoid(unit, item_to_avoid)
     return avoid
 
@@ -120,6 +124,7 @@ def damage(unit, item=None):
         might += int(weapon_rank_bonus.damage)
 
     might += item_system.modify_damage(unit, item)
+    might += skill_system.modify_damage(unit, item)
     # TODO
     # Support bonus
 
@@ -131,6 +136,7 @@ def defense(unit, item_to_avoid=None):
     else:
         equation = item_system.defense_formula(unit, item_to_avoid)
         res = equations.parser.get(equation, unit)
+    res += item_system.modify_resist(unit, item_to_avoid)
     res += skill_system.modify_resist(unit, item_to_avoid)
     return res
 
@@ -147,6 +153,7 @@ def attack_speed(unit, item=None):
     if weapon_rank_bonus:
         attack_speed += int(weapon_rank_bonus.attack_speed)
 
+    attack_speed += item_system.modify_attack_speed(unit, item)
     attack_speed += skill_system.modify_attack_speed(unit, item)
     # TODO
     # Support bonus
@@ -159,6 +166,7 @@ def defense_speed(unit, item_to_avoid=None):
     else:
         equation = item_system.defense_speed_formula(unit, item_to_avoid)
         speed = equations.parser.get(equation, unit)
+    speed += item_system.modify_defense_speed(unit, item_to_avoid)
     speed += skill_system.modify_defense_speed(unit, item_to_avoid)
     return speed
 

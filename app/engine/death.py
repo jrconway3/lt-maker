@@ -10,6 +10,11 @@ class DeathManager():
         unit.is_dying = True
         self.dying_units[unit.nid] = 0
 
+    def miracle(self, unit):
+        unit.is_dying = False
+        if unit.nid in self.dying_units:
+            del self.dying_units[unit.nid]
+
     def force_death(self, unit):
         unit.is_dying = False
         action.do(action.Die(unit))

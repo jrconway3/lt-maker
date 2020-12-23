@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine import combat_calcs, item_system, skill_system, static_random, action
+from app.engine import combat_calcs, item_system, skill_system, static_random, action, item_funcs
 
 import logging
 logger = logging.getLogger(__name__)
@@ -36,9 +36,14 @@ class AttackerState(SolverState):
     def get_next_state(self, solver):
         command = solver.get_script()
         if command == '--':
+            if DB.constants.value('def_double') or skill_system.def_double(solver.main_target):
+                defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense')
+            else:
+                defender_outspeed = 1
+
             if solver.attacker_alive() and solver.main_target_alive():
                 if solver.allow_counterattack() and \
-                        solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
+                        solver.num_defends < defender_outspeed:
                     return 'defender'
                 elif solver.item_has_uses() and \
                         solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
@@ -62,11 +67,16 @@ class DefenderState(SolverState):
         command = solver.get_script()
         if command == '--':
             if solver.attacker_alive() and solver.main_target_alive():
+                if DB.constants.value('def_double') or skill_system.def_double(solver.main_target):
+                    defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense')
+                else:
+                    defender_outspeed = 1
+                    
                 if solver.item_has_uses() and \
                         solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
                     return 'attacker'
                 elif solver.allow_counterattack() and \
-                        solver.num_defends < combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense'):
+                        solver.num_defends < defender_outspeed:
                     return 'defender'
         else:
             return self.process_command(command)
@@ -169,13 +179,15 @@ class CombatPhaseSolver():
                         crit = True
             if crit:
                 item_system.on_crit(actions, playback, attacker, item, defender, mode)
-                playback.append(('mark_crit', attacker, defender))
+                playback.append(('mark_crit', attacker, defender, self.attacker))
             else:
                 item_system.on_hit(actions, playback, attacker, item, defender, mode)
-                playback.append(('mark_hit', attacker, defender))
+                playback.append(('mark_hit', attacker, defender, self.attacker))
+            item_system.after_hit(actions, playback, attacker, item, defender, mode)
+            skill_system.after_hit(actions, playback, attacker, item, defender, mode)
         else:
             item_system.on_miss(actions, playback, attacker, item, defender, mode)
-            playback.append(('mark_miss', attacker, defender))
+            playback.append(('mark_miss', attacker, defender, self.attacker))
 
     def attacker_alive(self):
         return self.attacker.get_hp() > 0
@@ -191,7 +203,7 @@ class CombatPhaseSolver():
         return combat_calcs.can_counterattack(self.attacker, self.item, self.main_target, self.target_item)
 
     def item_has_uses(self):
-        return item_system.available(self.attacker, self.item)
+        return item_funcs.available(self.attacker, self.item)
 
     def target_item_has_uses(self):
-        return self.main_target and self.target_item and item_system.available(self.main_target, self.target_item)
+        return self.main_target and self.target_item and item_funcs.available(self.main_target, self.target_item)

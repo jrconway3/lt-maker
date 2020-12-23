@@ -3,7 +3,7 @@ from app.utilities import utils
 from app.data.item_components import ItemComponent
 from app.data.components import Type
 
-from app.engine import skill_system, target_system, item_system
+from app.engine import skill_system, target_system, item_system, item_funcs
 from app.engine.game_state import game 
 
 class Spell(ItemComponent):
@@ -78,7 +78,7 @@ class TargetsAnything(ItemComponent):
         return {(x, y) for x in game.map.width for y in game.map.height}
 
     def valid_targets(self, unit, item) -> set:
-        rng = item_system.get_range(unit, item)
+        rng = item_funcs.get_range(unit, item)
         return target_system.find_manhattan_spheres(rng, *unit.position)
 
 class TargetsUnits(ItemComponent):
@@ -91,7 +91,7 @@ class TargetsUnits(ItemComponent):
 
     def valid_targets(self, unit, item) -> set:
         targets = {other.position for other in game.level.units if other.position}
-        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_system.get_range(unit, item)}
+        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
 
 class TargetsEnemies(ItemComponent):
     nid = 'target_enemy'
@@ -105,7 +105,7 @@ class TargetsEnemies(ItemComponent):
     def valid_targets(self, unit, item, ai=False) -> set:
         targets = {other.position for other in game.level.units if other.position and 
                    skill_system.check_enemy(unit, other)}        
-        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_system.get_range(unit, item)}
+        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
 
 class TargetsAllies(ItemComponent):
     nid = 'target_ally'
@@ -119,7 +119,7 @@ class TargetsAllies(ItemComponent):
     def valid_targets(self, unit, item, ai=False) -> set:
         targets = {other.position for other in game.level.units if other.position and 
                    skill_system.check_ally(unit, other)}        
-        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_system.get_range(unit, item)}
+        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
 
 class MinimumRange(ItemComponent):
     nid = 'min_range'

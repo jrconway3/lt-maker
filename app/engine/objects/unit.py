@@ -168,7 +168,7 @@ class UnitObject(Prefab):
         else:
             for item in self.items:
                 weapon = item_system.is_weapon(self, item)
-                available = item_system.available(self, item)
+                available = item_funcs.available(self, item)
                 equippable = item_system.equippable(self, item)
                 if weapon and available and equippable:
                     self.equip(item)
@@ -177,7 +177,7 @@ class UnitObject(Prefab):
 
     def get_spell(self):
         for item in self.items:
-            if item_system.is_spell(self, item) and item_system.available(self, item):
+            if item_system.is_spell(self, item) and item_funcs.available(self, item):
                 return item
         return None
 
@@ -187,7 +187,7 @@ class UnitObject(Prefab):
         else:
             for item in self.items:
                 if item_system.is_accessory(self, item) and \
-                        item_system.available(self, item) and \
+                        item_funcs.available(self, item) and \
                         item_system.equippable(self, item):
                     return item
         return None
@@ -195,7 +195,7 @@ class UnitObject(Prefab):
     def equip(self, item):
         if item in self.items and item is self.equipped_weapon:
             return  # Don't need to do anything
-        if item_system.equippable(self, item) and item_system.available(self, item):
+        if item_system.equippable(self, item) and item_funcs.available(self, item):
             if self.equipped_weapon:
                 self.unequip(self.equipped_weapon)
             self.equipped_weapon = item
@@ -357,7 +357,7 @@ class UnitObject(Prefab):
                   'current_fatigue': self.current_fatigue,
                   'traveler': self.traveler,
                   'dead': self.dead,
-                  'finished': self._finished,
+                  'action_state': self.get_action_state(),
                   }
         return s_dict
 
@@ -411,10 +411,9 @@ class UnitObject(Prefab):
         # -- Other properties
         self.dead = s_dict['dead']
         self.is_dying = False
-        self._finished = s_dict['finished']
-        self._has_attacked = False
-        self._has_traded = False
-        self._has_moved = False
+        action_state = s_dict.get('action_state')
+        if action_state:
+            self.set_action_state(action_state)
 
         self._sprite = None
         self._sound = None

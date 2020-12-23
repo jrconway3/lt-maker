@@ -201,12 +201,12 @@ class UnitSprite():
             self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
         elif self.state == 'moving':
-            next_position = game.moving_units.get_next_position(self.unit.nid)
+            next_position = game.movement.get_next_position(self.unit.nid)
             if not next_position:
                 self.set_transition('normal')
                 return
             self.net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
-            last_update = game.moving_units.get_last_update(self.unit.nid)
+            last_update = game.movement.get_last_update(self.unit.nid)
             dt = current_time - last_update
             self.offset[0] = int(TILEWIDTH * dt / cf.SETTINGS['unit_speed'] * self.net_position[0])
             self.offset[1] = int(TILEHEIGHT * dt / cf.SETTINGS['unit_speed'] * self.net_position[1])

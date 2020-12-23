@@ -6,7 +6,7 @@ from app.data.database import DB
 from app.engine.solver import CombatPhaseSolver
 
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, combat_calcs, gui, action, skill_system, banner, item_system
+from app.engine import engine, combat_calcs, gui, action, skill_system, banner, item_system, item_funcs
 from app.engine.health_bar import MapCombatInfo
 from app.engine.animations import MapAnimation
 from app.engine.game_state import game
@@ -59,6 +59,11 @@ class MapCombat():
             if self._skip or current_time > 200:
 
                 game.events.trigger('combat_start', self.attacker, self.defender, self.attacker.position)
+                skill_system.pre_combat(self.full_playback, self.attacker, self.item, self.defender)
+                if self.defender:
+                    skill_system.pre_combat(self.full_playback, self.defender, self.def_item, self.attacker)
+                for unit in self.splash:
+                    skill_system.pre_combat(self.full_playback, unit, None, None)
                 skill_system.start_combat(self.full_playback, self.attacker, self.item, self.defender)
                 item_system.start_combat(self.full_playback, self.attacker, self.item, self.defender)
                 if self.defender:
@@ -376,6 +381,11 @@ class MapCombat():
             item_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
         for unit in self.splash:
             skill_system.end_combat(self.full_playback, unit, None, None)
+        skill_system.post_combat(self.full_playback, self.attacker, self.item, self.defender)
+        if self.defender:
+            skill_system.post_combat(self.full_playback, self.defender, self.def_item, self.attacker)
+        for unit in self.splash:
+            skill_system.post_combat(self.full_playback, unit, None, None)
 
         self.handle_death(all_units)
 
@@ -433,9 +443,9 @@ class MapCombat():
 
     def find_broken_items(self):
         a_broke, d_broke = False, False
-        if not item_system.available(self.attacker, self.item):
+        if not item_funcs.available(self.attacker, self.item):
             a_broke = True
-        if self.def_item and not item_system.available(self.defender, self.def_item):
+        if self.def_item and not item_funcs.available(self.defender, self.def_item):
             d_broke = True
         return a_broke, d_broke
 
@@ -488,6 +498,7 @@ class MapCombat():
 
             exp = item_system.exp(self.full_playback, attacker, item, defender)
             exp *= skill_system.exp_multiplier(attacker, defender)
+            exp *= skill_system.enemy_exp_multiplier(defender, attacker)
             if defender.is_dying:
                 exp *= float(DB.constants.value('kill_multiplier'))
                 if 'Boss' in defender.tags:
@@ -506,7 +517,7 @@ class MapCombat():
                 game.events.trigger('unit_death', unit, position=unit.position)
 
     def check_equipped_items(self):
-        if not item_system.available(self.attacker, self.item):
+        if not item_funcs.available(self.attacker, self.item):
             self.attacker.check_equipped_weapon()
-        if self.def_item and not item_system.available(self.defender, self.def_item):
+        if self.def_item and not item_funcs.available(self.defender, self.def_item):
             self.defender.check_equipped_weapon()

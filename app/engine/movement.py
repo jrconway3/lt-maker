@@ -3,7 +3,7 @@ from app.utilities import utils, str_utils
 from app.data.database import DB
 
 import app.engine.config as cf
-from app.engine import engine, action, equations
+from app.engine import engine, action, equations, skill_system
 from app.engine.game_state import game
 
 class MovementData():
@@ -43,10 +43,16 @@ class MovementManager():
         else:
             return None
 
+    def get_movement_group(self, unit_to_move):
+        movement_group = skill_system.movement_type(unit_to_move)
+        if not movement_group:
+            movement_group = DB.classes.get(unit_to_move.klass).movement_group
+        return movement_group
+
     def get_mcost(self, unit_to_move, pos):
         terrain = game.tilemap.get_terrain(pos)
         mtype = DB.terrain.get(terrain).mtype
-        movement_group = DB.classes.get(unit_to_move.klass).movement_group
+        movement_group = self.get_movement_group(unit_to_move)
         mcost = DB.mcost.get_mcost(movement_group, mtype)
         return mcost
 

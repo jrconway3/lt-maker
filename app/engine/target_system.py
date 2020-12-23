@@ -68,28 +68,28 @@ def get_attacks(unit, item=None) -> set:
     if not item:
         return set()
 
-    item_range = item_system.get_range(unit, item)
+    item_range = item_funcs.get_range(unit, item)
     attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
     return attacks
 
 def get_possible_attacks(unit, valid_moves) -> set:
     attacks = set()
     for item in get_all_weapons(unit):
-        item_range = item_system.get_range(unit, item)
+        item_range = item_funcs.get_range(unit, item)
         attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
     return attacks
 
 def get_possible_spell_attacks(unit, valid_moves) -> set:
     attacks = set()
     for item in get_all_spells(unit):
-        item_range = item_system.get_range(unit, item)
+        item_range = item_funcs.get_range(unit, item)
         attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
     return attacks
 
 # Uses all weapons the unit has access to to find its potential range
 def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:
     if weapon and spell:
-        items = [item for item in unit.items if item_system.available(unit, item) and
+        items = [item for item in unit.items if item_funcs.available(unit, item) and
                  item_system.is_weapon(unit, item) or item_system.is_spell(unit, item)]
     elif weapon:
         items = get_all_weapons(unit)
@@ -99,7 +99,7 @@ def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:
         return set()
     potential_range = set()
     for item in items:
-        for rng in item_system.get_range(unit, item):
+        for rng in item_funcs.get_range(unit, item):
             potential_range.add(rng)
     return potential_range
 
@@ -111,8 +111,7 @@ def get_valid_moves(unit, force=False) -> set:
     if not force and unit.finished or (unit.has_moved and not skill_system.has_canto(unit)):
         return set()
 
-    mtype = DB.classes.get(unit.klass).movement_group
-
+    mtype = game.movement.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
     width, height = game.tilemap.width, game.tilemap.height
     pass_through = skill_system.pass_through(unit)
@@ -125,7 +124,7 @@ def get_valid_moves(unit, force=False) -> set:
     return valid_moves
 
 def get_path(unit, position, ally_block=False) -> list:
-    mtype = DB.classes.get(unit.klass).movement_group
+    mtype = game.movement.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
 
     width, height = game.tilemap.width, game.tilemap.height
@@ -141,7 +140,7 @@ def check_path(unit, path) -> bool:
     for pos in path[:-1]:  # Don't need to count the starting position
         if prev_pos and pos not in get_adjacent_positions(prev_pos):
             return False
-        mcost = game.moving_units.get_mcost(unit, pos)
+        mcost = game.movement.get_mcost(unit, pos)
         movement -= mcost
         if movement < 0:
             return False
@@ -181,7 +180,7 @@ def get_valid_targets(unit, item=None) -> set:
             item_system.target_restrict(unit, item, *item_system.splash(unit, item, target))}
 
 def get_all_weapons(unit) -> list:
-    return [item for item in item_funcs.get_all_items(unit) if item_system.is_weapon(unit, item) and item_system.available(unit, item)]
+    return [item for item in item_funcs.get_all_items(unit) if item_system.is_weapon(unit, item) and item_funcs.available(unit, item)]
 
 def get_all_weapon_targets(unit) -> set:
     weapons = get_all_weapons(unit)
@@ -191,7 +190,7 @@ def get_all_weapon_targets(unit) -> set:
     return targets
 
 def get_all_spells(unit):
-    return [item for item in item_funcs.get_all_items(unit) if item_system.is_spell(unit, item) and item_system.available(unit, item)]
+    return [item for item in item_funcs.get_all_items(unit) if item_system.is_spell(unit, item) and item_funcs.available(unit, item)]
 
 def get_all_spell_targets(unit) -> set:
     spells = get_all_spells(unit)

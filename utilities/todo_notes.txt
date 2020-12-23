@@ -1,11 +1,9 @@
-Later on:
-Combat Anims / Palettes as a separate tab?
-Combat Effects
-Combat Palettes
-Better method for frame speed for Map Animations
-Book pages frames with a number under them?
+TODO List:
 
 Combat Animations
+    Combat Anims / Palettes as a separate tab?
+    Combat Effects
+    Combat Palettes
 Overworld
 Supports
 Base
@@ -23,9 +21,12 @@ Base > Fog of War > Combat Anims > Overworld > Autotiles > Supports
 Dialog box should pop up when saving and autosaving
 
 Work with Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
-Confirm Help Menus are identical to in-game (Heal Staff)
-Confirm Items screen is identical (Heal Staff)
 
-Item Mod effects, Combat arts, etcc.
-Steal (ability?) (or works like Rescue?)
+Steal item
+Repair item
 
+Skill System -- Status on Hit, Auras, Modify AOE, Modify Forced Movement
+Item System -- Status on Hit, Status on Equip, Status on Hold, Forced Movement
+
+Better method for frame speed for Map Animations
+Book pages frames with a number under them?

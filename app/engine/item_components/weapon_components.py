@@ -3,6 +3,7 @@ from app.data.database import DB
 from app.data.item_components import ItemComponent
 from app.data.components import Type
 
+from app.utilities import utils
 from app.engine import action, combat_calcs, equations, item_system, image_mods, engine
 
 class WeaponType(ItemComponent):
@@ -151,20 +152,17 @@ class Lifelink(ItemComponent):
     expose = Type.Float
     value = 0.5
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
-        damage = combat_calcs.compute_damage(unit, target, item, mode)
+    def after_hit(self, actions, playback, unit, item, target, mode):
+        total_damage_dealt = 0
+        playbacks = [p for p in playback if p[0] == 'damage_hit' and p[1] == unit]
+        for p in playbacks:
+            total_damage_dealt += p[4]
+
+        damage = utils.clamp(total_damage_dealt, 0, target.get_hp())
         true_damage = int(damage * self.value)
         actions.append(action.ChangeHP(unit, true_damage))
 
-        # For animation
-        playback.append(('heal_hit', unit, item, unit, damage))
-
-    def on_crit(self, actions, playback, unit, item, target, mode=None):
-        damage = combat_calcs.compute_damage(unit, target, item, mode)
-        true_damage = int(damage * self.value)
-        actions.append(action.ChangeHP(unit, true_damage))
-
-        playback.append(('heal_hit', unit, item, unit, damage))
+        playback.append(('heal_hit', unit, item, unit, true_damage))
 
 class DamageOnMiss(ItemComponent):
     nid = 'damage_on_miss'

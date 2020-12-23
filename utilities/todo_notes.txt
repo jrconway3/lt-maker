@@ -20,13 +20,20 @@ Base > Fog of War > Combat Anims > Overworld > Autotiles > Supports
 
 Dialog box should pop up when saving and autosaving
 
+Translations need a better GUI interface
+
 Work with Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
+
+Promotion / Class Changing
+Dialogue Log on R press
 
 Steal item
 Repair item
 
 Skill System -- Status on Hit, Auras, Modify AOE, Modify Forced Movement
-Item System -- Status on Hit, Status on Equip, Status on Hold, Forced Movement
+Item System -- Status on Hit, Status on Equip, Status on Hold, Forced Movement, Multiple Target Items, Multiple Item Items
 
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
+
+Summoning

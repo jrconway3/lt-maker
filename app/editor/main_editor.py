@@ -437,6 +437,8 @@ class MainEditor(QMainWindow):
             self.load()
             return True
         else:
+            self.settings.setValue("current_proj", "default.ltproj")
+            self.load()
             return False
 
     def load(self):

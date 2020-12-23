@@ -40,6 +40,7 @@ class ItemPrefab(Prefab):
     def restore(cls, dat):
         item_components = Data()
         components = [ICA.restore_component(val) for val in dat['components']]
+        components = [c for c in components if c]
         for component in components:
             item_components.append(component)
         i = cls(dat['nid'], dat['name'], dat['desc'],

@@ -15,11 +15,12 @@ class Type(IntEnum):
     Color3 = 9
     Color4 = 10
     Item = 12  # Stored as Nids
-    Status = 13  # Stored as Nids
+    Skill = 13  # Stored as Nids
     Stat = 14  # Stored as Nids
     MapAnimation = 15  # Stored as Nids
     Equation = 16  # Stored as Nids
     MovementType = 17  # Stored as Nid
+    Event = 80
     List = 100
     Dict = 101
 

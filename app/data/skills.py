@@ -52,6 +52,7 @@ class SkillPrefab(Prefab):
     def restore(cls, dat):
         skill_components = Data()
         components = [SCA.restore_component(val) for val in dat['components']]
+        components = [c for c in components if c]
         for component in components:
             skill_components.append(component)
         i = cls(dat['nid'], dat['name'], dat['desc'],

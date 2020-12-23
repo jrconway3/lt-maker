@@ -691,7 +691,7 @@ class Event():
             placement = 'giveup'
         position = self.check_placement(position, placement)
         if not position:
-            print("Couldn't get a good position %s %s %s" % (movement_type, placement))
+            print("Couldn't get a good position %s %s %s" % (position, movement_type, placement))
             return None
 
         if movement_type == 'immediate' or self.do_skip:

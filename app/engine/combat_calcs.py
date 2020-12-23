@@ -70,7 +70,7 @@ def avoid(unit, item_to_avoid=None):
     else:
         equation = item_system.avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
-    avoid += item_system.modify_avoid(unit, item_to_avoid)
+        avoid += item_system.modify_avoid(unit, item_to_avoid)
     avoid += skill_system.modify_avoid(unit, item_to_avoid)
     return avoid
 
@@ -102,7 +102,7 @@ def crit_avoid(unit, item_to_avoid=None):
     else:
         equation = item_system.crit_avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
-    avoid += item_system.modify_crit_avoid(unit, item_to_avoid)
+        avoid += item_system.modify_crit_avoid(unit, item_to_avoid)
     avoid += skill_system.modify_crit_avoid(unit, item_to_avoid)
     return avoid
 
@@ -136,7 +136,7 @@ def defense(unit, item_to_avoid=None):
     else:
         equation = item_system.defense_formula(unit, item_to_avoid)
         res = equations.parser.get(equation, unit)
-    res += item_system.modify_resist(unit, item_to_avoid)
+        res += item_system.modify_resist(unit, item_to_avoid)
     res += skill_system.modify_resist(unit, item_to_avoid)
     return res
 
@@ -166,7 +166,7 @@ def defense_speed(unit, item_to_avoid=None):
     else:
         equation = item_system.defense_speed_formula(unit, item_to_avoid)
         speed = equations.parser.get(equation, unit)
-    speed += item_system.modify_defense_speed(unit, item_to_avoid)
+        speed += item_system.modify_defense_speed(unit, item_to_avoid)
     speed += skill_system.modify_defense_speed(unit, item_to_avoid)
     return speed
 

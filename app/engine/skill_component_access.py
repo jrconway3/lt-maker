@@ -18,8 +18,10 @@ def restore_component(dat):
     nid, value = dat
     _skill_components = get_skill_components()
     base_class = _skill_components.get(nid)
-    copy = base_class(value)
-    return copy
+    if base_class:
+        copy = base_class(value)
+        return copy
+    return None
 
 templates = {}
 

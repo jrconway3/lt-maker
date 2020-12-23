@@ -62,7 +62,7 @@ default_behaviours = (
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'sight_range', 'movement_type')
 # Takes in unit and item, returns default value
-item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maixmum_range')
+item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')
 # Takes in unit and target, returns default value
 targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier')
 # Takes in unit, item returns bonus

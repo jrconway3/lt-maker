@@ -154,7 +154,7 @@ class StatusOnHit(ItemComponent):
     desc = "Item gives status to target when it hits"
     tag = 'extra'
 
-    expose = Type.Status  # Nid
+    expose = Type.Skill  # Nid
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.AddStatus(target, self.value))
@@ -165,7 +165,7 @@ class Restore(ItemComponent):
     desc = "Item removes status with time from target on hit"
     tag = 'extra'
 
-    expose = Type.Status # Nid
+    expose = Type.Skill # Nid
 
     def _can_be_restored(self, status):
         return (self.value.lower() == 'all' or status.nid == self.value)

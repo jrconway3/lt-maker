@@ -82,5 +82,9 @@
     {
         "nid": "HEAL",
         "expression": "MAG"
+    },
+    {
+        "nid": "CONSTITUTION",
+        "expression": "CON"
     }
 ]

@@ -1,9 +1,11 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QDialogButtonBox, QTabWidget, \
     QSizePolicy
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
+
+from app.editor.settings import MainSettingsController
 
 class SingleDatabaseEditor(QDialog):
     def __init__(self, tab, parent=None):
@@ -29,17 +31,17 @@ class SingleDatabaseEditor(QDialog):
         self.setWindowTitle(self.tab.windowTitle())
 
         # Restore Geometry
-        settings = QSettings("rainlash", "Lex Talionis")
-        geometry = settings.value(self._type() + " geometry")
+        self.settings = MainSettingsController()
+        geometry = self.settings.component_controller.get_geometry(self.__class__)
         if geometry:
             self.restoreGeometry(geometry)
-        state = settings.value(self._type() + " state")
+        
+        state = self.settings.component_controller.get_state(self.__class__)
         if state:
             self.tab.splitter.restoreState(state)
 
     def accept(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        current_proj = settings.value("current_proj", None)
+        current_proj = self.settings.get_current_project()
         self.save_geometry()
         # if current_proj:
         #     DB.serialize(current_proj)
@@ -47,8 +49,7 @@ class SingleDatabaseEditor(QDialog):
 
     def reject(self):
         self.restore()
-        settings = QSettings("rainlash", "Lex Talionis")
-        current_proj = settings.value("current_proj", None)
+        current_proj = self.settings.get_current_project()
         self.save_geometry()
         # if current_proj:
         #     DB.serialize(current_proj)
@@ -72,9 +73,8 @@ class SingleDatabaseEditor(QDialog):
         return self.tab.__class__.__name__
 
     def save_geometry(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        settings.setValue(self._type() + " geometry", self.saveGeometry())
-        settings.setValue(self._type() + " state", self.tab.splitter.saveState())
+        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
+        self.settings.component_controller.set_state(self.__class__, self.tab.splitter.saveState())
         print(self._type(), "Save Geometry")
 
 class SingleResourceEditor(QDialog):
@@ -99,25 +99,23 @@ class SingleResourceEditor(QDialog):
         self.setWindowTitle(self.tab.windowTitle())
 
         # Restore Geometry
-        settings = QSettings("rainlash", "Lex Talionis")
-        geometry = settings.value(self._type() + " geometry")
+        self.settings = MainSettingsController()
+        geometry = self.settings.component_controller.get_geometry(self.__class__)
         if geometry:
             self.restoreGeometry(geometry)
-        state = settings.value(self._type() + " state")
+        state = self.settings.component_controller.get_state(self.__class__)
         if state:
             self.tab.splitter.restoreState(state)
 
     def accept(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        current_proj = settings.value("current_proj", None)
+        current_proj = self.settings.get_current_project()
         if current_proj:
             RESOURCES.save(current_proj, self.resource_types)
         self.save_geometry()
         super().accept()
 
     def reject(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        current_proj = settings.value("current_proj", None)
+        current_proj = self.settings.get_current_project()
         if current_proj:
             RESOURCES.reload(current_proj)
         self.save_geometry()
@@ -131,10 +129,9 @@ class SingleResourceEditor(QDialog):
         return self.tab.__class__.__name__
 
     def save_geometry(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        settings.setValue(self._type() + " geometry", self.saveGeometry())
+        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
         if hasattr(self.tab, 'splitter'):
-            settings.setValue(self._type() + " state", self.tab.splitter.saveState())
+            self.settings.component_controller.set_state(self.__class__, self.tab.splitter.saveState())
         print(self._type(), "Save Geometry")
 
 class MultiResourceEditor(SingleResourceEditor):
@@ -167,8 +164,8 @@ class MultiResourceEditor(SingleResourceEditor):
         self.tab_bar.currentChanged.connect(self.on_tab_changed)
 
         # Restore Geometry
-        settings = QSettings("rainlash", "Lex Talionis")
-        geometry = settings.value(self._type() + " geometry")
+        self.settings = MainSettingsController()
+        geometry = self.settings.component_controller.get_geometry(self.__class__)
         if geometry:
             self.restoreGeometry(geometry)
 
@@ -192,6 +189,5 @@ class MultiResourceEditor(SingleResourceEditor):
         return s
 
     def save_geometry(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        settings.setValue(self._type() + " geometry", self.saveGeometry())
+        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
         print(self._type(), "Save Geometry")

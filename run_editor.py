@@ -1,8 +1,9 @@
 import sys
 
+from app.editor.settings import MainSettingsController
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSettings
 
 if __name__ == '__main__':
     # Hack to get a Windows icon to show up
@@ -16,8 +17,8 @@ if __name__ == '__main__':
     ap = QApplication(sys.argv)
     ap.setWindowIcon(QIcon('favicon.ico'))
     from app import dark_theme
-    settings = QSettings('rainlash', 'Lex Talionis')
-    theme = settings.value('theme', 0)
+    settings = MainSettingsController()
+    theme = settings.get_theme(0)
     dark_theme.set(ap, theme)
     from app.editor.main_editor import MainEditor
     window = MainEditor()

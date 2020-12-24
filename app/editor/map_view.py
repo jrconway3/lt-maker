@@ -1,11 +1,13 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt, QSettings, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush
 
 from app.utilities import utils
 from app.sprites import SPRITES
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.database import DB
+
+from app.editor.settings import MainSettingsController()
 
 from app.editor import timer
 from app.editor.class_editor import class_model
@@ -20,7 +22,7 @@ class SimpleMapView(QGraphicsView):
     def __init__(self, window=None):
         super().__init__()
         self.main_editor = window
-        self.settings = QSettings("rainlash", "Lex Talionis")
+        self.settings = MainSettingsController()
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.setMouseTracking(True)
@@ -246,7 +248,7 @@ class MapView(SimpleMapView):
         if self.current_map and self.current_map.check_bounds(pos):
             # Units
             if self.main_editor.dock_visibility['Units']:
-                if event.button() == self.settings.value('place_button', Qt.RightButton):
+                if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_unit = self.main_editor.unit_painter_menu.get_current()
                     if current_unit:
                         under_unit = self.check_position(self.main_editor.current_level, pos)
@@ -267,7 +269,7 @@ class MapView(SimpleMapView):
                             message = "Placed unit %s at (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
                             self.main_editor.set_message(message)
                         self.update_view()
-                elif event.button() == self.settings.value('select_button', Qt.LeftButton):
+                elif event.button() == self.settings.get_select_button(Qt.LeftButton):
                     under_unit = self.check_position(self.main_editor.current_level, pos)
                     if under_unit:
                         idx = self.main_editor.current_level.units.index(under_unit.nid)
@@ -276,7 +278,7 @@ class MapView(SimpleMapView):
                         self.main_editor.unit_painter_menu.deselect()
             # Groups
             elif self.main_editor.dock_visibility['Groups']:
-                if event.button() == self.settings.value('place_button', Qt.RightButton):
+                if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_group = self.main_editor.group_painter_menu.get_current()
                     current_unit = self.main_editor.group_painter_menu.get_current_unit()
                     if current_unit:
@@ -288,7 +290,7 @@ class MapView(SimpleMapView):
                             message = "Group %s unit %s's position to (%d, %d)" % (current_group.nid, current_unit.nid, pos[0], pos[1])
                         self.main_editor.set_message(message)
                         self.update_view()
-                elif event.button() == self.settings.value('select_button', Qt.LeftButton):
+                elif event.button() == self.settings.get_select_button(Qt.LeftButton):
                     current_group = self.main_editor.group_painter_menu.get_current()
                     under_unit = None
                     for unit_nid, position in current_group.positions.items():
@@ -308,7 +310,7 @@ class MapView(SimpleMapView):
                     else:
                         self.main_editor.group_painter_menu.deselect()
             elif self.main_editor.dock_visibility['Regions']:
-                if event.button() == self.settings.value('place_button', Qt.RightButton):
+                if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_region = self.main_editor.region_painter_menu.get_current()
                     # Remove position for current region if it has one
                     current_region.position = None
@@ -353,7 +355,7 @@ class MapView(SimpleMapView):
 
         if self.current_map and self.current_map.check_bounds(pos):
             if self.region_select and self.main_editor.dock_visibility['Regions']:
-                if event.button() == self.settings.value('place_button', Qt.RightButton):
+                if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_region = self.main_editor.region_painter_menu.get_current()
                     prev_pos = self.region_select
                     top = min(prev_pos[1], pos[1])

@@ -6,9 +6,11 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QMessageBox, \
     QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget, \
     QToolButton, QWidgetAction
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QDir, QSettings
+from PyQt5.QtCore import Qt, QDir
 
 from app import autoupdate
+
+from app.editor.settings import MainSettingsController
 
 from app.constants import VERSION
 from app.resources.resources import RESOURCES
@@ -82,8 +84,8 @@ class MainEditor(QMainWindow):
         super().__init__()
         self.window_title = 'LT Maker'
         self.setWindowTitle(self.window_title)
-        QSettings.setDefaultFormat(QSettings.IniFormat)
-        self.settings = QSettings("rainlash", "Lex Talionis")
+
+        self.settings = MainSettingsController()
         print(self.settings.fileName())
         # Will be overwritten by auto-open
         desktop = QDesktopWidget()
@@ -93,7 +95,7 @@ class MainEditor(QMainWindow):
         self.default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
         self.resize(*self.default_size)
 
-        geometry = self.settings.value("geometry")
+        geometry = self.settings.component_controller.get_geometry(self.__class__)
         if geometry:
             self.restoreGeometry(geometry)
 
@@ -167,7 +169,7 @@ class MainEditor(QMainWindow):
 
     def set_icons(self, force_theme=None):
         if force_theme is None:
-            theme = self.settings.value("theme", 0)
+            theme = self.settings.get_theme(0)
         else:
             theme = force_theme
         if theme == 0:
@@ -422,22 +424,23 @@ class MainEditor(QMainWindow):
             fn = QFileDialog.getExistingDirectory(self, "Open Project Directory", starting_path)
             if fn:
                 self.current_proj = fn
-                self.settings.setValue("current_proj", self.current_proj)
+                self.settings.set_current_project(self.current_proj)
                 self.load()
             else:
                 return False
 
     def auto_open(self):
-        path = self.settings.value("current_proj", None)
+        path = self.settings.get_current_project()
         print("Auto Open: %s" % path)
 
         if path and os.path.exists(path):
             self.current_proj = path
-            self.settings.setValue("current_proj", self.current_proj)
+            self.settings.set_current_project(self.current_proj)
             self.load()
             return True
         else:
-            self.settings.setValue("current_proj", "default.ltproj")
+            self.current_proj = "default.ltproj"
+            self.settings.set_current_project(self.current_proj)
             self.load()
             return False
 
@@ -468,7 +471,7 @@ class MainEditor(QMainWindow):
                     self.current_proj = fn
                 else:
                     self.current_proj = fn + '.ltproj'
-                self.settings.setValue("current_proj", self.current_proj)
+                self.settings.set_current_project(self.current_proj)
             else:
                 return False
             new = True
@@ -540,11 +543,11 @@ class MainEditor(QMainWindow):
     def closeEvent(self, event):
         if self.maybe_save():
             print("Setting current project %s" % self.current_proj)
-            self.settings.setValue("current_proj", self.current_proj)
+            self.settings.set_current_project(self.current_proj)
             event.accept()
         else:
             event.ignore()
-        self.settings.setValue("geometry", self.saveGeometry())
+        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
 
     def edit_level(self):
         if self.current_level:

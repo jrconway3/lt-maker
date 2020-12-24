@@ -2,13 +2,15 @@ import os
 
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QListView, QDialog, \
     QPushButton, QFileDialog, QMessageBox, QGroupBox, QFormLayout, QSpinBox
-from PyQt5.QtCore import Qt, QDir, QSettings
+from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, qRgb
 
 from app.constants import WINWIDTH, WINHEIGHT
 
 from app import utilities
 from app.resources import combat_anims
+
+from app.editor.settings import MainSettingsController
 
 from app.extensions.custom_gui import Dialog
 from app.editor.base_database_gui import ResourceCollectionModel
@@ -36,6 +38,7 @@ class FrameSelector(Dialog):
         super().__init__(parent)
         self.window = parent
         self.setWindowTitle("Animation Frames")
+        self.settings = MainSettingsController()
 
         self.combat_anim = combat_anim
         self.weapon_anim = weapon_anim
@@ -90,8 +93,7 @@ class FrameSelector(Dialog):
         self.set_current(self.current)
 
     def import_frames(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        starting_path = str(self.settings.get_last_open_path(QDir.currentPath()))
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Frames", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
             base_colors = combat_anims.base_palette.colors
@@ -137,7 +139,7 @@ class FrameSelector(Dialog):
             combat_animation_imports.update_weapon_anim_pixmap(self.weapon_anim)
             self.model.layoutChanged.emit()
             parent_dir = os.path.split(fns[-1])[0]
-            settings.setValue("last_open_path", parent_dir)
+            self.settings.set_last_open_path(parent_dir)
 
     def on_item_changed(self, curr, prev):
         if self.frames:

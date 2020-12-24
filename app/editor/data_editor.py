@@ -32,11 +32,10 @@ class SingleDatabaseEditor(QDialog):
 
         # Restore Geometry
         self.settings = MainSettingsController()
-        geometry = self.settings.component_controller.get_geometry(self.__class__)
+        geometry = self.settings.component_controller.get_geometry(self._type())
         if geometry:
             self.restoreGeometry(geometry)
-        
-        state = self.settings.component_controller.get_state(self.__class__)
+        state = self.settings.component_controller.get_state(self._type())
         if state:
             self.tab.splitter.restoreState(state)
 
@@ -73,8 +72,8 @@ class SingleDatabaseEditor(QDialog):
         return self.tab.__class__.__name__
 
     def save_geometry(self):
-        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
-        self.settings.component_controller.set_state(self.__class__, self.tab.splitter.saveState())
+        self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
+        self.settings.component_controller.set_state(self._type(), self.tab.splitter.saveState())
         print(self._type(), "Save Geometry")
 
 class SingleResourceEditor(QDialog):
@@ -100,10 +99,10 @@ class SingleResourceEditor(QDialog):
 
         # Restore Geometry
         self.settings = MainSettingsController()
-        geometry = self.settings.component_controller.get_geometry(self.__class__)
+        geometry = self.settings.component_controller.get_geometry(self._type())
         if geometry:
             self.restoreGeometry(geometry)
-        state = self.settings.component_controller.get_state(self.__class__)
+        state = self.settings.component_controller.get_state(self._type())
         if state:
             self.tab.splitter.restoreState(state)
 
@@ -129,9 +128,9 @@ class SingleResourceEditor(QDialog):
         return self.tab.__class__.__name__
 
     def save_geometry(self):
-        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
+        self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
         if hasattr(self.tab, 'splitter'):
-            self.settings.component_controller.set_state(self.__class__, self.tab.splitter.saveState())
+            self.settings.component_controller.set_state(self._type(), self.tab.splitter.saveState())
         print(self._type(), "Save Geometry")
 
 class MultiResourceEditor(SingleResourceEditor):
@@ -165,7 +164,7 @@ class MultiResourceEditor(SingleResourceEditor):
 
         # Restore Geometry
         self.settings = MainSettingsController()
-        geometry = self.settings.component_controller.get_geometry(self.__class__)
+        geometry = self.settings.component_controller.get_geometry(self._type())
         if geometry:
             self.restoreGeometry(geometry)
 
@@ -189,5 +188,5 @@ class MultiResourceEditor(SingleResourceEditor):
         return s
 
     def save_geometry(self):
-        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
+        self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
         print(self._type(), "Save Geometry")

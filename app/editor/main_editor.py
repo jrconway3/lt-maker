@@ -95,7 +95,7 @@ class MainEditor(QMainWindow):
         self.default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
         self.resize(*self.default_size)
 
-        geometry = self.settings.component_controller.get_geometry(self.__class__)
+        geometry = self.settings.component_controller.get_geometry(self.__class__.__name__)
         if geometry:
             self.restoreGeometry(geometry)
 
@@ -547,7 +547,7 @@ class MainEditor(QMainWindow):
             event.accept()
         else:
             event.ignore()
-        self.settings.component_controller.set_geometry(self.__class__, self.saveGeometry())
+        self.settings.component_controller.set_geometry(self.__class__.__name__, self.saveGeometry())
 
     def edit_level(self):
         if self.current_level:

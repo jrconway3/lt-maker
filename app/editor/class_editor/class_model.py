@@ -90,7 +90,6 @@ class ClassModel(DragDropCollectionModel):
                 model = UnitModel
             elif affected_classes:
                 affected = Data(affected_classes)
-                from app.editor.class_database import ClassModel
                 model = ClassModel
             elif affected_ais:
                 affected = Data(affected_ais)

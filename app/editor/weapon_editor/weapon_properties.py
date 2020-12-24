@@ -74,7 +74,7 @@ class WeaponProperties(QWidget):
             QMessageBox.warning(self.window, 'Warning', 'Weapon Type ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         # self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
-        self._data.change_nid(self._data.find_key(self.current), self.current.nid)
+        # self._data.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

@@ -6,6 +6,14 @@ class McostGrid():
         self.terrain_types = []
         self.unit_types = []
 
+    @property
+    def row_headers(self):
+        return self.terrain_types
+
+    @property
+    def column_headers(self):
+        return self.unit_types
+
     def set(self, coord, val):
         x, y = coord
         self.grid[y][x] = val

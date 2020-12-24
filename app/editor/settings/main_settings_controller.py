@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QSettings, QDir
 from .component_settings_controller import ComponentSettingsController
 
 class MainSettingsController():
@@ -28,7 +28,9 @@ class MainSettingsController():
         self.state.setValue("last_open_path", value)
 
     def get_last_open_path(self, fallback=""):
-        return self.state.value("last_open_path", fallback)
+        if not fallback:
+            fallback = QDir.currentPath()
+        return str(self.state.value("last_open_path", fallback))
 
     """========== General UI Settings =========="""
 

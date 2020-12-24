@@ -1,12 +1,12 @@
 import os
 
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QSettings, QDir
 
 from app.data.database import DB
 from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.base_database_gui import DatabaseTab
 
+from app.editor.settings import MainSettingsController
 from app.editor.class_editor import class_model, class_properties, class_import
 
 class ClassDatabase(DatabaseTab):
@@ -29,12 +29,12 @@ class ClassDatabase(DatabaseTab):
         self.update_list()
 
     def import_data(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self, "Import classes from class_info.xml", starting_path, "Class Info XML (class_info.xml);;All Files(*)")
         if ok and fn.endswith('class_info.xml'):
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
             new_units = class_import.get_from_xml(parent_dir, fn)
             for unit in new_units:
                 self._data.append(unit)

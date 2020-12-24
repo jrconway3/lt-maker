@@ -1,13 +1,12 @@
 import os
 
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QSettings, QDir
 
 from app.data.database import DB
 
 from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.base_database_gui import DatabaseTab
-
+from app.editor.settings import MainSettingsController
 from app.editor.terrain_editor import terrain_properties, terrain_model, terrain_import
 
 class TerrainDatabase(DatabaseTab):
@@ -27,12 +26,12 @@ class TerrainDatabase(DatabaseTab):
         return dialog
 
     def import_data(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self, "Import terrain from terrain.xml", starting_path, "Terrain XML (terrain.xml);;All Files(*)")
         if ok and fn.endswith('items.xml'):
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
             new_terrain = terrain_import.get_from_xml(parent_dir, fn)
             for terrain in new_terrain:
                 self._data.append(terrain)

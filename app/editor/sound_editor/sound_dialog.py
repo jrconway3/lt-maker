@@ -2,10 +2,10 @@ import os
 
 from PyQt5.QtWidgets import QLineEdit, QMessageBox, QVBoxLayout, \
     QFileDialog, QPushButton
-from PyQt5.QtCore import QSettings, QDir
 
 from app.utilities import str_utils
 from app.extensions.custom_gui import ComboBox, PropertyBox, Dialog
+from app.editor.settings import MainSettingsController
 
 class ModifySFXDialog(Dialog):
     def __init__(self, data, current, parent=None):
@@ -155,8 +155,8 @@ class ModifyMusicDialog(Dialog):
         self._data.update_nid(current, current.nid)
 
     def load_battle_variant(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self.window, "Select Music File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
         if ok:
             if fn.endswith('.ogg'):
@@ -167,11 +167,11 @@ class ModifyMusicDialog(Dialog):
             else:
                 QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
 
     def load_intro_variant(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self.window, "Select Music File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
         if ok:
             if fn.endswith('.ogg'):
@@ -182,4 +182,4 @@ class ModifyMusicDialog(Dialog):
             else:
                 QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)

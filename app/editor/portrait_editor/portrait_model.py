@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
-from PyQt5.QtCore import Qt, QDir, QSettings
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 
 from app.resources.portraits import Portrait
@@ -12,7 +12,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import DeletionDialog
 from app.editor.base_database_gui import ResourceCollectionModel
-
+from app.editor.settings import MainSettingsController
 from app.utilities import str_utils
 import app.editor.utilities as editor_utilities
 
@@ -35,8 +35,8 @@ class PortraitModel(ResourceCollectionModel):
         return None
 
     def create_new(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Portriats", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
             for fn in fns:
@@ -52,7 +52,7 @@ class PortraitModel(ResourceCollectionModel):
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Portrait must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
 
     def delete(self, idx):
         # Check to see what is using me?

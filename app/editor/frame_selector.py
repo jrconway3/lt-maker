@@ -93,7 +93,7 @@ class FrameSelector(Dialog):
         self.set_current(self.current)
 
     def import_frames(self):
-        starting_path = str(self.settings.get_last_open_path(QDir.currentPath()))
+        starting_path = self.settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Frames", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
             base_colors = combat_anims.base_palette.colors

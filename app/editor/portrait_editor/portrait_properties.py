@@ -29,7 +29,6 @@ class PortraitProperties(QWidget):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window._data
-        self.resource_editor = self.window.window
 
         # Populate resources
         for resource in self._data:

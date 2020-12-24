@@ -1,12 +1,12 @@
 import os, math
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QDialog
-from PyQt5.QtCore import Qt, QSettings, QDir
+from PyQt5.QtCore import Qt
 
 from app.utilities import str_utils
 from app.resources.sounds import SFX, Song
 from app.resources.resources import RESOURCES
-
+from app.editor.settings import MainSettingsController
 from app.editor.table_model import TableModel
 from app.editor.sound_editor.sound_dialog import ModifySFXDialog, ModifyMusicDialog
 
@@ -57,8 +57,8 @@ class SoundModel(TableModel):
 
 class SFXModel(SoundModel):
     def create_new(self) -> bool:
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select SFX File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
         created = False
         if ok:
@@ -75,7 +75,7 @@ class SFXModel(SoundModel):
                     ogg_msg = True  # So it doesn't happen more than once
                     QMessageBox.critical(self.window, "File Type Error!", "Sound Effect must be in OGG format!")
             parent_dir = os.path.split(fns[-1])[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
         return created
 
     def modify(self, indices):
@@ -96,8 +96,8 @@ class MusicModel(SoundModel):
     rows = ['nid', 'length', 'extra']
 
     def create_new(self) -> bool:
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select SFX File", starting_path, "OGG Files (*.ogg);;All FIles (*)")
         created = False
         if ok:
@@ -114,7 +114,7 @@ class MusicModel(SoundModel):
                     ogg_msg = True  # So it doesn't happen more than once
                     QMessageBox.critical(self.window, "File Type Error!", "Music must be in OGG format!")
             parent_dir = os.path.split(fns[-1])[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
         return created
 
     def modify(self, indices):

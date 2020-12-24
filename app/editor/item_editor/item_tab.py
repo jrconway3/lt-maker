@@ -1,7 +1,6 @@
 import os
 
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QSettings, QDir
 
 from app.data.database import DB
 
@@ -10,6 +9,7 @@ from app.editor.base_database_gui import DatabaseTab
 
 import app.engine.item_component_access as ICA
 
+from app.editor.settings import MainSettingsController
 from app.editor.item_editor import item_model, item_import
 from app.editor.component_properties import ComponentProperties
 
@@ -32,12 +32,12 @@ class ItemDatabase(DatabaseTab):
         return dialog
 
     def import_data(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self, "Import items from items.xml", starting_path, "Items XML (items.xml);;All Files(*)")
         if ok and fn.endswith('items.xml'):
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
             new_items = item_import.get_from_xml(parent_dir, fn)
             for item in new_items:
                 self._data.append(item)

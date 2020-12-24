@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
-from PyQt5.QtCore import Qt, QDir, QSettings
-from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor, QTransform
-
 import os
+
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor, QTransform
 
 from app.resources.map_sprites import MapSprite
 from app.resources.resources import RESOURCES
@@ -11,7 +11,7 @@ from app.utilities.data import Data
 from app.data.database import DB
 
 from app.extensions.custom_gui import DeletionDialog
-
+from app.editor.settings import MainSettingsController
 from app.editor.base_database_gui import ResourceCollectionModel
 import app.editor.utilities as editor_utilities
 from app.utilities import str_utils
@@ -58,8 +58,8 @@ class MapSpriteModel(ResourceCollectionModel):
         return None
 
     def create_new(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         nid = None
         stand_full_path, move_full_path = None, None
         standing_pix, moving_pix = None, None
@@ -82,10 +82,10 @@ class MapSpriteModel(ResourceCollectionModel):
                 QMessageBox.critical(self.window, "Error", "Image must be PNG format")
                 return
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
         else:
             return
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        starting_path = settings.get_last_open_path()
         fn, mok = QFileDialog.getOpenFileName(self.window, "Choose Moving Map Sprite", starting_path)
         if mok:
             if fn.endswith('.png'):
@@ -123,7 +123,7 @@ class MapSpriteModel(ResourceCollectionModel):
                     QMessageBox.critical(self.window, "Error", "Cannot load GBA map sprites without having saved the project")
             RESOURCES.map_sprites.append(new_map_sprite)
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
 
     def delete(self, idx):
         # Check to see what is using me?

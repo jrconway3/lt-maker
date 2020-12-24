@@ -5,10 +5,11 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxL
     QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
     QGridLayout, QSizePolicy, QAction
 from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics
-from PyQt5.QtCore import QRegularExpression, Qt, QSettings, QSize, QRect
+from PyQt5.QtCore import QRegularExpression, Qt, QSize, QRect
 
 from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, QHLine, ComboBox
 from app.editor import timer
+from app.editor.settings import MainSettingsController
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -31,8 +32,8 @@ class Highlighter(QSyntaxHighlighter):
         self.window = window
         self.highlight_rules = []
 
-        settings = QSettings('rainlash', 'Lex Talionis')
-        theme = settings.value('theme', 0)
+        settings = MainSettingsController()
+        theme = settings.get_theme()
         if theme == 0:
             self.func_color = QColor(52, 103, 174)
             self.comment_color = Qt.darkGray
@@ -167,8 +168,8 @@ class CodeEditor(QPlainTextEdit):
         self.window = parent
         self.line_number_area = LineNumberArea(self)
 
-        settings = QSettings('rainlash', 'Lex Talionis')
-        theme = settings.value('theme', 0)
+        settings = MainSettingsController()
+        theme = settings.get_theme()
         if theme == 0:
             self.line_number_color = Qt.darkGray
         else:

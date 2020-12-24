@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
     QLabel, QToolButton, QInputDialog, QColorDialog
-from PyQt5.QtCore import Qt, QDir
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter, QColor
 
 from app.constants import WINWIDTH, WINHEIGHT
@@ -137,7 +137,6 @@ class CombatAnimProperties(QWidget):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window._data
-        self.resource_editor = self.window.window
 
         # Populate resources
         for combat_anim in self._data:
@@ -550,7 +549,7 @@ class CombatAnimProperties(QWidget):
 
     def import_lion_throne(self):
         settings = MainSettingsController()
-        starting_path = str(settings.get_last_open_path(fallback=QDir.currentPath())
+        starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
         if ok:
             for fn in fns:

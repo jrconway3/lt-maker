@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
-from PyQt5.QtCore import Qt, QDir, QSettings
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 
 from app.utilities import str_utils
@@ -12,6 +12,7 @@ from app.data.database import DB
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import DeletionDialog
 
+from app.editor.settings import MainSettingsController
 from app.editor.icon_editor import icon_view
 
 class IconModel(ResourceCollectionModel):
@@ -93,8 +94,8 @@ class Icon16Model(IconModel):
     width, height = 16, 16
 
     def create_new(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
         if ok:
             for fn in fns:
@@ -114,7 +115,7 @@ class Icon16Model(IconModel):
                 else:
                     QMessageBox.critical(self.window, "File Type Error!", "Icon must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
             self.window.update_list()
 
     def delete(self, index):

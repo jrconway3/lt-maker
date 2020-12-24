@@ -3,7 +3,7 @@ from enum import IntEnum
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
     QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup
-from PyQt5.QtCore import Qt, QRect, QSettings
+from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
@@ -17,6 +17,7 @@ from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, Dialog
 
+from app.editor.settings import MainSettingsController
 from app.utilities import str_utils
 
 def draw_tilemap(tilemap):
@@ -58,7 +59,6 @@ class MapEditorView(QGraphicsView):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.window = parent
-        self.resource_editor = self.window
 
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
@@ -444,6 +444,8 @@ class MapEditor(QDialog):
         self.setWindowTitle("Tilemap Editor")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
+        self.settings = MainSettingsController()
+
         self.current = current
         self.current_tool = PaintTool.NoTool
         self.terrain_mode: bool = False
@@ -490,8 +492,7 @@ class MapEditor(QDialog):
         self.view.update_view()
 
     def create_actions(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        theme = settings.value("theme", 0)
+        theme = self.settings.get_theme()
         if theme == 0:
             icon_folder = 'icons'
         else:
@@ -735,6 +736,9 @@ class LayerMenu(QWidget):
         super().__init__(parent)
         self.window = parent
         self.title = "Layers"
+
+        self.settings = MainSettingsController()
+
         self.current = current
         self._data = current.layers
 
@@ -782,8 +786,7 @@ class LayerMenu(QWidget):
             self.window.update_view()
 
     def create_actions(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        theme = settings.value("theme", 0)
+        theme = self.settings.get_theme()
         if theme == 0:
             icon_folder = 'icons'
         else:
@@ -817,6 +820,7 @@ class TileSetMenu(QWidget):
     def __init__(self, parent=None, current=None):
         super().__init__(parent)
         self.window = parent
+        self.settings = MainSettingsController()
 
         self.current = current
 
@@ -880,8 +884,7 @@ class TileSetMenu(QWidget):
         self.view.update_view()
 
     def create_actions(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        theme = settings.value("theme", 0)
+        theme = self.settings.get_theme()
         if theme == 0:
             icon_folder = 'icons'
         else:

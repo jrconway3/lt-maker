@@ -1,12 +1,11 @@
 import os
 
 from PyQt5.QtWidgets import QFileDialog, QDialog
-from PyQt5.QtCore import QSettings, QDir
 
 from app.data.database import DB
 from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.base_database_gui import DatabaseTab
-
+from app.editor.settings import MainSettingsController
 from app.editor.unit_editor import unit_model, unit_properties, unit_import
 
 class UnitDatabase(DatabaseTab):
@@ -23,12 +22,12 @@ class UnitDatabase(DatabaseTab):
         return dialog
 
     def import_data(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self, "Import units from units.xml", starting_path, "Units XML (units.xml);;All Files(*)")
         if ok and fn.endswith('units.xml'):
             parent_dir = os.path.split(fn)[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
             new_units = unit_import.get_from_xml(parent_dir, fn)
             for unit in new_units:
                 self._data.append(unit)

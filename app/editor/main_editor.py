@@ -462,6 +462,9 @@ class MainEditor(QMainWindow):
             self.update_view()
 
     def save(self, new=False):
+        # check if we're editing default, if so, prompt to save as
+        if self.current_proj == 'default.ltproj':
+            self.current_proj = None
         if new or not self.current_proj:
             starting_path = self.current_proj or QDir.currentPath()
             fn, ok = QFileDialog.getSaveFileName(self, "Save Project", starting_path, 

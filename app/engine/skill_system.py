@@ -58,7 +58,8 @@ class Defaults():
 # Takes in unit, returns False if not present
 default_behaviours = (
     'has_canto', 'pass_through', 'vantage', 'ignore_terrain', 
-    'ignore_region_status', 'no_double', 'def_double', 'ignore_rescue_penalty')
+    'ignore_region_status', 'no_double', 'def_double', 
+    'ignore_rescue_penalty', 'ignore_forced_movement')
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'sight_range', 'movement_type')
 # Takes in unit and item, returns default value
@@ -80,7 +81,7 @@ multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 # Takes in unit
 simple_event_hooks = ('on_end_chapter', )
 # Takes in playback, unit, item, target
-combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat')
+combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
 subcombat_event_hooks = ('after_hit', 'after_take_hit')
 
@@ -207,8 +208,6 @@ for hook in subcombat_event_hooks:
         % (hook, hook, hook)
     exec(func)
 
-
-
 def available(unit, item) -> bool:
     """
     If any hook reports false, then it is false
@@ -256,6 +255,10 @@ def on_add(unit, skill):
     for component in skill.components:
         if component.defines('on_add'):
             component.on_add(unit, skill)
+    for other_skill in unit.skills:
+        for component in other_skill.components:
+            if component.defines('on_other_skill'):
+                component.on_gain_skill(unit, skill)
 
 def on_remove(unit, skill):
     for component in skill.components:

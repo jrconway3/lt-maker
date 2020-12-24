@@ -1,6 +1,6 @@
 from app.data.components import Component
 
-tags = ['base', 'movement', 'status', 'combat', 'combat2', 'time', 'aesthetic', 'extra']
+tags = ['attribute', 'base', 'movement', 'combat', 'combat2', 'time', 'aesthetic', 'advanced', 'extra']
 
 class SkillComponent(Component):
     skill = None

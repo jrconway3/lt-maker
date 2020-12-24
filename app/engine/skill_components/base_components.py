@@ -43,7 +43,7 @@ class IgnoreAlliances(SkillComponent):
 class CannotDouble(SkillComponent):
     nid = 'cannot_double'
     desc = "Unit cannot double"
-    tag = 'base'
+    tag = 'combat2'
 
     def no_double(self, unit):
         return True
@@ -51,7 +51,7 @@ class CannotDouble(SkillComponent):
 class CanDoubleOnDefense(SkillComponent):
     nid = 'can_double_on_defense'
     desc = "Unit can double while defending (extraneous if set to True in constants)"
-    tag = 'base'
+    tag = 'combat2'
 
     def def_double(self, unit):
         return True
@@ -59,7 +59,7 @@ class CanDoubleOnDefense(SkillComponent):
 class Vantage(SkillComponent):
     nid = 'vantage'
     desc = "Unit will attack first even while defending"
-    tag = 'base'
+    tag = 'combat2'
 
     def vantage(self, unit):
         return True
@@ -158,24 +158,24 @@ class Pass(SkillComponent):
 class Hidden(SkillComponent):
     nid = 'hidden'
     desc = "Skill will not show up on screen"
-    tag = "base"
+    tag = "attribute"
 
 class ClassSkill(SkillComponent):
     nid = 'class_skill'
     desc = "Skill will show up on first page of info menu"
-    tag = "base"
+    tag = "attribute"
 
 class Stack(SkillComponent):
     nid = 'stack'
     desc = "Skill can be applied to a unit multiple times"
-    tag = "base"
+    tag = "attribute"
 
 class Feat(SkillComponent):
     nid = 'feat'
     desc = "Skill can be selected as a feat"
-    tag = "base"
+    tag = "attribute"
 
 class Negative(SkillComponent):
     nid = 'negative'
     desc = "Skill is considered detrimental"
-    tag = "base"
+    tag = "attribute"

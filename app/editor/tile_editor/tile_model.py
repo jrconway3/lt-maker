@@ -68,7 +68,7 @@ class TileSetModel(ResourceCollectionModel):
         if affected_tilemaps:
             affected = Data(affected_tilemaps)
             model = TileMapModel
-            msg = "Deleting Tileset <b>%s</b> would affect these tilemaps."
+            msg = "Deleting Tileset <b>%s</b> would affect these tilemaps." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
                 pass
@@ -143,7 +143,7 @@ class TileMapModel(ResourceCollectionModel):
             affected = Data(affected_levels)
             from app.editor.level_menu import LevelModel
             model = LevelModel
-            msg = "Deleting Tilemap <b>%s</b> would affect these levels."
+            msg = "Deleting Tilemap <b>%s</b> would affect these levels." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
                 pass

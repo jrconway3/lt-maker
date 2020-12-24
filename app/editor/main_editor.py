@@ -116,7 +116,10 @@ class MainEditor(QMainWindow):
         # DB.deserialize()
         # DB.init_load()
 
-        self.auto_open()
+        result = self.auto_open()
+        # if not result:
+        #     DB.load('default.ltproj')
+        #     self.set_window_title('default.ltproj')
         
         if len(DB.levels) == 0:
             self.level_menu.create_initial_level()

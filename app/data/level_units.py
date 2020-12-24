@@ -36,6 +36,9 @@ class GenericUnit(Prefab):
             value = super().restore_attr(name, value)
         return value
 
+    def get_items(self):
+        return [i[0] for i in self.starting_items]
+
 @dataclass
 class UniqueUnit(Prefab):
     nid: str = None
@@ -68,7 +71,7 @@ class UniqueUnit(Prefab):
 @dataclass
 class UnitGroup(Prefab):
     nid: str = None
-    units: list = None  # Actually unit, not unit nid
+    units: Data = None  # Actually unit, not unit nid
     positions: dict = None
 
     def save_attr(self, name, value):
@@ -81,11 +84,17 @@ class UnitGroup(Prefab):
     @classmethod
     def restore(cls, value, units):
         self = cls(value['nid'], [], value['positions'])
-        self.units = Data([units.get(unit_nid) for unit_nid in value['units']])
+        units = [units.get(unit_nid) for unit_nid in value['units']]
+        # Only include units that actually exist
+        units = [u for u in units if u]
+        self.units = Data(units)
         return self
 
     @classmethod
     def from_prefab(cls, prefab, units):
         self = cls(prefab.nid, [], prefab.positions)
-        self.units = Data([units.get(unit.nid) for unit in prefab.units])
+        units = [units.get(unit.nid) for unit in prefab.units]
+        # Only include units that actually exist
+        units = [u for u in units if u]
+        self.units = Data(units)
         return self

@@ -2,8 +2,8 @@ import time, random
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, \
     QVBoxLayout, QGridLayout, QPushButton, QSizePolicy, QFrame, QSplitter
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QPainter
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QPixmap, QPainter, QIcon
 
 from app.extensions.spinbox_xy import SpinBoxXY
 from app.extensions.custom_gui import PropertyBox
@@ -163,7 +163,8 @@ class PortraitProperties(QWidget):
         self.update_talk()
         if not self.current:
             return
-        portrait = self.current.pixmap.copy(0, 0, 96, 80).toImage()
+        main_portrait = self.current.pixmap.copy(0, 0, 96, 80)
+        main_portrait = main_portrait.toImage()
         # For smile image
         if self.smile_on:
             if self.talk_state == 0:
@@ -192,15 +193,16 @@ class PortraitProperties(QWidget):
             blink_image = None
         # Draw image
         painter = QPainter()
-        painter.begin(portrait)
+        painter.begin(main_portrait)
         if blink_image:
             blink_image = blink_image.toImage()
             painter.drawImage(self.current.blinking_offset[0], self.current.blinking_offset[1], blink_image)
         painter.drawImage(self.current.smiling_offset[0], self.current.smiling_offset[1], mouth_image)
         painter.end()
-        self.portrait_view.set_image(
-            QPixmap.fromImage(
-                editor_utilities.convert_colorkey(portrait)))
+
+        final_pix = QPixmap.fromImage(editor_utilities.convert_colorkey(main_portrait))
+        self.portrait_view.set_image(final_pix)
+            
         self.portrait_view.show_image()
 
     def blinking_changed(self, x, y):

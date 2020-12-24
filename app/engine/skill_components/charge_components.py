@@ -16,7 +16,7 @@ class BuildCharge(SkillComponent):
         self.skill.data['charge'] = 0
         self.skill.data['total_charge'] = self.value
 
-    def condition(self, unit, skill):
+    def condition(self, unit):
         return self.skill.data['charge'] >= self.skill.data['charge']
 
     def on_end_chapter(self, unit, skill):
@@ -40,7 +40,7 @@ class DrainCharge(SkillComponent):
         self.skill.data['charge'] = self.value
         self.skill.data['total_charge'] = self.value
 
-    def condition(self, unit, skill):
+    def condition(self, unit):
         return self.skill.data['charge'] > 0
 
     def on_end_chapter(self, unit, skill):

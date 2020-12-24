@@ -44,7 +44,7 @@ class UnitModel(DragDropCollectionModel):
         # check to make sure nothing else is using me!!!
         unit = self._data[idx]
         nid = unit.nid
-        affected_ais = [ai for ai in DB.ai if ai.has_unit_spec("Unit", nid)]
+        affected_ais = [ai for ai in DB.ai if ai.has_unit_spec("ID", nid)]
         if affected_ais:
             from app.editor.ai_database import AIModel
             model = AIModel
@@ -61,7 +61,7 @@ class UnitModel(DragDropCollectionModel):
 
     def change_nid(self, old_nid, new_nid):
         for ai in DB.ai:
-            ai.change_unit_spec("Unit", old_nid, new_nid)
+            ai.change_unit_spec("ID", old_nid, new_nid)
 
     def create_new(self):
         nids = [d.nid for d in self._data]

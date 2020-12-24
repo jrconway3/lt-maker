@@ -10,6 +10,7 @@ from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, image_mods, health_bar, equations
 import app.engine.config as cf
+from app.engine.animations import MapAnimation
 from app.engine.game_state import game
 
 class MapSprite():
@@ -69,6 +70,7 @@ class UnitSprite():
         self.flicker = []
         self.vibrate = []
         self.vibrate_counter = 0
+        self.animations = {}
 
         self.load_sprites()
 
@@ -98,6 +100,16 @@ class UnitSprite():
     def reset(self):
         self.offset = [0, 0]
         game.map_view.attack_movement_counter.reset()
+
+    def add_animation(self, animation_nid):
+        anim = RESOURCES.animations.get(animation_nid)
+        if anim:
+            anim = MapAnimation(anim, (0, 0), loop=True)
+            self.animations[animation_nid] = anim
+
+    def remove_animation(self, animation_nid):
+        if animation_nid in self.animations:
+            del self.animations[animation_nid]
 
     def begin_flicker(self, total_time, color):
         self.flicker.append((engine.get_time(), total_time, color, False))
@@ -323,6 +335,10 @@ class UnitSprite():
         # left and right of it, to handle any off tile spriting
         topleft = left - max(0, (image.get_width() - 16)//2), top - 24
         surf.blit(image, topleft)
+
+        # Draw animations
+        for animation in self.animations.values():
+            animation.draw(surf, (left, top))
 
         # Talk Options
         if game.state.current() == 'free':

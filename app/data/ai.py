@@ -65,5 +65,16 @@ class AIBehaviour(Prefab):
     def default(cls):
         return cls.DoNothing()
 
+    def has_unit_spec(self, spec_type, spec_nid):
+        if self.target in ('Enemy', 'Ally', 'Unit'):
+            if self.target_spec and self.target_spec[0] == spec_type and self.target_spec[1] == spec_nid:
+                return True
+        return False
+
+    def change_unit_spec(self, spec_type, old_nid, new_nid):
+        if self.target in ('Enemy', 'Ally', 'Unit'):
+            if self.target_spec and self.target_spec[0] == spec_type and self.target_spec[1] == old_nid:
+                self.target_spec[1] = new_nid
+
 class AICatalog(Data):
     datatype = AIPrefab

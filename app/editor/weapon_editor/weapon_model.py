@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from app.utilities.data import Data
 from app.resources.resources import RESOURCES
 from app.data.database import DB
-from app.data import weapons, item_components
+from app.data import weapons, components, item_components
 
 from app.editor.custom_widgets import WeaponTypeBox
 from app.extensions.custom_gui import DeletionDialog
@@ -45,7 +45,7 @@ class WeaponModel(DragDropCollectionModel):
         nid = weapon_type.nid
         affected_klasses = [klass for klass in DB.classes if klass.wexp_gain.get(nid).wexp_gain > 0]
         affected_units = [unit for unit in DB.units if unit.wexp_gain.get(nid).wexp_gain > 0]
-        affected_items = item_components.get_items_using(item_components.Type.Weapon, nid, DB)
+        affected_items = item_components.get_items_using(components.Type.WeaponType, nid, DB)
         affected_weapons = [weapon for weapon in DB.weapons if weapon.advantage.contains(nid) or weapon.disadvantage.contains(nid)]
         if affected_klasses or affected_units or affected_items or affected_weapons:
             if affected_items:
@@ -71,7 +71,7 @@ class WeaponModel(DragDropCollectionModel):
                     klass.wexp_gain.get(swap.nid).absorb(klass.wexp_gain.get(nid))
                 for unit in affected_units:
                     unit.wexp_gain.get(swap.nid).absorb(unit.wexp_gain.get(nid))
-                item_components.swap_values(affected_items, item_components.Type.Equation, nid, swap.nid)
+                item_components.swap_values(affected_items, components.Type.Equation, nid, swap.nid)
                 for weapon in affected_weapons:
                     weapon.advantage.swap(nid, swap.nid)
                     weapon.disadvantage.swap(nid, swap.nid)
@@ -88,8 +88,9 @@ class WeaponModel(DragDropCollectionModel):
         nids = [d.nid for d in self._data]
         nid = name = str_utils.get_next_name("New Weapon Type", nids)
         new_weapon = weapons.WeaponType(
-            nid, name, False,
+            nid, name, False, weapons.CombatBonusList(),
             weapons.CombatBonusList(), weapons.CombatBonusList())
+        DB.weapons.append(new_weapon)
         return new_weapon
 
     # Called on create_new, new, and duplicate
@@ -119,5 +120,5 @@ class WeaponModel(DragDropCollectionModel):
             for weapon in DB.weapons:
                 weapon.advantage.swap(old_nid, new_nid)
                 weapon.disadvantage.swap(old_nid, new_nid)
-            affected_items = item_components.get_items_using(item_components.Type.WeaponType, old_nid, DB)
-            item_components.swap_values(affected_items, item_components.Type.WeaponType, old_nid, new_nid)
+            affected_items = item_components.get_items_using(components.Type.WeaponType, old_nid, DB)
+            item_components.swap_values(affected_items, components.Type.WeaponType, old_nid, new_nid)

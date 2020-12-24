@@ -38,6 +38,8 @@ class TileTab(QWidget):
         self.button.clicked.connect(self.model.append)
         self.layout.addWidget(self.button, 1, 0, 1, 1)
 
+        self.display = None
+
     def update_list(self):
         self.model.layoutChanged.emit()
 

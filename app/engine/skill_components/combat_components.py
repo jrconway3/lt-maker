@@ -228,6 +228,7 @@ class DynamicDefenseSpeed(SkillComponent):
 class DynamicMultiattacks(SkillComponent):
     nid = 'dynamic_multiattacks'
     desc = "Gives +X extra attacks per phase solved dynamically"
+    tag = 'combat'
 
     expose = Type.String
 
@@ -289,7 +290,7 @@ class GainSkillAfterAttacking(SkillComponent):
             action.AddSkill(unit, self.value).do()
         action.TriggerCharge(unit, self.skill).do()
 
-class GainSkillAfterAttacking(SkillComponent):
+class GainSkillAfterActiveKill(SkillComponent):
     nid = 'gain_skill_after_active_kill'
     desc = "Gives a skill after a kill on personal phase"
     tag = 'combat2'

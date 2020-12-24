@@ -38,10 +38,6 @@
                 20
             ],
             [
-                "defense",
-                2
-            ],
-            [
                 "hidden",
                 null
             ]
@@ -60,10 +56,6 @@
             [
                 "hidden",
                 null
-            ],
-            [
-                "defense",
-                1
             ],
             [
                 "avoid",
@@ -86,10 +78,6 @@
                 null
             ],
             [
-                "defense",
-                1
-            ],
-            [
                 "avoid",
                 30
             ]
@@ -108,10 +96,6 @@
             [
                 "hidden",
                 null
-            ],
-            [
-                "defense",
-                2
             ],
             [
                 "avoid",

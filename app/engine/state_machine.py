@@ -78,6 +78,7 @@ class StateMachine():
              'chapter_title': chapter_title.ChapterTitleState,
              'event': event_state.EventState,
              'status_upkeep': status_upkeep.StatusUpkeepState,
+             'status_endstep': status_upkeep.StatusUpkeepState,
              'prep_main': prep.PrepMainState,
              'prep_pick_units': prep.PrepPickUnitsState,
              'prep_formation': prep.PrepFormationState,

@@ -268,25 +268,25 @@ class UIView():
         # Enemy HP
         blit_num(surf, defender.get_hp(), 20, 19)
         # Self MT
-        mt = combat_calcs.compute_damage(attacker, defender, attacker.get_weapon(), 'Attack')
+        mt = combat_calcs.compute_damage(attacker, defender, attacker.get_weapon(), 'attack')
         if grandmaster:
-            hit = combat_calcs.compute_hit(attacker, defender, attacker.get_weapon(), 'Attack')
+            hit = combat_calcs.compute_hit(attacker, defender, attacker.get_weapon(), 'attack')
             blit_num(surf, int(mt * float(hit) / 100), 64, 35)
         else:
             blit_num(surf, mt, 64, 35)
-            hit = combat_calcs.compute_hit(attacker, defender, attacker.get_weapon(), 'Attack')
+            hit = combat_calcs.compute_hit(attacker, defender, attacker.get_weapon(), 'attack')
             blit_num(surf, hit, 64, 51)
             # Blit crit if applicable
             if crit_flag:
-                c = combat_calcs.compute_crit(attacker, defender, attacker.get_weapon(), 'Attack')
+                c = combat_calcs.compute_crit(attacker, defender, attacker.get_weapon(), 'attack')
                 blit_num(surf, c, 64, 67)
         # Enemy Hit and Mt
         if item_system.can_be_countered(attacker, attacker.get_weapon()) and defender.get_weapon() and \
                 utils.calculate_distance(attacker.position, defender.position) in item_funcs.get_range(defender, defender.get_weapon()):
-            e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'Defense')
-            e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'Defense')
+            e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'defense')
+            e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'defense')
             if crit_flag:
-                e_crit = combat_calcs.compute_crit(defender, attacker, defender.get_weapon(), 'Defense')
+                e_crit = combat_calcs.compute_crit(defender, attacker, defender.get_weapon(), 'defense')
             else:
                 e_crit = 0
         else:
@@ -308,6 +308,9 @@ class UIView():
         return surf
 
     def draw_attack_info(self, surf, attacker, defender):
+        # Turns on appropriate combat conditionals to get an accurate read
+        skill_system.test_on(attacker, attacker.get_weapon(), defender)
+
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, defender)
 
@@ -403,16 +406,19 @@ class UIView():
                 elif e_num == 4:
                     surf.blit(SPRITES.get('x4'), x2_pos_enemy)
 
+        # Turns off combat conditionals
+        skill_system.test_off(attacker, attacker.get_weapon(), defender)
+
         return surf
 
     def create_spell_info(self, attacker, defender):
         spell = attacker.get_spell()
         if defender:
             height = 2
-            mt = combat_calcs.compute_damage(attacker, defender, attacker.get_spell(), 'Attack')
+            mt = combat_calcs.compute_damage(attacker, defender, attacker.get_spell(), 'attack')
             if mt is not None:
                 height += 1
-            hit = combat_calcs.compute_hit(attacker, defender, attacker.get_spell(), 'Attack')
+            hit = combat_calcs.compute_hit(attacker, defender, attacker.get_spell(), 'attack')
             if hit is not None:
                 height += 1
 
@@ -454,7 +460,7 @@ class UIView():
                     position = width - 5 - hit_width, running_height
                     FONT['text-blue'].blit(str(hit), bg_surf, position)
 
-            crit = combat_calcs.compute_crit(attacker, defender, attacker.get_spell(), 'Attack')
+            crit = combat_calcs.compute_crit(attacker, defender, attacker.get_spell(), 'attack')
             if DB.constants.value('crit') and crit is not None:
                 running_height += 16
                 FONT['text-yellow'].blit('Crit', bg_surf, (9, running_height))
@@ -510,6 +516,9 @@ class UIView():
         self.spell_info_disp = None
 
     def draw_spell_info(self, surf, attacker, defender):
+        # Turns on appropriate combat conditionals to get accurate stats
+        skill_system.test_on(attacker, attacker.get_spell(), defender)
+
         if not self.spell_info_disp:
             self.spell_info_disp = self.create_spell_info(attacker, defender)
             if self.spell_info_disp:
@@ -531,6 +540,10 @@ class UIView():
         surf.blit(self.spell_info_disp, topleft)
         if defender:
             surf.blit(unit_surf, u_topleft)
+
+        # Turns off combat conditionals
+        skill_system.test_off(attacker, attacker.get_spell(), defender)
+
         return surf
 
 class ItemDescriptionPanel():

@@ -237,7 +237,7 @@ class GameState():
                 self.arrive(unit)
 
     def clean_up(self):
-        from app.engine import item_system, item_funcs
+        from app.engine import item_system, skill_system, item_funcs
 
         for unit in self.unit_registry.values():
             self.leave(unit)
@@ -250,8 +250,32 @@ class GameState():
                 unit = self.get_unit(item.owner_nid)
             item_system.on_end_chapter(unit, item)
 
+        for skill in self.skill_registry.values():
+            unit = None
+            if skill.owner_nid:
+                unit = self.get_unit(skill.owner_nid)
+            skill_system.on_end_chapter(unit, skill)
+
         # Remove non-player team units and all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.team == 'player' and not v.generic}
+        # Remove any skill that's not on a unit
+        for k, v in self.skill_registry.items():
+            if v.owner_nid:  # Remove skills from units that no longer exist
+                if v.owner_nid not in self.unit_registry:
+                    del self.skill_registry[k]
+            else:
+                del self.skill_registry[k]
+        # Remove any item that's not on a unit or in the convoy
+        for k, v in self.item_registry.items():
+            if v.owner_nid:  # Remove items from units that no longer exist
+                if v.owner_nid not in self.unit_registry:
+                    del self.item_registry[k]
+            else:
+                for party in self.parties.values():
+                    if v in party.convoy:
+                        break
+                else:  # No party ever found
+                    del self.item_registry[k]
 
         # Handle player death
         for unit in self.unit_registry.values():

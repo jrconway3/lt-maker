@@ -14,22 +14,22 @@ class CombatCondition(SkillComponent):
     def init(self, skill):
         self._condition = False
 
-    def pre_combat(self, actions, playback, unit, item, target, mode):
+    def pre_combat(self, playback, unit, item, target):
         try:
             self._condition = bool(eval(self.value))
         except:
             print("Could not evaluate %s" % self.value)
 
-    def post_combat(self, actions, playback, unit, item, target, mode):
+    def post_combat(self, playback, unit, item, target):
         self._condition = False
 
     def condition(self, unit):
         return self._condition
 
-    def test_on(self, unit, item, target, mode):
-        self.pre_combat([], [], unit, item, target, mode)
+    def test_on(self, unit, item, target):
+        self.pre_combat([], unit, item, target)
 
-    def test_off(self, unit, item, target, mode):
+    def test_off(self, unit, item, target):
         self._condition = False
 
 class Condition(SkillComponent):

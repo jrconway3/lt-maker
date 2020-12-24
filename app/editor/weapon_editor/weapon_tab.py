@@ -17,7 +17,7 @@ class WeaponDatabase(DatabaseTab):
         right_frame = weapon_properties.WeaponProperties
 
         def deletion_func(model, index):
-            return model._data[index].nid != "Default"
+            return model._data[index.row()].nid != "Default"
 
         collection_model = weapon_model.WeaponModel
         dialog = cls(data, title, right_frame, (deletion_func, None, deletion_func), collection_model, parent)

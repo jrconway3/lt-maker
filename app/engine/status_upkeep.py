@@ -12,7 +12,6 @@ class StatusUpkeepState(MapState):
     name = 'status_upkeep'
 
     def start(self):
-        logger.info("Starting Status Upkeep State")
         game.cursor.hide()
         self.units = [unit for unit in game.level.units if 
                       unit.position and 
@@ -41,7 +40,10 @@ class StatusUpkeepState(MapState):
             if self.cur_unit:
                 self.actions.clear()
                 self.playback.clear()
-                skill_system.on_upkeep(self.actions, self.playback, self.cur_unit)
+                if self.name == 'status_endstep':
+                    skill_system.on_endstep(self.actions, self.playback, self.cur_unit)
+                else:
+                    skill_system.on_upkeep(self.actions, self.playback, self.cur_unit)
                 if (self.actions or self.playback) and self.cur_unit.position:
                     game.cursor.set_pos(self.cur_unit.position)
                     self.cur_unit.sprite.change_state('selected')
@@ -73,9 +75,7 @@ class StatusUpkeepState(MapState):
                 self.cur_unit = None
 
     def handle_playback(self, playback):
-        print("Playback!!")
         for brush in playback:
-            print(brush)
             if brush[0] == 'unit_tint':
                 color = brush[2]
                 brush[1].sprite.begin_flicker(333, color)

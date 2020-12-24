@@ -7,7 +7,7 @@ from app.engine.game_state import game
 class Regeneration(SkillComponent):
     nid = 'regeneration'
     desc = "Unit restores %% of HP at beginning of turn"
-    tag = "status"
+    tag = "time"
 
     expose = Type.Float
     value = 0.2
@@ -30,35 +30,35 @@ class Regeneration(SkillComponent):
 class ResistStatus(SkillComponent):
     nid = 'resist_status'
     desc = "Unit is only affected by statuses for a turn"
-    tag = "status"
+    tag = "base"
 
-    def on_init(self, unit, skill):
+    def on_add(self, unit, skill):
         for skill in unit.skills:
             if skill.time:
-                action.do(action.ModifySkillData(skill, 'turns', min(skill.data['turns'], 1)))
+                action.do(action.SetObjData(skill, 'turns', min(skill.data['turns'], 1)))
 
-    def on_other_skill(self, unit, other_skill):
+    def on_gain_skill(self, unit, other_skill):
         if other_skill.time:
-            action.do(action.ModifySkillData(other_skill, 'turns', min(other_skill.data['turns'], 1)))
+            action.do(action.SetObjData(other_skill, 'turns', min(other_skill.data['turns'], 1)))
 
 class ImmuneStatus(SkillComponent):
     nid = 'immune_status'
     desc = "Unit is not affected by negative statuses"
-    tag = 'status'
+    tag = 'base'
 
-    def on_init(self, unit, skill):
+    def on_add(self, unit, skill):
         for skill in unit.skills:
             if skill.negative:
                 action.do(action.RemoveSkill(unit, skill))
 
-    def on_other_skill(self, unit, other_skill):
+    def on_gain_skill(self, unit, other_skill):
         if other_skill.negative:
             action.do(action.RemoveSkill(unit, other_skill))
 
 class Grounded(SkillComponent):
     nid = 'grounded'
     desc = "Unit cannot be forcibly moved"
-    tag = 'status'
+    tag = 'base'
 
     def ignore_forced_movement(self, unit, skill):
         return True
@@ -66,9 +66,9 @@ class Grounded(SkillComponent):
 class ReflectStatus(SkillComponent):
     nid = 'reflect_status'
     desc = "Unit reflects statuses back to initiator"
-    tag = 'status'
+    tag = 'base'
 
-    def on_other_skill(self, unit, other_skill):
+    def on_gain_skill(self, unit, other_skill):
         if hasattr(other_skill, 'initiator'):
             other_unit = game.get_unit(other_skill.initiator)
             # Create a copy of other skill

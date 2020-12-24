@@ -14,9 +14,9 @@ class Ability(SkillComponent):
     def extra_ability(self, unit):
         return self.value
 
-    def end_combat(self, actions, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target):
         if item.nid == self.value:
-            actions.append(action.TriggerCharge(unit, self.skill))
+            action.do(action.TriggerCharge(unit, self.skill))
 
 class CombatArt(SkillComponent):
     nid = 'combat_art'
@@ -85,7 +85,7 @@ class AttackProc(SkillComponent):
             action.do(action.RemoveSkill(unit, self.value))
 
 class DefenseProc(SkillComponent):
-    nid = 'attack_proc'
+    nid = 'defense_proc'
     desc = "Allows skill to proc when defending"
     tag = 'advanced'
 

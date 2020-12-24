@@ -11,9 +11,13 @@ class UnitAnim(SkillComponent):
 
     expose = Type.MapAnimation
 
-    def unit_sprite_mod(self, unit):
-        return self.value
+    def on_add(self, unit, skill):
+        unit.sprite.add_animation(self.value)
 
+    def on_remove(self, unit, skill):
+        unit.sprite.remove_animation(self.value)
+
+# Get proc skills working before bothering with this one
 class DisplaySkillIconInCombat(SkillComponent):
     nid = 'display_skill_icon_in_combat'
     desc = "Displays the skill's icon in combat"

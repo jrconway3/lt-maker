@@ -190,6 +190,17 @@ class AllUnitModel(DragDropCollectionModel):
                 return QBrush(QColor("red"))
         return None
 
+    def delete(self, idx):
+        # check to make sure nothing else is using me!!
+        unit = self._data[idx]
+        current_level = self.window.current_level
+        for unit_group in current_level.unit_groups:
+            if unit in unit_group.units:
+                unit_group.units.delete(unit)
+
+        # Just delete unit from any groups the unit is a part of
+        super().delete(idx)
+
     def new(self, idx):
         unit = self._data[idx]
         if unit.generic:

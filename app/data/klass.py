@@ -39,7 +39,7 @@ class Klass(Prefab):
         return [self.bases, self.growths, self.promotion, self.growth_bonus, self.max_stats]
 
     def get_skills(self):
-        return [skill[1] for skill in self.learned_skills]
+        return [skill.skill_nid for skill in self.learned_skills]
 
     def replace_skill_nid(self, old_nid, new_nid):
         for skill in self.learned_skills:

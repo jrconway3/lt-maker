@@ -150,6 +150,10 @@ class WexpGain(Prefab):
 class WexpGainList(Data):
     datatype = WexpGain
 
+    def new(self, idx, db_weapons):
+        new_weapon_type = db_weapons[idx]
+        self.insert(idx, WexpGain(False, new_weapon_type.nid, 0))
+
     @classmethod
     def default(cls, db):
         return cls([WexpGain(False, nid, 0) for nid in db.weapons.keys()])

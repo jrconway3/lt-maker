@@ -18,7 +18,7 @@ class Time(SkillComponent):
 
     def on_upkeep(self, actions, playback, unit):
         val = self.skill.data['turns'] - 1
-        actions.do(action.ModifySkillData(self.skill, 'turns', val))
+        action.do(action.SetObjData(self.skill, 'turns', val))
         if self.skill.data['turns'] <= 0:
             actions.append(action.RemoveSkill(unit, self.skill))
 

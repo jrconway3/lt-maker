@@ -97,15 +97,16 @@ class ComponentProperties(QWidget):
             template_action = QAction(QIcon(), template_key, self, triggered=new_func)
             self.actions[template_key] = template_action
 
-        template_menu = QMenu(self)
-        self.menus['templates'] = template_menu
-        toolbutton = QToolButton(self)
-        toolbutton.setIcon(QIcon(f"{icon_folder}/component_template.png"))
-        toolbutton.setMenu(template_menu)
-        toolbutton.setPopupMode(QToolButton.InstantPopup)
-        toolbutton_action = QWidgetAction(self)
-        toolbutton_action.setDefaultWidget(toolbutton)
-        self.toolbar.addAction(toolbutton_action)
+        if self.get_templates():
+            template_menu = QMenu(self)
+            self.menus['templates'] = template_menu
+            toolbutton = QToolButton(self)
+            toolbutton.setIcon(QIcon(f"{icon_folder}/component_template.png"))
+            toolbutton.setMenu(template_menu)
+            toolbutton.setPopupMode(QToolButton.InstantPopup)
+            toolbutton_action = QWidgetAction(self)
+            toolbutton_action.setDefaultWidget(toolbutton)
+            self.toolbar.addAction(toolbutton_action)
 
         for template_key, template_value in self.get_templates():
             menu = self.menus['templates']

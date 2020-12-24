@@ -7,7 +7,7 @@ from app.engine import engine, image_mods
 # Used, for instance, for miss and no damage animations
 
 class Animation():
-    def __init__(self, anim, position, delay=0, loop=0, hold=False):
+    def __init__(self, anim, position, delay=0, loop=False, hold=False):
         if not anim.image:
             anim.image = engine.image_load(anim.full_path)
             anim.image = anim.image.convert_alpha()
@@ -111,7 +111,7 @@ class Animation():
         return surf
 
 class MapAnimation(Animation):
-    def __init__(self, anim, position, delay=0, loop=0, hold=False):
+    def __init__(self, anim, position, delay=0, loop=False, hold=False):
         super().__init__(anim, position, delay, loop, hold)
         self.position = self.position[0] * TILEWIDTH, self.position[1] * TILEHEIGHT
         self.use_center()

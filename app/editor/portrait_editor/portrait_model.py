@@ -26,6 +26,8 @@ class PortraitModel(ResourceCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             portrait = self._data[index.row()]
+            if not portrait.pixmap:
+                portrait.pixmap = QPixmap(portrait.full_path)
             pixmap = portrait.pixmap
             chibi = pixmap.copy(96, 16, 32, 32)
             chibi = QPixmap.fromImage(editor_utilities.convert_colorkey(chibi.toImage()))

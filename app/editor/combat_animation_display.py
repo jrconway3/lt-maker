@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
     QLabel, QToolButton, QInputDialog, QColorDialog
-from PyQt5.QtCore import Qt, QSettings, QDir
+from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter, QColor
 
 from app.constants import WINWIDTH, WINHEIGHT
@@ -12,6 +12,8 @@ from app.utilities.data import Data
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.resources import combat_anims
+
+from app.editor.settings import MainSettingsController
 
 from app.editor.timer import TIMER
 from app.editor.icon_display import IconView
@@ -547,8 +549,8 @@ class CombatAnimProperties(QWidget):
         pass
 
     def import_lion_throne(self):
-        settings = QSettings("rainlash", "Lex Talionis")
-        starting_path = str(settings.value("last_open_path", QDir.currentPath()))
+        settings = MainSettingsController()
+        starting_path = str(settings.get_last_open_path(fallback=QDir.currentPath())
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
         if ok:
             for fn in fns:
@@ -559,7 +561,7 @@ class CombatAnimProperties(QWidget):
             if self.current.weapon_anims:
                 self.weapon_box.setValue(self.current.weapon_anims[-1].nid)
             parent_dir = os.path.split(fns[-1])[0]
-            settings.setValue("last_open_path", parent_dir)
+            settings.set_last_open_path(parent_dir)
 
     def import_gba(self):
         pass

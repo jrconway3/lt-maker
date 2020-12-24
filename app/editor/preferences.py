@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QApplication
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt
 
 from app import dark_theme
 from app.extensions.custom_gui import ComboBox, PropertyBox, Dialog
+
+from app.editor.settings import MainSettingsController
 
 name_to_button = {'L-click': Qt.LeftButton,
                   'R-click': Qt.RightButton}
@@ -17,12 +19,12 @@ class PreferencesDialog(Dialog):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
-        self.settings = QSettings('rainlash', 'Lex Talionis')
+        self.settings = MainSettingsController()
 
         self.saved_preferences = {}
-        self.saved_preferences['select_button'] = self.settings.value('select_button', Qt.LeftButton)
-        self.saved_preferences['place_button'] = self.settings.value('place_button', Qt.RightButton)
-        self.saved_preferences['theme'] = self.settings.value('theme', 0)
+        self.saved_preferences['select_button'] = self.settings.get_select_button(Qt.LeftButton)
+        self.saved_preferences['place_button'] = self.settings.get_place_button(Qt.RightButton)
+        self.saved_preferences['theme'] = self.settings.get_theme(0)
 
         self.available_options = name_to_button.keys()
 
@@ -72,9 +74,9 @@ class PreferencesDialog(Dialog):
         self.window.set_icons(idx)  # Change icons of main editor
 
     def accept(self):
-        self.settings.setValue('select_button', name_to_button[self.select.edit.currentText()])
-        self.settings.setValue('place_button', name_to_button[self.place.edit.currentText()])
-        self.settings.setValue('theme', self.theme.edit.currentIndex())
+        self.settings.set_select_button(name_to_button[self.select.edit.currentText()])
+        self.settings.set_place_button(name_to_button[self.place.edit.currentText()])
+        self.settings.set_theme(self.theme.edit.currentIndex())
         super().accept()
 
     def reject(self):

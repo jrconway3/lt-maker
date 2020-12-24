@@ -3,11 +3,12 @@ import functools
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QHBoxLayout, QAction, QToolButton, QToolBar, QTextEdit, \
     QVBoxLayout, QSizePolicy, QSpacerItem, QMenu, QWidgetAction
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QFontMetrics
 
 from app.extensions.custom_gui import PropertyBox, QHLine
 from app.editor.icons import ItemIcon16
+from app.editor.settings import MainSettingsController
 from app.editor import component_database
 from app import utilities
 
@@ -70,8 +71,8 @@ class ComponentProperties(QWidget):
         self.toolbar = QToolBar(self)
         self.menus = {}
 
-        self.settings = QSettings("rainlash", "Lex Talionis")
-        theme = self.settings.value("theme", 0)
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
         if theme == 0:
             icon_folder = 'icons'
         else:

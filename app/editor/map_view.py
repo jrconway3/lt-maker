@@ -7,7 +7,7 @@ from app.sprites import SPRITES
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.data.database import DB
 
-from app.editor.settings import MainSettingsController()
+from app.editor.settings import MainSettingsController
 
 from app.editor import timer
 from app.editor.class_editor import class_model

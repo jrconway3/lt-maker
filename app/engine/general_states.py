@@ -529,14 +529,13 @@ class MenuState(MapState):
             options.insert(start_index, ability_name)
 
         # Handle combat art options
-        self.combat_arts, combat_art_targets = skill_system.get_combat_arts(self.cur_unit)
+        self.combat_arts = skill_system.get_combat_arts(self.cur_unit)
         if 'Attack' in options:
             start_index = options.index('Attack') + 1
         else:
             start_index = len(self.valid_regions)
-        for ability_name, targets in zip(self.combat_arts, combat_art_targets):
+        for ability_name in self.combat_arts:
             options.insert(start_index, ability_name)
-            self.target_dict[ability_name] = targets
 
         # Draw highlights
         for ability in ABILITIES:
@@ -841,7 +840,7 @@ class WeaponChoiceState(MapState):
     name = 'weapon_choice'
 
     def get_options(self, unit) -> list:
-        if game.memory['valid_weapons']:
+        if game.memory.get('valid_weapons'):
             options = game.memory['valid_weapons']
             game.memory['valid_weapons'] = None
         else:

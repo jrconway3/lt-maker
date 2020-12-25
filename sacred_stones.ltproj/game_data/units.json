@@ -2108,6 +2108,10 @@
             [
                 1,
                 "Strength +2"
+            ],
+            [
+                1,
+                "Poisoned"
             ]
         ],
         "wexp_gain": [
@@ -2562,7 +2566,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Stoneskin"
+            ]
+        ],
         "wexp_gain": [
             [
                 false,

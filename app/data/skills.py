@@ -1,18 +1,6 @@
 from app.utilities.data import Data, Prefab
 import app.engine.skill_component_access as SCA
 
-class LearnedSkill(Prefab):
-    def __init__(self, level, skill_nid):
-        self.level = level
-        self.skill_nid = skill_nid
-
-    def save(self):
-        return (self.level, self.skill_nid)
-
-    @classmethod
-    def restore(cls, s_tuple):
-        return cls(*s_tuple)
-
 class SkillPrefab(Prefab):
     def __init__(self, nid, name, desc, icon_nid=None, icon_index=(0, 0), components=None):
         self.nid = nid

@@ -47,7 +47,7 @@ class HelpDialog():
         if '\n' in desc:
             self.lines = desc.splitlines()
         else:
-            if len(desc) < 24:
+            if len(desc) < 28:
                 self.num_lines = 1
             self.lines = text_funcs.split(self.font, desc, self.num_lines, WINWIDTH - 8)
 

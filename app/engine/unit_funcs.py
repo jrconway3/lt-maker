@@ -80,8 +80,8 @@ def get_starting_skills(unit) -> list:
     skills_to_add = []
     for idx, klass in enumerate(all_klasses):
         for learned_skill in klass.learned_skills:
-            if learned_skill.level <= unit.level or klass != klass_obj:
-                skills_to_add.append(learned_skill.skill_nid)
+            if learned_skill[0] <= unit.level or klass != klass_obj:
+                skills_to_add.append(learned_skill[1])
 
     klass_skills = item_funcs.create_skills(unit, skills_to_add)
     return klass_skills
@@ -89,8 +89,8 @@ def get_starting_skills(unit) -> list:
 def get_personal_skills(unit, prefab):
     skills_to_add = []
     for learned_skill in prefab.learned_skills:
-        if learned_skill.level <= unit.level:
-            skills_to_add.append(learned_skill.skill_nid)
+        if learned_skill[0] <= unit.level:
+            skills_to_add.append(learned_skill[1])
 
     personal_skills = item_funcs.create_skills(unit, skills_to_add)
     return personal_skills

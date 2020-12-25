@@ -6,7 +6,7 @@ from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.data import units
 
-from app.data import stats, weapons, skills
+from app.data import stats, weapons
 
 def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     unit_xml = ET.parse(xml_fn)
@@ -70,7 +70,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
                 items.append((item, False))
 
         personal_skills = unit.find('skills').text.split(',') if unit.find('skills') is not None and unit.find('skills').text is not None else []
-        personal_skills = [skills.LearnedSkill(1, s) for s in personal_skills]
+        personal_skills = [[1, s] for s in personal_skills]
         portrait = nid if nid in RESOURCES.portraits.keys() else None
         new_unit = units.UnitPrefab(
             nid, name, desc, None, level, klass, tags, 

@@ -287,7 +287,6 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
 
     might *= skill_system.damage_multiplier(unit, item, target, mode)
     might *= skill_system.resist_multiplier(target, item, unit, mode)
-
     return int(max(DB.constants.get('min_damage').value, might))
 
 def outspeed(unit, target, item, mode=None) -> bool:

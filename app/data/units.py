@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
 from app.data import stats, weapons
-from app.data.skills import LearnedSkill
 
 @dataclass
 class UnitPrefab(Prefab):
@@ -45,14 +44,14 @@ class UnitPrefab(Prefab):
 
     def replace_skill_nid(self, old_nid, new_nid):
         for skill in self.learned_skills:
-            if skill.skill_nid == old_nid:
-                skill.skill_nid = new_nid
+            if skill[1] == old_nid:
+                skill[1] = new_nid
 
     def restore_attr(self, name, value):
         if name in ('bases', 'growths'):
             value = stats.StatList().restore(value)
         elif name == 'learned_skills':
-            value = [LearnedSkill.restore(skill) for skill in value]
+            value = [skill for skill in value]
         elif name == 'wexp_gain':
             value = weapons.WexpGainList().restore(value)
         elif name == 'starting_items':

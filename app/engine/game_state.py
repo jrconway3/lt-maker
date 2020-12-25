@@ -124,6 +124,8 @@ class GameState():
         # Build party object for new parties
         if self.current_party not in self.parties:
             party_prefab = DB.parties.get(self.current_party)
+            if not party_prefab:
+                party_prefab = DB.parties[0]
             nid, name, leader = party_prefab.nid, party_prefab.name, party_prefab.leader
             self.parties[self.current_party] = PartyObject(nid, name, leader)
 

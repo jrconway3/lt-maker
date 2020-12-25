@@ -55,7 +55,9 @@ class UnitObject(Prefab):
             self.growth_points = {k: 0 for k in self.stats.keys()}
 
         # Handle skills
-        self.skills = unit_funcs.get_starting_skills(self)
+        personal_skills = unit_funcs.get_personal_skills(self, prefab)
+        class_skills = unit_funcs.get_starting_skills(self)
+        self.skills = personal_skills + class_skills
 
         self.current_hp = equations.parser.hitpoints(self)
         if 'MANA' in DB.equations:

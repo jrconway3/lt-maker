@@ -234,6 +234,8 @@ def stat_change(unit, stat) -> int:
 
 def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
+        if not condition(skill, unit):
+            continue
         for component in skill.components:
             if component.defines('on_upkeep'):
                 component.on_upkeep(actions, playback, unit)
@@ -241,6 +243,8 @@ def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
 
 def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
+        if not condition(skill, unit):
+            continue
         for component in skill.component:
             if component.defines('on_endstep'):
                 component.on_endstep(actions, playback, unit)
@@ -282,3 +286,41 @@ def trigger_charge(unit, skill):
         if component.defines('trigger_charge'):
             component.trigger_charge(unit, skill)
     return None
+
+def get_extra_abilities(unit):
+    abilities = {}
+    for skill in unit.skills:
+        if not condition(skill, unit):
+            continue
+        for component in skill.components:
+            if component.defines('extra_ability'):
+                new_item = component.extra_ability(unit)
+                ability_name = new_item.name
+                abilities[ability_name] = new_item
+    return abilities
+
+def get_combat_arts(unit):
+    combat_arts = {}
+    for skill in unit.skills:
+        if not condition(skill, unit):
+            continue
+        combat_art, combat_art_weapons = None, []
+        for component in skill.components:
+            if component.defines('combat_art'):
+                combat_art = component.combat_art(unit)
+            if component.defines('combat_art_weapon_filter'):
+                combat_art_weapons = component.combat_art_weapon_filter(unit)
+        if combat_art and combat_art_weapons:
+            combat_arts[skill.name] = (skill, combat_art_weapons)
+    return combat_arts
+
+def activate_combat_art(unit, skill):
+    for component in skill.components:
+        if component.defines('on_activation'):
+            component.on_activation(unit)
+
+def deactivate_all_combat_arts(unit):
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('on_deactivation') and skill.data.get('active'):
+                component.on_deactivation(unit)

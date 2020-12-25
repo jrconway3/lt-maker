@@ -27,6 +27,8 @@ Work with Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
 Promotion / Class Changing
 Dialogue Log on R press
 
+Check box in AI behaviour for unit specification that has the ability to flip from target ONLY to target EXCEPT.
+
 Steal item
 Repair item
 

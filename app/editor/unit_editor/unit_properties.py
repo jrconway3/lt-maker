@@ -11,7 +11,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
-from app.extensions.list_models import VirtualListModel
+from app.extensions.list_models import VirtualListModel, ReverseDoubleListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
 
 from app.editor.custom_widgets import ClassBox
@@ -191,7 +191,7 @@ class UnitProperties(QWidget):
         # Changing of stats done automatically by using model view framework within
 
         attrs = ("level", "skill_nid")
-        self.personal_skill_widget = AppendMultiListWidget([], "Personal Skills", attrs, LearnedSkillDelegate, self)
+        self.personal_skill_widget = AppendMultiListWidget([], "Personal Skills", attrs, LearnedSkillDelegate, self, model=ReverseDoubleListModel)
         self.personal_skill_widget.view.setMaximumHeight(120)
         # Changing of Personal skills done automatically also
         # self.personal_skill_widget.activated.connect(self.learned_skills_changed)

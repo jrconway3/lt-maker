@@ -17,11 +17,11 @@ def main():
     driver.run(game)
 
 def test_play():
-    RESOURCES.load('./default.ltproj')
-    DB.load('./default.ltproj')
+    RESOURCES.load('./sacred_stones.ltproj')
+    DB.load('./sacred_stones.ltproj')
     title = DB.constants.value('title')
     driver.start(title, from_editor=True)
-    game = game_state.start_level('0')
+    game = game_state.start_level('DEBUG')
     driver.run(game)
 
 def create_debug_log():

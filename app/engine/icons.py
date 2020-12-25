@@ -150,9 +150,9 @@ def draw_chibi(surf, nid, topleft=None, bottomright=None):
     return surf
 
 def draw_stat(surf, stat_nid, unit, topright, compact=False):
-    # TODO Bonus stats
     class_obj = DB.classes.get(unit.klass)
     value = unit.stats.get(stat_nid, 0)
+    bonus = unit.stat_bonus(stat_nid)
     if compact:
         pass
     else:
@@ -160,3 +160,7 @@ def draw_stat(surf, stat_nid, unit, topright, compact=False):
             FONT['text-yellow'].blit_right(str(value), surf, topright)
         else:
             FONT['text-blue'].blit_right(str(value), surf, topright)
+        if bonus > 0:
+            FONT['small-green'].blit("+%d" % bonus, surf, topright)
+        elif bonus < 0:
+            FONT['text-red'].blit(str(bonus), surf, topright)

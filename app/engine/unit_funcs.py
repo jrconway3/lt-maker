@@ -65,6 +65,7 @@ def apply_stat_changes(unit, stat_changes: dict, in_base: bool = True):
         unit.set_mana(1000)
 
 def get_starting_skills(unit) -> list:
+    # Class skills
     klass_obj = DB.classes.get(unit.klass)
     current_klass = klass_obj
     all_klasses = [klass_obj]
@@ -81,4 +82,15 @@ def get_starting_skills(unit) -> list:
         for learned_skill in klass.learned_skills:
             if learned_skill.level <= unit.level or klass != klass_obj:
                 skills_to_add.append(learned_skill.skill_nid)
-    return item_funcs.create_skills(unit, skills_to_add)
+
+    klass_skills = item_funcs.create_skills(unit, skills_to_add)
+    return klass_skills
+
+def get_personal_skills(unit, prefab):
+    skills_to_add = []
+    for learned_skill in prefab.learned_skills:
+        if learned_skill.level <= unit.level:
+            skills_to_add.append(learned_skill.skill_nid)
+
+    personal_skills = item_funcs.create_skills(unit, skills_to_add)
+    return personal_skills

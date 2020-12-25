@@ -11,6 +11,7 @@ from app.data.components import Type
 from app.extensions.color_icon import ColorIcon, AlphaColorIcon
 from app.extensions.custom_gui import ComboBox
 from app.extensions.widget_list import WidgetList
+from app.extensions import list_models
 from app.extensions.list_widgets import AppendMultiListWidget, AppendSingleListWidget
 
 class ComponentList(WidgetList):
@@ -219,12 +220,16 @@ class DictItemComponent(BoolItemComponent):
     delegate = None
 
     def create_editor(self, hbox):    
-        self.editor = AppendMultiListWidget(self._data.value, self._data.name, (self.delegate.name, "Value"), self.delegate, self)
+        title = self._data.name
+        self.editor = AppendMultiListWidget(self._data.value, title, (self.delegate.name, "Value"), self.delegate, self, model=list_models.DoubleListModel)
         self.editor.view.setColumnWidth(0, 100)
         self.editor.view.setMaximumHeight(75)
         self.editor.model.nid_column = 0
 
         hbox.addWidget(self.editor)
+
+class FloatDictItemComponent(DictItemComponent):
+    pass
 
 def get_display_widget(component, parent):
     if not component.expose:
@@ -265,6 +270,8 @@ def get_display_widget(component, parent):
             c = ListItemComponent(component, parent, delegate)
         elif component.expose[0] == Type.Dict:
             c = DictItemComponent(component, parent, delegate)
+        elif component.expose[0] == Type.FloatDict:
+            c = FloatDictItemComponent(component, parent, delegate)
 
     else:  # TODO
         c = BoolItemComponent(component, parent)

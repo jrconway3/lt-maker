@@ -10,7 +10,8 @@ class StatChange(SkillComponent):
     desc = "Gives stat bonuses"
     tag = 'combat'
 
-    expose = (Type.Dict, (Type.Stat, Type.Int))
+    expose = (Type.Dict, Type.Stat)
+    value = []
 
     def stat_change(self, unit):
         return {stat[0]: stat[1] for stat in self.value}
@@ -20,7 +21,8 @@ class StatMultiplier(SkillComponent):
     desc = "Gives stat bonuses"
     tag = 'combat'
 
-    expose = (Type.Dict, (Type.Stat, Type.Float))
+    expose = (Type.FloatDict, Type.Stat)
+    value = []
 
     def stat_change(self, unit):
         return {stat[0]: stat[1]*unit.stats[stat[0]] for stat in self.value}

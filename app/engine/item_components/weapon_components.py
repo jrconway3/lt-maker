@@ -108,6 +108,7 @@ class EffectiveTag(ItemComponent):
     tag = 'extra'
 
     expose = (Type.List, Type.Tag)
+    value = []
 
     def dynamic_damage(self, unit, item, target, mode=None) -> int:
         if any(tag in target.tags for tag in self.value):

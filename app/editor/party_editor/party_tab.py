@@ -12,8 +12,11 @@ class PartyDatabase(DatabaseTab):
         title: str = "Party"
         right_frame = party_properties.PartyProperties
 
+        def deletion_func(model, index):
+            return model.rowCount() > 1 
+
         collection_model = party_model.PartyModel
-        return cls(data, title, right_frame, None, collection_model, parent)
+        return cls(data, title, right_frame, (deletion_func, None, None), collection_model, parent)
 
 # Run "python -m app.editor.party_editor.party_tab" from main directory
 if __name__ == '__main__':

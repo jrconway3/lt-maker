@@ -26,10 +26,10 @@ class CombatCondition(SkillComponent):
     def condition(self, unit):
         return self._condition
 
-    def test_on(self, unit, item, target):
-        self.pre_combat([], unit, item, target)
+    def test_on(self, playback, unit, item, target):
+        self.pre_combat(playback, unit, item, target)
 
-    def test_off(self, unit, item, target):
+    def test_off(self, playback, unit, item, target):
         self._condition = False
 
 class Condition(SkillComponent):

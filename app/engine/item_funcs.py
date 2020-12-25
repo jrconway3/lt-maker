@@ -47,7 +47,8 @@ def create_items(unit, item_nid_list: list) -> list:
             droppable = False
         item_prefab = DB.items.get(item_nid)
         item = ItemObject.from_prefab(item_prefab)
-        item.owner_nid = unit.nid
+        if unit:
+            item.owner_nid = unit.nid
         item.droppable = droppable
         item_system.init(item)
         items.append(item)

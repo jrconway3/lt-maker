@@ -53,8 +53,9 @@ def get_growth():
     return r.growth_random.randint(0, 99)
 
 def get_levelup(u_id, lvl):
-    # Times 1024 so seed + lvl can't ever recreate the 
+    # Multiply by 1024 so seed + lvl can't ever recreate the 
     # same state on a different seed with a different level
+    # since seed only goes from 0 - 1023
     return LCG(utils.strhash(u_id) + lvl * 1024 + r.seed)
 
 def get_combat_random_state():

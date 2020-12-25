@@ -22,7 +22,8 @@ class Type(IntEnum):
     MovementType = 17  # Stored as Nid
     Event = 80
     List = 100
-    Dict = 101
+    Dict = 101  # Item followed by integer
+    FloatDict = 102  # Item followed by floating
 
 class Component():
     nid: str = None

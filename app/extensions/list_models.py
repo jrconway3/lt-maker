@@ -85,6 +85,73 @@ class SingleListModel(VirtualListModel):
         basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren | Qt.ItemIsEditable
         return basic_flags
 
+class DoubleListModel(VirtualListModel):
+    """
+    Handles a simple list of 2-tuples/lists
+    Where the second column is a number
+    Used for Type.Dict in item_component editor and 
+    skill_component editor. 
+    """
+    def __init__(self, data, headers, parent=None):
+        super().__init__(parent)
+        self.window = parent
+        self._data = data
+        self._headers = headers
+        self.title = self.window.title
+
+    def headerData(self, idx, orientation, role=Qt.DisplayRole):
+        if role != Qt.DisplayRole:
+            return None
+        if orientation == Qt.Vertical:
+            return None
+        elif orientation == Qt.Horizontal:
+            return self._headers[idx].replace('_', ' ').capitalize()
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            data = self._data[index.row()]
+            return data[index.column()]
+        return None
+
+    def setData(self, index, value, role):
+        if not index.isValid():
+            return False
+        data = self._data[index.row()]
+        current_value = data[index.column()]
+        data[index.column()] = value
+        self.dataChanged.emit(index, index)
+        return True
+
+    def flags(self, index):
+        basic_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren | Qt.ItemIsEditable
+        return basic_flags
+
+    def delete(self, idx):
+        self._data.pop(idx)
+        self.layoutChanged.emit()
+
+    def create_new(self):
+        new_row = str_utils.get_next_name("%s" % self.title, [d[0] for d in self._data])
+        self._data.append([new_row, 0])
+
+    def new(self, idx):
+        self.create_new()
+        self._data.move_index(len(self._data) - 1, idx + 1)
+        self.layoutChanged.emit()
+
+    def append(self):
+        self.create_new()
+        self.layoutChanged.emit()
+        last_index = self.index(self.rowCount() - 1, 0)
+        self.window.view.setCurrentIndex(last_index)
+
+class ReverseDoubleListModel(DoubleListModel):
+    def create_new(self):
+        new_row = str_utils.get_next_name("%s" % self.title, [d[1] for d in self._data])
+        self._data.append([1, new_row])
+
 class MultiAttrListModel(VirtualListModel):
     def __init__(self, data, headers, parent=None):
         super().__init__(parent)

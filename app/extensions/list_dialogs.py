@@ -19,6 +19,7 @@ class SingleListDialog(QDialog):
     def initiate(self, data, title, parent):
         self.window = parent
         self._data = data
+        self.title = title
 
         self.setWindowTitle("%s Editor" % title)
         self.setStyleSheet("font: 10pt;")

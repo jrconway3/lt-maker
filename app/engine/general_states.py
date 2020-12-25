@@ -483,6 +483,8 @@ class MenuState(MapState):
         SOUNDTHREAD.play_sfx('Select 2')
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
+        
+        skill_system.deactivate_all_combat_arts(self.cur_unit)
 
         if not self.cur_unit.has_attacked:
             self.cur_unit.sprite.change_state('menu')
@@ -514,6 +516,27 @@ class MenuState(MapState):
             if t:
                 options.append(ability.name)
         options.append("Wait")
+
+        # Handle extra ability options
+        self.extra_abilities = skill_system.get_extra_abilities(self.cur_unit)
+        if 'Spells' in options:
+            start_index = options.index('Spells') + 1
+        elif 'Attack' in options:
+            start_index = options.index('Attack') + 1
+        else:
+            start_index = len(self.valid_regions)
+        for ability_name in self.extra_abilities.keys():
+            options.insert(start_index, ability_name)
+
+        # Handle combat art options
+        self.combat_arts, combat_art_targets = skill_system.get_combat_arts(self.cur_unit)
+        if 'Attack' in options:
+            start_index = options.index('Attack') + 1
+        else:
+            start_index = len(self.valid_regions)
+        for ability_name, targets in zip(self.combat_arts, combat_art_targets):
+            options.insert(start_index, ability_name)
+            self.target_dict[ability_name] = targets
 
         # Draw highlights
         for ability in ABILITIES:
@@ -571,11 +594,11 @@ class MenuState(MapState):
                 game.state.change('item')
             elif selection == 'Attack':
                 game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
-                game.memory['ability'] = self.target_dict[selection]
+                game.memory['ability'] = 'Attack'
                 game.state.change('weapon_choice')
             elif selection == 'Spells':
                 game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
-                game.memory['ability'] = self.target_dict[selection]
+                game.memory['ability'] = 'Spells'
                 game.state.change('spell_choice')
             elif selection == 'Wait':
                 game.state.clear()
@@ -590,6 +613,21 @@ class MenuState(MapState):
                             action.do(action.RemoveRegion(region))
                         if did_trigger:
                             action.do(action.HasAttacked(self.cur_unit))
+            # An extra ability
+            elif selection in self.extra_abilities:
+                item = self.extra_abilities[selection]
+                targets = target_system.get_valid_targets(self.cur_unit, item)
+                game.memory['targets'] = targets
+                game.memory['ability'] = selection
+                game.memory['item'] = item
+                game.state.change('combat_targeting')
+            # A combat art
+            elif selection in self.combat_arts:
+                skill = self.combat_arts[selection][0]
+                game.memory['ability'] = 'Combat Art'
+                game.memory['valid_weapons'] = self.combat_arts[selection][1]
+                skill_system.activate_combat_art(self.cur_unit, skill)
+                game.state.change('weapon_choice')
             else:  # Selection is one of the other abilities
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('targeting')
@@ -803,7 +841,11 @@ class WeaponChoiceState(MapState):
     name = 'weapon_choice'
 
     def get_options(self, unit) -> list:
-        options = target_system.get_all_weapons(unit)
+        if game.memory['valid_weapons']:
+            options = game.memory['valid_weapons']
+            game.memory['valid_weapons'] = None
+        else:
+            options = target_system.get_all_weapons(unit)
         # Skill straining
         options = [option for option in options if target_system.get_valid_targets(unit, option)]
         return options
@@ -1051,7 +1093,7 @@ class CombatTargetingState(MapState):
     def start(self):
         self.cur_unit = game.cursor.cur_unit
         self.item = game.memory['item']
-        self.ability = game.memory.get('ability')
+        self.ability_name = game.memory.get('ability')
 
         self.num_targets = item_system.num_targets(self.cur_unit, self.item)
         self.current_target_idx = 0
@@ -1062,7 +1104,7 @@ class CombatTargetingState(MapState):
         closest_pos = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_pos)
 
-        if self.ability and self.ability.name == 'Spells':
+        if self.ability_name == 'Spells':
             game.ui_view.prepare_spell_info()
         else:
             game.ui_view.prepare_attack_info()
@@ -1126,7 +1168,7 @@ class CombatTargetingState(MapState):
     def draw(self, surf):
         surf = super().draw(surf)
         if self.cur_unit and game.cursor.get_hover():
-            if self.ability and self.ability.name == 'Spells':
+            if self.ability_name == 'Spells':
                 game.ui_view.draw_spell_info(surf, self.cur_unit, game.cursor.get_hover())
             else:
                 game.ui_view.draw_attack_info(surf, self.cur_unit, game.cursor.get_hover())
@@ -1135,14 +1177,6 @@ class CombatTargetingState(MapState):
     def end(self):
         game.highlight.remove_highlights()
         game.ui_view.reset_info()
-
-# class SpellTargetingState(MapState):
-#     name = 'spell_targeting'
-
-#     def display_single_attack(self):
-#         game.highlight.remove_highlights()
-#         splash_positions = item_system.splash_positions(self.cur_unit, self.item, game.cursor.position)
-#         game.highlight.display_possible_spells(splash_positions)
 
 class CombatState(MapState):
     name = 'combat'

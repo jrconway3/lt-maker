@@ -309,7 +309,7 @@ class UIView():
 
     def draw_attack_info(self, surf, attacker, defender):
         # Turns on appropriate combat conditionals to get an accurate read
-        skill_system.test_on(attacker, attacker.get_weapon(), defender)
+        skill_system.test_on([], attacker, attacker.get_weapon(), defender)
 
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, defender)
@@ -407,7 +407,7 @@ class UIView():
                     surf.blit(SPRITES.get('x4'), x2_pos_enemy)
 
         # Turns off combat conditionals
-        skill_system.test_off(attacker, attacker.get_weapon(), defender)
+        skill_system.test_off([], attacker, attacker.get_weapon(), defender)
 
         return surf
 
@@ -517,7 +517,7 @@ class UIView():
 
     def draw_spell_info(self, surf, attacker, defender):
         # Turns on appropriate combat conditionals to get accurate stats
-        skill_system.test_on(attacker, attacker.get_spell(), defender)
+        skill_system.test_on([], attacker, attacker.get_spell(), defender)
 
         if not self.spell_info_disp:
             self.spell_info_disp = self.create_spell_info(attacker, defender)
@@ -542,7 +542,7 @@ class UIView():
             surf.blit(unit_surf, u_topleft)
 
         # Turns off combat conditionals
-        skill_system.test_off(attacker, attacker.get_spell(), defender)
+        skill_system.test_off([], attacker, attacker.get_spell(), defender)
 
         return surf
 

@@ -8,6 +8,7 @@ class BasicSingleListWidget(QWidget):
     def __init__(self, data, title, dlgate, parent=None):
         super().__init__(parent)
         self.initiate(data, parent)
+        self.title = title
 
         self.model = SingleListModel(self.current, title, self)
         self.view = QTreeView(self)
@@ -41,6 +42,7 @@ class AppendSingleListWidget(BasicSingleListWidget):
     def __init__(self, data, title, dlgate, parent=None):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
+        self.title = title
 
         self.model = SingleListModel(self.current, title, self)
         self.view = RightClickTreeView(parent=self)
@@ -60,6 +62,7 @@ class BasicMultiListWidget(BasicSingleListWidget):
     def __init__(self, data, title, attrs, dlgate, parent=None, model=DefaultMultiAttrListModel):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
+        self.title = title
 
         self.model = model(self.current, attrs, parent=self)
         self.view = QTreeView(self)
@@ -75,9 +78,16 @@ class AppendMultiListWidget(BasicSingleListWidget):
     def __init__(self, data, title, attrs, dlgate, parent=None, model=DefaultMultiAttrListModel):
         QWidget.__init__(self, parent)
         self.initiate(data, parent)
+        self.title = title
 
         self.model = model(self.current, attrs, parent=self)
-        self.view = RightClickTreeView(parent=self)
+
+        def duplicate_func(model, index):
+            return False
+            
+        action_funcs = (None, duplicate_func, duplicate_func)
+
+        self.view = RightClickTreeView(action_funcs, self)
         self.view.setModel(self.model)
         delegate = dlgate(self.view)
         self.view.setItemDelegate(delegate)

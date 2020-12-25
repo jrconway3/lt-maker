@@ -1,7 +1,7 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action
+from app.engine import equations, action, item_funcs, item_system, static_random
 from app.engine.game_state import game
 
 class Ability(SkillComponent):
@@ -12,7 +12,15 @@ class Ability(SkillComponent):
     expose = Type.Item
 
     def extra_ability(self, unit):
-        return self.value
+        # Find if any item already exists with the name we need
+        for item in game.item_registry.values():
+            if item.nid == self.value and item.owner_nid == unit.nid:
+                new_item = item
+                break
+        else:
+            new_item = item_funcs.create_items(unit, [self.value])
+            game.register_item(new_item)
+        return new_item
 
     def end_combat(self, playback, unit, item, target):
         if item.nid == self.value:
@@ -25,14 +33,23 @@ class CombatArt(SkillComponent):
 
     expose = Type.Skill
 
-    def extra_ability(self, unit):
+    def init(self):
+        self.skill.data['active'] = False
+        self._action = None
+
+    def combat_art(self, unit):
         return self.value
 
     def on_activation(self, unit):
+        # I don't think this needs to use an action
+        # because there will be no point in the turnwheel
+        # where you could stop it at True
+        self.skill.data['active'] = True
         self._action = action.AddSkill(unit, self.value)
         action.do(self._action)
 
     def on_deactivation(self, unit):
+        self.skill.data['active'] = False
         action.reverse(self._action)
 
     def end_combat(self, actions, playback, unit, item, target):
@@ -61,9 +78,22 @@ class CombatArtAllowedWeapons(SkillComponent):
 
     expose = Type.String
 
-    def combat_art_weapon_filter(self, unit, item):
-        return eval(self.value)
+    def combat_art_weapon_filter(self, unit) -> list:
+        good_weapons = []
+        for item in item_funcs.get_all_items(unit):
+            try:
+                if bool(eval(self.value)):
+                    good_weapons.append(item)
+            except:
+                print("Couldn't evaluate conditional: %s" % self.value)
+        return good_weapons
 
+def get_proc_rate(unit, skill) -> int:
+    for component in skill.components:
+        if component.defines('proc_rate'):
+            return component.proc_rate(unit)
+    return 100  # 100 is default
+            
 class AttackProc(SkillComponent):
     nid = 'attack_proc'
     desc = "Allows skill to proc when about to attack"
@@ -75,8 +105,8 @@ class AttackProc(SkillComponent):
         self._did_action = False
 
     def start_sub_combat(self, unit, item, target, mode):
-        proc_rate = skill_system.get_proc_rate(unit, self.skill)
-        if proc_rate > static_random.get_combat():
+        proc_rate = get_proc_rate(unit, self.skill)
+        if static_random.get_combat() < proc_rate:
             action.do(action.AddSkill(unit, self.value))
             self._did_action = True
         
@@ -95,8 +125,8 @@ class DefenseProc(SkillComponent):
         self._did_action = False
 
     def start_sub_combat(self, unit, item, target, mode):
-        proc_rate = skill_system.get_proc_rate(unit, self.skill)
-        if proc_rate > static_random.get_combat():
+        proc_rate = get_proc_rate(unit, self.skill)
+        if static_random.get_combat() < proc_rate:
             action.do(action.AddSkill(unit, self.value))
             self._did_action = True
         

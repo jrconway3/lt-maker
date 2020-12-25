@@ -9,6 +9,7 @@ from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine
 from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWidget
+from app.extensions.list_models import ReverseDoubleListModel
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
 from app.editor.tag_widget import TagDialog
@@ -119,7 +120,7 @@ class ClassProperties(QWidget):
 
         skill_section = QHBoxLayout()
         attrs = ("level", "skill_nid")
-        self.class_skill_widget = AppendMultiListWidget([], "Class Skills", attrs, LearnedSkillDelegate, self)
+        self.class_skill_widget = AppendMultiListWidget([], "Class Skills", attrs, LearnedSkillDelegate, self, model=ReverseDoubleListModel)
         skill_section.addWidget(self.class_skill_widget)
 
         self.map_sprite_label = QLabel()

@@ -30,6 +30,7 @@ class TurnChangeState(MapState):
         # Clear all previous states in state machine except me
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
+        return 'repeat'
 
     def end(self):
         game.phase.next()  # Go to next phase

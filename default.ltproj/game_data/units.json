@@ -2104,7 +2104,16 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Strength +2"
+            ],
+            [
+                1,
+                "Stunned"
+            ]
+        ],
         "wexp_gain": [
             [
                 true,
@@ -2557,7 +2566,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Stoneskin"
+            ]
+        ],
         "wexp_gain": [
             [
                 false,

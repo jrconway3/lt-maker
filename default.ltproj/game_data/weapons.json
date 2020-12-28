@@ -2,7 +2,6 @@
     {
         "nid": "Sword",
         "name": "Sword",
-        "magic": false,
         "rank_bonus": [],
         "advantage": [
             {
@@ -41,7 +40,6 @@
     {
         "nid": "Lance",
         "name": "Lance",
-        "magic": false,
         "rank_bonus": [],
         "advantage": [
             {
@@ -80,7 +78,6 @@
     {
         "nid": "Axe",
         "name": "Axe",
-        "magic": false,
         "rank_bonus": [],
         "advantage": [
             {
@@ -119,7 +116,6 @@
     {
         "nid": "Bow",
         "name": "Bow",
-        "magic": false,
         "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],
@@ -132,7 +128,6 @@
     {
         "nid": "Staff",
         "name": "Staff",
-        "magic": true,
         "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],
@@ -145,7 +140,6 @@
     {
         "nid": "Light",
         "name": "Light",
-        "magic": true,
         "rank_bonus": [],
         "advantage": [
             {
@@ -184,7 +178,6 @@
     {
         "nid": "Anima",
         "name": "Anima",
-        "magic": true,
         "rank_bonus": [],
         "advantage": [
             {
@@ -223,7 +216,6 @@
     {
         "nid": "Dark",
         "name": "Dark",
-        "magic": true,
         "rank_bonus": [],
         "advantage": [
             {
@@ -262,7 +254,6 @@
     {
         "nid": "Default",
         "name": "Consumable",
-        "magic": false,
         "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],

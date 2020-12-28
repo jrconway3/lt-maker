@@ -94,7 +94,7 @@ class RankCatalog(Data):
 class WeaponType(Prefab):
     nid: str = None
     name: str = None
-    magic: bool = False
+    # magic: bool = False
     rank_bonus: CombatBonusList = None
     advantage: CombatBonusList = None
     disadvantage: CombatBonusList = None

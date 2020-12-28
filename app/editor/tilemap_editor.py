@@ -24,7 +24,7 @@ def draw_tilemap(tilemap):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
-    image.fill(QColor(0, 0, 0, 0))
+    image.fill(QColor(0, 0, 0, 255))
 
     painter = QPainter()
     painter.begin(image)

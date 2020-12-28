@@ -542,8 +542,11 @@ class EventProperties(QWidget):
         # Convert text
         text = ''
         for command in current.commands:
-            text += command.to_plain_text()
-            text += '\n'
+            if command:
+                text += command.to_plain_text()
+                text += '\n'
+            else:
+                print("NoneType in current.commands")
 
         self.text_box.setPlainText(text)
     

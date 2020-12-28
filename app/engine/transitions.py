@@ -19,13 +19,15 @@ class TransitionInState(State):
         else:
             self.transition_speed = transition_speed
 
-    def draw(self, surf):
-        bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, bg)
-
+    def update(self):
         self.counter += self.transition_speed
         if self.counter >= transition_max:
             game.state.back()
+            return 'repeat'
+
+    def draw(self, surf):
+        bg = image_mods.make_translucent(self.bg, self.counter * .125)
+        engine.blit_center(surf, bg)
         return surf
 
     def finish(self):
@@ -43,13 +45,16 @@ class TransitionOutState(State):
             self.transition_speed = transition_speed
         self.counter = transition_max
 
+    def update(self):
+        self.counter -= self.transition_speed
+        if self.counter <= 0:
+            game.state.back()
+            return 'repeat'
+
     def draw(self, surf):
         bg = image_mods.make_translucent(self.bg, self.counter * .125)
         engine.blit_center(surf, bg)
 
-        self.counter -= self.transition_speed
-        if self.counter <= 0:
-            game.state.back()
         return surf
 
     def finish(self):
@@ -58,40 +63,31 @@ class TransitionOutState(State):
 class TransitionPopState(TransitionOutState):
     name = 'transition_pop'
 
-    def draw(self, surf):
-        bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, bg)
-
+    def update(self):
         self.counter -= self.transition_speed
         if self.counter <= 0:
             game.state.back()
             game.state.back()
-        return surf
+            return 'repeat'
 
 class TransitionDoublePopState(TransitionPopState):
     name = 'transition_double_pop'
 
-    def draw(self, surf):
-        bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, bg)
-
+    def update(self):
         self.counter -= self.transition_speed
         if self.counter <= 0:
             game.state.back()
             game.state.back()
             game.state.back()
-        return surf
+            return 'repeat'
 
 class TransitionToState(TransitionOutState):
     name = 'transition_to'
     transparent = True
 
-    def draw(self, surf):
-        bg = image_mods.make_translucent(self.bg, self.counter * .125)
-        engine.blit_center(surf, bg)
-
+    def update(self):
         self.counter -= self.transition_speed
         if self.counter <= 0:
             game.state.back()
             game.state.change(game.memory['next_state'])
-        return surf
+            return 'repeat'

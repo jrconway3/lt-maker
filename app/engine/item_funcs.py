@@ -6,9 +6,6 @@ from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 
 def is_magic(unit, item) -> bool:
-    weapon_type = item_system.weapon_type(unit, item)
-    if weapon_type and DB.weapons.get(weapon_type).magic:
-        return True
     if item.magic:
         return True
     return False

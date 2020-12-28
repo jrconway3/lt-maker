@@ -268,7 +268,7 @@
                 ]
             ],
             [
-                "morph_group",
+                "move_group",
                 [
                     "Enemy1",
                     "Starting"
@@ -848,13 +848,11 @@
                 ]
             ],
             [
-                "morph_group",
+                "spawn_group",
                 [
+                    "Rein",
                     "North",
-                    "Starting",
-                    "",
-                    "",
-                    "Rein"
+                    "Starting"
                 ]
             ],
             [
@@ -1173,8 +1171,9 @@
                 ]
             ],
             [
-                "morph_group",
+                "spawn_group",
                 [
+                    "Enemy1",
                     "South",
                     "Enemy1",
                     "",
@@ -1575,7 +1574,7 @@
                 ]
             ],
             [
-                "morph_group",
+                "move_group",
                 [
                     "Enemy1",
                     "Starting"
@@ -1745,13 +1744,11 @@
                 ]
             ],
             [
-                "morph_group",
+                "spawn_group",
                 [
+                    "EirikaSeth",
                     "East",
-                    "Starting",
-                    "",
-                    "",
-                    "EirikaSeth"
+                    "Starting"
                 ]
             ],
             [
@@ -2030,8 +2027,9 @@
         "condition": "game.level.regions.get('EnemyRein').contains(game.get_unit('Eirika').position)",
         "commands": [
             [
-                "morph_group",
+                "spawn_group",
                 [
+                    "EnemyRein",
                     "East",
                     "EnemyRein"
                 ]
@@ -2451,8 +2449,9 @@
                 ]
             ],
             [
-                "morph_group",
+                "spawn_group",
                 [
+                    "Bandits1",
                     "East",
                     "Bandits1"
                 ]
@@ -2680,12 +2679,13 @@
                 "add_group",
                 [
                     "RossGarcia",
+                    "",
                     "immediate",
                     "stack"
                 ]
             ],
             [
-                "morph_group",
+                "move_group",
                 [
                     "RossGarcia",
                     "Starting"

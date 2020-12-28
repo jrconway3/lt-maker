@@ -946,5 +946,49 @@
                 "positions": {}
             }
         ]
+    },
+    {
+        "nid": "DEBUG",
+        "name": "DEBUG",
+        "tilemap": "Chapter 2",
+        "party": null,
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "DEBUG",
+            "win": "Don't Crash",
+            "loss": "Crash"
+        },
+        "units": [
+            {
+                "nid": "Joshua",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Bone",
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    3
+                ],
+                "generic": false
+            }
+        ],
+        "regions": [],
+        "unit_groups": []
     }
 ]

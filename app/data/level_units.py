@@ -39,6 +39,10 @@ class GenericUnit(Prefab):
     def get_items(self):
         return [i[0] for i in self.starting_items]
 
+    @property
+    def learned_skills(self):
+        return []  # Generic units don't have personal skills
+
 @dataclass
 class UniqueUnit(Prefab):
     nid: str = None

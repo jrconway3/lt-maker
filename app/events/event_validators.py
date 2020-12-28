@@ -214,6 +214,22 @@ class Group(Validator):
             return text
         return None
 
+class StartingGroup(Validator):
+    def validate(self, text, level):
+        if not level:
+            return None
+        if ',' in text and len(text.split(',')) == 2:
+            if all(str_utils.is_int(t) for t in text.split(',')):
+                return text
+            else:
+                return None
+        if text.lower() == 'starting':
+            return text
+        nids = [g.nid for g in level.unit_groups]
+        if text in nids:
+            return text
+        return None
+
 class GlobalUnit(Validator):
     def validate(self, text, level):
         if level:
@@ -228,19 +244,9 @@ class GlobalUnit(Validator):
             return True
         return None
 
-class StartingGroup(Validator):
-    def validate(self, text, level):
-        if not level:
-            return None
-        if text.lower() == 'starting':
-            return text
-        if text.lower() in ('east', 'north', 'south', 'west'):
-            return text
-        nids = [g.nid for g in level.unit_groups]
-        if text in nids:
-            return text
-        return None
-
+class CardinalDirection(OptionValidator):
+    valid = ['north', 'east', 'west', 'south']
+    
 class EntryType(OptionValidator):
     valid = ['fade', 'immediate', 'warp']
 

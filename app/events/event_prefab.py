@@ -35,7 +35,7 @@ class EventPrefab(Prefab):
 
     def save_attr(self, name, value):
         if name == 'commands':
-            value = [c.save() for c in value]
+            value = [c.save() for c in value if c]
         else:
             value = super().save_attr(name, value)
         return value
@@ -43,6 +43,7 @@ class EventPrefab(Prefab):
     def restore_attr(self, name, value):
         if name == 'commands':
             value = [event_commands.restore_command(c) for c in value]
+            value = [v for v in value if v]
         else:
             value = super().restore_attr(name, value)
         return value

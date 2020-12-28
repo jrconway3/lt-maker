@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon, QColor
 
 import os
 
@@ -94,11 +94,14 @@ def create_tilemap_pixmap(tilemap):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
+    image.fill(QColor(0, 0, 0, 255))
 
     painter = QPainter()
     painter.begin(image)
     for coord, tile_sprite in base_layer.sprite_grid.items():
         tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+        if not tileset.pixmap:
+            tileset.set_pixmap(QPixmap(tileset.full_path))
         pix = tileset.get_pixmap(tile_sprite.tileset_position)
         if pix:
             painter.drawImage(coord[0] * TILEWIDTH,
@@ -106,6 +109,7 @@ def create_tilemap_pixmap(tilemap):
                               pix.toImage())
     painter.end()
     tilemap.pixmap = QPixmap.fromImage(image)
+    return tilemap.pixmap
 
 class TileMapModel(ResourceCollectionModel):
     def __init__(self, data, window):

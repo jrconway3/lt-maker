@@ -20,6 +20,9 @@ class EventCommand(Prefab):
     def to_plain_text(self):
         return ';'.join([self.nid] + self.values)
 
+    def __repr__(self):
+        return self.to_plain_text()
+
 class Comment(EventCommand):
     nid = "comment"
     nickname = '#'
@@ -216,22 +219,24 @@ class AddGroup(EventCommand):
     tag = 'unit'
 
     keywords = ["Group"]
-    optional_keywords = ["EntryType", "Placement"]
+    optional_keywords = ["StartingGroup", "EntryType", "Placement"]
+    flags = ["create"]
 
-class CreateGroup(EventCommand):
-    nid = 'create_group'
+class SpawnGroup(EventCommand):
+    nid = 'spawn_group'
+    tag = "unit"
+
+    keywords = ["Group", "CardinalDirection", "StartingGroup"]
+    optional_keywords = ["EntryType", "Placement"]
+    flags = ["create", "no_block"]
+
+class MoveGroup(EventCommand):
+    nid = 'move_group'
+    nickname = 'morph_group'
     tag = 'unit'
 
-    keywords = ["Group"]
-    optional_keywords = ["EntryType", "Placement"]
-
-class MorphGroup(EventCommand):
-    nid = 'morph_group'
-    nickname = 'move_group'
-    tag = 'unit'
-
-    keywords = ["StartingGroup", "StartingGroup"]
-    optional_keywords = ["MovementType", "Placement", "Group"]
+    keywords = ["Group", "StartingGroup"]
+    optional_keywords = ["MovementType", "Placement"]
     flags = ['no_block']
 
 class RemoveGroup(EventCommand):
@@ -355,6 +360,8 @@ def restore_command(dat):
         if command.nid == nid:
             copy = command(values)
             return copy
+    print("Couldn't restore event command!")
+    print(nid, values)
     return None
 
 def parse_text(text):

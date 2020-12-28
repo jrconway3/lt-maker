@@ -39,6 +39,9 @@ class EventState(MapState):
             game.state.back()
             return 'repeat'
 
+        if self.event.state == 'paused':
+            return 'repeat'
+
         if self.event.state == 'complete':
             game.state.back()
             return self.end_event()

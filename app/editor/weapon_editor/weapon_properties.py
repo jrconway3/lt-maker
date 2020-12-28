@@ -43,9 +43,9 @@ class WeaponProperties(QWidget):
 
         top_section.addLayout(name_section)
 
-        self.magic_box = PropertyCheckBox("Magic", QCheckBox, self)
-        self.magic_box.edit.stateChanged.connect(self.magic_changed)
-        name_section.addWidget(self.magic_box)
+        # self.magic_box = PropertyCheckBox("Magic", QCheckBox, self)
+        # self.magic_box.edit.stateChanged.connect(self.magic_changed)
+        # name_section.addWidget(self.magic_box)
 
         attrs = ('weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attack_speed', 'defense_speed')
         self.rank_bonus = AppendMultiListWidget(CombatBonusList(), "Rank Bonus", attrs, RankBonusDelegate, self)
@@ -82,14 +82,14 @@ class WeaponProperties(QWidget):
         self.current.name = text
         self.window.update_list()
 
-    def magic_changed(self, state):
-        self.current.magic = bool(state)
+    # def magic_changed(self, state):
+    #     self.current.magic = bool(state)
 
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
-        self.magic_box.edit.setChecked(current.magic)
+        # self.magic_box.edit.setChecked(current.magic)
         self.rank_bonus.set_current(current.rank_bonus)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)

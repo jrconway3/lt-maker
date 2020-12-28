@@ -1,7 +1,7 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action
+from app.engine import equations, action, item_funcs
 from app.engine.game_state import game
 
 # status plugins
@@ -19,7 +19,7 @@ class CannotUseItems(SkillComponent):
     tag = 'base'
 
     def available(self, unit, item) -> bool:
-        return True
+        return False
 
 class CannotUseMagicItems(SkillComponent):
     nid = 'cannot_use_magic_items'
@@ -27,7 +27,7 @@ class CannotUseMagicItems(SkillComponent):
     tag = 'base'
 
     def available(self, unit, item) -> bool:
-        return item.magic
+        return not item_funcs.is_magic(unit, item)
 
 class IgnoreAlliances(SkillComponent):
     nid = 'ignore_alliances'

@@ -329,6 +329,18 @@ class Event():
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 
+        elif command.nid == 'flicker_cursor':
+            # This is a macro that just adds new commands to command list
+            move_cursor_command = event_commands.MoveCursor(command.values)
+            disp_cursor_command1 = event_commands.DispCursor(['1'])
+            wait_command = event_commands.Wait(['1000'])
+            disp_cursor_command2 = event_commands.DispCursor(['0'])
+            # Done backwards to presever order upon insertion
+            self.commands.insert(self.command_idx, disp_cursor_command2)
+            self.commands.insert(self.command_idx, wait_command)
+            self.commands.insert(self.command_idx, disp_cursor_command1)
+            self.commands.insert(self.command_idx, move_cursor_command)
+            
         elif command.nid == 'game_var':
             values, flags = event_commands.parse(command)
             nid = values[0]

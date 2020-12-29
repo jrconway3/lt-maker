@@ -122,8 +122,8 @@ class DatabaseTab(QWidget):
     #     dialog.exec_()
 
     @classmethod
-    def edit(cls):
-        window = SingleDatabaseEditor(cls)
+    def edit(cls, parent=None):
+        window = SingleDatabaseEditor(cls, parent)
         window.exec_()
 
 class CollectionModel(QAbstractListModel):

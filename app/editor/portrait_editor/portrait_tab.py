@@ -23,8 +23,8 @@ class PortraitDatabase(DatabaseTab):
         return dialog
 
     @classmethod
-    def edit(cls):
-        window = SingleResourceEditor(PortraitDatabase, ['portraits'])
+    def edit(cls, parent=None):
+        window = SingleResourceEditor(PortraitDatabase, ['portraits'], parent)
         window.exec_()
 
 def get():

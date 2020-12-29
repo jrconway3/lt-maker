@@ -8,7 +8,8 @@ from app.utilities import str_utils
 from app.events.event_prefab import EventPrefab
 
 class EventModel(TableModel):
-    rows = ['nid', 'level_nid', 'trigger']
+    # rows = ['nid', 'level_nid', 'trigger']
+    rows = ['name', 'level_nid', 'trigger']
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
@@ -19,6 +20,8 @@ class EventModel(TableModel):
             val = self.rows[idx]
             if val == 'nid':
                 return 'ID'
+            elif val == 'name':
+                return 'Name'
             elif val == 'level_nid':
                 return 'Level'
             else:
@@ -38,8 +41,8 @@ class EventModel(TableModel):
         return None
 
     def create_new(self):
-        nids = [d.nid for d in self._data]
-        nid = str_utils.get_next_name("New Event", nids)
-        new_event = EventPrefab(nid)
+        other_names = [d.name for d in self._data if d.level_nid is None]
+        name = str_utils.get_next_name("New Event", other_names)
+        new_event = EventPrefab(name)
         DB.events.append(new_event)
         return new_event

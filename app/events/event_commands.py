@@ -156,6 +156,14 @@ class MoveCursor(EventCommand):
     keywords = ["Position"]
     flags = ["immediate"]
 
+class FlickerCursor(EventCommand):
+    nid = 'flicker_cursor'
+    nickname = 'highlight'
+    tag = 'cursor'
+
+    keywords = ["Position"]
+    flags = ["immediate"]
+
 class GameVar(EventCommand):
     nid = 'game_var'
     tag = 'general'

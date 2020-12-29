@@ -25,13 +25,22 @@ all_triggers = Data([
 ])
 
 class EventPrefab(Prefab):
-    def __init__(self, nid):
-        self.nid = nid
+    def __init__(self, name):
+        self.name = name
         self.trigger = None
         self.level_nid = None
         self.condition: str = "True"
         self.commands = []
         self.only_once = False
+
+    @property
+    def nid(self):
+        if not self.name:
+            return None
+        if self.level_nid:
+            return self.level_nid + " " + self.name
+        else:
+            return "Global " + self.name
 
     def save_attr(self, name, value):
         if name == 'commands':

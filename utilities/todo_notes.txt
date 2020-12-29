@@ -39,3 +39,5 @@ Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
 Summoning
+
+Better event setup

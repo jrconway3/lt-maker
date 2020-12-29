@@ -79,8 +79,8 @@ class PanoramaDatabase(PanoramaTab):
         return dialog
 
     @classmethod
-    def edit(cls):
-        window = SingleResourceEditor(PanoramaDatabase, ['panoramas'])
+    def edit(cls, parent=None):
+        window = SingleResourceEditor(PanoramaDatabase, ['panoramas'], parent)
         window.exec_()
 
 # Run "python -m app.editor.panorama_editor.panorama_tab" from main directory

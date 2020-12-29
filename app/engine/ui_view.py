@@ -1,3 +1,5 @@
+import re
+
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 from app.data.database import DB
@@ -187,8 +189,14 @@ class UIView():
         FONT['text-white'].blit(name, bg_surf, pos)
         return bg_surf
 
-    def eval_string(self, string):
-        return string
+    def eval_string(self, text):
+        to_evaluate = re.findall(r'\{[^}]*\}', text)
+        evaluated = []
+        for evalute in to_evaluate:
+            evaluated.append(str(eval(evalute[1:-1])))
+        for idx in range(len(to_evaluate)):
+            text = text.replace(to_evaluate[idx], evaluated[idx])
+        return text
 
     def create_obj_info(self):
         font = FONT['text-white']

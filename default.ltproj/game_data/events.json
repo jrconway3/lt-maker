@@ -1,6 +1,6 @@
 [
     {
-        "nid": "Intro0",
+        "name": "Intro",
         "trigger": "level_start",
         "level_nid": "0",
         "condition": "True",
@@ -377,7 +377,7 @@
         "only_once": null
     },
     {
-        "nid": "DeathEirika",
+        "name": "DeathEirika",
         "trigger": "unit_death",
         "level_nid": null,
         "condition": "unit.nid == 'Eirika'",
@@ -423,7 +423,7 @@
         "only_once": null
     },
     {
-        "nid": "DeathSeth",
+        "name": "DeathSeth",
         "trigger": "unit_death",
         "level_nid": null,
         "condition": "unit.nid == 'Seth'",
@@ -459,7 +459,7 @@
         "only_once": false
     },
     {
-        "nid": "DeathFranz",
+        "name": "DeathFranz",
         "trigger": "unit_death",
         "level_nid": null,
         "condition": "unit.nid == 'Franz'",
@@ -495,7 +495,7 @@
         "only_once": false
     },
     {
-        "nid": "DeathGilliam",
+        "name": "DeathGilliam",
         "trigger": "unit_death",
         "level_nid": null,
         "condition": "unit.nid == 'Gilliam'",
@@ -531,7 +531,7 @@
         "only_once": false
     },
     {
-        "nid": "DeathONeill",
+        "name": "DeathONeill",
         "trigger": "unit_death",
         "level_nid": "0",
         "condition": "unit.nid == \"O'Neill\"",
@@ -567,7 +567,7 @@
         "only_once": false
     },
     {
-        "nid": "DeathBreguet",
+        "name": "DeathBreguet",
         "trigger": "unit_death",
         "level_nid": "1",
         "condition": "unit.nid == \"Breguet\"",
@@ -603,7 +603,7 @@
         "only_once": false
     },
     {
-        "nid": "Outro0",
+        "name": "Outro",
         "trigger": "level_end",
         "level_nid": "0",
         "condition": "True",
@@ -693,7 +693,7 @@
         "only_once": null
     },
     {
-        "nid": "OnlyBoss",
+        "name": "OnlyBoss",
         "trigger": "combat_end",
         "level_nid": "0",
         "condition": "len(game.get_enemy_units()) == 1",
@@ -722,7 +722,7 @@
         "only_once": true
     },
     {
-        "nid": "Win0",
+        "name": "Win",
         "trigger": "combat_end",
         "level_nid": "0",
         "condition": "game.check_dead(\"O'Neill\")",
@@ -735,7 +735,7 @@
         "only_once": false
     },
     {
-        "nid": "EnemyTurn2",
+        "name": "EnemyTurn2",
         "trigger": "enemy_turn_change",
         "level_nid": "0",
         "condition": "game.turncount == 2",
@@ -771,7 +771,7 @@
         "only_once": false
     },
     {
-        "nid": "FightONeill",
+        "name": "FightONeill",
         "trigger": "combat_start",
         "level_nid": "0",
         "condition": "unit.nid == \"O'Neill\" or unit2.nid == \"O'Neill\"",
@@ -807,7 +807,7 @@
         "only_once": true
     },
     {
-        "nid": "FightBreguet",
+        "name": "FightBreguet",
         "trigger": "combat_start",
         "level_nid": "1",
         "condition": "(unit.nid == \"Breguet\" and unit2.team == 'player') or (unit2.nid == \"Breguet\" and unit.team == 'player')",
@@ -836,7 +836,7 @@
         "only_once": true
     },
     {
-        "nid": "GilliamFranzArrive",
+        "name": "GilliamFranzArrive",
         "trigger": "turn_change",
         "level_nid": "1",
         "condition": "game.turncount == 2",
@@ -965,7 +965,7 @@
         "only_once": false
     },
     {
-        "nid": "House1",
+        "name": "House1",
         "trigger": "Visit",
         "level_nid": "1",
         "condition": "region.nid == 'House1'",
@@ -1030,7 +1030,7 @@
         "only_once": false
     },
     {
-        "nid": "House2",
+        "name": "House2",
         "trigger": "Visit",
         "level_nid": "1",
         "condition": "region.nid == 'House2'",
@@ -1095,7 +1095,7 @@
         "only_once": false
     },
     {
-        "nid": "Seize",
+        "name": "Seize",
         "trigger": "Seize",
         "level_nid": null,
         "condition": "True",
@@ -1108,7 +1108,7 @@
         "only_once": false
     },
     {
-        "nid": "Intro1",
+        "name": "Intro",
         "trigger": "level_start",
         "level_nid": "1",
         "condition": "True",
@@ -1856,7 +1856,7 @@
         "only_once": false
     },
     {
-        "nid": "Outro1",
+        "name": "Outro",
         "trigger": "level_end",
         "level_nid": "1",
         "condition": "True",
@@ -2021,7 +2021,7 @@
         "only_once": false
     },
     {
-        "nid": "EnemyRein1",
+        "name": "EnemyRein",
         "trigger": "turn_change",
         "level_nid": "1",
         "condition": "game.level.regions.get('EnemyRein').contains(game.get_unit('Eirika').position)",
@@ -2082,7 +2082,7 @@
         "only_once": true
     },
     {
-        "nid": "SethFranzTalk",
+        "name": "SethFranzTalk",
         "trigger": "on_talk",
         "level_nid": "1",
         "condition": "unit.nid == 'Seth' and unit2.nid == 'Franz'",
@@ -2154,7 +2154,7 @@
         "only_once": false
     },
     {
-        "nid": "EirikaFranzTalk",
+        "name": "EirikaFranzTalk",
         "trigger": "on_talk",
         "level_nid": "1",
         "condition": "unit.nid == 'Eirika' and unit2.nid == 'Franz'",
@@ -2233,7 +2233,7 @@
         "only_once": false
     },
     {
-        "nid": "EnemyTurn1",
+        "name": "EnemyTurn1",
         "trigger": "enemy_turn_change",
         "level_nid": "1",
         "condition": "game.turncount == 1",
@@ -2262,16 +2262,49 @@
         "only_once": false
     },
     {
-        "nid": "Intro2",
+        "name": "Intro",
         "trigger": "level_start",
         "level_nid": "2",
         "condition": "True",
         "commands": [
             [
+                "comment",
+                [
+                    "# Setup"
+                ]
+            ],
+            [
                 "show_layer",
                 [
                     "PrevVillage",
                     "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "Bandits1",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "BlueTeam",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "RossGarcia",
+                    "immediate"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Money making"
                 ]
             ],
             [
@@ -2449,35 +2482,25 @@
                 ]
             ],
             [
-                "spawn_group",
+                "add_group",
                 [
                     "Bandits1",
-                    "East",
+                    "14,8",
+                    "immediate",
+                    "stack"
+                ]
+            ],
+            [
+                "move_group",
+                [
+                    "Bandits1",
                     "Bandits1"
                 ]
             ],
             [
-                "move_cursor",
+                "flicker_cursor",
                 [
-                    "13,7"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "1"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "0"
+                    "Bone"
                 ]
             ],
             [
@@ -2532,14 +2555,15 @@
             [
                 "move_unit",
                 [
-                    "Bone",
-                    "14,9"
+                    "BoneBuddy",
+                    "14,10"
                 ]
             ],
             [
                 "remove_unit",
                 [
-                    "Bone"
+                    "BoneBuddy",
+                    "immediate"
                 ]
             ],
             [
@@ -2549,27 +2573,9 @@
                 ]
             ],
             [
-                "move_cursor",
+                "flicker_cursor",
                 [
                     "12,3"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "1"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "0"
                 ]
             ],
             [
@@ -2609,7 +2615,7 @@
                 "move_portrait",
                 [
                     "Ross",
-                    "MidLeft"
+                    "Left"
                 ]
             ],
             [
@@ -2633,6 +2639,12 @@
                 ]
             ],
             [
+                "comment",
+                [
+                    "# Transition to Bone leaving and TopBandit destroying the village"
+                ]
+            ],
+            [
                 "change_background",
                 []
             ],
@@ -2640,6 +2652,12 @@
                 "transition",
                 [
                     "Open"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Bone"
                 ]
             ],
             [
@@ -2659,7 +2677,15 @@
             [
                 "move_unit",
                 [
-                    "Bone"
+                    "Bone",
+                    "9,10"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Bone",
+                    "immediate"
                 ]
             ],
             [
@@ -2676,10 +2702,16 @@
                 ]
             ],
             [
+                "sound",
+                [
+                    "ItemBreak"
+                ]
+            ],
+            [
                 "add_group",
                 [
                     "RossGarcia",
-                    "",
+                    "12,3",
                     "immediate",
                     "stack"
                 ]
@@ -2692,27 +2724,9 @@
                 ]
             ],
             [
-                "move_cursor",
+                "flicker_cursor",
                 [
                     "Ross"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "1"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "0"
                 ]
             ],
             [
@@ -2793,7 +2807,482 @@
                 "speak",
                 [
                     "Garcia",
-                    "Don't risk youself"
+                    "Don't risk youself so foolishly...{br}We need to get you some help.|Please! Someone help my son!"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "BlueTeam",
+                    "0,0",
+                    "immediate",
+                    "stack"
+                ]
+            ],
+            [
+                "move_group",
+                [
+                    "BlueTeam",
+                    "Starting"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Ah! This looks serious.|I must report back to Priness Eirika at once."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vanessa",
+                    "2,3"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "OffscreenRight",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Vanessa",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "I have bad news.|The villages to the east is under attack by bandits."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Bandits?!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Moulder",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "We have arrive at our first dilemma.|We must move quickly and attract as little attention as possible, but..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "But I cannot stand by and watch innocents be harmed.|Vanessa, how fare the villagers?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "I spotted one injured person.{br}He appeared to be just a child."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Father Moulder, can your staff help him?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "Well, yes, I can heal his injuries with my staff, but...|I cannot do it from here. He's too far away. I must be near him."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Princess, please leave this to me.|I shall bring the boy here."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Moulder",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Moulder"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Moulder",
+                    "Right",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "All right, Vanessa. It's up to you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Very well. I'm off."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Moulder"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Add the two enemy units back"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Bone",
+                    "",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "BoneBuddy",
+                    "",
+                    "immediate"
+                ]
+            ],
+            [
+                "set_current_hp",
+                [
+                    "Ross",
+                    "5"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Armory",
+        "trigger": "Armory",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "shop",
+                [
+                    "{unit}",
+                    "Iron Sword,Slim Sword,Iron Lance,Slim Lance,Iron Axe"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Village1Eirika",
+        "trigger": "Visit",
+        "level_nid": "2",
+        "condition": "region.nid == 'Village1' and unit.nid == 'Eirika'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Woman1",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Selena",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman1",
+                    "This is terrible... What are we going to do? Those bandits are so close.|If we can't find some way to protect ourselves, the village is doomed."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "Perhaps..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Woman1"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "People, listen to me! You must close the village gates immediately.|Hurry, before the bandits arrive!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "Who are you? You aren't from one of the neighboring towns, are you.|And your weapons give you away... You're no peasant."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "I am Er...|My name is Erina.{br}I'm a mercenary."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "A mercenary named Erina, is it?|There's more to you than that, I feel. But don't worry--it's none of my affair.|I haven't told you who I am yet, have I?{br}I am Selena, a general in Grado's army."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Ah!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "Is something wrong?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "No...uh, nothing."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "It looks like these villagers have some bandit troubles.|I would like to help, but I have orders...|I'm to leave for the capital immediately, and I cannot stay.|You're armed, and you claim to be a mercenary. Will you help them?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Um..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "Is there a problem?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "No! Of course I'll help them!|It's just... You're one of Grado's generals... Why..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "These aren't soldiers.{br}They're people.|Should they suffer because their leaders fight?|I've petitioned your aid. Take this as payment."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Selena"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "......"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Eirika",
+                    "Red Gem"
                 ]
             ]
         ],

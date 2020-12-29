@@ -573,7 +573,7 @@
             "base": null
         },
         "objective": {
-            "simple": "Rout",
+            "simple": "Defeat enemy,Left {len([unit for unit in game.level.units if unit.team == 'enemy' and unit.position])}",
             "win": "Defeat all enemies",
             "loss": "Eirika dies"
         },
@@ -691,7 +691,7 @@
                 "generic": true
             },
             {
-                "nid": "102",
+                "nid": "BoneBuddy",
                 "variant": null,
                 "level": 3,
                 "klass": "Brigand",
@@ -913,9 +913,30 @@
                     "TopBandit",
                     "105",
                     "Bone",
-                    "102"
+                    "BoneBuddy"
                 ],
-                "positions": {}
+                "positions": {
+                    "TopBandit": [
+                        12,
+                        5
+                    ],
+                    "105": [
+                        14,
+                        9
+                    ],
+                    "Bone": [
+                        13,
+                        7
+                    ],
+                    "102": [
+                        11,
+                        7
+                    ],
+                    "BoneBuddy": [
+                        11,
+                        7
+                    ]
+                }
             },
             {
                 "nid": "RossGarcia",
@@ -923,16 +944,7 @@
                     "Ross",
                     "Garcia"
                 ],
-                "positions": {
-                    "Ross": [
-                        12,
-                        3
-                    ],
-                    "Garcia": [
-                        12,
-                        3
-                    ]
-                }
+                "positions": {}
             },
             {
                 "nid": "BlueTeam",

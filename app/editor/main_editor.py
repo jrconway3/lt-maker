@@ -1,6 +1,7 @@
 import os, sys, glob
 from datetime import datetime
 import json
+import functools
 
 from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QMessageBox, \
     QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget, \
@@ -252,7 +253,7 @@ class MainEditor(QMainWindow):
                             }
         self.database_actions = {}
         for name, func in database_actions.items():
-            self.database_actions[name] = QAction("%s..." % name, self, triggered=func)
+            self.database_actions[name] = QAction("%s..." % name, self, triggered=functools.partial(func, self))
 
         resource_actions = {"Icons": self.edit_icons,
                             "Portraits": PortraitDatabase.edit,
@@ -265,9 +266,9 @@ class MainEditor(QMainWindow):
                             }
         self.resource_actions = {}
         for name, func in resource_actions.items():
-            self.resource_actions[name] = QAction("%s..." % name, self, triggered=func)
+            self.resource_actions[name] = QAction("%s..." % name, self, triggered=functools.partial(func, self))
 
-        self.modify_events_act = QAction("Edit Events", self, triggered=EventDatabase.edit)
+        self.modify_events_act = QAction("Edit Events", self, triggered=functools.partial(EventDatabase.edit, self))
 
     def create_menus(self):
         file_menu = QMenu("File", self)
@@ -592,31 +593,31 @@ class MainEditor(QMainWindow):
 
         self.global_mode = True
 
-    def edit_tags(self):
+    def edit_tags(self, parent=None):
         dialog = TagDialog.create()
         dialog.exec_()
 
-    def edit_mcost(self):
+    def edit_mcost(self, parent=None):
         dialog = McostDialog(self)
         dialog.exec_()
 
-    def edit_equations(self):   
+    def edit_equations(self, parent=None):   
         dialog = EquationDialog.create()
         dialog.exec_()
 
-    def edit_translations(self):
+    def edit_translations(self, parent=None):
         dialog = TranslationDialog.create()
         dialog.exec_()
 
-    def edit_icons(self):
+    def edit_icons(self, parent=None):
         dialog = icon_tab.get_full_editor()
         dialog.exec_()
 
-    def edit_tilemaps(self):
+    def edit_tilemaps(self, parent=None):
         dialog = tile_tab.get_full_editor()
         dialog.exec_()
 
-    def edit_sounds(self):
+    def edit_sounds(self, parent=None):
         dialog = sound_tab.get_full_editor()
         dialog.exec_()
 

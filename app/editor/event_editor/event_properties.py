@@ -284,6 +284,9 @@ class EventCollection(QWidget):
                  button_text="Create %s", view_type=TableView):
         super().__init__(parent)
         self.window = parent
+        self.database_editor = self.window.window
+        self.main_editor = self.database_editor.window
+        self.current_level = self.main_editor.current_level
 
         self._data = self.window._data
         self.title = self.window.title
@@ -291,6 +294,12 @@ class EventCollection(QWidget):
         self.display = None
         grid = QGridLayout()
         self.setLayout(grid)
+
+        self.level_filter_box = PropertyBox("Level Filter", ComboBox, self)
+        self.level_filter_box.edit.addItem("All")
+        self.level_filter_box.edit.addItem("Global")
+        self.level_filter_box.edit.addItems(DB.levels.keys())
+        self.level_filter_box.edit.currentIndexChanged.connect(self.level_filter_changed)
 
         self.model = collection_model(self._data, self)
         self.proxy_model = table_model.ProxyModel()
@@ -310,10 +319,28 @@ class EventCollection(QWidget):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         self.button = QPushButton(button_text % self.title)
-        self.button.clicked.connect(self.model.append)
+        self.button.clicked.connect(self.create_new_event)
 
-        grid.addWidget(self.view, 0, 0)
-        grid.addWidget(self.button, 1, 0)
+        grid.addWidget(self.level_filter_box, 0, 0, Qt.AlignRight)
+        grid.addWidget(self.view, 1, 0)
+        grid.addWidget(self.button, 2, 0)
+
+        if self.current_level:
+            self.level_filter_box.edit.setValue(self.current_level.nid)
+        else:
+            self.level_filter_box.edit.setValue("All")
+
+    def create_new_event(self):
+        last_index = self.model.append()
+        if last_index:
+            last_event = DB.events[-1]
+            if self.level_filter_box.edit.currentText() != "All":
+                if last_event.level_nid:
+                    self.level_filter_box.edit.setValue(last_event.level_nid)
+                else:
+                    self.level_filter_box.edit.setValue("Global")
+            proxy_last_index = self.proxy_model.mapFromSource(last_index)
+            self.view.setCurrentIndex(proxy_last_index)
 
     def on_item_changed(self, curr, prev):
         if self._data:
@@ -330,10 +357,40 @@ class EventCollection(QWidget):
                 self.display.set_current(new_data)
                 self.display.setEnabled(True)
 
+    def set_current_index(self, index):
+        correct_index = self.proxy_model.mapToSource(index)
+        row = correct_index.row()
+        new_data = self._data[row]
+        if self.display:
+            self.display.set_current(new_data)
+            self.display.setEnabled(True)
+
     def set_display(self, disp):
         self.display = disp
-        first_index = self.model.index(0, 0)
+        first_index = self.proxy_model.index(0, 0)
         self.view.setCurrentIndex(first_index)
+
+    def level_filter_changed(self, idx):
+        filt = self.level_filter_box.edit.currentText()
+        self.view.selectionModel().selectionChanged.disconnect(self.on_item_changed)
+        self.proxy_model.setFilterKeyColumn(1)
+        if filt == 'All':
+            self.proxy_model.setFilterFixedString("")
+        else:
+            self.proxy_model.setFilterFixedString(filt)
+        self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
+        # Determine if we should reselect something
+        if filt != "All" and self.display:
+            # current_index = self.view.currentIndex()
+            # real_index = self.proxy_model.mapToSource(current_index)
+            # obj = self._data[real_index.row()]
+            obj = self.display.current
+            if filt != obj.level_nid or (filt == "Global" and obj.level_nid):
+                # Change selection only if we need to!
+                first_index = self.proxy_model.index(0, 0)
+                self.view.setCurrentIndex(first_index)
+                self.set_current_index(first_index)
+        self.update_list()
 
     def update_list(self):
         # self.model.layoutChanged.emit()
@@ -372,11 +429,12 @@ class EventProperties(QWidget):
         main_section.addWidget(self.text_box)
 
         left_frame = self.window.left_frame
+        self.level_filter_box = left_frame.level_filter_box
         grid = left_frame.layout()
 
-        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
-        self.nid_box.edit.textChanged.connect(self.nid_changed)
-        self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
+        self.name_box = PropertyBox("Name", QLineEdit, self)
+        self.name_box.edit.textChanged.connect(self.name_changed)
+        self.name_box.edit.editingFinished.connect(self.name_done_editing)
 
         self.trigger_box = PropertyBox("Trigger", ComboBox, self)
         items = self.get_trigger_items("Global")
@@ -395,12 +453,12 @@ class EventProperties(QWidget):
         self.only_once_box = PropertyCheckBox("Trigger only once?", QCheckBox, self)
         self.only_once_box.edit.stateChanged.connect(self.only_once_changed)
         
-        grid.addWidget(QHLine(), 2, 0)
-        grid.addWidget(self.nid_box, 3, 0)
-        grid.addWidget(self.level_nid_box, 4, 0)
-        grid.addWidget(self.trigger_box, 5, 0)
-        grid.addWidget(self.condition_box, 6, 0)
-        grid.addWidget(self.only_once_box, 7, 0, Qt.AlignLeft)
+        grid.addWidget(QHLine(), 3, 0)
+        grid.addWidget(self.name_box, 4, 0)
+        grid.addWidget(self.level_nid_box, 5, 0)
+        grid.addWidget(self.trigger_box, 6, 0)
+        grid.addWidget(self.condition_box, 7, 0)
+        grid.addWidget(self.only_once_box, 8, 0, Qt.AlignLeft)
 
         bottom_section = QHBoxLayout()
         main_section.addLayout(bottom_section)
@@ -466,17 +524,18 @@ class EventProperties(QWidget):
     #         self.show_commands_dialog.done(0)
     #         self.show_commands_dialog = None
 
-    def nid_changed(self, text):
-        self.current.nid = text
+    def name_changed(self, text):
+        self.current.name = text
         self.window.update_list()
 
-    def nid_done_editing(self):
+    def name_done_editing(self):
         # Check validity of nid!
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
+        other_names = [d.name for d in self._data.values() if d is not self.current and d.level_nid == self.current.level_nid]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Event ID %s already in use' % self.current.nid)
-            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        self._data.update_nid(self.current, self.current.nid)
+            self.current.name = str_utils.get_next_name(self.current.name, other_names)
+        self._data.update_nid(self.current, self.current.nid, set_nid=False)
         self.window.update_list()
 
     def trigger_changed(self, idx):
@@ -493,6 +552,8 @@ class EventProperties(QWidget):
         if idx == 0:
             self.current.level_nid = None
             self.show_map_button.setEnabled(False)
+            if self.level_filter_box.edit.currentText() != "All":
+                self.level_filter_box.edit.setValue("Global")
         else:
             self.current.level_nid = DB.levels[idx - 1].nid
             current_level = DB.levels.get(self.current.level_nid)
@@ -500,6 +561,8 @@ class EventProperties(QWidget):
                 self.show_map_button.setEnabled(True)
             else:
                 self.show_map_button.setEnabled(False)
+            if self.level_filter_box.edit.currentText() != "All":
+                self.level_filter_box.edit.setValue(self.current.level_nid)
 
         # Update trigger box to match current level
         self.trigger_box.edit.clear()
@@ -519,15 +582,17 @@ class EventProperties(QWidget):
     def text_changed(self):
         self.current.commands.clear()
         text = self.text_box.toPlainText()
-        lines = [l.strip() for l in text.splitlines()]
+        lines = [line.strip() for line in text.splitlines()]
         for line in lines:
             command = event_commands.parse_text(line)
             if command:
                 self.current.commands.append(command)
 
     def set_current(self, current):
+        print("Set Current")
+        print(current.name, current.level_nid)
         self.current = current
-        self.nid_box.edit.setText(current.nid)
+        self.name_box.edit.setText(current.name)
         # self.trigger_box.edit.clear()
         if current.level_nid is not None:
             self.level_nid_box.edit.setValue(current.level_nid)

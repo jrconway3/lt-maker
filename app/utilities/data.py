@@ -26,11 +26,12 @@ class Data(object):
     def get(self, key, fallback=None):
         return self._dict.get(key, fallback)
 
-    def update_nid(self, val, nid):
+    def update_nid(self, val, nid, set_nid=True):
         for k, v in self._dict.items():
             if v == val:
                 del self._dict[k]
-                val.nid = nid
+                if set_nid:
+                    val.nid = nid
                 self._dict[nid] = val
                 break
 

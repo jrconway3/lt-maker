@@ -80,7 +80,7 @@ class UnitGroupMenu(QWidget):
 
     def select(self, group, unit):
         idx = self._data.index(group.nid)
-        self.group_list.setCurrentIndex(idx)
+        self.group_list.setCurrentRow(idx)
         item = self.group_list.item(idx)
         item_widget = self.group_list.itemWidget(item)
         uidx = group.units.index(unit.nid)

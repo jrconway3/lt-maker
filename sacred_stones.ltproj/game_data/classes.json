@@ -3631,7 +3631,7 @@
     {
         "nid": "Journeyman",
         "name": "Journeyman",
-        "desc": "??",
+        "desc": "Young fighters with high expectations.",
         "tier": 1,
         "movement_group": "Regular",
         "promotes_from": null,

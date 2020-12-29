@@ -196,6 +196,17 @@ class MapView(SimpleMapView):
                         continue
                     # With full opacity
                     self.draw_unit(painter, unit, position)
+
+                # Highlight current unit with cursor
+                current_unit = self.main_editor.group_painter_menu.get_current_unit()
+                if current_unit and current_unit.nid in current_group.positions:
+                    coord = current_group.positions.get(current_unit.nid)
+                    cursor_sprite = SPRITES['cursor']
+                    if cursor_sprite:
+                        if not cursor_sprite.pixmap:
+                            cursor_sprite.pixmap = QPixmap(cursor_sprite.full_path)
+                        cursor_image = cursor_sprite.pixmap.toImage().copy(0, 64, 32, 32)
+                        painter.drawImage(coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
             painter.end()
 
     def paint_regions(self):
@@ -325,6 +336,13 @@ class MapView(SimpleMapView):
             self.current_mouse_pos = pos
             self.main_editor.set_position_bar(pos)
             under_unit = self.check_position(self.main_editor.current_level, pos)
+            current_group = self.main_editor.group_painter_menu.get_current()
+            group_unit = None
+            for unit in current_group.units:
+                my_pos = current_group.positions.get(unit.nid)
+                if my_pos and my_pos[0] == pos[0] and my_pos[1] == pos[1]:
+                    group_unit = unit
+                    break
             
             if self.main_editor.dock_visibility['Regions']:
                 current_region = None
@@ -337,7 +355,9 @@ class MapView(SimpleMapView):
                 else:
                     self.main_editor.set_message(None)
             elif self.main_editor.dock_visibility['Units'] and under_unit:
-                self.main_editor.set_message("%s" % under_unit.nid)
+                self.main_editor.set_message("Unit: %s" % under_unit.nid)
+            elif self.main_editor.dock_visibility['Groups'] and group_unit:
+                self.main_editor.set_message("Unit: %s" % group_unit.nid)
             else:
                 terrain_nid = self.current_map.get_terrain(pos)
                 terrain = DB.terrain.get(terrain_nid)

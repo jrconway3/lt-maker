@@ -25,6 +25,24 @@ class Time(SkillComponent):
     def text(self) -> str:
         return str(self.skill.data['turns'])
 
+class UpkeepStatChange(SkillComponent):
+    nid = 'upkeep_stat_change'
+    desc = "Gives changing stat bonuses"
+    tag = 'time'
+
+    expose = (Type.Dict, Type.Stat)
+    value = []
+
+    def init(self, skill):
+        self.skill.data['counter'] = 0
+
+    def stat_change(self, unit):
+        return {stat[0]: stat[1] * self.skill.data['counter'] for stat in self.value}
+
+    def on_upkeep(self, actions, playback, unit):
+        val = self.skill.data['counter'] + 1
+        action.do(action.SetObjData(self.skill, 'counter', val))
+
 class LostOnEndstep(SkillComponent):
     nid = 'lost_on_endstep'
     desc = "Remove on next endstep"

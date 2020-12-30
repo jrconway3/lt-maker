@@ -42,19 +42,12 @@ class SpellAbility(Ability):
         valid_attacks = target_system.get_possible_spell_attacks(unit, {unit.position})
         game.highlight.display_possible_spell_attacks(valid_attacks)
 
-def get_adj_allies(unit) -> list:
-    adj_positions = target_system.get_adjacent_positions(unit.position)
-    adj_units = [game.board.get_unit(pos) for pos in adj_positions]
-    adj_units = [_ for _ in adj_units if _]
-    adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
-    return adj_allies
-
 class TalkAbility(Ability):
     name = 'Talk'
 
     @staticmethod
     def targets(unit) -> set:
-        adj_allies = get_adj_allies(unit)
+        adj_allies = target_system.get_adj_allies(unit)
         return set([u.position for u in adj_allies if (unit.nid, u.nid) in game.talk_options])
 
     @staticmethod
@@ -100,7 +93,7 @@ class RescueAbility(Ability):
     @staticmethod
     def targets(unit) -> set:
         if not unit.traveler and not unit.has_attacked and not unit.has_given and not unit.has_dropped:
-            adj_allies = get_adj_allies(unit)
+            adj_allies = target_system.get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
                         equations.parser.rescue_aid(unit) >= equations.parser.rescue_weight(u)])
 
@@ -122,7 +115,7 @@ class TakeAbility(Ability):
     @staticmethod
     def targets(unit) -> set:
         if not unit.traveler and not unit.has_attacked and not unit.has_given and not unit.has_dropped:
-            adj_allies = get_adj_allies(unit)
+            adj_allies = target_system.get_adj_allies(unit)
             return set([u.position for u in adj_allies if u.traveler and
                         equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(game.level.units.get(u.traveler))])
 
@@ -140,7 +133,7 @@ class GiveAbility(Ability):
     @staticmethod
     def targets(unit) -> set:
         if unit.traveler and not unit.has_attacked and not unit.has_taken and not unit.has_rescued:
-            adj_allies = get_adj_allies(unit)
+            adj_allies = target_system.get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
                         equations.parser.rescue_aid(u) > equations.parser.rescue_weight(game.level.units.get(unit.traveler))])
 
@@ -166,7 +159,7 @@ class TradeAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        adj_allies = get_adj_allies(unit)
+        adj_allies = target_system.get_adj_allies(unit)
         return set([u.position for u in adj_allies if unit.team == u.team])
 
     @staticmethod

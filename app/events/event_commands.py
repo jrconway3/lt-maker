@@ -281,6 +281,11 @@ class ChangeAI(EventCommand):
 
     keywords = ["GlobalUnit", "AI"] 
 
+class ChangeTeam(EventCommand):
+    nid = 'change_team'
+    tag = 'unit'
+    keywords = ["GlobalUnit", "Team"]
+
 class AddTag(EventCommand):
     nid = 'add_tag'
     tag = 'unit'
@@ -357,6 +362,12 @@ class ChapterTitle(EventCommand):
     tag = 'general'
 
     optional_keywords = ["Music", "String"]
+
+class Alert(EventCommand):
+    nid = 'alert'
+    tag = 'general'
+
+    keywords = ["String"]
 
 def get_commands():
     return EventCommand.__subclasses__()

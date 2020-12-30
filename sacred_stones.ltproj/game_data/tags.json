@@ -9,5 +9,7 @@
     "ZeroMove",
     "AutoPromote",
     "NoAutoPromote",
+    "Convoy",
+    "AdjConvoy",
     "Tile"
 ]

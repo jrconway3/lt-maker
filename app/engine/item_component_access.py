@@ -27,7 +27,7 @@ def restore_component(dat):
 
 templates = {'Weapon Template': ('weapon', 'value', 'target_enemy', 'min_range', 'max_range', 'damage', 'hit', 'crit', 'weight', 'level_exp', 'weapon_type', 'weapon_rank'),
              'Spell Template': ('spell', 'value', 'min_range', 'max_range', 'weapon_type', 'weapon_rank'),
-             'Usable Template': ('value', 'target_ally', 'uses')}
+             'Usable Template': ('usable', 'value', 'target_ally', 'uses')}
 
 def get_templates():
     return templates.items()

@@ -38,6 +38,7 @@ class PortraitModel(ResourceCollectionModel):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Portriats", starting_path, "PNG Files (*.png);;All Files(*)")
+        new_portrait = None
         if ok:
             for fn in fns:
                 if fn.endswith('.png'):
@@ -53,6 +54,7 @@ class PortraitModel(ResourceCollectionModel):
                     QMessageBox.critical(self.window, "File Type Error!", "Portrait must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
+        return new_portrait
 
     def delete(self, idx):
         # Check to see what is using me?

@@ -124,6 +124,7 @@ class MapSpriteModel(ResourceCollectionModel):
             RESOURCES.map_sprites.append(new_map_sprite)
             parent_dir = os.path.split(fn)[0]
             settings.set_last_open_path(parent_dir)
+            return new_map_sprite
 
     def delete(self, idx):
         # Check to see what is using me?

@@ -188,16 +188,16 @@ def compute_hit(unit, target, item=None, mode=None):
     adv = compute_advantage(unit, target, item, target.get_weapon())
     disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
     if adv:
-        triangle_bonus += int(adv.accuracy)
+        triangle_bonus += int(adv.accuracy) * item_system.modify_weapon_triangle(unit, item)
     if disadv:
-        triangle_bonus += int(disadv.accuracy)
+        triangle_bonus += int(disadv.accuracy) * item_system.modify_weapon_triangle(unit, item)
 
     adv = compute_advantage(target, unit, target.get_weapon(), item)
     disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
     if adv:
-        triangle_bonus -= int(adv.avoid)
+        triangle_bonus -= int(adv.avoid) * item_system.modify_weapon_triangle(target, target.get_weapon())
     if disadv:
-        triangle_bonus -= int(disadv.avoid)
+        triangle_bonus -= int(disadv.avoid) * item_system.modify_weapon_triangle(target, target.get_weapon())
     hit += triangle_bonus
 
     hit -= avoid(target, item)
@@ -225,16 +225,16 @@ def compute_crit(unit, target, item=None, mode=None):
     adv = compute_advantage(unit, target, item, target.get_weapon())
     disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
     if adv:
-        triangle_bonus += int(adv.crit)
+        triangle_bonus += int(adv.crit) * item_system.modify_weapon_triangle(unit, item)
     if disadv:
-        triangle_bonus += int(disadv.crit)
+        triangle_bonus += int(disadv.crit) * item_system.modify_weapon_triangle(unit, item)
 
     adv = compute_advantage(target, unit, target.get_weapon(), item)
     disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
     if adv:
-        triangle_bonus -= int(adv.dodge)
+        triangle_bonus -= int(adv.dodge) * item_system.modify_weapon_triangle(target, target.get_weapon())
     if disadv:
-        triangle_bonus -= int(disadv.dodge)
+        triangle_bonus -= int(disadv.dodge) * item_system.modify_weapon_triangle(target, target.get_weapon())
     crit += triangle_bonus
 
     crit -= crit_avoid(target, item)
@@ -262,16 +262,16 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
     adv = compute_advantage(unit, target, item, target.get_weapon())
     disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
     if adv:
-        triangle_bonus += int(adv.damage)
+        triangle_bonus += int(adv.damage) * item_system.modify_weapon_triangle(unit, item)
     if disadv:
-        triangle_bonus += int(disadv.damage)
+        triangle_bonus += int(disadv.damage) * item_system.modify_weapon_triangle(unit, item)
 
     adv = compute_advantage(target, unit, target.get_weapon(), item)
     disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
     if adv:
-        triangle_bonus -= int(adv.resist)
+        triangle_bonus -= int(adv.resist) * item_system.modify_weapon_triangle(target, target.get_weapon())
     if disadv:
-        triangle_bonus -= int(disadv.resist)
+        triangle_bonus -= int(disadv.resist) * item_system.modify_weapon_triangle(target, target.get_weapon())
     might += triangle_bonus
     total_might = might
 
@@ -306,16 +306,16 @@ def outspeed(unit, target, item, mode=None) -> bool:
     adv = compute_advantage(unit, target, item, target.get_weapon())
     disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
     if adv:
-        triangle_bonus += int(adv.attack_speed)
+        triangle_bonus += int(adv.attack_speed) * item_system.modify_weapon_triangle(unit, item)
     if disadv:
-        triangle_bonus += int(disadv.attack_speed)
+        triangle_bonus += int(disadv.attack_speed) * item_system.modify_weapon_triangle(unit, item)
 
     adv = compute_advantage(target, unit, target.get_weapon(), item)
     disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
     if adv:
-        triangle_bonus -= int(adv.defense_speed)
+        triangle_bonus -= int(adv.defense_speed) * item_system.modify_weapon_triangle(target, target.get_weapon())
     if disadv:
-        triangle_bonus -= int(disadv.defense_speed)
+        triangle_bonus -= int(disadv.defense_speed) * item_system.modify_weapon_triangle(target, target.get_weapon())
 
     speed -= defense_speed(target, item)
 

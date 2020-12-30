@@ -43,6 +43,7 @@ class AnimationModel(ResourceCollectionModel):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Animation PNG", starting_path, "PNG Files (*.png);;All Files(*)")
+        new_animation = None
         if ok:
             for fn in fns:
                 if fn.endswith('.png'):
@@ -55,6 +56,7 @@ class AnimationModel(ResourceCollectionModel):
                     QMessageBox.critical(self.window, "File Type Error!", "Map Animation must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
+        return new_animation
 
     def delete(self, idx):
         # Check to see what is using me?

@@ -5,7 +5,7 @@ from app.extensions.list_models import MultiAttrListModel
 
 class TranslationMultiModel(MultiAttrListModel):
     def create_new(self):
-        self._data.add_new_default(DB)
+        return self._data.add_new_default(DB)
 
     def change_watchers(self, data, attr, old_value, new_value):
         if attr == 'nid':

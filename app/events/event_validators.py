@@ -81,6 +81,12 @@ class AI(Validator):
             return text
         return None
 
+class Team(Validator):
+    def validate(self, text, level):
+        if text in DB.teams:
+            return text
+        return None
+
 class Tag(Validator):
     def validate(self, text, level):
         if text in DB.tags.keys():

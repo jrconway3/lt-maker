@@ -76,3 +76,4 @@ class ItemModel(DragDropCollectionModel):
         nid = name = str_utils.get_next_name("New Item", nids)
         new_item = items.ItemPrefab(nid, name, '')
         DB.items.append(new_item)
+        return new_item

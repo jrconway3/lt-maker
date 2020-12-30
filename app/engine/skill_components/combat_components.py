@@ -344,6 +344,7 @@ class LiveToServe(SkillComponent):
     tag = 'combat2'
 
     expose = Type.Float
+    value = 1.0
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         total_amount_healed = 0

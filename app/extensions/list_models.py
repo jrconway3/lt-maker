@@ -135,6 +135,7 @@ class DoubleListModel(VirtualListModel):
     def create_new(self):
         new_row = str_utils.get_next_name("%s" % self.title, [d[0] for d in self._data])
         self._data.append([new_row, 0])
+        return new_row
 
     def new(self, idx):
         self.create_new()
@@ -265,4 +266,4 @@ class DefaultMultiAttrListModel(MultiAttrListModel):
             self._data.update_nid(data, new_value)
 
     def create_new(self):
-        self._data.add_new_default(DB)
+        return self._data.add_new_default(DB)

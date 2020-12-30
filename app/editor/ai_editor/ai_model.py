@@ -5,6 +5,7 @@ from app.data.database import DB
 from app.extensions.custom_gui import DeletionDialog
 from app.editor.custom_widgets import AIBox
 from app.editor.base_database_gui import DragDropCollectionModel
+from app.data.ai import AIPrefab
 from app.utilities import str_utils
 
 class AIModel(DragDropCollectionModel):
@@ -42,5 +43,7 @@ class AIModel(DragDropCollectionModel):
 
     def create_new(self):
         nids = [d.nid for d in self._data]
-        nid = name = str_utils.get_next_name("New AI", nids)
-        DB.create_new_ai(nid, name)
+        nid = str_utils.get_next_name("New AI", nids)
+        new_ai = AIPrefab(nid, 20)
+        DB.ai.append(new_ai)
+        return new_ai

@@ -68,6 +68,8 @@ class IntItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QSpinBox(self)
         self.set_format()
+        if self._data.value is None:
+            self._data.value = 0
         self.editor.setValue(self._data.value)
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -96,6 +98,8 @@ class FloatItemComponent(BoolItemComponent):
         self.editor.setMaximumWidth(40)
         self.editor.setRange(0, 1)
         self.editor.setSingleStep(.05)
+        if self._data.value is None:
+            self._data.value = 0
         self.editor.setValue(self._data.value)
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -143,6 +147,8 @@ class EquationItemComponent(BoolItemComponent):
 
 class Color3ItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
+        if not self._data.value:
+            self._data.value = (0, 0, 0)
         color = self._data.value
         self.color = ColorIcon(QColor(*color).name(), self)
         self.color.set_size(32)
@@ -156,6 +162,8 @@ class Color3ItemComponent(BoolItemComponent):
 
 class Color4ItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
+        if not self._data.value:
+            self._data.value = (0, 0, 0, 0)
         color = self._data.value
         self.color = AlphaColorIcon(QColor(*color).name(), self)
         self.color.set_size(32)
@@ -166,6 +174,30 @@ class Color4ItemComponent(BoolItemComponent):
         color = QColor(self.color.color())
         r, g, b, a = color.red(), color.green(), color.blue(), color.alpha()
         self._data.value = (r, g, b, a)
+
+class ItemItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        for item in DB.items.values():
+            self.editor.addItem(item.nid)
+        if not self._data.value and DB.items:
+            self._data.value = DB.items[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+class SkillItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        for skill in DB.skills.values():
+            self.editor.addItem(skill.nid)
+        if not self._data.value and DB.skills:
+            self._data.value = DB.skills[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
 
 # Delegates
 class UnitDelegate(QItemDelegate):
@@ -251,6 +283,10 @@ def get_display_widget(component, parent):
         c = Color3ItemComponent(component, parent)
     elif component.expose == Type.Color4:
         c = Color4ItemComponent(component, parent)
+    elif component.expose == Type.Item:
+        c = ItemItemComponent(component, parent)
+    elif component.expose == Type.Skill:
+        c = SkillItemComponent(component, parent)
     elif isinstance(component.expose, tuple):
         delegate = None
         if component.expose[1] == Type.Unit:

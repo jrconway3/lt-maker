@@ -75,3 +75,4 @@ class SkillModel(DragDropCollectionModel):
         nid = name = str_utils.get_next_name("New Skill", nids)
         new_skill = skills.SkillPrefab(nid, name, '')
         DB.skills.append(new_skill)
+        return new_skill

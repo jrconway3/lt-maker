@@ -97,6 +97,7 @@ class Icon16Model(IconModel):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        icon = None
         if ok:
             for fn in fns:
                 if fn.endswith('.png'):
@@ -117,6 +118,7 @@ class Icon16Model(IconModel):
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
             self.window.update_list()
+        return icon
 
     def delete(self, index):
         icon = self.sub_data[index.row()]

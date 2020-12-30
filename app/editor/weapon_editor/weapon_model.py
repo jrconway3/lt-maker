@@ -50,19 +50,18 @@ class WeaponModel(DragDropCollectionModel):
         if affected_klasses or affected_units or affected_items or affected_weapons:
             if affected_items:
                 affected = Data(affected_items)
-                from app.editor.item_database import ItemModel
+                from app.editor.item_editor.item_model import ItemModel
                 model = ItemModel
             elif affected_klasses:
                 affected = Data(affected_klasses)
-                from app.editor.class_database import ClassModel
+                from app.editor.class_editor.class_model import ClassModel
                 model = ClassModel
             elif affected_units:
                 affected = Data(affected_units)
-                from app.editor.unit_database import UnitModel
+                from app.editor.unit_editor.unit_model import UnitModel
                 model = UnitModel
             elif affected_weapons:
                 affected = Data(affected_weapons)
-                from app.editor.weapon_database import WeaponModel
                 model = WeaponModel
             msg = "Deleting WeaponType <b>%s</b> would affect these objects." % nid
             swap, ok = DeletionDialog.get_swap(affected, model, msg, WeaponTypeBox(self.window, exclude=weapon_type), self.window)
@@ -73,8 +72,8 @@ class WeaponModel(DragDropCollectionModel):
                     unit.wexp_gain.get(swap.nid).absorb(unit.wexp_gain.get(nid))
                 item_components.swap_values(affected_items, components.Type.Equation, nid, swap.nid)
                 for weapon in affected_weapons:
-                    weapon.advantage.swap(nid, swap.nid)
-                    weapon.disadvantage.swap(nid, swap.nid)
+                    weapon.advantage.swap_type(nid, swap.nid)
+                    weapon.disadvantage.swap_type(nid, swap.nid)
             else:
                 return  # User cancelled swap
         # Delete watchers
@@ -88,7 +87,7 @@ class WeaponModel(DragDropCollectionModel):
         nids = [d.nid for d in self._data]
         nid = name = str_utils.get_next_name("New Weapon Type", nids)
         new_weapon = weapons.WeaponType(
-            nid, name, False, weapons.CombatBonusList(),
+            nid, name, weapons.CombatBonusList(),
             weapons.CombatBonusList(), weapons.CombatBonusList())
         DB.weapons.append(new_weapon)
         return new_weapon
@@ -111,14 +110,4 @@ class WeaponModel(DragDropCollectionModel):
 
     # Called on changing attribute
     def change_watchers(self, data, attr, old_value, new_value):
-        if attr == 'nid':
-            old_nid, new_nid = old_value, new_value
-            for klass in DB.classes:
-                klass.wexp_gain.change_key(old_nid, new_nid)
-            for unit in DB.units:
-                unit.wexp_gain.change_key(old_nid, new_nid)
-            for weapon in DB.weapons:
-                weapon.advantage.swap(old_nid, new_nid)
-                weapon.disadvantage.swap(old_nid, new_nid)
-            affected_items = item_components.get_items_using(components.Type.WeaponType, old_nid, DB)
-            item_components.swap_values(affected_items, components.Type.WeaponType, old_nid, new_nid)
+        pass

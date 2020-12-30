@@ -358,11 +358,18 @@ class UIView():
         if skill_system.check_enemy(attacker, defender):
             adv = combat_calcs.compute_advantage(attacker, defender, attacker.get_weapon(), defender.get_weapon())
             disadv = combat_calcs.compute_advantage(attacker, defender, attacker.get_weapon(), defender.get_weapon(), False)
-            if adv:
+
+            # handle reaver weapons
+            if item_system.modify_weapon_triangle(attacker, attacker.get_weapon()) < 0:
                 up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+            else:
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
+                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+
+            if adv:
                 surf.blit(up_arrow, (topleft[0] + 13, topleft[1] + 8))
             elif disadv:
-                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
                 surf.blit(down_arrow, (topleft[0] + 13, topleft[1] + 8))
 
             y_pos = topleft[1] + 105
@@ -372,11 +379,18 @@ class UIView():
                 y_pos -= 16
             adv = combat_calcs.compute_advantage(defender, attacker, defender.get_weapon(), attacker.get_weapon())
             disadv = combat_calcs.compute_advantage(defender, attacker, defender.get_weapon(), attacker.get_weapon(), False)
-            if adv:
+
+            # handle reaver weapons
+            if item_system.modify_weapon_triangle(defender, defender.get_weapon()) < 0:
                 up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+            else:
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
+                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+            
+            if adv:
                 surf.blit(up_arrow, (topleft[0] + 61, y_pos))
             elif disadv:
-                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
                 surf.blit(down_arrow, (topleft[0] + 61, y_pos))
 
         # Doubling

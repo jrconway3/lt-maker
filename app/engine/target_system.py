@@ -56,6 +56,13 @@ def get_adjacent_positions(pos):
     adjs = ((x, y - 1), (x - 1, y), (x + 1, y), (x, y + 1))
     return [a for a in adjs if 0 <= a[0] < game.tilemap.width and 0 <= a[1] < game.tilemap.height]
 
+def get_adj_allies(unit) -> list:
+    adj_positions = get_adjacent_positions(unit.position)
+    adj_units = [game.board.get_unit(pos) for pos in adj_positions]
+    adj_units = [_ for _ in adj_units if _]
+    adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
+    return adj_allies
+
 def get_attacks(unit, item=None) -> set:
     """
     Determines all possible positions the unit could attack

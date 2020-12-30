@@ -441,7 +441,7 @@ class GenericUnitDialog(Dialog):
     def faction_changed(self, index):
         faction_nid = self.faction_box.edit.currentText()
         faction = DB.factions.get(faction_nid)
-        self.current.faction = faction
+        self.current.faction = faction_nid
         self.current.name = faction.name
         self.current.desc = faction.desc
 

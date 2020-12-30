@@ -159,12 +159,15 @@ class ComponentProperties(QWidget):
 
     def add_component(self, component_class):
         component = component_class(component_class.value)
-        self.current.components.append(component)
-        self.add_component_widget(component)
-        # Add other components that this should be paired with
-        for pair in component.paired_with:
-            if pair not in self.current.components.keys():
-                self.add_component(self.get_components().get(pair))
+        if component.nid in self.current.components.keys():
+            QMessageBox.warning(self.window, 'Warning', '%s component already present' % component.class_name())
+        else:
+            self.current.components.append(component)
+            self.add_component_widget(component)
+            # Add other components that this should be paired with
+            for pair in component.paired_with:
+                if pair not in self.current.components.keys():
+                    self.add_component(self.get_components().get(pair))
 
     def add_component_widget(self, component):
         c = component_database.get_display_widget(component, self)

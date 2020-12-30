@@ -156,23 +156,27 @@ class CollectionModel(QAbstractListModel):
         raise NotImplementedError
 
     def append(self):
-        self.create_new()
+        new_item = self.create_new()
         view = self.window.view
         self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1)
         view.setCurrentIndex(last_index)
         self.update_watchers(self.rowCount() - 1)
+        if self.window.display:
+            self.window.display.set_current(new_item)
         return last_index
 
     def new(self, idx):
-        self.create_new()
+        new_item = self.create_new()
         view = self.window.view
         self._data.move_index(len(self._data) - 1, idx + 1)
         self.layoutChanged.emit()
         new_index = self.index(idx + 1)
         view.setCurrentIndex(new_index)
         self.update_watchers(idx + 1)
+        if self.window.display:
+            self.window.display.set_current(new_item)
 
     def duplicate(self, idx):
         view = self.window.view
@@ -195,6 +199,8 @@ class CollectionModel(QAbstractListModel):
         new_index = self.index(idx + 1)
         view.setCurrentIndex(new_index)
         self.update_watchers(idx + 1)
+        if self.window.display:
+            self.window.display.set_current(new_obj)
 
     def update_watchers(self, idx):
         pass

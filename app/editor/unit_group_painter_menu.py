@@ -51,6 +51,7 @@ class UnitGroupMenu(QWidget):
         new_group = UnitGroup(nid, Data(), {})
         self._data.append(new_group)
         self.group_list.add_group(new_group)
+        return new_group
 
     def on_visibility_changed(self, state):
         pass

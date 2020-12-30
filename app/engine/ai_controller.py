@@ -383,8 +383,8 @@ class PrimaryAI():
 
         # Damage I do compared to target's current hp
         lethality = utils.clamp(raw_damage / float(main_target.get_hp()), 0, 1)
-        # TODO Do I add a new status to the target
-        status = 0
+        # Do I add a new status to the target
+        status = 1 if item.status_on_hit else 0
         # Accuracy
         accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, main_target, item, "attack")/100., 0, 1)
         crit_accuracy = utils.clamp(combat_calcs.compute_crit(self.unit, main_target, item, "attack")/100., 0, 1)
@@ -432,7 +432,7 @@ class PrimaryAI():
         offense_weight = offense_bias * (1 / (offense_bias + 1))
         defense_weight = 1 - offense_weight
         terms.append((offense_term, offense_weight))
-        terms.append((status_term, .1))
+        terms.append((status_term, .2))
         terms.append((defense_term, defense_weight))
         terms.append((distance_term, .01))
 

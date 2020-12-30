@@ -516,6 +516,13 @@ class MenuState(MapState):
             self.target_dict[ability.name] = ability
             if t:
                 options.append(ability.name)
+        if game.game_vars.get('_convoy'):
+            adj_allies = target_system.get_adj_allies(self.cur_unit)
+            if 'Convoy' in self.cur_unit.tags:
+                options.append('Supply')
+            elif any(['AdjConvoy' in unit.tags and unit.team == self.cur_unit.team for unit in adj_allies]):
+                options.append('Supply')
+
         options.append("Wait")
 
         # Handle extra ability options
@@ -600,6 +607,10 @@ class MenuState(MapState):
                 game.memory['targets'] = self.target_dict[selection].targets(self.cur_unit)
                 game.memory['ability'] = 'Spells'
                 game.state.change('spell_choice')
+            elif selection == 'Supply':
+                game.memory['current_unit'] = self.cur_unit
+                game.memory['next_state'] = 'prep_items'
+                game.state.change('transition_to')
             elif selection == 'Wait':
                 game.state.clear()
                 game.state.change('free')
@@ -725,7 +736,7 @@ class ItemChildState(MapState):
             if item_system.target_restrict(self.cur_unit, item, defender, splash):
                 options.append("Use")
         if not item_system.locked(self.cur_unit, item):
-            if '_convoy' in game.game_vars:
+            if game.game_vars.get('_convoy'):
                 options.append('Storage')
             else:
                 options.append('Discard')
@@ -785,7 +796,7 @@ class ItemDiscardState(MapState):
         options = self.cur_unit.items
         self.menu = menus.Choice(self.cur_unit, options)
 
-        if '_convoy' in game.game_vars:
+        if game.game_vars.get('_convoy'):
             self.pennant = banner.Pennant('Choose item to send to storage')
         else:
             self.pennant = banner.Pennant('Choose item to discard')
@@ -1426,7 +1437,7 @@ class ShopState(State):
                         if not item_funcs.inventory_full(self.unit, new_item):
                             self.unit.add_item(new_item)
                             self.current_msg = self.get_dialog('shop_buy_again')
-                        elif '_convoy' in game.game_vars:
+                        elif game.game_vars.get('_convoy'):
                             new_item.owner_nid = None
                             game.party.convoy.append(new_item)
                             self.current_msg = self.get_dialog('shop_convoy')

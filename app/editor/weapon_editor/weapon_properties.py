@@ -1,16 +1,17 @@
-from PyQt5.QtWidgets import QWidget, QCheckBox, QLineEdit, QPushButton, \
-    QMessageBox, QDialog, QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, \
+from PyQt5.QtWidgets import QWidget, QLineEdit, \
+    QMessageBox, QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, \
     QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QIcon
 
 from app.utilities import str_utils
 from app.data.database import DB
+from app.data import components, item_components
 from app.data.weapons import CombatBonusList
 
-from app.extensions.custom_gui import ComboBox, PropertyBox, PropertyCheckBox
+from app.extensions.custom_gui import ComboBox, PropertyBox
 from app.extensions.list_widgets import AppendMultiListWidget
 
-from app.editor.weapon_editor import weapon_model, weapon_rank
+from app.editor.weapon_editor import weapon_model
 from app.editor.icons import ItemIcon16
 
 class WeaponProperties(QWidget):
@@ -73,10 +74,23 @@ class WeaponProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Weapon Type ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        # self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
+        self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
         # self._data.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
+
+    def nid_change_watchers(self, old_value, new_value):
+        old_nid, new_nid = old_value, new_value
+        for klass in DB.classes:
+            klass.wexp_gain.change_key(old_nid, new_nid)
+        for unit in DB.units:
+            unit.wexp_gain.change_key(old_nid, new_nid)
+        for weapon in DB.weapons:
+            weapon.rank_bonus.swap_type(old_nid, new_nid)
+            weapon.advantage.swap_type(old_nid, new_nid)
+            weapon.disadvantage.swap_type(old_nid, new_nid)
+        affected_items = item_components.get_items_using(components.Type.WeaponType, old_nid, DB)
+        item_components.swap_values(affected_items, components.Type.WeaponType, old_nid, new_nid)
 
     def name_changed(self, text):
         self.current.name = text

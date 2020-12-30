@@ -412,6 +412,18 @@ class Event():
                 print("Couldn't find AI %s" % values[1])
                 return
 
+        elif command.nid == 'change_team':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return 
+            if values[1] in DB.teams:
+                action.do(action.ChangeTeam(unit, values[1]))
+            else:
+                print("Not a valid team: %s" % values[1])
+                return
+
         elif command.nid == 'add_tag':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
@@ -535,6 +547,13 @@ class Event():
             game.memory['chapter_title_music'] = music
             game.memory['chapter_title_title'] = custom_string
             game.state.change('chapter_title')
+            self.state = 'paused'
+
+        elif command.nid == 'alert':
+            values, flags = event_commands.parse(command)
+            custom_string = values[0]
+            game.alerts.append(banner.Custom(custom_string))
+            game.state.change('alert')
             self.state = 'paused'
 
     def add_portrait(self, command):

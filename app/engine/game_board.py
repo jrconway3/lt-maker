@@ -65,18 +65,18 @@ class GameBoard(object):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
     # For movement
-    def init_grid(self, mode, tilemap):
+    def init_grid(self, movement_group, tilemap):
         cells = []
         for x in range(self.width):
             for y in range(self.height):
                 terrain_nid = tilemap.get_terrain((x, y))
                 terrain = DB.terrain.get(terrain_nid)
-                tile_cost = DB.mcost.get_mcost(mode, terrain.mtype)
+                tile_cost = DB.mcost.get_mcost(movement_group, terrain.mtype)
                 cells.append(Node(x, y, tile_cost < 99, tile_cost))
         return cells
 
-    def get_grid(self, mode):
-        return self.mcost_grids[mode]
+    def get_grid(self, movement_group):
+        return self.mcost_grids[movement_group]
 
     def init_unit_grid(self):
         cells = []

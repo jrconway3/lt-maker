@@ -37,6 +37,7 @@ class PanoramaModel(ResourceCollectionModel):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Add Background", starting_path, "PNG Files (*.png);;All Files(*)")
+        new_panorama = None
         if ok:
             for fn in fns:
                 if fn.endswith('.png'):
@@ -64,6 +65,7 @@ class PanoramaModel(ResourceCollectionModel):
                     QMessageBox.critical(self.window, "File Type Error!", "Background must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
+        return new_panorama
 
     def delete(self, idx):
         # Check to see what is using me?

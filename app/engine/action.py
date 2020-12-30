@@ -845,6 +845,25 @@ class ChangeAI(Action):
     def reverse(self):
         self.unit.ai = self.old_ai
 
+class ChangeTeam(Action):
+    def __init__(self, unit, team):
+        self.unit = unit
+        self.team = team
+        self.old_team = self.unit.team
+        self.action = Reset(self.unit)
+
+    def do(self):
+        self.unit.team = self.team
+        self.action.do()
+        game.boundary.reset_unit(self.unit)
+        self.unit.sprite.load_sprites()
+
+    def reverse(self):
+        self.unit.team = self.old_team
+        self.action.reverse()
+        game.boundary.reset_unit(self.unit)
+        self.unit.sprite.load_sprites()
+
 class AddTag(Action):
     def __init__(self, unit, tag):
         self.unit = unit

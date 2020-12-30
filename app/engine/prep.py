@@ -421,14 +421,14 @@ class PrepManageSelectState(State):
 
         options = ['Trade', 'Restock', 'Give all', 'Optimize', 'Items', 'Market']
         ignore = [False, True, True, True, True, True]
-        if '_convoy' in game.game_vars:
+        if game.game_vars.get('_convoy'):
             ignore = [False, True, True, False, False, True]
             tradeable_items = item_funcs.get_all_tradeable_items(self.unit)
             if tradeable_items:
                 ignore[2] = False
             if any(convoy_funcs.can_restock(item) for item in tradeable_items):
                 ignore[1] = False
-        if '_prep_market' in game.game_vars and game.market_items:
+        if game.game_vars.get('_prep_market') and game.market_items:
             ignore[5] = False
         self.select_menu = menus.Table(self.unit, options, (3, 2), (120, 80))
         self.select_menu.set_ignore(ignore)
@@ -566,7 +566,9 @@ class PrepItemsState(State):
     def start(self):
         self.fluid = FluidScroll()
 
-        self.bg = game.memory['prep_bg']
+        self.bg = game.memory.get('prep_bg')
+        if not self.bg:
+            self.bg = background.create_background('rune_background')
         self.unit = game.memory['current_unit']
         self.menu = menus.Convoy(self.unit, (WINWIDTH - 116, 40))
         

@@ -193,3 +193,11 @@ class NoDouble(ItemComponent):
 
     def can_double(self, unit, item):
         return False
+
+class Reaver(ItemComponent):
+    nid = 'reaver'
+    desc = "Item will have double reverse weapon triangle"
+    tag = 'extra'
+
+    def modify_weapon_triangle(self, unit, item):
+        return -2

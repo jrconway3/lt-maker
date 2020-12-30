@@ -58,6 +58,7 @@ class CombatAnimModel(ResourceCollectionModel):
         nid = utilities.get_next_name('New Combat Anim', self._data.keys())
         new_anim = combat_anims.CombatAnimation(nid)
         self._data.append(new_anim)
+        return new_anim
 
     def delete(self, idx):
         # Check to see what is using me?

@@ -16,7 +16,7 @@ class Dialog():
     cursor_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
     transition_speed = 166  # 10 frames
 
-    def __init__(self, text, portrait=None, background=None):
+    def __init__(self, text, portrait=None, background=None, position=None, width=None):
         self.plain_text = text
         self.portrait = portrait
         self.font = FONT['convo-black']
@@ -25,15 +25,23 @@ class Dialog():
         self.text_commands = self.format_text(text)
         self.text_lines = []
         
-        self.determine_size()
-        if background:
-            self.background = self.make_background(background)
-            self.tail = SPRITES.get('message_bg_tail')
+        # Size
+        if width:
+            self.width = width
+            self.width -= self.width%8
+            self.text_width = self.width - 24
+            self.determine_height()
+        elif self.portrait:
+            self.determine_size()
         else:
-            self.background = None
-            self.tail = None
+            self.text_width, self.text_height = (WINWIDTH - 24, self.num_lines * 16)
+            self.width, self.height = self.text_width + 16, self.text_height + 8
 
-        if self.portrait:
+        # Position
+        if position:
+            pos_x = position[0]
+            pos_y = position[1]
+        elif self.portrait:
             desired_center = self.determine_desired_center(self.portrait)
             pos_x = utils.clamp(desired_center - self.width//2, 8, WINWIDTH - 8 - self.width)
             if pos_x % 8 != 0:
@@ -42,12 +50,14 @@ class Dialog():
         else:
             pos_x = 4
             pos_y = 110
-            self.text_width, self.text_height = (WINWIDTH - 24, self.num_lines * 16)
-            self.width, self.height = self.text_width + 16, self.text_height + 8
-            if background:
-                self.background = self.make_background(background)
-                self.tail = None
         self.position = pos_x, pos_y
+
+        if background:
+            self.background = self.make_background(background)
+            self.tail = SPRITES.get('message_bg_tail')
+        else:
+            self.background = None
+            self.tail = None
 
         # For drawing
         self.cursor_offset_index = 0
@@ -136,15 +146,18 @@ class Dialog():
                 width += 16
         return width
 
+    def determine_height(self):
+        self.text_height = self.font.height * self.num_lines
+        self.text_height = max(self.text_height, 16)
+        self.height = self.text_height + 16
+
     def determine_size(self):
         self.text_width = self.determine_width()
         self.text_width = utils.clamp(self.text_width, 48, WINWIDTH - 32)
         self.width = self.text_width + 24 - self.text_width%8
         if self.width < 200:
             self.width += 8
-        self.text_height = self.font.height * self.num_lines
-        self.text_height = max(self.text_height, 16)
-        self.height = self.text_height + 16
+        self.determine_height()
 
     def get_lines_from_block(self, block, force_lines=None):
         if force_lines:

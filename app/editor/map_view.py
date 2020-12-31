@@ -11,7 +11,7 @@ from app.editor.settings import MainSettingsController
 
 from app.editor import timer
 from app.editor.class_editor import class_model
-import app.editor.tilemap_editor as tilemap_editor
+from app.editor.tile_editor import tile_model
 
 class SimpleMapView(QGraphicsView):
     min_scale = 1
@@ -56,8 +56,7 @@ class SimpleMapView(QGraphicsView):
 
     def update_view(self):
         if self.current_map:
-            image = tilemap_editor.draw_tilemap(self.current_map)
-            pixmap = QPixmap.fromImage(image)
+            pixmap = tile_model.create_tilemap_pixmap(self.current_map)
             self.working_image = pixmap
         else:
             return
@@ -140,8 +139,7 @@ class MapView(SimpleMapView):
 
     def update_view(self):
         if self.current_map:
-            image = tilemap_editor.draw_tilemap(self.current_map)
-            pixmap = QPixmap.fromImage(image)
+            pixmap = tile_model.create_tilemap_pixmap(self.current_map)
             self.working_image = pixmap
         else:
             return

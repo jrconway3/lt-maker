@@ -19,7 +19,7 @@ class Banner():
         self.length = FONT['text-white'].width(''.join(self.text))
         self.length += (16 if self.item else 0)
         self.font_height = 16
-        self.size = self.length + 18, 24
+        self.size = self.length + 10, 24
 
     def update(self):
         if not self.update_flag:
@@ -44,7 +44,7 @@ class Banner():
         left = 6
         for idx, word in enumerate(self.text):
             word_width = FONT[self.font[idx]].width(word)
-            FONT[self.font[idx]].blit(word, bg_surf, (left, self.size[1]//2 - self.font_height//2 + 4))
+            FONT[self.font[idx]].blit(word, bg_surf, (left, self.size[1]//2 - self.font_height//2 + 3))
             left += word_width
 
         if self.item:

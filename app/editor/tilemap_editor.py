@@ -24,7 +24,7 @@ def draw_tilemap(tilemap):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
-    image.fill(QColor(0, 0, 0, 255))
+    image.fill(QColor(0, 0, 0, 0))
 
     painter = QPainter()
     painter.begin(image)
@@ -213,7 +213,6 @@ class MapEditorView(QGraphicsView):
         width = max(self.right_selecting[0], self.current_mouse_position[0]) - left + 1
         top = min(self.right_selecting[1], self.current_mouse_position[1])
         height = max(self.right_selecting[1], self.current_mouse_position[1]) - top + 1
-        print(left, top, width, height)
         for x in range(width):
             for y in range(height):
                 self.right_selection[(x, y)] = self.get_tile_sprite((x + left, y + top))

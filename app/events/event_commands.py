@@ -126,6 +126,7 @@ class Speak(EventCommand):
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['ScreenPosition', 'Width']
+    flags = ['low_priority']
 
 class Transition(EventCommand):
     nid = "transition"

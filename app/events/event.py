@@ -25,14 +25,14 @@ screen_positions = {'OffscreenLeft': -96,
                     'OffscreenRight': 240}
 
 class Event():
-    _transition_speed = 15 * FRAMERATE
+    _transition_speed = 250
     _transition_color = (0, 0, 0)
 
     skippable = {"speak", "transition", "wait", "bop_portrait",
                  "sound"}
 
     def __init__(self, commands, unit=None, unit2=None, position=None, region=None):
-        self.commands = commands
+        self.commands = commands.copy()
         self.command_idx = 0
 
         self.background = None
@@ -336,10 +336,10 @@ class Event():
             wait_command = event_commands.Wait(['1000'])
             disp_cursor_command2 = event_commands.DispCursor(['0'])
             # Done backwards to presever order upon insertion
-            self.commands.insert(self.command_idx, disp_cursor_command2)
-            self.commands.insert(self.command_idx, wait_command)
-            self.commands.insert(self.command_idx, disp_cursor_command1)
-            self.commands.insert(self.command_idx, move_cursor_command)
+            self.commands.insert(self.command_idx + 1, disp_cursor_command2)
+            self.commands.insert(self.command_idx + 1, wait_command)
+            self.commands.insert(self.command_idx + 1, disp_cursor_command1)
+            self.commands.insert(self.command_idx + 1, move_cursor_command)
             
         elif command.nid == 'game_var':
             values, flags = event_commands.parse(command)
@@ -483,7 +483,7 @@ class Event():
         elif command.nid == 'show_layer':
             values, flags = event_commands.parse(command)
             nid = values[0]
-            if nid not in game.level.tilemap.layers:
+            if nid not in game.level.tilemap.layers.keys():
                 print("Could not find layer %s in tilemap" % nid)
                 return
             if len(values) > 1 and values[1]:
@@ -496,7 +496,7 @@ class Event():
         elif command.nid == 'hide_layer':
             values, flags = event_commands.parse(command)
             nid = values[0]
-            if nid not in game.level.tilemap.layers:
+            if nid not in game.level.tilemap.layers.keys():
                 print("Could not find layer %s in tilemap" % nid)
                 return
             if len(values) > 1 and values[1]:
@@ -624,6 +624,7 @@ class Event():
             self.state = 'waiting'
 
     def move_portrait(self, command):
+        print("Move portrait")
         values, flags = event_commands.parse(command)
         name = values[0]
         portrait = self.portraits.get(name)
@@ -641,10 +642,10 @@ class Event():
         else:
             portrait.move(position)
 
-        if 'immediate' in flags or 'no_block' in flags or self.skip:
+        if 'immediate' in flags or 'no_block' in flags or self.do_skip:
             pass
         else:
-            self.wait_time = engine.get_time() + portrait.travel_mag * portrait.movement_speed + 33
+            self.wait_time = engine.get_time() + portrait.travel_time + 66
             self.state = 'waiting'
 
     def speak(self, command):
@@ -653,9 +654,23 @@ class Event():
         speaker = values[0]
         text = values[1]
 
-        new_dialog = dialog.Dialog(text, portrait=self.portraits.get(speaker), background='message_bg_base')
+        if len(values) > 2 and values[2]:
+            position = self.parse_pos(values[2])
+        else:
+            position = None
+        if len(values) > 3 and values[3]:
+            width = int(values[3])
+        else:
+            width = None
+
+        portrait = self.portraits.get(speaker)
+        new_dialog = dialog.Dialog(text, portrait, 'message_bg_base', position, width)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
+        # Bring portrait to forefront
+        if portrait and 'low_priority' not in flags:
+            portrait.priority = self.priority_counter
+            self.priority_counter += 1
 
     def add_unit(self, command):
         values, flags = event_commands.parse(command)

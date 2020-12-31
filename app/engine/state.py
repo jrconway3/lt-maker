@@ -47,11 +47,13 @@ class MapState(State):
         self.fluid = FluidScroll()
 
     def update(self):
+        pass
+
+    def draw(self, surf):
         game.cursor.update()
         game.camera.update()
         game.highlight.update()
         game.map_view.update()
-
-    def draw(self, surf):
+        
         surf = game.map_view.draw()
         return surf

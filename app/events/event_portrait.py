@@ -1,3 +1,4 @@
+from app.constants import FRAMERATE
 import random, math
 
 from app import counters
@@ -21,7 +22,8 @@ class EventPortrait():
     closesmile = (64, 80, 32, 16)
 
     transition_speed = 233  # 14 frames
-    movement_speed = 10  # milliseconds per pixel
+    # movement_speed = 10  # milliseconds per pixel
+    travel_time = 250
 
     def __init__(self, portrait, position, priority, transition=False, slide=None, mirror=False, expressions=None):
         self.portrait = portrait
@@ -46,9 +48,9 @@ class EventPortrait():
         self.moving = False
         self.orig_position = None
         self.next_position = None
-        self.start_movement_time = 0
-        self.travel = (0, 0)
-        self.travel_mag = 0
+        # self.start_movement_time = 0
+        # self.travel = (0, 0)
+        # self.travel_mag = 0
 
         # For talking
         self.talk_state = 0
@@ -83,13 +85,25 @@ class EventPortrait():
         self.orig_position = self.position
         self.next_position = position
         self.moving = True
-        self.start_movement_time = engine.get_time()
-        self.travel = (self.next_position[0] - self.orig_position[0],
-                       self.next_position[1] - self.orig_position[1])
-        self.travel_mag = math.sqrt(self.travel[0] ** 2 + self.travel[1]**2)
+
+        self.travel_time = self.determine_travel_time(abs(self.next_position[0] - self.orig_position[0]))
+    
+        # self.start_movement_time = engine.get_time()
+        # self.travel = (self.next_position[0] - self.orig_position[0],
+        #                self.next_position[1] - self.orig_position[1])
+        # self.travel_mag = math.sqrt(self.travel[0] ** 2 + self.travel[1]**2
 
     def quick_move(self, position):
         self.position = position
+
+    def determine_travel_time(self, diff_x):
+        counter = 0
+        while diff_x > 0:
+            counter += 1
+            change = int(round(diff_x / 8))
+            change = utils.clamp(change, 1, 8)
+            diff_x -= change
+        return int(counter * FRAMERATE)
 
     def talk(self):
         self.talk_on = True
@@ -194,24 +208,28 @@ class EventPortrait():
                     return True
 
         if self.moving:
-            diff_pos = (self.next_position[0] - self.position[0],
-                        self.next_position[1] - self.position[1])
-            if -self.movement_speed <= diff_pos[0] <= self.movement_speed:
+            diff_x = self.next_position[0] - self.position[0]
+            if diff_x == 0:
                 self.position = self.next_position
                 self.moving = False
                 self.bop_state = False
                 # self.bop(num=1, height=1)
             else:
-                # TODO: actually a lerp
-                # 15 frames (250 ms) to lerp 24 pixels 
-                perc = (current_time - self.start_movement_time) / (self.travel_mag * self.movement_speed)
-                if perc > 0.5:
+                # The below does not actually contain the CORRECT true-to-GBA algorithm
+                # Just a close simple approximation, because I could not determine the GBA algorithm perfectly
+                # 15 frames (250 ms) to lerp 24 pixels
+                # 30 frames (500 ms) to lerp 120 pixels 
+                # 45 frames? (750 ms) to lerp 264 pixels
+                direction = 1 if diff_x >= 0 else -1
+                travel_mag = int(round(abs(diff_x) / 8))
+                travel_mag = utils.clamp(travel_mag, 1, 8)
+                if travel_mag in (1, 4, 5, 6, 7):
                     self.bop_state = True
                     self.bop_height = 1
-                travel_mag = perc
-                angle = math.atan2(self.travel[1], self.travel[0])
-                updated_position = (self.orig_position[0] + abs(self.travel[0]) * travel_mag * math.cos(angle), 
-                                    self.orig_position[1] + abs(self.travel[1]) * travel_mag * math.sin(angle))
+                # angle = math.atan2(self.travel[1], self.travel[0])
+                # updated_position = (self.orig_position[0] + abs(self.travel[0]) * travel_mag * math.cos(angle), 
+                #                     self.orig_position[1] + abs(self.travel[1]) * travel_mag * math.sin(angle))
+                updated_position = (self.position[0] + (travel_mag * direction), self.position[1])
                 self.position = updated_position                
 
         if self.bops_remaining:

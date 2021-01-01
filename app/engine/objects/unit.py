@@ -201,10 +201,14 @@ class UnitObject(Prefab):
             if self.equipped_weapon:
                 self.unequip(self.equipped_weapon)
             self.equipped_weapon = item
+            item_system.on_equip_item(self, item)
+            skill_system.on_equip_item(self, item)
         # self.insert_item(0, item)
 
     def unequip(self, item):
         self.equipped_weapon = None
+        skill_system.on_unequip_item(self, item)
+        item_system.on_unequip_item(self, item)
 
     def add_item(self, item):
         index = len(self.items)
@@ -218,6 +222,8 @@ class UnitObject(Prefab):
             self.items.insert(index, item)
             item.owner_nid = self.nid
             # Statuses here
+            item_system.on_add_item(self, item)
+            skill_system.on_add_item(self, item)
 
     def remove_item(self, item):
         if self.equipped_weapon is item:
@@ -225,6 +231,8 @@ class UnitObject(Prefab):
         self.items.remove(item)
         item.owner_nid = None
         # Status effects
+        skill_system.on_remove_item(self, item)
+        item_system.on_remove_item(self, item)
         # There may be a new item equipped
         if not self.equipped_weapon and self.get_weapon():
             self.equip(self.get_weapon())

@@ -336,3 +336,68 @@ class Dialog():
                 surf.blit(self.cursor, cursor_pos)
 
         return surf
+
+class LocationCard():
+    exist_time = 2000
+    transition_speed = 166  # 10 frames
+
+    def __init__(self, text, background='menu_bg_brown'):
+        self.plain_text = text
+        self.font = FONT['text-white']
+
+        self.text_lines = self.format_text(text)
+        self.determine_size()
+        self.position = (10, 1)
+
+        if background:
+            self.background = self.make_background(background)
+        else:
+            self.background = engine.create_surface((self.width, self.height), transparent=True)
+
+        # For transition
+        self.transition = True
+        self.transition_progress = 0
+        self.transition_update = engine.get_time()
+
+    def format_text(self, text):
+        return [text]
+
+    def determine_size(self):
+        self.width = max(self.font.width(line) for line in self.text_lines) + 16
+        self.height = len(self.text_lines) * self.font.height
+
+    def make_background(self, background):
+        surf = create_base_surf(self.width, self.height, background)
+        return surf
+
+    def update(self):
+        current_time = engine.get_time()
+
+        if self.transition:
+            perc = (current_time - self.transition_update) / self.transition_speed
+            self.transition_progress = utils.clamp(perc, 0, 1)
+            if self.transition_progress == 1:
+                if self.transition == 'end':
+                    return False
+                self.transition = False
+
+        if current_time - self.start_time > self.exist_time:
+            self.transition = 'end'
+
+        return True
+
+    def draw(self, surf):
+        bg = self.background.copy()
+        # Draw text
+        for idx, line in enumerate(self.text_lines):
+            self.font.blit_center(line, bg, (bg.get_width()//2, idx * self.font.height + 4))
+
+        if self.transition == 'start':
+            bg = image_mods.make_translucent(bg, 1.1 - self.transition_progress)
+        elif self.transition == 'end':
+            bg = image_mods.make_translucent(bg, .1 + (self.transition_progress * .9))
+        else:
+            bg = image_mods.make_translucent(bg, .1)
+        surf.blit(bg, self.position)
+
+        return surf

@@ -194,6 +194,14 @@ class NoDouble(ItemComponent):
     def can_double(self, unit, item):
         return False
 
+class IgnoreWeaponAdvantage(ItemComponent):
+    nid = 'ignore_weapon_advantage'
+    desc = "Item will not be affected by the weapon triangle"
+    tag = 'extra'
+
+    def ignore_weapon_advantage(self, unit, item):
+        return True
+
 class Reaver(ItemComponent):
     nid = 'reaver'
     desc = "Item will have double reverse weapon triangle"
@@ -201,3 +209,29 @@ class Reaver(ItemComponent):
 
     def modify_weapon_triangle(self, unit, item):
         return -2
+
+class StatusOnEquip(ItemComponent):
+    nid = 'status_on_equip'
+    desc = "Item gives status while equipped"
+    tag = 'extra'
+
+    expose = Type.Skill  # Nid
+
+    def on_equip_item(self, unit, item):
+        action.do(action.AddSkill(unit, self.value))
+
+    def on_unequip_item(self, unit, item):
+        action.do(action.RemoveSkill(unit, self.value))
+
+class StatusOnHold(ItemComponent):
+    nid = 'status_on_hold'
+    desc = "Item gives status while in unit's inventory"
+    tag = 'extra'
+
+    expose = Type.Skill  # Nid
+
+    def on_add_item(self, unit, item):
+        action.do(action.AddSkill(unit, self.value))
+
+    def on_remove_item(self, unit, item):
+        action.do(action.RemoveSkill(unit, self.value))

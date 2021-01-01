@@ -262,18 +262,15 @@ class MapView(SimpleMapView):
                     if current_unit:
                         under_unit = self.check_position(self.main_editor.current_level, pos)
                         if under_unit:
-                            print("Removing Unit")
                             under_unit.starting_position = None
                         if under_unit is current_unit:
                             message = "Removed unit %s from map" % (current_unit.nid)
                             self.main_editor.set_message(message)
                         elif current_unit.starting_position:
-                            print("Move Unit")
                             current_unit.starting_position = pos
                             message = "Moved unit %s to (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
                             self.main_editor.set_message(message)
                         else:
-                            print("Place Unit")
                             current_unit.starting_position = pos
                             message = "Placed unit %s at (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
                             self.main_editor.set_message(message)
@@ -321,9 +318,10 @@ class MapView(SimpleMapView):
             elif self.main_editor.dock_visibility['Regions']:
                 if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_region = self.main_editor.region_painter_menu.get_current()
-                    # Remove position for current region if it has one
-                    current_region.position = None
-                    self.region_select = pos
+                    if current_region:
+                        # Remove position for current region if it has one
+                        current_region.position = None
+                        self.region_select = pos
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
@@ -375,15 +373,16 @@ class MapView(SimpleMapView):
             if self.region_select and self.main_editor.dock_visibility['Regions']:
                 if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_region = self.main_editor.region_painter_menu.get_current()
-                    prev_pos = self.region_select
-                    top = min(prev_pos[1], pos[1])
-                    left = min(prev_pos[0], pos[0])
-                    right = max(prev_pos[0], pos[0])
-                    bottom = max(prev_pos[1], pos[1])
-                    width = right - left
-                    height = bottom - top
-                    current_region.position = (left, top)
-                    current_region.size = [width + 1, height + 1]
+                    if current_region:
+                        prev_pos = self.region_select
+                        top = min(prev_pos[1], pos[1])
+                        left = min(prev_pos[0], pos[0])
+                        right = max(prev_pos[0], pos[0])
+                        bottom = max(prev_pos[1], pos[1])
+                        width = right - left
+                        height = bottom - top
+                        current_region.position = (left, top)
+                        current_region.size = [width + 1, height + 1]
                     self.region_select = None
 
     def keyPressEvent(self, event):

@@ -370,6 +370,12 @@ class Alert(EventCommand):
 
     keywords = ["String"]
 
+class LocationCard(EventCommand):
+    nid = 'location_card'
+    tag = 'general'
+
+    keywords = ["String"]
+
 def get_commands():
     return EventCommand.__subclasses__()
 

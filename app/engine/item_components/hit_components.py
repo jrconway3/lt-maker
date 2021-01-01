@@ -157,7 +157,7 @@ class StatusOnHit(ItemComponent):
     expose = Type.Skill  # Nid
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.AddStatus(target, self.value))
+        actions.append(action.AddSkill(target, self.value))
         playback.append(('status_hit', unit, item, target, self.value))
 
 class Restore(ItemComponent):
@@ -180,7 +180,7 @@ class Restore(ItemComponent):
         return False
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        for status in unit.status_effects:
-            if status.time and self._can_be_restored(status):
-                actions.append(action.RemoveStatus(unit, status))
+        for skill in unit.skill:
+            if skill.time and self._can_be_restored(skill):
+                actions.append(action.RemoveSkill(unit, skill))
         playback.append(('hit', unit, item, target))

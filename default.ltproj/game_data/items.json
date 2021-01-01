@@ -1218,6 +1218,88 @@
         ]
     },
     {
+        "nid": "Elixir",
+        "name": "Elixir",
+        "desc": "Fully recovers HP.",
+        "icon_nid": "Consumable",
+        "icon_index": [
+            0,
+            3
+        ],
+        "components": [
+            [
+                "usable",
+                null
+            ],
+            [
+                "value",
+                3000
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "uses",
+                3
+            ],
+            [
+                "heal",
+                99
+            ],
+            [
+                "map_hit_color",
+                [
+                    96,
+                    144,
+                    232,
+                    128
+                ]
+            ]
+        ]
+    },
+    {
+        "nid": "Pure Water",
+        "name": "Pure Water",
+        "desc": "Temporarily raises resistance.",
+        "icon_nid": "Consumable",
+        "icon_index": [
+            0,
+            5
+        ],
+        "components": [
+            [
+                "usable",
+                null
+            ],
+            [
+                "value",
+                900
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "uses",
+                3
+            ],
+            [
+                "map_hit_color",
+                [
+                    0,
+                    187,
+                    255,
+                    255
+                ]
+            ],
+            [
+                "status_on_hit",
+                "Resist+"
+            ]
+        ]
+    },
+    {
         "nid": "Red Gem",
         "name": "Red Gem",
         "desc": "An expensive gem worth 2500 gold.",

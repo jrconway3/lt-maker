@@ -109,16 +109,21 @@ def get_range_string(unit, item):
         rng = '%d' % max_range
     return rng
 
-# Skill stuff
+def create_skill(unit, skill_nid):
+    skill_prefab = DB.skills.get(skill_nid)
+    if skill_prefab:
+        skill = SkillObject.from_prefab(skill_prefab)
+        skill.owner_nid = unit.nid
+        skill_system.init(skill)
+        return skill
+    else:
+        print("Couldn't find skill %s" % skill_nid)
+        return None
+
 def create_skills(unit, skill_nid_list: list) -> list:
     skills = []
     for skill_nid in skill_nid_list:
-        skill_prefab = DB.skills.get(skill_nid)
-        if skill_prefab:
-            skill = SkillObject.from_prefab(skill_prefab)
-            skill.owner_nid = unit.nid
-            skill_system.init(skill)
+        skill = create_skill(unit, skill_nid)
+        if skill:
             skills.append(skill)
-        else:
-            print("Couldn't find skill %s" % skill_nid)
     return skills

@@ -122,7 +122,7 @@
     },
     {
         "nid": "1",
-        "name": "Chapter 1",
+        "name": "Ch. 1: Escape!",
         "tilemap": "Chapter 1",
         "party": "Eirika",
         "music": {
@@ -560,7 +560,7 @@
     },
     {
         "nid": "2",
-        "name": "Chapter 2",
+        "name": "Ch. 2: The Protected",
         "tilemap": "Chapter 2",
         "party": "Eirika",
         "music": {

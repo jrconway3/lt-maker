@@ -373,9 +373,7 @@ class Rescue(Action):
         self.unit.has_rescued = True
 
         if not skill_system.ignore_rescue_penalty(self.unit) and 'Rescue' in DB.skills.keys():
-            rescue_status = item_funcs.create_skills(self.unit, ['Rescue'])[0]
-            game.register_skill(rescue_status)
-            self.subactions.append(AddSkill(self.unit, rescue_status))
+            self.subactions.append(AddSkill(self.unit, 'Rescue'))
 
         for action in self.subactions:
             action.do()
@@ -460,9 +458,7 @@ class Give(Action):
 
         self.other.traveler = self.unit.traveler
         if not skill_system.ignore_rescue_penalty(self.other) and 'Rescue' in DB.skills.keys():
-            rescue_status = item_funcs.create_skills(self.other, ['Rescue'])[0]
-            game.register_skill(rescue_status)
-            self.subactions.append(AddSkill(self.other, rescue_status))
+            self.subactions.append(AddSkill(self.other, 'Rescue'))
 
         self.unit.traveler = None
         self.subactions.append(RemoveSkill(self.unit, "Rescue"))
@@ -491,9 +487,7 @@ class Take(Action):
 
         self.unit.traveler = self.other.traveler
         if not skill_system.ignore_rescue_penalty(self.unit) and 'Rescue' in DB.skills.keys():
-            rescue_status = item_funcs.create_skills(self.unit, ['Rescue'])[0]
-            game.register_skill(rescue_status)
-            self.subactions.append(AddSkill(self.unit, rescue_status))
+            self.subactions.append(AddSkill(self.unit, 'Rescue'))
 
         self.other.traveler = None
         self.subactions.append(RemoveSkill(self.other, "Rescue"))
@@ -1056,12 +1050,21 @@ class TriggerCharge(Action):
             self.skill.data['charge'] = self.old_charge
 
 class AddSkill(Action):
-    def __init__(self, unit, skill_obj):
+    def __init__(self, unit, skill):
         self.unit = unit
+        # Check if we just passed in the skill nid to create
+        if isinstance(skill, str):
+            skill_obj = item_funcs.create_skill(skill)
+        else:
+            skill_obj = skill
+        if skill_obj:
+            game.register_skill(skill_obj)
         self.skill_obj = skill_obj
         self.subactions = []
 
     def do(self):
+        if not self.skill_obj:
+            return
         # Remove any skills with previous name
         if not self.skill_obj.stack and self.skill_obj.nid in [skill.nid for skill in self.unit.skills]:
             logger.info("Skill %s already present" % self.skill_obj.nid)

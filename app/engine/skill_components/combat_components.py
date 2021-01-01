@@ -11,7 +11,6 @@ class StatChange(SkillComponent):
     tag = 'combat'
 
     expose = (Type.Dict, Type.Stat)
-    value = []
 
     def stat_change(self, unit):
         return {stat[0]: stat[1] for stat in self.value}
@@ -22,7 +21,6 @@ class StatMultiplier(SkillComponent):
     tag = 'combat'
 
     expose = (Type.FloatDict, Type.Stat)
-    value = []
 
     def stat_change(self, unit):
         return {stat[0]: stat[1]*unit.stats[stat[0]] for stat in self.value}
@@ -272,9 +270,7 @@ class GainSkillAfterKill(SkillComponent):
 
     def end_combat(self, playback, unit, item, target):
         if target.get_hp() <= 0:
-            new_skill = item_funcs.create_skills(self.unit, [self.value])[0]
-            game.register_skill(new_skill)
-            action.AddSkill(unit, new_skill).do()
+            action.AddSkill(unit, self.value).do()
         action.TriggerCharge(unit, self.skill).do()
 
 class GainSkillAfterAttacking(SkillComponent):
@@ -287,8 +283,6 @@ class GainSkillAfterAttacking(SkillComponent):
     def end_combat(self, playback, unit, item, target):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
-            new_skill = item_funcs.create_skills(self.unit, [self.value])[0]
-            game.register_skill(new_skill)
             action.AddSkill(unit, self.value).do()
         action.TriggerCharge(unit, self.skill).do()
 
@@ -302,8 +296,6 @@ class GainSkillAfterActiveKill(SkillComponent):
     def end_combat(self, playback, unit, item, target):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
-            new_skill = item_funcs.create_skills(self.unit, [self.value])[0]
-            game.register_skill(new_skill)
             action.AddSkill(unit, self.value).do()
         action.TriggerCharge(unit, self.skill).do()
 

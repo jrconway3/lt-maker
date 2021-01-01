@@ -84,6 +84,8 @@ simple_event_hooks = ('on_end_chapter', )
 combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
 subcombat_event_hooks = ('after_hit', 'after_take_hit')
+# Takes in unit, item
+item_event_hooks = ('on_add_item', 'on_remove_item', 'on_equip_item', 'on_unequip_item')
 
 def condition(skill, unit) -> bool:
     for component in skill.components:
@@ -205,6 +207,15 @@ for hook in subcombat_event_hooks:
                       for component in skill.components:
                           if component.defines('%s'):
                               component.%s(actions, playback, unit, item, target, mode)""" \
+        % (hook, hook, hook)
+    exec(func)
+
+for hook in item_event_hooks:
+    func = """def %s(unit, item):
+                  for skill in unit.skills:
+                      for component in skill.components:
+                          if component.defines('%s'):
+                              component.%s(unit, item)""" \
         % (hook, hook, hook)
     exec(func)
 

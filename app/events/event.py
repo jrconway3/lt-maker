@@ -29,7 +29,7 @@ class Event():
     _transition_color = (0, 0, 0)
 
     skippable = {"speak", "transition", "wait", "bop_portrait",
-                 "sound"}
+                 "sound", "location_card"}
 
     def __init__(self, commands, unit=None, unit2=None, position=None, region=None):
         self.commands = commands.copy()
@@ -44,6 +44,7 @@ class Event():
 
         self.portraits = {}
         self.text_boxes = []
+        self.other_boxes = []
 
         self.prev_state = None
         self.state = 'processing'
@@ -113,6 +114,11 @@ class Event():
         sorted_portraits = sorted(self.portraits.values(), key=lambda x: x.priority)
         for portrait in sorted_portraits:
             portrait.draw(surf)
+
+        # Draw other boxes
+        self.other_boxes = [box for box in self.other_boxes if box.update()]
+        for box in self.other_boxes:
+            box.draw(surf)
 
         # Draw text/dialog boxes
         if self.state == 'dialog':
@@ -555,6 +561,16 @@ class Event():
             game.alerts.append(banner.Custom(custom_string))
             game.state.change('alert')
             self.state = 'paused'
+
+        elif command.nid == 'location_card':
+            values, flags = event_commands.parse(command)
+            custom_string = values[0]
+
+            new_location_card = dialog.LocationCard(custom_string)
+            self.other_boxes.append(new_location_card)
+
+            self.wait_time = 2000
+            self.state = 'waiting'
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)

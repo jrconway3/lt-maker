@@ -12,7 +12,9 @@ def get_skill_components():
 def get_component(nid):
     _skill_components = get_skill_components()
     base_class = _skill_components.get(nid)
-    return base_class(base_class.value)
+    if base_class:
+        return base_class(base_class.value)
+    return None
 
 def restore_component(dat):
     nid, value = dat

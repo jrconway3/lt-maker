@@ -43,6 +43,7 @@ class PortraitProperties(QWidget):
         self.last_talk_update = 0
         self.next_talk_update = 0
         # For blinking
+        self.blink_on = False
         self.blink_update = 0
 
         left_section = QGridLayout()
@@ -61,6 +62,7 @@ class PortraitProperties(QWidget):
         self.talk_button.clicked.connect(self.talk_button_clicked)
         self.blink_button = QPushButton(self)
         self.blink_button.setText("Blink")
+        self.blink_button.setCheckable(True)
         self.blink_button.clicked.connect(self.blink_button_clicked)
         left_section.addWidget(self.smile_button)
         left_section.addWidget(self.talk_button)
@@ -181,13 +183,12 @@ class PortraitProperties(QWidget):
                 mouth_image = self.current.pixmap.copy(*self.openmouth)
         mouth_image = mouth_image.toImage()
         # For blink image
-        time_passed = time.time()*1000 - self.blink_update
-        if time_passed < 60:
-            blink_image = self.current.pixmap.copy(*self.halfblink)
-        elif time_passed < 120:
-            blink_image = self.current.pixmap.copy(*self.fullblink)
-        elif time_passed < 180:
-            blink_image = self.current.pixmap.copy(*self.halfblink)
+        if self.blink_on:
+            time_passed = time.time()*1000 - self.blink_update
+            if time_passed < 60:
+                blink_image = self.current.pixmap.copy(*self.halfblink)
+            else:
+                blink_image = self.current.pixmap.copy(*self.fullblink)
         else:
             blink_image = None
         # Draw image
@@ -216,5 +217,6 @@ class PortraitProperties(QWidget):
     def smile_button_clicked(self, checked):
         self.smile_on = checked
 
-    def blink_button_clicked(self):
+    def blink_button_clicked(self, checked):
         self.blink_update = time.time()*1000
+        self.blink_on = checked

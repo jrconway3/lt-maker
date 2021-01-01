@@ -49,7 +49,7 @@ class ItemModel(DragDropCollectionModel):
         if affected_units or affected_levels:
             if affected_units:
                 affected = Data(affected_units)
-                from app.editor.unit_database import UnitModel
+                from app.editor.unit_editor.unit_model import UnitModel
                 model = UnitModel
             elif affected_levels:
                 affected = Data(affected_levels)

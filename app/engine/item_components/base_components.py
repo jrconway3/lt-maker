@@ -151,6 +151,14 @@ class Usable(ItemComponent):
     def can_use(self, unit, item):
         return True
 
+class UsableInBase(ItemComponent):
+    nid = 'usable_in_base'
+    desc = "Item is usable in base"
+    tag = 'base'
+
+    def can_use_in_base(self, unit, item):
+        return True
+
 class Value(ItemComponent):
     nid = 'value'
     desc = "Item has a value and can be bought and sold. Items sell for half their value."

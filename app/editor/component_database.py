@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, QDoubleSpinBox, \
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt
 
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.data.components import Type
 
@@ -78,13 +79,13 @@ class IntItemComponent(BoolItemComponent):
         self._data.value = int(val)
 
     def set_format(self):
-        self.editor.setMaximumWidth(40)
-        self.editor.setRange(-255, 255)
+        self.editor.setMaximumWidth(50)
+        self.editor.setRange(-1000, 1000)
 
 class HitItemComponent(IntItemComponent):
     def set_format(self):
-        self.editor.setMaximumWidth(40)
-        self.editor.setRange(-255, 255)
+        self.editor.setMaximumWidth(50)
+        self.editor.setRange(-1000, 1000)
         self.editor.setSingleStep(5)
 
 class ValueItemComponent(IntItemComponent):
@@ -95,7 +96,7 @@ class ValueItemComponent(IntItemComponent):
 class FloatItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QDoubleSpinBox(self)
-        self.editor.setMaximumWidth(40)
+        self.editor.setMaximumWidth(50)
         self.editor.setRange(0, 1)
         self.editor.setSingleStep(.05)
         if self._data.value is None:
@@ -199,10 +200,23 @@ class SkillItemComponent(BoolItemComponent):
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
+class SoundItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        for sound in RESOURCES.sfx.values():
+            self.editor.addItem(sound.nid)
+        if not self._data.value and RESOURCES.sfx:
+            self._data.value = RESOURCES.sfx[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
 # Delegates
 class UnitDelegate(QItemDelegate):
     data = DB.units
     name = "Unit"
+    is_float = False
 
     def createEditor(self, parent, option, index):
         if index.column() == 0:
@@ -211,8 +225,12 @@ class UnitDelegate(QItemDelegate):
                 editor.addItem(obj.nid)
             return editor
         elif index.column() == 1:  # Integer value column
-            editor = QSpinBox(parent)
-            editor.setRange(-255, 255)
+            if self.is_float:
+                editor = QDoubleSpinBox(parent)
+                editor.setRange(0, 10)
+            else:
+                editor = QSpinBox(parent)
+                editor.setRange(-1000, 1000)
             return editor
         else:
             return super().createEditor(parent, option, index)
@@ -240,7 +258,9 @@ class WeaponTypeDelegate(UnitDelegate):
 class ListItemComponent(BoolItemComponent):
     delegate = None
 
-    def create_editor(self, hbox):    
+    def create_editor(self, hbox):
+        if not self._data.value:
+            self._data.value = []
         self.editor = AppendSingleListWidget(self._data.value, self._data.name, self.delegate, self)
         self.editor.view.setColumnWidth(0, 100)
         self.editor.view.setMaximumHeight(75)
@@ -251,8 +271,11 @@ class ListItemComponent(BoolItemComponent):
 class DictItemComponent(BoolItemComponent):
     delegate = None
 
-    def create_editor(self, hbox):    
+    def create_editor(self, hbox):
+        if not self._data.value:
+            self.data.value = []
         title = self._data.name
+        self.modify_delegate()
         self.editor = AppendMultiListWidget(self._data.value, title, (self.delegate.name, "Value"), self.delegate, self, model=list_models.DoubleListModel)
         self.editor.view.setColumnWidth(0, 100)
         self.editor.view.setMaximumHeight(75)
@@ -260,8 +283,12 @@ class DictItemComponent(BoolItemComponent):
 
         hbox.addWidget(self.editor)
 
+    def modify_delegate(self):
+        pass
+
 class FloatDictItemComponent(DictItemComponent):
-    pass
+    def modify_delegate(self):
+        self.delegate.is_float = True
 
 def get_display_widget(component, parent):
     if not component.expose:

@@ -30,16 +30,17 @@ Dialogue Log on R press
 Check box in AI behaviour for unit specification that has the ability to flip from target ONLY to target EXCEPT.
 
 Steal item
-Repair item
+Repair item (and unrepairable)
 
-Skill System -- Status on Hit (Initiator?), Auras, Modify AOE, Modify Forced Movement
-Item System -- Status on Hit (Initiator?), Status on Equip, Status on Hold, Forced Movement, Multiple Target Items, Multiple Item Items
+Skill System -- Auras, Modify AOE, Modify Forced Movement
+Item System -- Forced Movement, Multiple Target Items, Multiple Item Items, AOE
 
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
 Summoning
 
-Status component that gives access to convoy for self
-Status component that gives access to convoy for others
-alert;
+Test stuff from last commit
+Test location card
+
+Rescue Status -- Test that it works

@@ -394,8 +394,7 @@ class GameState():
                 terrain_nid = self.tilemap.get_terrain(unit.position)
                 terrain = DB.terrain.get(terrain_nid)
                 if terrain.status:
-                    new_skill = DB.skills.get(terrain.status)
-                    act = action.AddSkill(unit, new_skill)
+                    act = action.AddSkill(unit, terrain.status)
                     if test:
                         act.do()
                     else:
@@ -404,8 +403,7 @@ class GameState():
             if not skill_system.ignore_region_status(unit):
                 for region in game.level.regions:
                     if region.region_type == 'status' and region.contains(unit.position):
-                        new_skill = DB.skills.get(region.sub_nid)
-                        act = action.AddSkill(unit, new_skill)
+                        act = action.AddSkill(unit, region.sub_nid)
                         if test:
                             act.do()
                         else:

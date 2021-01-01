@@ -72,6 +72,4 @@ class ReflectStatus(SkillComponent):
         if hasattr(other_skill, 'initiator'):
             other_unit = game.get_unit(other_skill.initiator)
             # Create a copy of other skill
-            new_skill = item_funcs.create_skills(other_unit, [other_skill.nid])[0]
-            game.register_skill(new_skill)
-            action.do(action.AddSkill(other_unit, new_skill))
+            action.do(action.AddSkill(other_unit, other_skill.nid))

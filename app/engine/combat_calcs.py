@@ -21,6 +21,9 @@ def compute_advantage(unit1, unit2, item1, item2, advantage=True):
     item2_weapontype = item_system.weapon_type(unit2, item2)
     if not item1_weapontype or not item2_weapontype:
         return None
+    if item_system.ignore_weapon_advantage(unit1, item1) or \
+            item_system.ignore_weapon_advantage(unit2, item2):
+        return None
     if advantage:
         bonus = DB.weapons.get(item1_weapontype).advantage
     else:

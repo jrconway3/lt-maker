@@ -14,7 +14,9 @@ def get_item_components():
 def get_component(nid):
     _item_components = get_item_components()
     base_class = _item_components.get(nid)
-    return base_class(base_class.value)
+    if base_class:
+        return base_class(base_class.value)
+    return None
 
 def restore_component(dat):
     nid, value = dat

@@ -6,6 +6,13 @@ class SelectionHelper():
     def __init__(self, pos_list):
         self.pos_list = pos_list
 
+    def count(self):
+        return len(self.pos_list)
+
+    def remove_target(self, pos):
+        if pos in self.pos_list:
+            self.pos_list.remove(pos)
+
     def handle_mouse(self):
         mouse_position = INPUT.get_mouse_position()
         if mouse_position:

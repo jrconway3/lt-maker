@@ -1,19 +1,27 @@
 from app.data.item_components import ItemComponent
 from app.data.components import Type
 
-class MapHitColor(ItemComponent):
-    nid = 'map_hit_color'
-    desc = "Changes the color that appears on the unit when hit"
+class MapHitAddBlend(ItemComponent):
+    nid = 'map_hit_add_blend'
+    desc = "Changes the color that appears on the unit when hit -- Use to make brighter"
     tag = 'aesthetic'
 
-    expose = Type.Color4
-    value = (255, 255, 255, 128)
+    expose = Type.Color3
+    value = (255, 255, 255)
 
     def on_hit(self, actions, playback, unit, item, target, mode):
-        playback.append(('unit_tint', target, self.value))
+        playback.append(('unit_tint_add', target, self.value))
 
-    def on_crit(self, actions, playback, unit, item, target, mode):
-        playback.append(('unit_tint', target, self.value))
+class MapHitSubBlend(ItemComponent):
+    nid = 'map_hit_sub_blend'
+    desc = "Changes the color that appears on the unit when hit -- Use to make darker"
+    tag = 'aesthetic'
+
+    expose = Type.Color3
+    value = (0, 0, 0)
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        playback.append(('unit_tint_sub', target, self.value))
 
 class MapHitSFX(ItemComponent):
     nid = 'map_hit_sfx'
@@ -24,9 +32,6 @@ class MapHitSFX(ItemComponent):
     value = 'Attack Hit 1'
 
     def on_hit(self, actions, playback, unit, item, target, mode):
-        playback.append(('hit_sound', self.value))
-
-    def on_crit(self, actions, playback, unit, item, target, mode):
         playback.append(('hit_sound', self.value))
 
 class MapCastSFX(ItemComponent):
@@ -40,11 +45,21 @@ class MapCastSFX(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, mode):
         playback.append(('cast_sound', self.value))
 
-    def on_crit(self, actions, playback, unit, item, target, mode):
-        playback.append(('cast_sound', self.value))
-
     def on_miss(self, actions, playback, unit, item, target, mode):
         playback.append(('cast_sound', self.value))
+
+class MapCastAnim(ItemComponent):
+    nid = 'map_cast_anim'
+    desc = "Adds a map animation to the item on cast"
+    tag = 'aesthetic'
+
+    expose = Type.MapAnimation
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        playback.append(('cast_anim', self.value))
+
+    def on_miss(self, actions, playback, unit, item, target, mode):
+        playback.append(('cast_anim', self.value))
 
 class Warning(ItemComponent):
     nid = 'warning'

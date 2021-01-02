@@ -27,6 +27,10 @@ class ItemObject():
             component_value.item = self
 
         self.data = {}
+        
+        # For subitems
+        self.subitem_uids = []
+        self.subitems = []
 
     @classmethod
     def from_prefab(cls, prefab):
@@ -51,6 +55,7 @@ class ItemObject():
         serial_dict['owner_nid'] = self.owner_nid
         serial_dict['droppable'] = self.droppable
         serial_dict['data'] = self.data
+        serial_dict['subitems'] = self.subitem_uids 
         return serial_dict
 
     @classmethod
@@ -60,4 +65,5 @@ class ItemObject():
         self.owner_nid = dat['owner_nid']
         self.droppable = dat['droppable']
         self.data = dat['data']
+        self.subitem_uids = dat.get('subitems', [])
         return self

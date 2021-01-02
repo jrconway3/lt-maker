@@ -333,12 +333,13 @@ class MapView(SimpleMapView):
             self.main_editor.set_position_bar(pos)
             under_unit = self.check_position(self.main_editor.current_level, pos)
             current_group = self.main_editor.group_painter_menu.get_current()
-            group_unit = None
-            for unit in current_group.units:
-                my_pos = current_group.positions.get(unit.nid)
-                if my_pos and my_pos[0] == pos[0] and my_pos[1] == pos[1]:
-                    group_unit = unit
-                    break
+            if current_group:
+                group_unit = None
+                for unit in current_group.units:
+                    my_pos = current_group.positions.get(unit.nid)
+                    if my_pos and my_pos[0] == pos[0] and my_pos[1] == pos[1]:
+                        group_unit = unit
+                        break
             
             if self.main_editor.dock_visibility['Regions']:
                 current_region = None

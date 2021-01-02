@@ -662,14 +662,11 @@ class PrepItemsState(State):
                     self.menu.move_to_item_type(item)
                     self.state = 'free'
                 elif current == 'Trade':
-                    print("TRADE CONVOY")
                     self.state = 'trade_convoy'
                     self.menu.move_to_convoy()
                     self.menu.update_options()
                 elif current == 'Use':
-                    combat = interaction.engage(self.unit, None, item)
-                    game.combat_instance = combat
-                    game.state.change('combat')
+                    interaction.start_combat(self.unit, None, item)
                     self.state = 'free'
                 elif current == 'Restock':
                     convoy_funcs.restock(item)
@@ -687,9 +684,7 @@ class PrepItemsState(State):
                     self.state = 'trade_inventory'
                     self.menu.move_to_inventory()
                 elif current == 'Use':
-                    combat = interaction.engage(self.unit, None, item)
-                    game.combat_instance = combat
-                    game.state.change('combat')
+                    interaction.start_combat(self.unit, None, item)
                     self.state = 'free'
                 self.sub_menu = None
                 self.menu.update_options()

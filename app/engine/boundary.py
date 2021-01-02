@@ -65,7 +65,7 @@ class BoundaryInterface():
 
     def reset_unit(self, unit):
         if unit.nid in self.displaying_units:
-            self.display_units.discard(unit.nid)
+            self.displaying_units.discard(unit.nid)
             self.surf = None
 
     def reset_fog_of_war(self):

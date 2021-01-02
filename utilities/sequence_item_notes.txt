@@ -1,0 +1,61 @@
+Warp
+Rescue
+Item that deals 5 damage in range 3, 5 damage in range, and 5 damage in range1
+Item that deals 10 damage and heals user for 20
+
+**
+Rescue
+Item1
+Targets Allies
+Range 10
+Rescue Component
+    Remove ally from map and store uid in data
+
+Item2
+Targets Unoccupied Tiles
+Range 1
+Warp Component
+    Put unit from storage onto map
+
+**
+Warp
+Item1
+Targets Allies
+Range 1
+Rescue Component
+
+Item2
+Targets Unoccupied Tiles
+Range 10
+Warp Component
+    Put unit from storage onto map
+
+**
+Explosion
+Item1
+1 Target Self
+Range 0
+Damage 5
+Blast AOE 3
+
+Item2
+0 Target
+Damage 5
+Blast AOE 2
+
+Item3
+0 Target
+Damage 5
+Blast AOE 1
+
+**
+Iron Bash
+Item1
+1 Target Self
+Range 0
+Damage 20
+Blast AOE 1
+
+Item2
+0 Target
+Heal Health to self

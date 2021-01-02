@@ -13,6 +13,13 @@ def is_magic(unit, item) -> bool:
 def available(unit, item) -> bool:
     return item_system.available(unit, item) and skill_system.available(unit, item)
 
+def can_use(unit, item) -> bool:
+    if item_system.can_use(unit, item) and available(unit, item):
+        defender, splash = item_system.splash(unit, item, unit.position)
+        if item_system.target_restrict(unit, item, defender, splash):
+            return True
+    return False
+
 def buy_price(unit, item):
     value = item_system.buy_price(unit, item)
     value *= skill_system.modify_buy_price(unit, item)
@@ -34,6 +41,33 @@ def sell_price(unit, item):
 #             return False
 #     return True
 
+def create_item(unit, item_nid, droppable=False):
+    item_prefab = DB.items.get(item_nid)
+    item = ItemObject.from_prefab(item_prefab)
+    if unit:
+        item.owner_nid = unit.nid
+    item.droppable = droppable
+    item_system.init(item)
+
+    def create_subitem(subitem_nid):
+        subitem_prefab = DB.items.get(subitem_nid)
+        subitem = ItemObject.from_prefab(subitem_prefab)
+        if unit:
+            subitem.owner_nid = unit.nid
+        item_system.init(subitem)
+        item.subitem_uids.append(subitem.uid)
+        item.subitems.append(subitem)
+
+    if item.multi_item:
+        for subitem_nid in item.multi_item.value:
+            create_subitem(subitem_nid)
+
+    elif item.sequence_item:
+        for subitem_nid in item.sequence_item.value:
+            create_subitem(subitem_nid)
+
+    return item
+
 def create_items(unit, item_nid_list: list) -> list:
     items = []
     for val in item_nid_list:
@@ -42,12 +76,7 @@ def create_items(unit, item_nid_list: list) -> list:
         else:
             item_nid = val
             droppable = False
-        item_prefab = DB.items.get(item_nid)
-        item = ItemObject.from_prefab(item_prefab)
-        if unit:
-            item.owner_nid = unit.nid
-        item.droppable = droppable
-        item_system.init(item)
+        item = create_item(unit, item_nid, droppable)
         items.append(item)
     return items
 
@@ -55,11 +84,10 @@ def get_all_items(unit) -> list:
     """
     Use this to get all weapons if you want to be able to handle multi_items
     """
-    
     items = []
     for item in unit.items:
         if item.multi_item:
-            for subitem in item.multi_item.value:
+            for subitem in item.subitems:
                 items.append(subitem)
         else:
             items.append(item)

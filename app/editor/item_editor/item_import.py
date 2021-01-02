@@ -1,3 +1,4 @@
+import os
 import xml.etree.ElementTree as ET
 
 from app.utilities import str_utils, utils
@@ -14,13 +15,39 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     item_list = []
     for item in item_xml.getroot().findall('item'):
         try:
-            new_item = load_item(item)
+            new_item = load_item(item, parent_dir)
             item_list.append(new_item)
         except Exception as e:
             print("Item %s Import Error: %s" % (item.find('id').text, e))
     return item_list
 
-def load_item(item):
+def get_wtype(final_components, item):
+    wtype = item.find('weapontype').text
+    if wtype in DB.weapons.keys():
+        weapontype_comp = ICA.get_component('weapon_type')
+        weapontype_comp.value = wtype
+        final_components.append(weapontype_comp)
+    wrank = item.find('LVL').text
+    if wrank in DB.weapon_ranks.keys():
+        weaponrank_comp = ICA.get_component('weapon_rank')
+        weaponrank_comp.value = wrank
+        final_components.append(weaponrank_comp)
+    return wtype, wrank
+
+def check_for_magic(final_components, wtype, parent_dir):
+    if os.path.exists(parent_dir + '/weapon_triangle.txt'):
+        with open(parent_dir + '/weapon_triangle.txt') as wfn:
+            lines = [line.strip() for line in wfn.readlines() if line.strip()]
+            weapon_order = [line.split(';')[0] for line in lines]
+            is_magic = [True if len(line.split(';')) > 3 and line.split(';')[3] else False for line in lines]
+            magic = False
+            if wtype in weapon_order:
+                magic = is_magic[weapon_order.index(wtype)]
+            if magic:
+                magic_comp = ICA.get_component('magic')
+                final_components.append(magic_comp)
+
+def load_item(item, parent_dir):
     nids = DB.items.keys()
     nid = str_utils.get_next_name(item.find('id').text, nids)
     name = item.get('name')
@@ -48,16 +75,29 @@ def load_item(item):
             hit_comp = ICA.get_component('hit')
             hit_comp.value = int(item.find('HIT').text)
             final_components.append(hit_comp)
-            wtype = item.find('weapontype').text
-            if wtype in DB.weapons.keys():
-                weapontype_comp = ICA.get_component('weapon_type')
-                weapontype_comp.value = wtype
-                final_components.append(weapontype_comp)
-            wrank = item.find('LVL').text
-            if wrank in DB.weapon_ranks.keys():
-                weaponrank_comp = ICA.get_component('weapon_rank')
-                weaponrank_comp.value = wrank
-                final_components.append(weaponrank_comp)
+            wtype, wrank = get_wtype(final_components, item)
+            check_for_magic(final_components, wtype, parent_dir)
+
+        elif component == 'spell':
+            spell_comp = ICA.get_component('spell')
+            final_components.append(spell_comp)
+
+            if item.find('targets') is not None:
+                target = item.find('targets').text
+                if target == 'Enemy':
+                    target_comp = ICA.get_component('target_enemy')
+                    final_components.append(target_comp)
+                    exp_comp = ICA.get_component('level_exp')
+                    final_components.append(exp_comp)
+                elif target == 'Ally':
+                    target_comp = ICA.get_component('target_ally')
+                    final_components.append(target_comp)
+                elif target == 'Unit':
+                    target_comp = ICA.get_component('target_unit')
+                    final_components.append(target_comp)
+
+            wtype, wrank = get_wtype(final_components, item)
+            check_for_magic(final_components, wtype, parent_dir)
 
         elif component == 'usable':
             usable = ICA.get_component('usable')
@@ -92,6 +132,55 @@ def load_item(item):
         elif component == 'sfx_on_cast':
             comp = ICA.get_component('map_cast_sfx')
             comp.value = item.find('sfx_on_cast').text
+            final_components.append(comp)
+        
+        elif component == 'aoe_anim':
+            comp = ICA.get_component('map_cast_anim')
+            final_components.append(comp)
+
+        elif component == 'aoe':
+            target = item.find('aoe').text
+            if len(target.split(',')) == 2:
+                mode, magnitude = target.split(',')
+            else:
+                mode, magnitude = target, 0
+            if str_utils.is_int(magnitude):
+                pass
+            else:
+                print("%s: Could not determine value for component %s" % (nid, component))
+                continue
+            if mode == 'EnemyBlast':
+                comp = ICA.get_component('enemy_blast_aoe')
+                comp.value = int(magnitude)
+            elif mode == 'Blast':
+                comp = ICA.get_component('blast_aoe')
+                comp.value = int(magnitude)
+            elif mode == 'Cleave':
+                comp = ICA.get_component('enemy_cleave_aoe')
+            elif mode == 'AllAllies':
+                comp = ICA.get_component('all_allies_aoe')
+            elif mode == 'AllEnemies':
+                comp = ICA.get_component('all_enemies_aoe')
+            elif mode == 'Line':
+                comp = ICA.get_component('line_aoe')
+            else:
+                print("%s: Could not determine value for component %s" % (nid, component))
+                continue
+            final_components.append(comp)
+
+        elif component == 'movement':
+            target = item.find('movement').text
+            mode, magnitude = target.split(',')
+            if mode == 'Shove':
+                comp = ICA.get_component('shove')
+                comp.value = int(magnitude)
+            elif mode == 'Swap':
+                comp = ICA.get_component('swap')
+            elif mode == 'Warp':
+                comp = ICA.get_component('warp')
+            else:
+                print("%s: Could not determine value for component %s" % (nid, component))
+                continue
             final_components.append(comp)
 
         elif component in ('beneficial', 'detrimental'):

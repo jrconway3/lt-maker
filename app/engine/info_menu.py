@@ -763,20 +763,42 @@ class InfoMenuState(State):
     def create_equipment_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
 
-        # Background highlight
         weapon = self.unit.get_weapon()
-        if weapon:  # Only highlight if unit has weapon
-            index_of_weapon = self.unit.items.index(weapon)
-            surf.blit(SPRITES.get('equipment_highlight'), (8, 32 + 16 * index_of_weapon))
-
+        accessory = self.unit.get_accessory()
+        
         # Blit items
         for idx, item in enumerate(self.unit.nonaccessories):
-            item_option = menu_options.FullItemOption(idx, item)
+            if item.multi_item and any(subitem is weapon for subitem in item.subitems):
+                surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
+                for subitem in item.subitems:
+                    if subitem is weapon:
+                        item_option = menu_options.FullItemOption(idx, subitem)
+                        break
+                else:  # Shouldn't happen
+                    item_option = menu_options.FullItemOption(idx, item)
+            else:
+                if item is weapon:
+                    surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
+                item_option = menu_options.FullItemOption(idx, item)
             item_option.draw(surf, 8, idx * 16 + 24)
             self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0))
+        
+        # Blit accessories
         for idx, item in enumerate(self.unit.accessories):
-            item_option = menu_options.FullItemOption(idx, item)
-            item_option.draw(surf, 8, DB.constants.value('num_items') * 16 + idx * 16 + 24)
+            height = DB.constants.value('num_items') * 16 + idx * 16 + 24
+            if item.multi_item and any(subitem is accessory for subitem in item.subitems):
+                surf.blit(SPRITES.get('equipment_highlight'), (8, height + 8))
+                for subitem in item.subitems:
+                    if subitem is accessory:
+                        item_option = menu_options.FullItemOption(idx, subitem)
+                        break
+                else:  # Shouldn't happen
+                    item_option = menu_options.FullItemOption(idx, item)
+            else:
+                if item is accessory:
+                    surf.blit(SPRITES.get('equipment_highlight'), (8, height + 8))
+                item_option = menu_options.FullItemOption(idx, item)
+            item_option.draw(surf, 8, height)
             self.info_graph.register((96 + 8, DB.constants.value('num_items') * 16 + idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0 and not self.unit.nonaccessories))
 
         # Battle stats

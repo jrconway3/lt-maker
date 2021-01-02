@@ -99,10 +99,7 @@ class AIController():
                     game.highlight.display_possible_spell_attacks({self.goal_target})
                     game.highlight.display_possible_spell_attacks(splash_positions, light=True)
                 # Combat
-                combat = interaction.engage(self.unit, [self.goal_target], self.goal_item)
-                combat.ai_combat = True
-                game.combat_instance = combat
-                game.state.change('combat')
+                interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True)
 
     def canto_retreat(self):
         valid_positions = self.get_true_valid_moves()

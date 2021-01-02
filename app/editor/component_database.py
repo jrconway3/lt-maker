@@ -166,7 +166,7 @@ class Color4ItemComponent(BoolItemComponent):
         if not self._data.value:
             self._data.value = (0, 0, 0, 0)
         color = self._data.value
-        self.color = AlphaColorIcon(QColor(*color).name(), self)
+        self.color = AlphaColorIcon(QColor(*color).name(QColor.HexArgb), self)
         self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
@@ -208,6 +208,18 @@ class SoundItemComponent(BoolItemComponent):
             self.editor.addItem(sound.nid)
         if not self._data.value and RESOURCES.sfx:
             self._data.value = RESOURCES.sfx[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+class MapAnimationItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        for map_anim in RESOURCES.animations.values():
+            self.editor.addItem(map_anim.nid)
+        if not self._data.value and RESOURCES.animations:
+            self._data.value = RESOURCES.animations[0].nid
         self.editor.setValue(self._data.value)
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -314,6 +326,12 @@ def get_display_widget(component, parent):
         c = ItemItemComponent(component, parent)
     elif component.expose == Type.Skill:
         c = SkillItemComponent(component, parent)
+    elif component.expose == Type.MapAnimation:
+        c = MapAnimationItemComponent(component, parent)
+    elif component.expose == Type.Equation:
+        c = EquationItemComponent(component, parent)
+    elif component.expose == Type.Sound:
+        c = SoundItemComponent(component, parent)
     elif isinstance(component.expose, tuple):
         delegate = None
         if component.expose[1] == Type.Unit:

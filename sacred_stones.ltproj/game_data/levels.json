@@ -998,6 +998,16 @@
                     3
                 ],
                 "generic": false
+            },
+            {
+                "nid": "Lute",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    5
+                ],
+                "generic": false
             }
         ],
         "regions": [],

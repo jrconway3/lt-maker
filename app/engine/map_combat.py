@@ -31,7 +31,7 @@ class MapCombat():
         self.hp_bar_time = 400
 
         self._skip = False
-        self.full_playback = []  # From all phases
+        self.full_playback = game.memory.get('full_playback', [])  # From all phases
         self.playback = []
         self.actions = []
 
@@ -79,7 +79,13 @@ class MapCombat():
         elif self.state == 'begin_phase':
             # Get playback
             if not self.state_machine.get_state():
-                self.clean_up()
+                # If there are still more combats to get to
+                if game.combat_instance:
+                    game.memory['full_playback'] += self.full_playback
+                    game.state.back()
+                else:
+                    game.memory['full_playback'] = []
+                    self.clean_up()
                 return True
             self.actions, self.playback = self.state_machine.do()
             self.full_playback += self.playback
@@ -229,16 +235,19 @@ class MapCombat():
 
     def _handle_playback(self):
         for brush in self.playback:
-            if brush[0] == 'unit_tint':
+            if brush[0] == 'unit_tint_add':
                 color = brush[2]
-                brush[1].sprite.begin_flicker(333, color)
+                brush[1].sprite.begin_flicker(333, color, 'add')
+            elif brush[0] == 'unit_tint_sub':
+                color = brush[2]
+                brush[1].sprite.begin_flicker(333, color, 'sub')
             elif brush[0] == 'crit_tint':
                 color = brush[2]
-                brush[1].sprite.begin_flicker(33, color)
+                brush[1].sprite.begin_flicker(33, color, 'add')
                 # Delay five frames
-                brush[1].sprite.start_flicker(83, 33, color)
+                brush[1].sprite.start_flicker(83, 33, color, 'add')
                 # Delay five more frames
-                brush[1].sprite.start_flicker(166, 333, color, fade_out=True)
+                brush[1].sprite.start_flicker(166, 333, color, 'add', fade_out=True)
             elif brush[0] == 'crit_vibrate':
                 # In 10 frames, start vibrating for 12 frames
                 brush[1].sprite.start_vibrate(166, 200)

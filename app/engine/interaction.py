@@ -6,26 +6,45 @@ from app.engine.game_state import game
 def has_animation(attacker, item, main_target, splash):
     return False
 
-def engage(attacker, position, item, skip=False, script=None):
+def engage(attacker, positions, item, skip=False, script=None):
     # Does one round of combat
-    if len(position) > 1:
+    if len(positions) > 1:
         # Multiple targets
         splash = set()
-        for pos in position:
+        for pos in positions:
             main_target, s = item_system.splash(attacker, item, pos)
             if main_target:
                 splash.add(main_target)
             splash |= s
         main_target = None
+    elif len(positions) == 0:
+        main_target, splash = item_system.splash(attacker, item, attacker.position)
     else:
-        main_target, splash = item_system.splash(attacker, item, position[0])
+        main_target, splash = item_system.splash(attacker, item, positions[0])
     if skip:
         combat = SimpleCombat(attacker, item, main_target, splash, script)
     elif has_animation(attacker, item, main_target, splash):
         combat = AnimationCombat(attacker, item, main_target, splash, script)
     else:
-        combat = MapCombat(attacker, item, position[0], main_target, splash, script)
+        combat = MapCombat(attacker, item, positions[0], main_target, splash, script)
     return combat
+
+def start_combat(self, unit, target, item, ai_combat=False, event_combat=False, script=None):
+    if item.sequence_item:
+        for subitem in item.subitems:
+            num_targets = item_system.num_targets(unit, subitem)
+            combat = engage(unit, [target] * num_targets, subitem, script=script)
+            combat.ai_combat = ai_combat # Must mark this so we can come back!
+            combat.event_combat = event_combat # Must mark this so we can come back!
+            game.combat_instance.append(combat)
+            game.state.change('combat')
+    else:
+        num_targets = item_system.num_targets(unit, subitem)
+        combat = engage(unit, [target] * num_targets, item, script=script)
+        combat.ai_combat = ai_combat # Must mark this so we can come back!
+        combat.event_combat = event_combat # Must mark this so we can come back!
+        game.combat_instance.append(combat)
+        game.state.change('combat')
 
 class SimpleCombat():
     """

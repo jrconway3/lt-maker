@@ -93,7 +93,7 @@ class GameState():
         self.movement = movement.MovementManager()
         self.death = death.DeathManager()
         self.ui_view = ui_view.UIView()
-        self.combat_instance = None
+        self.combat_instance = []
         self.ai = ai_controller.AIController()
 
         self.alerts.clear()
@@ -220,6 +220,10 @@ class GameState():
         self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
+        # Handle subitems
+        for item in self.item_registry.values():
+            for subitem_uid in item.subitem_uids:
+                item.subitems.append(self.item_registry.get(subitem_uid))
 
         self.market_items = s_dict.get('market_items', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
@@ -318,6 +322,9 @@ class GameState():
     def register_item(self, item):
         logger.info("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
+        # For multi-items
+        for subitem in item.subitems:
+            self.item_registry[subitem.uid] = subitem
 
     def register_skill(self, skill):
         logger.info("Registering skill %s as %s", skill, skill.uid)

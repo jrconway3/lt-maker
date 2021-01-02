@@ -55,40 +55,7 @@ class MovementManager():
         movement_group = self.get_movement_group(unit_to_move)
         mcost = DB.mcost.get_mcost(movement_group, mtype)
         return mcost
-
-    def forced_movement(self, unit_to_move, anchor_unit, anchor_pos, move_component):
-        mtype, magnitude = move_component
-        if not str_utils.is_int(magnitude):
-            dist = utils.calculate_distance(unit_to_move.position, anchor_pos)
-            magnitude = equations.parser.get(magnitude, unit_to_move, None, dist)
-
-        if mtype == 'shove':
-            new_position = self.check_shove(unit_to_move, anchor_pos, magnitude)
-            if new_position:
-                unit_to_move.sprite.set_transition('fake_in')
-                x_offset = unit_to_move.position[0] - new_position[0] * TILEWIDTH
-                y_offset = unit_to_move.position[1] - new_position[1] * TILEHEIGHT
-                unit_to_move.sprite.set_offset(x_offset, y_offset)
-                action.do(action.ForcedMovement(unit_to_move, new_position))
-        elif mtype == 'swap':
-            new_position = anchor_pos
-            action.do(action.ForcedMovement(unit_to_move, new_position))
-        elif mtype == 'warp':
-            action.do(action.Warp(unit_to_move, anchor_pos))
-
-    def check_shove(self, unit_to_move, anchor_pos, magnitude):
-        pos_offset_x = unit_to_move.position[0] - anchor_pos[0]
-        pos_offset_y = unit_to_move.position[1] - anchor_pos[1]
-        new_position = (unit_to_move.position[0] + pos_offset_x * magnitude,
-                        unit_to_move.position[1] + pos_offset_y * magnitude)
-
-        mcost = self.get_mcost(unit_to_move, new_position)
-        if game.tilemap.check_bounds(new_position) and \
-                not game.board.get_unit(new_position) and \
-                mcost < 5:
-            return new_position
-        return False
-
+        
     def update(self):
         current_time = engine.get_time()
         for unit_nid in list(self.moving_units.keys()):

@@ -86,14 +86,14 @@ class ClassModel(DragDropCollectionModel):
         if affected_units or affected_classes or affected_ais or affected_levels:
             if affected_units:
                 affected = Data(affected_units)
-                from app.editor.unit_database import UnitModel
+                from app.editor.unit_editor.unit_model import UnitModel
                 model = UnitModel
             elif affected_classes:
                 affected = Data(affected_classes)
                 model = ClassModel
             elif affected_ais:
                 affected = Data(affected_ais)
-                from app.editor.ai_database import AIModel
+                from app.editor.ai_editor.ai_model import AIModel
                 model = AIModel
             elif affected_levels:
                 affected = Data(affected_levels)

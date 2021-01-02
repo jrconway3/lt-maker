@@ -6,6 +6,7 @@ from app.data.item_components import ItemComponent
 from app.data.components import Type
 
 from app.engine import action, skill_system, combat_calcs, equations
+from app.engine.game_state import game
 
 class Heal(ItemComponent):
     nid = 'heal'
@@ -162,25 +163,95 @@ class StatusOnHit(ItemComponent):
 
 class Restore(ItemComponent):
     nid = 'restore'
-    desc = "Item removes status with time from target on hit"
+    desc = "Item removes all time statuses from target on hit"
+    tag = 'extra'
+
+    def _can_be_restored(self, status):
+        return status.time
+
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # only targets units that need to be restored
+        if defender and skill_system.check_ally(unit, defender) and any(self._can_be_restored(skill) for skill in defender.skills):
+            return True
+        for s in splash:
+            if skill_system.check_ally(unit, s) and any(self._can_be_restored(skill) for skill in s.skills):
+                return True
+        return False
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        for skill in unit.skill:
+            if self._can_be_restored(skill):
+                actions.append(action.RemoveSkill(unit, skill))
+        playback.append(('restore_hit', unit, item, target))
+
+class RestoreSpecific(Restore):
+    nid = 'restore_specific'
+    desc = "Item removes status from target on hit"
     tag = 'extra'
 
     expose = Type.Skill # Nid
 
     def _can_be_restored(self, status):
-        return (self.value.lower() == 'all' or status.nid == self.value)
+        return status.nid == self.value
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
-        # only targets units that need to be restored
-        if defender and skill_system.check_ally(unit, defender) and any(status.time and self._can_be_restored(status) for status in defender.status_effects):
-            return True
-        for s in splash:
-            if skill_system.check_ally(unit, s) and any(status.time and self._can_be_restored(status) for status in s.status_effects):
-                return True
+class Shove(ItemComponent):
+    nid = 'shove'
+    desc = "Item shoves target on hit"
+    tag = 'extra'
+
+    expose = Type.Int
+    value = 1
+
+    def _check_shove(self, unit_to_move, anchor_pos, magnitude):
+        offset_x = utils.clamp(unit_to_move.position[0] - anchor_pos[0], -1, 1)
+        offset_y = utils.clamp(unit_to_move.position[1] - anchor_pos[1], -1, 1)
+        new_position = (unit_to_move.position[0] + offset_x * magnitude,
+                        unit_to_move.position[1] + offset_y * magnitude)
+
+        mcost = self.get_mcost(unit_to_move, new_position)
+        if game.tilemap.check_bounds(new_position) and \
+                not game.board.get_unit(new_position) and \
+                mcost <= equations.parser.movement(unit_to_move):
+            return new_position
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
-        for skill in unit.skill:
-            if skill.time and self._can_be_restored(skill):
-                actions.append(action.RemoveSkill(unit, skill))
-        playback.append(('hit', unit, item, target))
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        if not skill_system.ignore_forced_movement(target):
+            new_position = self._check_shove(target, unit.position, self.value)
+            if new_position:
+                actions.append(action.ForcedMovement(target, new_position))
+                playback.append(('shove_hit', unit, item, target))
+
+class ShoveOnEndCombat(Shove):
+    nid = 'shove_on_end_combat'
+    desc = "Item shoves target at the end of combat"
+    tag = 'extra'
+
+    expose = Type.Int
+    value = 1
+
+    def end_combat(self, playback, unit, item, target):
+        if not skill_system.ignore_forced_movement(target):
+            new_position = self._check_shove(target, unit.position, self.value)
+            if new_position:
+                action.do(action.ForcedMovement(target, new_position))
+
+class Swap(ItemComponent):
+    nid = 'swap'
+    desc = "Item swaps user with target on hit"
+    tag = 'extra'
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        if not skill_system.ignore_forced_movement(unit) and not skill_system.ignore_forced_movement(target):
+            actions.append(action.Swap(unit, target))
+            playback.append(('swap_hit', unit, item, target))
+
+class Warp(ItemComponent):
+    nid = 'warp'
+    desc = 'Item warps target to position on hit'
+    tag = 'extra'
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        if not skill_system.ignore_forced_movement(unit):
+            actions.append(action.Warp(target, (0, 0)))
+            playback.append(('warp_hit', unit, item, target, (0, 0)))

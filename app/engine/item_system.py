@@ -299,8 +299,8 @@ def on_hit(actions, playback, unit, item, target, mode):
         playback.append(('shake', 1))
         if not any(brush[0] == 'hit_sound' for brush in playback):
             playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
-    if not any(brush for brush in playback if brush[0] == 'unit_tint'):
-        playback.append(('unit_tint', target, (255, 255, 255, 255)))
+    if not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
+        playback.append(('unit_tint_add', target, (255, 255, 255)))
 
 def on_crit(actions, playback, unit, item, target, mode):
     for component in item.components:
@@ -318,7 +318,7 @@ def on_crit(actions, playback, unit, item, target, mode):
         else:
             playback.append(('hit_sound', 'Critical Hit ' + str(random.randint(1, 2))))
     if not any(brush for brush in playback if brush[0] == 'crit_tint'):
-        playback.append(('crit_tint', target, (255, 255, 255, 255)))
+        playback.append(('crit_tint', target, (255, 255, 255)))
 
 def on_miss(actions, playback, unit, item, target, mode):
     for component in item.components:

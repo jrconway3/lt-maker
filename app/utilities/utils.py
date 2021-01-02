@@ -90,6 +90,34 @@ def smart_farthest_away_pos(position, valid_moves: set, enemy_pos: set):
     else:
         return None
 
+def raytrace(pos1: tuple, pos2: tuple) -> list:
+    """
+    Draws line between pos1 and pos2 for a taxicab grid
+    """
+    x0, y0 = pos1
+    x1, y1 = pos2
+    tiles = []
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    x, y = x0, y0
+    n = 1 + dx + dy
+    x_inc = 1 if x1 > x0 else -1
+    y_inc = 1 if y1 > y0 else -1
+    error = dx - dy
+    dx *= 2
+    dy *= 2
+
+    while n > 0:
+        tiles.append((x, y))
+        if error > 0:
+            x += x_inc
+            error -= dy
+        else:
+            y += y_inc
+            error += dx
+        n -= 1
+    return tiles
+
 # Testing
 if __name__ == '__main__':
     c = Counter()

@@ -1794,11 +1794,7 @@
         ],
         "starting_items": [
             [
-                "Fire",
-                false
-            ],
-            [
-                "Vulnerary",
+                "Anima",
                 false
             ]
         ],
@@ -2108,10 +2104,6 @@
             [
                 1,
                 "Strength +2"
-            ],
-            [
-                1,
-                "Stunned"
             ]
         ],
         "wexp_gain": [

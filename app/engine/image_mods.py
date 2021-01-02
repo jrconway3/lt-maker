@@ -93,11 +93,45 @@ def change_color(image, color):
         engine.fill(image, new_color, None, blend_mode)
     return image
 
-def tint_image(image, color):
+def change_color_alpha(image, color):
     new_image = change_color(image, color)
     engine.fill(new_image, (255, 255, 255, color[3]), None, engine.BLEND_RGBA_MULT)
     image.blit(new_image, (0, 0))
 
+    return image
+
+def true_tint(image, color):
+    """
+    Assumes image has per-pixel alpha and that color is len == 4
+    If color[3] == 255, actually converts image to have the exact color
+    specified, no lighter or darker
+    """
+    if len(color) == 3:
+        color = (*color, 255)
+    new_image = image.copy()
+    engine.fill(new_image, (0, 0, 0, 255), None, engine.BLEND_RGBA_MULT)
+    engine.fill(new_image, (color[0], color[1], color[2], 0), None, engine.BLEND_RGBA_ADD)
+    transparency = 1 - utils.clamp(color[3] / 255., 0, 1)
+    new_image = make_translucent(new_image, transparency)
+    image.blit(new_image, (0, 0))
+    return image
+
+def add_tint(image, color):
+    """
+    Assumes image has per-pixel alpha and that color is len == 3
+    """
+    new_image = image.copy()
+    engine.fill(new_image, (color[0], color[1], color[2], 0), None, engine.BLEND_RGBA_ADD)
+    image.blit(new_image, (0, 0))
+    return image
+
+def sub_tint(image, color):
+    """
+    Assumes image has per-pixel alpha and that color is len == 3
+    """
+    new_image = image.copy()
+    engine.fill(new_image, (color[0], color[1], color[2], 0), None, engine.BLEND_RGBA_SUB)
+    image.blit(new_image, (0, 0))
     return image
 
 def blend_colors(color1, color2, t):

@@ -826,10 +826,7 @@ class Event():
                 print("Unit does not have item!")
                 return
 
-        combat = interaction.engage(unit1, [unit2.position], item, script=script)
-        combat.event_combat = True  # Must mark this so we can come back!
-        game.combat_instance = combat
-        game.state.change('combat')
+        interaction.start_combat(unit1, unit2.position, item, event_combat=True, script=script)
         self.state = "paused"
 
     def add_group(self, command):

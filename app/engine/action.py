@@ -139,17 +139,53 @@ class Teleport(SimpleMove):
     pass
 
 class ForcedMovement(SimpleMove):
-    pass
+    def do(self):
+        # Sprite transition
+        x_offset = self.old_pos[0] - self.new_pos[0] * TILEWIDTH
+        y_offset = self.old_pos[0] - self.new_pos[0] * TILEHEIGHT
+        self.unit.sprite.offset = [x_offset, y_offset]
+        self.unit.sprite.set_transition('fake_in')
+
+        game.leave(self.unit)
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
+
+class Swap(Action):
+    def __init__(self, unit1, unit2):
+        self.unit1 = unit1
+        self.unit2 = unit2
+        self.pos1 = unit1.position
+        self.pos2 = unit2.position
+
+    def do(self):
+        game.leave(self.unit1)
+        game.leave(self.unit2)
+        self.unit1.position, self.unit2.position = self.pos2, self.pos1
+        game.arrive(self.unit2)
+        game.arrive(self.unit1)
+
+    def reverse(self):
+        game.leave(self.unit1)
+        game.leave(self.unit2)
+        self.unit1.position, self.unit2.position = self.pos1, self.pos2
+        game.arrive(self.unit2)
+        game.arrive(self.unit1)
 
 class Warp(SimpleMove):
     def do(self):
         self.unit.sprite.set_transition('warp_move')
-        self.unit.sprite.set_next_position(self.new_pos)
+
+        game.leave(self.unit)
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
 
 class FadeMove(SimpleMove):
     def do(self):
         self.unit.sprite.set_transition('fade_move')
-        self.unit.sprite.set_next_position(self.new_pos)
+
+        game.leave(self.unit)
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
 
 class ArriveOnMap(Action):
     def __init__(self, unit, pos):
@@ -616,16 +652,33 @@ class RemoveItem(StoreItem):
         self.unit.insert_item(self.item_index, self.item)
 
 class EquipItem(Action):
+    def __init__(self, unit, item):
+        self.unit = unit
+        self.item = item
+        if item_system.is_accessory(unit, item):
+            self.current_equipped = self.unit.equipped_accessory
+        else:
+            self.current_equipped = self.unit.equipped_weapon
+
+    def do(self):
+        self.unit.equip(self.item)
+
+    def reverse(self):
+        self.unit.unequip(self.item)
+        if self.current_equipped:
+            self.unit.equip(self.current_equipped)
+
+class BringToTopItem(Action):
     """
-    Assumes item is already in inventory
+    Assumes item is in inventory
     """
     def __init__(self, unit, item):
         self.unit = unit
         self.item = item
-        self.old_idx = self.unit.items.index(self.item)
+        self.old_idx = unit.items.index(item)
 
     def do(self):
-        self.unit.equip(self.item)
+        self.unit.bring_to_top_item(self.item)
 
     def reverse(self):
         self.unit.insert_item(self.old_idx, self.item)
@@ -1054,7 +1107,7 @@ class AddSkill(Action):
         self.unit = unit
         # Check if we just passed in the skill nid to create
         if isinstance(skill, str):
-            skill_obj = item_funcs.create_skill(skill)
+            skill_obj = item_funcs.create_skill(unit, skill)
         else:
             skill_obj = skill
         if skill_obj:

@@ -79,12 +79,10 @@ class HighlightController():
 
     def display_highlights(self, unit, light=False):
         valid_moves = target_system.get_valid_moves(unit)
-        if unit.get_spell():
-            valid_attacks = target_system.get_possible_spell_attacks(unit, valid_moves)
-            self.display_possible_spell_attacks(valid_attacks, light=light)
-        if unit.get_weapon():
-            valid_attacks = target_system.get_possible_attacks(unit, valid_moves)
-            self.display_possible_attacks(valid_attacks, light=light)
+        valid_attacks = target_system.get_possible_spell_attacks(unit, valid_moves)
+        self.display_possible_spell_attacks(valid_attacks, light=light)
+        valid_attacks = target_system.get_possible_attacks(unit, valid_moves)
+        self.display_possible_attacks(valid_attacks, light=light)
         self.display_moves(valid_moves, light=light)
         return valid_moves
 

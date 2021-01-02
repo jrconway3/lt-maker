@@ -76,9 +76,12 @@ class StatusUpkeepState(MapState):
 
     def handle_playback(self, playback):
         for brush in playback:
-            if brush[0] == 'unit_tint':
+            if brush[0] == 'unit_tint_add':
                 color = brush[2]
-                brush[1].sprite.begin_flicker(333, color)
+                brush[1].sprite.begin_flicker(333, color, 'add')
+            elif brush[0] == 'unit_tint_sub':
+                color = brush[2]
+                brush[1].sprite.begin_flicker(333, color, 'sub')
             elif brush[0] == 'cast_sound':
                 SOUNDTHREAD.play_sfx(brush[1])
             elif brush[0] == 'hit_sound':

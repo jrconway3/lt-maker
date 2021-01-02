@@ -49,4 +49,4 @@ class AlphaColorIcon(ColorIcon):
         if self._color:
             dlg.setCurrentColor(QColor(self._color))
         if dlg.exec_():
-            self.change_color(dlg.currentColor().name())
+            self.change_color(dlg.currentColor().name(QColor.HexArgb))

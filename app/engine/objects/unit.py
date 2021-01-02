@@ -173,7 +173,10 @@ class UnitObject(Prefab):
                 available = item_funcs.available(self, item)
                 equippable = item_system.equippable(self, item)
                 if weapon and available and equippable:
-                    self.equip(item)
+                    # Don't think I need to wrap this in an action thing
+                    # Since it's more of an attribute that will be 
+                    # rediscovered each time if necessary
+                    self.equip(item)  
                     return item
         return None
 
@@ -195,24 +198,41 @@ class UnitObject(Prefab):
         return None
 
     def equip(self, item):
-        if item in self.items and item is self.equipped_weapon:
+        if item_system.is_accessory(self, item) and item is self.equipped_accessory:
+            return  # Don't need to do anything
+        elif item is self.equipped_weapon:
             return  # Don't need to do anything
         if item_system.equippable(self, item) and item_funcs.available(self, item):
-            if self.equipped_weapon:
-                self.unequip(self.equipped_weapon)
-            self.equipped_weapon = item
+            if item_system.is_accessory(self, item):
+                if self.equipped_accessory:
+                    self.unequip(self.equipped_accessory)
+                self.equipped_accessory = item
+            else:
+                if self.equipped_weapon:
+                    self.unequip(self.equipped_weapon)
+                self.equipped_weapon = item
             item_system.on_equip_item(self, item)
             skill_system.on_equip_item(self, item)
-        # self.insert_item(0, item)
 
     def unequip(self, item):
-        self.equipped_weapon = None
+        if item_system.is_accessory(self, item):
+            self.equipped_accessory = None
+        else:
+            self.equipped_weapon = None
         skill_system.on_unequip_item(self, item)
         item_system.on_unequip_item(self, item)
 
     def add_item(self, item):
         index = len(self.items)
         self.insert_item(index, item)
+
+    def bring_to_top_item(self, item):
+        if item_system.is_accessory(self, item):
+            self.items.remove(item)
+            self.items.insert(len(self.nonaccessories), item)
+        else:
+            self.items.remove(item)
+            self.items.insert(0, item)
 
     def insert_item(self, index, item):
         if item in self.items:
@@ -226,7 +246,7 @@ class UnitObject(Prefab):
             skill_system.on_add_item(self, item)
 
     def remove_item(self, item):
-        if self.equipped_weapon is item:
+        if item is self.equipped_weapon or item is self.equipped_accessory:
             self.unequip(item)
         self.items.remove(item)
         item.owner_nid = None
@@ -234,8 +254,8 @@ class UnitObject(Prefab):
         skill_system.on_remove_item(self, item)
         item_system.on_remove_item(self, item)
         # There may be a new item equipped
-        if not self.equipped_weapon and self.get_weapon():
-            self.equip(self.get_weapon())
+        self.get_weapon()
+        self.get_accessory()
 
     def get_internal_level(self):
         klass = DB.classes.get(self.klass)

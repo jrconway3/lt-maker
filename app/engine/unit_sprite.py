@@ -111,11 +111,11 @@ class UnitSprite():
         if animation_nid in self.animations:
             del self.animations[animation_nid]
 
-    def begin_flicker(self, total_time, color):
-        self.flicker.append((engine.get_time(), total_time, color, False))
+    def begin_flicker(self, total_time, color, direction='add'):
+        self.flicker.append((engine.get_time(), total_time, color, direction, False))
 
-    def start_flicker(self, start_time, total_time, color, fade_out=False):
-        self.flicker.append((engine.get_time() + start_time, total_time, color, fade_out))
+    def start_flicker(self, start_time, total_time, color, direction='add', fade_out=False):
+        self.flicker.append((engine.get_time() + start_time, total_time, color, direction, fade_out))
 
     def start_vibrate(self, start_time, total_time):
         self.vibrate.append((engine.get_time() + start_time, total_time))
@@ -157,11 +157,11 @@ class UnitSprite():
         elif self.state in ('combat_active'):
             self.image_state = 'active'
         elif self.state == 'combat_defender':
-            attacker = game.combat_instance.attacker
+            attacker = game.memory['current_combat'].attacker
             self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
         elif self.state == 'combat_counter':
-            attacker = game.combat_instance.defender
+            attacker = game.memory['current_combat'].defender
             self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
         elif self.state == 'fake_transition_in':
@@ -307,7 +307,7 @@ class UnitSprite():
             image = image_mods.make_translucent(image.convert_alpha(), progress)
 
         for flicker in self.flicker[:]:
-            starting_time, total_time, color, fade_out = flicker
+            starting_time, total_time, color, direction, fade_out = flicker
             if engine.get_time() >= starting_time:
                 if engine.get_time() > starting_time + total_time:
                     self.flicker.remove(flicker)
@@ -315,10 +315,13 @@ class UnitSprite():
                 if fade_out:
                     time_passed = engine.get_time() - starting_time
                     color = tuple((total_time - time_passed) * float(c) // total_time for c in color)
-                image = image_mods.change_color(image.convert_alpha(), color)
+                if direction == 'add':
+                    image = image_mods.add_tint(image.convert_alpha(), color)
+                elif direction == 'sub':
+                    image = image_mods.sub_tint(image.convert_alpha(), color)
 
-        if not self.flicker and game.boundary.draw_flag and self.unit in game.boundary.displaying_units:
-            image = image_mods.change_color(image.convert_color, (80, 0, 0))
+        if not self.flicker and game.boundary.draw_flag and self.unit.nid in game.boundary.displaying_units:
+            image = image_mods.change_color(image.convert_alpha(), (60, 0, 0))
 
         if game.action_log.hovered_unit is self.unit:
             time = engine.get_time()
@@ -328,8 +331,8 @@ class UnitSprite():
                 if diff > length // 2:
                     diff = length - diff
                 diff = utils.clamp(255. * diff / length * 2, 0, 255) 
-                color = (-120, 120, -120, diff)  # Tint image green at magnitude depending on diff
-                image = image_mods.tint_image(image.convert_alpha(), color)
+                color = (0, int(diff * .5), 0)  # Tint image green at magnitude depending on diff
+                image = image_mods.change_color(image.convert_alpha(), color)
 
         # Each image has (self.image.get_width() - 32)//2 buggers on the
         # left and right of it, to handle any off tile spriting

@@ -49,6 +49,9 @@ def set_seed(seed):
 def get_combat():
     return r.combat_random.randint(0, 99)
 
+def get_randint(a, b):
+    return r.combat_random.randint(a, b)
+
 def get_growth():
     return r.growth_random.randint(0, 99)
 

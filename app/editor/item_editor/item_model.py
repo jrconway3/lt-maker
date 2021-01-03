@@ -43,24 +43,25 @@ class ItemModel(DragDropCollectionModel):
     def delete(self, idx):
         # Check to make sure nothing else is using me!!!
         item = self._data[idx]
-        nid = item.nid
-        affected_units = [unit for unit in DB.units if nid in unit.get_items()]
-        affected_levels = [level for level in DB.levels if any(nid in unit.get_items() for unit in level.units)]
-        if affected_units or affected_levels:
-            if affected_units:
-                affected = Data(affected_units)
-                from app.editor.unit_editor.unit_model import UnitModel
-                model = UnitModel
-            elif affected_levels:
-                affected = Data(affected_levels)
-                from app.editor.level_menu import LevelModel
-                model = LevelModel
-            msg = "Deleting Item <b>%s</b> would affect these objects." % nid
-            swap, ok = DeletionDialog.get_swap(affected, model, msg, ItemBox(self.window, exclude=item), self.window)
-            if ok:
-                self.change_nid(swap.nid, nid)
-            else:
-                return
+        if len(self._data) > 1:  # So we have something to swap to
+            nid = item.nid
+            affected_units = [unit for unit in DB.units if nid in unit.get_items()]
+            affected_levels = [level for level in DB.levels if any(nid in unit.get_items() for unit in level.units)]
+            if affected_units or affected_levels:
+                if affected_units:
+                    affected = Data(affected_units)
+                    from app.editor.unit_editor.unit_model import UnitModel
+                    model = UnitModel
+                elif affected_levels:
+                    affected = Data(affected_levels)
+                    from app.editor.level_menu import LevelModel
+                    model = LevelModel
+                msg = "Deleting Item <b>%s</b> would affect these objects." % nid
+                swap, ok = DeletionDialog.get_swap(affected, model, msg, ItemBox(self.window, exclude=item), self.window)
+                if ok:
+                    self.change_nid(swap.nid, nid)
+                else:
+                    return
         # Delete watchers
         super().delete(idx)
 

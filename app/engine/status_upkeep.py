@@ -70,7 +70,14 @@ class StatusUpkeepState(MapState):
 
         elif self.state == 'running':
             if engine.get_time() > self.last_update + self.time_for_change:
-                self.cur_unit.sprite.change_state('normal')
+                if self.cur_unit.get_hp() <= 0:
+                    # Handle death
+                    game.death.should_die(self.cur_unit)
+                    game.state.change('dying')
+                    game.events.trigger('unit_death', self.cur_unit, position=unit.position)
+                    skill_system.on_death(self.cur_unit)
+                else:
+                    self.cur_unit.sprite.change_state('normal')
                 self.state = 'processing'
                 self.cur_unit = None
 

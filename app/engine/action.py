@@ -668,6 +668,20 @@ class EquipItem(Action):
         if self.current_equipped:
             self.unit.equip(self.current_equipped)
 
+class UnequipItem(Action):
+    def __init__(self, unit, item):
+        self.unit = unit
+        self.item = item
+        self.is_equipped_weapon = self.item is self.unit.equipped_weapon
+
+    def do(self):
+        if self.is_equipped_weapon:
+            self.unit.unequip(self.item)
+
+    def reverse(self):
+        if self.is_equipped_weapon:
+            self.unit.equip(self.item)
+
 class BringToTopItem(Action):
     """
     Assumes item is in inventory
@@ -1103,14 +1117,17 @@ class TriggerCharge(Action):
             self.skill.data['charge'] = self.old_charge
 
 class AddSkill(Action):
-    def __init__(self, unit, skill):
+    def __init__(self, unit, skill, initiator=None):
         self.unit = unit
+        self.initiator = initiator
         # Check if we just passed in the skill nid to create
         if isinstance(skill, str):
             skill_obj = item_funcs.create_skill(unit, skill)
         else:
             skill_obj = skill
         if skill_obj:
+            if self.initiator:
+                skill_obj.initiator_nid = self.initiator.nid
             game.register_skill(skill_obj)
         self.skill_obj = skill_obj
         self.subactions = []

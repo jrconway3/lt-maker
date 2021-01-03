@@ -68,7 +68,7 @@ class CombatAnimModel(ResourceCollectionModel):
 
         if affected_classes:
             affected = Data(affected_classes)
-            from app.editor.class_database import ClassModel
+            from app.editor.class_editor.class_model import ClassModel
             model = ClassModel
             msg = "Deleting Combat Animation <b>%s</b> would affect these classes"
             ok = DeletionDialog.inform(affected, model, msg, self.window)

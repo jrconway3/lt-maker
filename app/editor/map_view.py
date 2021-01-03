@@ -59,6 +59,7 @@ class SimpleMapView(QGraphicsView):
             pixmap = tile_model.create_tilemap_pixmap(self.current_map)
             self.working_image = pixmap
         else:
+            self.clear_scene()
             return
         self.paint_units(self.current_level)
         self.show_map()
@@ -142,6 +143,7 @@ class MapView(SimpleMapView):
             pixmap = tile_model.create_tilemap_pixmap(self.current_map)
             self.working_image = pixmap
         else:
+            self.clear_scene()
             return
         if self.main_editor.dock_visibility['Properties']:
             self.paint_units()

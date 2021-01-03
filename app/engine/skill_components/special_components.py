@@ -143,3 +143,14 @@ class ProcRate(SkillComponent):
 
     def proc_rate(self, unit):
         return equations.parser.get(self.value, unit)
+
+class DeathTether(SkillComponent):
+    nid = 'death_tether'
+    desc = "remove all skills in the game that I initiated on my death"
+    tag = 'advanced'
+
+    def on_death(self, unit):
+        for other_unit in game.level.units:
+            for skill in other_unit.skills:
+                if skill.initiator_nid == unit.nid:
+                    action.do(action.RemoveSkill(other_unit, skill))

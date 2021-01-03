@@ -68,6 +68,7 @@ class UnitSprite():
         self.offset = [0, 0]
 
         self.flicker = []
+        self.flicker_tint = []
         self.vibrate = []
         self.vibrate_counter = 0
         self.animations = {}
@@ -110,6 +111,13 @@ class UnitSprite():
     def remove_animation(self, animation_nid):
         if animation_nid in self.animations:
             del self.animations[animation_nid]
+
+    def add_flicker_tint(self, color, period, width):
+        self.flicker_tint.append((color, period, width))
+
+    def remove_flicker_tint(self, color, period, width):
+        if (color, period, width) in self.flicker_tint:
+            self.flicker_tint.remove((color, period, width))
 
     def begin_flicker(self, total_time, color, direction='add'):
         self.flicker.append((engine.get_time(), total_time, color, direction, False))
@@ -280,6 +288,7 @@ class UnitSprite():
         return image
 
     def draw(self, surf):
+        current_time = engine.get_time()
         image = self.create_image(self.image_state)
         if self.fake_position:
             x, y = self.fake_position
@@ -324,15 +333,21 @@ class UnitSprite():
             image = image_mods.change_color(image.convert_alpha(), (60, 0, 0))
 
         if game.action_log.hovered_unit is self.unit:
-            time = engine.get_time()
             length = 200
-            if not (time // length) % 2:
-                diff = time % length
+            if not (current_time // length) % 2:
+                diff = current_time % length
                 if diff > length // 2:
                     diff = length - diff
                 diff = utils.clamp(255. * diff / length * 2, 0, 255) 
                 color = (0, int(diff * .5), 0)  # Tint image green at magnitude depending on diff
                 image = image_mods.change_color(image.convert_alpha(), color)
+
+        for flicker_tint in self.flicker_tint:
+            color, period, width = flicker_tint
+            diff = utils.model_wave(current_time, period, width)
+            diff = utils.clamp(255. * diff, 0, 255)
+            color = tuple([int(c * diff) for c in color])
+            image = image_mods.add_tint(image.convert_alpha(), color)
 
         # Each image has (self.image.get_width() - 32)//2 buggers on the
         # left and right of it, to handle any off tile spriting

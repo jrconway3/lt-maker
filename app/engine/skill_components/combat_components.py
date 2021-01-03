@@ -261,6 +261,19 @@ class ResistMultiplier(SkillComponent):
     def resist_multiplier(self, unit, item, target, mode):
         return self.value
 
+class GiveStatusAfterCombat(SkillComponent):
+    nid = 'give_status_after_combat'
+    desc = "Gives a status to target after combat"
+    tag = 'combat2'
+
+    expose = Type.Skill
+
+    def end_combat(self, playback, unit, item, target):
+        from app.engine import skill_system
+        if skill_system.check_enemy(unit, target):
+            action.do(action.AddSkill(target, self.value, unit))
+            action.do(action.TriggerCharge(unit, self.skill))
+
 class GainSkillAfterKill(SkillComponent):
     nid = 'gain_skill_after_kill'
     desc = "Gives a skill after a kill"
@@ -270,8 +283,8 @@ class GainSkillAfterKill(SkillComponent):
 
     def end_combat(self, playback, unit, item, target):
         if target.get_hp() <= 0:
-            action.AddSkill(unit, self.value).do()
-        action.TriggerCharge(unit, self.skill).do()
+            action.do(action.AddSkill(unit, self.value))
+        action.do(action.TriggerCharge(unit, self.skill))
 
 class GainSkillAfterAttacking(SkillComponent):
     nid = 'gain_skill_after_attack'
@@ -283,8 +296,8 @@ class GainSkillAfterAttacking(SkillComponent):
     def end_combat(self, playback, unit, item, target):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
-            action.AddSkill(unit, self.value).do()
-        action.TriggerCharge(unit, self.skill).do()
+            action.do(action.AddSkill(unit, self.value))
+        action.do(action.TriggerCharge(unit, self.skill))
 
 class GainSkillAfterActiveKill(SkillComponent):
     nid = 'gain_skill_after_active_kill'
@@ -296,8 +309,8 @@ class GainSkillAfterActiveKill(SkillComponent):
     def end_combat(self, playback, unit, item, target):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
-            action.AddSkill(unit, self.value).do()
-        action.TriggerCharge(unit, self.skill).do()
+            action.do(action.AddSkill(unit, self.value))
+        action.do(action.TriggerCharge(unit, self.skill))
 
 class Miracle(SkillComponent):
     nid = 'miracle'
@@ -308,9 +321,9 @@ class Miracle(SkillComponent):
 
     def end_combat(self, playback, unit, item, target):
         if unit.get_hp() <= 0:
-            action.SetHP(unit, 1).do()
+            action.do(action.SetHP(unit, 1))
             game.death.miracle(unit)
-            action.TriggerCharge(unit, self.skill).do()
+            action.do(action.TriggerCharge(unit, self.skill))
 
 class IgnoreDamage(SkillComponent):
     nid = 'ignore_damage'

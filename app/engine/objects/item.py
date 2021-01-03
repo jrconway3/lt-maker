@@ -31,6 +31,7 @@ class ItemObject():
         # For subitems
         self.subitem_uids = []
         self.subitems = []
+        self.parent_item = None
 
     @classmethod
     def from_prefab(cls, prefab):

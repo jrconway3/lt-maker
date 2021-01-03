@@ -33,9 +33,10 @@ class BlastAOE(ItemComponent):
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
         return splash
 
-class EnemyBlastAOE(BlastAOE):
+class EnemyBlastAOE(BlastAOE, ItemComponent):
     nid = 'enemy_blast_aoe'
     desc = "Gives Blast AOE that only hits enemies"
+    tag = 'aoe'
 
     def splash(self, unit, item, position) -> tuple:
         ranges = set(range(self.value + 1))
@@ -60,9 +61,10 @@ class EnemyBlastAOE(BlastAOE):
         splash = {pos for pos in splash if not game.board.get_unit(pos) or skill_system.check_enemy(unit, game.board.get_unit(pos))}
         return splash
 
-class AllyBlastAOE(BlastAOE):
+class AllyBlastAOE(BlastAOE, ItemComponent):
     nid = 'ally_blast_aoe'
     desc = "Gives Blast AOE that only hits allies"
+    tag = 'aoe'
 
     def splash(self, unit, item, position) -> tuple:
         ranges = set(range(self.value + 1))
@@ -147,6 +149,7 @@ class EnemyCleaveAOE(ItemComponent):
 class AllAlliesAOE(ItemComponent):
     nid = 'all_allies_aoe'
     desc = "Item affects all allies on the map including self"
+    tag = 'aoe'
 
     def splash(self, unit, item, position) -> tuple:
         from app.engine import skill_system
@@ -161,6 +164,7 @@ class AllAlliesAOE(ItemComponent):
 class AllEnemiesAOE(ItemComponent):
     nid = 'all_enemies_aoe'
     desc = "Item affects all enemies on the map"
+    tag = 'aoe'
 
     def splash(self, unit, item, position) -> tuple:
         from app.engine import skill_system

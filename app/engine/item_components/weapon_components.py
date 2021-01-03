@@ -102,7 +102,7 @@ class Effective(ItemComponent):
 
 class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
-    desc = "Item is does extra damage against units with these tags"
+    desc = "Item does extra damage against units with these tags"
     # requires = ['damage']
     paired_with = ('effective',)
     tag = 'extra'

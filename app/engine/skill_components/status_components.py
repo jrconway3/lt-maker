@@ -1,7 +1,7 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action, item_funcs
+from app.engine import equations, action, item_funcs, static_random
 from app.engine.game_state import game
 
 class Regeneration(SkillComponent):
@@ -26,6 +26,43 @@ class Regeneration(SkillComponent):
             else:
                 name = 'MapSmallHealTrans'
             playback.append(('cast_anim', name, unit))
+
+class UpkeepDamage(SkillComponent):
+    nid = 'upkeep_damage'
+    desc = "Unit takes damage at upkeep"
+    tag = "time"
+
+    expose = Type.Int
+    value = 5
+
+    def on_upkeep(self, actions, playback, unit):
+        hp_change = -self.value
+        actions.append(action.ChangeHP(unit, hp_change))
+
+class GBAPoison(SkillComponent):
+    nid = 'gba_poison'
+    desc = "Unit takes random amount of damage up to num"
+    tag = "time"
+
+    expose = Type.Int
+    value = 5
+
+    def on_upkeep(self, actions, playback, unit):
+        old_random_state = static_random.get_combat_random_state()
+        hp_loss = -static_random.get_randint(1, self.value)
+        new_random_state = static_random.get_combat_random_state()
+        actions.append(action.RecordRandomState(old_random_state, new_random_state))
+        actions.append(action.ChangeHP(unit, hp_loss))
+
+class UpkeepAnimation(SkillComponent):
+    nid = 'upkeep_animation'
+    desc = "Displays map animation at beginning of turn"
+    tag = "time"
+
+    expose = Type.MapAnimation
+
+    def on_upkeep(self, actions, playback, unit):
+        playback.append(('cast_anim', self.value, unit))
 
 class ResistStatus(SkillComponent):
     nid = 'resist_status'
@@ -60,7 +97,7 @@ class Grounded(SkillComponent):
     desc = "Unit cannot be forcibly moved"
     tag = 'base'
 
-    def ignore_forced_movement(self, unit, skill):
+    def ignore_forced_movement(self, unit):
         return True
 
 class ReflectStatus(SkillComponent):
@@ -73,3 +110,11 @@ class ReflectStatus(SkillComponent):
             other_unit = game.get_unit(other_skill.initiator)
             # Create a copy of other skill
             action.do(action.AddSkill(other_unit, other_skill.nid))
+
+class DistantCounter(SkillComponent):
+    nid = 'distant_counter'
+    desc = "Unit has infinite range when defending"
+    tag = 'base'
+
+    def distant_counter(self, unit):
+        return True

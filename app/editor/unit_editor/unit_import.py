@@ -61,13 +61,14 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
 
         inventory = unit.find('inventory').text
         items = []
-        for item in inventory.split(','):
-            if item.startswith('d'):
-                item = item[1:]
-                if item in DB.items.keys():
-                    items.append((item, True))
-            elif item in DB.items.keys():
-                items.append((item, False))
+        if inventory:
+            for item in inventory.split(','):
+                if item.startswith('d'):
+                    item = item[1:]
+                    if item in DB.items.keys():
+                        items.append((item, True))
+                elif item in DB.items.keys():
+                    items.append((item, False))
 
         personal_skills = unit.find('skills').text.split(',') if unit.find('skills') is not None and unit.find('skills').text is not None else []
         personal_skills = [[1, s] for s in personal_skills]

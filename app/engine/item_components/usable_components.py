@@ -52,6 +52,11 @@ class ChapterUses(ItemComponent):
     def on_miss(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
 
+    def on_not_usable(self, unit, item):
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        return True
+
     def on_end_chapter(self, unit, item):
         # Don't need to use action here because it will be end of chapter
         item.data['c_uses'] = item.data['starting_c_uses']

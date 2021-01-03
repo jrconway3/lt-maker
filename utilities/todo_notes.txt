@@ -33,7 +33,7 @@ Steal item
 Repair item (and unrepairable)
 
 Skill System -- Auras, Modify AOE, Modify Forced Movement
-Item System -- Forced Movement, Multiple Target Items, Multiple Item Items, AOE
+Item System -- Forced Movement (test), Multiple Target Items (test), Multiple Item Items (test), AOE (test)
 
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
@@ -44,3 +44,10 @@ Test stuff from last commit
 Test location card
 
 Rescue Status -- Test that it works
+
+Multi-items
+    Work as activated items
+
+Klok's Combining items idea
+" imagine that, when you select an item, an arrow appears on its left and the item would 'highlight'
+then when you select the next item, it also highlights with an arrow, followed by a preview of their combined effects to the right/left, and a "Press A to attack" box"

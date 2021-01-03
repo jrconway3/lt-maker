@@ -22,7 +22,7 @@ class PartyModel(DragDropCollectionModel):
     def create_new(self):
         nids = [d.nid for d in self._data]
         nid = name = str_utils.get_next_name("New Party", nids)
-        new_party = parties.PartyPrefab(nid, name)
+        new_party = parties.PartyPrefab(nid, name, DB.units[0].nid)
         DB.parties.append(new_party)
         return new_party
 
@@ -39,7 +39,7 @@ class PartyModel(DragDropCollectionModel):
                 self.change_nid(nid, swap.nid)
             else:
                 return
-            super().delete(idx)
+        super().delete(idx)
 
     def change_nid(self, old_nid, new_nid):
         # Levels can be effected

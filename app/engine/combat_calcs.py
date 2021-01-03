@@ -38,7 +38,9 @@ def can_counterattack(attacker, aweapon, defender, dweapon) -> bool:
     if dweapon and item_funcs.available(defender, dweapon):
         if item_system.can_be_countered(attacker, aweapon) and \
                 item_system.can_counter(defender, dweapon):
-            if not attacker.position or attacker.position in item_system.valid_targets(defender, dweapon):
+            if not attacker.position or \
+                    attacker.position in item_system.valid_targets(defender, dweapon) or \
+                    skill_system.distant_counter(defender):
                 return True
     return False
 

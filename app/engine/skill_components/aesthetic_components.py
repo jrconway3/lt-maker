@@ -17,6 +17,19 @@ class UnitAnim(SkillComponent):
     def on_remove(self, unit, skill):
         unit.sprite.remove_animation(self.value)
 
+class UnitFlickeringTint(SkillComponent):
+    nid = 'unit_flickering_tint'
+    desc = "Displays a flickering tint on the unit"
+    tag = 'aesthetic'
+
+    expose = Type.Color3
+
+    def on_add(self, unit, skill):
+        unit.sprite.add_flicker_tint(self.value, 900, 300)
+
+    def on_remove(self, unit, skill):
+        unit.sprite.remove_flicker_tint(self.value, 900, 300)
+
 # Get proc skills working before bothering with this one
 class DisplaySkillIconInCombat(SkillComponent):
     nid = 'display_skill_icon_in_combat'

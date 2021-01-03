@@ -306,16 +306,16 @@
                 null
             ],
             [
-                "uses",
-                20
-            ],
-            [
                 "weapon_type",
                 "Sword"
             ],
             [
                 "weapon_rank",
                 "C"
+            ],
+            [
+                "uses",
+                20
             ]
         ]
     },
@@ -1405,6 +1405,10 @@
             [
                 "magic",
                 null
+            ],
+            [
+                "uses",
+                5
             ]
         ]
     },

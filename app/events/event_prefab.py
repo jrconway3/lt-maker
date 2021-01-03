@@ -16,7 +16,7 @@ all_triggers = Data([
     Trigger('enemy_turn_change'),
     Trigger('unit_death', True, False, True),
     Trigger('unit_wait', True, False, True),
-    Trigger('unit_level_up', True, False, True),
+    Trigger('unit_level_up', True, False, False),
     Trigger('combat_start', True, True, True),
     Trigger('combat_end', True, True, True),
     Trigger('on_talk', True, True, True),

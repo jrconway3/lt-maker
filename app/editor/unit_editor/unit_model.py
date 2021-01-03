@@ -46,7 +46,7 @@ class UnitModel(DragDropCollectionModel):
         nid = unit.nid
         affected_ais = [ai for ai in DB.ai if ai.has_unit_spec("ID", nid)]
         if affected_ais:
-            from app.editor.ai_database import AIModel
+            from app.editor.ai_editor.ai_model import AIModel
             model = AIModel
             msg = "Deleting Unit <b>%s</b> would affect these ais" % nid
             swap, ok = DeletionDialog.get_swap(affected_ais, model, msg, UnitBox(self.window, exclude=unit), self.window)

@@ -58,6 +58,7 @@ class PartyProperties(QWidget):
 
     def leader_changed(self, idx):
         self.current.leader = DB.units[idx].nid
+        self.window.update_list()
 
     def set_current(self, current):
         self.current = current

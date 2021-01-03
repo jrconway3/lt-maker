@@ -15,6 +15,7 @@ class LevelDatabase(QWidget):
     def __init__(self, window=None):
         super().__init__(window)
         self.main_editor = window
+        self.display = self.main_editor
 
         self.grid = QGridLayout()
         self.setLayout(self.grid)
@@ -32,23 +33,10 @@ class LevelDatabase(QWidget):
         self.view.setModel(self.model)
 
         self.button = QPushButton("Create New Level...")
-        self.button.clicked.connect(self.create_new)
+        self.button.clicked.connect(self.model.append)
 
         self.grid.addWidget(self.view, 0, 0)
         self.grid.addWidget(self.button, 1, 0)
-
-    def create_new(self):
-        nids = [l.nid for l in DB.levels]
-        nid = str(str_utils.get_next_int("0", nids))
-        name = "Chapter %s" % nid
-
-        # Create new level
-        DB.levels.append(LevelPrefab(nid, name))
-
-        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-        last_index = self.model.index(self.model.rowCount() - 1)
-        self.view.setCurrentIndex(last_index)
-        self.main_editor.update_view()
 
     def on_level_changed(self, curr, prev):
         if DB.levels:
@@ -62,7 +50,7 @@ class LevelDatabase(QWidget):
             self.main_editor.edit_level()
 
     def create_initial_level(self):
-        nids = [l.nid for l in DB.levels]
+        nids = [level.nid for level in DB.levels]
         new_nid = str(str_utils.get_next_int("0", nids))
         DB.levels.append(LevelPrefab(new_nid, 'Prologue'))
         self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
@@ -95,3 +83,13 @@ class LevelModel(CollectionModel):
         self.layoutChanged.emit()
         new_level = self._data[min(idx, len(self._data) - 1)]
         self.parent().main_editor.set_current_level(new_level)
+    
+    def create_new(self):
+        nids = [l.nid for l in DB.levels]
+        nid = str(str_utils.get_next_int("0", nids))
+        name = "Chapter %s" % nid
+
+        # Create new level
+        new_level = LevelPrefab(nid, name)
+        DB.levels.append(new_level)
+        return new_level

@@ -1,7 +1,7 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, QDoubleSpinBox, \
-    QSpinBox, QHBoxLayout, QListWidgetItem, QItemDelegate, QComboBox
+    QSpinBox, QHBoxLayout, QListWidgetItem, QItemDelegate, QLineEdit
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt
 
@@ -97,7 +97,7 @@ class FloatItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QDoubleSpinBox(self)
         self.editor.setMaximumWidth(50)
-        self.editor.setRange(0, 1)
+        self.editor.setRange(0, 10)
         self.editor.setSingleStep(.05)
         if self._data.value is None:
             self._data.value = 0
@@ -107,6 +107,19 @@ class FloatItemComponent(BoolItemComponent):
 
     def on_value_changed(self, val):
         self._data.value = float(val)
+
+class StringItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = QLineEdit(self)
+        self.editor.setMaximumWidth(640)
+        if not self._data.value:
+            self._data.value = ''
+        self.editor.setText(self._data.value)
+        self.editor.textChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+    def on_value_changed(self, text):
+        self._data.value = text
 
 class WeaponTypeItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
@@ -136,11 +149,12 @@ class EquationItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.setMaximumWidth(120)
-        self.editor.setInsertPolicy(QComboBox.NoInsert)
         self.editor.addItems(DB.equations.keys())
         if not self._data.value and DB.equations:
             self._data.value = DB.equations[0].nid
-        self.editor.lineEdit().editingFinished.connect(self.on_value_changed)
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
 
     def on_value_changed(self):
         val = self.editor.currentText()
@@ -220,6 +234,18 @@ class MapAnimationItemComponent(BoolItemComponent):
             self.editor.addItem(map_anim.nid)
         if not self._data.value and RESOURCES.animations:
             self._data.value = RESOURCES.animations[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+class EventItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        for event in DB.events.values():
+            self.editor.addItem(event.nid)
+        if not self._data.value and DB.events:
+            self._data.value = DB.events[0].nid
         self.editor.setValue(self._data.value)
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -314,6 +340,8 @@ def get_display_widget(component, parent):
             c = IntItemComponent(component, parent)
     elif component.expose == Type.Float:
         c = FloatItemComponent(component, parent)
+    elif component.expose == Type.String:
+        c = StringItemComponent(component, parent)
     elif component.expose == Type.WeaponType:
         c = WeaponTypeItemComponent(component, parent)
     elif component.expose == Type.WeaponRank:
@@ -332,6 +360,8 @@ def get_display_widget(component, parent):
         c = EquationItemComponent(component, parent)
     elif component.expose == Type.Sound:
         c = SoundItemComponent(component, parent)
+    elif component.expose == Type.Event:
+        c = EventItemComponent(component, parent)
     elif isinstance(component.expose, tuple):
         delegate = None
         if component.expose[1] == Type.Unit:

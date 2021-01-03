@@ -120,18 +120,16 @@ def add_tint(image, color):
     """
     Assumes image has per-pixel alpha and that color is len == 3
     """
-    new_image = image.copy()
-    engine.fill(new_image, (color[0], color[1], color[2], 0), None, engine.BLEND_RGBA_ADD)
-    image.blit(new_image, (0, 0))
+    image = image.copy()
+    engine.fill(image, (color[0], color[1], color[2], 0), None, engine.BLEND_RGBA_ADD)
     return image
 
 def sub_tint(image, color):
     """
     Assumes image has per-pixel alpha and that color is len == 3
     """
-    new_image = image.copy()
-    engine.fill(new_image, (color[0], color[1], color[2], 0), None, engine.BLEND_RGBA_SUB)
-    image.blit(new_image, (0, 0))
+    image = image.copy()
+    engine.fill(image, (color[0], color[1], color[2], 0), None, engine.BLEND_RGBA_SUB)
     return image
 
 def blend_colors(color1, color2, t):

@@ -23,11 +23,11 @@ class WeaponRankMultiModel(MultiAttrListModel):
         if affected_weapons or affected_items:
             if affected_weapons:
                 affected = Data(affected_weapons)
-                from app.editor.weapon_database import WeaponModel
+                from app.editor.weapon_editor.weapon_model import WeaponModel
                 model = WeaponModel
             elif affected_items:
                 affected = Data(affected_items)
-                from app.editor.item_database import ItemModel
+                from app.editor.item_editor.item_model import ItemModel
                 model = ItemModel
             msg = "Deleting WeaponRank <b>%s</b> would affect these objects." % element.rank
             combo_box = PropertyBox("Rank", ComboBox, self.window)

@@ -51,6 +51,22 @@ class LostOnEndstep(SkillComponent):
     def on_endstep(self, actions, playback, unit):
         actions.append(action.RemoveSkill(unit, self.skill))
 
+class LostOnEndCombat(SkillComponent):
+    nid = 'lost_on_end_combat'
+    desc = "Remove after combat"
+    tag = "time"
+
+    def post_combat(self, playback, unit, item, target):
+        action.do(action.RemoveSkill(unit, self.skill))
+
+class LostOnEndChapter(SkillComponent):
+    nid = 'lost_on_end_chapter'
+    desc = "Remove at end of chapter"
+    tag = "time"
+
+    def on_end_chapter(self, unit):
+        action.do(action.RemoveSkill(unit, self.skill))
+
 class EventOnRemove(SkillComponent):
     nid = 'event_on_remove'
     desc = "Calls event when removed"

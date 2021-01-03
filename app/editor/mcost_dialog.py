@@ -126,7 +126,7 @@ class ColumnHeaderView(QHeaderView):
             affected = [klass for klass in DB.classes if klass.movement_group == column_name]
             if affected:
                 affected_classes = Data(affected)
-                from app.editor.class_database import ClassModel
+                from app.editor.class_editor.class_model import ClassModel
                 model = ClassModel
                 msg = "Deleting column <b>%s</b> would remove these references." % column_name
                 swap, ok = McostDeletionDialog.get_swap(affected_classes, model, msg, MovementClassBox(self))
@@ -197,7 +197,7 @@ class RowHeaderView(QHeaderView):
             affected = [terrain for terrain in DB.terrain if terrain.mtype == row_name]
             if affected:
                 affected_terrain = Data(affected)
-                from app.editor.terrain_database import TerrainModel
+                from app.editor.terrain_editor.terrain_model import TerrainModel
                 model = TerrainModel
                 msg = "Deleting row <b>%s</b> would remove these references." % row_name
                 swap, ok = McostDeletionDialog.get_swap(affected_terrain, model, msg, MovementCostBox(self))

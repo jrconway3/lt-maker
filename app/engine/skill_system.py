@@ -59,7 +59,7 @@ class Defaults():
 default_behaviours = (
     'has_canto', 'pass_through', 'vantage', 'ignore_terrain', 
     'ignore_region_status', 'no_double', 'def_double', 
-    'ignore_rescue_penalty', 'ignore_forced_movement')
+    'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'sight_range', 'movement_type')
 # Takes in unit and item, returns default value
@@ -79,7 +79,7 @@ dynamic_hooks = ('dynamic_damage', 'dynamic_resist', 'dynamic_accuracy', 'dynami
 multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 
 # Takes in unit
-simple_event_hooks = ('on_end_chapter', )
+simple_event_hooks = ('on_end_chapter', 'on_death')
 # Takes in playback, unit, item, target
 combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
@@ -183,7 +183,7 @@ for hook in multiply_hooks:
 
 for hook in simple_event_hooks:
     func = """def %s(unit):
-                  for skill in units.skills:
+                  for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
                               component.%s(unit)""" \

@@ -57,6 +57,7 @@ def create_item(unit, item_nid, droppable=False):
         item_system.init(subitem)
         item.subitem_uids.append(subitem.uid)
         item.subitems.append(subitem)
+        subitem.parent_item = item
 
     if item.multi_item:
         for subitem_nid in item.multi_item.value:

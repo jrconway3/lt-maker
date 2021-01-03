@@ -180,16 +180,24 @@ for hook in event_hooks:
     func = """def %s(unit, item):
     for component in item.components:
         if component.defines('%s'):
-            component.%s(unit, item)""" \
-        % (hook, hook, hook)
+            component.%s(unit, item)
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('%s'):
+                component.%s(unit, item.parent_item)""" \
+        % (hook, hook, hook, hook, hook)
     exec(func)
 
 for hook in combat_event_hooks:
     func = """def %s(playback, unit, item, target):
     for component in item.components:
         if component.defines('%s'):
-            component.%s(playback, unit, item, target)""" \
-        % (hook, hook, hook)
+            component.%s(playback, unit, item, target)
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('%s'):
+                component.%s(playback, unit, item.parent_item, target)""" \
+        % (hook, hook, hook, hook, hook)
     exec(func)
 
 def available(unit, item) -> bool:
@@ -200,6 +208,11 @@ def available(unit, item) -> bool:
         if component.defines('available'):
             if not component.available(unit, item):
                 return False
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('available'):
+                if not component.available(unit, item.parent_item):
+                    return False
     return True
 
 def valid_targets(unit, item) -> set:
@@ -284,11 +297,19 @@ def after_hit(actions, playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('after_hit'):
             component.after_hit(actions, playback, unit, item, target, mode)
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('after_hit'):
+                component.after_hit(actions, playback, unit, item.parent_item, target, mode)
 
 def on_hit(actions, playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('on_hit'):
             component.on_hit(actions, playback, unit, item, target, mode)
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('on_hit'):
+                component.on_hit(actions, playback, unit, item.parent_item, target, mode)
 
     # Default playback
     if find_hp(actions, target) <= 0:
@@ -308,6 +329,12 @@ def on_crit(actions, playback, unit, item, target, mode):
             component.on_crit(actions, playback, unit, item, target, mode)
         elif component.defines('on_hit'):
             component.on_hit(actions, playback, unit, item, target, mode)
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('on_crit'):
+                component.on_crit(actions, playback, unit, item.parent_item, target, mode)
+            elif component.defines('on_hit'):
+                component.on_hit(actions, playback, unit, item.parent_item, target, mode)
 
     # Default playback
     playback.append(('shake', 3))
@@ -324,6 +351,10 @@ def on_miss(actions, playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('on_miss'):
             component.on_miss(actions, playback, unit, item, target, mode)
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('on_miss'):
+                component.on_miss(actions, playback, unit, item.parent_item, target, mode)
 
     # Default playback
     playback.append(('hit_sound', 'Attack Miss 2'))

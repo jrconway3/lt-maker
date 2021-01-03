@@ -240,7 +240,7 @@ class UIView():
             else:
                 FONT['text-blue'].blit_right(str(num), surf, (x_pos, y_pos))
 
-        grandmaster = DB.constants.get('rng').value == 'Grandmaster'
+        grandmaster = DB.constants.value('rng') == 'Grandmaster'
         crit_flag = DB.constants.value('crit')
 
         if grandmaster:
@@ -289,8 +289,8 @@ class UIView():
                 c = combat_calcs.compute_crit(attacker, defender, attacker.get_weapon(), 'attack')
                 blit_num(surf, c, 64, 67)
         # Enemy Hit and Mt
-        if item_system.can_be_countered(attacker, attacker.get_weapon()) and defender.get_weapon() and \
-                utils.calculate_distance(attacker.position, defender.position) in item_funcs.get_range(defender, defender.get_weapon()):
+        if defender.get_weapon() and \
+                combat_calcs.can_counterattack(attacker, attacker.get_weapon(), defender, defender.get_weapon()):
             e_mt = combat_calcs.compute_damage(defender, attacker, defender.get_weapon(), 'defense')
             e_hit = combat_calcs.compute_hit(defender, attacker, defender.get_weapon(), 'defense')
             if crit_flag:
@@ -412,21 +412,20 @@ class UIView():
 
         # Enemy doubling
         eweapon = defender.get_weapon()        
-        if eweapon and item_system.can_be_countered(attacker, weapon):
-            if utils.calculate_distance(attacker.position, defender.position) in item_funcs.get_range(defender, eweapon):
-                if DB.constants.value('def_double') or skill_system.def_double(defender):
-                    e_num = combat_calcs.outspeed(defender, attacker, eweapon, 'defense')
-                else:
-                    e_num = 1
-                e_num *= combat_calcs.compute_multiattacks(defender, attacker, eweapon, 'defense')
-                e_num = min(e_num, eweapon.data.get('uses', 100))
+        if eweapon and combat_calcs.can_counterattack(attacker, weapon, defender, eweapon):
+            if DB.constants.value('def_double') or skill_system.def_double(defender):
+                e_num = combat_calcs.outspeed(defender, attacker, eweapon, 'defense')
+            else:
+                e_num = 1
+            e_num *= combat_calcs.compute_multiattacks(defender, attacker, eweapon, 'defense')
+            e_num = min(e_num, eweapon.data.get('uses', 100))
 
-                if e_num == 2:
-                    surf.blit(SPRITES.get('x2'), x2_pos_enemy)
-                elif e_num == 3:
-                    surf.blit(SPRITES.get('x3'), x2_pos_enemy)
-                elif e_num == 4:
-                    surf.blit(SPRITES.get('x4'), x2_pos_enemy)
+            if e_num == 2:
+                surf.blit(SPRITES.get('x2'), x2_pos_enemy)
+            elif e_num == 3:
+                surf.blit(SPRITES.get('x3'), x2_pos_enemy)
+            elif e_num == 4:
+                surf.blit(SPRITES.get('x4'), x2_pos_enemy)
 
         # Turns off combat conditionals
         skill_system.test_off([], attacker, attacker.get_weapon(), defender)

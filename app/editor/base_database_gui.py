@@ -51,7 +51,10 @@ class Collection(QWidget):
         if self._data:
             new_data = curr.internalPointer()  # Internal pointer is way too powerful
             if not new_data:
-                new_data = self._data[curr.row()]
+                if self._data:
+                    new_data = self._data[curr.row()]
+                elif self.display:
+                    self.display.setEnabled(False)
             if self.display:
                 self.display.set_current(new_data)
                 self.display.setEnabled(True)
@@ -139,14 +142,14 @@ class CollectionModel(QAbstractListModel):
         raise NotImplementedError
 
     def delete(self, idx):
-        print("delete", flush=True)
         self._data.pop(idx)
         if len(self._data) > 0:
             new_item = self._data[min(idx, len(self._data) - 1)]
             if self.window.display:
                 self.window.display.set_current(new_item)
+        elif self.window.display:
+            self.window.display.setEnabled(False)
         self.layoutChanged.emit()
-        print("done delete", flush=True)
 
     def update(self):
         # self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
@@ -157,6 +160,8 @@ class CollectionModel(QAbstractListModel):
 
     def append(self):
         new_item = self.create_new()
+        if not new_item:
+            return
         view = self.window.view
         self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
         self.layoutChanged.emit()
@@ -164,11 +169,14 @@ class CollectionModel(QAbstractListModel):
         view.setCurrentIndex(last_index)
         self.update_watchers(self.rowCount() - 1)
         if self.window.display:
+            self.window.display.setEnabled(True)
             self.window.display.set_current(new_item)
         return last_index
 
     def new(self, idx):
         new_item = self.create_new()
+        if not new_item:
+            return
         view = self.window.view
         self._data.move_index(len(self._data) - 1, idx + 1)
         self.layoutChanged.emit()
@@ -176,6 +184,7 @@ class CollectionModel(QAbstractListModel):
         view.setCurrentIndex(new_index)
         self.update_watchers(idx + 1)
         if self.window.display:
+            self.window.display.setEnabled(True)
             self.window.display.set_current(new_item)
 
     def duplicate(self, idx):
@@ -200,6 +209,7 @@ class CollectionModel(QAbstractListModel):
         view.setCurrentIndex(new_index)
         self.update_watchers(idx + 1)
         if self.window.display:
+            self.window.display.setEnabled(True)
             self.window.display.set_current(new_obj)
 
     def update_watchers(self, idx):

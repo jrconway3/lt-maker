@@ -134,11 +134,11 @@ class Icon16Model(IconModel):
         if affected_items or affected_weapons:
             if affected_items:
                 affected = Data(affected_items)
-                from app.editor.item_database import ItemModel
+                from app.editor.item_editor.item_model import ItemModel
                 model = ItemModel
             elif affected_weapons:
                 affected = Data(affected_weapons)
-                from app.editor.weapon_database import WeaponModel
+                from app.editor.weapon_editor.weapon_model import WeaponModel
                 model = WeaponModel
             msg = "Deleting Icon <b>%s</b> would affect these objects."
             ok = DeletionDialog.inform(affected, model, msg, self.window)
@@ -175,7 +175,7 @@ class Icon32Model(Icon16Model):
         affected_factions = [faction for faction in DB.factions if faction.icon_nid == nid]
         if affected_factions:
             affected = Data(affected_factions)
-            from app.editor.faction_database import FactionModel
+            from app.editor.faction_editor.faction_model import FactionModel
             model = FactionModel
             msg = "Deleting Icon <b>%s</b> would affect these factions."
             ok = DeletionDialog.inform(affected, model, msg, self.window)
@@ -209,7 +209,7 @@ class Icon80Model(Icon16Model):
         affected_classes = [klass for klass in DB.classes if klass.icon_nid == nid]
         if affected_classes:
             affected = Data(affected_classes)
-            from app.editor.class_database import ClassModel
+            from app.editor.class_editor.class_model import ClassModel
             model = ClassModel
             msg = "Deleting Icon <b>%s</b> would affect these classes."
             ok = DeletionDialog.inform(affected, model, msg, self.window)

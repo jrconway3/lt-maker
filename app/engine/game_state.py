@@ -223,7 +223,9 @@ class GameState():
         # Handle subitems
         for item in self.item_registry.values():
             for subitem_uid in item.subitem_uids:
-                item.subitems.append(self.item_registry.get(subitem_uid))
+                subitem = self.item_registry.get(subitem_uid)
+                item.subitems.append(subitem)
+                subitem.parent_item = item
 
         self.market_items = s_dict.get('market_items', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])

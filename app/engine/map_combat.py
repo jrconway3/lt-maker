@@ -398,7 +398,6 @@ class MapCombat():
 
         self.handle_death(all_units)
 
-        self.check_equipped_items()
         self.handle_broken_items(a_broke, d_broke)
 
 # === POSSIBLY SHOULD BE SHARED AMONGST ALL COMBATS ===
@@ -524,9 +523,4 @@ class MapCombat():
         for unit in units:
             if unit.is_dying:
                 game.events.trigger('unit_death', unit, position=unit.position)
-
-    def check_equipped_items(self):
-        if not item_funcs.available(self.attacker, self.item):
-            self.attacker.check_equipped_weapon()
-        if self.def_item and not item_funcs.available(self.defender, self.def_item):
-            self.defender.check_equipped_weapon()
+                skill_system.on_death(unit)

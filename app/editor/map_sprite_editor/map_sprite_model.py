@@ -73,7 +73,7 @@ class MapSpriteModel(ResourceCollectionModel):
                 stand_full_path = fn
                 if standing_pix.width() == 192 and standing_pix.height() == 144:
                     lion_throne_mode = True
-                elif standing_pix.width() >= 16 and standing_pix.height() % 3 == 0:  # Try for GBA mode
+                elif 16 <= standing_pix.width() <= 64 and standing_pix.height() % 3 == 0:  # Try for GBA mode
                     lion_throne_mode = False
                 else:   
                     QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size for Lion Throne import (192x144 px)")
@@ -107,11 +107,13 @@ class MapSpriteModel(ResourceCollectionModel):
             else:
                 QMessageBox.critical(self.window, "Error", "Image must be png format")
                 return
+        else:
+            return
         if sok and mok and nid:
             if lion_throne_mode: 
                 new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
             else:
-                current_proj = settings.value("current_proj", None)
+                current_proj = settings.get_current_project()
                 if current_proj:
                     standing_pix, moving_pix = self.import_gba_map_sprite(standing_pix, moving_pix)
                     stand_full_path = os.path.join(current_proj, 'resources', 'map_sprites', nid + '-stand.png')
@@ -121,6 +123,7 @@ class MapSpriteModel(ResourceCollectionModel):
                     new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
                 else:
                     QMessageBox.critical(self.window, "Error", "Cannot load GBA map sprites without having saved the project")
+                    return
             RESOURCES.map_sprites.append(new_map_sprite)
             parent_dir = os.path.split(fn)[0]
             settings.set_last_open_path(parent_dir)

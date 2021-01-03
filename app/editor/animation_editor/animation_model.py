@@ -65,7 +65,7 @@ class AnimationModel(ResourceCollectionModel):
         affected_items = item_components.get_items_using(item_components.Type.MapAnimation, nid, DB)
         if affected_items:
             affected = Data(affected_items)
-            from app.editor.item_database import ItemModel
+            from app.editor.item_editor.item_model import ItemModel
             model = ItemModel
             msg = "Deleting Map Animation <b>%s</b> would affect these items."
             ok = DeletionDialog.inform(affected, model, msg, self.window)

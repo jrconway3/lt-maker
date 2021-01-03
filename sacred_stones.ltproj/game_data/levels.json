@@ -1008,6 +1008,16 @@
                     5
                 ],
                 "generic": false
+            },
+            {
+                "nid": "O'Neill",
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    5
+                ],
+                "generic": false
             }
         ],
         "regions": [],

@@ -12,6 +12,20 @@ def lerp(a, b, t):
     t = clamp(t, 0, 1)
     return (b - a) * t + a
 
+def model_wave(time, period, width) -> float:
+    """
+    Models a rise time of width/2 followed immediately by a fall time of width/2
+    Each wave is separated by (period - width) milliseconds
+    """
+    cur_time = time % period
+    half_width = width//2
+    if cur_time < half_width:
+        return float(cur_time) / half_width
+    elif cur_time < width:
+        return 1 - float(cur_time - half_width) / half_width
+    else:
+        return 0
+
 def compare_teams(t1: str, t2: str) -> bool:
     # Returns True if allies, False if enemies
     if t1 is None or t2 is None:

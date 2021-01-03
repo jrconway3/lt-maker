@@ -2098,6 +2098,10 @@
             [
                 "Killing Edge",
                 false
+            ],
+            [
+                "Iron Sword",
+                false
             ]
         ],
         "learned_skills": [

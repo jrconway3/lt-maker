@@ -53,7 +53,7 @@ class Heal(ItemComponent):
             return help_term * heal_term
         return 0
 
-class MagicHeal(Heal):
+class MagicHeal(Heal, ItemComponent):
     nid = 'magic_heal'
     desc = "Item heals this amount + HEAL on hit"
 
@@ -158,7 +158,8 @@ class StatusOnHit(ItemComponent):
     expose = Type.Skill  # Nid
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.AddSkill(target, self.value))
+        act = action.AddSkill(target, self.value, unit)
+        actions.append(act)
         playback.append(('status_hit', unit, item, target, self.value))
 
 class Restore(ItemComponent):
@@ -184,7 +185,7 @@ class Restore(ItemComponent):
                 actions.append(action.RemoveSkill(unit, skill))
         playback.append(('restore_hit', unit, item, target))
 
-class RestoreSpecific(Restore):
+class RestoreSpecific(Restore, ItemComponent):
     nid = 'restore_specific'
     desc = "Item removes status from target on hit"
     tag = 'extra'

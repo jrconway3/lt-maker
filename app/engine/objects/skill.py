@@ -25,6 +25,7 @@ class SkillObject():
             component_value.skill = self
 
         self.data = {}
+        self.initiator_nid = None
 
     @classmethod
     def from_prefab(cls, prefab):
@@ -48,6 +49,7 @@ class SkillObject():
         serial_dict['nid'] = self.nid
         serial_dict['owner_nid'] = self.owner_nid
         serial_dict['data'] = self.data
+        serial_dict['initiator_nid'] = self.initiator_nid
         return serial_dict
 
     @classmethod
@@ -56,4 +58,5 @@ class SkillObject():
         self.uid = dat['uid']
         self.owner_nid = dat['owner_nid']
         self.data = dat['data']
+        self.initiator_uid = dat.get('initiator_nid', None)
         return self

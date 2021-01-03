@@ -29,7 +29,7 @@ class TerrainDatabase(DatabaseTab):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self, "Import terrain from terrain.xml", starting_path, "Terrain XML (terrain.xml);;All Files(*)")
-        if ok and fn.endswith('items.xml'):
+        if ok and fn.endswith('terrain.xml'):
             parent_dir = os.path.split(fn)[0]
             settings.set_last_open_path(parent_dir)
             new_terrain = terrain_import.get_from_xml(parent_dir, fn)

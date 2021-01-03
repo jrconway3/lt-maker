@@ -26,6 +26,8 @@ class PanoramaModel(ResourceCollectionModel):
             if not panorama.pixmaps:
                 for path in panorama.get_all_paths():
                     panorama.pixmaps.append(QPixmap(path))        
+            if not panorama.pixmaps:
+                return None
             counter = int(time.time() * 1000 // 125) % len(panorama.pixmaps)
             pixmap = panorama.pixmaps[counter]
             if pixmap:

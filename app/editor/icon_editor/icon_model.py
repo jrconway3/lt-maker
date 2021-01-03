@@ -120,8 +120,8 @@ class Icon16Model(IconModel):
             self.window.update_list()
         return icon
 
-    def delete(self, index):
-        icon = self.sub_data[index.row()]
+    def delete(self, idx):
+        icon = self.sub_data[idx]
         if icon.parent_nid:
             # Are you sure you want to delete all ?
             nid = icon.parent_nid
@@ -140,7 +140,7 @@ class Icon16Model(IconModel):
                 affected = Data(affected_weapons)
                 from app.editor.weapon_editor.weapon_model import WeaponModel
                 model = WeaponModel
-            msg = "Deleting Icon <b>%s</b> would affect these objects."
+            msg = "Deleting Icon <b>%s</b> would affect these objects." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
                 pass
@@ -163,8 +163,8 @@ class Icon32Model(Icon16Model):
     database = RESOURCES.icons32
     width, height = 32, 32
 
-    def delete(self, index):
-        icon = self.sub_data[index.row()]
+    def delete(self, idx):
+        icon = self.sub_data[idx.row()]
         if icon.parent_nid:
             # Are you sure you want to delete all ?
             nid = icon.parent_nid
@@ -177,7 +177,7 @@ class Icon32Model(Icon16Model):
             affected = Data(affected_factions)
             from app.editor.faction_editor.faction_model import FactionModel
             model = FactionModel
-            msg = "Deleting Icon <b>%s</b> would affect these factions."
+            msg = "Deleting Icon <b>%s</b> would affect these factions." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
                 pass
@@ -197,8 +197,8 @@ class Icon80Model(Icon16Model):
     database = RESOURCES.icons80
     width, height = 80, 72
 
-    def delete(self, index):
-        icon = self.sub_data[index.row()]
+    def delete(self, idx):
+        icon = self.sub_data[idx]
         if icon.parent_nid:
             # Are you sure you want to delete all ?
             nid = icon.parent_nid
@@ -211,7 +211,7 @@ class Icon80Model(Icon16Model):
             affected = Data(affected_classes)
             from app.editor.class_editor.class_model import ClassModel
             model = ClassModel
-            msg = "Deleting Icon <b>%s</b> would affect these classes."
+            msg = "Deleting Icon <b>%s</b> would affect these classes." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
                 pass

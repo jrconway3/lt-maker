@@ -10,7 +10,7 @@ from app.extensions.custom_gui import PropertyBox, QHLine
 from app.editor.icons import ItemIcon16
 from app.editor.settings import MainSettingsController
 from app.editor import component_database
-from app import utilities
+from app.utilities import str_utils
 
 class ComponentProperties(QWidget):
     title = None
@@ -139,7 +139,7 @@ class ComponentProperties(QWidget):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', '%s ID %s already in use' % (self.title, self.current.nid))
-            self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self.model.change_nid(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()

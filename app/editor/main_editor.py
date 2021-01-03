@@ -93,8 +93,8 @@ class MainEditor(QMainWindow):
         main_screen_size = desktop.availableGeometry(desktop.primaryScreen())
 
         # Use setFixedSize to make it permanent and unchangeable
-        self.default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
-        self.resize(*self.default_size)
+        default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
+        self.resize(*default_size)
 
         geometry = self.settings.component_controller.get_geometry(self.__class__.__name__)
         if geometry:

@@ -2,7 +2,8 @@ from enum import IntEnum
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
-    QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup
+    QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup, \
+    QDesktopWidget
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
@@ -445,6 +446,11 @@ class MapEditor(QDialog):
 
         self.settings = MainSettingsController()
 
+        desktop = QDesktopWidget()
+        main_screen_size = desktop.availableGeometry(desktop.primaryScreen())
+        default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
+        self.resize(*default_size)
+
         self.current = current
         self.current_tool = PaintTool.NoTool
         self.terrain_mode: bool = False
@@ -463,8 +469,8 @@ class MapEditor(QDialog):
         right_splitter.addWidget(self.layer_menu)
         right_splitter.addWidget(self.tileset_menu)
 
-        main_splitter = QSplitter(self)
-        main_splitter.setChildrenCollapsible(False)
+        self.main_splitter = QSplitter(self)
+        self.main_splitter.setChildrenCollapsible(False)
 
         view_frame = QFrame()
         view_layout = QVBoxLayout()
@@ -474,19 +480,27 @@ class MapEditor(QDialog):
 
         self.terrain_painter_menu = TerrainPainterMenu(self)
 
-        main_splitter.addWidget(self.terrain_painter_menu)
-        main_splitter.addWidget(view_frame)
-        main_splitter.addWidget(right_splitter)
+        self.main_splitter.addWidget(self.terrain_painter_menu)
+        self.main_splitter.addWidget(view_frame)
+        self.main_splitter.addWidget(right_splitter)
 
         self.terrain_painter_menu.hide()
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-        self.layout.addWidget(main_splitter)
+        self.layout.addWidget(self.main_splitter)
 
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
         self.layout.addWidget(self.buttonbox)
         self.buttonbox.accepted.connect(self.accept)
+
+        # Restore Geometry
+        geometry = self.settings.component_controller.get_geometry(self._type())
+        if geometry:
+            self.restoreGeometry(geometry)
+        state = self.settings.component_controller.get_state(self._type())
+        if state:
+            self.main_splitter.restoreState(state)
 
         self.view.update_view()
 
@@ -507,7 +521,7 @@ class MapEditor(QDialog):
         self.erase_action = QAction(QIcon(f"{icon_folder}/eraser.png"), "&Erase", self, shortcut="E", triggered=self.set_erase)
         self.erase_action.setCheckable(True)
         paint_group.addAction(self.erase_action)
-        self.resize_action = QAction(QIcon(f"{icon_folder}/resize.png"), "&Resize", self, shortcut="R", triggered=self.resize)
+        self.resize_action = QAction(QIcon(f"{icon_folder}/resize.png"), "&Resize", self, shortcut="R", triggered=self.resize_map)
 
         self.terrain_action = QAction(QIcon(f"{icon_folder}/terrain.png"), "&Terrain Mode", self, shortcut="T", triggered=self.terrain_mode_toggle)
         self.terrain_action.setCheckable(True)
@@ -547,7 +561,7 @@ class MapEditor(QDialog):
         self.tileset_menu.set_current(current)
         self.view.update_view()
 
-    def resize(self):
+    def resize_map(self):
         ResizeDialog.get_new_size(self.current, self)
 
     def terrain_mode_toggle(self, val):
@@ -568,6 +582,25 @@ class MapEditor(QDialog):
 
     def get_tileset_coords(self):
         return self.tileset_menu.current_tileset, self.tileset_menu.get_selection_coords()
+
+    def accept(self):
+        self.save_geometry()
+        super().accept()
+
+    def reject(self):
+        self.save_geometry()
+        super().reject()
+
+    def closeEvent(self, event):
+        self.save_geometry()
+        super().closeEvent(event)
+
+    def _type(self):
+        return 'tilemap_editor'
+
+    def save_geometry(self):
+        self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
+        self.settings.component_controller.set_state(self._type(), self.main_splitter.saveState())
 
 class ResizeDialog(Dialog):
     def __init__(self, current, parent=None):

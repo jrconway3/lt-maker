@@ -74,7 +74,6 @@ class SingleDatabaseEditor(QDialog):
     def save_geometry(self):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
         self.settings.component_controller.set_state(self._type(), self.tab.splitter.saveState())
-        print(self._type(), "Save Geometry")
 
 class SingleResourceEditor(QDialog):
     def __init__(self, tab, resource_types=None, parent=None):

@@ -51,7 +51,7 @@ item_icon_mod unit item target sprite -> sprite
 # Use these formulas to change how items determine their combat stats
 # Like for magic items -- Is this actually useful?? Should I be using equations at all... hmmm...
 *damage_formula! equation DAMAGE
-defense_formula! equation DEFENSE
+resist_formula! equation DEFENSE
 accuracy_formula! equation HIT
 avoid_formula! equation AVOID
 crit_accuracy_formula! CRIT_HIT

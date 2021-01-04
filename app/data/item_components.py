@@ -1,6 +1,6 @@
 from app.data.components import Component, Type
 
-tags = ['base', 'target', 'weapon', 'uses', 'extra', 'exp', 'aoe', 'aesthetic', 'advanced', 'custom']
+tags = ['base', 'target', 'weapon', 'uses', 'extra', 'exp', 'formula', 'aoe', 'aesthetic', 'advanced', 'custom']
 
 class ItemComponent(Component):
     item = None

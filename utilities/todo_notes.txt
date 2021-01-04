@@ -38,12 +38,16 @@ Item System -- Forced Movement (test), Multiple Target Items (test), Multiple It
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
+Better method for loading panorama movies
+
 Summoning
 
 Test stuff from last commit
 Test location card
 
 Rescue Status -- Test that it works
+
+Silence target restrict
 
 Multi-items
     Work as activated items

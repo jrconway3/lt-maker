@@ -48,7 +48,7 @@ class Magic(ItemComponent):
     def damage_formula(self, unit, item):
         return 'MAGIC_DAMAGE'
 
-    def defense_formula(self, unit, item):
+    def resist_formula(self, unit, item):
         return 'MAGIC_DEFENSE'
 
 class Hit(ItemComponent):

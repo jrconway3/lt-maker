@@ -62,7 +62,7 @@ class Defaults():
         return 'DAMAGE'
 
     @staticmethod
-    def defense_formula(unit, item) -> str:
+    def resist_formula(unit, item) -> str:
         return 'DEFENSE'
 
     @staticmethod
@@ -97,7 +97,7 @@ false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
 # All true hooks are not exclusive
 true_hooks = ('can_counter', 'can_be_countered', 'can_double')
 # All default hooks are exclusive
-formula = ('damage_formula', 'defense_formula', 'accuracy_formula', 'avoid_formula', 
+formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula', 
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_hooks = ('buy_price', 'sell_price', 'special_sort', 'num_targets', 'minimum_range', 'maximum_range',
                  'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit')

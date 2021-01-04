@@ -85,7 +85,10 @@ class UnitSpecification(QWidget):
 
     def sub_spec_changed(self, index):
         unit_spec = self.box1.currentText()
-        sub_spec = self.box2.currentWidget().currentText()
+        if self.box2.currentIndex() in (0, 2, 3):
+            sub_spec = self.box2.currentWidget().currentText()
+        else:
+            sub_spec = self.box2.currentWidget().edit.currentText()
         self.window.current.target_spec = (unit_spec, sub_spec)
 
     def set_current(self, target_spec):

@@ -1,3 +1,4 @@
+from app.data.database import DB
 from app.engine import target_system, skill_system, action, equations
 from app.engine.game_state import game
 
@@ -132,7 +133,7 @@ class GiveAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if unit.traveler and not unit.has_attacked and not unit.has_taken and not unit.has_rescued:
+        if unit.traveler and not unit.has_attacked and (not unit.has_taken or DB.constants.value('give_and_take')) and not unit.has_rescued:
             adj_allies = target_system.get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
                         equations.parser.rescue_aid(u) > equations.parser.rescue_weight(game.level.units.get(unit.traveler))])

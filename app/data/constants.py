@@ -54,6 +54,7 @@ constants = ConstantCatalog([
     Constant('min_damage', "Min damage dealt by an attack", int, 0),
     Constant('boss_crit', "Final blow on boss will use critical animation", bool),
     Constant('convoy_on_death', "Weapons held by dead player units are sent to convoy", bool),
+    Constant('give_and_take', "Units can give a unit after taking a unit", bool),
     # Constant('steal', "Steal Type", ("Nonweapons", "All unequipped"), "Nonweapons"),
     Constant('num_save_slots', "Number of save slots", int, 3, 'title'),
     Constant('attack_zero_hit', "Enemy AI attacks even if Hit is 0", bool, True, 'ai'),

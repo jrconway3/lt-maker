@@ -35,7 +35,7 @@ class UnitObject(Prefab):
             self.stats = {stat.nid: stat.value for stat in DB.classes.get(self.klass).bases}
             self.growths = {stat.nid: stat.value for stat in DB.classes.get(self.klass).growths}
             klass_obj = DB.classes.get(self.klass)
-            self.wexp = {weapon.nid: klass_obj.wexp_gain.get(weapon.nid).wexp_gain for weapon in DB.weapons}
+            self.wexp = {weapon.nid: klass_obj.wexp_gain.get(weapon.nid).wexp_gain if klass_obj.wexp_gain.get(weapon.nid) else 0 for weapon in DB.weapons}
             self.calculate_needed_wexp_from_items()
             self.portrait_nid = None
         else:

@@ -355,16 +355,17 @@ class LocationCard():
             self.background = engine.create_surface((self.width, self.height), transparent=True)
 
         # For transition
-        self.transition = True
+        self.transition = 'start'
         self.transition_progress = 0
         self.transition_update = engine.get_time()
+        self.start_time = engine.get_time()
 
     def format_text(self, text):
         return [text]
 
     def determine_size(self):
         self.width = max(self.font.width(line) for line in self.text_lines) + 16
-        self.height = len(self.text_lines) * self.font.height
+        self.height = len(self.text_lines) * self.font.height + 8
 
     def make_background(self, background):
         surf = create_base_surf(self.width, self.height, background)
@@ -381,8 +382,10 @@ class LocationCard():
                     return False
                 self.transition = False
 
-        if current_time - self.start_time > self.exist_time:
+        if not self.transition and current_time - self.start_time > self.exist_time:
+            self.transition_update = current_time
             self.transition = 'end'
+            self.transition_progress = 0
 
         return True
 
@@ -393,9 +396,11 @@ class LocationCard():
             self.font.blit_center(line, bg, (bg.get_width()//2, idx * self.font.height + 4))
 
         if self.transition == 'start':
-            bg = image_mods.make_translucent(bg, 1.1 - self.transition_progress)
+            transparency = 1.1 - self.transition_progress
+            bg = image_mods.make_translucent(bg, transparency)
         elif self.transition == 'end':
-            bg = image_mods.make_translucent(bg, .1 + (self.transition_progress * .9))
+            transparency = .1 + (self.transition_progress * .9)
+            bg = image_mods.make_translucent(bg, transparency)
         else:
             bg = image_mods.make_translucent(bg, .1)
         surf.blit(bg, self.position)

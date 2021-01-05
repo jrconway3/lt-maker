@@ -139,7 +139,7 @@ def defense(unit, item_to_avoid=None):
     if not item_to_avoid:
         res = equations.parser.defense(unit)
     else:
-        equation = item_system.defense_formula(unit, item_to_avoid)
+        equation = item_system.resist_formula(unit, item_to_avoid)
         res = equations.parser.get(equation, unit)
         res += item_system.modify_resist(unit, item_to_avoid)
     res += skill_system.modify_resist(unit, item_to_avoid)

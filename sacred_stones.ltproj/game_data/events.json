@@ -4534,5 +4534,54 @@
             ]
         ],
         "only_once": false
+    },
+    {
+        "name": "Test",
+        "trigger": "level_start",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "change_background",
+                [
+                    "CastleSepia"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "location_card",
+                [
+                    "Thracia 776"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false
     }
 ]

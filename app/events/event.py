@@ -569,7 +569,7 @@ class Event():
             new_location_card = dialog.LocationCard(custom_string)
             self.other_boxes.append(new_location_card)
 
-            self.wait_time = 2000
+            self.wait_time = engine.get_time() + new_location_card.exist_time
             self.state = 'waiting'
 
     def add_portrait(self, command):
@@ -888,7 +888,7 @@ class Event():
         action.do(action.ArriveOnMap(unit, position))
 
     def _get_position(self, next_pos, unit, group):
-        if next_pos.lower() == 'starting':
+        if next_pos and next_pos.lower() == 'starting':
             position = unit.starting_position
         elif ',' in next_pos:
             position = self.parse_pos(next_pos)

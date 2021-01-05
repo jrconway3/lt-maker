@@ -29,7 +29,7 @@ def engage(attacker, positions, item, skip=False, script=None):
         combat = MapCombat(attacker, item, positions[0], main_target, splash, script)
     return combat
 
-def start_combat(self, unit, target, item, ai_combat=False, event_combat=False, script=None):
+def start_combat(unit, target, item, ai_combat=False, event_combat=False, script=None):
     if item.sequence_item:
         for subitem in item.subitems:
             num_targets = item_system.num_targets(unit, subitem)
@@ -39,7 +39,7 @@ def start_combat(self, unit, target, item, ai_combat=False, event_combat=False, 
             game.combat_instance.append(combat)
             game.state.change('combat')
     else:
-        num_targets = item_system.num_targets(unit, subitem)
+        num_targets = item_system.num_targets(unit, item)
         combat = engage(unit, [target] * num_targets, item, script=script)
         combat.ai_combat = ai_combat # Must mark this so we can come back!
         combat.event_combat = event_combat # Must mark this so we can come back!

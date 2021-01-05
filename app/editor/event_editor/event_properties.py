@@ -385,7 +385,7 @@ class EventCollection(QWidget):
             # real_index = self.proxy_model.mapToSource(current_index)
             # obj = self._data[real_index.row()]
             obj = self.display.current
-            if filt != obj.level_nid or (filt == "Global" and obj.level_nid):
+            if obj and (filt != obj.level_nid or (filt == "Global" and obj.level_nid)):
                 # Change selection only if we need to!
                 first_index = self.proxy_model.index(0, 0)
                 self.view.setCurrentIndex(first_index)

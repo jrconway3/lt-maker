@@ -247,6 +247,7 @@ class Swap(ItemComponent):
             actions.append(action.Swap(unit, target))
             playback.append(('swap_hit', unit, item, target))
 
+"""
 class Warp(ItemComponent):
     nid = 'warp'
     desc = 'Item warps target to position on hit'
@@ -256,3 +257,24 @@ class Warp(ItemComponent):
         if not skill_system.ignore_forced_movement(unit):
             actions.append(action.Warp(target, (0, 0)))
             playback.append(('warp_hit', unit, item, target, (0, 0)))
+"""
+
+class EvalTargetRestrict(ItemComponent):
+    nid = 'eval_target_restrict'
+    desc = "Use this to restrict what units can be targeted"
+    tag = 'extra'
+
+    expose = Type.String
+    value = 'True'
+
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # Restricts target based on whether any unit has < full hp
+        try:
+            if defender and eval(self.value):
+                return True
+            for unit in splash:
+                if eval(self.value):
+                    return True
+        except:
+            return True
+        return False

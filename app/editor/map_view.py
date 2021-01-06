@@ -164,7 +164,8 @@ class MapView(SimpleMapView):
             for unit in self.main_editor.current_level.units:
                 if not unit.starting_position:
                     continue
-                self.draw_unit(painter, unit, unit.starting_position)
+                if unit.generic or unit.nid in DB.units.keys():
+                    self.draw_unit(painter, unit, unit.starting_position)
             # Highlight current unit with cursor
             current_unit = self.main_editor.unit_painter_menu.get_current()
             if current_unit and current_unit.starting_position:

@@ -116,7 +116,10 @@ class CombatPhaseSolver():
         self.main_target = main_target
         self.splash = splash
         self.item = item
-        self.target_item = self.main_target.get_weapon()
+        if self.main_target:
+            self.target_item = self.main_target.get_weapon()
+        else:
+            self.target_item = None
         self.state = InitState()
         self.num_attacks, self.num_defends = 0, 0
         self.num_subattacks, self.num_subdefends = 0, 0

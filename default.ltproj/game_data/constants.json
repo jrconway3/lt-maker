@@ -80,6 +80,10 @@
         false
     ],
     [
+        "give_and_take",
+        false
+    ],
+    [
         "num_save_slots",
         3
     ],

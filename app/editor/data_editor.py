@@ -39,9 +39,13 @@ class SingleDatabaseEditor(QDialog):
         if state:
             self.tab.splitter.restoreState(state)
 
+    def on_tab_close(self):
+        self.tab.on_tab_close()
+
     def accept(self):
         current_proj = self.settings.get_current_project()
         self.save_geometry()
+        self.on_tab_close()
         # if current_proj:
         #     DB.serialize(current_proj)
         super().accept()
@@ -50,6 +54,7 @@ class SingleDatabaseEditor(QDialog):
         self.restore()
         current_proj = self.settings.get_current_project()
         self.save_geometry()
+        self.on_tab_close()
         # if current_proj:
         #     DB.serialize(current_proj)
         super().reject()
@@ -66,6 +71,7 @@ class SingleDatabaseEditor(QDialog):
 
     def closeEvent(self, event):
         self.save_geometry()
+        self.on_tab_close()
         super().closeEvent(event)
 
     def _type(self):

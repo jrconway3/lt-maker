@@ -26,6 +26,7 @@ class UnitPainterMenu(QWidget):
         self.window = parent
         self.main_editor = self.window
         self.map_view = self.main_editor.map_view
+
         self.current_level = self.main_editor.current_level
         if self.current_level:
             self._data = self.current_level.units
@@ -68,9 +69,15 @@ class UnitPainterMenu(QWidget):
         pass
 
     def tick(self):
-        # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-        self.model.layoutChanged.emit()
-        # pass
+        # This one tick is able to handle all of the level editors
+        current_level = self.main_editor.current_level
+        # The current level was restored and now needs to be updated to
+        # match the one in the data
+        if current_level and current_level is not DB.levels.get(current_level.nid):
+            print("Current Level out of sync of databases. Updating...")
+            self.main_editor.set_current_level(DB.levels.get(current_level.nid))
+        else:
+            self.model.layoutChanged.emit()
 
     def set_current_level(self, level):
         self.current_level = level
@@ -170,6 +177,9 @@ class AllUnitModel(DragDropCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
+            # Don't draw any units which have been deleted in editor
+            if not unit.generic and unit.nid not in DB.units.keys():
+                return None
             klass_nid = unit.klass
             num = timer.get_timer().passive_counter.count
             klass = DB.classes.get(klass_nid)
@@ -236,6 +246,9 @@ class InventoryDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
         unit = self._data[index.row()]
+        # Don't draw any units which have been deleted in editor
+        if not unit.generic and unit.nid not in DB.units.keys():
+            return None
         items = unit.starting_items
         for idx, item in enumerate(items):
             item_nid, droppable = item

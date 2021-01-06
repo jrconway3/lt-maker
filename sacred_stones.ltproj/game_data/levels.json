@@ -965,7 +965,7 @@
         "nid": "DEBUG",
         "name": "DEBUG",
         "tilemap": "Chapter 2",
-        "party": null,
+        "party": "Eirika",
         "music": {
             "player_phase": null,
             "enemy_phase": null,

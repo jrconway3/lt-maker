@@ -54,9 +54,6 @@ class UnitModel(DragDropCollectionModel):
                 self.change_nid(nid, swap.nid)
             else:
                 return
-        # TODO this should be done at the closing of the unit editor
-        # for level in DB.levels:
-        #   level.units = [unit for unit in level.units if nid != unit.nid]
         super().delete(idx)
 
     def change_nid(self, old_nid, new_nid):

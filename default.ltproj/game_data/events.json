@@ -4534,5 +4534,13 @@
             ]
         ],
         "only_once": false
+    },
+    {
+        "name": "Test",
+        "trigger": "level_start",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [],
+        "only_once": false
     }
 ]

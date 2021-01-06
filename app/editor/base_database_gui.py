@@ -119,6 +119,9 @@ class DatabaseTab(QWidget):
         else:
             self.right_frame.setEnabled(False)
 
+    def on_tab_close(self):
+        pass
+
     # @classmethod
     # def edit(cls, parent=None):
     #     dialog = cls.create(parent)

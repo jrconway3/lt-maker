@@ -889,15 +889,15 @@ class Event():
         action.do(action.ArriveOnMap(unit, position))
 
     def _get_position(self, next_pos, unit, group):
-        if next_pos and next_pos.lower() == 'starting':
+        if not next_pos:
+            position = group.positions.get(unit.nid)
+        elif next_pos.lower() == 'starting':
             position = unit.starting_position
         elif ',' in next_pos:
             position = self.parse_pos(next_pos)
-        elif next_pos:
+        else:
             other_group = game.level.unit_groups.get(next_pos)
             position = other_group.positions.get(unit.nid)                
-        else:
-            position = group.positions.get(unit.nid)
         return position
 
     def spawn_group(self, command):

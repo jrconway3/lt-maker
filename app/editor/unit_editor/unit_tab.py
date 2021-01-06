@@ -33,6 +33,25 @@ class UnitDatabase(DatabaseTab):
                 self._data.append(unit)
             self.update_list()
 
+    def on_tab_close(self):
+        # Checking to see if any levels need to be changed
+        for level in DB.levels:
+            for unit in level.units.values():
+                if unit.generic or unit.nid in DB.units.keys():
+                    pass
+                else:  # Remove any unit that no longer exist
+                    print(unit)
+                    print(len(level.units))
+                    level.units.remove_key(unit.nid)
+                    print(len(level.units))
+            for unit_group in level.unit_groups:
+                for unit in unit_group.units.values():
+                    if unit not in level.units:
+                        unit_group.units.remove_key(unit.nid)
+                for unit_nid in list(unit_group.positions.keys()):
+                    if unit_nid not in level.units.keys():
+                        del unit_group.positions[unit_nid]
+
 def get(unit_nid=None):
     window = SingleDatabaseEditor(UnitDatabase)
     unit = DB.units.get(unit_nid)

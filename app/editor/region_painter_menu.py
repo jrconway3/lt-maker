@@ -11,6 +11,8 @@ from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.custom_widgets import SkillBox
 from app.events import regions
 
+from app.editor import timer
+
 class RegionMenu(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -50,11 +52,14 @@ class RegionMenu(QWidget):
         self.last_touched_region = None
         self.display = self.modify_region_widget
 
+        timer.get_timer().tick_elapsed.connect(self.tick)
+
     def on_visibility_changed(self, state):
         self.set_current_level(self.main_editor.current_level)
 
     def tick(self):
-        pass
+        status_box = self.modify_region_widget.status_box
+        status_box.model.layoutChanged.emit()
 
     def update_list(self):
         self.model.layoutChanged.emit()

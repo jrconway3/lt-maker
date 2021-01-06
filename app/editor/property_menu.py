@@ -2,14 +2,17 @@ from functools import partial
 
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, \
     QWidget, QPushButton, QMessageBox, QLabel
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.extensions.custom_gui import ComboBox, SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
+from app.extensions.custom_gui import SimpleDialog, PropertyBox, QHLine
+from app.editor.custom_widgets import PartyBox
 from app.utilities import str_utils
 from app.editor.sound_editor import sound_tab
 from app.editor.tile_editor import tile_tab
+
+from app.editor import timer
 
 class MusicDialog(SimpleDialog):
     def __init__(self, parent, current):
@@ -55,7 +58,6 @@ class PropertiesMenu(QWidget):
         super().__init__(parent)
         self.main_editor = parent
         self.view = level_view
-        self.installEventFilter(self)
 
         self.setStyleSheet("font: 10pt;")
 
@@ -71,14 +73,9 @@ class PropertiesMenu(QWidget):
         self.title_box.edit.textChanged.connect(self.title_changed)
         form.addWidget(self.title_box)
 
-        self.party_box = PropertyBox("Party", ComboBox, self)
-        self.update_party_box()
-        self.party_box.edit.activated.connect(self.party_changed)
+        self.party_box = PartyBox(self)
+        self.party_box.edit.currentIndexChanged.connect(self.party_changed)
         form.addWidget(self.party_box)
-
-        # self.market_box = PropertyCheckBox("Market Available?", QCheckBox, self)
-        # self.market_box.edit.stateChanged.connect(self.market_changed)
-        # form.addWidget(self.market_box)
 
         self.music_button = QPushButton("Edit Level's Music...", self)
         self.music_button.clicked.connect(self.edit_music)
@@ -108,21 +105,16 @@ class PropertiesMenu(QWidget):
         self.map_box.clicked.connect(self.select_tilemap)
         form.addWidget(self.map_box)
 
+        timer.get_timer().tick_elapsed.connect(self.tick)
+
         if self.main_editor.current_level:
             self.set_current()
 
-    def update_party_box(self):
-        # Update party box
-        self.party_box.edit.clear()
-        self.party_box.edit.addItem("None")
-        for party in DB.parties:
-            self.party_box.edit.addItem(party.nid)
+    def on_visibility_changed(self, state):
+        self.set_current()
 
-        if self.current:
-            if self.current.party:
-                self.party_box.edit.setValue(self.current.party)
-            else:
-                self.party_box.edit.setValue("None")
+    def tick(self):
+        self.party_box.model.layoutChanged.emit()
 
     @property
     def current(self):
@@ -139,15 +131,15 @@ class PropertiesMenu(QWidget):
 
         self.title_box.edit.setText(current.name)
         self.nid_box.edit.setText(current.nid)
-        self.update_party_box()
+        if current.party in DB.parties.keys():
+            idx = DB.parties.index(current.party)
+            self.party_box.edit.setCurrentIndex(idx)
+        else:
+            self.party_box.edit.setCurrentIndex(0)
         
-        # self.market_box.edit.setChecked(current.market_flag)
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
         self.loss_condition.edit.setText(current.objective['loss'])
-
-    def on_visibility_changed(self, state):
-        self.set_current()
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -171,12 +163,9 @@ class PropertiesMenu(QWidget):
         self.current.name = text
         self.main_editor.update_view()
 
-    def party_changed(self):
-        party = self.party_box.edit.currentText()
-        if party == 'None':
-            self.current.party = None
-        else:
-            self.current.party = party
+    def party_changed(self, idx):
+        party = DB.parties[idx]
+        self.current.party = party.nid
 
     def edit_music(self):
         dlg = MusicDialog(self, self.current)
@@ -198,14 +187,3 @@ class PropertiesMenu(QWidget):
             self.main_editor.set_current_tilemap(nid)
             self.main_editor.update_view()
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.WindowActivate:
-            print("PropertyMenu has gained focus")
-            self.set_current()
-        elif event.type() == QEvent.WindowDeactivate:
-            print("PropertyMenu has lost focus")
-        elif event.type() == QEvent.FocusIn:
-            print("widget has gained keyboard focus")
-        elif event.type() == QEvent.FocusOut:
-            print("widget has lost keyboard focus")
-        return super().eventFilter(obj, event)

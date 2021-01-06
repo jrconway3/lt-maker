@@ -97,6 +97,10 @@
             [
                 "Vulnerary",
                 false
+            ],
+            [
+                "Rapier",
+                false
             ]
         ],
         "learned_skills": [],
@@ -1794,11 +1798,7 @@
         ],
         "starting_items": [
             [
-                "Fire",
-                false
-            ],
-            [
-                "Vulnerary",
+                "Anima",
                 false
             ]
         ],
@@ -2104,16 +2104,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "Strength +2"
-            ],
-            [
-                1,
-                "Stunned"
-            ]
-        ],
+        "learned_skills": [],
         "wexp_gain": [
             [
                 true,
@@ -2566,12 +2557,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "Stoneskin"
-            ]
-        ],
+        "learned_skills": [],
         "wexp_gain": [
             [
                 false,

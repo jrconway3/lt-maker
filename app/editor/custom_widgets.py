@@ -59,7 +59,7 @@ class SkillBox(ObjBox):
         database = DB.skills
         if exclude:
             database = Data([d for d in DB.skills if d is not exclude])
-        super().__init__("Item", SkillModel, database, parent, button)
+        super().__init__("Skill", SkillModel, database, parent, button)
 
 class AIBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):

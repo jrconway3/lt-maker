@@ -43,11 +43,10 @@ Better method for loading panorama movies
 Summoning
 
 Test stuff from last commit
-Test location card
 
 Rescue Status -- Test that it works
 
-Silence target restrict
+Silence target restrict (test)
 
 Multi-items
     Work as activated items

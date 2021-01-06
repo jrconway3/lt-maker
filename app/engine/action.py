@@ -28,6 +28,14 @@ class Action():
     def reverse(self):
         pass
 
+    def __repr__(self):
+        s = "action.%s: " % self.__class__.__name__
+        for attr in self.__dict__.items():
+            name, value = attr
+            s += '%s: %s, ' % (name, value)
+        s = s[:-2]
+        return s
+
     def save_obj(self, value):
         if isinstance(value, UnitObject):
             value = ('unit', value.nid)

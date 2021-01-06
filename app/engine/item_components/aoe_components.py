@@ -186,12 +186,12 @@ class LineAOE(ItemComponent):
 
     def splash(self, unit, item, position) -> tuple:
         splash = set(utils.raytrace(unit.position, position))
-        splash -= unit.position
+        splash.discard(unit.position)
         splash = [game.board.get_unit(s) for s in splash]
         splash = [s for s in splash if s]
         return None, splash
 
     def splash_positions(self, unit, item, position) -> set:
         splash = set(utils.raytrace(unit.position, position))
-        splash -= unit.position
+        splash.discard(unit.position)
         return splash

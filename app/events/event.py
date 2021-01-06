@@ -330,8 +330,9 @@ class Event():
             position = self.parse_pos(values[0])
             game.cursor.set_pos(position)
             if 'immediate' in flags or self.do_skip:
-                pass
+                game.camera.force_xy(*position)
             else:
+                game.camera.set_xy(*position)
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 

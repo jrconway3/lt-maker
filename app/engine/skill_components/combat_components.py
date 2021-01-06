@@ -23,7 +23,7 @@ class StatMultiplier(SkillComponent):
     expose = (Type.FloatDict, Type.Stat)
 
     def stat_change(self, unit):
-        return {stat[0]: stat[1]*unit.stats[stat[0]] for stat in self.value}
+        return {stat[0]: int((stat[1]-1)*unit.stats[stat[0]]) for stat in self.value}
 
 class Damage(SkillComponent):
     nid = 'damage'

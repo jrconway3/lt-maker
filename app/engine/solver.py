@@ -40,13 +40,20 @@ class AttackerState(SolverState):
                 defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense')
             else:
                 defender_outspeed = 1
+            attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack')
+            multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
 
             if solver.attacker_alive() and solver.main_target_alive():
-                if solver.allow_counterattack() and \
+                if solver.item_has_uses() and \
+                        solver.num_subattacks < multiattacks:
+                    return 'attacker'
+                elif solver.allow_counterattack() and \
                         solver.num_defends < defender_outspeed:
+                    solver.num_subdefends = 0
                     return 'defender'
                 elif solver.item_has_uses() and \
-                        solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
+                        solver.num_attacks < attacker_outspeed:
+                    solver.num_subattacks = 0
                     return 'attacker'
             return None
         else:
@@ -54,13 +61,15 @@ class AttackerState(SolverState):
 
     def process(self, solver, actions, playback):
         playback.append(('attacker_phase',))
+        if solver.main_target:
+            solver.process(actions, playback, solver.attacker, solver.main_target, solver.item, 'attack')
+        for target in solver.splash:
+            solver.process(actions, playback, solver.attacker, target, solver.item, 'splash')
+        
+        solver.num_subattacks += 1
         multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
-        for attack in range(multiattacks):
-            if solver.main_target:
-                solver.process(actions, playback, solver.attacker, solver.main_target, solver.item, 'attack')
-            for target in solver.splash:
-                solver.process(actions, playback, solver.attacker, target, solver.item, 'splash')
-        solver.num_attacks += 1
+        if solver.num_subattacks >= multiattacks:
+            solver.num_attacks += 1
 
 class DefenderState(SolverState):
     def get_next_state(self, solver):
@@ -71,22 +80,31 @@ class DefenderState(SolverState):
                     defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense')
                 else:
                     defender_outspeed = 1
-                    
-                if solver.item_has_uses() and \
-                        solver.num_attacks < combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack'):
+                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack')
+                multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
+                
+                if solver.allow_counterattack() and \
+                        solver.num_subdefends < multiattacks:
+                    return 'defender'    
+                elif solver.item_has_uses() and \
+                        solver.num_attacks < attacker_outspeed:
+                    solver.num_subattacks = 0
                     return 'attacker'
                 elif solver.allow_counterattack() and \
                         solver.num_defends < defender_outspeed:
+                    solver.num_subdefends = 0
                     return 'defender'
         else:
             return self.process_command(command)
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))
+        solver.process(actions, playback, solver.main_target, solver.attacker, solver.target_item, 'defense')
+        
+        solver.num_subdefends += 1
         multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
-        for attack in range(multiattacks):
-            solver.process(actions, playback, solver.main_target, solver.attacker, solver.target_item, 'defense')
-        solver.num_defends += 1
+        if solver.num_subdefends >= multiattacks:
+            solver.num_defends += 1
 
 class CombatPhaseSolver():
     states = {'init': InitState,
@@ -101,6 +119,7 @@ class CombatPhaseSolver():
         self.target_item = self.main_target.get_weapon()
         self.state = InitState()
         self.num_attacks, self.num_defends = 0, 0
+        self.num_subattacks, self.num_subdefends = 0, 0
 
         # For event combats
         self.script = list(reversed(script)) if script else []

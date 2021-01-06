@@ -280,7 +280,7 @@ def splash_positions(unit, item, position) -> set:
     positions = set()
     for component in item.components:
         if component.defines('splash_positions'):
-            positions |= component.splash_positions(unit, item)
+            positions |= component.splash_positions(unit, item, position)
     if not positions:
         return {position}
     return positions
@@ -360,10 +360,10 @@ def on_miss(actions, playback, unit, item, target, mode):
     playback.append(('hit_sound', 'Attack Miss 2'))
     playback.append(('hit_anim', 'MapMiss', target))
 
-def item_icon_mods(unit, item, target, sprite):
+def item_icon_mod(unit, item, target, sprite):
     for component in item.components:
-        if component.defines('item_icon_mods'):
-            sprite = component.item_icon_mods(unit, item, target, sprite)
+        if component.defines('item_icon_mod'):
+            sprite = component.item_icon_mod(unit, item, target, sprite)
     return sprite
 
 def init(item):

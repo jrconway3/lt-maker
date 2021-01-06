@@ -164,7 +164,7 @@ class Icon32Model(Icon16Model):
     width, height = 32, 32
 
     def delete(self, idx):
-        icon = self.sub_data[idx.row()]
+        icon = self.sub_data[idx]
         if icon.parent_nid:
             # Are you sure you want to delete all ?
             nid = icon.parent_nid

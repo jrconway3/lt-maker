@@ -4,18 +4,20 @@ from app.utilities.data import Data, Prefab
 
 # === Can get bonuses to combat statistics based on weapon_type and weapon_rank
 class CombatBonus(Prefab):
+    modification = 1
+
     def __init__(self, weapon_type, weapon_rank, effects):
         self.weapon_type = weapon_type
         self.weapon_rank = weapon_rank
 
-        self.damage = effects[0]
-        self.resist = effects[1]
-        self.accuracy = effects[2]
-        self.avoid = effects[3]
-        self.crit = effects[4]
-        self.dodge = effects[5]
-        self.attack_speed = effects[6]
-        self.defense_speed = effects[7]
+        self.damage = int(effects[0])
+        self.resist = int(effects[1])
+        self.accuracy = int(effects[2])
+        self.avoid = int(effects[3])
+        self.crit = int(effects[4])
+        self.dodge = int(effects[5])
+        self.attack_speed = int(effects[6])
+        self.defense_speed = int(effects[7])
 
     @property
     def effects(self):
@@ -24,6 +26,22 @@ class CombatBonus(Prefab):
     @classmethod
     def default(cls):
         return cls(None, None, [0]*8)
+
+    @classmethod
+    def copy(cls, other):
+        return cls(other.weapon_type, other.weapon_rank, other.effects)
+
+    def modify(self, w_mod):
+        self.modification *= w_mod
+
+        self.damage *= w_mod
+        self.resist *= w_mod
+        self.accuracy *= w_mod
+        self.avoid *= w_mod
+        self.crit *= w_mod
+        self.dodge *= w_mod
+        self.attack_speed *= w_mod
+        self.defense_speed *= w_mod
 
 class CombatBonusList(list):
     def contains(self, weapon_type: str):

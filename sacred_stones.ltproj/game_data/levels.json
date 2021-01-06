@@ -8,9 +8,11 @@
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
             "other_phase": null,
+            "enemy2_phase": null,
             "player_battle": "Attack",
             "enemy_battle": "Defense",
             "other_battle": null,
+            "enemy2_battle": null,
             "base": null
         },
         "objective": {
@@ -673,7 +675,7 @@
                 "variant": null,
                 "level": 2,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -686,8 +688,8 @@
                     12,
                     3
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -695,7 +697,7 @@
                 "variant": null,
                 "level": 3,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -708,8 +710,8 @@
                     10,
                     12
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -717,7 +719,7 @@
                 "variant": null,
                 "level": 3,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -730,8 +732,8 @@
                     7,
                     14
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -739,7 +741,7 @@
                 "variant": null,
                 "level": 3,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -756,8 +758,8 @@
                     6,
                     11
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -765,7 +767,7 @@
                 "variant": null,
                 "level": 1,
                 "klass": "Archer",
-                "faction": "Soldier",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
                         "Iron Bow",
@@ -778,8 +780,8 @@
                     14,
                     9
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -787,7 +789,7 @@
                 "variant": null,
                 "level": 2,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -800,8 +802,8 @@
                     1,
                     9
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -809,7 +811,7 @@
                 "variant": null,
                 "level": 3,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -822,8 +824,8 @@
                     0,
                     9
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             }
         ],
@@ -1018,6 +1020,48 @@
                     5
                 ],
                 "generic": false
+            },
+            {
+                "nid": "Seth",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    1,
+                    4
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Eirika",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Cavalier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [],

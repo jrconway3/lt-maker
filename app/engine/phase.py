@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def fade_in_phase_music():
     team = game.phase.get_current()
-    music = game.level.music[team + '_phase']
+    music = game.level.music.get(team + '_phase')
     if music:
         SOUNDTHREAD.fade_in(music)
     else:

@@ -97,6 +97,10 @@
             [
                 "Vulnerary",
                 false
+            ],
+            [
+                "Rapier",
+                false
             ]
         ],
         "learned_skills": [],
@@ -2098,18 +2102,9 @@
             [
                 "Killing Edge",
                 false
-            ],
-            [
-                "Iron Sword",
-                false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "Strength +2"
-            ]
-        ],
+        "learned_skills": [],
         "wexp_gain": [
             [
                 true,
@@ -2562,12 +2557,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "Stoneskin"
-            ]
-        ],
+        "learned_skills": [],
         "wexp_gain": [
             [
                 false,

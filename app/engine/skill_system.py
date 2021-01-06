@@ -161,7 +161,7 @@ for hook in dynamic_hooks:
                   for skill in unit.skills:
                       if not condition(skill, unit):
                           continue
-                      for component in item.components:
+                      for component in skill.components:
                           if component.defines('%s'):
                               val += component.%s(unit, item, target, mode)
                   return val""" \

@@ -37,25 +37,50 @@ class Camera():
         self.cursor_x(x)
         self.cursor_y(y)
 
+    def _change_x(self, x):
+        if x <= self.target_x + 3:
+            new_x = x - 3
+        elif x >= self.target_x + TILEX - 3:
+            new_x = x - TILEX + 3
+        else:
+            new_x = self.target_x
+        # new_x = utils.clamp(new_x, 0, game.tilemap)
+        return new_x
+
+    def _change_y(self, y):
+        if y <= self.target_y + 3:
+            new_y = y - 3
+        elif y >= self.target_y + TILEY - 3:
+            new_y = y - TILEY + 3
+        else:
+            new_y = self.target_y
+        return new_y
+
     def set_x(self, x):
+        x = self._change_x(x)
         self.target_x = x
 
     def set_y(self, y):
+        y = self._change_y(y)
         self.target_y = y
 
     def set_xy(self, x, y):
-        self.target_x = x
-        self.target_y = y
+        self.set_x(x)
+        self.set_y(y)
 
     def force_x(self, x):
+        # Make minimal required change
+        x = self._change_x(x)
         self.current_x = self.target_x = x
 
     def force_y(self, y):
+        # Make minimal required change
+        y = self._change_y(y)
         self.current_y = self.target_y = y
 
     def force_xy(self, x, y):
-        self.current_x = self.target_x = x
-        self.current_y = self.target_y = y
+        self.force_x(x)
+        self.force_y(y)
 
     def get_x(self):
         return self.current_x

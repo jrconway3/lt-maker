@@ -8,6 +8,9 @@ class Multiset(Counter):
 def clamp(i, min_, max_):
     return min(max_, max(min_, i))
 
+def sign(n):
+    return 1 if n >= 0 else -1
+
 def lerp(a, b, t):
     t = clamp(t, 0, 1)
     return (b - a) * t + a

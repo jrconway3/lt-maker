@@ -32,8 +32,8 @@ class AIModel(DragDropCollectionModel):
                 self.change_nid(nid, swap.nid)
             else:
                 return
-            # Delete watchers
-            super().delete(idx)
+        # Delete watchers
+        super().delete(idx)
 
     def change_nid(self, old_nid, new_nid):
         for level in DB.levels:

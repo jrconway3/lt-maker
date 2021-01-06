@@ -320,6 +320,146 @@
         ]
     },
     {
+        "nid": "Lancereaver",
+        "name": "Lancereaver",
+        "desc": "Reverses the weapon triangle.",
+        "icon_nid": "Sword",
+        "icon_index": [
+            0,
+            16
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "value",
+                1800
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "damage",
+                9
+            ],
+            [
+                "hit",
+                75
+            ],
+            [
+                "crit",
+                5
+            ],
+            [
+                "weight",
+                9
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "weapon_type",
+                "Sword"
+            ],
+            [
+                "weapon_rank",
+                "C"
+            ],
+            [
+                "uses",
+                15
+            ],
+            [
+                "wexp",
+                2
+            ],
+            [
+                "reaver",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Brave Sword",
+        "name": "Brave Sword",
+        "desc": "Allows 2 consecutive hits.",
+        "icon_nid": "Sword",
+        "icon_index": [
+            0,
+            9
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "value",
+                7500
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "damage",
+                9
+            ],
+            [
+                "hit",
+                75
+            ],
+            [
+                "crit",
+                0
+            ],
+            [
+                "weight",
+                12
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "weapon_type",
+                "Sword"
+            ],
+            [
+                "weapon_rank",
+                "B"
+            ],
+            [
+                "uses",
+                30
+            ],
+            [
+                "brave",
+                null
+            ]
+        ]
+    },
+    {
         "nid": "Rapier",
         "name": "Rapier",
         "desc": "Eirika Only, effective against horseback and armoured units",
@@ -381,7 +521,7 @@
             ],
             [
                 "effective",
-                10
+                14
             ],
             [
                 "effective_tag",
@@ -833,6 +973,74 @@
             [
                 "value",
                 300
+            ]
+        ]
+    },
+    {
+        "nid": "Swordreaver",
+        "name": "Swordreaver",
+        "desc": "Reverses the weapon triangle.",
+        "icon_nid": "Axe",
+        "icon_index": [
+            0,
+            11
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "value",
+                2100
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "damage",
+                11
+            ],
+            [
+                "hit",
+                65
+            ],
+            [
+                "crit",
+                5
+            ],
+            [
+                "weight",
+                13
+            ],
+            [
+                "uses",
+                15
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "weapon_type",
+                "Axe"
+            ],
+            [
+                "weapon_rank",
+                "C"
+            ],
+            [
+                "reaver",
+                null
             ]
         ]
     },

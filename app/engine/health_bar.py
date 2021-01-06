@@ -277,19 +277,25 @@ class MapCombatInfo():
             # Determine effectiveness
             icon = icons.get_item_icon(self.item)
             if icon:
-                icon = item_system.item_icon_mods(self.unit, self.item, self.target, icon)
+                icon = item_system.item_icon_mod(self.unit, self.item, self.target, icon)
                 bg_surf.blit(icon, (2, 3))
 
             # Blit advantage
             if skill_system.check_enemy(self.unit, self.target):
                 adv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon())
                 disadv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon(), False)
-                if adv:
-                    up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
+
+                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+
+                if adv and adv.modification > 0:
                     bg_surf.blit(up_arrow, (11, 7))
-                elif disadv:
-                    down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+                elif adv and adv.modification < 0:
                     bg_surf.blit(down_arrow, (11, 7))
+                elif disadv and disadv.modification > 0:
+                    bg_surf.blit(down_arrow, (11, 7))
+                elif disadv and disadv.modification < 0:
+                    bg_surf.blit(up_arrow, (11, 7))
         # End item
 
         bg_surf = self.hp_bar.draw(bg_surf)

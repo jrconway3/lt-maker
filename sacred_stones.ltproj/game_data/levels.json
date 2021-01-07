@@ -930,10 +930,6 @@
                         13,
                         7
                     ],
-                    "102": [
-                        11,
-                        7
-                    ],
                     "BoneBuddy": [
                         11,
                         7
@@ -1044,7 +1040,7 @@
             {
                 "nid": "101",
                 "variant": null,
-                "level": 1,
+                "level": 20,
                 "klass": "Cavalier",
                 "faction": "Soldier",
                 "starting_items": [

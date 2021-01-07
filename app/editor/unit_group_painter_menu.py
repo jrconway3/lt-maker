@@ -15,6 +15,7 @@ from app.extensions.widget_list import WidgetList
 from app.extensions.custom_gui import Dialog, RightClickListView, QHLine
 from app.editor.custom_widgets import ObjBox
 from app.editor.unit_painter_menu import AllUnitModel, InventoryDelegate
+from app.editor.base_database_gui import DragDropCollectionModel
 
 from app.data.level_units import UnitGroup
 
@@ -74,8 +75,6 @@ class UnitGroupMenu(QWidget):
         return None
 
     def select_group(self, group):
-        print("Group Nid: %s" % group.nid)
-        print(self._data.keys(), [d.nid for d in self._data])
         idx = self._data.index(group.nid)
         self.group_list.setCurrentRow(idx)
 
@@ -91,7 +90,6 @@ class UnitGroupMenu(QWidget):
         self.group_list.clearSelection()
 
     def remove_group(self, group):
-        print("Removing %s" % group.nid)
         self.group_list.remove_group(group)
         self._data.delete(group)
 
@@ -119,6 +117,7 @@ class GroupWidget(QWidget):
         super().__init__(parent)
         self.window = parent
         self.current = group
+        self.display = None
         self._data = self.window._data
 
         self.layout = QGridLayout(self)
@@ -260,3 +259,7 @@ class GroupUnitModel(AllUnitModel):
         else:
             return super().data(index, role)
         return None
+
+    def delete(self, idx):
+        # Just delete unit from any groups the unit is a part of
+        DragDropCollectionModel.delete(self, idx)

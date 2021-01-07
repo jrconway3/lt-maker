@@ -48,8 +48,16 @@ class UnitObject(Prefab):
             self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
             self.portrait_nid = prefab.portrait_nid
         self.starting_position = self.position
+
+        # Get how to level
+        if self.team == 'player':
+            method = DB.constants.value('player_leveling')
+        else:
+            method = DB.constants.value('enemy_leveling')
+            if method == 'Match':
+                method = DB.constants.value('player_leveling')
             
-        if DB.constants.get('player_leveling').value == 'Fixed':
+        if method == 'Fixed':
             self.growth_points = {k: 50 for k in self.stats.keys()}
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}
@@ -95,6 +103,10 @@ class UnitObject(Prefab):
 
         self.current_move = None  # Holds the move action the unit last used
         # Maybe move to movement manager?
+
+        if self.generic:
+            unit_funcs.auto_level(self)
+
         return self
 
     def get_hp(self):
@@ -268,7 +280,7 @@ class UnitObject(Prefab):
             # Need do while
             counter = 5
             while counter > 0:
-                counter -= 1  # Just to make sure no infinte loop
+                counter -= 1  # Just to make sure no infinite loop
                 promotes_from = klass.promotes_from
                 if promotes_from:
                     klass = DB.classes.get(promotes_from)

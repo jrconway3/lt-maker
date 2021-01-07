@@ -51,8 +51,9 @@ font_types = [text, small, info, convo, chapter]
 # Load in default, uncolored fonts
 FONT = {}
 for font in RESOURCES.fonts.values():
-    idx_path = font.nid.split('-')[0]
-    FONT[font.nid] = bmpfont.BmpFont(font.full_path, font.full_path.replace(font.nid, idx_path).replace('.png', '.idx'))
+    title = font.nid.split('-')[0]
+    idx_path = font.full_path.replace(font.nid, title).replace('.png', '.idx')
+    FONT[font.nid] = bmpfont.BmpFont(font.full_path, idx_path)
 
 # Convert colors
 for font_type in font_types:

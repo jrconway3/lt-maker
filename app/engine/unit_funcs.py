@@ -1,3 +1,4 @@
+from app.utilities import utils
 from app.data.database import DB
 
 from app.engine import static_random, item_funcs
@@ -6,7 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 def get_next_level_up(unit) -> dict:
-    # TODO Implement support for negative growths
     if unit.team == 'player':
         method = DB.constants.value('player_leveling')
     else:
@@ -21,35 +21,111 @@ def get_next_level_up(unit) -> dict:
     for nid in DB.stats.keys():
         growth = unit.growths[nid] + klass.growth_bonus.get(nid).value
         if method == 'Fixed':
-            stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
-            stat_changes[nid] = min(stat_changes, klass.max_stats.get(nid).value - unit.stats[nid])
-            unit.growth_points[nid] = (unit.growth_points[nid] + growth) % 100
+            if growth > 0:
+                stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
+                unit.growth_points[nid] = (unit.growth_points[nid] + growth) % 100
+            elif growth < 0:
+                stat_changes[nid] = (-unit.growth_points[nid] + growth) // 100
+                unit.growth_points[nid] = (unit.growth_points[nid] - growth) % 100
+
         elif method == 'Random':
-            while growth > 0:
-                if growth >= 100:
-                    stat_changes[nid] += 1
-                elif r.randint(0, 99) < growth:
-                    stat_changes[nid] += 1
-                growth -= 100
-            stat_changes[nid] = min(stat_changes[nid], klass.max_stats.get(nid).value - unit.stats[nid])
+            stat_changes[nid] += _random_levelup(r, growth)
         elif method == 'Dynamic':
-            # Growth points used to modify growth 
-            variance = 10.  # Lower to reduce variance
-            start_growth = growth + unit.growth_points[nid]
-            if start_growth <= 0:
-                unit.growth_points[nid] += growth/5.
-            else:
-                free_levels = growth // 100
-                stat_changes[nid] += free_levels
-                new_growth = growth % 100
-                start_growth = new_growth + unit.growth_points[nid]
-                if r.randint(0, 99) < int(start_growth):
-                    stat_changes[nid] += 1
-                    unit.growth_points[nid] -= (100 - new_growth)/variance
-                else:
-                    unit.growth_points[nid] += new_growth/variance
+            _dynamic_levelup(r, stat_changes, unit.growth_points, nid, growth)
+            
+        stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid).value - unit.stats[nid])
 
     return stat_changes
+
+def _random_levelup(r, growth_rate):
+    counter = 0
+    if growth_rate > 0:
+        while growth_rate > 0:
+            counter += 1 if r.randint(0, 99) < growth_rate else 0
+            growth_rate -= 100
+    elif growth_rate < 0:
+        growth_rate = -growth_rate
+        while growth_rate > 0:
+            counter -= 1 if r.randint(0, 99) < growth_rate else 0
+            growth_rate -= 100
+    return counter
+
+def _dynamic_levelup(r, stats, growth_points, growth_nid, growth_rate):
+    variance = 10
+    if growth_rate > 0:
+        start_growth = growth_rate + growth_points[growth_nid]
+        if start_growth <= 0:
+            growth_points[growth_nid] += growth_rate / 5.
+        else:
+            free_levels = growth_rate // 100
+            stats[growth_nid] += free_levels
+            new_growth = growth_rate % 100
+            start_growth = new_growth + growth_points[growth_nid]
+            if r.randint(0, 99) < int(start_growth):
+                stats[growth_nid] += 1
+                growth_points[growth_nid] -= (100 - new_growth) / variance
+            else:
+                growth_points[growth_nid] += new_growth/variance
+    elif growth_rate < 0:
+        growth_rate = -growth_rate
+        start_growth = growth_rate + growth_points[growth_nid]
+        if start_growth <= 0:
+            growth_points[growth_nid] += growth_rate / 5.
+        else:
+            free_levels = growth_rate // 100
+            stats[growth_nid] -= free_levels
+            new_growth = growth_rate % 100
+            start_growth = new_growth + growth_points[growth_nid]
+            if r.randint(0, 99) < int(start_growth):
+                stats[growth_nid] -= 1
+                growth_points[growth_nid] -= (100 - new_growth) / variance
+            else:
+                growth_points[growth_nid] += new_growth/variance
+
+def auto_level(unit):
+    """
+    Only for generics
+    """
+    klass = DB.classes.get(unit.klass)
+    if klass.tier == 0:
+        num_levels = unit.level - 1
+    else:
+        num_levels = unit.get_internal_level() - 1
+
+    # Get how to level
+    if unit.team == 'player':
+        method = DB.constants.value('player_leveling')
+    else:
+        method = DB.constants.value('enemy_leveling')
+        if method == 'Match':
+            method = DB.constants.value('player_leveling')
+
+    r = static_random.get_levelup(unit.nid, 0)
+
+    if method == 'Fixed':
+        for growth_nid, growth_value in unit.growths.items():
+            growth_sum = growth_value * num_levels
+            if growth_value < 0:
+                unit.stats[growth_nid] += (growth_sum - unit.growth_points[growth_nid]) // 100
+                unit.growth_points[growth_nid] = -(growth_sum - unit.growth_points[growth_nid]) % 100
+            else:
+                unit.stats[growth_nid] += (growth_sum + unit.growth_points[growth_nid]) // 100
+                unit.growth_points[growth_nid] = (growth_sum + unit.growth_points[growth_nid]) % 100
+
+    elif method == 'Random':
+        for growth_nid, growth_value in unit.growths.items():
+            for n in range(num_levels):
+                growth_rate = growth_value
+                unit.stats[growth_nid] += _random_levelup(r, growth_rate)
+
+    elif method == 'Dynamic':
+        for growth_nid, growth_value in unit.growths.items():
+            for n in range(num_levels):
+                _dynamic_levelup(r, unit.stats, unit.growth_points, growth_nid, growth_value)
+                
+    # Make sure we don't exceed max
+    unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k).value) for (k, v) in unit.stats.items()}
+    unit.set_hp(1000)  # Go back to full hp
 
 def apply_stat_changes(unit, stat_changes: dict, in_base: bool = True):
     """

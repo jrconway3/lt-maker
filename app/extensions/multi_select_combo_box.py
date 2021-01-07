@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QComboBox, QLineEdit, QListWidget, QListWidgetItem, \
     QCheckBox
 from PyQt5.QtGui import QCursor
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QEvent
 
 """
 Converted to PyQt from https://github.com/ThisIsClark/Qt-MultiSelectComboBox
@@ -45,6 +45,7 @@ class MultiSelectComboBox(QComboBox):
         if x >= 0 and x <= width and y >= self.height() and y <= height + self.height():
             pass # Item was clicked do not hide popup
         else:
+            self.list_widget.setCurrentRow(0)
             super().hidePopup()
 
     def stateChanged(self, state=None):
@@ -77,7 +78,7 @@ class MultiSelectComboBox(QComboBox):
             return [_.strip() for _ in self.line_edit.text().split(",")]
         return []
 
-    def addItems(self, texts):
+    def addItems(self, texts: list):
         for s in texts:
             self.addItem(s)
 
@@ -116,6 +117,11 @@ class MultiSelectComboBox(QComboBox):
 
     def wheelEvent(self, wheel_event):
         pass  # Do not handle the wheel event
+
+    def eventFilter(self, obj, event):
+        if obj is self.line_edit and event.type() == QEvent.MouseButtonRelease:
+            self.showPopup()
+        return False
 
     def setCurrentText(self, text):
         pass

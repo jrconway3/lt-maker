@@ -2010,7 +2010,7 @@
         "nid": "Joshua",
         "name": "Joshua",
         "desc": "A wandering sword fighter from Jehanna. He loves to gamble.",
-        "variant": null,
+        "variant": "",
         "level": 5,
         "klass": "Myrmidon",
         "tags": [],

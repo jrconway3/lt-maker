@@ -83,15 +83,18 @@ class UnitSprite():
         if self.unit.variant:
             nid += self.unit.variant
         res = RESOURCES.map_sprites.get(nid)
-        if res:
-            team = self.unit.team
-            map_sprite = game.map_sprite_registry.get(res.nid + '_' + team)
-            if not map_sprite:
-                map_sprite = MapSprite(res, team)
-                game.map_sprite_registry[map_sprite.nid + '_' + team] = map_sprite
-            self.map_sprite = map_sprite
-        else:
+        if not res:  # Try without unit variant
+            res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+        if not res:
             self.map_sprite = None
+            return
+
+        team = self.unit.team
+        map_sprite = game.map_sprite_registry.get(res.nid + '_' + team)
+        if not map_sprite:
+            map_sprite = MapSprite(res, team)
+            game.map_sprite_registry[map_sprite.nid + '_' + team] = map_sprite
+        self.map_sprite = map_sprite
 
     # Normally drawing units is culled to those on the screen
     # Unit sprites matching this will be drawn anyway
@@ -283,6 +286,9 @@ class UnitSprite():
             return image[game.map_view.move_sprite_counter.count].copy()
 
     def create_image(self, state):
+        if not self.map_sprite:  # This shouldn't happen, but if it does...
+            res = RESOURCES.map_sprites[0]
+            self.map_sprite = MapSprite(res, self.unit.team)
         image = getattr(self.map_sprite, state)
         image = self.select_frame(image, state)
         return image

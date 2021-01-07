@@ -1,6 +1,5 @@
 [
     "Citizen",
-    "Eirika_Lord",
     "Myrmidon",
     "MyrmidonFemale",
     "Mercenary",
@@ -20,5 +19,6 @@
     "Cleric",
     "Mage",
     "Shaman",
-    "Journeyman"
+    "Journeyman",
+    "EirikaLord"
 ]

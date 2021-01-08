@@ -222,5 +222,33 @@
         "platform": "Village",
         "mtype": "Normal",
         "status": "Avoid10"
+    },
+    {
+        "nid": "Ruins",
+        "name": "Ruins",
+        "color": [
+            32,
+            32,
+            32,
+            255
+        ],
+        "minimap": "Ruins",
+        "platform": "Ruins",
+        "mtype": "Normal",
+        "status": "Avoid10"
+    },
+    {
+        "nid": "Village Ruins",
+        "name": "Ruins",
+        "color": [
+            72,
+            64,
+            64,
+            255
+        ],
+        "minimap": "Ruins",
+        "platform": "Ruins",
+        "mtype": "Fort",
+        "status": null
     }
 ]

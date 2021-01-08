@@ -84,6 +84,7 @@ class AIController():
             return False
 
     def attack(self):
+        # Attacking or supporting
         if self.goal_target:  # Target is a position tuple
             if self.goal_item and self.goal_item in item_funcs.get_all_items(self.unit):
                 self.unit.equip(self.goal_item)
@@ -100,6 +101,25 @@ class AIController():
                     game.highlight.display_possible_spell_attacks(splash_positions, light=True)
                 # Combat
                 interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True)
+        # Interacting with regions
+        elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':
+            # Get region
+            region = None
+            unit, position = self.unit, self.goal_position
+            for r in game.level.regions:
+                if r.contains(self.goal_position) and r.region_type == 'event' and r.sub_nid == self.behaviour.sub_nid:
+                    try:
+                        if not r.condition or eval(r.condition):
+                            region = r
+                            break
+                    except:
+                        print("Could not evaluate region conditional %s" % r.condition)
+            if region:
+                did_trigger = game.events.trigger(region.sub_nid, self.unit, position=self.unit.position, region=region)
+                if did_trigger and region.only_once:
+                    action.do(action.RemoveRegion(region))
+                if did_trigger:
+                    action.do(action.HasAttacked(self.unit))
 
     def canto_retreat(self):
         valid_positions = self.get_true_valid_moves()
@@ -165,6 +185,12 @@ class AIController():
                     elif self.behaviour.action == "Attack":
                         self.inner_ai = self.build_primary()
                         self.state = "Primary"
+                    elif self.behaviour.action == "Support":
+                        self.inner_ai = self.build_primary()
+                        self.state = "Primary"
+                    elif self.behaviour.action == 'Interact':
+                        self.inner_ai = self.build_secondary()
+                        self.state = "Secondary"
                     elif self.behaviour.action == 'Move_to':
                         self.inner_ai = self.build_secondary()
                         self.state = "Secondary"
@@ -184,6 +210,8 @@ class AIController():
                     else:
                         self.inner_ai = self.build_secondary()
                         self.state = "Secondary"  # Try secondary
+                else:  # Make sure to quick move back so that the in-between frames aren't flickering around
+                    self.inner_ai.quick_move(self.inner_ai.orig_pos)
 
             elif self.state == 'Secondary':
                 done, self.goal_position = self.inner_ai.run()
@@ -435,6 +463,26 @@ class PrimaryAI():
 
         return utils.process_terms(terms)
 
+def handle_unit_spec(all_targets, behaviour):
+    target_spec = behaviour.target_spec
+    if not target_spec:
+        return all_targets
+    if target_spec[0] == "Tag":
+        all_targets = [u.position for u in all_targets if target_spec[1] in u.tags]
+    elif target_spec[0] == "Class":
+        all_targets = [u.position for u in all_targets if u.klass == target_spec[1]]
+    elif target_spec[0] == "Name":
+        all_targets = [u.position for u in all_targets if u.name == target_spec[1]]
+    elif target_spec[0] == 'Faction':
+        all_targets = [u.position for u in all_targets if u.faction == target_spec[1]]
+    elif target_spec[0] == 'Party':
+        all_targets = [u.position for u in all_targets if u.party == target_spec[1]]
+    elif target_spec[0] == 'ID':
+        all_targets = [u.position for u in all_targets if u.nid == target_spec[1]]
+    else:
+        all_targets = [u.position for u in all_targets]
+    return all_targets
+
 class SecondaryAI():
     def __init__(self, unit, behaviour):
         self.unit = unit
@@ -445,17 +493,6 @@ class SecondaryAI():
 
         self.available_targets = []
 
-        def unit_spec():
-            target_spec = self.behaviour.target_spec
-            if not target_spec:
-                return
-            if target_spec[0] == "Tag":
-                self.all_targets = [u.position for u in self.all_targets if target_spec[1] in u.tags]
-            elif target_spec[0] == "Class":
-                self.all_targets = [u.position for u in self.all_targets if u.klass == target_spec[1]]
-            else:
-                self.all_targets = [u.position for u in self.all_targets]
-
         # Determine all targets
         if self.behaviour.target == 'Unit':
             self.all_targets = [u.position for u in game.level.units if u.position]
@@ -463,13 +500,23 @@ class SecondaryAI():
             self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)]
         elif self.behaviour.target == 'Ally':
             self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)]
+        elif self.behaviour.target == 'Event':
+            target_spec = self.behaviour.target_spec
+            self.all_targets = []
+            for region in game.level.regions:
+                try:
+                    if region.region_type == 'event' and region.sub_nid == target_spec and (not region.condition or eval(region.condition)):
+                        self.all_targets += region.get_all_positions()
+                except:
+                    print("Region Condition: Could not parse %s" % region.condition)
+            self.all_targets = list(set(self.all_targets))  # Remove duplicates
         elif self.behaviour.target == 'Position':
             if self.behaviour.target_spec == "Starting":
                 self.all_targets = [self.unit.starting_position]
             else:
                 self.all_targets = [tuple(self.behaviour.target_spec)]
         if self.behaviour.target in ('Unit', 'Enemy', 'Ally'):
-            unit_spec()
+            self.all_targets = handle_unit_spec(self.all_targets, self.behaviour)
 
         self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True))
         self.double_move = self.single_move + equations.parser.movement(self.unit)
@@ -532,9 +579,47 @@ class SecondaryAI():
 
     def get_path(self, goal_pos):
         self.pathfinder.set_goal_pos(goal_pos)
-        path = self.pathfinder.process(game.board.team_grid, adj_good_enough=True, ally_block=False)
+
+        if self.behaviour.target == 'Event':
+            adj_good_enough = False
+        else:
+            adj_good_enough = True
+
+        path = self.pathfinder.process(game.board.team_grid, adj_good_enough=adj_good_enough, ally_block=False)
         self.pathfinder.reset()
         return path
+
+    def default_priority(self, enemy):
+        hp_max = equations.parser.hitpoints(enemy)
+        weakness_term = float(hp_max - enemy.get_hp()) / hp_max
+
+        items = [item for item in item_funcs.get_all_items(self.unit) if 
+                 item_funcs.available(self.unit, item)]
+
+        terms = []
+        tp, highest_damage_term, highest_status_term = 0, 0, 0
+
+        for item in items:
+            if item.status:
+                status_term = 1
+            if item_system.is_weapon(self.unit, item) or item_system.is_spell(self.unit, item):
+                raw_damage = combat_calcs.compute_damage(self.unit, enemy, item)
+                hit = utils.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
+                true_damage = raw_damage * hit
+
+            if true_damage <= 0 and status_term <= 0:
+                return 0  # If no damage could be dealt, ignore
+            damage_term = min(float(true_damage / hp_max), 1.)
+            new_tp = damage_term + status_term/2
+            if new_tp > tp:
+                tp = new_tp
+                highest_damage_term = damage_term
+                highest_status_term = status_term
+        
+        terms.append((highest_damage_term, 15))
+        terms.append((highest_status_term, 10))
+        terms.append((weakness_term, 15))
+        return terms
 
     def compute_priority(self, target, distance=0):
         terms = []
@@ -546,31 +631,8 @@ class SecondaryAI():
         terms.append((distance_term, 60))
 
         enemy = game.board.get_unit(target)
-        if self.behaviour.action == "Attack" and enemy and skill_system.check_enemy(self.unit, enemy):
-            hp_max = equations.parser.hitpoints(enemy)
-            weakness_term = float(hp_max - enemy.get_hp()) / hp_max
-
-            max_damage = 0
-            status_term = 0
-            items = [item for item in item_funcs.get_all_items(self.unit) if 
-                     item_funcs.available(self.unit, item)]
-            for item in items:
-                if item.status:
-                    status_term = 1
-                if item_system.is_weapon(self.unit, item) or item_system.is_spell(self.unit, item):
-                    raw_damage = combat_calcs.compute_damage(self.unit, enemy, item)
-                    hit = utils.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
-                    true_damage = raw_damage * hit
-                    if true_damage > max_damage:
-                        max_damage = true_damage
-
-                if max_damage <= 0 and status_term <= 0:
-                    return 0  # If no damage could be dealt, ignore
-                damage_term = min(float(max_damage / hp_max), 1.)
-                terms.append((damage_term, 15))
-                terms.append((weakness_term, 15))
-                terms.append((status_term, 10))
-
+        if self.behaviour.action == "Attack" and enemy:
+            terms += self.default_priority(enemy)    
         else:
             pass
 

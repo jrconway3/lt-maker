@@ -82,9 +82,10 @@ class TileMapDatabase(TileTab):
 
     def edit_current(self):
         current_tilemap = self.current
-        map_editor = MapEditor(self, current_tilemap)
-        map_editor.exec_()
-        tile_model.create_tilemap_pixmap(current_tilemap)
+        if current_tilemap:
+            map_editor = MapEditor(self, current_tilemap)
+            map_editor.exec_()
+            tile_model.create_tilemap_pixmap(current_tilemap)
 
 def get_tilesets():
     window = SingleResourceEditor(TileSetDatabase, ["tilesets"])

@@ -305,6 +305,8 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
 def outspeed(unit, target, item, mode=None) -> bool:
     if not item:
         item = unit.get_weapon()
+    if not item:
+        return 1
     if not item_system.can_double(unit, item):
         return 1
 

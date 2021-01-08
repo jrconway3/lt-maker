@@ -68,7 +68,8 @@ class MapCombat():
                 item_system.start_combat(self.full_playback, self.attacker, self.item, self.defender)
                 if self.defender:
                     skill_system.start_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-                    item_system.start_combat(self.full_playback, self.defender, self.def_item, self.attacker)
+                    if self.def_item:
+                        item_system.start_combat(self.full_playback, self.defender, self.def_item, self.attacker)
                 for unit in self.splash:
                     skill_system.start_combat(self.full_playback, unit, None, None)
 
@@ -387,7 +388,8 @@ class MapCombat():
         item_system.end_combat(self.full_playback, self.attacker, self.item, self.defender)
         if self.defender:
             skill_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-            item_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
+            if self.def_item:
+                item_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
         for unit in self.splash:
             skill_system.end_combat(self.full_playback, unit, None, None)
         skill_system.post_combat(self.full_playback, self.attacker, self.item, self.defender)

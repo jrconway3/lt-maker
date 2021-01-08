@@ -2,7 +2,7 @@ import functools
 
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
     QMessageBox, QHBoxLayout, QAction, QToolButton, QToolBar, QTextEdit, \
-    QVBoxLayout, QSizePolicy, QSpacerItem, QMenu, QWidgetAction
+    QVBoxLayout, QSizePolicy, QSpacerItem, QWidgetAction
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QFontMetrics
 
@@ -11,6 +11,7 @@ from app.editor.icons import ItemIcon16
 from app.editor.settings import MainSettingsController
 from app.editor import component_database
 from app.utilities import str_utils
+from app.extensions.qhelpmenu import QHelpMenu
 
 class ComponentProperties(QWidget):
     title = None
@@ -65,6 +66,7 @@ class ComponentProperties(QWidget):
         for component in self.get_components():
             new_func = functools.partial(self.add_component, component)
             new_action = QAction(QIcon(), component.class_name(), self, triggered=new_func)
+            new_action.setToolTip(component.desc)
             self.actions[component.nid] = new_action
 
         # Create toolbar
@@ -80,7 +82,7 @@ class ComponentProperties(QWidget):
 
         for component in self.get_components():
             if component.tag not in self.menus:
-                new_menu = QMenu(self)
+                new_menu = QHelpMenu(self)
                 self.menus[component.tag] = new_menu
                 toolbutton = QToolButton(self)
                 toolbutton.setIcon(QIcon(f"{icon_folder}/component_%s.png" % component.tag))
@@ -99,7 +101,7 @@ class ComponentProperties(QWidget):
             self.actions[template_key] = template_action
 
         if self.get_templates():
-            template_menu = QMenu(self)
+            template_menu = QHelpMenu(self)
             self.menus['templates'] = template_menu
             toolbutton = QToolButton(self)
             toolbutton.setIcon(QIcon(f"{icon_folder}/component_template.png"))

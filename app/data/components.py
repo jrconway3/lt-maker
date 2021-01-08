@@ -58,5 +58,7 @@ class Component():
     def save(self):
         if isinstance(self.value, Data):
             return self.nid, self.value.save()
+        elif isinstance(self.value, list):
+            return self.nid, self.value.copy()
         else:
             return self.nid, self.value

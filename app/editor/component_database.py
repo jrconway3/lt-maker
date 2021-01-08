@@ -44,6 +44,8 @@ class BoolItemComponent(QWidget):
         hbox.setContentsMargins(0, 0, 0, 0)
         self.setLayout(hbox)
 
+        self.setToolTip(self._data.desc)
+
         name_label = QLabel(self._data.name)
         hbox.addWidget(name_label)
 

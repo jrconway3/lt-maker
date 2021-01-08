@@ -28,8 +28,21 @@ class Region(Prefab):
     
     def contains(self, pos: tuple) -> bool:
         x, y = pos
-        return self.position[0] <= x < self.position[0] + self.size[0] and \
-            self.position[1] <= y < self.position[1] + self.size[1]
+        if self.position:
+            return self.position[0] <= x < self.position[0] + self.size[0] and \
+                self.position[1] <= y < self.position[1] + self.size[1]
+        else:
+            return False
+
+    def get_all_positions(self):
+        if self.position:
+            positions = []
+            for i in range(self.position[0], self.position[0] + self.size[0]):
+                for j in range(self.position[1], self.position[1] + self.size[1]):
+                    positions.append((i, j))
+            return positions
+        else:
+            return []
 
     @classmethod
     def default(cls):

@@ -419,10 +419,11 @@ class GameState():
                             action.do(act)
             # Auras
 
-    def check_for_region(self, position, region_type):
+    def check_for_region(self, position, region_type, sub_nid=None):
         for region in game.level.regions:
             if region.region_type == region_type and region.contains(position):
-                return region
+                if not sub_nid or region.sub_nid == sub_nid:
+                    return region
         return None
 
     def get_all_formation_spots(self) -> list:

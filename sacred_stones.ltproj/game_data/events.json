@@ -3348,6 +3348,84 @@
         "only_once": false
     },
     {
+        "name": "Village1",
+        "trigger": "Visit",
+        "level_nid": "2",
+        "condition": "region.nid == 'Village1' and unit.nid != 'Eirika'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Selena",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Selena",
+                    "And who are you? You don't look like one of the local peasantry.{w}{clear}As you can see, these villagers have some bandit troubles.|I would like to help, but I have orders to follow...|I am required to quit this area at once.|I would ask you to aid them in this fight.|I will pay for your trouble, of course."
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village1"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Red Gem"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
         "name": "EirikaRossTalk",
         "trigger": "on_talk",
         "level_nid": "2",
@@ -3674,10 +3752,10 @@
         "only_once": false
     },
     {
-        "name": "Turn4",
+        "name": "Turn3",
         "trigger": "turn_change",
         "level_nid": "2",
-        "condition": "game.turncount == 4",
+        "condition": "game.turncount == 3",
         "commands": [
             [
                 "move_cursor",
@@ -3691,6 +3769,49 @@
                     "BanditReinforcements",
                     "West",
                     "BanditReinforcements"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Turn2",
+        "trigger": "turn_change",
+        "level_nid": "2",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# On enemy's second turn, they start moving"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "104",
+                    "PursueVillage"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "105",
+                    "Pursue"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "BoneBuddy",
+                    "PursueVillage"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "TopBandit",
+                    "PursueVillage"
                 ]
             ]
         ],

@@ -4,3 +4,7 @@ set_current_hp;Eirika;10
 set_current_hp;Eirika;10
 win_game
 give_exp;Eirika;100
+set_current_hp;Eirika;10
+give_exp;Eirika;100
+set_current_hp;Eirika;10
+give_exp;Eirika;100

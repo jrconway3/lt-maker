@@ -142,7 +142,6 @@ def create_skill(unit, skill_nid):
     skill_prefab = DB.skills.get(skill_nid)
     if skill_prefab:
         skill = SkillObject.from_prefab(skill_prefab)
-        skill.owner_nid = unit.nid
         skill_system.init(skill)
         return skill
     else:

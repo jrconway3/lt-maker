@@ -223,7 +223,10 @@ class Event():
         logger.info('%s: %s', command.nid, command.values)
         current_time = engine.get_time()
 
-        if command.nid == 'wait':
+        if command.nid == 'break':
+            self.end()
+            
+        elif command.nid == 'wait':
             self.wait_time = current_time + int(command.values[0])
             self.state = 'waiting'
 
@@ -641,7 +644,6 @@ class Event():
             self.state = 'waiting'
 
     def move_portrait(self, command):
-        print("Move portrait")
         values, flags = event_commands.parse(command)
         name = values[0]
         portrait = self.portraits.get(name)
@@ -752,6 +754,8 @@ class Event():
             placement = values[3]
         else:
             placement = 'giveup'
+        follow = 'no_follow' not in flags
+
         position = self.check_placement(position, placement)
         if not position:
             print("Couldn't get a good position %s %s %s" % (position, movement_type, placement))
@@ -765,7 +769,7 @@ class Event():
             action.do(action.FadeMove(unit, position))
         elif movement_type == 'normal':
             path = target_system.get_path(unit, position)
-            action.do(action.Move(unit, position, path, event=True))
+            action.do(action.Move(unit, position, path, event=True, follow=follow))
 
         if 'no_block' in flags or self.do_skip:
             pass
@@ -868,7 +872,7 @@ class Event():
             else:  # immediate
                 action.do(action.ArriveOnMap(unit, position))
 
-    def _move_unit(self, movement_type, placement, unit, position):
+    def _move_unit(self, movement_type, placement, follow, unit, position):
         position = tuple(position)
         position = self.check_placement(position, placement)
         if not position:
@@ -882,7 +886,7 @@ class Event():
             action.do(action.FadeMove(unit, position))
         elif movement_type == 'normal':
             path = target_system.get_path(unit, position)
-            action.do(action.Move(unit, position, path, event=True))
+            action.do(action.Move(unit, position, path, event=True, follow=follow))
 
     def _add_unit(self, unit, position):
         position = tuple(position)
@@ -920,6 +924,7 @@ class Event():
         else:
             placement = 'giveup'
         create = 'create' in flags
+        follow = 'no_follow' not in flags
 
         for unit in group.units:
             if create:
@@ -938,7 +943,7 @@ class Event():
                 self._add_unit(unit, (position[0], 0))
             elif cardinal_direction == 'south':
                 self._add_unit(unit, (position[0], game.tilemap.height - 1))
-            self._move_unit(movement_type, placement, unit, position)
+            self._move_unit(movement_type, placement, follow, unit, position)
 
         if 'no_block' in flags or self.do_skip:
             pass
@@ -961,6 +966,7 @@ class Event():
             placement = values[3]
         else:
             placement = 'giveup'
+        follow = 'no_follow' not in flags
 
         for unit in group.units:
             if not unit.position:
@@ -968,7 +974,7 @@ class Event():
             position = self._get_position(next_pos, unit, group)
             if not position:
                 continue
-            self._move_unit(movement_type, placement, unit, position)
+            self._move_unit(movement_type, placement, follow, unit, position)
 
         if 'no_block' in flags or self.do_skip:
             pass

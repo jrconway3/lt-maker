@@ -28,6 +28,12 @@ class LayerObject():
             return image_mods.make_translucent(self.image, self.translucence)
         return self.image
 
+    def quick_show(self):
+        self.visible = True
+
+    def quick_hide(self):
+        self.visible = False
+
     def show(self):
         """
         Fades in the layer
@@ -43,11 +49,14 @@ class LayerObject():
         Fades out the layer
         """
         if self.visible:
+            self.visible = False
             self.state = 'fade_out'
             self.translucence = 0
             self.start_update = engine.get_time()
 
-    def update(self):
+    def update(self) -> bool:
+        in_state = bool(self.state)
+
         if self.state == 'fade_in':
             self.translucence = 1 - (engine.get_time() - self.start_update)/self.transition_speed
             if self.translucence <= 0:
@@ -55,8 +64,9 @@ class LayerObject():
         elif self.state == 'fade_out':
             self.translucence = (engine.get_time() - self.start_update)/self.transition_speed
             if self.translucence >= 1:
-                self.visible = False
                 self.state = None
+
+        return in_state
 
     def save(self):
         s_dict = {}
@@ -119,14 +129,16 @@ class TileMapObject(Prefab):
         if not self.full_image:
             image = engine.create_surface((self.width * TILEWIDTH, self.height * TILEHEIGHT), transparent=True)
             for layer in self.layers:
-                if layer.visible:
+                if layer.visible or layer.state == 'fade_out':
                     image.blit(layer.get_image(), (0, 0))
             self.full_image = image
         return self.full_image
 
     def update(self):
         for layer in self.layers:
-            layer.update()
+            in_state = layer.update()
+            if in_state:
+                self.reset()
 
     def reset(self):
         self.full_image = None

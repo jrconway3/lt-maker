@@ -40,6 +40,7 @@ class GameState():
         self.unit_registry = {}
         self.item_registry = {}
         self.skill_registry = {}
+        self.terrain_status_registry = {}
 
         self.parties = {}
         self.current_party = None
@@ -160,6 +161,7 @@ class GameState():
         s_dict = {'units': [unit.save() for unit in self.unit_registry.values()],
                   'items': [item.save() for item in self.item_registry.values()],
                   'skills': [skill.save() for skill in self.skill_registry.values()],
+                  'terrain_status_registry': self.terrain_status_registry,
                   'level': self.current_level.save() if self.current_level else None,
                   'turncount': self.turncount,
                   'playtime': self.playtime,
@@ -219,6 +221,7 @@ class GameState():
 
         self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
+        self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
         # Handle subitems
         for item in self.item_registry.values():
@@ -263,6 +266,8 @@ class GameState():
             if skill.owner_nid:
                 unit = self.get_unit(skill.owner_nid)
             skill_system.on_end_chapter(unit, skill)
+
+        self.terrain_status_registry.clear()
 
         # Remove non-player team units and all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.team == 'player' and not v.generic}
@@ -332,6 +337,10 @@ class GameState():
         logger.info("Registering skill %s as %s", skill, skill.uid)
         self.skill_registry[skill.uid] = skill
 
+    def register_terrain_status(self, pos, skill_uid):
+        logger.info("Registering terrain status %s", skill_uid)
+        self.terrain_status_registry[pos] = skill_uid
+
     def get_unit(self, unit_nid):
         """
         Can get units not just in the current level
@@ -348,6 +357,10 @@ class GameState():
     def get_skill(self, skill_uid):
         skill = self.skill_registry.get(skill_uid)
         return skill
+
+    def get_terrain_status(self, pos):
+        skill_uid = self.terrain_status_registry.get(pos)
+        return skill_uid
 
     def get_party(self, party_nid):
         return self.parties.get(party_nid)
@@ -370,7 +383,7 @@ class GameState():
         if unit.position:
             logger.info("Leave %s %s", unit.nid, unit.position)
             if not test:
-                self.board.set_unit(unit.position, None)
+                self.board.remove_unit(unit.position, unit)
                 self.boundary.leave(unit)
             # Tiles
             terrain_nid = self.tilemap.get_terrain(unit.position)
@@ -392,7 +405,7 @@ class GameState():
         # Auras
 
     def arrive(self, unit, test=False):
-        from app.engine import skill_system, action
+        from app.engine import skill_system
         if unit.position:
             logger.info("Arrive %s %s", unit.nid, unit.position)
             if not test:
@@ -400,24 +413,46 @@ class GameState():
                 self.boundary.arrive(unit)
             # Tiles
             if not skill_system.ignore_terrain(unit):
-                terrain_nid = self.tilemap.get_terrain(unit.position)
-                terrain = DB.terrain.get(terrain_nid)
-                if terrain.status:
-                    act = action.AddSkill(unit, terrain.status)
-                    if test:
-                        act.do()
-                    else:
-                        action.do(act)
+                self.add_terrain_status(unit, test)
             # Regions
             if not skill_system.ignore_region_status(unit):
                 for region in game.level.regions:
                     if region.region_type == 'status' and region.contains(unit.position):
-                        act = action.AddSkill(unit, region.sub_nid)
-                        if test:
-                            act.do()
-                        else:
-                            action.do(act)
+                        self.add_region_status(unit, region, test)
             # Auras
+
+    def add_terrain_status(self, unit, test):
+        from app.engine import action
+        skill_uid = self.get_terrain_status(unit.position)
+        if skill_uid:
+            skill_obj = self.get_skill(skill_uid)
+            act = action.AddSkill(unit, skill_obj)
+        else:
+            act = None
+            terrain_nid = self.tilemap.get_terrain(unit.position)
+            terrain = DB.terrain.get(terrain_nid)
+            if terrain.status:
+                act = action.AddSkill(unit, terrain.status)
+                self.register_terrain_status(unit.position, act.skill_obj.uid)
+        if act:
+            if test:
+                act.do()
+            else:
+                action.do(act)
+
+    def add_region_status(self, unit, region, test):
+        from app.engine import action
+        skill_uid = self.get_terrain_status(region.nid)
+        if skill_uid:
+            skill_obj = self.get_skill(skill_uid)
+            act = action.AddSkill(unit, skill_obj)
+        else:
+            act = action.AddSkill(unit, region.sub_nid)
+            self.register_terrain_status(region.nid, act.skill_obj.uid)
+        if test:
+            act.do()
+        else:
+            action.do(act)
 
     def check_for_region(self, position, region_type, sub_nid=None):
         for region in game.level.regions:

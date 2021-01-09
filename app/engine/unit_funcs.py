@@ -127,7 +127,7 @@ def auto_level(unit):
     unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k).value) for (k, v) in unit.stats.items()}
     unit.set_hp(1000)  # Go back to full hp
 
-def apply_stat_changes(unit, stat_changes: dict, in_base: bool = True):
+def apply_stat_changes(unit, stat_changes: dict, in_base: bool = False):
     """
     Assumes stat changes are valid!
     """

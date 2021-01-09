@@ -41,9 +41,7 @@ class GameBoard(object):
         self.height = tilemap.height
         self.mcost_grids = {}
 
-        # For each movement type
-        for idx, mode in enumerate(DB.mcost.unit_types):
-            self.mcost_grids[mode] = self.init_grid(mode, tilemap)
+        self.reset_grid(tilemap)
 
         # Keeps track of what team occupies which tile
         self.team_grid = self.init_unit_grid()
@@ -64,6 +62,11 @@ class GameBoard(object):
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
+    def reset_grid(self, tilemap):
+        # For each movement type
+        for idx, mode in enumerate(DB.mcost.unit_types):
+            self.mcost_grids[mode] = self.init_grid(mode, tilemap)
+
     # For movement
     def init_grid(self, movement_group, tilemap):
         cells = []
@@ -82,16 +85,19 @@ class GameBoard(object):
         cells = []
         for x in range(self.width):
             for y in range(self.height):
-                cells.append(None)
+                cells.append([])
         return cells
 
     def set_unit(self, pos, unit):
         idx = pos[0] * self.height + pos[1]
-        self.unit_grid[idx] = unit
-        if unit:
-            self.team_grid[idx] = unit.team
-        else:
-            self.team_grid[idx] = None
+        self.unit_grid[idx].append(unit)
+        self.team_grid[idx].append(unit.team)
+
+    def remove_unit(self, pos, unit):
+        idx = pos[0] * self.height + pos[1]
+        if unit in self.unit_grid[idx]:
+            self.unit_grid[idx].remove(unit)
+            self.team_grid[idx].remove(unit.team)
 
     def update_fow(self, pos, unit, sight_range: int):
         grid = self.fog_of_war_grids[unit.team]
@@ -124,10 +130,16 @@ class GameBoard(object):
         return False
 
     def get_unit(self, pos):
-        return self.unit_grid[pos[0] * self.height + pos[1]]
+        idx = pos[0] * self.height + pos[1]
+        if self.unit_grid[idx]:
+            return self.unit_grid[idx][0]
+        return None
 
     def get_team(self, pos):
-        return self.team_grid[pos[0] * self.height + pos[1]]
+        idx = pos[0] * self.height + pos[1]
+        if self.team_grid[idx]:
+            return self.team_grid[idx][0]
+        return None
 
     def init_aura_grid(self):
         cells = []

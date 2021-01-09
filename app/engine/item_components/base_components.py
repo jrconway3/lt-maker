@@ -23,6 +23,9 @@ class Spell(ItemComponent):
     def wexp(self, playback, unit, item, target):
         return 1
 
+    def can_double(self, unit, item):
+        return False
+
 class Weapon(ItemComponent):
     nid = 'weapon'
     desc = "Item will be treated as a normal weapon (can double, counterattack, be equipped, etc.)" 

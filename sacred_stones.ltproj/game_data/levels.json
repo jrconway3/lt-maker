@@ -1043,65 +1043,35 @@
                 "generic": false
             },
             {
-                "nid": "Lute",
-                "team": "player",
-                "ai": "None",
+                "nid": "Garcia",
+                "team": "other",
+                "ai": "Defend",
                 "starting_position": [
-                    2,
-                    5
-                ],
-                "generic": false
-            },
-            {
-                "nid": "O'Neill",
-                "team": "enemy",
-                "ai": "Attack",
-                "starting_position": [
-                    4,
-                    5
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Seth",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    1,
+                    10,
                     4
                 ],
                 "generic": false
             },
             {
-                "nid": "Eirika",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    6,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "101",
+                "nid": "102",
                 "variant": null,
-                "level": 20,
-                "klass": "Cavalier",
-                "faction": "Soldier",
+                "level": 2,
+                "klass": "Brigand",
+                "faction": "Cutthroat",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Iron Axe",
                         false
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "starting_position": [
-                    5,
-                    6
+                    12,
+                    3
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             }
         ],

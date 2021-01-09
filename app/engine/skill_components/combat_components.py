@@ -15,6 +15,13 @@ class StatChange(SkillComponent):
     def stat_change(self, unit):
         return {stat[0]: stat[1] for stat in self.value}
 
+    def tile_def(self):
+        total_value = 0
+        for stat_nid, stat_value in self.value:
+            if stat_nid == 'DEF':
+                total_value += stat_value
+        return total_value
+
 class StatMultiplier(SkillComponent):
     nid = 'stat_multiplier'
     desc = "Gives stat bonuses"
@@ -67,6 +74,9 @@ class Avoid(SkillComponent):
     value = 20
 
     def modify_avoid(self, unit, item_to_avoid):
+        return self.value
+
+    def tile_avoid(self):
         return self.value
 
 class Crit(SkillComponent):

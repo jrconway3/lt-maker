@@ -179,10 +179,21 @@ class UIView():
             at_icon = SPRITES.get('icon_attackable_terrain')
             bg_surf.blit(at_icon, (7, bg_surf.get_height() - 7 - at_icon.get_height()))
             cur = str(current_hp)
-            FONT['small_white'].blit_right(cur, bg_surf, bg_surf.get_width() - 9, 24)
+            FONT['small-white'].blit_right(cur, bg_surf, bg_surf.get_width() - 9, 24)
         else:
             self.expected_coord = coord
             bg_surf = SPRITES.get('tile_info_quick').copy()
+            tile_def, tile_avoid = 0, 0
+            if terrain.status:
+                status_prefab = DB.skills.get(terrain.status)
+                for component in status_prefab.components:
+                    if component.defines('tile_def'):
+                        tile_def += component.tile_def()
+                    if component.defines('tile_avoid'):
+                        tile_avoid += component.tile_avoid()
+            FONT['small-white'].blit_right(str(tile_def), bg_surf, (bg_surf.get_width() - 4, 17))
+            FONT['small-white'].blit_right(str(tile_avoid), bg_surf, (bg_surf.get_width() - 4, 25))
+
         name = terrain.name
         width, height = FONT['text-white'].size(name)
         pos = (bg_surf.get_width()//2 - width//2, 22 - height)

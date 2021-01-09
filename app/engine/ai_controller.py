@@ -408,6 +408,7 @@ class PrimaryAI():
 
         # Damage I do compared to target's current hp
         lethality = utils.clamp(raw_damage / float(main_target.get_hp()), 0, 1)
+        crit_lethality = utils.clamp(crit_damage / float(main_target.get_hp()), 0, 1)
         # Do I add a new status to the target
         status = 1 if item.status_on_hit else 0
         # Accuracy
@@ -430,7 +431,8 @@ class PrimaryAI():
             num_attacks -= (target_accuracy * (1 - first_strike))
 
         offense_term += 3 if lethality * accuracy >= 1 else lethality * accuracy * num_attacks
-        offense_term += crit_damage * crit_accuracy * accuracy * num_attacks
+        crit_term = (crit_lethality - lethality) * crit_accuracy * accuracy * num_attacks
+        offense_term += crit_term
         status_term += status * min(1, accuracy * num_attacks)
         defense_term -= target_damage * target_accuracy * (1 - first_strike)
         if offense_term <= 0 and status_term <= 0:
@@ -450,7 +452,7 @@ class PrimaryAI():
         else:
             distance_term = 1
 
-        logger.info("Damage: %.2f, Accuracy: %.2f", lethality, accuracy)
+        logger.info("Damage: %.2f, Accuracy: %.2f, Crit Accuracy: %.2f", lethality, accuracy, crit_accuracy)
         logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f, Distance: %.2f", offense_term, defense_term, status_term, distance_term)
         ai_prefab = DB.ai.get(self.unit.ai)
         offense_bias = ai_prefab.offense_bias

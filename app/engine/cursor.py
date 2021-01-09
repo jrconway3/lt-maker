@@ -28,7 +28,7 @@ class Cursor():
 
         self.fluid = FluidScroll(cf.SETTINGS['cursor_speed'])
 
-        self.display_arrows = False
+        self.display_arrows: bool = False
         self.arrows = []
         self.border_position = None  # Last position within movement borders
         self.stopped_at_move_border = False
@@ -176,6 +176,7 @@ class Cursor():
                         self.arrows.append(Arrow(4, 1, path[idx]))
 
     def remove_arrows(self):
+        self.border_position = None
         self.display_arrows = False
         self.arrows.clear()
 

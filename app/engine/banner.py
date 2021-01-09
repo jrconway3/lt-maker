@@ -34,6 +34,7 @@ class Banner():
         if not self.surf:
             w, h = self.size
             bg_surf = base_surf.create_base_surf(w, h, 'menu_bg_base')
+            self.size = bg_surf.get_width(), bg_surf.get_height()
             self.surf = engine.create_surface((w + 2, h + 4), transparent=True)
             self.surf.blit(bg_surf, (2, 4))
             self.surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
@@ -48,7 +49,7 @@ class Banner():
             left += word_width
 
         if self.item:
-            icons.draw_item(bg_surf, self.item, (self.size[0] - 24, 8), cooldown=False)
+            icons.draw_item(bg_surf, self.item, (self.size[0] - 20, 8), cooldown=False)
         engine.blit_center(surf, bg_surf)
         return surf
 

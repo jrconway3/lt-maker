@@ -310,7 +310,7 @@ class MapCombat():
         # Animations
         self.animations = [anim for anim in self.animations if not anim.update()]
         for anim in self.animations:
-            anim.draw(surf)
+            anim.draw(surf, offset=(-game.camera.get_x(), -game.camera.get_y()))
 
         # Damage Nums
         for damage_num in self.damage_numbers:

@@ -62,7 +62,7 @@ class Djikstra():
             adj_cells = self.get_adjacent_cells(cell)
             for adj in adj_cells:
                 if adj.reachable and adj not in self.closed:
-                    unit_team = team_grid[adj.x * self.height + adj.y]
+                    unit_team = next(iter(team_grid[adj.x * self.height + adj.y]), None)
                     if not unit_team or utils.compare_teams(self.unit_team, unit_team) or self.pass_through:
                         if (adj.g, adj) in self.open:
                             # if adj cell in open list, check if current path
@@ -177,7 +177,7 @@ class AStar():
             adj_cells = self.get_adjacent_cells(cell)
             for adj in adj_cells:
                 if adj.reachable and adj not in self.closed:
-                    unit_team = team_map[adj.x * self.height + adj.y]
+                    unit_team = next(iter(team_map[adj.x * self.height + adj.y]), None)
                     if not unit_team or self.pass_through or \
                             (not ally_block and utils.compare_teams(self.unit_team, unit_team)):
                         if (adj.f, adj) in self.open:
@@ -189,3 +189,4 @@ class AStar():
                         else:
                             self.update_cell(adj, cell)
                             heapq.heappush(self.open, (adj.f, adj))
+        return []

@@ -82,7 +82,7 @@ class Move(Action):
     """
     A basic, user-directed move
     """
-    def __init__(self, unit, new_pos, path=None, event=False):
+    def __init__(self, unit, new_pos, path=None, event=False, follow=True):
         self.unit = unit
         self.old_pos = self.unit.position
         self.new_pos = new_pos
@@ -93,11 +93,12 @@ class Move(Action):
         self.path = path
         self.has_moved = self.unit.has_moved
         self.event = event
+        self.follow = follow
 
     def do(self):
         if self.path is None:
             self.path = game.cursor.path
-        game.movement.begin_move(self.unit, self.path, self.event)
+        game.movement.begin_move(self.unit, self.path, self.event, self.follow)
 
     def execute(self):
         game.leave(self.unit)
@@ -922,14 +923,22 @@ class ChangeTeam(Action):
         self.action = Reset(self.unit)
 
     def do(self):
+        if self.unit.position:
+            game.board.remove_unit(self.unit.position, self.unit)
         self.unit.team = self.team
         self.action.do()
+        if self.unit.position:
+            game.board.set_unit(self.unit.position, self.unit)
         game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
     def reverse(self):
+        if self.unit.position:
+            game.board.remove_unit(self.unit.position, self.unit)
         self.unit.team = self.old_team
         self.action.reverse()
+        if self.unit.position:
+            game.board.set_unit(self.unit.position, self.unit)
         game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
@@ -1064,17 +1073,23 @@ class ShowLayer(Action):
     def do(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
         if self.transition == 'immediate':
-            layer.visible = True
+            layer.quick_show()
+            game.level.tilemap.reset()
         else:
             layer.show()
+        game.board.reset_grid(game.level.tilemap)
 
     def execute(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
-        layer.visible = True
+        layer.quick_show()
+        game.level.tilemap.reset()
+        game.board.reset_grid(game.level.tilemap)
 
     def reverse(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
-        layer.visible = False
+        layer.quick_hide()
+        game.level.tilemap.reset()
+        game.board.reset_grid(game.level.tilemap)
 
 class HideLayer(Action):
     def __init__(self, layer_nid, transition):
@@ -1084,17 +1099,23 @@ class HideLayer(Action):
     def do(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
         if self.transition == 'immediate':
-            layer.visible = False
+            layer.quick_hide()
+            game.level.tilemap.reset()
         else:
             layer.hide()
+        game.board.reset_grid(game.level.tilemap)
 
     def execute(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
-        layer.visible = False
+        layer.quick_hide()
+        game.level.tilemap.reset()
+        game.board.reset_grid(game.level.tilemap)
 
     def reverse(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
-        layer.visible = True
+        layer.quick_show()
+        game.level.tilemap.reset()
+        game.board.reset_grid(game.level.tilemap)
 
 class RecordRandomState(Action):
     def __init__(self, old, new):
@@ -1136,7 +1157,8 @@ class AddSkill(Action):
         if skill_obj:
             if self.initiator:
                 skill_obj.initiator_nid = self.initiator.nid
-            game.register_skill(skill_obj)
+            if skill_obj.uid not in game.skill_registry:
+                game.register_skill(skill_obj)
         self.skill_obj = skill_obj
         self.subactions = []
 
@@ -1151,6 +1173,7 @@ class AddSkill(Action):
                     self.subactions.append(RemoveSkill(self.unit, skill))
         for action in self.subactions:
             action.execute()
+        self.skill_obj.owner_nid = self.unit.nid
         self.unit.skills.append(self.skill_obj)
         skill_system.on_add(self.unit, self.skill_obj)
 
@@ -1158,6 +1181,7 @@ class AddSkill(Action):
         if self.skill_obj in self.unit.skills:
             self.unit.skills.remove(self.skill_obj)
             skill_system.on_remove(self.unit, self.skill_obj)
+            self.skill_obj.owner_nid = None
         else:
             logger.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
         for action in self.subactions:
@@ -1168,6 +1192,7 @@ class RemoveSkill(Action):
         self.unit = unit
         self.skill = skill # Skill obj or skill nid str
         self.removed_skills = []
+        self.old_owner_nid = None
 
     def do(self):
         if isinstance(self.skill, str):
@@ -1175,17 +1200,20 @@ class RemoveSkill(Action):
                 if skill.nid == self.skill:
                     self.unit.skills.remove(skill)
                     skill_system.on_remove(self.unit, skill)
+                    skill.owner_nid = None
                     self.removed_skills.append(skill)
         else:
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)
                 skill_system.on_remove(self.unit, self.skill)
+                self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
             else:
                 logger.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
 
     def reverse(self):
         for skill in self.removed_skills:
+            skill.owner_nid = self.unit.nid
             self.unit.skills.append(skill)
             skill_system.on_add(self.unit, skill)
 

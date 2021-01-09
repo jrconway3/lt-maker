@@ -1,27 +1,26 @@
-from app.constants import TILEWIDTH, TILEHEIGHT
-from app.utilities import utils, str_utils
 from app.data.database import DB
 
 import app.engine.config as cf
-from app.engine import engine, action, equations, skill_system
+from app.engine import engine, skill_system
 from app.engine.game_state import game
 
 class MovementData():
-    def __init__(self, path, event):
+    def __init__(self, path, event, follow):
         self.path = path
         self.last_update = 0
         self.event = event
+        self.follow = follow
 
 class MovementManager():
     def __init__(self):
         self.moving_units = {}
         self.camera_follow = None
 
-    def add(self, unit, path, event=False):
-        self.moving_units[unit.nid] = MovementData(path, event)
+    def add(self, unit, path, event=False, follow=True):
+        self.moving_units[unit.nid] = MovementData(path, event, follow)
 
-    def begin_move(self, unit, path, event=False):
-        self.add(unit, path, event)
+    def begin_move(self, unit, path, event=False, follow=True):
+        self.add(unit, path, event, follow)
         unit.sprite.change_state('moving')
         game.leave(unit)
         unit.sound.play()
@@ -72,7 +71,7 @@ class MovementManager():
                     unit.position = new_position
                     # Handle camera following moving unit
                     # if not data.event:
-                    if not self.camera_follow:
+                    if data.follow and not self.camera_follow:
                         self.camera_follow = unit_nid
                     if self.camera_follow == unit_nid:
                         game.cursor.set_pos(unit.position)

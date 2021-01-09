@@ -2330,6 +2330,13 @@
                 ]
             ],
             [
+                "remove_group",
+                [
+                    "BanditReinforcements",
+                    "immediate"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "# Money making"
@@ -2357,6 +2364,12 @@
                 "transition",
                 [
                     "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Show chapter title"
                 ]
             ],
             [
@@ -2527,7 +2540,8 @@
                 "move_group",
                 [
                     "Bandits1",
-                    "Bandits1"
+                    "Bandits1",
+                    "no_follow"
                 ]
             ],
             [
@@ -2589,7 +2603,8 @@
                 "move_unit",
                 [
                     "BoneBuddy",
-                    "14,10"
+                    "14,10",
+                    "no_follow"
                 ]
             ],
             [
@@ -2678,10 +2693,6 @@
                 ]
             ],
             [
-                "end_skip",
-                []
-            ],
-            [
                 "change_background",
                 []
             ],
@@ -2718,10 +2729,15 @@
                 ]
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "move_unit",
                 [
                     "Bone",
-                    "9,10"
+                    "9,10",
+                    "no_follow"
                 ]
             ],
             [
@@ -2960,7 +2976,7 @@
                 "speak",
                 [
                     "Vanessa",
-                    "I have bad news.|The villages to the east is under attack by bandits."
+                    "I have bad news.|The village to the east is under attack by bandits."
                 ]
             ],
             [
@@ -3457,7 +3473,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "All right, just... Just take a deep breath and calm down, Ross.|Leave the villages to use.{br}We'll drive off the bandits.|Seth, take the body somewhere safe."
+                    "All right, just... Just take a deep breath and calm down, Ross.|Leave the villages to use.{br}We'll drive off the bandits.|Seth, take the boy somewhere safe."
                 ]
             ],
             [
@@ -3897,6 +3913,13 @@
                 "change_team",
                 [
                     "Garcia",
+                    "player"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Ross",
                     "player"
                 ]
             ],
@@ -4663,5 +4686,86 @@
         "condition": "True",
         "commands": [],
         "only_once": false
+    },
+    {
+        "name": "DestroyVillage1",
+        "trigger": "Destructible",
+        "level_nid": "2",
+        "condition": "region.nid == 'Village1'",
+        "commands": [
+            [
+                "flicker_cursor",
+                [
+                    "4,2"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Ruin1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
+        "name": "DestroyVillage2",
+        "trigger": "Destructible",
+        "level_nid": "2",
+        "condition": "region.nid == 'Village2'",
+        "commands": [
+            [
+                "flicker_cursor",
+                [
+                    "7,2"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Ruin2"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
+        "name": "DestroyVillage3",
+        "trigger": "Destructible",
+        "level_nid": "2",
+        "condition": "region.nid == 'Village3'",
+        "commands": [
+            [
+                "flicker_cursor",
+                [
+                    "1,12"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Ruin3"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true
     }
 ]

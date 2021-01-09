@@ -51,6 +51,10 @@ class End(EventCommand):
     nid = "end"
     tag = "flow"
 
+class Break(EventCommand):
+    nid = "break"
+    tag = "flow"
+
 class Wait(EventCommand):
     nid = "wait"
     tag = "general"
@@ -200,7 +204,7 @@ class MoveUnit(EventCommand):
 
     keywords = ["Unit"]
     optional_keywords = ["Position", "MovementType", "Placement"]
-    flags = ['no_block']
+    flags = ['no_block', 'no_follow']
 
 class RemoveUnit(EventCommand):
     nid = 'remove_unit'
@@ -237,7 +241,7 @@ class SpawnGroup(EventCommand):
 
     keywords = ["Group", "CardinalDirection", "StartingGroup"]
     optional_keywords = ["EntryType", "Placement"]
-    flags = ["create", "no_block"]
+    flags = ["create", "no_block", 'no_follow']
 
 class MoveGroup(EventCommand):
     nid = 'move_group'
@@ -246,7 +250,7 @@ class MoveGroup(EventCommand):
 
     keywords = ["Group", "StartingGroup"]
     optional_keywords = ["MovementType", "Placement"]
-    flags = ['no_block']
+    flags = ['no_block', 'no_follow']
 
 class RemoveGroup(EventCommand):
     nid = 'remove_group'

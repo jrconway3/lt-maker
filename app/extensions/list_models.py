@@ -129,7 +129,8 @@ class DoubleListModel(VirtualListModel):
         return basic_flags
 
     def delete(self, idx):
-        self._data.pop(idx)
+        if len(self._data) > idx:
+            self._data.pop(idx)
         self.layoutChanged.emit()
 
     def create_new(self):

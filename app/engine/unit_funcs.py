@@ -145,9 +145,11 @@ def get_starting_skills(unit) -> list:
     klass_obj = DB.classes.get(unit.klass)
     current_klass = klass_obj
     all_klasses = [klass_obj]
-    while current_klass and current_klass.tier > 1:
-        if klass_obj.promotes_from:
-            current_klass = DB.classes.get(klass_obj.promotes_from)
+    counter = 5
+    while current_klass and current_klass.tier > 1 and counter > 0:
+        counter -= 1  # Prevent infinite loops
+        if current_klass.promotes_from:
+            current_klass = DB.classes.get(current_klass.promotes_from)
             all_klasses.append(current_klass)
         else:
             break

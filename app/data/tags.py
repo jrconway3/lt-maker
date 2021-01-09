@@ -26,3 +26,4 @@ class TagCatalog(Data):
         nid = str_utils.get_next_name("New Tag", self.keys())
         new_tag = Tag(nid)
         self.append(new_tag)
+        return new_tag

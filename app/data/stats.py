@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
+from app.utilities import str_utils
 
 @dataclass
 class StatPrefab(Prefab):
@@ -14,6 +15,12 @@ class StatPrefab(Prefab):
 
 class StatCatalog(Data):
     datatype = StatPrefab
+
+    def add_new_default(self, db):
+        nid = str_utils.get_next_name("New Stat", self.keys())
+        new_stat = StatPrefab(nid, nid)
+        self.append(new_stat)
+        return new_stat
 
 @dataclass
 class Stat(Prefab):
@@ -36,3 +43,7 @@ class StatList(Data):
     @classmethod
     def default(cls, db, starting_value=0):
         return cls([Stat(nid, starting_value) for nid in db.stats.keys()])
+
+    def new_key(self, idx, nid):
+        new_stat = Stat(nid, 0)
+        self.insert(idx, new_stat)

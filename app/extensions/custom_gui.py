@@ -216,11 +216,13 @@ class RightClickView():
             for index in indices:
                 if not self.can_delete or self.can_delete(self.model(), index):
                     self.delete(index)
+                    break  # Only ever delete one
         elif event.key() == Qt.Key_D and (QApplication.keyboardModifiers() & Qt.ControlModifier):
             indices = self.selectionModel().selectedIndexes()
             for index in indices:
                 if not self.can_duplicate or self.can_duplicate(self.model(), index):
                     self.duplicate(index)
+                    break  # Only ever duplicate one
 
     def mousePressEvent(self, event):
         index = self.indexAt(event.pos())

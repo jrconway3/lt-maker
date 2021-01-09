@@ -38,10 +38,10 @@ class StatTypeModel(DragDropCollectionModel):
     def update_watchers(self, idx):
         for klass in DB.classes:
             for row in klass.get_stat_lists():
-                row.new_key(DB.stats[idx].nid)
+                row.new_key(idx, DB.stats[idx].nid)
         for unit in DB.units:
             for row in unit.get_stat_lists():
-                row.new_key(DB.stats[idx].nid)
+                row.new_key(idx, DB.stats[idx].nid)
 
     # Called on drag and drop
     def update_drag_watchers(self, fro, to):

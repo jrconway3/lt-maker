@@ -66,6 +66,13 @@ class TileMapPrefab(Prefab):
         self.layers = Data([LayerGrid.restore(layer, self) for layer in s_dict['layers']])
         return self
 
+    # Used only in tilemap editor
+    def restore_edits(self, s_dict):
+        self.width, self.height = s_dict['size']
+        self.tilesets = s_dict['tilesets']
+        self.layers = Data([LayerGrid.restore(layer, self) for layer in s_dict['layers']])
+        return self
+
 class TileSet(Prefab):
     def __init__(self, nid, full_path=None):
         self.nid = nid

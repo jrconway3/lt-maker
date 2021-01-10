@@ -1467,10 +1467,8 @@ class ShopState(State):
                 if self.current_msg.is_done():
                     self.state = 'choice'
                     self.menu = self.choice_menu
-                elif self.current_msg.processing:
-                    self.current_msg.hurry_up()
                 else:
-                    self.current_msg.unpause()
+                    self.current_msg.hurry_up()
 
             elif self.state == 'choice':
                 SOUNDTHREAD.play_sfx('Select 1')

@@ -452,6 +452,7 @@ class MapEditor(QDialog):
         self.resize(*default_size)
 
         self.current = current
+        self.save()
         self.current_tool = PaintTool.NoTool
         self.terrain_mode: bool = False
 
@@ -490,9 +491,10 @@ class MapEditor(QDialog):
         self.setLayout(self.layout)
         self.layout.addWidget(self.main_splitter)
 
-        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         self.layout.addWidget(self.buttonbox)
         self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
 
         # Restore Geometry
         geometry = self.settings.component_controller.get_geometry(self._type())
@@ -588,12 +590,19 @@ class MapEditor(QDialog):
         super().accept()
 
     def reject(self):
+        self.restore()
         self.save_geometry()
         super().reject()
 
     def closeEvent(self, event):
         self.save_geometry()
         super().closeEvent(event)
+
+    def save(self):
+        self.saved_data = self.current.save()
+
+    def restore(self):
+        self.current.restore_edits(self.saved_data)
 
     def _type(self):
         return 'tilemap_editor'
@@ -738,8 +747,8 @@ class LayerModel(ResourceCollectionModel):
         parent = layer.parent
         new_nid = str_utils.get_next_name(layer.nid, self._data.keys())
         # Duplicate by serializing and then deserializing
-        ser_layer = layer.serialize()
-        new_layer = LayerGrid.deserialize(ser_layer, parent)
+        ser_layer = layer.save()
+        new_layer = LayerGrid.restore(ser_layer, parent)
         new_layer.nid = new_nid
         self._data.insert(idx + 1, new_layer)
         self.layoutChanged.emit()
@@ -768,6 +777,7 @@ class LayerMenu(QWidget):
         super().__init__(parent)
         self.window = parent
         self.title = "Layers"
+        self.display = None
 
         self.settings = MainSettingsController()
 

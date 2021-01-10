@@ -15,13 +15,16 @@ class Dialog():
     cursor = SPRITES.get('waiting_cursor')
     cursor_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
     transition_speed = 166  # 10 frames
+    pause_time = 150  # 9 frames
 
     def __init__(self, text, portrait=None, background=None, position=None, width=None):
         self.plain_text = text
         self.portrait = portrait
         self.font = FONT['convo-black']
 
-        self.processing = True
+        # States: process, transition, pause, wait, done, new_line
+        self.state = 'transition'
+
         self.text_commands = self.format_text(text)
         self.text_lines = []
         
@@ -63,17 +66,15 @@ class Dialog():
         self.cursor_offset_index = 0
         self.text_index = 0
         self.total_num_updates = 0
+        self.new_line_flag: bool = False
         self.y_offset = 0 # How much to move lines (for when a new line is spawned)
 
-        # For transition
-        self.transition = True
+        # For state transitions
         self.transition_progress = 0
-        self.transition_update = engine.get_time()
+        self.last_update = engine.get_time()
 
         # For sound
         self.last_sound_update = 0
-
-        self._next_line()
 
     def format_text(self, text):
         # Pipe character replacement
@@ -159,6 +160,10 @@ class Dialog():
             self.width += 8
         self.determine_height()
 
+    def make_background(self, background):
+        surf = create_base_surf(self.width, self.height, background)
+        return surf
+
     def get_lines_from_block(self, block, force_lines=None):
         if force_lines:
             num_lines = force_lines
@@ -172,19 +177,21 @@ class Dialog():
     def _next_line(self):
         self.text_lines.append('')
         self.y_offset = 16
+        self.state = 'new_line'
 
     def _add_letter(self, letter):
         self.text_lines[-1] += letter
 
     def _next_char(self, sound=True):  # Add the next character to the text_lines list
+        self.new_line_flag = False
         if self.text_index >= len(self.text_commands):
-            self.processing = False
+            self.pause()
             return
         command = self.text_commands[self.text_index]
         if command == '{br}' or command == '{break}':
             self._next_line()
         elif command == '{w}' or command == '{wait}':
-            self.processing = False
+            self.pause()
         elif command == '{clear}':
             self.text_lines.clear()
             self._next_line()
@@ -215,22 +222,25 @@ class Dialog():
         return word
 
     def is_done(self):
-        return self.text_index >= len(self.text_commands)
+        return self.state == 'done'
 
-    def make_background(self, background):
-        surf = create_base_surf(self.width, self.height, background)
-        return surf
+    def pause(self):
+        if self.portrait:
+            self.portrait.stop_talking()
+        self.state = 'pause'
+        self.last_update = engine.get_time()
 
     def hurry_up(self):
-        self.transition = False
-        self.transition_progress = 0
-        while self.processing:
-            self._next_char(sound=False)
-
-    def unpause(self):
-        self.processing = True
-        if self.portrait and not self.is_done():
-            self.portrait.talk()
+        if self.state == 'process':
+            while self.state == 'process':
+                self._next_char(sound=False)
+        elif self.state == 'wait':
+            if self.text_index >= len(self.text_commands):
+                self.state = 'done'
+            else:
+                self.state = 'process'
+                if self.portrait:
+                    self.portrait.talk()
 
     def play_talk_boop(self):
         # SOUNDTHREAD.stop_sfx('Talk_Boop')
@@ -241,25 +251,34 @@ class Dialog():
     def update(self):
         current_time = engine.get_time()
 
-        if self.transition:
-            perc = (current_time - self.transition_update) / self.transition_speed
+        if self.state == 'transition':
+            perc = (current_time - self.last_update) / self.transition_speed
             self.transition_progress = utils.clamp(perc, 0, 1)
             if self.transition_progress == 1:
-                self.transition = False
-                if self.portrait:
-                    self.portrait.talk()
-        elif self.processing:
+                self._next_line()
+        elif self.state == 'process':
             if cf.SETTINGS['text_speed'] > 0:
                 num_updates = engine.get_delta() / float(cf.SETTINGS['text_speed'])
                 self.total_num_updates += num_updates
-                while self.total_num_updates >= 1 and self.processing:
+                while self.total_num_updates >= 1 and self.state == 'process':
                     self.total_num_updates -= 1
                     self._next_char(sound=self.total_num_updates < 2)
-                    if not self.processing:
+                    if self.state != 'process':
                         self.total_num_updates = 0
             else:
-                self.hurry_up()
+                while self.state == 'process':
+                    self._next_char(sound=False)
                 self.play_talk_boop()
+        elif self.state == 'pause':
+            if current_time - self.last_update > self.pause_time:
+                self.state = 'wait'
+        elif self.state == 'new_line':
+            # Update y_offset
+            self.y_offset = max(0, self.y_offset - 2)
+            if self.y_offset == 0:
+                self.state = 'process'
+                if self.portrait:
+                    self.portrait.talk()
 
         self.cursor_offset_index = (self.cursor_offset_index + 1) % len(self.cursor_offset)
 
@@ -286,8 +305,6 @@ class Dialog():
             line = self.text_lines[-self.num_lines - 1]
             self.font.blit(line, text_surf, (x_pos, y_pos))
 
-        # Update y_offset
-        self.y_offset = max(0, self.y_offset - 2)
         surf.blit(text_surf, (self.position[0] + 8, self.position[1] + 8))
 
         return end_x_pos, end_y_pos
@@ -312,7 +329,7 @@ class Dialog():
 
     def draw(self, surf):
         if self.background:
-            if self.transition:
+            if self.state == 'transition':
                 # bg = image_mods.resize(self.background, (1, .5 + self.transition_progress/2.))
                 new_width = self.background.get_width() - 10 + int(10*self.transition_progress)
                 new_height = self.background.get_height() - 10 + int(10*self.transition_progress)
@@ -323,14 +340,14 @@ class Dialog():
                 bg = image_mods.make_translucent(self.background, .05)
                 surf.blit(bg, self.position)
 
-        if not self.transition:
+        if self.state != 'transition':
             # Draw message tail
             if self.portrait and self.background and self.tail:
                 self.draw_tail(surf, self.portrait)
             # Draw text
             end_pos = self.draw_text(surf)
 
-            if not self.processing:
+            if self.state == 'wait':
                 cursor_pos = 4 + end_pos[0], \
                     6 + end_pos[1] + self.cursor_offset[self.cursor_offset_index]
                 surf.blit(self.cursor, cursor_pos)

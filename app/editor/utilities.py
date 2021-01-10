@@ -15,12 +15,15 @@ def convert_colorkey_slow(image):
     return image
 
 def convert_colorkey(image):
-    image.convertTo(QtGui.QImage.Format_Indexed8)
-    for i in range(image.colorCount()):
-        if image.color(i) == qCOLORKEY:
-            image.setColor(i, qAlpha)
+    new_image = image.convertToFormat(QtGui.QImage.Format_Indexed8)
+    num_colors = new_image.colorCount()
+    if num_colors > 192:
+        return convert_colorkey_slow(image)
+    for i in range(new_image.colorCount()):
+        if new_image.color(i) == qCOLORKEY:
+            new_image.setColor(i, qAlpha)
             break
-    return image
+    return new_image.convertToFormat(QtGui.QImage.Format_ARGB32)
 
 enemy_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_colors.items()}
 other_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in other_colors.items()}

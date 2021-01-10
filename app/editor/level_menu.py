@@ -7,7 +7,7 @@ from app.data.database import DB
 from app.data.levels import LevelPrefab
 
 from app.extensions.custom_gui import RightClickListView
-from app.editor.base_database_gui import CollectionModel
+from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.tile_editor import tile_model
 from app.utilities import str_utils
 
@@ -61,7 +61,7 @@ class LevelDatabase(QWidget):
         self.model.layoutChanged.emit()
         # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
 
-class LevelModel(CollectionModel):
+class LevelModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None

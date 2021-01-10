@@ -78,7 +78,6 @@ class Event():
                 self.state = 'processing'
 
         elif self.state == 'processing':
-            self.reset_portraits()
             if self.command_idx >= len(self.commands):
                 self.end()
             else:
@@ -86,10 +85,8 @@ class Event():
 
         elif self.state == 'dialog':
             if self.text_boxes:
-                if self.text_boxes[-1].is_done() and self.text_boxes[-1].processing:
+                if self.text_boxes[-1].is_done():
                     self.state = 'processing'
-                if not self.text_boxes[-1].processing:
-                    self.reset_portraits()
 
         elif self.state == 'paused':
             self.state = 'processing'
@@ -124,7 +121,7 @@ class Event():
         if self.state == 'dialog':
             to_draw = []
             for dialog_box in reversed(self.text_boxes):
-                if not (dialog_box.is_done() and dialog_box.processing):
+                if not dialog_box.is_done():
                     to_draw.insert(0, dialog_box)
                 if dialog_box.solo_flag:
                     break
@@ -198,26 +195,17 @@ class Event():
             return False
         return True
 
-    def reset_portraits(self):
-        for portrait in self.portraits.values():
-            portrait.stop_talking()
-
     def skip(self):
         self.do_skip = True
         if self.state != 'paused':
             self.state = 'processing'
         self.transition_state = None
-        if self.text_boxes:
-            self.text_boxes[-1].unpause()
-            self.text_boxes[-1].hurry_up()
+        # if self.text_boxes:
+        #     self.text_boxes[-1].hurry_up()
 
     def hurry_up(self):
         if self.text_boxes:
-            if self.text_boxes[-1].processing:
-                self.text_boxes[-1].hurry_up()
-            else:
-                # SOUNDTHREAD.play_sfx('Select 1')
-                self.text_boxes[-1].unpause()
+            self.text_boxes[-1].hurry_up()
 
     def run_command(self, command):
         logger.info('%s: %s', command.nid, command.values)

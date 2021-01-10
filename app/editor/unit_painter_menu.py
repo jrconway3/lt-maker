@@ -73,11 +73,12 @@ class UnitPainterMenu(QWidget):
         current_level = self.main_editor.current_level
         # The current level was restored and now needs to be updated to
         # match the one in the data
-        if current_level and current_level is not DB.levels.get(current_level.nid):
-            print("Current Level out of sync of databases. Updating...")
-            self.main_editor.set_current_level(DB.levels.get(current_level.nid))
-        else:
-            self.model.layoutChanged.emit()
+        if current_level:
+            correct_level = DB.levels.get(current_level.nid)
+            if correct_level and current_level is not correct_level:
+                print("Current Level out of sync of databases. Updating...")
+                self.main_editor.set_current_level(correct_level)
+        self.model.layoutChanged.emit()
 
     def set_current_level(self, level):
         self.current_level = level

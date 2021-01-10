@@ -20,14 +20,15 @@ from app.editor.unit_editor import unit_tab
 from app.editor.stat_widget import StatAverageDialog, GenericStatAveragesModel
 from app.editor.item_list_widget import ItemListWidget
 
-class UnitPainterMenu(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.window = parent
-        self.main_editor = self.window
-        self.map_view = self.main_editor.map_view
 
-        self.current_level = self.main_editor.current_level
+class UnitPainterMenu(QWidget):
+    def __init__(self, state_manager=None, map_view=None):
+        super().__init__()
+        self.map_view = map_view
+        self.state_manager = state_manager
+
+        self.current_level = DB.levels.get(
+            self.state_manager.state.selected_level)
         if self.current_level:
             self._data = self.current_level.units
         else:
@@ -39,7 +40,8 @@ class UnitPainterMenu(QWidget):
         def duplicate_func(model, index):
             return isinstance(model._data[index.row()], GenericUnit)
 
-        self.view = RightClickListView((None, duplicate_func, None), parent=self)
+        self.view = RightClickListView(
+            (None, duplicate_func, None), parent=self)
         self.view.currentChanged = self.on_item_changed
         self.view.doubleClicked.connect(self.on_double_click)
 
@@ -62,25 +64,27 @@ class UnitPainterMenu(QWidget):
 
         # self.display = self
         self.display = None
-
+        self.state_manager.subscribe_to_key(
+            UnitPainterMenu.__name__, 'selected_level', self.set_current_level)
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def on_visibility_changed(self, state):
         pass
 
     def tick(self):
-        # This one tick is able to handle all of the level editors
-        current_level = self.main_editor.current_level
-        # The current level was restored and now needs to be updated to
-        # match the one in the data
-        if current_level:
-            correct_level = DB.levels.get(current_level.nid)
-            if correct_level and current_level is not correct_level:
-                print("Current Level out of sync of databases. Updating...")
-                self.main_editor.set_current_level(correct_level)
         self.model.layoutChanged.emit()
+        # # This one tick is able to handle all of the level editors
+        # current_level = self.main_editor.current_level
+        # # The current level was restored and now needs to be updated to
+        # # match the one in the data
+        # if current_level and current_level is not DB.levels.get(current_level.nid):
+        #     print("Current Level out of sync of databases. Updating...")
+        #     self.main_editor.set_current_level(DB.levels.get(current_level.nid))
+        # else:
+        #     self.model.layoutChanged.emit()
 
-    def set_current_level(self, level):
+    def set_current_level(self, level_nid):
+        level = DB.levels.get(level_nid)
         self.current_level = level
         self._data = self.current_level.units
         self.model._data = self._data
@@ -120,7 +124,7 @@ class UnitPainterMenu(QWidget):
             idx = self._data.index(created_unit.nid)
             index = self.model.index(idx)
             self.view.setCurrentIndex(index)
-            self.window.update_view()
+            self.state_manager.change_and_broadcast('ui_refresh_signal', None)
             return created_unit
         return None
 
@@ -128,7 +132,8 @@ class UnitPainterMenu(QWidget):
         unit, ok = LoadUnitDialog.get_unit(self)
         if ok:
             if unit.nid in self._data.keys():
-                QMessageBox.critical(self, "Error!", "%s already present in level!" % unit.nid)
+                QMessageBox.critical(
+                    self, "Error!", "%s already present in level!" % unit.nid)
             else:
                 self._data.append(unit)
                 self.model.update()
@@ -136,7 +141,8 @@ class UnitPainterMenu(QWidget):
                 idx = self._data.index(unit.nid)
                 index = self.model.index(idx)
                 self.view.setCurrentIndex(index)
-                self.window.update_view()
+                self.state_manager.change_and_broadcast(
+                    'ui_refresh_signal', None)
                 return unit
         return None
 
@@ -166,6 +172,7 @@ class UnitPainterMenu(QWidget):
                 unit.team = old_unit_team
                 unit.ai = old_unit_ai
 
+
 class AllUnitModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -188,7 +195,8 @@ class AllUnitModel(DragDropCollectionModel):
                 active = self.window.view.selectionModel().isSelected(index)
             else:
                 active = False
-            pixmap = class_model.get_map_sprite_icon(klass, num, active, unit.team, unit.variant)
+            pixmap = class_model.get_map_sprite_icon(
+                klass, num, active, unit.team, unit.variant)
             if pixmap:
                 return QIcon(pixmap)
             else:
@@ -227,7 +235,8 @@ class AllUnitModel(DragDropCollectionModel):
     def duplicate(self, idx):
         obj = self._data[idx]
         if obj.generic:
-            new_nid = str_utils.get_next_generic_nid(obj.nid, self._data.keys())
+            new_nid = str_utils.get_next_generic_nid(
+                obj.nid, self._data.keys())
             serialized_obj = obj.save()
             new_obj = GenericUnit.restore(serialized_obj)
             new_obj.nid = new_nid
@@ -237,7 +246,9 @@ class AllUnitModel(DragDropCollectionModel):
 
             self.update_watchers(idx + 1)
         else:
-            QMessageBox.critical(self.window, "Error!", "Cannot duplicate unique unit!")
+            QMessageBox.critical(self.window, "Error!",
+                                 "Cannot duplicate unique unit!")
+
 
 class InventoryDelegate(QStyledItemDelegate):
     def __init__(self, data):
@@ -263,8 +274,10 @@ class InventoryDelegate(QStyledItemDelegate):
                     green = QColor("Green")
                     green.setAlpha(80)
                     painter.setBrush(QBrush(green))
-                    painter.drawRect(left, top, pixmap.width(), pixmap.height())
+                    painter.drawRect(
+                        left, top, pixmap.width(), pixmap.height())
                 painter.drawImage(left, top, pixmap.toImage())
+
 
 class LoadUnitDialog(Dialog):
     def __init__(self, parent=None, current=None):
@@ -292,12 +305,12 @@ class LoadUnitDialog(Dialog):
         self.team_box.edit.addItems(DB.teams)
         self.team_box.edit.setValue(self.current.team)
         self.team_box.edit.activated.connect(self.team_changed)
-        layout.addWidget(self.team_box)      
+        layout.addWidget(self.team_box)
 
         self.ai_box = AIBox(self)
         self.ai_box.edit.setValue(self.current.ai)
         self.ai_box.edit.activated.connect(self.ai_changed)
-        layout.addWidget(self.ai_box)  
+        layout.addWidget(self.ai_box)
 
         layout.addWidget(self.buttonbox)
 
@@ -335,6 +348,7 @@ class LoadUnitDialog(Dialog):
         else:
             return None, False
 
+
 class GenericUnitDialog(Dialog):
     def __init__(self, parent=None, example=None, unit=None):
         super().__init__(parent)
@@ -350,13 +364,15 @@ class GenericUnitDialog(Dialog):
         if unit:
             self.current = unit
         elif example:
-            new_nid = str_utils.get_next_generic_nid(example.nid, self._data.keys())
+            new_nid = str_utils.get_next_generic_nid(
+                example.nid, self._data.keys())
             self.current = GenericUnit(
                 new_nid, example.variant, example.level, example.klass, example.faction,
                 example.starting_items, example.team, example.ai)
         else:
             new_nid = str_utils.get_next_generic_nid("101", self._data.keys())
-            assert len(DB.classes) > 0 and len(DB.factions) > 0 and len(DB.items) > 0 and len(DB.ai) > 0
+            assert len(DB.classes) > 0 and len(DB.factions) > 0 and len(
+                DB.items) > 0 and len(DB.ai) > 0
             self.current = GenericUnit(
                 new_nid, None, 1, DB.classes[0].nid, DB.factions[0].nid,
                 [(DB.items[0].nid, False)], 'player', DB.ai[0].nid)
@@ -413,7 +429,8 @@ class GenericUnitDialog(Dialog):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
-        self.class_box.model.dataChanged.emit(self.class_box.model.index(0), self.class_box.model.index(self.class_box.model.rowCount()))
+        self.class_box.model.dataChanged.emit(self.class_box.model.index(
+            0), self.class_box.model.index(self.class_box.model.rowCount()))
 
     def nid_changed(self, text):
         if self.current:
@@ -423,10 +440,12 @@ class GenericUnitDialog(Dialog):
         if not self.current:
             return
         # Check validity of nid!
-        other_nids = [d.nid for d in self._data.values() if d is not self.current]
+        other_nids = [d.nid for d in self._data.values()
+                      if d is not self.current]
         other_nids += DB.units.keys()  # Can't use these either
         if self.current.nid in other_nids:
-            QMessageBox.warning(self.window, 'Warning', 'Unit ID %s already in use' % self.current.nid)
+            QMessageBox.warning(self.window, 'Warning',
+                                'Unit ID %s already in use' % self.current.nid)
             new_nid = str_utils.get_next_generic_nid("101", other_nids)
             self.current.nid = new_nid
         self._data.update_nid(self.current, self.current.nid)
@@ -438,7 +457,8 @@ class GenericUnitDialog(Dialog):
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()
-        self.level_box.edit.setMaximum(DB.classes.get(self.current.klass).max_level)
+        self.level_box.edit.setMaximum(
+            DB.classes.get(self.current.klass).max_level)
         # self.check_color()
         if self.averages_dialog:
             self.averages_dialog.update()
@@ -482,7 +502,8 @@ class GenericUnitDialog(Dialog):
     def display_averages(self):
         # Modeless dialog
         if not self.averages_dialog:
-            self.averages_dialog = StatAverageDialog(self.current, "Generic", GenericStatAveragesModel, self)
+            self.averages_dialog = StatAverageDialog(
+                self.current, "Generic", GenericStatAveragesModel, self)
         self.averages_dialog.show()
         self.averages_dialog.raise_()
         self.averages_dialog.activateWindow()

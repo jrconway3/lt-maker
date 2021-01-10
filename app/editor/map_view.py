@@ -2,9 +2,12 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush
 
+from enum import Enum
+
 from app.utilities import utils
 from app.sprites import SPRITES
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor.settings import MainSettingsController
@@ -13,13 +16,14 @@ from app.editor import timer
 from app.editor.class_editor import class_model
 from app.editor.tile_editor import tile_model
 
+
 class SimpleMapView(QGraphicsView):
     min_scale = 1
     max_scale = 4
     position_clicked = pyqtSignal(int, int)
     position_moved = pyqtSignal(int, int)
-    
-    def __init__(self, window=None):
+
+    def __init__(self, window=None, state_manager=None):
         super().__init__()
         self.main_editor = window
         self.settings = MainSettingsController()
@@ -40,21 +44,27 @@ class SimpleMapView(QGraphicsView):
         self.current_mouse_pos = None
         self.region_select = None
 
+        if(state_manager):
+            self.state_manager = state_manager
+            self.state_manager.subscribe_to_key(
+                SimpleMapView.__name__, 'ui_refresh_signal', self.update_view)
+
     def center_on_pos(self, pos):
         self.centerOn(pos[0]*TILEWIDTH, pos[1]*TILEHEIGHT)
         self.update_view()
 
-    def set_current_map(self, tilemap):
-        self.current_map = tilemap
-        self.update_view()
-
     def set_current_level(self, level):
         self.current_level = level
+        self.current_map = RESOURCES.tilemaps.get(level.tilemap)
+        self.update_view()
 
     def clear_scene(self):
         self.scene.clear()
 
-    def update_view(self):
+    def update_view(self, _=None):
+        if(self.current_level and not self.current_map):
+            self.current_map = RESOURCES.tilemaps.get(
+                self.current_level.tilemap)
         if self.current_map:
             pixmap = tile_model.create_tilemap_pixmap(self.current_map)
             self.working_image = pixmap
@@ -69,12 +79,14 @@ class SimpleMapView(QGraphicsView):
         klass_nid = unit.klass
         num = timer.get_timer().passive_counter.count
         klass = DB.classes.get(klass_nid)
-        pixmap = class_model.get_map_sprite_icon(klass, num, False, unit.team, unit.variant)
+        pixmap = class_model.get_map_sprite_icon(
+            klass, num, False, unit.team, unit.variant)
         coord = position
         if pixmap:
             if opacity:
                 painter.setOpacity(0.33)
-            painter.drawImage(coord[0] * TILEWIDTH - 9, coord[1] * TILEHEIGHT - 8, pixmap.toImage())
+            painter.drawImage(coord[0] * TILEWIDTH - 9,
+                              coord[1] * TILEHEIGHT - 8, pixmap.toImage())
             painter.setOpacity(1.0)
         else:
             pass  # TODO: for now  # Need a fallback option... CITIZEN??
@@ -129,7 +141,69 @@ class SimpleMapView(QGraphicsView):
         elif event.angleDelta().y() < 0:
             self.zoom_out()
 
-class MapView(SimpleMapView):
+
+class GlobalModeLevelMapView(SimpleMapView):
+    def __init__(self, window=None, state_manager=None):
+        super().__init__(window, state_manager=state_manager)
+
+    def paint_units(self):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for unit in self.current_level.units:
+                if not unit.starting_position:
+                    continue
+                if unit.generic or unit.nid in DB.units.keys():
+                    self.draw_unit(painter, unit, unit.starting_position)
+
+    def update_view(self, _=None):
+        if(self.current_level and not self.current_map):
+            self.current_map = RESOURCES.tilemaps.get(
+                self.current_level.tilemap)
+        if self.current_map:
+            pixmap = tile_model.create_tilemap_pixmap(self.current_map)
+            self.working_image = pixmap
+        else:
+            self.clear_scene()
+            return
+        self.paint_units()
+        self.show_map()
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+
+        if self.current_map and self.current_map.check_bounds(pos):
+            self.current_mouse_pos = pos
+            self.main_editor.set_position_bar(pos)
+            terrain_nid = self.current_map.get_terrain(pos)
+            terrain = DB.terrain.get(terrain_nid)
+            if terrain:
+                self.main_editor.set_message(
+                    "%s: %s" % (terrain.nid, terrain.name))
+            else:
+                self.main_editor.set_message(None)
+        else:
+            self.main_editor.set_position_bar(None)
+            self.main_editor.set_message(None)
+
+
+class EditMode(Enum):
+    NONE = 0
+    REGIONS = 1
+    GROUPS = 2
+    UNITS = 3
+
+
+class NewMapView(SimpleMapView):
+    def __init__(self, window=None, state_manager=None):
+        super().__init__(window, state_manager=state_manager)
+        self.edit_mode = EditMode.UNITS
+
+    def set_mode(self, edit_mode):
+        self.edit_mode = edit_mode
+
     def check_position(self, level_prefab, pos):
         for unit in level_prefab.units:
             if unit.starting_position and \
@@ -138,20 +212,23 @@ class MapView(SimpleMapView):
                 return unit
         return None
 
-    def update_view(self):
+    def update_view(self, _=None):
+        if(self.current_level):
+            self.current_map = RESOURCES.tilemaps.get(
+                self.current_level.tilemap)
         if self.current_map:
             pixmap = tile_model.create_tilemap_pixmap(self.current_map)
             self.working_image = pixmap
         else:
             self.clear_scene()
             return
-        if self.main_editor.dock_visibility['Properties']:
+        if self.edit_mode == EditMode.NONE:
             self.paint_units()
-        elif self.main_editor.dock_visibility['Units']:
+        elif self.edit_mode == EditMode.UNITS:
             self.paint_units()
-        elif self.main_editor.dock_visibility['Regions']:
+        elif self.edit_mode == EditMode.REGIONS:
             self.paint_regions()
-        elif self.main_editor.dock_visibility['Groups']:
+        elif self.edit_mode == EditMode.GROUPS:
             self.paint_groups()
         else:
             self.paint_units()
@@ -161,7 +238,7 @@ class MapView(SimpleMapView):
         if self.working_image:
             painter = QPainter()
             painter.begin(self.working_image)
-            for unit in self.main_editor.current_level.units:
+            for unit in self.current_level.units:
                 if not unit.starting_position:
                     continue
                 if unit.generic or unit.nid in DB.units.keys():
@@ -175,14 +252,15 @@ class MapView(SimpleMapView):
                     if not cursor_sprite.pixmap:
                         cursor_sprite.pixmap = QPixmap(cursor_sprite.full_path)
                     cursor_image = cursor_sprite.pixmap.toImage().copy(0, 64, 32, 32)
-                    painter.drawImage(coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
+                    painter.drawImage(
+                        coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
             painter.end()
 
     def paint_groups(self):
         if self.working_image:
             painter = QPainter()
             painter.begin(self.working_image)
-            for group in self.main_editor.current_level.unit_groups:
+            for group in self.current_level.unit_groups:
                 for unit in group.units:
                     position = group.positions.get(unit.nid)
                     if not position:
@@ -205,16 +283,18 @@ class MapView(SimpleMapView):
                     cursor_sprite = SPRITES['cursor']
                     if cursor_sprite:
                         if not cursor_sprite.pixmap:
-                            cursor_sprite.pixmap = QPixmap(cursor_sprite.full_path)
+                            cursor_sprite.pixmap = QPixmap(
+                                cursor_sprite.full_path)
                         cursor_image = cursor_sprite.pixmap.toImage().copy(0, 64, 32, 32)
-                        painter.drawImage(coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
+                        painter.drawImage(
+                            coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
             painter.end()
 
     def paint_regions(self):
         if self.working_image:
             painter = QPainter()
             painter.begin(self.working_image)
-            for region in self.main_editor.current_level.regions:
+            for region in self.current_level.regions:
                 if not region.position:
                     continue
                 x, y = region.position
@@ -228,7 +308,8 @@ class MapView(SimpleMapView):
                     # Makes bigger regions less opaque
                     o = 20 - min(20, region.area)
                     painter.setOpacity(0.25 + o * .025)
-                painter.drawImage(x * TILEWIDTH, y * TILEHEIGHT, pixmap.toImage())
+                painter.drawImage(x * TILEWIDTH, y *
+                                  TILEHEIGHT, pixmap.toImage())
             current_region = self.main_editor.region_painter_menu.get_current()
             if current_region:
                 if current_region.position:
@@ -237,19 +318,25 @@ class MapView(SimpleMapView):
                     painter.setBrush(Qt.NoBrush)
                     painter.setPen(Qt.yellow)
                     painter.setOpacity(0.75)
-                    painter.drawRect(x * TILEWIDTH, y * TILEHEIGHT, width * TILEWIDTH, height * TILEHEIGHT)
+                    painter.drawRect(x * TILEWIDTH, y * TILEHEIGHT,
+                                     width * TILEWIDTH, height * TILEHEIGHT)
                 elif self.region_select:
-                    left = min(self.region_select[0], self.current_mouse_pos[0])
-                    right = max(self.region_select[0], self.current_mouse_pos[0])
+                    left = min(self.region_select[0],
+                               self.current_mouse_pos[0])
+                    right = max(
+                        self.region_select[0], self.current_mouse_pos[0])
                     top = min(self.region_select[1], self.current_mouse_pos[1])
-                    bottom = max(self.region_select[1], self.current_mouse_pos[1])
+                    bottom = max(
+                        self.region_select[1], self.current_mouse_pos[1])
                     width = right - left + 1
                     height = bottom - top + 1
-                    color = utils.hash_to_color(utils.strhash(current_region.nid))
+                    color = utils.hash_to_color(
+                        utils.strhash(current_region.nid))
                     # painter.setBrush(Qt.DiagCrossPattern)
                     # painter.setPen()
                     painter.setOpacity(0.75)
-                    painter.fillRect(left * TILEWIDTH, top * TILEHEIGHT, width * TILEWIDTH, height * TILEHEIGHT, QBrush(QColor(*color), Qt.DiagCrossPattern))
+                    painter.fillRect(left * TILEWIDTH, top * TILEHEIGHT, width * TILEWIDTH,
+                                     height * TILEHEIGHT, QBrush(QColor(*color), Qt.DiagCrossPattern))
             painter.end()
 
     def mousePressEvent(self, event):
@@ -259,44 +346,50 @@ class MapView(SimpleMapView):
 
         if self.current_map and self.current_map.check_bounds(pos):
             # Units
-            if self.main_editor.dock_visibility['Units']:
+            if self.edit_mode == EditMode.UNITS:
                 if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_unit = self.main_editor.unit_painter_menu.get_current()
                     if current_unit:
-                        under_unit = self.check_position(self.main_editor.current_level, pos)
+                        under_unit = self.check_position(
+                            self.current_level, pos)
                         if under_unit:
                             under_unit.starting_position = None
                         if under_unit is current_unit:
-                            message = "Removed unit %s from map" % (current_unit.nid)
+                            message = "Removed unit %s from map" % (
+                                current_unit.nid)
                             self.main_editor.set_message(message)
                         elif current_unit.starting_position:
                             current_unit.starting_position = pos
-                            message = "Moved unit %s to (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
+                            message = "Moved unit %s to (%d, %d)" % (
+                                current_unit.nid, pos[0], pos[1])
                             self.main_editor.set_message(message)
                         else:
                             current_unit.starting_position = pos
-                            message = "Placed unit %s at (%d, %d)" % (current_unit.nid, pos[0], pos[1]) 
+                            message = "Placed unit %s at (%d, %d)" % (
+                                current_unit.nid, pos[0], pos[1])
                             self.main_editor.set_message(message)
                         self.update_view()
                 elif event.button() == self.settings.get_select_button(Qt.LeftButton):
-                    under_unit = self.check_position(self.main_editor.current_level, pos)
+                    under_unit = self.check_position(self.current_level, pos)
                     if under_unit:
-                        idx = self.main_editor.current_level.units.index(under_unit.nid)
+                        idx = self.current_level.units.index(under_unit.nid)
                         self.main_editor.unit_painter_menu.select(idx)
                     else:
                         self.main_editor.unit_painter_menu.deselect()
             # Groups
-            elif self.main_editor.dock_visibility['Groups']:
+            elif self.edit_mode == EditMode.GROUPS:
                 if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_group = self.main_editor.group_painter_menu.get_current()
                     current_unit = self.main_editor.group_painter_menu.get_current_unit()
                     if current_unit:
                         if current_group.positions.get(current_unit.nid) == pos:
                             del current_group.positions[current_unit.nid]
-                            message = "Removing unit %s from map" % (current_unit.nid)
+                            message = "Removing unit %s from map" % (
+                                current_unit.nid)
                         else:
                             current_group.positions[current_unit.nid] = pos
-                            message = "Group %s unit %s's position to (%d, %d)" % (current_group.nid, current_unit.nid, pos[0], pos[1])
+                            message = "Group %s unit %s's position to (%d, %d)" % (
+                                current_group.nid, current_unit.nid, pos[0], pos[1])
                         self.main_editor.set_message(message)
                         self.update_view()
                 elif event.button() == self.settings.get_select_button(Qt.LeftButton):
@@ -306,7 +399,7 @@ class MapView(SimpleMapView):
                         if pos == position:
                             under_unit = current_group.units.get(unit_nid)
                             break
-                    for group in self.main_editor.current_level.unit_groups:
+                    for group in self.current_level.unit_groups:
                         if under_unit:
                             break
                         for unit_nid, position in group.positions.items():
@@ -315,10 +408,11 @@ class MapView(SimpleMapView):
                                 under_unit = group.units.get(unit_nid)
                                 break
                     if under_unit:
-                        self.main_editor.group_painter_menu.select(current_group, under_unit.nid)
+                        self.main_editor.group_painter_menu.select(
+                            current_group, under_unit.nid)
                     else:
                         self.main_editor.group_painter_menu.deselect()
-            elif self.main_editor.dock_visibility['Regions']:
+            elif self.edit_mode == EditMode.REGIONS:
                 if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_region = self.main_editor.region_painter_menu.get_current()
                     if current_region:
@@ -334,7 +428,7 @@ class MapView(SimpleMapView):
         if self.current_map and self.current_map.check_bounds(pos):
             self.current_mouse_pos = pos
             self.main_editor.set_position_bar(pos)
-            under_unit = self.check_position(self.main_editor.current_level, pos)
+            under_unit = self.check_position(self.current_level, pos)
             current_group = self.main_editor.group_painter_menu.get_current()
             group_unit = None
             if current_group:
@@ -343,26 +437,28 @@ class MapView(SimpleMapView):
                     if my_pos and my_pos[0] == pos[0] and my_pos[1] == pos[1]:
                         group_unit = unit
                         break
-            
-            if self.main_editor.dock_visibility['Regions']:
+
+            if self.edit_mode == EditMode.REGIONS:
                 current_region = None
-                for region in self.main_editor.current_level.regions:
+                for region in self.current_level.regions:
                     if region.position and region.contains(pos):
                         current_region = region
                         break
                 if current_region:
-                    self.main_editor.set_message("Region ID: %s" % current_region.nid)
+                    self.main_editor.set_message(
+                        "Region ID: %s" % current_region.nid)
                 else:
                     self.main_editor.set_message(None)
-            elif self.main_editor.dock_visibility['Units'] and under_unit:
+            elif self.edit_mode == EditMode.UNITS and under_unit:
                 self.main_editor.set_message("Unit: %s" % under_unit.nid)
-            elif self.main_editor.dock_visibility['Groups'] and group_unit:
+            elif self.edit_mode == EditMode.GROUPS and group_unit:
                 self.main_editor.set_message("Unit: %s" % group_unit.nid)
             else:
                 terrain_nid = self.current_map.get_terrain(pos)
                 terrain = DB.terrain.get(terrain_nid)
                 if terrain:
-                    self.main_editor.set_message("%s: %s" % (terrain.nid, terrain.name))
+                    self.main_editor.set_message(
+                        "%s: %s" % (terrain.nid, terrain.name))
                 else:
                     self.main_editor.set_message(None)
         else:
@@ -374,7 +470,7 @@ class MapView(SimpleMapView):
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and self.current_map.check_bounds(pos):
-            if self.region_select and self.main_editor.dock_visibility['Regions']:
+            if self.region_select and self.edit_mode == EditMode.REGIONS:
                 if event.button() == self.settings.get_place_button(Qt.RightButton):
                     current_region = self.main_editor.region_painter_menu.get_current()
                     if current_region:
@@ -391,7 +487,7 @@ class MapView(SimpleMapView):
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
-        if self.main_editor.dock_visibility['Units']:
+        if self.edit_mode == EditMode.UNITS:
             if event.key() == Qt.Key_Delete:
                 unit_painter_menu = self.main_editor.unit_painter_menu
                 indices = unit_painter_menu.view.selectionModel().selectedIndexes()

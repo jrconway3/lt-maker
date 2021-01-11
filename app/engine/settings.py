@@ -21,7 +21,7 @@ controls = {'key_SELECT': engine.subsurface(SPRITES.get('buttons'), (0, 66, 14, 
 control_order = ('key_SELECT', 'key_BACK', 'key_INFO', 'key_AUX', 'key_LEFT', 'key_RIGHT', 'key_UP', 'key_DOWN', 'key_START')
 
 config = [('animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 0),
-          ('temp_screen_size', ['1', '2', '3', '4', '5'], 18),
+          ('screen_size', [1, 2, 3, 4, 5], 18),
           ('unit_speed', list(reversed(range(15, 180, 15))), 1),
           ('text_speed', cf.text_speed_options, 2),
           ('cursor_speed', list(reversed(range(32, 160, 16))), 8),

@@ -3,7 +3,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import MapState
 from app.engine.game_state import game
 from app.engine import engine, action, skill_system, \
-    health_bar, animations
+    health_bar, animations, item_system, item_funcs
 
 import logging
 logger = logging.getLogger(__name__)
@@ -42,8 +42,12 @@ class StatusUpkeepState(MapState):
                 self.playback.clear()
                 if self.name == 'status_endstep':
                     skill_system.on_endstep(self.actions, self.playback, self.cur_unit)
+                    for item in item_funcs.get_all_items(self.cur_unit):
+                        item_system.on_endstep(self.actions, self.playback, self.cur_unit, item)
                 else:
                     skill_system.on_upkeep(self.actions, self.playback, self.cur_unit)
+                    for item in item_funcs.get_all_items(self.cur_unit):
+                        item_system.on_upkeep(self.actions, self.playback, self.cur_unit, item)
                 if (self.actions or self.playback) and self.cur_unit.position:
                     game.cursor.set_pos(self.cur_unit.position)
                     self.cur_unit.sprite.change_state('selected')
@@ -74,7 +78,7 @@ class StatusUpkeepState(MapState):
                     # Handle death
                     game.death.should_die(self.cur_unit)
                     game.state.change('dying')
-                    game.events.trigger('unit_death', self.cur_unit, position=unit.position)
+                    game.events.trigger('unit_death', self.cur_unit, position=self.cur_unit.position)
                     skill_system.on_death(self.cur_unit)
                 else:
                     self.cur_unit.sprite.change_state('normal')

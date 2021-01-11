@@ -26,6 +26,9 @@ class Spell(ItemComponent):
     def can_double(self, unit, item):
         return False
 
+    def can_counter(self, unit, item):
+        return False
+
 class Weapon(ItemComponent):
     nid = 'weapon'
     desc = "Item will be treated as a normal weapon (can double, counterattack, be equipped, etc.)" 

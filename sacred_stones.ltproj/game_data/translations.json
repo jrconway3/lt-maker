@@ -120,8 +120,8 @@
         "text": "Set cursor to start on main hero."
     },
     {
-        "nid": "temp_screen_size_desc",
-        "text": "Restart for change to take effect."
+        "nid": "screen_size_desc",
+        "text": "Change the size of the screen."
     },
     {
         "nid": "talk_boop_desc",

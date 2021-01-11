@@ -1,4 +1,5 @@
 from app.utilities import utils
+from app.constants import WINWIDTH, WINHEIGHT
 
 from app.engine import config as cf
 from app.engine.sprites import SPRITES
@@ -36,8 +37,6 @@ class ConfigOption(menu_options.BasicOption):
     def __init__(self, idx, name, values, icon):
         self.idx = idx
         self.name = name
-        if name.startswith('temp_'):
-            name = name[5:]
         self.display_name = text_funcs.translate(name).replace('_', ' ').capitalize()
         self.icon = icon
         self.help_box = None
@@ -180,6 +179,44 @@ class SimpleOption(ConfigOption):
             width = font.width(text)
             running_width += width
 
+class ScreenSizeOption(SimpleOption):
+    def get_value(self):
+        return int(cf.SETTINGS[self.name])
+
+    def draw(self, surf, x, y, active=False):
+        surf.blit(self.icon, (x + 16, y))
+        name_font = FONT['text-white']
+        name_font.blit(self.display_name, surf, (x + 32, y))
+        value = int(cf.SETTINGS[self.name])
+        
+        running_width = 0
+        for choice in self.values:
+            if choice == value:
+                font = FONT['text-blue']
+            else:
+                font = FONT['text-grey']
+            text = str(choice) + '    '
+            font.blit(text, surf, (x + 112 + running_width, y))
+            width = font.width(text)
+            running_width += width
+
+    def update_screen_size(self):
+        n = self.get_value()
+        engine.SCREENSIZE = (WINWIDTH * n, WINHEIGHT * n)
+        engine.DISPLAYSURF = engine.build_display(engine.SCREENSIZE)
+
+    def move_left(self):
+        super().move_left()
+        self.update_screen_size()
+
+    def move_right(self):
+        super().move_right()
+        self.update_screen_size()
+
+    def move_next(self):
+        super().move_next()
+        self.update_screen_size()
+
 class BoolOption(ConfigOption):
     def move_left(self):
         value = cf.SETTINGS[self.name]
@@ -286,8 +323,11 @@ class Config(Controls):
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
+            print(option[0])
             if option[1] is bool:
                 option = BoolOption(idx, option[0], option[1], self.icons[idx])
+            elif option[0] == 'screen_size':
+                option = ScreenSizeOption(idx, option[0], option[1], self.icons[idx])
             elif isinstance(option[1][0], int) or isinstance(option[1][0], float):
                 option = SliderOption(idx, option[0], option[1], self.icons[idx])
             else:  # Is a list of text options or bool

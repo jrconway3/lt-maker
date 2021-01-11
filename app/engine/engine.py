@@ -50,9 +50,6 @@ def terminate(crash=False):
         sys.exit()
 
 def on_end(crash=False):
-    # Edit screen size
-    if 'temp_screen_size' in cf.SETTINGS:
-        cf.SETTINGS['screen_size'] = cf.SETTINGS['temp_screen_size']
     cf.save_settings()
 
 # === timing functions ===
@@ -159,6 +156,11 @@ key_map = {"enter": pygame.K_RETURN,
            "backspace": pygame.K_BACKSPACE,
            "pageup": pygame.K_PAGEUP,
            "`": pygame.K_BACKQUOTE,
+           "1": pygame.K_1,
+           "2": pygame.K_2,
+           "3": pygame.K_3,
+           "4": pygame.K_4,
+           "5": pygame.K_5,
            }
 
 events = []

@@ -90,7 +90,6 @@ def import_from_lion_throne(current, fn):
         new_pixmap = main_pixmap.copy(x, y, width, height)
         # Need to convert to universal base palette
         im = new_pixmap.toImage()
-        im.convertTo(QImage.Format_Indexed8)
         im = editor_utilities.color_convert(im, convert_dict)
         new_pixmap = QPixmap.fromImage(im)
         new_frame = combat_anims.Frame(nid, (x, y, width, height), (offset_x, offset_y), pixmap=new_pixmap)
@@ -169,7 +168,6 @@ def split_doubles(pixmaps: dict) -> dict:
 
 def color_convert(pixmap: QPixmap, convert_dict: dict) -> QPixmap:
     im = pixmap.toImage()
-    im.convertTo(QImage.Format_Indexed8)
     im = editor_utilities.color_convert(im, convert_dict)
     pixmap = QPixmap.fromImage(im)
     return pixmap

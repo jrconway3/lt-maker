@@ -5,7 +5,6 @@ def read_config_file():
     lines = OrderedDict([('debug', 1),
                          ('random_seed', -1),
                          ('screen_size', 2),
-                         ('temp_screen_size', 2),
                          ('sound_buffer_size', 4),
                          ('animation', 'Always'),
                          ('unit_speed', 120),

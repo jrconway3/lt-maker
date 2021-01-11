@@ -209,6 +209,8 @@ class ItemOption(BasicOption):
             uses_string = str(self.item.data['uses'])
         elif self.item.c_uses:
             uses_string = str(self.item.data['c_uses'])
+        elif self.item.cooldown:
+            uses_string = str(self.item.data['cooldown'])
         left = x + self.width() - 5 - FONT[uses_font].width(uses_string)
         FONT[uses_font].blit(uses_string, surf, (left, y))
 
@@ -252,6 +254,9 @@ class FullItemOption(ItemOption):
         elif self.item.data.get('c_uses') is not None:
             uses_string_a = str(self.item.data['c_uses'])
             uses_string_b = str(self.item.data['starting_c_uses'])
+        elif self.item.data.get('cooldown') is not None:
+            uses_string_a = str(self.item.data['cooldown'])
+            uses_string_b = str(self.item.data['starting_cooldown'])
         FONT[uses_font].blit_right(uses_string_a, surf, (x + 96, y))
         FONT['text-white'].blit("/", surf, (x + 98, y))
         FONT[uses_font].blit_right(uses_string_b, surf, (x + 120, y))
@@ -276,6 +281,8 @@ class ValueItemOption(ItemOption):
             uses_string = str(self.item.data['uses'])
         elif self.item.get('c_uses') is not None:
             uses_string = str(self.item.data['c_uses'])
+        elif self.item.get('cooldown') is not None:
+            uses_string = str(self.item.data['cooldown'])
         FONT[uses_font].blit_right(uses_string, surf, (x + 100, y))
 
         value_font = 'text-grey'

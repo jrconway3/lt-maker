@@ -150,8 +150,8 @@ class Teleport(SimpleMove):
 class ForcedMovement(SimpleMove):
     def do(self):
         # Sprite transition
-        x_offset = self.old_pos[0] - self.new_pos[0] * TILEWIDTH
-        y_offset = self.old_pos[0] - self.new_pos[0] * TILEHEIGHT
+        x_offset = (self.old_pos[0] - self.new_pos[0]) * TILEWIDTH
+        y_offset = (self.old_pos[1] - self.new_pos[1]) * TILEHEIGHT
         self.unit.sprite.offset = [x_offset, y_offset]
         self.unit.sprite.set_transition('fake_in')
 

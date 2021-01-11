@@ -33,7 +33,7 @@ class CombatArt(SkillComponent):
 
     expose = Type.Skill
 
-    def init(self):
+    def init(self, skill):
         self.skill.data['active'] = False
         self._action = None
 
@@ -101,7 +101,7 @@ class AttackProc(SkillComponent):
 
     expose = Type.Skill
 
-    def init(self):
+    def init(self, skill):
         self._did_action = False
 
     def start_sub_combat(self, unit, item, target, mode):
@@ -121,7 +121,7 @@ class DefenseProc(SkillComponent):
 
     expose = Type.Skill
 
-    def init(self):
+    def init(self, skill):
         self._did_action = False
 
     def start_sub_combat(self, unit, item, target, mode):

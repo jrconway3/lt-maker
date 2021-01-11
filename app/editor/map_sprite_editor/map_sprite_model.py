@@ -22,8 +22,7 @@ def get_basic_icon(pixmap, num, active=False, team='player'):
     else:
         one_frame = pixmap.copy(num*64 + 16, 0 + 16, 32, 32)
     # pixmap = pixmap.copy(16, 16, 32, 32)
-    image = one_frame.toImage()
-    one_frame = editor_utilities.convert_colorkey(image)
+    one_frame = one_frame.toImage()
     if team == 'player':
         pass
     elif team == 'enemy':
@@ -32,6 +31,8 @@ def get_basic_icon(pixmap, num, active=False, team='player'):
         one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
     elif team == 'enemy2':
         one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy2_colors)
+    # Must convert colorkey last, or else color conversion doesn't work correctly
+    one_frame = editor_utilities.convert_colorkey(one_frame)
     pixmap = QPixmap.fromImage(one_frame)
     return pixmap
 

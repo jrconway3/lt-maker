@@ -1,4 +1,5 @@
 from PyQt5 import QtGui
+from PyQt5.QtCore import Qt
 
 from app.constants import COLORKEY
 from app.data.palettes import enemy_colors, other_colors, enemy2_colors
@@ -23,13 +24,15 @@ def convert_colorkey(image):
         if new_image.color(i) == qCOLORKEY:
             new_image.setColor(i, qAlpha)
             break
-    return new_image.convertToFormat(QtGui.QImage.Format_ARGB32)
+    image = new_image.convertToFormat(QtGui.QImage.Format_ARGB32)
+    return image
 
 enemy_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_colors.items()}
 other_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in other_colors.items()}
 enemy2_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy2_colors.items()}
 
 def color_convert_slow(image, conversion_dict):
+    image.convertTo(QtGui.QImage.Format_ARGB32)
     for x in range(image.width()):
         for y in range(image.height()):
             current_color = image.pixel(x, y)
@@ -39,11 +42,15 @@ def color_convert_slow(image, conversion_dict):
     return image
 
 def color_convert(image, conversion_dict):
+    new_image = image.convertToFormat(QtGui.QImage.Format_Indexed8)
+    num_colors = new_image.colorCount()
+    if num_colors > 192:
+        return color_convert_slow(image, conversion_dict)
     for old_color, new_color in conversion_dict.items():
-        for i in range(image.colorCount()):
-            if image.color(i) == old_color:
-                image.setColor(i, new_color)
-    return image
+        for i in range(new_image.colorCount()):
+            if new_image.color(i) == old_color:
+                new_image.setColor(i, new_color)
+    return new_image.convertToFormat(QtGui.QImage.Format_RGB32)
 
 def find_palette(image):
     palette = []

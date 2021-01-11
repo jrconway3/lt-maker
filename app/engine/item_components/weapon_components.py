@@ -194,6 +194,14 @@ class NoDouble(ItemComponent):
     def can_double(self, unit, item):
         return False
 
+class CannotCounter(ItemComponent):
+    nid = 'cannot_counter'
+    desc = "Item cannot counter"
+    tag = 'extra'
+
+    def can_counter(self, unit, item):
+        return False
+
 class IgnoreWeaponAdvantage(ItemComponent):
     nid = 'ignore_weapon_advantage'
     desc = "Item will not be affected by the weapon triangle"

@@ -127,7 +127,6 @@ class FrameSelector(Dialog):
 
             for idx, pixmap in enumerate(pixmaps):
                 im = pix.toImage()
-                im.convertTo(QImage.Format_Indexed8)
                 im = editor_utilities.color_convert(im, convert_dict)
                 pix = QPixmap.fromImage(im)
                 nid = utilities.get_next_name(nid, self.frames.keys())

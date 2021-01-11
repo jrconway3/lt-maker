@@ -209,7 +209,7 @@ class Shove(ItemComponent):
         new_position = (unit_to_move.position[0] + offset_x * magnitude,
                         unit_to_move.position[1] + offset_y * magnitude)
 
-        mcost = self.get_mcost(unit_to_move, new_position)
+        mcost = game.movement.get_mcost(unit_to_move, new_position)
         if game.tilemap.check_bounds(new_position) and \
                 not game.board.get_unit(new_position) and \
                 mcost <= equations.parser.movement(unit_to_move):

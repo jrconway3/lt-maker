@@ -62,7 +62,7 @@ class ChapterUses(ItemComponent):
         item.data['c_uses'] = item.data['starting_c_uses']
 
     def special_sort(self, unit, item):
-        return item.data['uses']
+        return item.data['c_uses']
 
 class HPCost(ItemComponent):
     nid = 'hp_cost'
@@ -102,16 +102,37 @@ class Cooldown(ItemComponent):
 
     def init(self, item):
         item.data['cooldown'] = 0
+        item.data['starting_cooldown'] = self.value
+        self._used_in_combat = False
 
     def available(self, unit, item) -> bool:
         return item.data['cooldown'] == 0
 
-    def end_combat(self, playback, unit, item, target):
-        action.do(action.SetObjData(item, 'cooldown', self.value))
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        self._used_in_combat = True
 
-    def on_upkeep(self, unit, item):
+    def on_miss(self, actions, playback, unit, item, target, mode):
+        self._used_in_combat = True
+
+    def end_combat(self, playback, unit, item, target):
+        if self._used_in_combat:
+            action.do(action.SetObjData(item, 'cooldown', self.value))
+            self._used_in_combat = False
+
+    def on_not_usable(self, unit, item):
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        return True
+
+    def on_upkeep(self, actions, playback, unit, item):
         if item.data['cooldown'] > 0:
+            # Doesn't use actions list in order to prevent 
+            # requiring the status phase to show health bar
             action.do(action.SetObjData(item, 'cooldown', item.data['cooldown'] - 1))
+
+    def on_end_chapter(self, unit, item):
+        # Don't need to use action here because it will be end of chapter
+        item.data['cooldown'] = 0
 
 class PrfUnit(ItemComponent):
     nid = 'prf_unit'

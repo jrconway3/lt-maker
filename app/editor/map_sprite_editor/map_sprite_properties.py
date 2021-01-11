@@ -152,7 +152,6 @@ class MapSpriteProperties(QWidget):
             num = timer.get_timer().passive_counter.count
             frame = self.current.standing_pixmap.copy(num*64, 0, 64, 48)
         frame = frame.toImage()
-        frame = editor_utilities.convert_colorkey(frame)
         if self.current_color == 0:
             pass
         elif self.current_color == 1:
@@ -161,6 +160,7 @@ class MapSpriteProperties(QWidget):
             frame = editor_utilities.color_convert(frame, editor_utilities.enemy2_colors)
         elif self.current_color == 3:
             frame = editor_utilities.color_convert(frame, editor_utilities.other_colors)
+        frame = editor_utilities.convert_colorkey(frame)
         frame = QPixmap.fromImage(frame)
         self.frame_view.set_image(frame)
         self.frame_view.show_image()

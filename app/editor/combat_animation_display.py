@@ -607,9 +607,9 @@ class CombatAnimProperties(QWidget):
         current_palette = self.get_current_palette()
         im = pixmap.toImage()
         im_palette = combat_anims.base_palette
-        im = editor_utilities.convert_colorkey(im)
         conv_dict = {qRgb(*a): qRgb(*b) for a, b in zip(im_palette.colors, current_palette.colors)}
         im = editor_utilities.color_convert(im, conv_dict)
+        im = editor_utilities.convert_colorkey(im)
         return im
 
     def update(self):

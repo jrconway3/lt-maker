@@ -82,19 +82,24 @@ class Highlighter(QSyntaxHighlighter):
         lint_format = QTextCharFormat()
         lint_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
         lint_format.setUnderlineColor(self.bad_color)
-        lines = [l.strip() for l in text.splitlines()]
-        # lines = [l.split('#', 1)[0] for l in lines]  # Remove comment character
+        lines = text.splitlines()
+
         for line in lines:
+            # Don't consider tabs when formatting
+            num_tabs = 0
+            while line.startswith('    '):
+                line = line[4:]
+                num_tabs += 1
             # Don't process comments
             line = line.split('#', 1)[0]
             if not line:
                 continue
             broken_sections = self.validate_line(line)
             if broken_sections == 'all':
-                self.setFormat(0, len(line), lint_format)
+                self.setFormat(num_tabs * 4, len(line), lint_format)
             else:
                 sections = line.split(';')
-                running_length = 0
+                running_length = num_tabs * 4
                 for idx, section in enumerate(sections):
                     if idx in broken_sections:
                         self.setFormat(running_length, len(section), lint_format)
@@ -102,13 +107,19 @@ class Highlighter(QSyntaxHighlighter):
 
         # Extra formatting
         for line in lines:
+            # Don't consider tabs
+            num_tabs = 0
+            while line.startswith('    '):
+                line = line[4:]
+                num_tabs += 1
+
             line = line.split('#', 1)[0]
             if not line:
                 continue
             sections = line.split(';')
             # Handle text format
             if sections[0] in ('s', 'speak') and len(sections) >= 3:
-                start = len(';'.join(sections[:2])) + 1
+                start = num_tabs * 4 + len(';'.join(sections[:2])) + 1
                 self.setFormat(start, len(sections[2]), self.text_format)
                 # Handle special text format
                 special_start = 0
@@ -589,8 +600,6 @@ class EventProperties(QWidget):
                 self.current.commands.append(command)
 
     def set_current(self, current):
-        print("Set Current")
-        print(current.name, current.level_nid)
         self.current = current
         self.name_box.edit.setText(current.name)
         # self.trigger_box.edit.clear()
@@ -606,10 +615,16 @@ class EventProperties(QWidget):
 
         # Convert text
         text = ''
+        num_tabs = 0
         for command in current.commands:
             if command:
+                if command.nid in ('else', 'elif', 'end'):
+                    num_tabs -= 1
+                text += '    ' * num_tabs
                 text += command.to_plain_text()
                 text += '\n'
+                if command.nid in ('if', 'elif', 'else'):
+                    num_tabs += 1
             else:
                 print("NoneType in current.commands")
 

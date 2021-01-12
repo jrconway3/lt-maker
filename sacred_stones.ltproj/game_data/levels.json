@@ -843,7 +843,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": false
+                "only_once": true
             },
             {
                 "nid": "Village2",
@@ -858,7 +858,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": null
+                "only_once": true
             },
             {
                 "nid": "VIllage3",
@@ -873,7 +873,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": null
+                "only_once": true
             },
             {
                 "nid": "Armory",

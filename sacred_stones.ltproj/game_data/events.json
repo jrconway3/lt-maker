@@ -459,6 +459,387 @@
         "only_once": false
     },
     {
+        "name": "DeathJoshua",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Joshua'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Joshua",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "I... I guess my luck finally ran out...|Heh."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Joshua",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joshua"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathColm",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Colm'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Colm",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Colm",
+                    "To think of it... Me... In this place...|Neimi..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Colm",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Colm"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathNeimi",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Neimi'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Neimi",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Neimi",
+                    "You were right, Colm...|I am a klutz. Sorry..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Neimi",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Neimi"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathArtur",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Artur'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Artur",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Artur",
+                    "The rest... is up to you."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Artur",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Artur"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathNatasha",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Natasha'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Natasha",
+                    "FarRight"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.level.nid == '5'"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "I can't let myself die here...|Someone has to hear my tale..."
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "My fate is irrelevant...|The world must have... light."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "expression",
+                [
+                    "Natasha",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Natasha"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathLute",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Lute'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Lute",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "I...{br}I don't want to die..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Lute",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Lute"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathVanessa",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Vanessa'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Please...|Forgive me..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Vanessa",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathMoulder",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Moulder'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Moulder",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "I am sorry. I believe this is as far as I go..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Moulder",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Moulder"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathRoss",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Ross'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "I... am a warrior to the very end."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Ross",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ross"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "DeathGarcia",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Garcia'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Garcia",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "I have no regrets.{br}This was always my fate."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Garcia",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Garcia"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
         "name": "DeathFranz",
         "trigger": "unit_death",
         "level_nid": null,
@@ -4767,5 +5148,21 @@
             ]
         ],
         "only_once": true
+    },
+    {
+        "name": "Turn2",
+        "trigger": "turn_change",
+        "level_nid": "DEBUG",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "change_team",
+                [
+                    "Bone",
+                    "player"
+                ]
+            ]
+        ],
+        "only_once": false
     }
 ]

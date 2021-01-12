@@ -17,9 +17,11 @@ class Banner():
 
     def figure_out_size(self):
         self.length = FONT['text-white'].width(''.join(self.text))
+        self.length += 12
+        self.length -= self.length%8
         self.length += (16 if self.item else 0)
         self.font_height = 16
-        self.size = self.length + 10, 24
+        self.size = self.length, 24
 
     def update(self):
         if not self.update_flag:
@@ -34,7 +36,6 @@ class Banner():
         if not self.surf:
             w, h = self.size
             bg_surf = base_surf.create_base_surf(w, h, 'menu_bg_base')
-            self.size = bg_surf.get_width(), bg_surf.get_height()
             self.surf = engine.create_surface((w + 2, h + 4), transparent=True)
             self.surf.blit(bg_surf, (2, 4))
             self.surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
@@ -49,7 +50,7 @@ class Banner():
             left += word_width
 
         if self.item:
-            icons.draw_item(bg_surf, self.item, (self.size[0] - 20, 8), cooldown=False)
+            icons.draw_item(bg_surf, self.item, (self.size[0] - 18, 8), cooldown=False)
         engine.blit_center(surf, bg_surf)
         return surf
 

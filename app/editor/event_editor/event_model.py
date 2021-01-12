@@ -46,3 +46,21 @@ class EventModel(TableModel):
         new_event = EventPrefab(name)
         DB.events.append(new_event)
         return new_event
+
+    def duplicate(self, index):
+        if not index.isValid():
+            return False
+        idx = index.row()
+        obj = self._data[idx]
+        other_names = [o.name for o in self._data if o.level_nid == obj.level_nid]
+        new_name = str_utils.get_next_name(obj.name, other_names)
+        serialized_obj = obj.save()
+        print("Duplication!")
+        print(serialized_obj, flush=True)
+        new_obj = self._data.datatype.restore(serialized_obj)
+        new_obj.name = new_name
+        self.layoutAboutToBeChanged.emit()
+        self._data.insert(idx + 1, new_obj)
+        self.layoutChanged.emit()
+        new_index = self.index(idx + 1, 0)
+        return new_index

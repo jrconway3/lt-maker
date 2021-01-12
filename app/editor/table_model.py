@@ -84,10 +84,7 @@ class TableModel(QAbstractTableModel):
             new_obj = self._data.datatype.restore(serialized_obj)
         else:
             new_obj = copy.copy(obj)
-        try:
-            new_obj.nid = new_nid
-        except AttributeError:
-            pass
+        new_obj.nid = new_nid
         self.layoutAboutToBeChanged.emit()
         self._data.insert(idx + 1, new_obj)
         self.layoutChanged.emit()

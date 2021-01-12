@@ -924,21 +924,21 @@ class ChangeTeam(Action):
 
     def do(self):
         if self.unit.position:
-            game.board.remove_unit(self.unit.position, self.unit)
+            game.leave(self.unit)
         self.unit.team = self.team
         self.action.do()
         if self.unit.position:
-            game.board.set_unit(self.unit.position, self.unit)
+            game.arrive(self.unit)
         game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
     def reverse(self):
         if self.unit.position:
-            game.board.remove_unit(self.unit.position, self.unit)
+            game.leave(self.unit)
         self.unit.team = self.old_team
         self.action.reverse()
         if self.unit.position:
-            game.board.set_unit(self.unit.position, self.unit)
+            game.arrive(self.unit)
         game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 

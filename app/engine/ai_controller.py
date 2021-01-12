@@ -609,7 +609,7 @@ class SecondaryAI():
                 true_damage = raw_damage * hit
 
             if true_damage <= 0 and status_term <= 0:
-                return 0  # If no damage could be dealt, ignore
+                return None  # If no damage could be dealt, ignore
             damage_term = min(float(true_damage / hp_max), 1.)
             new_tp = damage_term + status_term/2
             if new_tp > tp:
@@ -633,7 +633,11 @@ class SecondaryAI():
 
         enemy = game.board.get_unit(target)
         if self.behaviour.action == "Attack" and enemy:
-            terms += self.default_priority(enemy)    
+            new_terms = self.default_priority(enemy)
+            if new_terms:
+                terms += new_terms
+            else:
+                return 0
         else:
             pass
 

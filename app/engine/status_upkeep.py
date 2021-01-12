@@ -50,6 +50,7 @@ class StatusUpkeepState(MapState):
                         item_system.on_upkeep(self.actions, self.playback, self.cur_unit, item)
                 if (self.actions or self.playback) and self.cur_unit.position:
                     game.cursor.set_pos(self.cur_unit.position)
+                    game.state.change('move_camera')
                     self.cur_unit.sprite.change_state('selected')
                     self.health_bar = health_bar.MapCombatInfo('splash', self.cur_unit, None, None, None)
                     self.state = 'start'
@@ -106,11 +107,12 @@ class StatusUpkeepState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        if self.health_bar:
-            self.health_bar.draw(surf)
 
         self.animations = [anim for anim in self.animations if not anim.update()]
         for anim in self.animations:
-            anim.draw(surf)
+            anim.draw(surf, offset=(-game.camera.get_x(), -game.camera.get_y()))
+
+        if self.health_bar:
+            self.health_bar.draw(surf)
 
         return surf

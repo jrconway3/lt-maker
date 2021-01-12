@@ -48,8 +48,8 @@ class TalkAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        adj_allies = target_system.get_adj_allies(unit)
-        return set([u.position for u in adj_allies if (unit.nid, u.nid) in game.talk_options])
+        adj_units = target_system.get_adj_units(unit)
+        return set([u.position for u in adj_units if (unit.nid, u.nid) in game.talk_options])
 
     @staticmethod
     def do(unit):

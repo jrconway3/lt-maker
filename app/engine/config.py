@@ -73,6 +73,6 @@ def get_debug_commands() -> list:
                 commands.append(line.strip())
     return commands
 
-text_speed_options = list(reversed([0, 1, 5, 10, 15, 20, 32, 50, 80, 112]))
+text_speed_options = list(reversed([0, 3, 8, 15, 32, 50, 64, 80, 112, 150]))
 SETTINGS = read_config_file()
 print("debug: %s" % SETTINGS['debug'])

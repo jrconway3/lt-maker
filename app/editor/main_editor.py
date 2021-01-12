@@ -115,14 +115,7 @@ class MainEditor(QMainWindow):
         self.create_level_dock()
         self.create_edit_dock()
 
-        # Actually load data
-        # DB.deserialize()
-        # DB.init_load()
-
-        result = self.auto_open()
-        # if not result:
-        #     DB.load('default.ltproj')
-        #     self.set_window_title('default.ltproj')
+        self.auto_open()
         
         if len(DB.levels) == 0:
             self.level_menu.create_initial_level()
@@ -421,7 +414,9 @@ class MainEditor(QMainWindow):
                     self.edit_global()
                 identifier, title = result
 
-                DB.load('default.ltproj')
+                self.current_proj = 'default.ltproj'
+                self.settings.set_current_project(self.current_proj)
+                self.load()
                 DB.constants.get('game_nid').set_value(identifier)
                 DB.constants.get('title').set_value(title)
                 self.set_window_title('Untitled')
@@ -430,7 +425,10 @@ class MainEditor(QMainWindow):
 
     def open(self):
         if self.maybe_save():
-            starting_path = self.current_proj or QDir.currentPath()
+            if self.current_proj:
+                starting_path = os.path.join(self.current_proj, '..')
+            else:
+                starting_path = QDir.currentPath()
             fn = QFileDialog.getExistingDirectory(self, "Open Project Directory", starting_path)
             if fn:
                 self.current_proj = fn
@@ -464,12 +462,15 @@ class MainEditor(QMainWindow):
 
             RESOURCES.load(self.current_proj)
             DB.load(self.current_proj)
-            # DB.init_load()
 
             # self.undo_stack.clear()
             print("Loaded project from %s" % self.current_proj)
             self.status_bar.showMessage("Loaded project from %s" % self.current_proj)
-            self.update_view()
+
+            if DB.levels:
+                self.current_level = DB.levels[0]
+                self.set_current_level(self.current_level)
+            # self.update_view()
 
     def save(self, new=False):
         print("Save", self.current_proj, os.path.basename(self.current_proj))
@@ -477,7 +478,10 @@ class MainEditor(QMainWindow):
         if os.path.basename(self.current_proj) == 'default.ltproj':
             self.current_proj = None
         if new or not self.current_proj:
-            starting_path = self.current_proj or QDir.currentPath()
+            if self.current_proj:
+                starting_path = os.path.join(self.current_proj, '..')
+            else:
+                starting_path = QDir.currentPath()
             fn, ok = QFileDialog.getSaveFileName(self, "Save Project", starting_path, 
                                                  "All Files (*)")
             if ok:

@@ -306,7 +306,7 @@ class MapCombatInfo():
                 self.stats_surf = self.build_stat_surf()
             bg_surf.blit(self.stats_surf, (0, height))
 
-        if not self.true_position:
+        if not self.true_position or self.draw_method == 'splash':
             self.determine_position(width, height)
 
         if self.hit is not None or self.mt is not None:

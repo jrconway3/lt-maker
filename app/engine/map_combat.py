@@ -304,13 +304,13 @@ class MapCombat():
         pass
 
     def draw(self, surf):
-        for hp_bar in self.health_bars.values():
-            hp_bar.draw(surf)
-
         # Animations
         self.animations = [anim for anim in self.animations if not anim.update()]
         for anim in self.animations:
             anim.draw(surf, offset=(-game.camera.get_x(), -game.camera.get_y()))
+        
+        for hp_bar in self.health_bars.values():
+            hp_bar.draw(surf)
 
         # Damage Nums
         for damage_num in self.damage_numbers:

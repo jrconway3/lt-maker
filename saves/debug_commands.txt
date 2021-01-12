@@ -8,3 +8,12 @@ set_current_hp;Eirika;10
 give_exp;Eirika;100
 set_current_hp;Eirika;10
 give_exp;Eirika;100
+set_current_hp;Ross;5
+set_current_hp;Ross;5
+set_current_hp;Ross;5
+set_current_hp;Ross;5
+set_current_hp;Ross;5
+set_current_hp;Ross;5
+
+set_current_hp;Ross;5
+set_current_hp;Ross;5

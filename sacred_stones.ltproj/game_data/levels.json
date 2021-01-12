@@ -1041,6 +1041,16 @@
                     3
                 ],
                 "generic": false
+            },
+            {
+                "nid": "Ross",
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    10,
+                    5
+                ],
+                "generic": false
             }
         ],
         "regions": [],

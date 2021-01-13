@@ -28,7 +28,9 @@ class GameOverState(State):
 
     def take_input(self, event):
         if self.state == 'stasis' and event:
-            game.state.back()  # Any input returns to start screen
+            # Any input returns to start screen
+            game.memory['next_state'] = 'title_start'
+            game.state.change('transition_to')
 
     def update(self):
         if self.state == 'text_fade_in':

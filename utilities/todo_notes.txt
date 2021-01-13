@@ -54,3 +54,5 @@ Multi-items
 Klok's Combining items idea
 " imagine that, when you select an item, an arrow appears on its left and the item would 'highlight'
 then when you select the next item, it also highlights with an arrow, followed by a preview of their combined effects to the right/left, and a "Press A to attack" box"
+
+Line of Sight rules

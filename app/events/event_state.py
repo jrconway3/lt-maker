@@ -14,6 +14,7 @@ class EventState(MapState):
 
     def begin(self):
         logger.info("Begin Event State")
+        self.game_over: bool = False  # Whether we've called for a game over
         if not self.event:
             self.event = game.events.get()
             if self.event:
@@ -32,6 +33,9 @@ class EventState(MapState):
 
     def update(self):
         super().update()
+        if self.game_over:
+            return
+
         if self.event:
             self.event.update()
         else:
@@ -42,8 +46,8 @@ class EventState(MapState):
         if self.event.state == 'paused':
             return 'repeat'
 
-        if self.event.state == 'complete':
-            game.state.back()
+        elif self.event.state == 'complete':
+            # game.state.back()
             return self.end_event()
 
     def draw(self, surf):
@@ -84,8 +88,8 @@ class EventState(MapState):
                     self.level_end()
 
         elif game.level_vars.get('_lose_game'):
-            game.state.clear()
-            game.state.change('title_start')
-            game.state.change('game_over')
+            self.game_over = True
+            game.memory['next_state'] = 'game_over'
+            game.state.change('transition_to')
 
         return 'repeat'

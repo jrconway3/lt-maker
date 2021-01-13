@@ -33,7 +33,8 @@ class TitleStartState(State):
         # Wait until saving thread has finished
         if save.SAVE_THREAD:
             save.SAVE_THREAD.join()
-
+        
+        game.state.refresh()
         game.state.change('transition_in')
         return 'repeat'
 
@@ -45,7 +46,8 @@ class TitleStartState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
-        engine.blit_center(surf, self.logo)
+        if self.logo:
+            engine.blit_center(surf, self.logo)
         return surf
 
 class TitleMainState(State):

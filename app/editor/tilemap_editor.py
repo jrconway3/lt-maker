@@ -802,6 +802,10 @@ class LayerMenu(QWidget):
         layout.addWidget(self.toolbar)
         self.setLayout(layout)
 
+        # Select first layer
+        index = self.model.index(0)
+        self.view.setCurrentIndex(index)
+
     def deletion_func(self, model, index):
         return model._data[index.row()].nid != "base"
 

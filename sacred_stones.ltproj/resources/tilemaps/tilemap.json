@@ -4544,17 +4544,17 @@
             },
             {
                 "nid": "PrevVillage",
-                "visible": false,
+                "visible": true,
                 "terrain_grid": {
-                    "11,3": "Village Ruins",
-                    "11,2": "Village Ruins",
-                    "11,1": "Village Ruins",
+                    "11,3": "0",
+                    "11,2": "0",
+                    "11,1": "0",
                     "12,1": "0",
                     "13,1": "0",
                     "13,2": "0",
-                    "13,3": "Village Ruins",
-                    "12,2": "Village Ruins",
-                    "12,3": "Village Ruins"
+                    "13,3": "0",
+                    "12,2": "0",
+                    "12,3": "35"
                 },
                 "sprite_grid": {
                     "11,3": [

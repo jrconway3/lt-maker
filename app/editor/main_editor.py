@@ -463,7 +463,6 @@ class MainEditor(QMainWindow):
             RESOURCES.load(self.current_proj)
             DB.load(self.current_proj)
 
-            # self.undo_stack.clear()
             print("Loaded project from %s" % self.current_proj)
             self.status_bar.showMessage("Loaded project from %s" % self.current_proj)
 

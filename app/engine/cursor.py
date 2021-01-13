@@ -28,9 +28,9 @@ class Cursor():
 
         self.fluid = FluidScroll(cf.SETTINGS['cursor_speed'])
 
-        self.display_arrows: bool = False
+        self._display_arrows: bool = False
         self.arrows = []
-        self.border_position = None  # Last position within movement borders
+        self._last_valid_position = None  # Last position within movement borders
         self.stopped_at_move_border = False
 
         self.mouse_mode: bool = False
@@ -56,6 +56,24 @@ class Cursor():
         game.camera.set_xy(*self.position)
         game.ui_view.remove_unit_display()
 
+    def _get_path(self) -> list:
+        if not self._last_valid_position:
+            self.path.clear()
+            return self.path
+
+        if self.path:
+            if self._last_valid_position in self.path:
+                idx = self.path.index(self._last_valid_position)
+                self.path = self.path[idx:]
+                return self.path
+            elif self._last_valid_position in target_system.get_adjacent_positions(self.path[0]):
+                self.path.insert(0, self._last_valid_position)
+                if target_system.check_path(self.cur_unit, self.path):
+                    return self.path
+        
+        self.path = target_system.get_path(self.cur_unit, self._last_valid_position)
+        return self.path
+
     def move(self, dx, dy, mouse=False, sound=True):
         x, y = self.position
         self.position = x + dx, y + dy
@@ -73,26 +91,10 @@ class Cursor():
                 SOUNDTHREAD.play_sfx('Select 5')
 
         if game.highlight.check_in_move(self.position):
-            self.border_position = self.position
+            self._last_valid_position = self.position
 
-        if self.display_arrows:
-            check_good = False
-            if self.path:
-                # Go back to that point
-                if self.border_position in self.path[1:]:
-                    idx = self.path[1:].index(self.border_position) + 1
-                    self.path = self.path[idx:]
-                else:
-                    if self.border_position not in self.path:
-                        self.path.insert(0, self.border_position)
-                check_good = target_system.check_path(self.cur_unit, self.path)
-            # See if we can keep the current path
-            if check_good:
-                pass  # Can just use original path
-            elif self.border_position:
-                self.path = target_system.get_path(self.cur_unit, self.border_position)
-            else:
-                self.path = target_system.get_path(self.cur_unit, self.position)
+        if self._display_arrows:
+            self.path = self._get_path()
             self.construct_arrows(self.path[::-1])
 
         # Remove unit info display
@@ -127,7 +129,7 @@ class Cursor():
     def place_arrows(self):
         if self.path:
             self.path.clear()
-        self.display_arrows = True
+        self._display_arrows = True
 
     def construct_arrows(self, path):
         self.arrows.clear()
@@ -176,8 +178,8 @@ class Cursor():
                         self.arrows.append(Arrow(4, 1, path[idx]))
 
     def remove_arrows(self):
-        self.border_position = None
-        self.display_arrows = False
+        self._last_valid_position = None
+        self._display_arrows = False
         self.arrows.clear()
 
     def take_input(self):
@@ -284,7 +286,7 @@ class Cursor():
         return surf
 
     def draw_arrows(self, surf):
-        if self.display_arrows:
+        if self._display_arrows:
             for arrow in self.arrows:
                 surf = arrow.draw(surf)
         return surf

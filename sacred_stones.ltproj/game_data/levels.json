@@ -1051,6 +1051,26 @@
                     5
                 ],
                 "generic": false
+            },
+            {
+                "nid": "Eirika",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Gilliam",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    4
+                ],
+                "generic": false
             }
         ],
         "regions": [],

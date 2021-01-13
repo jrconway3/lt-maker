@@ -56,3 +56,7 @@ Klok's Combining items idea
 then when you select the next item, it also highlights with an arrow, followed by a preview of their combined effects to the right/left, and a "Press A to attack" box"
 
 Line of Sight rules
+
+For Portrait Editor:
+    Auto-match blink and mouth frames button
+    Position in main info menu setters

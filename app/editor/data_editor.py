@@ -121,7 +121,7 @@ class SingleResourceEditor(QDialog):
     def reject(self):
         current_proj = self.settings.get_current_project()
         if current_proj:
-            RESOURCES.reload(current_proj)
+            RESOURCES.load(current_proj)
         self.save_geometry()
         super().reject()
 

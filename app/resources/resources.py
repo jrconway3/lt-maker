@@ -78,16 +78,8 @@ class Resources():
             save_data_types = self.save_data_types
         for data_type in save_data_types:
             print("Resources: Loading %s..." % data_type)
+            getattr(self, data_type).clear()  # Now always clears first
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
-
-    def reload(self, proj_dir, specific=None):
-        if specific:
-            for resource_type in specific:
-                getattr(self, resource_type).clear()
-            self.load(proj_dir, specific)
-        else:
-            self.clear()
-            self.load(proj_dir)
 
     def save(self, proj_dir, specific=None):
         print("Starting Resource Serialization...")

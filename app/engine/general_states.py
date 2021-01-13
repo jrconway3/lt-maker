@@ -363,6 +363,7 @@ class MoveState(MapState):
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
+            game.cursor.set_pos(cur_unit.position)
             game.state.clear()
             game.state.change('free')
             if cur_unit.has_attacked or cur_unit.has_traded:

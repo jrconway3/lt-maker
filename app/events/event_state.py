@@ -47,7 +47,6 @@ class EventState(MapState):
             return 'repeat'
 
         elif self.event.state == 'complete':
-            # game.state.back()
             return self.end_event()
 
     def draw(self, surf):
@@ -91,5 +90,8 @@ class EventState(MapState):
             self.game_over = True
             game.memory['next_state'] = 'game_over'
             game.state.change('transition_to')
+
+        else:
+            game.state.back()
 
         return 'repeat'

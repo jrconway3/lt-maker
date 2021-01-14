@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QPixmap
 
 from app.editor import timer
@@ -53,7 +53,11 @@ class PanoramaTab(QWidget):
         self.model.layoutChanged.emit()
 
     def tick(self):
-        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
+        pass
+        # for idx, panorama in enumerate(self._data):
+        #     if len(panorama.pixmaps) > 1:
+        #         index = self.model.index(idx)
+        #         self.model.dataChanged.emit(index, index, [Qt.DecorationRole])
 
     def reset(self):
         pass

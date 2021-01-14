@@ -225,14 +225,15 @@ class MapCombat():
 
             # P1 on single splash
             elif len(self.splash) == 1:
-                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.item, 'Attack')
-                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.item, 'Attack')
+                defender = self.splash[0]
+                hit = combat_calcs.compute_hit(self.attacker, defender, self.item, 'Attack')
+                mt = combat_calcs.compute_damage(self.attacker, defender, self.item, 'Attack')
                 if self.attacker not in self.health_bars:
-                    attacker_health = MapCombatInfo('p1', self.attacker, self.item, self.defender, (hit, mt))
+                    attacker_health = MapCombatInfo('p1', self.attacker, self.item, defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
-                if self.defender not in self.health_bars:
-                    splash_health = MapCombatInfo('splash', self.defender, None, self.attacker, (None, None))
-                    self.health_bars[self.defender] = splash_health
+                if defender not in self.health_bars:
+                    splash_health = MapCombatInfo('splash', defender, None, self.attacker, (None, None))
+                    self.health_bars[defender] = splash_health
 
     def _handle_playback(self):
         for brush in self.playback:

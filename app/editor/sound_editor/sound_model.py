@@ -33,7 +33,7 @@ class SoundModel(TableModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             d = self._data[index.row()]
             str_attr = self.rows[index.column()]
             if str_attr == 'extra':
@@ -54,6 +54,12 @@ class SoundModel(TableModel):
             if str_attr == 'length':
                 return Qt.AlignRight + Qt.AlignVCenter
         return None
+
+    def flags(self, index):
+        main_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
+        if index.column() == 0:
+            main_flags |= Qt.ItemIsEditable
+        return main_flags
 
 class SFXModel(SoundModel):
     def create_new(self) -> bool:
@@ -91,6 +97,12 @@ class SFXModel(SoundModel):
                 c.tag = saved_d[idx][1]
                 c.nid = saved_d[idx][0]
                 self._data.update_nid(c, c.nid)
+
+    def flags(self, index):
+        main_flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemNeverHasChildren
+        if index.column() in (0, 2):
+            main_flags |= Qt.ItemIsEditable
+        return main_flags
 
 class MusicModel(SoundModel):
     rows = ['nid', 'length', 'extra']

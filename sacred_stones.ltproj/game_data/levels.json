@@ -1071,6 +1071,28 @@
                     4
                 ],
                 "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 10,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Thunder",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [],

@@ -723,7 +723,7 @@ class LayerModel(ResourceCollectionModel):
         if not index.isValid():
             return None
         layer = self._data[index.row()]
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             text = layer.nid
             return text
         elif role == Qt.CheckStateRole:

@@ -472,9 +472,8 @@ class MainEditor(QMainWindow):
             # self.update_view()
 
     def save(self, new=False):
-        print("Save", self.current_proj, os.path.basename(self.current_proj))
         # check if we're editing default, if so, prompt to save as
-        if os.path.basename(self.current_proj) == 'default.ltproj':
+        if self.current_proj and os.path.basename(self.current_proj) == 'default.ltproj':
             self.current_proj = None
         if new or not self.current_proj:
             if self.current_proj:
@@ -484,6 +483,12 @@ class MainEditor(QMainWindow):
             fn, ok = QFileDialog.getSaveFileName(self, "Save Project", starting_path, 
                                                  "All Files (*)")
             if ok:
+                if '.ltproj' in fn[:-1]:
+                    QMessageBox.warning(self, 'Warning', 'Cannot save project inside of another project!')
+                    return False
+                if fn.endswith('default.ltproj'):
+                    QMessageBox.warning(self, 'Warning', 'Cannot overwrite <b>default.ltproj</b>!')
+                    return False
                 if fn.endswith('.ltproj'):
                     self.current_proj = fn
                 else:

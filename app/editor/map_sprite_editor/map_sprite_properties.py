@@ -108,6 +108,11 @@ class MapSpriteProperties(QWidget):
 
     def set_current(self, current):
         self.current = current
+        if not current.standing_pixmap:
+            current.standing_pixmap = QPixmap(current.stand_full_path)
+        if not current.moving_pixmap:
+            current.moving_pixmap = QPixmap(current.move_full_path)
+
         # Painting
         base_image = QImage(self.standing_width + self.moving_width, 
                             max(self.standing_height, self.moving_height),

@@ -309,7 +309,7 @@ class TableView(RightClickTableView):
 class ResourceTableView(ResourceView, TableView):
     pass
 
-class MultiselectTableView(TableView):
+class MultiselectTableView(ResourceTableView):
     def __init__(self, action_funcs=None, parent=None):
         super().__init__(action_funcs, parent)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)

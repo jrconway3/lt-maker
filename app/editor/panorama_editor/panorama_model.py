@@ -17,7 +17,7 @@ class PanoramaModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             panorama = self._data[index.row()]
             text = panorama.nid
             return text

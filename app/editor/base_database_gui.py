@@ -270,7 +270,8 @@ class ResourceCollectionModel(DragDropCollectionModel):
             if value:
                 item = self._data[index.row()]
                 old_nid = item.nid
-                nid = str_utils.get_next_name(value, [d.nid for d in self._data])
+                nids = [d.nid for d in self._data if d is not item]
+                nid = str_utils.get_next_name(value, nids)
                 self._data.update_nid(item, nid)
                 self.nid_change_watchers(item, old_nid, nid)
         return True

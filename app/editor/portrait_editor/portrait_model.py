@@ -32,6 +32,10 @@ class PortraitModel(ResourceCollectionModel):
             chibi = pixmap.copy(96, 16, 32, 32)
             chibi = QPixmap.fromImage(editor_utilities.convert_colorkey(chibi.toImage()))
             return QIcon(chibi)
+        elif role == Qt.EditRole:
+            portrait = self._data[index.row()]
+            text = portrait.nid
+            return text
         return None
 
     def create_new(self):

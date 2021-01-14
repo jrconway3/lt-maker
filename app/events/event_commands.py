@@ -227,6 +227,16 @@ class SetCurrentHP(EventCommand):
     tag = 'unit'
     keywords = ["Unit", "PositiveInteger"]
 
+class HasAttacked(EventCommand):
+    nid = 'has_attacked'
+    tag = 'unit'
+    keywords = ["Unit"]
+
+class HasTraded(EventCommand):
+    nid = 'has_traded'
+    tag = 'unit'
+    keywords = ['Unit']
+
 class AddGroup(EventCommand):
     nid = 'add_group'
     tag = 'unit'

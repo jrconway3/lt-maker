@@ -143,6 +143,8 @@ def get_path(unit, position, ally_block=False) -> list:
     pathfinder = pathfinding.AStar(unit.position, position, grid, width, height, unit.team, pass_through)
 
     path = pathfinder.process(game.board.team_grid, ally_block=ally_block)
+    if path is None:
+        return []
     return path
 
 def check_path(unit, path) -> bool:

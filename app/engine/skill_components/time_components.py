@@ -64,7 +64,7 @@ class LostOnEndChapter(SkillComponent):
     desc = "Remove at end of chapter"
     tag = "time"
 
-    def on_end_chapter(self, unit):
+    def on_end_chapter(self, unit, skill):
         action.do(action.RemoveSkill(unit, self.skill))
 
 class EventOnRemove(SkillComponent):

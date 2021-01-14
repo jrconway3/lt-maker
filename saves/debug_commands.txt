@@ -1,8 +1,3 @@
-set_current_unit;Eirika;10
-set_current_hp;Eirika;10
-set_current_hp;Eirika;10
-set_current_hp;Eirika;10
-win_game
 give_exp;Eirika;100
 set_current_hp;Eirika;10
 give_exp;Eirika;100
@@ -17,3 +12,9 @@ set_current_hp;Ross;5
 
 set_current_hp;Ross;5
 set_current_hp;Ross;5
+set_current_hp;Bone;1
+set_current_hp;Bone;1
+set_current_hp;Bone;1
+a
+a
+set_current_hp;Bone;1

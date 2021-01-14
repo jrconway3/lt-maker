@@ -1406,6 +1406,12 @@
                 [
                     "Open"
                 ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false
@@ -1470,6 +1476,12 @@
                 "transition",
                 [
                     "Open"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -3740,6 +3752,12 @@
                     "Eirika",
                     "Red Gem"
                 ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false
@@ -3817,6 +3835,12 @@
                 [
                     "{unit}",
                     "Red Gem"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -3988,6 +4012,12 @@
                     "{unit}",
                     "Elixir"
                 ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false
@@ -4065,6 +4095,12 @@
                 [
                     "{unit}",
                     "Pure Water"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -5161,6 +5197,61 @@
                     "Bone",
                     "player"
                 ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Armory",
+        "trigger": "Armory",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "shop",
+                [
+                    "{unit}",
+                    "Iron Sword,Slim Sword,Iron Lance,Slim Lance,Iron Axe",
+                    "armory"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Rout",
+        "trigger": "combat_end",
+        "level_nid": "2",
+        "condition": "len(game.get_enemy_units()) == 0",
+        "commands": [
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Rout (1)",
+        "trigger": "combat_end",
+        "level_nid": "DEBUG",
+        "condition": "len(game.get_enemy_units()) == 0",
+        "commands": [
+            [
+                "win_game",
+                []
             ]
         ],
         "only_once": false

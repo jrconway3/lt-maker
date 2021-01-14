@@ -247,6 +247,8 @@ class GameState():
             for unit in self.current_level.units:
                 self.arrive(unit)
 
+            self.cursor.autocursor()
+
     def clean_up(self):
         from app.engine import item_system, skill_system, item_funcs
 
@@ -272,14 +274,14 @@ class GameState():
         # Remove non-player team units and all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.team == 'player' and not v.generic}
         # Remove any skill that's not on a unit
-        for k, v in self.skill_registry.items():
+        for k, v in list(self.skill_registry.items()):
             if v.owner_nid:  # Remove skills from units that no longer exist
                 if v.owner_nid not in self.unit_registry:
                     del self.skill_registry[k]
             else:
                 del self.skill_registry[k]
         # Remove any item that's not on a unit or in the convoy
-        for k, v in self.item_registry.items():
+        for k, v in list(self.item_registry.items()):
             if v.owner_nid:  # Remove items from units that no longer exist
                 if v.owner_nid not in self.unit_registry:
                     del self.item_registry[k]
@@ -372,10 +374,10 @@ class GameState():
         return [unit for unit in self.level.units if unit.team.startswith('enemy') and unit.position and not unit.dead and not unit.is_dying]
 
     def check_dead(self, nid):
-        return any(unit.nid == nid and (unit.dead or unit.is_dying) for unit in game.level.units)
+        return any(unit.nid == nid and (unit.dead or unit.is_dying) for unit in self.level.units)
 
     def check_alive(self, nid):
-        return any(unit.nid == nid and not (unit.dead or unit.is_dying) for unit in game.level.units)
+        return any(unit.nid == nid and not (unit.dead or unit.is_dying) for unit in self.level.units)
 
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):

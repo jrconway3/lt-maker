@@ -79,7 +79,7 @@ dynamic_hooks = ('dynamic_damage', 'dynamic_resist', 'dynamic_accuracy', 'dynami
 multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 
 # Takes in unit
-simple_event_hooks = ('on_end_chapter', 'on_death')
+simple_event_hooks = ('on_death',)
 # Takes in playback, unit, item, target
 combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
@@ -184,6 +184,8 @@ for hook in multiply_hooks:
 for hook in simple_event_hooks:
     func = """def %s(unit):
                   for skill in unit.skills:
+                      if not condition(skill, unit):
+                          continue 
                       for component in skill.components:
                           if component.defines('%s'):
                               component.%s(unit)""" \
@@ -260,6 +262,13 @@ def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
             if component.defines('on_endstep'):
                 component.on_endstep(actions, playback, unit)
     return actions, playback
+
+def on_end_chapter(unit, skill):
+    if not condition(skill, unit):
+        return
+    for component in skill.components:
+        if component.defines('on_end_chapter'):
+            component.on_end_chapter(unit, skill)
 
 def init(skill):
     for component in skill.components:

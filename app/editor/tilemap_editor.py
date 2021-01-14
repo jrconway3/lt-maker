@@ -1,9 +1,10 @@
+import os
 from enum import IntEnum
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
     QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup, \
-    QDesktopWidget
+    QDesktopWidget, QFileDialog
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
@@ -528,6 +529,8 @@ class MapEditor(QDialog):
         self.terrain_action = QAction(QIcon(f"{icon_folder}/terrain.png"), "&Terrain Mode", self, shortcut="T", triggered=self.terrain_mode_toggle)
         self.terrain_action.setCheckable(True)
 
+        self.export_as_png_action = QAction(QIcon(f"{icon_folder}/export_as_png.png"), "E&xport Current Image as PNG", self, shortcut="X", triggered=self.export_as_png)
+
     def void_right_selection(self):
         self.view.right_selection.clear()
 
@@ -555,6 +558,7 @@ class MapEditor(QDialog):
         self.toolbar.addAction(self.erase_action)
         self.toolbar.addAction(self.resize_action)
         self.toolbar.addAction(self.terrain_action)
+        self.toolbar.addAction(self.export_as_png_action)
 
     def set_current(self, current):  # Current is a TileMapPrefab
         self.current = current
@@ -572,6 +576,19 @@ class MapEditor(QDialog):
             self.terrain_painter_menu.show()
         else:
             self.terrain_painter_menu.hide()
+
+    def export_as_png(self):
+        if self.current:
+            image = draw_tilemap(self.current)
+            starting_path = self.settings.get_last_open_path()
+            fn, ok = QFileDialog.getSaveFileName(
+                self, "Export Current Image", starting_path, 
+                "PNG Files (*.png)")
+            if ok:
+                image.save(fn)
+                parent_dir = os.path.split(fn)[0]
+                self.settings.set_last_open_path(parent_dir)
+
 
     def update_view(self):
         self.view.update_view()

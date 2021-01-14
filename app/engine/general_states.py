@@ -15,6 +15,7 @@ from app.engine import engine, action, menus, interaction, image_mods, \
     text_funcs, equations, menu_options
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
+from app.engine.input_manager import INPUT
 from app.engine.fluid_scroll import FluidScroll
 
 import logging
@@ -109,6 +110,7 @@ class FreeState(MapState):
             game.action_log.set_first_free_action()
 
     def take_input(self, event):
+        game.cursor.set_speed_state(INPUT.is_pressed('BACK'))
         game.cursor.take_input()
         
         if event == 'INFO':
@@ -155,6 +157,7 @@ class FreeState(MapState):
             return 'repeat'
 
     def end(self):
+        game.cursor.set_speed_state(False)
         game.highlight.remove_highlights()
 
 def suspend():
@@ -623,8 +626,8 @@ class MenuState(MapState):
                         did_trigger = game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
                         if did_trigger and region.only_once:
                             action.do(action.RemoveRegion(region))
-                        if did_trigger:
-                            action.do(action.HasAttacked(self.cur_unit))
+                        # if did_trigger:
+                            # action.do(action.HasTraded(self.cur_unit))
             # An extra ability
             elif selection in self.extra_abilities:
                 item = self.extra_abilities[selection]
@@ -1465,11 +1468,10 @@ class ShopState(State):
         if event == 'SELECT':
             if self.state == 'open':
                 SOUNDTHREAD.play_sfx('Select 1')
+                self.current_msg.hurry_up()
                 if self.current_msg.is_done():
                     self.state = 'choice'
                     self.menu = self.choice_menu
-                else:
-                    self.current_msg.hurry_up()
 
             elif self.state == 'choice':
                 SOUNDTHREAD.play_sfx('Select 1')
@@ -1489,6 +1491,7 @@ class ShopState(State):
                 if item:
                     value = item_funcs.buy_price(self.unit, item)
                     if game.get_money() - value >= 0:
+                        action.do(action.HasTraded(self.unit))
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() - value)
                         self.money_counter_disp.start(-value)
@@ -1518,6 +1521,7 @@ class ShopState(State):
                 if item:
                     value = item_funcs.sell_price(self.unit, item)
                     if value:
+                        action.do(action.HasTraded(self.unit))
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() + value)
                         self.money_counter_disp.start(value)

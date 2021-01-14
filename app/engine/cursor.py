@@ -18,7 +18,7 @@ class Cursor():
         self.cursor_counter = generic3counter(20*FRAMERATE, 2*FRAMERATE, 8*FRAMERATE)
         self.position = (0, 0)
         self.cur_unit = None
-        self.path = None
+        self.path = []
         self.draw_state = 0
         self.speed_state = False
 
@@ -49,6 +49,9 @@ class Cursor():
 
     def set_turnwheel_sprite(self):
         self.draw_state = 3
+
+    def set_speed_state(self, val: bool):
+        self.speed_state = val
 
     def set_pos(self, pos):
         logger.info("New position %s", pos)
@@ -127,8 +130,7 @@ class Cursor():
             self.set_pos(player_units[0].position)
 
     def place_arrows(self):
-        if self.path:
-            self.path.clear()
+        self.path.clear()
         self._display_arrows = True
 
     def construct_arrows(self, path):
@@ -185,9 +187,9 @@ class Cursor():
     def take_input(self):
         self.fluid.update()
         if self.stopped_at_move_border:
-            directions = self.fluid.get_directions(slow_speed=True)
+            directions = self.fluid.get_directions(double_speed=self.speed_state, slow_speed=True)
         else:
-            directions = self.fluid.get_directions()
+            directions = self.fluid.get_directions(double_speed=self.speed_state)
 
         if game.highlight.check_in_move(self.position):
             if directions:

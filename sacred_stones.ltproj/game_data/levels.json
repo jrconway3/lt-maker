@@ -575,7 +575,7 @@
             "base": null
         },
         "objective": {
-            "simple": "Defeat enemy,Left {len([unit for unit in game.level.units if unit.team == 'enemy' and unit.position])}",
+            "simple": "Defeat enemy,Left {len(game.get_enemy_units())}",
             "win": "Defeat all enemies",
             "loss": "Eirika dies"
         },
@@ -861,7 +861,7 @@
                 "only_once": true
             },
             {
-                "nid": "VIllage3",
+                "nid": "Village3",
                 "region_type": "event",
                 "position": [
                     1,
@@ -888,7 +888,7 @@
                 ],
                 "sub_nid": "Armory",
                 "condition": "True",
-                "only_once": null
+                "only_once": false
             },
             {
                 "nid": "DestroyVillage1",
@@ -1093,9 +1093,35 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Franz",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    6
+                ],
+                "generic": false
             }
         ],
-        "regions": [],
+        "regions": [
+            {
+                "nid": "Armory",
+                "region_type": "event",
+                "position": [
+                    5,
+                    7
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            }
+        ],
         "unit_groups": []
     }
 ]

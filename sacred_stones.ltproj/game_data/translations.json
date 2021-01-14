@@ -229,7 +229,7 @@
     },
     {
         "nid": "armory_opener",
-        "text": "This is an armory. {w}{clear}Buy something, would ya?"
+        "text": "This is an armory.{w}{clear}Buy something, would ya?"
     },
     {
         "nid": "armory_buy",

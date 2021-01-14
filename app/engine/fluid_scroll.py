@@ -81,7 +81,7 @@ class FluidScroll():
             speed = self.slow_speed
 
         if double_speed:
-            speed /= 2
+            speed //= 2
 
         if self.move_left and current_time - self.left_update > speed:
             directions.append('LEFT')

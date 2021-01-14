@@ -44,7 +44,7 @@ Summoning
 
 Test stuff from last commit
 
-Rescue Status -- Test that it works
+Trade / Steal / Repair as weapons (Thief Staff, Missing Repair Staff, Long-range Trade Staff)
 
 Silence target restrict (test)
 
@@ -60,3 +60,8 @@ Line of Sight rules
 For Portrait Editor:
     Auto-match blink and mouth frames button
     Position in main info menu setters
+
+Clean and Rename files button in Help
+
+- Yeti-style stat averages: Units start off when you recruit them with yellow stats, and the stats will shift to red or green depending on how they perform when leveling up. Example: If a unit should average 10 speed at level 15, and they have 10 speed, their SPD stat will be yellow. If instead they have 15 speed, their SPD stat will be green because they overperformed. If it's only 5, the SPD stat will be red because they underperformed.
+Option to disable growth display

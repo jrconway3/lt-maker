@@ -449,6 +449,22 @@ class Event():
             hp = int(values[1])
             action.do(action.SetHP(unit, hp))
 
+        elif command.nid == 'has_attacked':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return
+            action.do(action.HasAttacked(unit))
+
+        elif command.nid == 'has_traded':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return
+            action.do(action.HasTraded(unit))
+
         elif command.nid == 'add_talk':
             values, flags = event_commands.parse(command)
             action.do(action.AddTalk(values[0], values[1]))

@@ -181,7 +181,9 @@ class ItemOption(BasicOption):
         owner = game.get_unit(self.item.owner_nid)
         main_font = 'text-grey'
         uses_font = 'text-grey'
-        if self.color:
+        if self.ignore:
+            pass
+        elif self.color:
             main_font = self.color
             uses_font = self.color
             if main_font == 'text-white':
@@ -225,7 +227,9 @@ class ConvoyItemOption(ItemOption):
     def get_color(self):
         main_font = 'text-grey'
         uses_font = 'text-grey'
-        if self.color:
+        if self.ignore:
+            pass
+        elif self.color:
             main_font = self.color
             uses_font = self.color
             if main_font == 'text-white':
@@ -333,7 +337,9 @@ class UnitOption(BasicOption):
 
     def get_color(self):
         font = 'text-white'
-        if self.color:
+        if self.ignore:
+            font = 'text-grey'
+        elif self.color:
             font = self.color
         elif self.mode == 'position':
             if not self.unit.position:

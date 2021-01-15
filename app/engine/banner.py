@@ -70,6 +70,25 @@ class AcquiredItem(Banner):
         self.figure_out_size()
         self.sound = 'Item'
 
+class StoleItem(Banner):
+    def __init__(self, unit, item):
+        super().__init__()
+        self.unit = unit
+        self.item = item
+        article = 'an' if self.item.name.lower()[0] in ('a', 'e', 'i', 'o', 'u') else 'a'
+        if "'" in self.item.name:
+            # No article for things like Prim's Charm, Ophie's Blade, etc.
+            self.text = [unit.name, ' stole ', item.name, '.']
+            self.font = ['text-blue', 'text-white', 'text-blue', 'text-white']
+        else:
+            self.text = [unit.name, ' stole ', article, ' ', item.name, '.']
+            self.font = ['text-blue', 'text-white', 'text-white', 'text-white', 'text-blue', 'text-white']
+        self.figure_out_size()
+        if self.unit.team in ('player', 'other'):
+            self.sound = 'Item'
+        else:
+            self.sound = 'ItemBreak'
+
 class SentToConvoy(Banner):
     def __init__(self, item):
         super().__init__()

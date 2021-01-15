@@ -481,6 +481,7 @@ class MoveCameraState(MapState):
 
 class MenuState(MapState):
     name = 'menu'
+    menu = None
     normal_options = {'Item', 'Wait', 'Take', 'Give', 'Rescue', 'Trade', 'Drop', 'Visit', 'Armory', 'Vendor', 'Spells', 'Attack', 'Steal', 'Shove'}
 
     def begin(self):
@@ -653,7 +654,8 @@ class MenuState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        surf = self.menu.draw(surf)
+        if self.menu:
+            surf = self.menu.draw(surf)
         return surf
 
     def end(self):
@@ -741,7 +743,7 @@ class ItemChildState(MapState):
                 item_funcs.available(self.cur_unit, item) and \
                 item in self.cur_unit.items:
             options.append("Equip")
-        if item_funcs.can_use(self.cur_unit, item):
+        if item_funcs.can_use(self.cur_unit, item) and not self.cur_unit.has_attacked:
             options.append("Use")
         if not item_system.locked(self.cur_unit, item) and item in self.cur_unit.items:
             if game.game_vars.get('_convoy'):
@@ -1052,45 +1054,6 @@ class TargetingState(MapState):
 
         return surf
 
-    def draw_trade_preview(self, surf):
-        unit = game.board.get_unit(game.cursor.position)
-        items = unit.items
-        # Build window
-        window = SPRITES.get('trade_window')
-        width, height = window.get_width(), window.get_height()
-        top = engine.subsurface(window, (0, 0, width, 27))
-        bottom = engine.subsurface(window, (0, height - 5, width, 5))
-        middle = engine.subsurface(window, (0, height//2 + 3, width, 16))
-        size = (width, -2 + 27 + 5 + 16 * max(1, len(items)))
-        bg_surf = engine.create_surface(size, transparent=True)
-        bg_surf.blit(top, (0, 0))
-
-        for idx, item in enumerate(items):
-            bg_surf.blit(middle, (0, 27 + idx * 16))
-        if not items:
-            bg_surf.blit(middle, (0, 27))
-        bg_surf.blit(bottom, (0, size[1] - 5))
-        bg_surf = image_mods.make_translucent(bg_surf, .1)
-
-        for idx, item in enumerate(items):
-            item_option = menu_options.ItemOption(idx, item)
-            item_option.draw(bg_surf, 5, 27 + idx * 16 - 2)
-        if not items:
-            FONT['text-grey'].blit('Nothing', bg_surf, (25, 27 - 2))
-
-        unit_sprite = unit.sprite.create_image('passive')
-        FONT['text-white'].blit(unit.name, bg_surf, (32, 8))
-
-        if game.cursor.position[0] > TILEX//2 + game.camera.get_x() - 1:
-            topleft = (0, 0)
-        else:
-            topleft = (WINWIDTH - 4 - window.get_width(), 0)
-        surf.blit(bg_surf, topleft)
-
-        surf.blit(unit_sprite, (topleft[0] - 12, topleft[1] - 16))
-
-        return surf
-
     def draw(self, surf):
         surf = super().draw(surf)
         if self.ability.name == 'Rescue':
@@ -1110,9 +1073,11 @@ class TargetingState(MapState):
                 if give_to and traveler:
                     self.draw_give_preview(traveler, give_to, surf)
         elif self.ability.name == 'Trade':
-            self.draw_trade_preview(surf)
+            unit = game.cursor.get_hover()
+            game.ui_view.draw_trade_preview(unit, surf)
         elif self.ability.name == 'Steal':
-            self.draw_trade_preview(surf)
+            unit = game.cursor.get_hover()
+            game.ui_view.draw_trade_preview(unit, surf)
         if self.pennant:
             draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
             self.pennant.draw(surf, draw_on_top)
@@ -1140,12 +1105,17 @@ class CombatTargetingState(MapState):
 
         positions = target_system.get_valid_targets(self.cur_unit, self.item)
         self.selection = SelectionHelper(positions)
+        self.previous_mouse_pos = None
         closest_pos = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_pos)
 
         # Reset these
         game.memory['sequence_item_index'] = 0
         game.memory['prev_targets'] = []
+
+        # This is used to immediately handle the next target
+        # after item targeting has occurred
+        self._process_next_target_asap = False
 
         self.ability_name = game.memory.get('ability')
         if self.ability_name == 'Spells':
@@ -1156,16 +1126,59 @@ class CombatTargetingState(MapState):
 
     def begin(self):
         game.cursor.combat_show()
+        if self._process_next_target_asap:
+            self._process_next_target_asap = False
+            self._get_next_target()
 
     def display_single_attack(self):
         game.highlight.remove_highlights()
         splash_positions = item_system.splash_positions(self.cur_unit, self.item, game.cursor.position)
-        if self.ability_name == 'Spells':
+        if item_system.is_spell(self.cur_unit, self.item):
+            valid_attacks = target_system.get_attacks(self.cur_unit, self.item)
+            game.highlight.display_possible_spell_attacks(valid_attacks, light=True)
+            game.highlight.display_possible_spell_attacks(splash_positions)
             game.highlight.display_possible_spell_attacks({game.cursor.position})
-            game.highlight.display_possible_spell_attacks(splash_positions, light=True)
         else:
+            valid_attacks = target_system.get_attacks(self.cur_unit, self.item)
+            game.highlight.display_possible_attacks(valid_attacks, light=True)
+            game.highlight.display_possible_attacks(splash_positions)
             game.highlight.display_possible_attacks({game.cursor.position})
-            game.highlight.display_possible_attacks(splash_positions, light=True)
+
+    def _engage_combat(self):
+        game.memory['full_playback'] = []
+        if self.parent_item:  # For sequence item
+            target_counter = 0
+            for item in self.parent_item.subitems:
+                num_targets = item_system.num_targets(self.cur_unit, item)
+                targets = self.prev_targets[target_counter:target_counter + num_targets]
+                target_counter += num_targets
+                combat = interaction.engage(self.cur_unit, targets, item)
+                game.combat_instance.append(combat)
+                game.state.change('combat')
+        else:
+            combat = interaction.engage(self.cur_unit, self.prev_targets, self.item)
+            game.combat_instance.append(combat)
+            game.state.change('combat')
+
+    def _get_next_target(self):
+        allow_same_target = item_system.allow_same_target(self.cur_unit, self.item)
+        if self.current_target_idx < self.num_targets and \
+                (allow_same_target or self.selection.count() > 1):
+            if not allow_same_target:
+                self.selection.remove_target(game.cursor.position)
+                closest_pos = self.selection.get_closest(game.cursor.position)
+                game.cursor.set_pos(closest_pos)
+            self.begin()
+            self.display_single_attack()
+        elif self.parent_item and self.sequence_item_index < len(self.parent_item.sequence_item.value) - 1:
+            # Pass along the sequence item index to the next combat targeting state
+            self.sequence_item_index += 1
+            game.memory['sequence_item_index'] = self.sequence_item_index
+            game.memory['prev_targets'] = self.prev_targets
+            game.state.back()
+            game.state.change('combat_targeting')
+        else:
+            self._engage_combat()
 
     def take_input(self, event):
         self.fluid.update()
@@ -1200,42 +1213,25 @@ class CombatTargetingState(MapState):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             self.current_target_idx += 1
+
             self.prev_targets.append(game.cursor.position)
-            allow_same_target = item_system.allow_same_target(self.cur_unit, self.item)
+            
+            if item_system.targets_items(self.cur_unit, self.item):
+                target = game.board.get_unit(game.cursor.position)
+                if target:
+                    game.memory['target'] = target
+                    game.state.change('item_targeting')
+                    self._process_next_target_asap = True
+                else:
+                    self._get_next_target()
             # If we still have targets to select
             # If we don't allow same target, need to make sure there is still at least one target after this
-            if self.current_target_idx < self.num_targets and \
-                    (allow_same_target or self.selection.count() > 1):
-                if not allow_same_target:
-                    self.selection.remove_target(game.cursor.position)
-                    closest_pos = self.selection.get_closest(game.cursor.position)
-                    game.cursor.set_pos(closest_pos)
-                self.begin()
-                self.display_single_attack()
-            elif self.parent_item and self.sequence_item_index < len(self.parent_item.sequence_item.value) - 1:
-                # Pass along the sequence item index
-                self.sequence_item_index += 1
-                game.memory['sequence_item_index'] = self.sequence_item_index
-                game.memory['prev_targets'] = self.prev_targets
-                game.state.back()
-                game.state.change('combat_targeting')
             else:
-                game.memory['full_playback'] = []
-                if self.parent_item:  # For sequence item
-                    target_counter = 0
-                    for item in self.parent_item.subitems:
-                        num_targets = item_system.num_targets(self.cur_unit, item)
-                        targets = self.prev_targets[target_counter:target_counter + num_targets]
-                        target_counter += num_targets
-                        combat = interaction.engage(self.cur_unit, targets, item)
-                        game.combat_instance.append(combat)
-                        game.state.change('combat')
-                else:
-                    combat = interaction.engage(self.cur_unit, self.prev_targets, self.item)
-                    game.combat_instance.append(combat)
-                    game.state.change('combat')
+                self._get_next_target()
 
-        if directions or mouse_position:
+        if directions or (mouse_position and mouse_position != self.previous_mouse_pos):
+            if mouse_position:
+                self.previous_mouse_pos = mouse_position
             SOUNDTHREAD.play_sfx('Select 6')
             game.ui_view.reset_info()
             self.display_single_attack()
@@ -1243,15 +1239,94 @@ class CombatTargetingState(MapState):
     def draw(self, surf):
         surf = super().draw(surf)
         if self.cur_unit and game.cursor.get_hover():
-            if self.ability_name == 'Spells':
-                game.ui_view.draw_spell_info(surf, self.cur_unit, game.cursor.get_hover())
+            if item_system.targets_items(self.cur_unit, self.item):
+                unit = game.cursor.get_hover()
+                game.ui_view.draw_trade_preview(unit, surf)
+            elif item_system.is_weapon(self.cur_unit, self.item):
+                game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, game.cursor.get_hover())
             else:
-                game.ui_view.draw_attack_info(surf, self.cur_unit, game.cursor.get_hover())
+                game.ui_view.draw_spell_info(surf, self.cur_unit, self.item, game.cursor.get_hover())
+                
         return surf
 
     def end(self):
         game.highlight.remove_highlights()
         game.ui_view.reset_info()
+
+class ItemTargetingState(MapState):
+    name = 'item_targeting'
+
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
+        self.item = game.memory['item']
+        self.target = game.memory['target']
+
+        # Support for sequence items
+        self.sequence_item_index = game.memory.get('sequence_item_index', 0)
+        if self.item.sequence_item:
+            self.parent_item = self.item
+            # Replaces item with the item we're actually working with here
+            self.item = self.parent_item.subitems[self.sequence_item_index]
+        else: # For no sequence item, we won't be using this
+            self.parent_item = None
+
+        # Build menu
+        options = self.target.items
+        ignore = [not item_system.item_restrict(self.cur_unit, self.item, self.target, item) for item in self.target.items]
+        self.menu = menus.Choice(self.target, options)
+        self.menu.set_ignore(ignore)
+
+    def begin(self):
+        game.cursor.hide()
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
+            if self.menu.info_flag:
+                self.menu.toggle_info()
+                SOUNDTHREAD.play_sfx('Info Out')
+            else:
+                SOUNDTHREAD.play_sfx('Select 4')
+                game.state.back()
+                game.state.back()  # Go back twice to skip over recent combat_targeting state
+
+        elif event == 'SELECT':
+            if self.menu.info_flag:
+                pass
+            else:
+                SOUNDTHREAD.play_sfx('Select 1')
+                target_item = self.menu.get_current()
+                self.item.data['target_item'] = target_item
+                game.state.back()
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
+            if self.menu.info_flag:
+                SOUNDTHREAD.play_sfx('Info In')
+            else:
+                SOUNDTHREAD.play_sfx('Info Out')
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
+
+    def end(self):
+        game.cursor.show()
 
 class CombatState(MapState):
     name = 'combat'

@@ -8,7 +8,7 @@ from app.engine.game_state import game
 
 class Spell(ItemComponent):
     nid = 'spell'
-    desc = "Item will be treated as a spell (cannot counterattack or double)"
+    desc = "Item will be treated as a spell (cannot counterattack, be counterattacked, or double)"
     tag = 'base'
 
     def is_spell(self, unit, item):
@@ -27,6 +27,9 @@ class Spell(ItemComponent):
         return False
 
     def can_counter(self, unit, item):
+        return False
+
+    def can_be_countered(self, unit, item):
         return False
 
 class Weapon(ItemComponent):
@@ -163,6 +166,22 @@ class UsableInBase(ItemComponent):
     tag = 'base'
 
     def can_use_in_base(self, unit, item):
+        return True
+
+class Unrepairable(ItemComponent):
+    nid = 'unrepairable'
+    desc = "Item cannot be repaired"
+    tag = 'base'
+
+    def unrepairable(self, unit, item):
+        return True
+
+class MenuAfterCombat(ItemComponent):
+    nid = 'menu_after_combat'
+    desc = "Can access menu after combat"
+    tag = 'weapon'
+
+    def menu_after_combat(self, unit, item):
         return True
 
 class Value(ItemComponent):

@@ -93,7 +93,8 @@ class Defaults():
 # All false hooks are exclusive
 false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
                'can_use', 'can_use_in_base', 'locked', 'allow_same_target',
-               'ignore_weapon_advantage')
+               'ignore_weapon_advantage', 'unrepairable', 'targets_items',
+               'menu_after_combat')
 # All true hooks are not exclusive
 true_hooks = ('can_counter', 'can_be_countered', 'can_double')
 # All default hooks are exclusive
@@ -247,6 +248,13 @@ def target_restrict(unit, item, defender, splash) -> bool:
     for component in item.components:
         if component.defines('target_restrict'):
             if not component.target_restrict(unit, item, defender, splash):
+                return False
+    return True
+
+def item_restrict(unit, item, defender, def_item) -> bool:
+    for component in item.components:
+        if component.defines('item_restrict'):
+            if not component.item_restrict(unit, item, defender, def_item):
                 return False
     return True
 

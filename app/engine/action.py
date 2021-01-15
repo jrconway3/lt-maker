@@ -613,7 +613,7 @@ class GiveItem(Action):
         self.item = item
 
     def do(self):
-        if self.unit.team == 'player' or len(self.unit.items) < DB.constants.get('max_items').value:
+        if self.unit.team == 'player' or not item_funcs.inventory_full(self.unit, self.item):
             self.unit.add_item(self.item)
 
     def reverse(self):
@@ -624,19 +624,14 @@ class DropItem(Action):
     def __init__(self, unit, item):
         self.unit = unit
         self.item = item
+        self.is_droppable: bool = item.droppable
 
     def do(self):
         self.item.droppable = False
         self.unit.add_item(self.item)
-        game.alerts.append(banner.AcquiredItem(self.unit, self.item))
-        game.state.change('alert')
-
-    def execute(self):
-        self.item.droppable = False
-        self.unit.add_item(self.item)
 
     def reverse(self):
-        self.item.droppable = True
+        self.item.droppable = self.is_droppable
         self.unit.remove_item(self.item)
 
 class StoreItem(Action):
@@ -729,6 +724,24 @@ class TradeItem(Action):
 
     def reverse(self):
         self.swap(self.unit1, self.unit2, self.item2, self.item1, self.item_index2, self.item_index1)
+
+class RepairItem(Action):
+    def __init__(self, item):
+        self.item = item
+        self.old_uses = self.item.data.get('uses')
+        self.old_c_uses = self.item.data.get('c_uses')
+
+    def do(self):
+        if self.old_uses is not None and self.item.uses:
+            self.item.data['uses'] = self.item.data['starting_uses']
+        if self.old_c_uses is not None and self.item.c_uses:
+            self.item.data['c_uses'] = self.item.data['starting_c_uses']
+
+    def reverse(self):
+        if self.old_uses is not None and self.item.uses:
+            self.item.data['uses'] = self.old_uses
+        if self.old_c_uses is not None and self.item.c_uses:
+            self.item.data['c_uses'] = self.old_c_uses
 
 class SetObjData(Action):
     def __init__(self, obj, keyword, value):

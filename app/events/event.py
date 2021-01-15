@@ -860,7 +860,7 @@ class Event():
         for unit in group.units:
             if create:
                 unit = self.copy_unit(unit)
-            elif unit.position:
+            elif unit.position or unit.dead:
                 continue
             position = self._get_position(next_pos, unit, group)
             if not position:
@@ -933,7 +933,7 @@ class Event():
         for unit in group.units:
             if create:
                 unit = self.copy_unit(unit)
-            elif unit.position:
+            elif unit.position or unit.dead:
                 continue
             position = self._get_position(next_pos, unit, group)
             if not position:

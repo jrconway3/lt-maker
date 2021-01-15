@@ -38,6 +38,10 @@ class TradeState(MapState):
         self.menu.unset_selected_option()
         self.menu.update_options(self.initiator.items, self.partner.items)
 
+    def back(self):
+        game.state.back()
+        game.state.back()
+
     def take_input(self, event):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
@@ -62,9 +66,7 @@ class TradeState(MapState):
             if self.menu.selected_option():
                 self.menu.unset_selected_option()
             else:
-                # game.state.change('menu')
-                game.state.back()
-                game.state.back()
+                self.back()
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
@@ -84,6 +86,12 @@ class TradeState(MapState):
         surf = super().draw(surf)
         self.menu.draw(surf)
         return surf
+
+class CombatTradeState(TradeState):
+    name = 'combat_trade'
+
+    def back(self):
+        game.state.back()
 
 class PrepTradeState(TradeState):
     name = 'prep_trade'

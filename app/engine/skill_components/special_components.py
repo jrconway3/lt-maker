@@ -18,7 +18,7 @@ class Ability(SkillComponent):
                 new_item = item
                 break
         else:
-            new_item = item_funcs.create_items(unit, [self.value])
+            new_item = item_funcs.create_item(unit, self.value)
             game.register_item(new_item)
         return new_item
 

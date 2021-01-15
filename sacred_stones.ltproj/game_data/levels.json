@@ -1103,6 +1103,82 @@
                     6
                 ],
                 "generic": false
+            },
+            {
+                "nid": "Moulder",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 10,
+                "klass": "Cleric",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Hammerne",
+                        false
+                    ],
+                    [
+                        "Thief",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Slim Lance",
+                        false
+                    ],
+                    [
+                        "Vulnerary",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    10
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Colm",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    9
+                ],
+                "generic": false
             }
         ],
         "regions": [

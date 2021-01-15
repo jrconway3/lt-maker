@@ -1237,6 +1237,198 @@
         ]
     },
     {
+        "nid": "Trade",
+        "name": "Trade",
+        "desc": "Trade with a far away ally.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            7
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "value",
+                600
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                10
+            ],
+            [
+                "weapon_type",
+                "Staff"
+            ],
+            [
+                "weapon_rank",
+                "E"
+            ],
+            [
+                "uses",
+                10
+            ],
+            [
+                "exp",
+                11
+            ],
+            [
+                "wexp",
+                2
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    232,
+                    200,
+                    15
+                ]
+            ],
+            [
+                "trade",
+                null
+            ],
+            [
+                "menu_after_combat",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Hammerne",
+        "name": "Hammerne",
+        "desc": "Repair an item to full uses.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            12
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "value",
+                1800
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "weapon_type",
+                "Staff"
+            ],
+            [
+                "weapon_rank",
+                "C"
+            ],
+            [
+                "uses",
+                3
+            ],
+            [
+                "exp",
+                40
+            ],
+            [
+                "wexp",
+                8
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    234,
+                    255,
+                    0
+                ]
+            ],
+            [
+                "repair",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Thief",
+        "name": "Thief",
+        "desc": "Steal items from enemies.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            12
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "value",
+                1800
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                10
+            ],
+            [
+                "weapon_type",
+                "Staff"
+            ],
+            [
+                "weapon_rank",
+                "C"
+            ],
+            [
+                "uses",
+                5
+            ],
+            [
+                "exp",
+                40
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    255,
+                    238,
+                    238
+                ]
+            ],
+            [
+                "steal",
+                null
+            ],
+            [
+                "target_enemy",
+                null
+            ]
+        ]
+    },
+    {
         "nid": "Lightning",
         "name": "Lightning",
         "desc": "",
@@ -1753,6 +1945,42 @@
             [
                 "value",
                 5000
+            ]
+        ]
+    },
+    {
+        "nid": "Steal",
+        "name": "Steal",
+        "desc": "Steal items from enemies.",
+        "icon_nid": "Skills",
+        "icon_index": [
+            7,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "exp",
+                11
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "gba_steal",
+                null
             ]
         ]
     }

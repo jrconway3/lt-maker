@@ -5,7 +5,8 @@ from app.data.database import DB
 from app.data.item_components import ItemComponent
 from app.data.components import Type
 
-from app.engine import action, skill_system, combat_calcs, equations
+from app.engine import action, combat_calcs, equations, banner
+from app.engine import item_system, skill_system, item_funcs
 from app.engine.game_state import game
 
 class Heal(ItemComponent):
@@ -237,6 +238,31 @@ class ShoveOnEndCombat(Shove):
             if new_position:
                 action.do(action.ForcedMovement(target, new_position))
 
+class ShoveTargetRestrict(Shove, ItemComponent):
+    nid = 'shove_target_restrict'
+    desc = "Target restriction for Shove"
+    tag = 'extra'
+
+    expose = Type.Int
+    value = 1
+
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # only targets units that need to be restored
+        if defender and self._check_shove(defender, unit.position, self.value) and \
+                not skill_system.ignore_forced_movement(defender):
+            return True
+        for s in splash:
+            if self._check_shove(s, unit.position, self.value) and \
+                    not skill_system.ignore_forced_movement(s):
+                return True
+        return False
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        pass
+
+    def end_combat(self, playback, unit, item, target):
+        pass
+
 class Swap(ItemComponent):
     nid = 'swap'
     desc = "Item swaps user with target on hit"
@@ -278,3 +304,130 @@ class EvalTargetRestrict(ItemComponent):
         except:
             return True
         return False
+
+class Steal(ItemComponent):
+    nid = 'steal'
+    desc = "Item steals from target on hit"
+    tag = 'weapon'
+
+    def init(self, item):
+        item.data['target_item'] = None
+        self._did_steal = False
+
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # Unit has item that can be stolen
+        attack = equations.parser.steal_atk(unit)
+        defense = equations.parser.steal_def(unit)
+        if attack >= defense:
+            for item in defender.items:
+                if not item_system.locked(defender, item) and \
+                        not item_funcs.inventory_full(unit, item) and \
+                        not item is defender.get_weapon():
+                    return True
+        return False
+
+    def targets_items(self, unit, item) -> bool:
+        return True
+
+    def item_restrict(self, unit, item, defender, def_item) -> bool:
+        if item_system.locked(defender, def_item):
+            return False
+        if item_funcs.inventory_full(unit, def_item):
+            return False
+        if def_item is defender.get_weapon():
+            return False
+        return True
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        target_item = item.data.get('target_item')
+        if target_item:
+            actions.append(action.RemoveItem(target, target_item))
+            actions.append(action.DropItem(unit, target_item))
+            self._did_steal = True
+
+    def end_combat(self, playback, unit, item, target):
+        if self._did_steal:
+            target_item = item.data.get('target_item')
+            game.alerts.append(banner.StoleItem(unit, target_item))
+            game.state.change('alert')
+        item.data['target_item'] = None
+        self._did_steal = False
+
+class GBASteal(Steal, ItemComponent):
+    nid = 'gba_steal'
+    desc = "Item steals from target on hit"
+    tag = 'weapon'
+
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # Unit has item that can be stolen
+        attack = equations.parser.steal_atk(unit)
+        defense = equations.parser.steal_def(unit)
+        if attack >= defense:
+            for item in defender.items:
+                if not item_system.locked(defender, item) and \
+                        not item_funcs.inventory_full(unit, item) and \
+                        not item_system.is_weapon(defender, item) and \
+                        not item_system.is_spell(defender, item):
+                    return True
+        return False
+
+    def item_restrict(self, unit, item, defender, def_item) -> bool:
+        if item_system.locked(defender, def_item):
+            return False
+        if item_funcs.inventory_full(unit, def_item):
+            return False
+        if item_system.is_weapon(defender, def_item) or item_system.is_spell(defender, def_item):
+            return False
+        return True
+
+class Repair(ItemComponent):
+    nid = 'repair'
+    desc = "Item repairs target item on hit"
+    tag = 'weapon'
+
+    def init(self, item):
+        item.data['target_item'] = None
+
+    def target_restrict(self, unit, item, defender, splash) -> bool:
+        # Unit has item that can be repaired
+        for item in defender.items:
+            if item.uses and item.data['uses'] < item.data['starting_uses'] and \
+                    not item_system.unrepairable(defender, item):
+                return True
+        return False
+
+    def targets_items(self, unit, item) -> bool:
+        return True
+
+    def item_restrict(self, unit, item, defender, def_item) -> bool:
+        if def_item.uses and def_item.data['uses'] < def_item.data['starting_uses'] and \
+                not item_system.unrepairable(defender, def_item):
+            return True
+        return False
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        target_item = item.data.get('target_item')
+        print(target_item)
+        if target_item:
+            actions.append(action.RepairItem(target_item))
+
+    def end_combat(self, playback, unit, item, target):
+        item.data['target_item'] = None
+
+class Trade(ItemComponent):
+    nid = 'trade'
+    desc = "Item allows user to trade with target on hit"
+    tag = 'weapon'
+
+    def init(self, item):
+        self._did_hit = False
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        self._did_hit = True
+
+    def end_combat(self, playback, unit, item, target):
+        if self._did_hit and target:
+            game.cursor.cur_unit = unit
+            game.cursor.set_pos(target.position)
+            game.state.change('combat_trade')
+        self._did_hit = False

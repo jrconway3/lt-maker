@@ -17,6 +17,7 @@ from app.engine.game_state import game
 class ExpState(MapState):
     name = 'exp'
     transparent = True
+    state = None
 
     def start(self):
         if 'exp' not in game.memory or game.memory['exp'] is None:
@@ -291,6 +292,9 @@ class ExpState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
+        if not self.state:
+            return surf
+            
         if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
             if self.exp_bar:
                 self.exp_bar.draw(surf)

@@ -428,10 +428,14 @@ class MapCombat():
                 pass
             else:
                 game.state.change('wait')
+        elif self.attacker.is_dying:
+            game.state.clear()
+            game.state.change('free')
+            game.state.change('wait')
         else:
-            if not self.attacker.has_attacked and not self.attacker.is_dying:
+            if not self.attacker.has_attacked or item_system.menu_after_combat(self.attacker, self.item):
                 game.state.change('menu')
-            elif skill_system.has_canto(self.attacker) and not self.attacker.is_dying:
+            elif skill_system.has_canto(self.attacker):
                 game.state.change('move')
             else:
                 game.state.clear()
@@ -447,10 +451,14 @@ class MapCombat():
                 for item in unit.items:
                     if item.droppable:
                         action.do(action.DropItem(self.attacker, item))
+                        game.alerts.append(banner.AcquiredItem(self.attacker, item))
+                        game.state.change('alert')
         if self.attacker.is_dying and self.defender:
             for item in self.attacker.items:
                 if item.droppable:
                     action.do(action.DropItem(self.defender, item))
+                    game.alerts.append(banner.AcquiredItem(self.defender, item))
+                    game.state.change('alert')
 
     def find_broken_items(self):
         a_broke, d_broke = False, False

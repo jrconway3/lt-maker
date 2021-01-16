@@ -323,7 +323,6 @@ class Config(Controls):
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
-            print(option[0])
             if option[1] is bool:
                 option = BoolOption(idx, option[0], option[1], self.icons[idx])
             elif option[0] == 'screen_size':

@@ -422,6 +422,18 @@ class Event():
                 print("Not a valid team: %s" % values[1])
                 return
 
+        elif command.nid == 'change_portrait':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                print("Couldn't find unit %s" % values[0])
+                return 
+            portrait = RESOURCES.portraits.get(values[1])
+            if not portrait:
+                print("Couldn't find portrat %s" % values[1])
+                return 
+            action.do(action.ChangePortrait(unit, values[1]))
+
         elif command.nid == 'add_tag':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])

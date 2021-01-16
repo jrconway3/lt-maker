@@ -251,6 +251,7 @@ class DragDropCollectionModel(CollectionModel):
         self.layoutChanged.emit()
         if result:
             self.update_drag_watchers(result[0], result[1])
+        self.drop_to = None
         return True
 
     def update_drag_watchers(self, fro, to):
@@ -266,7 +267,8 @@ class ResourceCollectionModel(DragDropCollectionModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        if role == Qt.EditRole:
+        if role == Qt.EditRole and not self.drop_to:
+            print("ResourceCollectionModel setData", value)
             if value:
                 item = self._data[index.row()]
                 old_nid = item.nid

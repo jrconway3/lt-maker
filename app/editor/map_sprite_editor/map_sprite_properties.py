@@ -78,8 +78,22 @@ class MapSpriteProperties(QWidget):
         self.player_button.setChecked(True)
         color_section.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 
+        bg_section = QHBoxLayout()
+        self.bg_button = QPushButton(self)
+        self.bg_button.setCheckable(True)
+        self.bg_button.setText("Show Background")
+        # self.bg_button.buttonPressed.connect(self.bg_toggled)
+        self.grid_button = QPushButton(self)
+        self.grid_button.setCheckable(True)
+        self.grid_button.setText("Show Grid")
+        # self.grid_button.buttonPressed.connect(self.grid_toggled)
+        bg_section.addWidget(self.bg_button)
+        bg_section.addWidget(self.grid_button) 
+        bg_section.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
         right_section.addLayout(button_section)
         right_section.addLayout(color_section)
+        right_section.addLayout(bg_section)
 
         left_frame = QFrame(self)
         left_frame.setLayout(left_section)
@@ -166,8 +180,27 @@ class MapSpriteProperties(QWidget):
         elif self.current_color == 3:
             frame = editor_utilities.color_convert(frame, editor_utilities.other_colors)
         frame = editor_utilities.convert_colorkey(frame)
-        frame = QPixmap.fromImage(frame)
-        self.frame_view.set_image(frame)
+
+        # Background stuff
+        if self.bg_button.isChecked():
+            image = QImage('resources/map_sprite_bg.png')
+        else:
+            image = QImage(48, 48, QImage.Format_ARGB32)
+            image.fill(QColor(0, 0, 0, 0))
+        
+        painter = QPainter()
+        painter.begin(image)
+
+        if self.grid_button.isChecked():
+            grid_image = QImage('resources/map_sprite_grid.png')
+            painter.drawImage(0, 0, grid_image)
+
+        x, y = -(frame.width() - 48)//2, -(frame.height() - 48)//2
+        painter.drawImage(x, -8, frame)
+        painter.end()
+
+        pix = QPixmap.fromImage(image)
+        self.frame_view.set_image(pix)
         self.frame_view.show_image()
 
     def button_clicked(self, spec_button):

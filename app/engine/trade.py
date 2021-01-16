@@ -1,7 +1,8 @@
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import MapState
 from app.engine.game_state import game
-from app.engine import action, menus
+from app.engine import action, menus, item_system
+from app.engine.objects.item import ItemObject
 
 class TradeState(MapState):
     name = 'trade'
@@ -18,7 +19,18 @@ class TradeState(MapState):
         item1 = self.menu.selected_option().get()
         item2 = self.menu.get_current_option().get()
 
-        if (item1 is item2) or (item1 and item1.locked) or (item2 and item2.locked):
+        if self.menu.other_hand[0] == 0:
+            self.item1_owner = self.initiator
+        else:
+            self.item1_owner = self.partner
+        if self.menu.selecting_hand[0] == 0:
+            self.item2_owner = self.initiator
+        else:
+            self.item2_owner = self.partner
+
+        if (item1 is item2) or \
+                (isinstance(item1, ItemObject) and item_system.locked(self.item1_owner, item1)) or \
+                (isinstance(item2, ItemObject) and item_system.locked(self.item2_owner, item2)):
             self.menu.unset_selected_option()
             SOUNDTHREAD.play_sfx('Error')
             return

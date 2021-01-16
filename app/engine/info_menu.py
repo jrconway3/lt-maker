@@ -318,7 +318,7 @@ class InfoMenuState(State):
                 self.info_graph.set_transition_in()
                 self.info_flag = True
             elif event == 'AUX':
-                if self.state == 'personal_data' and self.unit.team == 'player':
+                if self.state == 'personal_data' and self.unit.team == 'player' and DB.constants.value('growth_info'):
                     SOUNDTHREAD.play_sfx('Select 3')
                     self.growth_flag = not self.growth_flag
                     if self.growth_flag:

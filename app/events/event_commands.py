@@ -301,6 +301,11 @@ class ChangeTeam(EventCommand):
     tag = 'unit'
     keywords = ["GlobalUnit", "Team"]
 
+class ChangePortrait(EventCommand):
+    nid = 'change_portrait'
+    tag = 'unit'
+    keywords = ["GlobalUnit", "PortraitNid"]
+
 class AddTag(EventCommand):
     nid = 'add_tag'
     tag = 'unit'

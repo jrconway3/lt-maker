@@ -707,8 +707,8 @@ class TradeItem(Action):
         self.unit2 = unit2
         self.item1 = item1
         self.item2 = item2
-        self.item_index1 = unit1.items.index(item1) if item1 else 4
-        self.item_index2 = unit2.items.index(item2) if item2 else 4
+        self.item_index1 = unit1.items.index(item1) if item1 else DB.constants.total_items() - 1
+        self.item_index2 = unit2.items.index(item2) if item2 else DB.constants.total_items() - 1
 
     def swap(self, unit1, unit2, item1, item2, item_index1, item_index2):
         # Do the swap
@@ -954,6 +954,18 @@ class ChangeTeam(Action):
             game.arrive(self.unit)
         game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
+
+class ChangePortrait(Action):
+    def __init__(self, unit, portrait_nid):
+        self.unit = unit
+        self.old_portrait = self.unit.portrait_nid
+        self.new_portrait = portrait_nid
+
+    def do(self):
+        self.unit.portrait_nid = self.new_portrait
+
+    def reverse(self):
+        self.unit.portrait.nid = self.old_portrait
 
 class AddTag(Action):
     def __init__(self, unit, tag):

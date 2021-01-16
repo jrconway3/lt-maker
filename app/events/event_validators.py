@@ -65,6 +65,12 @@ class PhaseMusic(OptionValidator):
              'player_battle', 'enemy_battle', 'other_battle',
              'base']
 
+class PortraitNid(Validator):
+    def validate(self, text, level):
+        if text in RESOURCES.portraits.keys():
+            return text
+        return None
+
 class Portrait(Validator):
     def validate(self, text, level):
         if text in DB.units.keys():

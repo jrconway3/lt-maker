@@ -333,8 +333,11 @@ class Choice(Simple):
             else:
                 if self.horizontal:
                     option = menu_options.HorizOption(idx, option)
+                elif option:
+                    option = menu_options.BasicOption(idx, option)
                 else:
                     option = menu_options.BasicOption(idx, option)
+                    option.display_text = ' ' * 20  # 80 pixels
                 if info_descs:
                     option.help_box = help_menu.HelpDialog(info_descs[idx])
                 self.options.append(option)
@@ -604,6 +607,7 @@ class Trade(Simple):
     def __init__(self, initiator, partner, items1, items2):
         self.owner = initiator
         self.partner = partner
+        self.info_flag = False
 
         if len(items1) < DB.constants.total_items():
             items1 = items1[:] + ['']
@@ -642,6 +646,7 @@ class Trade(Simple):
             self.selecting_hand = (1, self.menu2.current_index)
             self.menu1.set_cursor(0)
             self.menu2.set_cursor(1)
+        self.handle_mouse()  # If we are using mouse, we can ignore most of this
 
     def set_selected_option(self):
         self.other_hand = self.selecting_hand
@@ -667,6 +672,7 @@ class Trade(Simple):
             self.menu2.set_fake_cursor(self.other_hand[1])
             self.menu1.set_cursor(1)
             self.menu2.set_cursor(0)
+        self.handle_mouse()  # If we are using mouse, we can ignore most of this
 
     def get_current_option(self):
         if self.selecting_hand[0] == 0:
@@ -710,6 +716,9 @@ class Trade(Simple):
         self.menu1.set_cursor(1)
         self.menu1.cursor.y_offset = 0
         self.menu2.set_cursor(0)
+        if self.menu2.info_flag:
+            self.menu1.toggle_info()
+            self.menu2.toggle_info()
 
     def move_left(self):
         # Can't move left if no items
@@ -725,6 +734,9 @@ class Trade(Simple):
         self.menu2.set_cursor(1)
         self.menu2.cursor.y_offset = 0
         self.menu1.set_cursor(0)
+        if self.menu1.info_flag:
+            self.menu1.toggle_info()
+            self.menu2.toggle_info()
 
     def move_right(self):
         if self.selecting_hand[0] == 0:
@@ -734,6 +746,12 @@ class Trade(Simple):
             self.cursor_right()
             return True
         return False
+
+    def toggle_info(self):
+        if self.selecting_hand[0] == 0:
+            self.menu1.toggle_info()
+        else:
+            self.menu2.toggle_info()
 
     def update(self):
         self.menu1.update()
@@ -760,9 +778,13 @@ class Trade(Simple):
         partner_surf = engine.subsurface(partner_surf, (0, 3, 96, 68))
         surf.blit(partner_surf, (125 + 52 - 48, 0))
 
-        self.menu1.draw(surf)
-        self.menu2.draw(surf)
-
+        if self.menu1.info_flag:
+            self.menu2.draw(surf)
+            self.menu1.draw(surf)
+        else:
+            self.menu1.draw(surf)
+            self.menu2.draw(surf)
+            
         return surf
 
     def handle_mouse(self):

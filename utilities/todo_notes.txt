@@ -10,7 +10,7 @@ Base
     Manage, Market?, Arena, Repair, Forge, Convos, Support, Codex (World Map, Lore, Records, Achievements/Tactics), Options, Save, Continue/Finish
 Minimap
 Turnwheel mouse support
-Autotiles
+Autotiles (not just 29 frames)
 Status Screen
 Fog of War
 Unit Menu
@@ -29,11 +29,8 @@ Dialogue Log on R press
 
 Check box in AI behaviour for unit specification that has the ability to flip from target ONLY to target EXCEPT.
 
-Steal item
-Repair item (and unrepairable)
-
 Skill System -- Auras, Modify AOE, Modify Forced Movement
-Item System -- Forced Movement (test), Multiple Target Items (test), Multiple Item Items (test), AOE (test)
+Item System -- Multiple Target Items (test), Multiple Item Items (test)
 
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
@@ -42,7 +39,7 @@ Better method for loading panorama movies
 
 Summoning
 
-Test stuff from last commit
+Sequence Items
 
 Silence target restrict (test)
 
@@ -63,17 +60,9 @@ Clean and Rename files button in Help
 
 - Yeti-style stat averages: Units start off when you recruit them with yellow stats, and the stats will shift to red or green depending on how they perform when leveling up. Example: If a unit should average 10 speed at level 15, and they have 10 speed, their SPD stat will be yellow. If instead they have 15 speed, their SPD stat will be green because they overperformed. If it's only 5, the SPD stat will be red because they underperformed.
 
-Option to disable growth display
-
-Trade Menu handle mouse
-
-Check map sprites editor and drag/drop and rename
 Resources -- Show in explorer
-3x3 tilemap under map sprite (button to toggle)
-Make icons in 80x72 icons bigger
+Why do resources auto-save? I know I had a reason for making the resources auto-save, but I don't recall what it was
 Unlock staff
 Test current unlocking
 Make Chapter 3 of Sacred Stones
     - Attackable tiles
-
-NonType object has no attribute tooltip line 7 event

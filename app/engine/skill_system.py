@@ -245,6 +245,16 @@ def stat_change(unit, stat) -> int:
                 bonus += d.get(stat, 0)
     return bonus
 
+def can_unlock(unit, region) -> bool:
+    for skill in unit.skills:
+        if not condition(skill, unit):
+            continue
+        for component in skill.components:
+            if component.defines('can_unlock'):
+                if component.can_unlock(unit, region):
+                    return True
+    return False
+
 def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
         if not condition(skill, unit):

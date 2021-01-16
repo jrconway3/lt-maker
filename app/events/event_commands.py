@@ -390,6 +390,12 @@ class LocationCard(EventCommand):
 
     keywords = ["String"]
 
+class SpendUnlock(EventCommand):
+    nid = 'spend_unlock'
+    tag = 'general'
+
+    keywords = ["Unit"]
+    
 def get_commands():
     return EventCommand.__subclasses__()
 

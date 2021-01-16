@@ -176,6 +176,9 @@ class UnitObject(Prefab):
                 requirement = DB.weapon_ranks.get(weapon_rank_required).requirement
                 self.wexp[weapon_type] = max(self.wexp[weapon_type], requirement)
 
+    def can_unlock(self, region) -> bool:
+        return unit_funcs.can_unlock(self, region)
+
     def get_weapon(self):
         if self.equipped_weapon:
             return self.equipped_weapon

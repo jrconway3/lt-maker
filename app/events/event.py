@@ -6,7 +6,7 @@ from app.events import event_commands, regions
 from app.events.event_portrait import EventPortrait
 from app.utilities import utils
 from app.engine import dialog, engine, background, target_system, action, \
-    interaction, item_funcs, item_system, banner
+    interaction, item_funcs, item_system, banner, skill_system
 from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
 
@@ -579,6 +579,9 @@ class Event():
 
             self.wait_time = engine.get_time() + new_location_card.exist_time
             self.state = 'waiting'
+
+        elif command.nid == 'spend_unlock':
+            self.spend_unlock(command)
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
@@ -1153,6 +1156,49 @@ class Event():
             new_region.only_once = True
 
         action.do(action.AddRegion(new_region))
+
+    def spend_unlock(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit with nid %s" % values[0])
+            return
+        if not self.region:
+            print("Can only spend_unlock within a region's event script")
+            return 
+
+        if skill_system.can_unlock(unit, self.region):
+            return  # We're done here
+
+        chosen_item = None
+        for item in item_funcs.get_all_items(unit):
+            if item_funcs.available(unit, item) and \
+                    item_system.can_unlock(unit, item, self.region):
+                chosen_item = item
+                break
+        else:
+            print("Somehow unlocked event without being able to")
+            return
+
+        actions, playback = [], []
+        # In order to proc uses, c_uses etc.
+        item_system.start_combat(playback, unit, chosen_item, None)
+        item_system.on_hit(actions, playback, unit, chosen_item, None, None)
+        for act in actions:
+            action.do(act)
+        item_system.end_combat(playback, unit, chosen_item, None)
+
+        if unit.get_hp() <= 0:
+            # Force can't die unlocking stuff, because I don't want to deal with that nonsense
+            action.do(action.SetHP(unit, 1))
+
+        # Check to see if we broke the item we were using
+        if not item_funcs.available(unit, chosen_item):
+            alert = item_system.on_not_usable(unit, chosen_item)
+            if alert and unit.team == 'player':
+                game.alerts.append(banner.BrokenItem(unit, chosen_item))
+                game.state.change('alert')
+                self.state = 'paused'
 
     def parse_pos(self, text):
         position = None

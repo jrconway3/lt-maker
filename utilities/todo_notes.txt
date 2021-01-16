@@ -62,6 +62,18 @@ For Portrait Editor:
 Clean and Rename files button in Help
 
 - Yeti-style stat averages: Units start off when you recruit them with yellow stats, and the stats will shift to red or green depending on how they perform when leveling up. Example: If a unit should average 10 speed at level 15, and they have 10 speed, their SPD stat will be yellow. If instead they have 15 speed, their SPD stat will be green because they overperformed. If it's only 5, the SPD stat will be red because they underperformed.
+
 Option to disable growth display
 
 Trade Menu handle mouse
+
+Check map sprites editor and drag/drop and rename
+Resources -- Show in explorer
+3x3 tilemap under map sprite (button to toggle)
+Make icons in 80x72 icons bigger
+Unlock staff
+Test current unlocking
+Make Chapter 3 of Sacred Stones
+    - Attackable tiles
+
+NonType object has no attribute tooltip line 7 event

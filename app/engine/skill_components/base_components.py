@@ -155,6 +155,14 @@ class Pass(SkillComponent):
     def pass_through(self, unit):
         return True
 
+class Locktouch(SkillComponent):
+    nid = 'locktouch'
+    desc = "Unit is able to unlock automatically"
+    tag = 'base'
+
+    def can_unlock(self, unit, region):
+        return True
+
 class Hidden(SkillComponent):
     nid = 'hidden'
     desc = "Skill will not show up on screen"

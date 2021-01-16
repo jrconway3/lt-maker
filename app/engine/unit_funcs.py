@@ -172,3 +172,13 @@ def get_personal_skills(unit, prefab):
 
     personal_skills = item_funcs.create_skills(unit, skills_to_add)
     return personal_skills
+
+def can_unlock(unit, region) -> bool:
+    from app.engine import skill_system, item_system
+    if skill_system.can_unlock(unit, region):
+        return True
+    for item in item_funcs.get_all_items(unit):
+        if item_funcs.available(unit, item) and \
+                item_system.can_unlock(unit, item, region):
+            return True
+    return False

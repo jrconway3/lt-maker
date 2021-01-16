@@ -1983,5 +1983,83 @@
                 null
             ]
         ]
+    },
+    {
+        "nid": "Lockpick",
+        "name": "Lockpick",
+        "desc": "Opens chests and doors.",
+        "icon_nid": "Consumable",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "value",
+                1200
+            ],
+            [
+                "uses",
+                15
+            ],
+            [
+                "can_unlock",
+                "True"
+            ],
+            [
+                "prf_class",
+                [
+                    "Thief"
+                ]
+            ]
+        ]
+    },
+    {
+        "nid": "Chest Key",
+        "name": "Chest Key",
+        "desc": "Opens chests.",
+        "icon_nid": "Consumable",
+        "icon_index": [
+            0,
+            7
+        ],
+        "components": [
+            [
+                "value",
+                300
+            ],
+            [
+                "uses",
+                1
+            ],
+            [
+                "can_unlock",
+                "region.nid.startswith('Chest')"
+            ]
+        ]
+    },
+    {
+        "nid": "Door Key",
+        "name": "Door Key",
+        "desc": "Opens doors.",
+        "icon_nid": "Consumable",
+        "icon_index": [
+            0,
+            6
+        ],
+        "components": [
+            [
+                "value",
+                50
+            ],
+            [
+                "uses",
+                1
+            ],
+            [
+                "can_unlock",
+                "region.nid.startswith('Door')"
+            ]
+        ]
     }
 ]

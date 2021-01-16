@@ -388,6 +388,13 @@ def item_icon_mod(unit, item, target, sprite):
             sprite = component.item_icon_mod(unit, item, target, sprite)
     return sprite
 
+def can_unlock(unit, item, region) -> bool:
+    for component in item.components:
+        if component.defines('can_unlock'):
+            if component.can_unlock(unit, item, region):
+                return True
+    return False
+
 def init(item):
     for component in item.components:
         if component.defines('init'):

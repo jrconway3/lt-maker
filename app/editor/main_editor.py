@@ -23,6 +23,7 @@ from app.editor import timer
 
 # components
 from app.editor.lib.components.menubar import MenuBar
+from app.editor.lib.components.toolbar import Toolbar
 from app.editor.preferences import PreferencesDialog
 from app.editor.save_viewer import SaveViewer
 
@@ -114,8 +115,11 @@ class MainEditor(QMainWindow):
         self.mode = MainEditorScreenStates.GLOBAL_EDITOR
         self.current_editor = self.global_editor
 
+        # initialize other UI elements
         self.create_actions()
         self.recreate_menus()
+        # init toolbar
+        self.toolbar = Toolbar(self.addToolBar("Edit"))
         self.create_toolbar()
         self.set_icons()
         self.create_statusbar()
@@ -170,17 +174,11 @@ class MainEditor(QMainWindow):
         self.test_current_act.setIcon(QIcon(f'{icon_folder}/play.png'))
         self.test_load_act.setIcon(QIcon(f'{icon_folder}/play.png'))
         self.test_full_act.setIcon(QIcon(f'{icon_folder}/play_all.png'))
-        self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))
-        self.back_to_main_act.setIcon(QIcon(f'{icon_folder}/left_arrow.png'))
-
         self.modify_events_act.setIcon(QIcon(f'{icon_folder}/event.png'))
 
         self.database_button.setIcon(QIcon(f'{icon_folder}/database.png'))
         self.resource_button.setIcon(QIcon(f'{icon_folder}/resource.png'))
         self.test_button.setIcon(QIcon(f'{icon_folder}/play.png'))
-
-        if self.current_editor.set_icons:
-            self.current_editor.set_icons()
 
     # === Create Menu ===
     def create_actions(self):
@@ -217,12 +215,6 @@ class MainEditor(QMainWindow):
             "Test Full Game...", self, triggered=self.test_play)
         # self.balance_act = QAction(
         #     "Preload Units...", self, triggered=self.edit_preload_units)
-
-        # Toolbar actions
-        self.modify_level_act = QAction(
-            "Edit Level", self, shortcut="E", triggered=self.edit_level)
-        self.back_to_main_act = QAction(
-            "Back", self, shortcut="E", triggered=self.edit_global)
 
         # Database actions
         database_actions = {"Units": UnitDatabase.edit,
@@ -262,12 +254,6 @@ class MainEditor(QMainWindow):
 
         self.modify_events_act = QAction(
             "Edit Events", self, triggered=functools.partial(EventDatabase.edit, self))
-
-        # allow current editor to further customize
-        try:
-            self.current_editor.create_actions()
-        except AttributeError:
-            pass
 
     def edit_level(self):
         self.app_state_manager.change_and_broadcast(
@@ -320,9 +306,6 @@ class MainEditor(QMainWindow):
             pass
 
     def create_toolbar(self):
-        self.toolbar = self.addToolBar("Edit")
-        self.toolbar.addAction(self.modify_level_act)
-
         self.database_button = QToolButton(self)
         self.database_button.setPopupMode(QToolButton.InstantPopup)
         database_menu = QMenu("Database", self)
@@ -331,7 +314,6 @@ class MainEditor(QMainWindow):
         self.database_button.setMenu(database_menu)
         self.database_button_action = QWidgetAction(self)
         self.database_button_action.setDefaultWidget(self.database_button)
-        self.toolbar.addAction(self.database_button_action)
 
         self.resource_button = QToolButton(self)
         self.resource_button.setPopupMode(QToolButton.InstantPopup)
@@ -341,10 +323,7 @@ class MainEditor(QMainWindow):
         self.resource_button.setMenu(resource_menu)
         self.resource_button_action = QWidgetAction(self)
         self.resource_button_action.setDefaultWidget(self.resource_button)
-        self.toolbar.addAction(self.resource_button_action)
-
-        self.toolbar.addAction(self.modify_events_act)
-
+        
         self.test_button = QToolButton(self)
         self.test_button.setPopupMode(QToolButton.InstantPopup)
         test_menu = QMenu("Test", self)
@@ -356,11 +335,16 @@ class MainEditor(QMainWindow):
         self.test_button_action.setDefaultWidget(self.test_button)
 
         # self.toolbar.addToolButton(self.test_button)
-        self.toolbar.addAction(self.test_button_action)
 
+    def recreate_toolbar(self):
+        self.toolbar.clear()
+        self.toolbar.addAction(self.database_button_action)
+        self.toolbar.addAction(self.resource_button_action)
+        self.toolbar.addAction(self.modify_events_act)
+        self.toolbar.addAction(self.test_button_action)
         # let current editor to further customize toolbar
         try:
-          self.current_editor.create_toolbar()
+          self.current_editor.create_toolbar(self.toolbar)
         except AttributeError:
           pass
 
@@ -395,7 +379,7 @@ class MainEditor(QMainWindow):
         GAME_ACTIONS.test_play()
 
     def test_play_load(self):
-        saved_games = GAME_ACTIONS.get_saved_games
+        saved_games = GAME_ACTIONS.get_saved_games()
         if saved_games:
             save_loc = SaveViewer.get(saved_games, self)
             if not save_loc:
@@ -507,18 +491,14 @@ class MainEditor(QMainWindow):
             self.test_current_act.setEnabled(True)
             self.test_load_act.setEnabled(True)
             self.recreate_menus()
-            self.toolbar.insertAction(
-                self.back_to_main_act, self.modify_level_act)
-            self.toolbar.removeAction(self.back_to_main_act)
+            self.recreate_toolbar()
         elif(self.mode == MainEditorScreenStates.LEVEL_EDITOR):
             self.current_editor = self.level_editor
             self.editor_stack.setCurrentIndex(1)
             self.test_current_act.setEnabled(True)
             self.test_load_act.setEnabled(True)
             self.recreate_menus()
-            self.toolbar.insertAction(
-                self.modify_level_act, self.back_to_main_act)
-            self.toolbar.removeAction(self.modify_level_act)
+            self.recreate_toolbar()
 
     def about(self):
         QMessageBox.about(self, "About Lex Talionis Game Maker",

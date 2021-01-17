@@ -10,6 +10,8 @@ from app.data.database import DB
 
 from app.editor import timer
 
+from app.editor.settings import MainSettingsController
+
 from app.editor.preferences import PreferencesDialog
 from .property_menu import PropertiesMenu
 from .unit_painter_menu import UnitPainterMenu
@@ -20,6 +22,7 @@ from app.editor.map_view import NewMapView, EditMode
 
 # Application State
 from app.editor.lib.state_editor.editor_state_manager import EditorStateManager
+from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
 from app.editor.lib.components.dock import Dock
 
 
@@ -29,8 +32,14 @@ class LevelEditor(QMainWindow):
         self.state_manager = state_manager
         self.state_manager.subscribe_to_key(
             LevelEditor.__name__, 'selected_level', self.set_current_level)
+        self.settings = MainSettingsController()
         self.rendered = False
         self._render()
+        
+         # create things
+        self.create_actions()
+        self.set_icons()
+        
         timer.get_timer().tick_elapsed.connect(self.map_view.update_view)
 
     def on_property_tab_select(self, visible):
@@ -113,8 +122,33 @@ class LevelEditor(QMainWindow):
         if self.rendered:  # (see _render() below)
             self.map_view.update_view()
 
+    def create_actions(self):
+        # menu actions
+        self.zoom_in_act = QAction(
+            "Zoom in", self, shortcut="Ctrl++", triggered=self.map_view.zoom_in)
+        self.zoom_out_act = QAction(
+            "Zoom out", self, shortcut="Ctrl+-", triggered=self.map_view.zoom_out)
+        
+        # toolbar actions
+        self.back_to_main_act = QAction(
+            "Back", self, shortcut="E", triggered=self.edit_global)
+        
+    def set_icons(self):
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons'
+        else:
+            icon_folder = 'dark_icons'
+        self.back_to_main_act.setIcon(QIcon(f'{icon_folder}/left_arrow.png'))
+        
+    def create_toolbar(self, toolbar):
+        toolbar.addAction(self.back_to_main_act, 0)
+
+    def edit_global(self):
+        self.state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
+
     def _render(self):
-        self.map_view = NewMapView(self, state_manager=self.state_manager)
+        self.map_view = NewMapView(self)
         self.setCentralWidget(self.map_view)
 
         self.create_edit_dock()

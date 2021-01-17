@@ -106,7 +106,6 @@ class DatabaseTab(QWidget):
 
         # Check this on startup
         self.reset()
-
     def update_list(self):
         self.left_frame.update_list()
 
@@ -139,11 +138,10 @@ class DatabaseTab(QWidget):
 
 
 class CollectionModel(QAbstractListModel):
-    def __init__(self, data, window, state_manager=None):
+    def __init__(self, data, window):
         super().__init__(window)
         self._data = data
         self.window = window
-        self.state_manager = state_manager
 
     def rowCount(self, parent=None):
         return len(self._data)
@@ -152,8 +150,23 @@ class CollectionModel(QAbstractListModel):
         raise NotImplementedError
 
     def delete(self, idx):
-      # @TODO: figure out how to detangle this
+        # special case for 1-length data
+        if(len(self._data) == 1):
+            self._data.pop(idx)
+            new_index = self.index(min(idx, len(self._data) - 1))
+            self.window.view.setCurrentIndex(new_index)
+            self.layoutChanged.emit() 
+            return
+        # if deleting last element
+        new_index = 0
+        if idx == len(self._data) - 1:
+            new_index = self.index(idx - 1)
+        else:
+            new_index = self.index(idx + 1)
+        self.window.view.setCurrentIndex(new_index)
         self._data.pop(idx)
+        new_index = self.index(min(idx, len(self._data) - 1))
+        self.window.view.setCurrentIndex(new_index)
         self.layoutChanged.emit()
 
     def update(self):

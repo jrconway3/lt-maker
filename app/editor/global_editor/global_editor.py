@@ -10,6 +10,8 @@ from app.editor.settings import MainSettingsController
 
 from app.editor import timer
 
+from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
+
 from .level_menu import LevelDatabase
 # from .overworld_menu import OverworldDatabase
 
@@ -22,7 +24,13 @@ class GlobalEditor(QMainWindow):
         self.settings = MainSettingsController()
         self.app_state_manager.subscribe_to_key(
             GlobalEditor.__name__, 'selected_level', self.set_current_level)
+        
         self._render()
+        
+        # create actions
+        self.create_actions()
+        self.set_icons()
+        
         timer.get_timer().tick_elapsed.connect(self.map_view.update_view)
 
     def create_left_dock(self):
@@ -44,11 +52,11 @@ class GlobalEditor(QMainWindow):
     def create_level_dock(self):
         print("Create Level Dock")
         self.level_dock = QDockWidget("Levels", self)
-        self.level_menu = LevelDatabase(self, self.app_state_manager)
+        self.level_menu = LevelDatabase(self.app_state_manager)
         self.level_dock.setAllowedAreas(Qt.LeftDockWidgetArea)
         self.level_dock.setWidget(self.level_menu)
         self.level_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
-
+    
     def create_statusbar(self):
         self.status_bar = self.statusBar()
         self.position_bar = QLabel("", self)
@@ -74,28 +82,37 @@ class GlobalEditor(QMainWindow):
         self.map_view.set_current_level(level)
 
     def create_actions(self):
+        # menu actions
         self.zoom_in_act = QAction(
             "Zoom in", self, shortcut="Ctrl++", triggered=self.map_view.zoom_in)
         self.zoom_out_act = QAction(
             "Zoom out", self, shortcut="Ctrl+-", triggered=self.map_view.zoom_out)
+        
+        # toolbar actions
+        self.modify_level_act = QAction(
+            "Edit Level", self, shortcut="E", triggered=self.edit_level)
 
-    def set_icons(self, force_theme=None):
-        if force_theme is None:
-            theme = self.settings.get_theme(0)
-        else:
-            theme = force_theme
+    def set_icons(self):
+        theme = self.settings.get_theme(0)
         if theme == 0:
             icon_folder = 'icons'
         else:
             icon_folder = 'dark_icons'
         self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
+        self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))
+
+    def create_toolbar(self, toolbar):
+        toolbar.addAction(self.modify_level_act, 0)
 
     def create_menus(self, app_menu_bar):
         edit_menu = app_menu_bar.getMenu('Edit')
         edit_menu.addSeparator()
         edit_menu.addAction(self.zoom_in_act)
         edit_menu.addAction(self.zoom_out_act)
+
+    def edit_level(self):
+        self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.LEVEL_EDITOR)
 
     def _render(self):
         self.map_view = GlobalModeLevelMapView(self)

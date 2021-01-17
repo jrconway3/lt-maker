@@ -23,7 +23,7 @@ class SimpleMapView(QGraphicsView):
     position_clicked = pyqtSignal(int, int)
     position_moved = pyqtSignal(int, int)
 
-    def __init__(self, window=None, state_manager=None):
+    def __init__(self, window=None):
         super().__init__()
         self.main_editor = window
         self.settings = MainSettingsController()
@@ -43,11 +43,6 @@ class SimpleMapView(QGraphicsView):
 
         self.current_mouse_pos = None
         self.region_select = None
-
-        if(state_manager):
-            self.state_manager = state_manager
-            self.state_manager.subscribe_to_key(
-                SimpleMapView.__name__, 'ui_refresh_signal', self.update_view)
 
     def center_on_pos(self, pos):
         self.centerOn(pos[0]*TILEWIDTH, pos[1]*TILEHEIGHT)
@@ -143,8 +138,8 @@ class SimpleMapView(QGraphicsView):
 
 
 class GlobalModeLevelMapView(SimpleMapView):
-    def __init__(self, window=None, state_manager=None):
-        super().__init__(window, state_manager=state_manager)
+    def __init__(self, window=None):
+        super().__init__(window)
 
     def paint_units(self):
         if self.working_image:
@@ -197,8 +192,8 @@ class EditMode(Enum):
 
 
 class NewMapView(SimpleMapView):
-    def __init__(self, window=None, state_manager=None):
-        super().__init__(window, state_manager=state_manager)
+    def __init__(self, window=None):
+        super().__init__(window)
         self.edit_mode = EditMode.UNITS
 
     def set_mode(self, edit_mode):

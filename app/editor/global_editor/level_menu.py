@@ -15,8 +15,8 @@ from app.utilities import str_utils
 
 
 class LevelDatabase(QWidget):
-    def __init__(self, window=None, state_manager=None):
-        super().__init__(window)
+    def __init__(self, state_manager):
+        super().__init__()
         self.state_manager = state_manager
 
         self.grid = QGridLayout()
@@ -31,7 +31,7 @@ class LevelDatabase(QWidget):
         self.view.currentChanged = self.on_level_changed
         self.view.doubleClicked.connect(self.on_double_click)
 
-        self.model = LevelModel(DB.levels, self, self.state_manager)
+        self.model = LevelModel(DB.levels, self)
         self.view.setModel(self.model)
 
         self.button = QPushButton("Create New Level...")
@@ -90,15 +90,7 @@ class LevelModel(CollectionModel):
                 img = QIcon(pix)
                 return img
         return None
-
-    def delete(self, idx):
-        self._data.pop(idx)
-        self.layoutChanged.emit()
-        new_level = self._data[min(idx, len(self._data) - 1)]
-        if(self.state_manager):
-            self.state_manager.change_and_broadcast(
-                'selected_level', new_level.nid)
-
+    
     def create_new(self):
         nids = [l.nid for l in DB.levels]
         nid = str(str_utils.get_next_int("0", nids))

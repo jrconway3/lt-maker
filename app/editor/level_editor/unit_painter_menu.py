@@ -22,7 +22,7 @@ from app.editor.item_list_widget import ItemListWidget
 
 
 class UnitPainterMenu(QWidget):
-    def __init__(self, state_manager=None, map_view=None):
+    def __init__(self, state_manager, map_view):
         super().__init__()
         self.map_view = map_view
         self.state_manager = state_manager

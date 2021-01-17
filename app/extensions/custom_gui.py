@@ -208,6 +208,8 @@ class RightClickView():
     def delete(self, index):
         idx = index.row()
         self.model().delete(idx)
+        new_index = self.model().index(min(idx, self.model().rowCount() - 1))
+        self.setCurrentIndex(new_index)
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)

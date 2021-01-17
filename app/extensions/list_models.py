@@ -196,12 +196,13 @@ class MultiAttrListModel(VirtualListModel):
         data = self._data[index.row()]
         attr = self._headers[index.column()]
         current_value = getattr(data, attr)
-        self.change_watchers(data, attr, current_value, value)
+        if attr == 'nid' or attr == 'rank':
+            self.on_attr_changed(data, attr, current_value, value)
         setattr(data, attr, value)
         self.dataChanged.emit(index, index)
         return True
 
-    def change_watchers(self, data, attr, old_value, new_value):
+    def on_attr_changed(self, data, attr, old_value, new_value):
         pass
 
     def flags(self, index):
@@ -227,7 +228,6 @@ class MultiAttrListModel(VirtualListModel):
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1, 0)
         self.window.view.setCurrentIndex(last_index)
-        self.update_watchers(self.rowCount() - 1)
         return last_index
 
     def new(self, idx):
@@ -235,7 +235,8 @@ class MultiAttrListModel(VirtualListModel):
         self._data.move_index(len(self._data) - 1, idx + 1)
         self.layoutChanged.emit()
 
-        self.update_watchers(idx + 1)
+        new_index = self.index(idx + 1)
+        return new_index
 
     def duplicate(self, idx):
         obj = self._data[idx]
@@ -255,13 +256,11 @@ class MultiAttrListModel(VirtualListModel):
         self._data.insert(idx + 1, new_obj)
         self.layoutChanged.emit()
 
-        self.update_watchers(idx + 1)
-
-    def update_watchers(self, idx):
-        pass
+        new_index = self.index(idx + 1)
+        return new_index
 
 class DefaultMultiAttrListModel(MultiAttrListModel):
-    def change_watchers(self, data, attr, old_value, new_value):
+    def on_attr_changed(self, data, attr, old_value, new_value):
         if attr in self._headers and self._headers.index(attr) == self.nid_column:
             new_value = str_utils.get_next_name(new_value, [d.nid for d in self._data])
             self._data.update_nid(data, new_value)

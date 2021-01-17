@@ -173,8 +173,11 @@ class WexpGainList(Data):
         self.insert(idx, WexpGain(False, new_weapon_type.nid, 0))
 
     def change_key(self, old, new):
-        super().change_key(old, new)
-        self.get(new).nid = new  # Remember to change the name/nid of the wexp gain as well
+        if new in self.keys():
+            self.get(new).absorb(self.get(old))
+        else:
+            super().change_key(old, new)
+            self.get(new).nid = new  # Remember to change the name/nid of the wexp gain as well
 
     @classmethod
     def default(cls, db):

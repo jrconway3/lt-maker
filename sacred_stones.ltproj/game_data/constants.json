@@ -36,6 +36,10 @@
         true
     ],
     [
+        "growth_info",
+        true
+    ],
+    [
         "line_of_sight",
         false
     ],

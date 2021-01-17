@@ -79,7 +79,7 @@ class TileSetModel(ResourceCollectionModel):
                 return
         super().delete(idx)
 
-    def nid_change_watchers(self, icon, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses tilesets
         # Tilemaps use tilesets
         for tilemap in RESOURCES.tilemaps:
@@ -158,7 +158,7 @@ class TileMapModel(ResourceCollectionModel):
                 return
         super().delete(idx)
 
-    def nid_change_watchers(self, icon, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses tilemaps
         # Levels use tilemaps
         for level in DB.levels:

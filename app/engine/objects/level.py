@@ -46,7 +46,7 @@ class LevelObject():
                 level.units.append(new_unit)
 
         level.regions = Data([p for p in prefab.regions])
-        level.unit_groups = Data([UnitGroup.from_prefab(p, level.units) for p in prefab.unit_groups])
+        level.unit_groups = Data([UnitGroup.from_prefab(p) for p in prefab.unit_groups])
 
         return level
 
@@ -76,6 +76,6 @@ class LevelObject():
 
         level.units = Data([game.get_unit(unit_nid) for unit_nid in s_dict['units']])
         level.regions = Data([Region.restore(region) for region in s_dict['regions']])
-        level.unit_groups = Data([UnitGroup.restore(unit_group, level.units) for unit_group in s_dict['unit_groups']])
+        level.unit_groups = Data([UnitGroup.restore(unit_group) for unit_group in s_dict['unit_groups']])
 
         return level

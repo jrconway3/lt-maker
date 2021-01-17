@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.data import units, weapons, stats
+from app.data.level_units import UniqueUnit
 
 from app.extensions.custom_gui import DeletionDialog
 
@@ -45,20 +46,30 @@ class UnitModel(DragDropCollectionModel):
         unit = self._data[idx]
         nid = unit.nid
         affected_ais = [ai for ai in DB.ai if ai.has_unit_spec("ID", nid)]
+        affected_levels = [level for level in DB.levels if any(isinstance(unit, UniqueUnit) and unit.nid == nid for unit in level.units)]
         if affected_ais:
             from app.editor.ai_editor.ai_model import AIModel
             model = AIModel
-            msg = "Deleting Unit <b>%s</b> would affect these ais" % nid
+        elif affected_levels:
+            from app.editor.level_menu import LevelModel
+            model = LevelModel
+            msg = "Deleting Unit <b>%s</b> would affect these objects" % nid
             swap, ok = DeletionDialog.get_swap(affected_ais, model, msg, UnitBox(self.window, exclude=unit), self.window)
             if ok:
-                self.change_nid(nid, swap.nid)
+                self.on_nid_changed(nid, swap.nid)
             else:
                 return
         super().delete(idx)
 
-    def change_nid(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         for ai in DB.ai:
             ai.change_unit_spec("ID", old_nid, new_nid)
+        for level in DB.levels:
+            for unit in level.units:
+                if isinstance(unit, UniqueUnit) and unit.nid == old_nid:
+                    unit.nid = new_nid
+            for unit_group in level.unit_groups:
+                unit_group.swap(unit.nid, new_nid)
 
     def create_new(self):
         nids = [d.nid for d in self._data]

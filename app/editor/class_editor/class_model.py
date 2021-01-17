@@ -102,13 +102,13 @@ class ClassModel(DragDropCollectionModel):
             msg = "Deleting Class <b>%s</b> would affect these objects" % nid
             swap, ok = DeletionDialog.get_swap(affected, model, msg, ClassBox(self.window, exclude=klass), self.window)
             if ok:
-                self.change_nid(nid, swap.nid)
+                self.on_nid_changed(nid, swap.nid)
             else:
                 return
         # Delete watchers
         super().delete(idx)
 
-    def change_nid(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         for unit in DB.units:
             if unit.klass == old_nid:
                 unit.klass = new_nid

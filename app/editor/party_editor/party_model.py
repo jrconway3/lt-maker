@@ -36,12 +36,12 @@ class PartyModel(DragDropCollectionModel):
             msg = "Deleting Party <b>%s</b> would affect this level" % nid
             swap, ok = DeletionDialog.get_swap(affected_levels, model, msg, PartyBox(self.window, exclude=party), self.window)
             if ok:
-                self.change_nid(nid, swap.nid)
+                self.on_nid_changed(nid, swap.nid)
             else:
                 return
         super().delete(idx)
 
-    def change_nid(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # Levels can be effected
         for level in DB.levels:
             if level.party == old_nid:

@@ -4,10 +4,12 @@ from PyQt5.QtWidgets import QPushButton, QLineEdit, \
     QWidget, QDialog, QVBoxLayout, QMessageBox, QListWidgetItem, \
     QGridLayout
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QBrush, QColor
+from PyQt5.QtGui import QBrush, QColor, QIcon
 
 from app.utilities import str_utils
 from app.utilities.data import Data
+from app.data.database import DB
+from app.data.level_units import GenericUnit
 
 from app.editor import timer
 
@@ -16,6 +18,7 @@ from app.extensions.custom_gui import Dialog, RightClickListView, QHLine
 from app.editor.custom_widgets import ObjBox
 from app.editor.unit_painter_menu import AllUnitModel, InventoryDelegate
 from app.editor.base_database_gui import DragDropCollectionModel
+from app.editor.class_editor import class_model
 
 from app.data.level_units import UnitGroup
 
@@ -49,7 +52,7 @@ class UnitGroupMenu(QWidget):
 
     def create_new_group(self):
         nid = str_utils.get_next_name('New Group', self._data.keys())
-        new_group = UnitGroup(nid, Data(), {})
+        new_group = UnitGroup(nid, [], {})
         self._data.append(new_group)
         self.group_list.add_group(new_group)
         return new_group
@@ -78,12 +81,12 @@ class UnitGroupMenu(QWidget):
         idx = self._data.index(group.nid)
         self.group_list.setCurrentRow(idx)
 
-    def select(self, group, unit):
+    def select(self, group, unit_nid):
         idx = self._data.index(group.nid)
         self.group_list.setCurrentRow(idx)
         item = self.group_list.item(idx)
         item_widget = self.group_list.itemWidget(item)
-        uidx = group.units.index(unit.nid)
+        uidx = group.units.index(unit_nid)
         item_widget.select(uidx)
 
     def deselect(self):
@@ -150,11 +153,11 @@ class GroupWidget(QWidget):
         self.view.currentChanged = self.on_item_changed
         self.view.clicked.connect(self.on_click)
 
-        self.model = GroupUnitModel(Data(), self)
+        self.model = GroupUnitModel([], self)
         self.model.positions = {}
         self.view.setModel(self.model)
         self.view.setIconSize(QSize(32, 32))
-        self.inventory_delegate = InventoryDelegate(Data())
+        self.inventory_delegate = InventoryDelegate(Data(), self)
         self.view.setItemDelegate(self.inventory_delegate)
 
         self.layout.addWidget(self.view, 2, 0, 1, 3)
@@ -198,7 +201,8 @@ class GroupWidget(QWidget):
         for index in self.view.selectedIndexes():
             idx = index.row()
             if len(self.current.units) > 0 and idx < len(self.current.units):
-                return self.current.units[idx]
+                unit_nid = self.current.units[idx]
+                return self.window.current_level.units.get(unit_nid)
         return None
 
     def select(self, idx):
@@ -211,11 +215,10 @@ class GroupWidget(QWidget):
     def add_new_unit(self):
         unit_nid, ok = SelectUnitDialog.get_unit_nid(self)
         if ok:
-            if unit_nid in self.current.units.keys():
+            if unit_nid in self.current.units:
                 QMessageBox.critical(self, "Error!", "%s already present in group!" % unit_nid)
             else:
-                unit = self.current_level.units.get(unit_nid)
-                self.current.units.append(unit)
+                self.current.units.append(unit_nid)
 
 class SelectUnitDialog(Dialog):
     def __init__(self, parent=None):
@@ -248,18 +251,39 @@ class SelectUnitDialog(Dialog):
         else:
             return None, False
 
-class GroupUnitModel(AllUnitModel):
+class GroupUnitModel(DragDropCollectionModel):
     def data(self, index, role):
-        if role == Qt.ForegroundRole:
-            unit = self._data[index.row()]
-            if unit.nid in self.positions:
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            unit_nid = self._data[index.row()]
+            text = str(unit_nid)
+            unit = self.window.window.current_level.units.get(unit_nid)
+            if isinstance(unit, GenericUnit):
+                text += ' (' + str(unit.ai) + ' Lv ' + str(unit.level) + ')'
+            return text
+        elif role == Qt.DecorationRole:
+            unit_nid = self._data[index.row()]
+            unit = self.window.window.current_level.units.get(unit_nid)            
+            # Don't draw any units which have been deleted in editor
+            if not unit.generic and unit_nid not in DB.units.keys():
+                return None
+            klass_nid = unit.klass
+            num = timer.get_timer().passive_counter.count
+            klass = DB.classes.get(klass_nid)
+            if self.window.view:
+                active = self.window.view.selectionModel().isSelected(index)
+            else:
+                active = False
+            pixmap = class_model.get_map_sprite_icon(klass, num, active, unit.team, unit.variant)
+            if pixmap:
+                return QIcon(pixmap)
+            else:
+                return None
+        elif role == Qt.ForegroundRole:
+            unit_nid = self._data[index.row()]
+            if unit_nid in self.positions:
                 return QBrush()
             else:
                 return QBrush(QColor("red"))
-        else:
-            return super().data(index, role)
         return None
-
-    def delete(self, idx):
-        # Just delete unit from any groups the unit is a part of
-        DragDropCollectionModel.delete(self, idx)

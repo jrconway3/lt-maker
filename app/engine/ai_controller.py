@@ -606,7 +606,10 @@ class SecondaryAI():
             if item_system.is_weapon(self.unit, item) or item_system.is_spell(self.unit, item):
                 raw_damage = combat_calcs.compute_damage(self.unit, enemy, item)
                 hit = utils.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
-                true_damage = raw_damage * hit
+                if raw_damage:
+                    true_damage = raw_damage * hit
+                else:
+                    true_damage = 0
 
             if true_damage <= 0 and status_term <= 0:
                 return None  # If no damage could be dealt, ignore

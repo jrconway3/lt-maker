@@ -77,7 +77,7 @@ class PortraitModel(ResourceCollectionModel):
                 return
         super().delete(idx)
 
-    def nid_change_watchers(self, portrait, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses portraits
         # Units (Later Dialogues)
         for unit in DB.units:

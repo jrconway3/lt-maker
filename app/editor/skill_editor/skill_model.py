@@ -59,13 +59,13 @@ class SkillModel(DragDropCollectionModel):
                 msg = "Deleting Skill <b>%s</b> would affect these objects." % nid
                 swap, ok = DeletionDialog.get_swap(affected, model, msg, SkillBox(self.window, exclude=skill), self.window)
                 if ok:
-                    self.change_nid(swap.nid, nid)
+                    self.on_nid_changed(swap.nid, nid)
                 else:
                     return
         # Delete watchers
         super().delete(idx)
 
-    def change_nid(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         for unit in DB.units:
             unit.replace_skill_nid(old_nid, new_nid)
         for k in DB.classes:

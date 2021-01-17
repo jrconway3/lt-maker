@@ -183,19 +183,21 @@ class MapView(SimpleMapView):
             painter = QPainter()
             painter.begin(self.working_image)
             for group in self.main_editor.current_level.unit_groups:
-                for unit in group.units:
-                    position = group.positions.get(unit.nid)
+                for unit_nid in group.units:
+                    position = group.positions.get(unit_nid)
                     if not position:
                         continue
+                    unit = self.main_editor.current_level.units.get(unit_nid)
                     self.draw_unit(painter, unit, position, opacity=True)
             # Draw current group
             current_group = self.main_editor.group_painter_menu.get_current()
             if current_group:
-                for unit in current_group.units:
-                    position = current_group.positions.get(unit.nid)
+                for unit_nid in current_group.units:
+                    position = current_group.positions.get(unit_nid)
                     if not position:
                         continue
                     # With full opacity
+                    unit = self.main_editor.current_level.units.get(unit_nid)
                     self.draw_unit(painter, unit, position)
 
                 # Highlight current unit with cursor
@@ -301,21 +303,21 @@ class MapView(SimpleMapView):
                         self.update_view()
                 elif event.button() == self.settings.get_select_button(Qt.LeftButton):
                     current_group = self.main_editor.group_painter_menu.get_current()
-                    under_unit = None
+                    under_unit_nid = None
                     for unit_nid, position in current_group.positions.items():
                         if pos == position:
-                            under_unit = current_group.units.get(unit_nid)
+                            under_unit_nid = unit_nid
                             break
                     for group in self.main_editor.current_level.unit_groups:
-                        if under_unit:
+                        if under_unit_nid:
                             break
                         for unit_nid, position in group.positions.items():
                             if pos == position:
                                 current_group = group
-                                under_unit = group.units.get(unit_nid)
+                                under_unit_nid = unit_nid
                                 break
-                    if under_unit:
-                        self.main_editor.group_painter_menu.select(current_group, under_unit.nid)
+                    if under_unit_nid:
+                        self.main_editor.group_painter_menu.select(current_group, under_unit_nid)
                     else:
                         self.main_editor.group_painter_menu.deselect()
             elif self.main_editor.dock_visibility['Regions']:
@@ -336,12 +338,12 @@ class MapView(SimpleMapView):
             self.main_editor.set_position_bar(pos)
             under_unit = self.check_position(self.main_editor.current_level, pos)
             current_group = self.main_editor.group_painter_menu.get_current()
-            group_unit = None
+            group_unit_nid = None
             if current_group:
-                for unit in current_group.units:
-                    my_pos = current_group.positions.get(unit.nid)
+                for unit_nid in current_group.units:
+                    my_pos = current_group.positions.get(unit_nid)
                     if my_pos and my_pos[0] == pos[0] and my_pos[1] == pos[1]:
-                        group_unit = unit
+                        group_unit_nid = unit_nid
                         break
             
             if self.main_editor.dock_visibility['Regions']:
@@ -356,8 +358,8 @@ class MapView(SimpleMapView):
                     self.main_editor.set_message(None)
             elif self.main_editor.dock_visibility['Units'] and under_unit:
                 self.main_editor.set_message("Unit: %s" % under_unit.nid)
-            elif self.main_editor.dock_visibility['Groups'] and group_unit:
-                self.main_editor.set_message("Unit: %s" % group_unit.nid)
+            elif self.main_editor.dock_visibility['Groups'] and group_unit_nid:
+                self.main_editor.set_message("Unit: %s" % group_unit_nid)
             else:
                 terrain_nid = self.current_map.get_terrain(pos)
                 terrain = DB.terrain.get(terrain_nid)

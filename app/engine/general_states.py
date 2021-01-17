@@ -1675,3 +1675,64 @@ class ShopState(State):
         self.money_counter_disp.draw(surf)
 
         return surf
+
+class UnlockSelectState(MapState):
+    name = 'unlock_select'
+
+    def start(self):
+        self.cur_unit = game.memory['current_unit']
+        options = game.memory['all_unlock_items']
+        self.menu = menus.Choice(self.cur_unit, options)
+
+    def begin(self):
+        game.cursor.hide()
+        self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+            current = self.menu.get_current()
+            self.item_desc_panel.set_item(current)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+            current = self.menu.get_current()
+            self.item_desc_panel.set_item(current)
+
+        if event == 'BACK':
+            if self.menu.info_flag:
+                self.menu.toggle_info()
+                SOUNDTHREAD.play_sfx('Info Out')
+            else:
+                SOUNDTHREAD.play_sfx('Select 4')
+                game.state.back()
+
+        elif event == 'SELECT':
+            if self.menu.info_flag:
+                pass
+            else:
+                SOUNDTHREAD.play_sfx('Select 1')
+                game.memory['unlock_item'] = self.menu.get_current()
+                game.state.back()
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
+            if self.menu.info_flag:
+                SOUNDTHREAD.play_sfx('Info In')
+            else:
+                SOUNDTHREAD.play_sfx('Info Out')
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.item_desc_panel.draw(surf)
+        surf = self.menu.draw(surf)
+        return surf

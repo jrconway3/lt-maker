@@ -148,7 +148,7 @@ class MapSpriteModel(ResourceCollectionModel):
         # Delete watchers
         super().delete(idx)
 
-    def nid_change_watchers(self, portrait, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses map sprites
         # Classes
         for klass in DB.classes:

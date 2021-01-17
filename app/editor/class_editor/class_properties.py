@@ -189,7 +189,7 @@ class ClassProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Class ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        self.model.change_nid(self._data.find_key(self.current), self.current.nid)
+        self.model.on_nid_changed(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

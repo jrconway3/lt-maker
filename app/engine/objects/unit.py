@@ -295,11 +295,14 @@ class UnitObject(Prefab):
             return running_total 
 
     def get_group(self) -> str:
+        """
+        Used to find the unit's AI group
+        """
         if not game.level:
             return None
         groups = game.level.unit_groups
         for group in groups:
-            if self in group.units:
+            if self.nid in group.units:
                 return group.nid
         return None
 

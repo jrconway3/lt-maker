@@ -62,7 +62,7 @@ class IconModel(ResourceCollectionModel):
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1)
         view.setCurrentIndex(last_index)
-        self.update_watchers(self.rowCount() - 1)
+        self.update_foreign_data(self.rowCount() - 1)
         return last_index
 
     def new(self, index):
@@ -71,12 +71,12 @@ class IconModel(ResourceCollectionModel):
         # self.create_new()
         # self._data.move_index(len(self._data) - 1, idx + 1)
         # self.layoutChanged.emit()
-        # self.update_watchers(self.rowCount() - 1)
+        # self.update_foreign_data(self.rowCount() - 1)
 
-    def update_watchers(self, idx):
+    def update_foreign_data(self, idx):
         pass
 
-    def nid_change_watchers(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         pass
 
     def do_delete(self, nid):
@@ -149,15 +149,18 @@ class Icon16Model(IconModel):
 
         self.do_delete(nid)
 
-    def nid_change_watchers(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses 16x16 icons
-        # Items, Weapons, (Later on Affinities, Skills/Statuses)
+        # Items, Weapons, Skills, (Later on Affinities)
         for item in DB.items:
             if item.icon_nid == old_nid:
                 item.icon_nid = new_nid
         for weapon in DB.weapons:
             if weapon.icon_nid == old_nid:
                 weapon.icon_nid = new_nid
+        for skill in DB.skills:
+            if skill.icon_nid == old_nid:
+                skill.icon_nid = new_nid
 
 class Icon32Model(Icon16Model):
     database = RESOURCES.icons32
@@ -186,7 +189,7 @@ class Icon32Model(Icon16Model):
         
         self.do_delete(nid)
 
-    def nid_change_watchers(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses 32x32 icons
         # Factions
         for faction in DB.factions:
@@ -220,7 +223,7 @@ class Icon80Model(Icon16Model):
         
         self.do_delete(nid)
 
-    def nid_change_watchers(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses 80x72 icons
         # Classes
         for klass in DB.classes:

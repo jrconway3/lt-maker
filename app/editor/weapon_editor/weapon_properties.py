@@ -5,7 +5,6 @@ from PyQt5.QtGui import QIcon
 
 from app.utilities import str_utils
 from app.data.database import DB
-from app.data import components, item_components
 from app.data.weapons import CombatBonusList
 
 from app.extensions.custom_gui import ComboBox, PropertyBox
@@ -44,10 +43,6 @@ class WeaponProperties(QWidget):
 
         top_section.addLayout(name_section)
 
-        # self.magic_box = PropertyCheckBox("Magic", QCheckBox, self)
-        # self.magic_box.edit.stateChanged.connect(self.magic_changed)
-        # name_section.addWidget(self.magic_box)
-
         attrs = ('weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attack_speed', 'defense_speed')
         self.rank_bonus = AppendMultiListWidget(CombatBonusList(), "Rank Bonus", attrs, RankBonusDelegate, self)
         attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attack_speed', 'defense_speed')
@@ -74,36 +69,19 @@ class WeaponProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Weapon Type ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
-        # self._data.change_nid(self._data.find_key(self.current), self.current.nid)
+        old_nid = self._data.find_key(self.current)
+        self.window.left_frame.model.on_nid_changed(old_nid, self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
-
-    def nid_change_watchers(self, old_value, new_value):
-        old_nid, new_nid = old_value, new_value
-        for klass in DB.classes:
-            klass.wexp_gain.change_key(old_nid, new_nid)
-        for unit in DB.units:
-            unit.wexp_gain.change_key(old_nid, new_nid)
-        for weapon in DB.weapons:
-            weapon.rank_bonus.swap_type(old_nid, new_nid)
-            weapon.advantage.swap_type(old_nid, new_nid)
-            weapon.disadvantage.swap_type(old_nid, new_nid)
-        affected_items = item_components.get_items_using(components.Type.WeaponType, old_nid, DB)
-        item_components.swap_values(affected_items, components.Type.WeaponType, old_nid, new_nid)
 
     def name_changed(self, text):
         self.current.name = text
         self.window.update_list()
 
-    # def magic_changed(self, state):
-    #     self.current.magic = bool(state)
-
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
-        # self.magic_box.edit.setChecked(current.magic)
         self.rank_bonus.set_current(current.rank_bonus)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)

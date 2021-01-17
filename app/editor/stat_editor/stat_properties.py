@@ -46,7 +46,7 @@ class StatTypeProperties(QWidget):
         self.current.nid = text
         self.window.update_list()
 
-    def nid_change_watchers(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         for klass in DB.classes:
             for row in klass.get_stat_lists():
                 row.change_key(old_nid, new_nid)
@@ -60,7 +60,7 @@ class StatTypeProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Stat Type ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
+        self.on_nid_changed(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

@@ -150,11 +150,11 @@ class PropertiesMenu(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self, 'Warning', 'Level ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_int(self.current.nid, other_nids)
-        self.nid_change_watchers(DB.levels.find_key(self.current), self.current.nid)            
+        self.on_nid_changed(DB.levels.find_key(self.current), self.current.nid)
         DB.levels.update_nid(self.current, self.current.nid)
         self.main_editor.update_view()
 
-    def nid_change_watchers(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         for event in DB.events:
             if event.level_nid == old_nid:
                 event.level_nid = new_nid

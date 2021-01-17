@@ -66,14 +66,7 @@ class WeaponModel(DragDropCollectionModel):
             msg = "Deleting WeaponType <b>%s</b> would affect these objects." % nid
             swap, ok = DeletionDialog.get_swap(affected, model, msg, WeaponTypeBox(self.window, exclude=weapon_type), self.window)
             if ok:
-                for klass in affected_klasses:
-                    klass.wexp_gain.get(swap.nid).absorb(klass.wexp_gain.get(nid))
-                for unit in affected_units:
-                    unit.wexp_gain.get(swap.nid).absorb(unit.wexp_gain.get(nid))
-                item_components.swap_values(affected_items, components.Type.Equation, nid, swap.nid)
-                for weapon in affected_weapons:
-                    weapon.advantage.swap_type(nid, swap.nid)
-                    weapon.disadvantage.swap_type(nid, swap.nid)
+                self.on_nid_changed(nid, swap.nid)
             else:
                 return  # User cancelled swap
         # Delete watchers
@@ -82,6 +75,19 @@ class WeaponModel(DragDropCollectionModel):
         for unit in DB.units:
             unit.wexp_gain.remove_key(nid)
         super().delete(idx)
+
+    def on_nid_changed(self, old_value, new_value):
+        old_nid, new_nid = old_value, new_value
+        for klass in DB.classes:
+            klass.wexp_gain.change_key(old_nid, new_nid)
+        for unit in DB.units:
+            unit.wexp_gain.change_key(old_nid, new_nid)
+        for weapon in DB.weapons:
+            weapon.rank_bonus.swap_type(old_nid, new_nid)
+            weapon.advantage.swap_type(old_nid, new_nid)
+            weapon.disadvantage.swap_type(old_nid, new_nid)
+        affected_items = item_components.get_items_using(components.Type.WeaponType, old_nid, DB)
+        item_components.swap_values(affected_items, components.Type.WeaponType, old_nid, new_nid)
 
     def create_new(self):
         nids = [d.nid for d in self._data]
@@ -92,22 +98,39 @@ class WeaponModel(DragDropCollectionModel):
         DB.weapons.append(new_weapon)
         return new_weapon
 
-    # Called on create_new, new, and duplicate
-    # Makes sure that other datatypes that use this data, but not directly
-    # are always updated correctly
-    def update_watchers(self, idx):
+    def append(self):
+        last_index = super().append()
+        if last_index:
+            idx = last_index.row()
+            self._update_foreign_data(idx)
+
+    def new(self, idx):
+        new_index = super().new(idx)
+        if new_index:
+            idx = new_index.row()
+            self._update_foreign_data(idx)
+
+    def duplicate(self, idx):
+        new_index = super().duplicate(idx)
+        if new_index:
+            idx = new_index.row()
+            self._update_foreign_data(idx)
+
+    def _update_foreign_data(self, idx):
         for klass in DB.classes:
             klass.wexp_gain.new(idx, DB.weapons)
         for unit in DB.units:
             unit.wexp_gain.new(idx, DB.weapons)
 
+    def removeRows(self, row, count, parent):
+        result = super().removeRows(row, count, parent)
+        if result and self.most_recent_dragdrop:
+            fro, to = self.most_recent_dragdrop[0], self.most_recent_dragdrop[1]
+            self._drag_foreign_data(fro, to)
+
     # Called on drag and drop
-    def update_drag_watchers(self, fro, to):
+    def _drag_foreign_data(self, fro, to):
         for klass in DB.classes:
             klass.wexp_gain.move_index(fro, to)
         for unit in DB.units:
             unit.wexp_gain.move_index(fro, to)
-
-    # Called on changing attribute
-    def change_watchers(self, data, attr, old_value, new_value):
-        pass

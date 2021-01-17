@@ -75,30 +75,30 @@ class UniqueUnit(Prefab):
 @dataclass
 class UnitGroup(Prefab):
     nid: str = None
-    units: Data = None  # Actually unit, not unit nid
-    positions: dict = None
-
-    def save_attr(self, name, value):
-        if name == 'units':
-            value = [unit.nid for unit in value]
-        else:
-            value = super().save_attr(name, value)
-        return value
+    units: list = None  # list of unit nids
+    positions: dict = None  # unit nid : position
 
     @classmethod
-    def restore(cls, value, units):
-        self = cls(value['nid'], [], value['positions'])
-        units = [units.get(unit_nid) for unit_nid in value['units']]
-        # Only include units that actually exist
-        units = [u for u in units if u]
-        self.units = Data(units)
+    def restore(cls, value):
+        self = cls(value['nid'], value['units'], value['positions'])
+        self.units = [u for u in self.units if u]
         return self
 
     @classmethod
-    def from_prefab(cls, prefab, units):
-        self = cls(prefab.nid, [], prefab.positions)
-        units = [units.get(unit.nid) for unit in prefab.units]
-        # Only include units that actually exist
-        units = [u for u in units if u]
-        self.units = Data(units)
+    def from_prefab(cls, prefab):
+        self = cls(prefab.nid, prefab.units, prefab.positions)
+        self.units = [u for u in self.units if u]
         return self
+
+    def remove(self, unit_nid):
+        if unit_nid in self.units:
+            self.units.remove(unit_nid)
+        if unit_nid in self.positions:
+            del self.positions[unit_nid]
+
+    def swap(self, old_nid, new_nid):
+        for idx, nid in enumerate(self.units):
+            if nid == old_nid:
+                self.units[idx] = new_nid
+        if old_nid in self.positions:
+            self.positions[new_nid] = self.positions.pop(old_nid)

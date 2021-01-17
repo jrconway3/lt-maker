@@ -29,13 +29,13 @@ class AIModel(DragDropCollectionModel):
             msg = "Deleting AI <b>%s</b> would affect units in these levels" % nid
             swap, ok = DeletionDialog.get_swap(affected_levels, model, msg, AIBox(self.window, exclude=ai), self.window)
             if ok:
-                self.change_nid(nid, swap.nid)
+                self.on_nid_changed(nid, swap.nid)
             else:
                 return
         # Delete watchers
         super().delete(idx)
 
-    def change_nid(self, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         for level in DB.levels:
             for unit in level.units:
                 if unit.ai == old_nid:

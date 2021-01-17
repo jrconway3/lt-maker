@@ -1037,8 +1037,8 @@
                 "team": "enemy",
                 "ai": "None",
                 "starting_position": [
-                    4,
-                    3
+                    8,
+                    6
                 ],
                 "generic": false
             },
@@ -1122,11 +1122,15 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Hammerne",
+                        "Door Key",
                         false
                     ],
                     [
-                        "Thief",
+                        "Door Key",
+                        false
+                    ],
+                    [
+                        "Chest Key",
                         false
                     ]
                 ],
@@ -1196,6 +1200,21 @@
                 "sub_nid": "Armory",
                 "condition": "True",
                 "only_once": false
+            },
+            {
+                "nid": "Door1",
+                "region_type": "event",
+                "position": [
+                    4,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
             }
         ],
         "unit_groups": []

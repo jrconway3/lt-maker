@@ -143,8 +143,7 @@ class RegionModel(DragDropCollectionModel):
         if ok:
             self._data.move_index(len(self._data) - 1, idx + 1)
             self.layoutChanged.emit()
-
-            self.update_watchers(idx + 1)
+            self.update_foreign_data(idx + 1)
 
 class ModifyRegionWidget(QWidget):
     def __init__(self, data, parent=None, current=None):

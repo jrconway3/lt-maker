@@ -71,12 +71,12 @@ class PanoramaModel(ResourceCollectionModel):
 
     def delete(self, idx):
         # Check to see what is using me?
-        # Nothing for now -- later Dialogue
+        # TODO Nothing for now -- later Dialogue
         res = self._data[idx]
         nid = res.nid
         super().delete(idx)
 
-    def nid_change_watchers(self, portrait, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses panoramas
-        # Nothing for now -- later Dialogue
+        # TODO Nothing for now -- later Dialogue
         pass

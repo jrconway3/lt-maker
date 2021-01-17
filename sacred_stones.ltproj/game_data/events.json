@@ -5255,5 +5255,27 @@
             ]
         ],
         "only_once": false
+    },
+    {
+        "name": "Door1",
+        "trigger": "Door",
+        "level_nid": "DEBUG",
+        "condition": "region.nid == 'Door1'",
+        "commands": [
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Iron Sword"
+                ]
+            ]
+        ],
+        "only_once": true
     }
 ]

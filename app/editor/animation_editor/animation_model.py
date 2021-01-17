@@ -75,7 +75,7 @@ class AnimationModel(ResourceCollectionModel):
                 return
         super().delete(idx)
 
-    def nid_change_watchers(self, animation, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         # What uses Animations
         # Certain item components
         affected_items = item_components.get_items_using(item_components.Type.MapAnimations, old_nid, DB)

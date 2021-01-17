@@ -206,8 +206,7 @@ class AllUnitModel(DragDropCollectionModel):
         unit = self._data[idx]
         current_level = self.window.current_level
         for unit_group in current_level.unit_groups:
-            if unit in unit_group.units:
-                unit_group.units.delete(unit)
+            unit_group.remove(unit.nid)
 
         # Just delete unit from any groups the unit is a part of
         super().delete(idx)
@@ -222,7 +221,7 @@ class AllUnitModel(DragDropCollectionModel):
             self._data.move_index(len(self._data) - 1, idx + 1)
             self.layoutChanged.emit()
 
-            self.update_watchers(idx + 1)
+            self.update_foreign_data(idx + 1)
 
     def duplicate(self, idx):
         obj = self._data[idx]
@@ -235,18 +234,21 @@ class AllUnitModel(DragDropCollectionModel):
             self._data.insert(idx + 1, new_obj)
             self.layoutChanged.emit()
 
-            self.update_watchers(idx + 1)
+            self.update_foreign_data(idx + 1)
         else:
             QMessageBox.critical(self.window, "Error!", "Cannot duplicate unique unit!")
 
 class InventoryDelegate(QStyledItemDelegate):
-    def __init__(self, data):
+    def __init__(self, data, parent=None):
         super().__init__()
         self._data = data
+        self.window = parent
 
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
         unit = self._data[index.row()]
+        if isinstance(unit, str):  # It is a nid
+            unit = self.window.current_level.units.get(unit)
         # Don't draw any units which have been deleted in editor
         if not unit.generic and unit.nid not in DB.units.keys():
             return None

@@ -78,16 +78,6 @@ class CombatAnimModel(ResourceCollectionModel):
                 return
         super().delete(idx)
 
-    def change_nid(self, old_nid, new_nid):
-        # What uses combat animations
-        # Classes
-        for klass in DB.classes:
-            if klass.combat_anim_nid == old_nid:
-                klass.combat_anim_nid = new_nid
-
-    def nid_change_watchers(self, combat_anim, old_nid, new_nid):
-        self.change_nid(old_nid, new_nid)
-
 class AnimView(IconView):
     def get_color_at_pos(self, pixmap, pos):
         image = pixmap.toImage()
@@ -336,10 +326,14 @@ class CombatAnimProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'ID %s already in use' % self.current.nid)
             self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
-        model = self.window.left_frame.model
-        model.change_nid(self._data.find_key(self.current), self.current.nid)
+        self.on_nid_changed(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
+
+    def on_nid_changed(self, old_nid, new_nid):
+        for klass in DB.classes:
+            if klass.combat_anim_nid == old_nid:
+                klass.combat_anim_nid = new_nid
 
     def ask_permission(self, obj, text: str) -> bool:
         ret = QMessageBox.warning(self, "Deletion Warning", 

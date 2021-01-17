@@ -52,7 +52,7 @@ class WeaponRankMultiModel(MultiAttrListModel):
         DB.weapon_ranks.append(new_weapon_rank)
         return new_weapon_rank
 
-    def change_watchers(self, data, attr, old_value, new_value):
+    def on_attr_changed(self, data, attr, old_value, new_value):
         if attr == 'rank':
             self._data.update_nid(data, new_value)
             for weapon in DB.weapons:
@@ -101,7 +101,7 @@ class WexpGainMultiAttrModel(DefaultMultiAttrListModel):
                 value = int(value)
             else:
                 value = 0
-        self.change_watchers(data, attr, current_value, value)
+        self.on_attr_changed(data, attr, current_value, value)
         setattr(data, attr, value)
         self.dataChanged.emit(index, index)
         return True

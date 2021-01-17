@@ -23,7 +23,7 @@ class Ability(SkillComponent):
         return new_item
 
     def end_combat(self, playback, unit, item, target):
-        if item.nid == self.value:
+        if item and item.nid == self.value:
             action.do(action.TriggerCharge(unit, self.skill))
 
 class CombatArt(SkillComponent):

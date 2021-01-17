@@ -40,17 +40,12 @@ class UnitDatabase(DatabaseTab):
                 if unit.generic or unit.nid in DB.units.keys():
                     pass
                 else:  # Remove any unit that no longer exist
-                    print(unit)
-                    print(len(level.units))
                     level.units.remove_key(unit.nid)
-                    print(len(level.units))
+            # Now remove groups
             for unit_group in level.unit_groups:
-                for unit in unit_group.units.values():
-                    if unit not in level.units:
-                        unit_group.units.remove_key(unit.nid)
-                for unit_nid in list(unit_group.positions.keys()):
+                for unit_nid in unit_group.units:
                     if unit_nid not in level.units.keys():
-                        del unit_group.positions[unit_nid]
+                        unit_group.remove(unit_nid)
 
 def get(unit_nid=None):
     window = SingleDatabaseEditor(UnitDatabase)

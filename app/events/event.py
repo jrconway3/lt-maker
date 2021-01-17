@@ -592,6 +592,17 @@ class Event():
             self.wait_time = engine.get_time() + new_location_card.exist_time
             self.state = 'waiting'
 
+        elif command.nid == 'unlock':
+            # This is a macro that just adds new commands to command list
+            find_unlock_command = event_commands.FindUnlock(command.values)
+            spend_unlock_command = event_commands.SpendUnlock(command.values)
+            # Done backwards to presever order upon insertion
+            self.commands.insert(self.command_idx + 1, spend_unlock_command)
+            self.commands.insert(self.command_idx + 1, find_unlock_command)
+
+        elif command.nid == 'find_unlock':
+            self.find_unlock(command)
+
         elif command.nid == 'spend_unlock':
             self.spend_unlock(command)
 
@@ -872,7 +883,8 @@ class Event():
         else:
             placement = 'giveup'
         create = 'create' in flags
-        for unit in group.units:
+        for unit_nid in group.units:
+            unit = game.level.units.get(unit_nid)
             if create:
                 unit = self.copy_unit(unit)
             elif unit.position or unit.dead:
@@ -945,7 +957,8 @@ class Event():
         create = 'create' in flags
         follow = 'no_follow' not in flags
 
-        for unit in group.units:
+        for unit_nid in group.units:
+            unit = game.level.units.get(unit_nid)
             if create:
                 unit = self.copy_unit(unit)
             elif unit.position or unit.dead:
@@ -987,7 +1000,8 @@ class Event():
             placement = 'giveup'
         follow = 'no_follow' not in flags
 
-        for unit in group.units:
+        for unit_nid in group.units:
+            unit = game.level.units.get(unit_nid)
             if not unit.position:
                 continue
             position = self._get_position(next_pos, unit, group)
@@ -1011,7 +1025,8 @@ class Event():
             remove_type = values[1]
         else:
             remove_type = 'fade'
-        for unit in group.units:
+        for unit_nid in group.units:
+            unit = game.level.units.get(unit_nid)
             if unit.position:
                 if self.do_skip:
                     action.do(action.LeaveMap(unit))
@@ -1169,27 +1184,46 @@ class Event():
 
         action.do(action.AddRegion(new_region))
 
-    def spend_unlock(self, command):
+    def find_unlock(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
         if not unit:
             print("Couldn't find unit with nid %s" % values[0])
             return
         if not self.region:
-            print("Can only spend_unlock within a region's event script")
+            print("Can only find_unlock within a region's event script")
             return 
-
         if skill_system.can_unlock(unit, self.region):
+            game.memory['unlock_item'] = None
             return  # We're done here
 
-        chosen_item = None
+        all_items = []
         for item in item_funcs.get_all_items(unit):
             if item_funcs.available(unit, item) and \
                     item_system.can_unlock(unit, item, self.region):
-                chosen_item = item
-                break
+                all_items.append(item)
+        
+        if len(all_items) > 1:
+            game.memory['current_unit'] = unit
+            game.memory['all_unlock_items'] = all_items
+            game.state.change('unlock_select')
+            self.state = 'paused'
+        elif len(all_items) == 1:
+            game.memory['unlock_item'] = all_items[0]
         else:
             print("Somehow unlocked event without being able to")
+            return
+
+    def spend_unlock(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit with nid %s" % values[0])
+            return
+
+        chosen_item = game.memory.get('unlock_item')
+        game.memory['unlock_item'] = None
+        if not chosen_item:
             return
 
         actions, playback = [], []

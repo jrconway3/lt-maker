@@ -395,6 +395,18 @@ class LocationCard(EventCommand):
 
     keywords = ["String"]
 
+class Unlock(EventCommand):
+    nid = 'unlock'
+    tag = 'general'
+
+    keywords = ["Unit"]
+
+class FindUnlock(EventCommand):
+    nid = 'find_unlock'
+    tag = 'general'
+
+    keywords = ["Unit"]
+
 class SpendUnlock(EventCommand):
     nid = 'spend_unlock'
     tag = 'general'

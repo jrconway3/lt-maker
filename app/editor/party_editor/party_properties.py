@@ -38,17 +38,15 @@ class PartyProperties(QWidget):
         if self.current.name == self.current.nid:
             self.name_box.edit.setText(text)
         self.current.nid = text
-        self.window.update_list()
-
-    def nid_change_watchers(self, old_nid, new_nid):
-        self.window.left_frame.model.change_nid(old_nid, new_nid)
+        self.window.update_list()        
 
     def nid_done_editing(self):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Party ID %s already in use' % self.current.nid)
         self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        self.nid_change_watchers(self._data.find_key(self.current), self.current.nid)
+        old_nid = self._data.find_key(self.current)
+        self.window.left_frame.model.on_nid_changed(old_nid, self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
 

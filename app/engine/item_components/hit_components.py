@@ -307,7 +307,7 @@ class EvalTargetRestrict(ItemComponent):
 
 class Steal(ItemComponent):
     nid = 'steal'
-    desc = "Item steals from target on hit"
+    desc = "Steal any unequipped item from target on hit"
     tag = 'weapon'
 
     def init(self, item):
@@ -355,7 +355,7 @@ class Steal(ItemComponent):
 
 class GBASteal(Steal, ItemComponent):
     nid = 'gba_steal'
-    desc = "Item steals from target on hit"
+    desc = "Steal any non-weapon, non-spell from target on hit"
     tag = 'weapon'
 
     def target_restrict(self, unit, item, defender, splash) -> bool:

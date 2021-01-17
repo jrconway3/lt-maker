@@ -42,7 +42,7 @@ class LevelPrefab(Prefab):
             value = Data([GenericUnit.restore(unit_data) if unit_data['generic'] 
                           else UniqueUnit.restore(unit_data) for unit_data in value])
         elif name == 'unit_groups':
-            value = Data([UnitGroup.restore(val, self.units) for val in value])
+            value = Data([UnitGroup.restore(val) for val in value])
         elif name == 'regions':
             value = Data([Region.restore(val) for val in value])
         else:

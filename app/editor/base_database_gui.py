@@ -170,7 +170,6 @@ class CollectionModel(QAbstractListModel):
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1)
         view.setCurrentIndex(last_index)
-        self.update_watchers(self.rowCount() - 1)
         if self.window.display:
             self.window.display.setEnabled(True)
             self.window.display.set_current(new_item)
@@ -185,10 +184,10 @@ class CollectionModel(QAbstractListModel):
         self.layoutChanged.emit()
         new_index = self.index(idx + 1)
         view.setCurrentIndex(new_index)
-        self.update_watchers(idx + 1)
         if self.window.display:
             self.window.display.setEnabled(True)
             self.window.display.set_current(new_item)
+        return new_index
 
     def duplicate(self, idx):
         view = self.window.view
@@ -210,16 +209,14 @@ class CollectionModel(QAbstractListModel):
         self.layoutChanged.emit()
         new_index = self.index(idx + 1)
         view.setCurrentIndex(new_index)
-        self.update_watchers(idx + 1)
         if self.window.display:
             self.window.display.setEnabled(True)
             self.window.display.set_current(new_obj)
-
-    def update_watchers(self, idx):
-        pass
+        return new_index
 
 class DragDropCollectionModel(CollectionModel):
     drop_to = None
+    most_recent_dragdrop = None
 
     def supportedDropActions(self):
         return Qt.MoveAction
@@ -247,15 +244,10 @@ class DragDropCollectionModel(CollectionModel):
     def removeRows(self, row, count, parent):
         if count < 1 or row < 0 or (row + count) > self.rowCount() or parent.isValid():
             return False
-        result = self.do_drag_drop(row)
+        self.most_recent_dragdrop = self.do_drag_drop(row)
         self.layoutChanged.emit()
-        if result:
-            self.update_drag_watchers(result[0], result[1])
         self.drop_to = None
         return True
-
-    def update_drag_watchers(self, fro, to):
-        pass
 
     def flags(self, index):
         if not index.isValid() or index.row() >= len(self._data) or index.model() is not self:
@@ -275,7 +267,7 @@ class ResourceCollectionModel(DragDropCollectionModel):
                 nids = [d.nid for d in self._data if d is not item]
                 nid = str_utils.get_next_name(value, nids)
                 self._data.update_nid(item, nid)
-                self.nid_change_watchers(item, old_nid, nid)
+                self.on_nid_changed(old_nid, nid)
         return True
 
     def flags(self, index):
@@ -284,5 +276,5 @@ class ResourceCollectionModel(DragDropCollectionModel):
             return flags
         return flags | Qt.ItemIsEditable
 
-    def nid_change_watchers(self, icon, old_nid, new_nid):
+    def on_nid_changed(self, old_nid, new_nid):
         pass

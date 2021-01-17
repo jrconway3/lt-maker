@@ -113,7 +113,7 @@ modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avo
                 'modify_defense_speed')
 
 # None of these are exclusive
-event_hooks = ('on_use', 'on_not_usable', 'on_end_chapter',
+event_hooks = ('on_use', 'on_end_chapter',
                'on_equip_item', 'on_unequip_item', 'on_add_item', 'on_remove_item')
 
 combat_event_hooks = ('start_combat', 'end_combat')
@@ -230,6 +230,19 @@ def available(unit, item) -> bool:
                     return False
     return True
 
+def on_not_usable(unit, item) -> bool:
+    alert = False
+    for component in item.components:
+        if component.defines('on_not_usable'):
+            if component.on_not_usable(unit, item):
+                alert = True
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('on_not_usable'):
+                if component.on_not_usable(unit, item.parent_item):
+                    alert = True
+    return alert
+
 def valid_targets(unit, item) -> set:
     targets = set()
     for component in item.components:
@@ -334,7 +347,7 @@ def on_hit(actions, playback, unit, item, target, mode):
                 component.on_hit(actions, playback, unit, item.parent_item, target, mode)
 
     # Default playback
-    if find_hp(actions, target) <= 0:
+    if target and find_hp(actions, target) <= 0:
         playback.append(('shake', 2))
         if not any(brush for brush in playback if brush[0] == 'hit_sound'):
             playback.append(('hit_sound', 'Final Hit'))
@@ -360,14 +373,15 @@ def on_crit(actions, playback, unit, item, target, mode):
 
     # Default playback
     playback.append(('shake', 3))
-    playback.append(('crit_vibrate', target))
-    if not any(brush for brush in playback if brush[0] == 'hit_sound'):
-        if find_hp(actions, target) <= 0:
-            playback.append(('hit_sound', 'Final Hit'))
-        else:
-            playback.append(('hit_sound', 'Critical Hit ' + str(random.randint(1, 2))))
-    if not any(brush for brush in playback if brush[0] == 'crit_tint'):
-        playback.append(('crit_tint', target, (255, 255, 255)))
+    if target:
+        playback.append(('crit_vibrate', target))
+        if not any(brush for brush in playback if brush[0] == 'hit_sound'):
+            if find_hp(actions, target) <= 0:
+                playback.append(('hit_sound', 'Final Hit'))
+            else:
+                playback.append(('hit_sound', 'Critical Hit ' + str(random.randint(1, 2))))
+        if not any(brush for brush in playback if brush[0] == 'crit_tint'):
+            playback.append(('crit_tint', target, (255, 255, 255)))
 
 def on_miss(actions, playback, unit, item, target, mode):
     for component in item.components:

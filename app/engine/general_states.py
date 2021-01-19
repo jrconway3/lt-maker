@@ -124,7 +124,7 @@ class FreeState(MapState):
             cur_unit = game.board.get_unit(cur_pos)
             if cur_unit and not cur_unit.finished:
                 game.cursor.cur_unit = cur_unit
-                if skill_system.can_select(cur_unit):
+                if skill_system.can_select(cur_unit) and 'Tile' not in cur_unit.tags:
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
                 else:
@@ -1238,14 +1238,14 @@ class CombatTargetingState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        if self.cur_unit and game.cursor.get_hover():
+        target_unit = game.board.get_unit(game.cursor.position)
+        if self.cur_unit and target_unit:
             if item_system.targets_items(self.cur_unit, self.item):
-                unit = game.cursor.get_hover()
-                game.ui_view.draw_trade_preview(unit, surf)
+                game.ui_view.draw_trade_preview(target_unit, surf)
             elif item_system.is_weapon(self.cur_unit, self.item):
-                game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, game.cursor.get_hover())
+                game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, target_unit)
             else:
-                game.ui_view.draw_spell_info(surf, self.cur_unit, self.item, game.cursor.get_hover())
+                game.ui_view.draw_spell_info(surf, self.cur_unit, self.item, target_unit)
                 
         return surf
 

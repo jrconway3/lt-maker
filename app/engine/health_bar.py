@@ -7,11 +7,6 @@ from app.engine.fonts import FONT
 from app.engine import engine, combat_calcs, icons, equations, skill_system, item_system
 from app.engine.game_state import game
 
-team_dict = {'player': 'blue',
-             'enemy': 'red',
-             'other': 'green',
-             'enemy2': 'purple'}
-
 class HealthBar():
     time_for_change_min = 200
     speed = FRAMERATE   # 1 frame for each hp point
@@ -122,9 +117,9 @@ class MapCombatInfo():
         team = unit.team
 
         self.stats_surf = None
-        self.bg_surf = SPRITES.get('health_' + team_dict[team]).convert_alpha()
-        self.c_surf = SPRITES.get('combat_stats_' + team_dict[team]).convert_alpha()
-        self.gem = SPRITES.get('combat_gem_' + team_dict[team]).convert_alpha()
+        self.bg_surf = SPRITES.get('health_' + utils.get_team_color(team)).convert_alpha()
+        self.c_surf = SPRITES.get('combat_stats_' + utils.get_team_color(team)).convert_alpha()
+        self.gem = SPRITES.get('combat_gem_' + utils.get_team_color(team)).convert_alpha()
 
     def reset(self):
         self.draw_method = None

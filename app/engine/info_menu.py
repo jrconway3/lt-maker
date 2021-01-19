@@ -13,7 +13,7 @@ from app.engine.input_manager import INPUT
 from app.engine.state import State
 from app.engine import engine, background, menu_options, help_menu, gui, \
     unit_sprite, icons, image_mods, item_funcs, equations, \
-    combat_calcs, menus
+    combat_calcs, menus, skill_system
 from app.engine.game_state import game
 from app.engine.fluid_scroll import FluidScroll
 
@@ -28,7 +28,14 @@ def handle_info():
         game.boundary.toggle_all_enemy_attacks()
 
 def handle_aux():
-    avail_units = [u for u in game.level.units if u.team == 'player' and u.position and not u.finished]
+    avail_units = [
+        u for u in game.level.units
+        if u.team == 'player' and 
+        u.position and 
+        not u.finished and 
+        skill_system.can_select(u) and
+        'Tile' not in u.tags]
+
     if avail_units:
         cur_unit = game.cursor.get_hover()
         if not cur_unit:
@@ -223,6 +230,8 @@ class InfoMenuState(State):
             self.scroll_units = [unit for unit in game.level.units if not unit.dead and unit.team == self.unit.team]
             if self.unit.position:
                 self.scroll_units = [unit for unit in self.scroll_units if unit.position]
+        self.scroll_units = [unit for unit in self.scroll_units if 'Tile' not in unit.tags]
+        game.memory['scroll_units'] = None
         
         self.state = game.memory.get('info_menu_state', info_states[0])
         self.growth_flag = False

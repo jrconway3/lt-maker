@@ -5255,5 +5255,34 @@
             ]
         ],
         "only_once": false
+    },
+    {
+        "name": "TileDestroy",
+        "trigger": "unit_death",
+        "level_nid": "DEBUG",
+        "condition": "'Tile' in unit.tags",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "You destroyed a tile!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika"
+                ]
+            ]
+        ],
+        "only_once": false
     }
 ]

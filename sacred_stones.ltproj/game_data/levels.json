@@ -1036,10 +1036,7 @@
                 "nid": "Bone",
                 "team": "enemy",
                 "ai": "None",
-                "starting_position": [
-                    4,
-                    3
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
@@ -1179,6 +1176,23 @@
                     9
                 ],
                 "generic": false
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 1,
+                "klass": "Wall1",
+                "faction": "Soldier",
+                "starting_items": [],
+                "team": "enemy2",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

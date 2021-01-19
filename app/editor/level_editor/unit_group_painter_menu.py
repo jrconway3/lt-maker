@@ -16,7 +16,7 @@ from app.editor import timer
 from app.extensions.widget_list import WidgetList
 from app.extensions.custom_gui import Dialog, RightClickListView, QHLine
 from app.editor.custom_widgets import ObjBox
-from app.editor.unit_painter_menu import AllUnitModel, InventoryDelegate
+from app.editor.level_editor.unit_painter_menu import AllUnitModel, InventoryDelegate
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.class_editor import class_model
 

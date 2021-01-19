@@ -447,7 +447,7 @@ class NewMapView(SimpleMapView):
                     self.main_editor.set_message(None)
             elif self.edit_mode == EditMode.UNITS and under_unit:
                 self.main_editor.set_message("Unit: %s" % under_unit.nid)
-            elif self.main_editor.dock_visibility['Groups'] and group_unit_nid:
+            elif self.edit_mode == EditMode.GROUPS and group_unit_nid:
                 self.main_editor.set_message("Unit: %s" % group_unit_nid)
             else:
                 terrain_nid = self.current_map.get_terrain(pos)

@@ -35,7 +35,7 @@ class GlobalEditor(QMainWindow):
 
     def create_left_dock(self):
         self.create_level_dock()
-        self.create_overworld_dock()
+        # self.create_overworld_dock()
         self.addDockWidget(Qt.LeftDockWidgetArea, self.level_dock)
         # self.addDockWidget(Qt.LeftDockWidgetArea, self.overworld_dock)
         # self.tabifyDockWidget(self.level_dock, self.overworld_dock)

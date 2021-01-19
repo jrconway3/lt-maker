@@ -1,7 +1,7 @@
 import copy
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
-    QSizePolicy, QSplitter
+    QSizePolicy, QSplitter, QMessageBox
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtCore import QAbstractListModel
 
@@ -12,6 +12,7 @@ from app.editor.data_editor import SingleDatabaseEditor
 
 from app.utilities import str_utils
 
+
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,
                  button_text="Create %s", view_type=RightClickListView):
@@ -20,7 +21,7 @@ class Collection(QWidget):
 
         self._data = self.window._data
         self.title = self.window.title
-        
+
         self.display = None
 
         grid = QGridLayout()
@@ -69,12 +70,14 @@ class Collection(QWidget):
         self.view.setCurrentIndex(index)
 
     def update_list(self):
-        self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))                
+        self.model.dataChanged.emit(self.model.index(
+            0), self.model.index(self.model.rowCount()))
+
 
 class DatabaseTab(QWidget):
     allow_import_from_lt = False
-    
-    def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent, 
+
+    def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent,
                  button_text="Create %s", view_type=RightClickListView, collection_type=Collection):
         QWidget.__init__(self, parent)
         self.window = parent
@@ -84,7 +87,8 @@ class DatabaseTab(QWidget):
         self.setWindowTitle('%s Editor' % self.title)
         self.setStyleSheet("font: 10pt;")
 
-        self.left_frame = collection_type(deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
+        self.left_frame = collection_type(
+            deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
         self.right_frame = right_frame(self)
         self.left_frame.set_display(self.right_frame)
 
@@ -92,7 +96,8 @@ class DatabaseTab(QWidget):
         self.splitter.setChildrenCollapsible(False)
         self.splitter.addWidget(self.left_frame)
         self.splitter.addWidget(self.right_frame)
-        self.splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
+        self.splitter.setStyleSheet(
+            "QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
 
         self.layout = QHBoxLayout(self)
         self.setLayout(self.layout)
@@ -122,15 +127,11 @@ class DatabaseTab(QWidget):
     def on_tab_close(self):
         pass
 
-    # @classmethod
-    # def edit(cls, parent=None):
-    #     dialog = cls.create(parent)
-    #     dialog.exec_()
-
     @classmethod
     def edit(cls, parent=None):
         window = SingleDatabaseEditor(cls, parent)
         window.exec_()
+
 
 class CollectionModel(QAbstractListModel):
     def __init__(self, data, window):
@@ -145,13 +146,21 @@ class CollectionModel(QAbstractListModel):
         raise NotImplementedError
 
     def delete(self, idx):
+        # special case for 1-length data
+        if len(self._data) == 1:
+            QMessageBox.critical(None, "Deletion Error", "Can not delete last object of a kind!")
+            return
+            
+        new_index = 0
+        # If deleting the element at the bottom of the list
+        if idx == len(self._data) - 1:
+            new_index = self.index(idx - 1)
+        else:
+            new_index = self.index(idx + 1)
+        self.window.view.setCurrentIndex(new_index)
         self._data.pop(idx)
-        if len(self._data) > 0:
-            new_item = self._data[min(idx, len(self._data) - 1)]
-            if self.window.display:
-                self.window.display.set_current(new_item)
-        elif self.window.display:
-            self.window.display.setEnabled(False)
+        new_index = self.index(min(idx, len(self._data) - 1))
+        self.window.view.setCurrentIndex(new_index)
         self.layoutChanged.emit()
 
     def update(self):
@@ -170,9 +179,6 @@ class CollectionModel(QAbstractListModel):
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1)
         view.setCurrentIndex(last_index)
-        if self.window.display:
-            self.window.display.setEnabled(True)
-            self.window.display.set_current(new_item)
         return last_index
 
     def new(self, idx):
@@ -184,9 +190,6 @@ class CollectionModel(QAbstractListModel):
         self.layoutChanged.emit()
         new_index = self.index(idx + 1)
         view.setCurrentIndex(new_index)
-        if self.window.display:
-            self.window.display.setEnabled(True)
-            self.window.display.set_current(new_item)
         return new_index
 
     def duplicate(self, idx):
@@ -209,9 +212,6 @@ class CollectionModel(QAbstractListModel):
         self.layoutChanged.emit()
         new_index = self.index(idx + 1)
         view.setCurrentIndex(new_index)
-        if self.window.display:
-            self.window.display.setEnabled(True)
-            self.window.display.set_current(new_obj)
         return new_index
 
 class DragDropCollectionModel(CollectionModel):
@@ -254,6 +254,7 @@ class DragDropCollectionModel(CollectionModel):
             return Qt.ItemIsDropEnabled
         else:
             return Qt.ItemIsDragEnabled | super().flags(index)
+
 
 class ResourceCollectionModel(DragDropCollectionModel):
     def setData(self, index, value, role):

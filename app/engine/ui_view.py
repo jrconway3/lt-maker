@@ -172,14 +172,15 @@ class UIView():
     def create_tile_info(self, coord):
         terrain_nid = game.tilemap.get_terrain(coord)
         terrain = DB.terrain.get(terrain_nid)
-        current_hp = 0
-        if current_hp > 0:
+        current_unit = game.board.get_unit(coord)
+        if current_unit and 'Tile' in current_unit.tags:
+            current_hp = current_unit.get_hp()
             self.expected_coord = None
             bg_surf = SPRITES.get('tile_info_destructible').copy()
             at_icon = SPRITES.get('icon_attackable_terrain')
             bg_surf.blit(at_icon, (7, bg_surf.get_height() - 7 - at_icon.get_height()))
             cur = str(current_hp)
-            FONT['small-white'].blit_right(cur, bg_surf, bg_surf.get_width() - 9, 24)
+            FONT['small-white'].blit_right(cur, bg_surf, (bg_surf.get_width() - 9, 24))
         else:
             self.expected_coord = coord
             bg_surf = SPRITES.get('tile_info_quick').copy()
@@ -254,12 +255,19 @@ class UIView():
         grandmaster = DB.constants.value('rng') == 'Grandmaster'
         crit_flag = DB.constants.value('crit')
 
+        # Choose attack info background
+        prefix = 'attack_info_'
         if grandmaster:
-            surf = SPRITES.get('attack_info_grandmaster').copy()
+            infix = 'grandmaster'
         elif crit_flag:
-            surf = SPRITES.get('attack_info_crit').copy()
+            infix = 'crit'
         else:
-            surf = SPRITES.get('attack_info').copy()
+            infix = ''
+        color = utils.get_team_color(defender.team)
+        if color not in ('red', 'purple'):
+            color = 'red'
+        final = prefix + infix + '_' + color
+        surf = SPRITES.get(final).copy()
 
         # Name
         width = FONT['text-white'].width(attacker.name)

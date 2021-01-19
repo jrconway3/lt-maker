@@ -40,6 +40,13 @@ def compare_teams(t1: str, t2: str) -> bool:
     else:
         return False
 
+def get_team_color(team: str):
+    team_dict = {'player': 'blue',
+                 'enemy': 'red',
+                 'other': 'green',
+                 'enemy2': 'purple'}
+    return team_dict.get(team, 'red')
+
 def calculate_distance(pos1: tuple, pos2: tuple) -> int:
     """
     Taxicab/Manhattan distance

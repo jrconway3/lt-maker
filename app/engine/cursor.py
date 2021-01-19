@@ -4,7 +4,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, target_system
+from app.engine import engine, target_system, skill_system
 from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine.input_manager import INPUT
@@ -36,7 +36,10 @@ class Cursor():
         self.mouse_mode: bool = False
 
     def get_hover(self):
-        return game.board.get_unit(self.position)
+        unit = game.board.get_unit(self.position)
+        if unit and 'Tile' not in unit.tags:
+            return unit
+        return None
 
     def hide(self):
         self.draw_state = 0

@@ -81,24 +81,24 @@ class IntItemComponent(BoolItemComponent):
         self._data.value = int(val)
 
     def set_format(self):
-        self.editor.setMaximumWidth(50)
+        self.editor.setMaximumWidth(60)
         self.editor.setRange(-1000, 1000)
 
 class HitItemComponent(IntItemComponent):
     def set_format(self):
-        self.editor.setMaximumWidth(50)
+        self.editor.setMaximumWidth(60)
         self.editor.setRange(-1000, 1000)
         self.editor.setSingleStep(5)
 
 class ValueItemComponent(IntItemComponent):
     def set_format(self):
-        self.editor.setMaximumWidth(60)
+        self.editor.setMaximumWidth(70)
         self.editor.setRange(0, 99999)
 
 class FloatItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QDoubleSpinBox(self)
-        self.editor.setMaximumWidth(50)
+        self.editor.setMaximumWidth(60)
         self.editor.setRange(0, 10)
         self.editor.setSingleStep(.05)
         if self._data.value is None:

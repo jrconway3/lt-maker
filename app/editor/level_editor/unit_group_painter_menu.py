@@ -22,12 +22,11 @@ from app.editor.class_editor import class_model
 
 from app.data.level_units import UnitGroup
 
+
 class UnitGroupMenu(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.window = parent
-        self.main_editor = self.window
-        self.map_view = self.main_editor.map_view
+    def __init__(self, state_manager):
+        super().__init__()
+        self.state_manager = state_manager
         self.current_level = None
         self._data = Data()
 
@@ -43,7 +42,11 @@ class UnitGroupMenu(QWidget):
         self.create_button.clicked.connect(self.create_new_group)
         grid.addWidget(self.create_button)
 
-    def set_current_level(self, level):
+        self.state_manager.subscribe_to_key(
+            UnitGroupMenu.__name__, 'selected_level', self.set_current_level)
+
+    def set_current_level(self, level_nid):
+        level = DB.levels.get(level_nid)
         self.current_level = level
         self._data = self.current_level.unit_groups
         self.group_list.clear()
@@ -96,6 +99,7 @@ class UnitGroupMenu(QWidget):
         self.group_list.remove_group(group)
         self._data.delete(group)
 
+
 class GroupList(WidgetList):
     def add_group(self, group):
         item = QListWidgetItem()
@@ -114,6 +118,7 @@ class GroupList(WidgetList):
         else:
             print("Cannot find group in index_list")
         return None
+
 
 class GroupWidget(QWidget):
     def __init__(self, group, parent=None):
@@ -143,13 +148,15 @@ class GroupWidget(QWidget):
 
         remove_button = QPushButton("x")
         remove_button.setMaximumWidth(30)
-        remove_button.clicked.connect(functools.partial(self.window.remove_group, self.current))
+        remove_button.clicked.connect(functools.partial(
+            self.window.remove_group, self.current))
         self.layout.addWidget(remove_button, 0, 2, alignment=Qt.AlignRight)
 
         def false_func(model, index):
             return False
 
-        self.view = RightClickListView((None, false_func, false_func), parent=self)
+        self.view = RightClickListView(
+            (None, false_func, false_func), parent=self)
         self.view.currentChanged = self.on_item_changed
         self.view.clicked.connect(self.on_click)
 
@@ -173,10 +180,13 @@ class GroupWidget(QWidget):
         self.current.nid = text
 
     def nid_done_editing(self):
-        other_nids = [d.nid for d in self._data.values() if d is not self.current]
+        other_nids = [d.nid for d in self._data.values()
+                      if d is not self.current]
         if self.current.nid in other_nids:
-            QMessageBox.warning(self.window, 'Warning', 'Group ID %s already in use' % self.current.nid)
-        self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
+            QMessageBox.warning(self.window, 'Warning',
+                                'Group ID %s already in use' % self.current.nid)
+        self.current.nid = str_utils.get_next_name(
+            self.current.nid, other_nids)
         self._data.update_nid(self.current, self.current.nid)
 
     @property
@@ -220,6 +230,7 @@ class GroupWidget(QWidget):
             else:
                 self.current.units.append(unit_nid)
 
+
 class SelectUnitDialog(Dialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -230,7 +241,8 @@ class SelectUnitDialog(Dialog):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.unit_box = ObjBox("Units", AllUnitModel, self.window.current_level.units, self)
+        self.unit_box = ObjBox("Units", AllUnitModel,
+                               self.window.current_level.units, self)
         self.unit_box.edit.setIconSize(QSize(32, 32))
         self.unit_box.edit.view().setUniformItemSizes(True)
         self.unit_box.edit.activated.connect(self.accept)
@@ -250,6 +262,7 @@ class SelectUnitDialog(Dialog):
             return unit_nid, True
         else:
             return None, False
+
 
 class GroupUnitModel(DragDropCollectionModel):
     def data(self, index, role):

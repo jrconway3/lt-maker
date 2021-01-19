@@ -1,7 +1,6 @@
 import glob
 
 from app.editor.data_editor import DB
-from app.editor import timer
 from app.engine import driver, game_state
 
 def test_play():
@@ -9,7 +8,6 @@ def test_play():
     driver.start(title, from_editor=True)
     game = game_state.start_game()
     driver.run(game)
-    timer.get_timer().start()
 
 
 def test_play_current(level_nid):
@@ -18,7 +16,6 @@ def test_play_current(level_nid):
     driver.start(title, from_editor=True)
     game = game_state.start_level(level_nid)
     driver.run(game)
-    timer.get_timer().start()
 
 
 def get_saved_games():
@@ -34,4 +31,3 @@ def test_play_load(level_nid, save_loc=None):
     else:
         game = game_state.start_level(level_nid)
     driver.run(game)
-    timer.get_timer().start()

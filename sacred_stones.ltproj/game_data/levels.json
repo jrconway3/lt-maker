@@ -1037,8 +1037,8 @@
                 "team": "enemy",
                 "ai": "None",
                 "starting_position": [
-                    8,
-                    6
+                    4,
+                    3
                 ],
                 "generic": false
             },
@@ -1207,7 +1207,7 @@
                 "generic": false
             },
             {
-                "nid": "104",
+                "nid": "105",
                 "variant": null,
                 "level": 1,
                 "klass": "Wall1",

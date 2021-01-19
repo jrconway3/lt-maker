@@ -365,13 +365,27 @@ class MainEditor(QMainWindow):
             self.__class__.__name__, self.saveGeometry())
 
     def test_play_current(self):
+        self.test_current_act.setEnabled(False)
+        self.test_load_act.setEnabled(False)
+        self.test_full_act.setEnabled(False)
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play_current(
             self.app_state_manager.state.selected_level)
+        timer.get_timer().start()
+        self.test_current_act.setEnabled(True)
+        self.test_load_act.setEnabled(True)
+        self.test_full_act.setEnabled(True)
 
     def test_play(self):
+        self.test_current_act.setEnabled(False)
+        self.test_load_act.setEnabled(False)
+        self.test_full_act.setEnabled(False)
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play()
+        timer.get_timer().start()
+        self.test_current_act.setEnabled(True)
+        self.test_load_act.setEnabled(True)
+        self.test_full_act.setEnabled(True)
 
     def test_play_load(self):
         saved_games = GAME_ACTIONS.get_saved_games()
@@ -381,9 +395,16 @@ class MainEditor(QMainWindow):
                 return
         else:
             save_loc = None
+        self.test_current_act.setEnabled(False)
+        self.test_load_act.setEnabled(False)
+        self.test_full_act.setEnabled(False)
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play_load(
             self.app_state_manager.state.selected_level, save_loc)
+        timer.get_timer().start()
+        self.test_current_act.setEnabled(True)
+        self.test_load_act.setEnabled(True)
+        self.test_full_act.setEnabled(True)
 
     def new(self):
         if self.project_save_load_handler.new():

@@ -28,7 +28,7 @@ class Toolbar():
         self.addAction(action, index_of_before)
         
     def removeAction(self, index=None, action=None):
-        if index and action:
+        if index is not None and action:
             if self.actions[index] == action:
                 self.actions.pop(index)
         elif index:

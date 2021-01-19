@@ -257,10 +257,10 @@ def ai_targets(unit, item) -> set:
             targets |= component.ai_targets(unit, item)
     return targets
 
-def target_restrict(unit, item, defender, splash) -> bool:
+def target_restrict(unit, item, def_pos, splash) -> bool:
     for component in item.components:
         if component.defines('target_restrict'):
-            if not component.target_restrict(unit, item, defender, splash):
+            if not component.target_restrict(unit, item, def_pos, splash):
                 return False
     return True
 
@@ -309,7 +309,9 @@ def splash(unit, item, position) -> tuple:
         return main_target, splash
     else:
         from app.engine.game_state import game
-        return game.board.get_unit(position), []
+        if game.board.get_unit(position):
+            return position, []
+    return None, []
 
 def splash_positions(unit, item, position) -> set:
     positions = set()
@@ -355,7 +357,7 @@ def on_hit(actions, playback, unit, item, target, mode):
         playback.append(('shake', 1))
         if not any(brush[0] == 'hit_sound' for brush in playback):
             playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
-    if not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
+    if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
         playback.append(('unit_tint_add', target, (255, 255, 255)))
 
 def on_crit(actions, playback, unit, item, target, mode):

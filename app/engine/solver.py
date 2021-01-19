@@ -68,6 +68,9 @@ class AttackerState(SolverState):
             solver.process(actions, playback, solver.attacker, solver.main_target, solver.item, 'attack')
         for target in solver.splash:
             solver.process(actions, playback, solver.attacker, target, solver.item, 'splash')
+            # Make sure that we run on_hit even if otherwise unavailable
+        if not solver.main_target and not solver.splash:
+            solver.simple_process(actions, playback, solver.attacker, None, solver.item, None)
         
         solver.num_subattacks += 1
         multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
@@ -213,6 +216,10 @@ class CombatPhaseSolver():
         else:
             item_system.on_miss(actions, playback, attacker, item, defender, mode)
             playback.append(('mark_miss', attacker, defender, self.attacker))
+
+    def simple_process(self, actions, playback, attacker, defender, item, mode):
+        item_system.on_hit(actions, playback, attacker, item, defender, mode)
+        playback.append(('mark_hit', attacker, defender, self.attacker))
 
     def attacker_alive(self):
         return self.attacker.get_hp() > 0

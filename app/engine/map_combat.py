@@ -15,16 +15,16 @@ class MapCombat():
     ai_combat = False
     event_combat = False
 
-    def __init__(self, attacker, item, position, main_target, splash, script):
+    def __init__(self, attacker, item, position, main_target_pos, splash, script):
         self.target_position = position
         self.attacker = attacker
-        self.defender = main_target
-        self.splash = splash
+        self.defender = game.board.get_unit(main_target_pos) if main_target_pos else None
+        self.splash = [game.board.get_unit(s) for s in splash]
 
         self.item = item
         self.def_item = self.defender.get_weapon() if self.defender else None
 
-        self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item, script)
+        self.state_machine = CombatPhaseSolver(attacker, self.defender, self.splash, item, script)
 
         self.last_update = engine.get_time()
         self.state = 'init'
@@ -492,12 +492,12 @@ class MapCombat():
 
         if DB.constants.value('double_wexp'):
             for mark in marks:
-                if mark[2].is_dying and DB.constants.value('kill_wexp'):
+                if mark[2] and mark[2].is_dying and DB.constants.value('kill_wexp'):
                     action.do(action.GainWexp(unit, item, wexp*2))
                 else:
                     action.do(action.GainWexp(unit, item, wexp))
         else:
-            if any(mark[2].is_dying for mark in marks):
+            if any(mark[2] and mark[2].is_dying for mark in marks):
                 action.do(action.GainWexp(unit, item, wexp*2))
             else:
                 action.do(action.GainWexp(unit, item, wexp))
@@ -517,11 +517,12 @@ class MapCombat():
 
             exp = item_system.exp(self.full_playback, attacker, item, defender)
             exp *= skill_system.exp_multiplier(attacker, defender)
-            exp *= skill_system.enemy_exp_multiplier(defender, attacker)
-            if defender.is_dying:
-                exp *= float(DB.constants.value('kill_multiplier'))
-                if 'Boss' in defender.tags:
-                    exp += int(DB.constants.value('boss_bonus'))
+            if defender:
+                exp *= skill_system.enemy_exp_multiplier(defender, attacker)
+                if defender.is_dying:
+                    exp *= float(DB.constants.value('kill_multiplier'))
+                    if 'Boss' in defender.tags:
+                        exp += int(DB.constants.value('boss_bonus'))
             total_exp += exp
 
         return total_exp

@@ -29,7 +29,8 @@ def engage(attacker, positions, item, skip=False, script=None):
         combat = MapCombat(attacker, item, positions[0], main_target, splash, script)
     return combat
 
-def start_combat(unit, target, item, ai_combat=False, event_combat=False, script=None):
+def start_combat(unit, target: tuple, item, ai_combat=False, event_combat=False, script=None):
+    # Target is a position tuple
     if item.sequence_item:
         for subitem in item.subitems:
             num_targets = item_system.num_targets(unit, subitem)

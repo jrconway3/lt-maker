@@ -1,3 +1,4 @@
+
 import sys
 
 from app.utilities import utils
@@ -1141,6 +1142,16 @@ class HideLayer(Action):
         layer.quick_show()
         game.level.tilemap.reset()
         game.board.reset_grid(game.level.tilemap)
+
+class OnlyOnceEvent(Action):
+    def __init__(self, event_nid):
+        self.event_nid = event_nid
+
+    def do(self):
+        game.already_triggered_events.append(self.event_nid)
+
+    def reverse(self):
+        game.already_triggered_events.remove(self.event_nid)
 
 class RecordRandomState(Action):
     def __init__(self, old, new):

@@ -221,8 +221,6 @@ class AllUnitModel(DragDropCollectionModel):
             self._data.move_index(len(self._data) - 1, idx + 1)
             self.layoutChanged.emit()
 
-            self.update_foreign_data(idx + 1)
-
     def duplicate(self, idx):
         obj = self._data[idx]
         if obj.generic:
@@ -233,8 +231,6 @@ class AllUnitModel(DragDropCollectionModel):
             new_obj.starting_position = None
             self._data.insert(idx + 1, new_obj)
             self.layoutChanged.emit()
-
-            self.update_foreign_data(idx + 1)
         else:
             QMessageBox.critical(self.window, "Error!", "Cannot duplicate unique unit!")
 

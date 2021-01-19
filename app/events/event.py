@@ -1211,8 +1211,8 @@ class Event():
         elif len(all_items) == 1:
             game.memory['unlock_item'] = all_items[0]
         else:
-            print("Somehow unlocked event without being able to")
-            return
+            logger.debug("Somehow unlocked event without being able to")
+            game.memory['unlock_item'] = None
 
     def spend_unlock(self, command):
         values, flags = event_commands.parse(command)

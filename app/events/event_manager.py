@@ -1,6 +1,7 @@
 from app.data.database import DB
 from app.events.event import Event
 from app.engine.game_state import game
+from app.engine import action
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class EventManager():
             new_event = True
             game.state.change('event')
             if event_prefab.only_once:
-                game.already_triggered_events.append(event_prefab.nid)
+                action.do(action.OnlyOnceEvent(event_prefab.nid))
         return new_event
 
     def append(self, event):

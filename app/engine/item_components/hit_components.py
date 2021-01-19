@@ -20,11 +20,13 @@ class Heal(ItemComponent):
     def _get_heal_amount(self, unit):
         return self.value
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
+        defender = game.board.get_unit(def_pos)
         if defender and defender.get_hp() < equations.parser.hitpoints(defender):
             return True
-        for s in splash:
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
             if s.get_hp() < equations.parser.hitpoints(s):
                 return True
         return False
@@ -100,8 +102,9 @@ class PermanentStatChange(ItemComponent):
 
     expose = (Type.Dict, Type.Stat)
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Ignore's splash
+        defender = game.board.get_unit(def_pos)
         klass = DB.classes.get(defender.klass)
         for stat, inc in self.value.items():
             if inc <= 0 or defender.stats[stat] < klass.maximum:
@@ -139,11 +142,13 @@ class Refresh(ItemComponent):
     desc = "Item allows target to move again on hit"
     tag = 'extra'
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # only targets areas where unit could move again
+        defender = game.board.get_unit(def_pos)
         if defender and defender.finished:
             return True
-        for s in splash:
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
             if s.finished:
                 return True
 
@@ -171,11 +176,13 @@ class Restore(ItemComponent):
     def _can_be_restored(self, status):
         return status.time
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        defender = game.board.get_unit(def_pos)
         # only targets units that need to be restored
         if defender and skill_system.check_ally(unit, defender) and any(self._can_be_restored(skill) for skill in defender.skills):
             return True
-        for s in splash:
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
             if skill_system.check_ally(unit, s) and any(self._can_be_restored(skill) for skill in s.skills):
                 return True
         return False
@@ -246,12 +253,14 @@ class ShoveTargetRestrict(Shove, ItemComponent):
     expose = Type.Int
     value = 1
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # only targets units that need to be restored
+        defender = game.board.get_unit(def_pos)
         if defender and self._check_shove(defender, unit.position, self.value) and \
                 not skill_system.ignore_forced_movement(defender):
             return True
-        for s in splash:
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
             if self._check_shove(s, unit.position, self.value) and \
                     not skill_system.ignore_forced_movement(s):
                 return True
@@ -293,12 +302,14 @@ class EvalTargetRestrict(ItemComponent):
     expose = Type.String
     value = 'True'
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
         try:
-            if defender and eval(self.value):
+            unit = game.board.get_unit(def_pos)
+            if unit and eval(self.value):
                 return True
-            for unit in splash:
+            for s_pos in splash:
+                unit = game.board.get_unit(s_pos)
                 if eval(self.value):
                     return True
         except:
@@ -314,10 +325,11 @@ class Steal(ItemComponent):
         item.data['target_item'] = None
         self._did_steal = False
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Unit has item that can be stolen
         attack = equations.parser.steal_atk(unit)
         defense = equations.parser.steal_def(unit)
+        defender = game.board.get_unit(def_pos)        
         if attack >= defense:
             for item in defender.items:
                 if not item_system.locked(defender, item) and \
@@ -358,10 +370,11 @@ class GBASteal(Steal, ItemComponent):
     desc = "Steal any non-weapon, non-spell from target on hit"
     tag = 'weapon'
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Unit has item that can be stolen
         attack = equations.parser.steal_atk(unit)
         defense = equations.parser.steal_def(unit)
+        defender = game.board.get_unit(def_pos)
         if attack >= defense:
             for item in defender.items:
                 if not item_system.locked(defender, item) and \
@@ -388,8 +401,9 @@ class Repair(ItemComponent):
     def init(self, item):
         item.data['target_item'] = None
 
-    def target_restrict(self, unit, item, defender, splash) -> bool:
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Unit has item that can be repaired
+        defender = game.board.get_unit(def_pos)
         for item in defender.items:
             if item.uses and item.data['uses'] < item.data['starting_uses'] and \
                     not item_system.unrepairable(defender, item):
@@ -407,7 +421,6 @@ class Repair(ItemComponent):
 
     def on_hit(self, actions, playback, unit, item, target, mode):
         target_item = item.data.get('target_item')
-        print(target_item)
         if target_item:
             actions.append(action.RepairItem(target_item))
 

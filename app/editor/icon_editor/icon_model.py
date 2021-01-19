@@ -62,7 +62,6 @@ class IconModel(ResourceCollectionModel):
         self.layoutChanged.emit()
         last_index = self.index(self.rowCount() - 1)
         view.setCurrentIndex(last_index)
-        self.update_foreign_data(self.rowCount() - 1)
         return last_index
 
     def new(self, index):
@@ -71,10 +70,6 @@ class IconModel(ResourceCollectionModel):
         # self.create_new()
         # self._data.move_index(len(self._data) - 1, idx + 1)
         # self.layoutChanged.emit()
-        # self.update_foreign_data(self.rowCount() - 1)
-
-    def update_foreign_data(self, idx):
-        pass
 
     def on_nid_changed(self, old_nid, new_nid):
         pass

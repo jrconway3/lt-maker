@@ -186,11 +186,11 @@ def get_valid_targets(unit, item=None) -> set:
     Determines all the valid targets given use of the item
     """
     if not item:
-        item = unit.get_equipped_item()
+        item = unit.get_weapon()
     if not item:
         return set()
-    return {target for target in item_system.valid_targets(unit, item) if 
-            item_system.target_restrict(unit, item, *item_system.splash(unit, item, target))}
+    return {position for position in item_system.valid_targets(unit, item) if 
+            item_system.target_restrict(unit, item, *item_system.splash(unit, item, position))}
 
 def get_all_weapons(unit) -> list:
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_weapon(unit, item) and item_funcs.available(unit, item)]

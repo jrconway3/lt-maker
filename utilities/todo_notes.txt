@@ -43,12 +43,8 @@ Sequence Items
 
 Silence target restrict (test)
 
-Multi-items
+Multi-items 
     Work as activated items
-
-Klok's Combining items idea
-" imagine that, when you select an item, an arrow appears on its left and the item would 'highlight'
-then when you select the next item, it also highlights with an arrow, followed by a preview of their combined effects to the right/left, and a "Press A to attack" box"
 
 Line of Sight rules
 
@@ -58,12 +54,15 @@ For Portrait Editor:
 
 Clean and Rename files button in Help
 
-- Yeti-style stat averages: Units start off when you recruit them with yellow stats, and the stats will shift to red or green depending on how they perform when leveling up. Example: If a unit should average 10 speed at level 15, and they have 10 speed, their SPD stat will be yellow. If instead they have 15 speed, their SPD stat will be green because they overperformed. If it's only 5, the SPD stat will be red because they underperformed.
-
-Resources -- Show in explorer (maybe)...
 Why do resources auto-save? I know I had a reason for making the resources auto-save, but I don't recall what it was
-Unlock staff
-Test current unlocking
 Make Chapter 3 of Sacred Stones
     - Attackable tiles
 
+Maybe, maybe not:
+Klok's Combining items idea
+" imagine that, when you select an item, an arrow appears on its left and the item would 'highlight'
+then when you select the next item, it also highlights with an arrow, followed by a preview of their combined effects to the right/left, and a "Press A to attack" box"
+
+- Yeti-style stat averages: Units start off when you recruit them with yellow stats, and the stats will shift to red or green depending on how they perform when leveling up. Example: If a unit should average 10 speed at level 15, and they have 10 speed, their SPD stat will be yellow. If instead they have 15 speed, their SPD stat will be green because they overperformed. If it's only 5, the SPD stat will be red because they underperformed.
+
+Resources -- Show in explorer (maybe)...

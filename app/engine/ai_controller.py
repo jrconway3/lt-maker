@@ -350,9 +350,9 @@ class PrimaryAI():
 
     def determine_utility(self, move, target, item):
         tp = 0
-        main_target, splash = item_system.splash(self.unit, item, target)
-        if item_system.target_restrict(self.unit, item, main_target, splash):
-            tp = self.compute_priority(main_target, splash, move, item)
+        main_target_pos, splash = item_system.splash(self.unit, item, target)
+        if item_system.target_restrict(self.unit, item, main_target_pos, splash):
+            tp = self.compute_priority(main_target_pos, splash, move, item)
 
         unit = game.board.get_unit(target)
         if unit:
@@ -367,8 +367,9 @@ class PrimaryAI():
             self.best_item = item
             self.max_tp = tp
 
-    def compute_priority(self, main_target, splash, move, item) -> float:
+    def compute_priority(self, main_target_pos, splash, move, item) -> float:
         tp = 0
+        main_target = game.board.get_unit(main_target_pos)
         if main_target:
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             # If no ai priority hook defined
@@ -380,7 +381,10 @@ class PrimaryAI():
             else:
                 tp += ai_priority
 
-        for target in splash:
+        for splash_pos in splash:
+            target = game.board.get_unit(splash_pos)
+            if not target:
+                continue
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             if ai_priority is None:
                 if item_system.damage(self.unit, item):

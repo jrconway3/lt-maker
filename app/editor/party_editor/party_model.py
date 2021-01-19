@@ -31,7 +31,7 @@ class PartyModel(DragDropCollectionModel):
         nid = party.nid
         affected_levels = [level for level in DB.levels if level.party == nid]
         if affected_levels:
-            from app.editor.level_menu import LevelModel
+            from app.editor.global_editor.level_menu import LevelModel
             model = LevelModel
             msg = "Deleting Party <b>%s</b> would affect this level" % nid
             swap, ok = DeletionDialog.get_swap(affected_levels, model, msg, PartyBox(self.window, exclude=party), self.window)

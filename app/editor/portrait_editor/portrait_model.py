@@ -69,7 +69,7 @@ class PortraitModel(ResourceCollectionModel):
             affected = Data(affected_units)
             from app.editor.unit_editor.unit_model import UnitModel
             model = UnitModel
-            msg = "Deleting Portrait <b>%s</b> would affect these units."
+            msg = "Deleting Portrait <b>%s</b> would affect these units." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
                 pass

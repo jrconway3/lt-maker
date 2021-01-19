@@ -297,7 +297,8 @@ class EventCollection(QWidget):
         self.window = parent
         self.database_editor = self.window.window
         self.main_editor = self.database_editor.window
-        self.current_level = self.main_editor.current_level
+        current_level_nid = self.main_editor.app_state_manager.state.selected_level
+        self.current_level = DB.levels.get(current_level_nid)
 
         self._data = self.window._data
         self.title = self.window.title

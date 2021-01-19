@@ -9,15 +9,15 @@ class Toolbar():
 
     def addAction(self, action, index=None):
         if action in self.actions:
-           return
-        if index == None or not 0 <= index < len(self.actions):
+            return
+        if index is None or not 0 <= index < len(self.actions):
             self.actions.append(action)
         else:
             self.actions.insert(index, action)
         self._rerenderToolbar()
 
     def addSeparator(self, index=None):
-        if index == None:
+        if index is None:
             self.actions.append('separator')
         else:
             self.actions.insert(index, 'separator')
@@ -32,7 +32,7 @@ class Toolbar():
             if self.actions[index] == action:
                 self.actions.pop(index)
         elif index:
-              if 0 <= index < len(self.actions):
+            if 0 <= index < len(self.actions):
                 self.actions.pop(index)
         elif action:
             if action in self.actions:

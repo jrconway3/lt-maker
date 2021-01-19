@@ -1,7 +1,7 @@
 import copy
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
-    QSizePolicy, QSplitter
+    QSizePolicy, QSplitter, QMessageBox
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtCore import QAbstractListModel
 
@@ -106,6 +106,7 @@ class DatabaseTab(QWidget):
 
         # Check this on startup
         self.reset()
+
     def update_list(self):
         self.left_frame.update_list()
 
@@ -125,11 +126,6 @@ class DatabaseTab(QWidget):
 
     def on_tab_close(self):
         pass
-
-    # @classmethod
-    # def edit(cls, parent=None):
-    #     dialog = cls.create(parent)
-    #     dialog.exec_()
 
     @classmethod
     def edit(cls, parent=None):
@@ -151,13 +147,10 @@ class CollectionModel(QAbstractListModel):
 
     def delete(self, idx):
         # special case for 1-length data
-        if(len(self._data) == 1):
-            self._data.pop(idx)
-            new_index = self.index(min(idx, len(self._data) - 1))
-            self.window.view.setCurrentIndex(new_index)
-            self.layoutChanged.emit() 
+        if len(self._data) == 1:
+            QMessageBox.critical(None, "Deletion Error", "Can not delete last object of a kind!")
             return
-        # if deleting last element
+        # If deleting the element at the bottom of the list
         new_index = 0
         if idx == len(self._data) - 1:
             new_index = self.index(idx - 1)

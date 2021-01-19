@@ -1,22 +1,17 @@
 import os
 import sys
-import glob
-from datetime import datetime
-import json
 import functools
 
 from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QMessageBox, \
-    QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget, \
+    QDesktopWidget, \
     QToolButton, QWidgetAction, QStackedWidget
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QDir
 
 from app import autoupdate
 
 from app.editor.settings import MainSettingsController
 
 from app.constants import VERSION
-from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor import timer

@@ -7,6 +7,7 @@ class EditorState():
     """
     Class containing application state variables.
     """
+    # NID of current level in editor
     selected_level: str = '0'                                               # NID of current level in editor
     # NID of current overworld map in editor
     selected_overworld: str = '0'

@@ -11,6 +11,7 @@ class SingleDatabaseEditor(QDialog):
     def __init__(self, tab, parent=None):
         super().__init__(parent)
         self.window = parent
+        self.main_editor = self.window
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
@@ -65,6 +66,12 @@ class SingleDatabaseEditor(QDialog):
 
     def restore(self):
         DB.restore(self.saved_data)
+        # Make sure we use the new restored database as the level 
+        # in the level editors
+        state_manager = self.main_editor.app_state_manager
+        current_level_nid = state_manager.state.selected_level
+        state_manager.change_and_broadcast(
+            'selected_level', current_level_nid)
         
     def apply(self):
         self.save()

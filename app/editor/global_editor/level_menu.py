@@ -92,7 +92,7 @@ class LevelModel(CollectionModel):
         return None
     
     def create_new(self):
-        nids = [l.nid for l in DB.levels]
+        nids = [level.nid for level in DB.levels]
         nid = str(str_utils.get_next_int("0", nids))
         name = "Chapter %s" % nid
 

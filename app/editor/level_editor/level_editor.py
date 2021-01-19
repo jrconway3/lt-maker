@@ -12,7 +12,6 @@ from app.editor import timer
 
 from app.editor.settings import MainSettingsController
 
-from app.editor.preferences import PreferencesDialog
 from .property_menu import PropertiesMenu
 from .unit_painter_menu import UnitPainterMenu
 from .region_painter_menu import RegionMenu
@@ -36,7 +35,7 @@ class LevelEditor(QMainWindow):
         self.rendered = False
         self._render()
         
-         # create things
+        # create things
         self.create_actions()
         self.set_icons()
         

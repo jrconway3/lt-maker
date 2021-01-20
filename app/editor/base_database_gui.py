@@ -2,7 +2,7 @@ import copy
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
     QSizePolicy, QSplitter, QMessageBox
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 
 from app.utilities.data import Prefab
@@ -217,6 +217,7 @@ class CollectionModel(QAbstractListModel):
 class DragDropCollectionModel(CollectionModel):
     drop_to = None
     most_recent_dragdrop = None
+    drag_drop_finished = pyqtSignal()
 
     def supportedDropActions(self):
         return Qt.MoveAction
@@ -247,6 +248,12 @@ class DragDropCollectionModel(CollectionModel):
         self.most_recent_dragdrop = self.do_drag_drop(row)
         self.layoutChanged.emit()
         self.drop_to = None
+
+        old, new = self.most_recent_dragdrop
+        view = self.window.view
+        new_index = self.index(new)
+        view.setCurrentIndex(new_index)
+        self.drag_drop_finished.emit()
         return True
 
     def flags(self, index):

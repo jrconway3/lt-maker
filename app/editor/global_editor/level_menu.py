@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QIcon
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -9,7 +9,7 @@ from app.data.levels import LevelPrefab
 from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
 
 from app.extensions.custom_gui import RightClickListView
-from app.editor.base_database_gui import CollectionModel
+from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.tile_editor import tile_model
 from app.utilities import str_utils
 
@@ -34,6 +34,8 @@ class LevelDatabase(QWidget):
         self.model = LevelModel(DB.levels, self)
         self.view.setModel(self.model)
 
+        self.model.drag_drop_finished.connect(self.catch_drag)
+
         self.button = QPushButton("Create New Level...")
         self.button.clicked.connect(self.model.append)
 
@@ -49,6 +51,13 @@ class LevelDatabase(QWidget):
     def on_level_changed(self, curr, prev):
         if DB.levels:
             new_level = DB.levels[curr.row()]
+            self.state_manager.change_and_broadcast(
+                'selected_level', new_level.nid)
+
+    def catch_drag(self):
+        if DB.levels:
+            index = self.view.currentIndex()
+            new_level = DB.levels[index.row()]
             self.state_manager.change_and_broadcast(
                 'selected_level', new_level.nid)
 
@@ -74,7 +83,7 @@ class LevelDatabase(QWidget):
         # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
 
 
-class LevelModel(CollectionModel):
+class LevelModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None

@@ -7,7 +7,7 @@ Combat Animations
 Overworld
 Supports
 Base
-    Manage, Market?, Arena, Repair, Forge, Convos, Support, Codex (World Map, Lore, Records, Achievements/Tactics), Options, Save, Continue/Finish
+    Manage, Market?, Arena, Repair, Forge, Convos, Support, Codex (World Map, Lore, Records, Achievements, Tactics), Options, Save, Continue/Finish
 Minimap
 Turnwheel mouse support
 Autotiles (not just 29 frames)
@@ -54,9 +54,7 @@ For Portrait Editor:
 
 Clean and Rename files button in Help
 
-Why do resources auto-save? I know I had a reason for making the resources auto-save, but I don't recall what it was
 Make Chapter 3 of Sacred Stones
-    - Attackable tiles
 
 Maybe, maybe not:
 Klok's Combining items idea

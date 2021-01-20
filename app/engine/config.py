@@ -52,7 +52,6 @@ def read_config_file():
     key_vals = ('key_SELECT', 'key_BACK', 'key_INFO', 'key_AUX',
                 'key_START', 'key_LEFT', 'key_RIGHT', 'key_UP', 'key_DOWN')
     for k, v in lines.items():
-        print(k)
         if k in float_vals:
             lines[k] = float(v)
         elif k in string_vals:

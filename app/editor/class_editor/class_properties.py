@@ -285,6 +285,9 @@ class ClassProperties(QWidget):
         self.tier_box.edit.setValue(current.tier)
         self.max_level_box.edit.setValue(current.max_level)
         self.movement_box.edit.setValue(current.movement_group)
+        # Reset promotes from box
+        self.promotes_from_box.edit.clear()
+        self.promotes_from_box.edit.addItems(["None"] + DB.classes.keys())
         if current.promotes_from:
             self.promotes_from_box.edit.setValue(current.promotes_from)
         else:

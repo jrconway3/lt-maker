@@ -25,9 +25,12 @@ class ControlOption(menu_options.BasicOption):
     def height(self):
         return 16
 
-    def draw(self, surf, x, y, active=False):
+    def draw(self, surf, x, y, active=False, get_input=False):
         name_font = 'text-white'
         key_font = 'text-blue'
+        if active and get_input:
+            name_font = 'text-yellow'
+            key_font = 'text-yellow'
         surf.blit(self.icon, (x + 32 - self.icon.get_width()//2, y + 8 - self.icon.get_height()//2))
         FONT[name_font].blit(self.display_name, surf, (x + 56, y))
         key_name = engine.get_key_name(cf.SETTINGS[self.name])
@@ -274,7 +277,7 @@ class Controls(menus.Simple):
     def move_next(self):
         pass
 
-    def draw(self, surf):
+    def draw(self, surf, get_input=False):
         topleft = (8, 34)
         bg_surf = base_surf.create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
         bg_surf = image_mods.make_translucent(bg_surf, .1)
@@ -292,7 +295,10 @@ class Controls(menus.Simple):
             left = topleft[0] - 4
 
             active = (idx + self.scroll == self.current_index and self.takes_input)
-            choice.draw(surf, left, top, active)
+            if get_input:
+                choice.draw(surf, left, top, active, True)
+            else:
+                choice.draw(surf, left, top, active)
             if active:
                 self.cursor.draw(surf, left + 8, top)
 

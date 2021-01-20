@@ -1709,8 +1709,7 @@ class UnlockSelectState(MapState):
                 self.menu.toggle_info()
                 SOUNDTHREAD.play_sfx('Info Out')
             else:
-                SOUNDTHREAD.play_sfx('Select 4')
-                game.state.back()
+                SOUNDTHREAD.play_sfx('Error')
 
         elif event == 'SELECT':
             if self.menu.info_flag:

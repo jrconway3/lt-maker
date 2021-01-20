@@ -120,9 +120,10 @@ class SettingsMenuState(State):
                 text = 'Invalid Choice!'
                 game.alerts.append(banner.Custom(text))
                 game.state.change('alert')
+
         elif self.state in ('top_menu_left', 'top_menu_right'):
             self.handle_mouse()
-            if event == 'DOWN':
+            if event == 'DOWN' or event == 'SELECT':
                 SOUNDTHREAD.play_sfx('Select 6')
                 if self.state == 'top_menu_left':
                     self.state = 'config'
@@ -139,6 +140,7 @@ class SettingsMenuState(State):
                     self.state = 'top_menu_right'
             elif event == 'BACK':
                 self.back()
+
         else:
             self.handle_mouse()
             if event == 'DOWN':
@@ -169,14 +171,7 @@ class SettingsMenuState(State):
                 self.back()
 
             elif event == 'SELECT':
-                if self.state in ('top_menu_left', 'top_menu_right'):
-                    SOUNDTHREAD.play_sfx('Select 1')
-                    if self.state == 'top_menu_left':
-                        self.state = 'config'
-                    else:
-                        self.state = 'controls'
-                    self.current_menu.takes_input = True
-                elif self.state == 'controls':
+                if self.state == 'controls':
                     SOUNDTHREAD.play_sfx('Select 1')
                     self.state = 'get_input'
                     INPUT.set_change_keymap(True)
@@ -227,6 +222,8 @@ class SettingsMenuState(State):
         elif self.state == 'config':
             idx = self.config_menu.get_current_index()
             text = config[idx][0] + '_desc'
+        elif self.state == 'get_input':
+            text = 'get_input_desc'
         else:
             text = 'keymap_desc'
         text = text_funcs.translate(text)
@@ -237,7 +234,10 @@ class SettingsMenuState(State):
             self.bg.draw(surf)
 
         self.draw_top_menu(surf)
-        self.current_menu.draw(surf)
+        if self.state == 'get_input':
+            self.current_menu.draw(surf, True)
+        else:
+            self.current_menu.draw(surf)
         self.draw_info_banner(surf)
 
         return surf

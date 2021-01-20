@@ -1,6 +1,10 @@
 import os
 from collections import OrderedDict
 
+import pygame.locals
+
+from app.utilities import str_utils
+
 def read_config_file():
     lines = OrderedDict([('debug', 1),
                          ('random_seed', -1),
@@ -21,15 +25,15 @@ def read_config_file():
                          ('hp_map_team', 'All'),
                          ('hp_map_cull', 'All'),
                          ('display_hints', 0),
-                         ('key_SELECT', 120),
-                         ('key_BACK', 122),
-                         ('key_INFO', 99),
-                         ('key_AUX', 97),
-                         ('key_START', 115),
-                         ('key_LEFT', 276),
-                         ('key_RIGHT', 275),
-                         ('key_UP', 273),
-                         ('key_DOWN', 274)])
+                         ('key_SELECT', 'K_x'),
+                         ('key_BACK', 'K_z'),
+                         ('key_INFO', 'K_c'),
+                         ('key_AUX', 'K_a'),
+                         ('key_START', 'K_s'),
+                         ('key_LEFT', 'K_LEFT'),
+                         ('key_RIGHT', 'K_RIGHT'),
+                         ('key_UP', 'K_UP'),
+                         ('key_DOWN', 'K_DOWN')])
 
     def parse_ini(fn):
         with open(fn) as fp:
@@ -45,11 +49,19 @@ def read_config_file():
 
     float_vals = ('music_volume', 'sound_volume')
     string_vals = ('animation', 'hp_map_team', 'hp_map_cull')
+    key_vals = ('key_SELECT', 'key_BACK', 'key_INFO', 'key_AUX',
+                'key_START', 'key_LEFT', 'key_RIGHT', 'key_UP', 'key_DOWN')
     for k, v in lines.items():
+        print(k)
         if k in float_vals:
             lines[k] = float(v)
         elif k in string_vals:
             pass
+        elif k in key_vals:
+            if str_utils.is_int(v):
+                lines[k] = int(v)
+            elif v.startswith('K_'):  # pygame key constant
+                lines[k] = getattr(pygame.locals, v)
         else:  # convert to int
             lines[k] = int(v) 
 

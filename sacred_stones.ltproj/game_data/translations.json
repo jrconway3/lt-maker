@@ -132,6 +132,10 @@
         "text": "Change keyboard bindings."
     },
     {
+        "nid": "get_input_desc",
+        "text": "Press a new key (or BACK to quit)"
+    },
+    {
         "nid": "STR_desc",
         "text": "Strength. The higher the number, the more damage you inflict."
     },

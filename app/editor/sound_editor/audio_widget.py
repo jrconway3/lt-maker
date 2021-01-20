@@ -68,6 +68,7 @@ class AudioWidget(QWidget):
         layout.addLayout(time_layout)
 
         self.play_button.setEnabled(False)
+        self.time_slider.setEnabled(False)
 
         timer.get_timer().tick_elapsed.connect(self.tick)
 
@@ -123,6 +124,7 @@ class AudioWidget(QWidget):
         self.current = current
         self.nid_label.setText(self.current.nid)
         self.play_button.setEnabled(True)
+        self.time_slider.setEnabled(True)
         
     def play_clicked(self):
         if self.playing:

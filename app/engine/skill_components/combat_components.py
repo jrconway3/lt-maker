@@ -262,7 +262,7 @@ class DamageMultiplier(SkillComponent):
 
 class ResistMultiplier(SkillComponent):
     nid = 'resist_multiplier'
-    desc = "Reduces damage taken by a fraction"
+    desc = "Multiplies damage taken by a fraction"
     tag = 'combat'
 
     expose = Type.Float

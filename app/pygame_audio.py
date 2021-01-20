@@ -58,6 +58,8 @@ class PygameAudioPlayer(object):
             return False
 
     def pause(self):
+        if not self.initiated:
+            self.initiate()
         self.next_pos = self.get_position() / 1000.
         self.current_position = self.get_position()
         pygame.mixer.music.stop()

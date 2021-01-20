@@ -647,9 +647,6 @@ class ShowMapDialog(QDialog):
         self.map_view.position_clicked.connect(self.position_clicked)
         self.map_view.position_moved.connect(self.position_moved)
         self.map_view.set_current_level(self.current_level)
-        tilemap = RESOURCES.tilemaps.get(self.current_level.tilemap)
-        if tilemap:
-            self.map_view.set_current_map(tilemap)
 
         self.position_edit = QLineEdit(self)
         self.position_edit.setAlignment(Qt.AlignRight)

@@ -51,7 +51,7 @@ class UnitModel(DragDropCollectionModel):
             from app.editor.ai_editor.ai_model import AIModel
             model = AIModel
         elif affected_levels:
-            from app.editor.level_menu import LevelModel
+            from app.editor.global_editor.level_menu import LevelModel
             model = LevelModel
             msg = "Deleting Unit <b>%s</b> would affect these objects" % nid
             swap, ok = DeletionDialog.get_swap(affected_ais, model, msg, UnitBox(self.window, exclude=unit), self.window)

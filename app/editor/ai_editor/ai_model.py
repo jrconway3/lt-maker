@@ -24,7 +24,7 @@ class AIModel(DragDropCollectionModel):
         nid = ai.nid
         affected_levels = [level for level in DB.levels if any(unit.ai == nid for unit in level.units)]
         if affected_levels:
-            from app.editor.level_menu import LevelModel
+            from app.editor.global_editor.level_menu import LevelModel
             model = LevelModel
             msg = "Deleting AI <b>%s</b> would affect units in these levels" % nid
             swap, ok = DeletionDialog.get_swap(affected_levels, model, msg, AIBox(self.window, exclude=ai), self.window)

@@ -49,6 +49,8 @@ class UniqueUnit(Prefab):
     team: str = None
     ai: str = None
 
+    faction: str = None  # Always None
+
     starting_position: list = None  # 2-tuple
 
     generic: bool = False

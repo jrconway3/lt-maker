@@ -148,7 +148,7 @@ class TileMapModel(ResourceCollectionModel):
         affected_levels = [level for level in DB.levels if level.tilemap == nid]
         if affected_levels:
             affected = Data(affected_levels)
-            from app.editor.level_menu import LevelModel
+            from app.editor.global_editor.level_menu import LevelModel
             model = LevelModel
             msg = "Deleting Tilemap <b>%s</b> would affect these levels." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)

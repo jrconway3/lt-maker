@@ -76,7 +76,7 @@ class ClassProperties(QWidget):
 
         self.promotes_from_box = PropertyBox("Promotes From", ComboBox, self)
         self.promotes_from_box.edit.addItems(["None"] + DB.classes.keys())
-        self.promotes_from_box.edit.currentIndexChanged.connect(self.promotes_from_changed)
+        self.promotes_from_box.edit.activated.connect(self.promotes_from_changed)
         main_section.addWidget(self.promotes_from_box, 3, 1)
 
         self.max_level_box = PropertyBox("Max Level", QSpinBox, self)
@@ -203,7 +203,7 @@ class ClassProperties(QWidget):
     def tier_changed(self, val):
         self.current.tier = val
 
-    def promotes_from_changed(self, index):
+    def promotes_from_changed(self):
         p = self.promotes_from_box.edit.currentText()
         if p == "None":
             self.current.promotes_from = None

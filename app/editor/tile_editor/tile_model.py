@@ -140,6 +140,7 @@ class TileMapModel(ResourceCollectionModel):
         map_editor.exec_()
         create_tilemap_pixmap(new_tilemap)
         RESOURCES.tilemaps.append(new_tilemap)
+        self.layoutChanged.emit()
         
     def delete(self, idx):
         # Check to see what is using me?

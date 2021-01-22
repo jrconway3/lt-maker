@@ -42,7 +42,7 @@ class Resources():
         return s
 
     def get_platform_types(self):
-        names = list({fn.split('-')[0] for fn in self.platforms.keys()})
+        names = list(sorted({fn.split('-')[0] for fn in self.platforms.keys()}))
         sprites = [n + '-Melee' for n in names]
         return list(zip(names, sprites))
 

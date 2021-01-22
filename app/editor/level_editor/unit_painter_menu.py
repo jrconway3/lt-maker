@@ -17,6 +17,7 @@ from app.editor.custom_widgets import UnitBox, ClassBox, FactionBox, AIBox
 from app.editor.class_editor import class_model
 from app.editor.item_editor import item_model
 from app.editor.unit_editor import unit_tab
+from app.editor.faction_editor import faction_model
 from app.editor.stat_widget import StatAverageDialog, GenericStatAveragesModel
 from app.editor.item_list_widget import ItemListWidget
 
@@ -259,13 +260,22 @@ class InventoryDelegate(QStyledItemDelegate):
         # Don't draw any units which have been deleted in editor
         if not unit.generic and unit.nid not in DB.units.keys():
             return None
+
+        # Draw faction, if applicable
+        rect = option.rect
+        faction = DB.factions.get(unit.faction)
+        if faction:
+            pixmap = faction_model.get_pixmap(faction)
+            pixmap = pixmap.scaled(24, 24, Qt.KeepAspectRatio)
+            left = rect.right() - 24 - 16 * DB.constants.total_items() 
+            painter.drawImage(left, rect.center().y() - 24//2, pixmap.toImage())
+
         items = unit.starting_items
         for idx, item in enumerate(items):
             item_nid, droppable = item
             item = DB.items.get(item_nid)
             if item:
                 pixmap = item_model.get_pixmap(item)
-                rect = option.rect
                 left = rect.right() - ((idx + 1) * 16)
                 top = rect.center().y() - 8
                 if droppable:

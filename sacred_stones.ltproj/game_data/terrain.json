@@ -70,6 +70,76 @@
         "status": null
     },
     {
+        "nid": "5",
+        "name": "Stairs",
+        "color": [
+            84,
+            24,
+            84,
+            255
+        ],
+        "minimap": "Floor",
+        "platform": "Floor",
+        "mtype": "Normal",
+        "status": null
+    },
+    {
+        "nid": "6",
+        "name": "Floor",
+        "color": [
+            84,
+            84,
+            84,
+            255
+        ],
+        "minimap": "Floor",
+        "platform": "Floor",
+        "mtype": "Normal",
+        "status": null
+    },
+    {
+        "nid": "7",
+        "name": "Road",
+        "color": [
+            240,
+            240,
+            128,
+            255
+        ],
+        "minimap": "Sand",
+        "platform": "Road",
+        "mtype": "Normal",
+        "status": null
+    },
+    {
+        "nid": "8",
+        "name": "Pillar",
+        "color": [
+            64,
+            56,
+            40,
+            255
+        ],
+        "minimap": "Pillar",
+        "platform": "Pillar",
+        "mtype": "Pillar",
+        "status": "Forest"
+    },
+    {
+        "nid": "9",
+        "name": "Wall",
+        "color": [
+            40,
+            40,
+            40,
+            255
+        ],
+        "minimap": "Wall",
+        "platform": "Wall",
+        "mtype": "Wall",
+        "status": null
+    },
+    {
         "nid": "10",
         "name": "Lake",
         "color": [
@@ -154,6 +224,20 @@
         "status": null
     },
     {
+        "nid": "25",
+        "name": "Barrel",
+        "color": [
+            168,
+            104,
+            56,
+            255
+        ],
+        "minimap": "Wall",
+        "platform": "Deck",
+        "mtype": "Fence",
+        "status": null
+    },
+    {
         "nid": "30",
         "name": "House",
         "color": [
@@ -193,7 +277,21 @@
         "minimap": "Throne",
         "platform": "Gate",
         "mtype": "Throne",
-        "status": "Fort"
+        "status": "Throne"
+    },
+    {
+        "nid": "38",
+        "name": "Throne",
+        "color": [
+            150,
+            0,
+            77,
+            255
+        ],
+        "minimap": "Throne",
+        "platform": "Throne",
+        "mtype": "Throne",
+        "status": "Throne"
     },
     {
         "nid": "33",
@@ -222,6 +320,34 @@
         "platform": "Village",
         "mtype": "Normal",
         "status": "Avoid10"
+    },
+    {
+        "nid": "36",
+        "name": "Chest",
+        "color": [
+            255,
+            247,
+            0,
+            255
+        ],
+        "minimap": "Chest",
+        "platform": "Chest",
+        "mtype": "Wall",
+        "status": null
+    },
+    {
+        "nid": "37",
+        "name": "Door",
+        "color": [
+            80,
+            0,
+            0,
+            255
+        ],
+        "minimap": "Door",
+        "platform": "Floor",
+        "mtype": "Wall",
+        "status": null
     },
     {
         "nid": "Ruins",

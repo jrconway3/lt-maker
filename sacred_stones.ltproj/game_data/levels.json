@@ -102,8 +102,7 @@
                 "nid": "Enemy1",
                 "units": [
                     "101",
-                    "102",
-                    "O'Neill"
+                    "102"
                 ],
                 "positions": {
                     "101": [
@@ -113,10 +112,6 @@
                     "102": [
                         14,
                         8
-                    ],
-                    "O'Neill": [
-                        14,
-                        9
                     ]
                 }
             }
@@ -940,16 +935,11 @@
             {
                 "nid": "BanditReinforcements",
                 "units": [
-                    "106",
-                    "107"
+                    "106"
                 ],
                 "positions": {
                     "106": [
                         0,
-                        9
-                    ],
-                    "107": [
-                        1,
                         9
                     ]
                 }
@@ -1001,6 +991,351 @@
                 "positions": {}
             }
         ]
+    },
+    {
+        "nid": "3",
+        "name": "The Bandits of Borgo",
+        "tilemap": "Chapter 3",
+        "party": null,
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "enemy2_phaseplayer_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battlebase": null
+        },
+        "objective": {
+            "simple": "Seize",
+            "win": "Seize",
+            "loss": "Eirika dies"
+        },
+        "units": [
+            {
+                "nid": "Eirika",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    11
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Seth",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    1,
+                    12
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Franz",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    0,
+                    11
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Gilliam",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    1,
+                    8
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Vanessa",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    13
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Moulder",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    12
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Ross",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    10
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Garcia",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    9
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Neimi",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    9
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Colm",
+                "team": "other",
+                "ai": "Thief",
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Bazba",
+                "team": "enemy",
+                "ai": "Guard",
+                "starting_position": [
+                    14,
+                    1
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    7,
+                    2
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    9,
+                    8
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 4,
+                "klass": "Brigand",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    14,
+                    11
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ],
+                    [
+                        "Door Key",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    5,
+                    9
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 3,
+                "klass": "Brigand",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ],
+                    [
+                        "Chest Key",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    7,
+                    12
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 2,
+                "klass": "Brigand",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ],
+                    [
+                        "Pure Water",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    14,
+                    6
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 2,
+                "klass": "Mercenary",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ],
+                    [
+                        "Pure Water",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    15,
+                    2
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 4,
+                "klass": "Archer",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    12,
+                    9
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 4,
+                "klass": "Thief",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Thief",
+                "starting_position": [
+                    9,
+                    11
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            }
+        ],
+        "regions": [],
+        "unit_groups": []
     },
     {
         "nid": "DEBUG",

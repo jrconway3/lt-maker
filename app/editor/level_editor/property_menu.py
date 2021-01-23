@@ -48,7 +48,7 @@ class MusicDialog(SimpleDialog):
 
     def access_music_resources(self, key):
         res, ok = sound_tab.get_music()
-        if ok:
+        if ok and res:
             nid = res[0].nid
             self.current.music[key] = nid
             self.boxes[key].edit.setText(nid)
@@ -167,7 +167,7 @@ class PropertiesMenu(QWidget):
         self.current.party = party.nid
 
     def edit_music(self):
-        dlg = MusicDialog(self, self.current)
+        dlg = MusicDialog(self.current)
         dlg.exec_()
 
     def set_objective(self, key):

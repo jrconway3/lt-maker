@@ -205,8 +205,6 @@ class MapEditorView(QGraphicsView):
                 if pos in layer.sprite_grid:
                     tile_sprite = layer.sprite_grid[pos]
                     return tile_sprite
-                else:
-                    return None
         return None
 
     def find_coords(self):
@@ -217,7 +215,8 @@ class MapEditorView(QGraphicsView):
         height = max(self.right_selecting[1], self.current_mouse_position[1]) - top + 1
         for x in range(width):
             for y in range(height):
-                self.right_selection[(x, y)] = self.get_tile_sprite((x + left, y + top))
+                i, j = x + left, y + top
+                self.right_selection[(x, y)] = self.get_tile_sprite((i, j))
 
     def paint_terrain(self, tile_pos):
         current_layer = self.get_current_layer()
@@ -236,8 +235,8 @@ class MapEditorView(QGraphicsView):
                         tileset_nid = tile_sprite.tileset_nid
                         pos = tile_sprite.tileset_position
                         current_layer.set_sprite(true_pos, tileset_nid, pos)
-                    else:
-                        current_layer.erase_sprite(true_pos)
+                    # else:
+                    #     current_layer.erase_sprite(true_pos)
         else:
             tileset, coords = self.window.get_tileset_coords()
             if tileset and coords:
@@ -497,6 +496,8 @@ class MapEditor(QDialog):
         self.buttonbox.accepted.connect(self.accept)
         self.buttonbox.rejected.connect(self.reject)
 
+        self.check_brush()
+
         # Restore Geometry
         geometry = self.settings.component_controller.get_geometry(self._type())
         if geometry:
@@ -588,7 +589,6 @@ class MapEditor(QDialog):
                 image.save(fn)
                 parent_dir = os.path.split(fn)[0]
                 self.settings.set_last_open_path(parent_dir)
-
 
     def update_view(self):
         self.view.update_view()
@@ -1044,9 +1044,9 @@ class TileSetView(MapEditorView):
         # Draw grid lines
         painter.setPen(QPen(Qt.white, 1, Qt.SolidLine))
         for x in range(self.tileset.width):
-            painter.drawLine(x * self.tilewidth, 0, x * self.tilewidth, self.tileset.height * self.tileheight)
+            painter.drawLine(x * self.tilewidth - 1, 0, x * self.tilewidth - 1, self.tileset.height * self.tileheight)
         for y in range(self.tileset.height):
-            painter.drawLine(0, y * self.tileheight, self.tileset.width * self.tilewidth, y * self.tileheight)
+            painter.drawLine(0, y * self.tileheight - 1, self.tileset.width * self.tilewidth, y * self.tileheight - 1)
 
         painter.end()
         self.clear_scene()

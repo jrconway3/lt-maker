@@ -28,7 +28,7 @@ class PreferencesDialog(Dialog):
 
         self.available_options = name_to_button.keys()
 
-        label = QLabel("Modify mouse preferences for Terrain and Unit Painter Menus")
+        label = QLabel("Modify mouse preferences for Unit and Tile Painter Menus")
 
         self.select = PropertyBox('Select', ComboBox, self)
         for option in self.available_options:

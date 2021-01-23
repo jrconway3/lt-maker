@@ -18,5 +18,9 @@
     {
         "nid": "Chpt3",
         "terrain_grid": {}
+    },
+    {
+        "nid": "SacredStonesVillage",
+        "terrain_grid": {}
     }
 ]

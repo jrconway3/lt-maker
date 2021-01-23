@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QPushButton, QLineEdit, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
     QVBoxLayout, QHBoxLayout, QMessageBox, QApplication
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon, QBrush, QColor
+from PyQt5.QtGui import QIcon, QBrush, QColor, QFontMetrics
 
 from app.utilities import str_utils
 from app.utilities.data import Data
@@ -267,8 +267,11 @@ class InventoryDelegate(QStyledItemDelegate):
         if faction:
             pixmap = faction_model.get_pixmap(faction)
             pixmap = pixmap.scaled(24, 24, Qt.KeepAspectRatio)
-            left = rect.right() - 24 - 16 * DB.constants.total_items() 
-            painter.drawImage(left, rect.center().y() - 24//2, pixmap.toImage())
+            text = str(unit.nid) + ' (' + str(unit.ai) + ' Lv ' + str(unit.level) + ')'
+            font = QApplication.font()
+            fm = QFontMetrics(font)
+            left = rect.left() + 48 + fm.width(text)
+            painter.drawImage(left, rect.center().y() - 24//2 + 2, pixmap.toImage())
 
         items = unit.starting_items
         for idx, item in enumerate(items):

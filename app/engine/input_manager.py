@@ -40,6 +40,9 @@ class InputManager():
             self.joystick = None
             self.joystick_name = None
 
+    def get_joystick_init(self) -> bool:
+        return self.joystick and self.joystick.get_init()
+
     def set_change_keymap(self, val):
         self.change_keymap_mode = val
 
@@ -157,6 +160,13 @@ class InputManager():
                     self.current_mouse_position = position
 
         # Check game pad
+        if not self.joystick:
+            self.init_joystick()
+        # Need to re-init joystick if we closed and then
+        # re-opened the engine from the editor
+        if self.joystick and not self.get_joystick_init():
+            self.init_joystick()
+
         if self.joystick and not self.change_keymap_mode:
             self.handle_joystick()
 

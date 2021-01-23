@@ -1001,10 +1001,12 @@
             "player_phase": null,
             "enemy_phase": null,
             "other_phase": null,
-            "enemy2_phaseplayer_battle": null,
+            "enemy2_phase": null,
+            "player_battle": null,
             "enemy_battle": null,
             "other_battle": null,
-            "enemy2_battlebase": null
+            "enemy2_battle": null,
+            "base": null
         },
         "objective": {
             "simple": "Seize",
@@ -1334,7 +1336,56 @@
                 "generic": true
             }
         ],
-        "regions": [],
+        "regions": [
+            {
+                "nid": "Chest1",
+                "region_type": "event",
+                "position": null,
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "New Region (1)",
+                "region_type": "normal",
+                "position": null,
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "New Region (2)",
+                "region_type": "normal",
+                "position": null,
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "New Region (3)",
+                "region_type": "normal",
+                "position": null,
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            }
+        ],
         "unit_groups": []
     },
     {

@@ -100,6 +100,9 @@ class SimpleMapView(QGraphicsView):
         if self.working_image:
             self.clear_scene()
             self.scene.addPixmap(self.working_image)
+            self.scene.setSceneRect(0, 0, self.working_image.width(), self.working_image.height())
+            # first_item = self.items()[0]
+            # self.centerOn(first_item)
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)

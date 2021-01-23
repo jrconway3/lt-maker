@@ -98,7 +98,7 @@ class Damage(ItemComponent):
 class PermanentStatChange(ItemComponent):
     nid = 'permanent_stat_change'
     desc = "Item changes target's stats on hit."
-    tag = 'extra'
+    tag = 'special'
 
     expose = (Type.Dict, Type.Stat)
 
@@ -118,7 +118,7 @@ class PermanentStatChange(ItemComponent):
 class PermanentGrowthChange(ItemComponent):
     nid = 'permanent_growth_change'
     desc = "Item changes target's growths on hit"
-    tag = 'extra'
+    tag = 'special'
 
     expose = (Type.Dict, Type.Stat)
 
@@ -129,7 +129,7 @@ class PermanentGrowthChange(ItemComponent):
 class WexpChange(ItemComponent):
     nid = 'wexp_change'
     desc = "Item changes target's wexp on hit"
-    tag = 'extra'
+    tag = 'special'
 
     expose = (Type.Dict, Type.WeaponType)
 
@@ -140,7 +140,7 @@ class WexpChange(ItemComponent):
 class Refresh(ItemComponent):
     nid = 'refresh'
     desc = "Item allows target to move again on hit"
-    tag = 'extra'
+    tag = 'special'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # only targets areas where unit could move again
@@ -159,7 +159,7 @@ class Refresh(ItemComponent):
 class StatusOnHit(ItemComponent):
     nid = 'status_on_hit'
     desc = "Item gives status to target when it hits"
-    tag = 'extra'
+    tag = 'special'
 
     expose = Type.Skill  # Nid
 
@@ -171,7 +171,7 @@ class StatusOnHit(ItemComponent):
 class Restore(ItemComponent):
     nid = 'restore'
     desc = "Item removes all time statuses from target on hit"
-    tag = 'extra'
+    tag = 'special'
 
     def _can_be_restored(self, status):
         return status.time
@@ -196,7 +196,7 @@ class Restore(ItemComponent):
 class RestoreSpecific(Restore, ItemComponent):
     nid = 'restore_specific'
     desc = "Item removes status from target on hit"
-    tag = 'extra'
+    tag = 'special'
 
     expose = Type.Skill # Nid
 
@@ -206,7 +206,7 @@ class RestoreSpecific(Restore, ItemComponent):
 class Shove(ItemComponent):
     nid = 'shove'
     desc = "Item shoves target on hit"
-    tag = 'extra'
+    tag = 'special'
 
     expose = Type.Int
     value = 1
@@ -234,7 +234,7 @@ class Shove(ItemComponent):
 class ShoveOnEndCombat(Shove):
     nid = 'shove_on_end_combat'
     desc = "Item shoves target at the end of combat"
-    tag = 'extra'
+    tag = 'special'
 
     expose = Type.Int
     value = 1
@@ -248,7 +248,7 @@ class ShoveOnEndCombat(Shove):
 class ShoveTargetRestrict(Shove, ItemComponent):
     nid = 'shove_target_restrict'
     desc = "Target restriction for Shove"
-    tag = 'extra'
+    tag = 'special'
 
     expose = Type.Int
     value = 1
@@ -275,7 +275,7 @@ class ShoveTargetRestrict(Shove, ItemComponent):
 class Swap(ItemComponent):
     nid = 'swap'
     desc = "Item swaps user with target on hit"
-    tag = 'extra'
+    tag = 'special'
 
     def on_hit(self, actions, playback, unit, item, target, mode):
         if not skill_system.ignore_forced_movement(unit) and not skill_system.ignore_forced_movement(target):
@@ -319,7 +319,7 @@ class EvalTargetRestrict(ItemComponent):
 class Steal(ItemComponent):
     nid = 'steal'
     desc = "Steal any unequipped item from target on hit"
-    tag = 'weapon'
+    tag = 'special'
 
     def init(self, item):
         item.data['target_item'] = None
@@ -368,7 +368,7 @@ class Steal(ItemComponent):
 class GBASteal(Steal, ItemComponent):
     nid = 'gba_steal'
     desc = "Steal any non-weapon, non-spell from target on hit"
-    tag = 'weapon'
+    tag = 'special'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Unit has item that can be stolen
@@ -396,7 +396,7 @@ class GBASteal(Steal, ItemComponent):
 class Repair(ItemComponent):
     nid = 'repair'
     desc = "Item repairs target item on hit"
-    tag = 'weapon'
+    tag = 'special'
 
     def init(self, item):
         item.data['target_item'] = None
@@ -430,7 +430,7 @@ class Repair(ItemComponent):
 class Trade(ItemComponent):
     nid = 'trade'
     desc = "Item allows user to trade with target on hit"
-    tag = 'weapon'
+    tag = 'special'
 
     def init(self, item):
         self._did_hit = False
@@ -443,4 +443,22 @@ class Trade(ItemComponent):
             game.cursor.cur_unit = unit
             game.cursor.set_pos(target.position)
             game.state.change('combat_trade')
+        self._did_hit = False
+
+class EventAfterCombat(ItemComponent):
+    nid = 'event_after_combat'
+    desc = "Item calls an event after hit"
+    tag = 'special'
+
+    expose = Type.Event
+
+    def init(self, item):
+        self._did_hit = False
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        self._did_hit = True
+
+    def end_combat(self, playback, unit, item, target):
+        if self._did_hit and target:
+            game.events.trigger(self.value, unit=unit, unit2=target, position=unit.position)
         self._did_hit = False

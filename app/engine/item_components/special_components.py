@@ -9,7 +9,7 @@ from app.engine.game_state import game
 class UnlockStaff(ItemComponent):
     nid = 'unlock_staff'
     desc = "Item allows user to unlock locked regions. Doesn't work with other splash/aoe components"
-    tag = 'advanced'
+    tag = 'special'
 
     def init(self, item):
         self._did_hit = False

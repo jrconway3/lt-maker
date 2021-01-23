@@ -621,8 +621,8 @@ class InfoMenuState(State):
         class_obj = DB.classes.get(self.unit.klass)
         max_stats = class_obj.max_stats
         stat_list = ('STR', 'MAG', 'SKL', 'SPD', 'DEF', 'RES')
-        highest_stat = 30
         for idx, stat_nid in enumerate(stat_list):
+            highest_stat = DB.stats.get(stat_nid).maximum
             max_stat = max_stats.get(stat_nid).value
             total_length = int(max_stat / highest_stat * 44)
             frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)

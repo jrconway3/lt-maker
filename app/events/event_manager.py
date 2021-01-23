@@ -11,7 +11,7 @@ class EventManager():
         self.events = []  # A stack of events
 
     def trigger(self, trigger, unit=None, unit2=None, position=None, region=None):
-        unit1 = unit
+        unit1 = unit  # noqa: F841
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
             try:

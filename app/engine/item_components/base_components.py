@@ -179,7 +179,7 @@ class Unrepairable(ItemComponent):
 class MenuAfterCombat(ItemComponent):
     nid = 'menu_after_combat'
     desc = "Can access menu after combat"
-    tag = 'weapon'
+    tag = 'extra'
 
     def menu_after_combat(self, unit, item):
         return True

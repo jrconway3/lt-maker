@@ -26,13 +26,15 @@ def get_next_int(name, names):
 def get_next_generic_nid(name: str, names):
     if name not in names:
         return name
-    else:
+    elif is_int(name):
         counter = int(name) + 1
         while True:
             test_name = str(counter)
             if test_name not in names:
                 return test_name
             counter += 1
+    else:
+        return get_next_name(name, names)
 
 def find_last_number(s: str):
     last_number = re.findall(r'\d+$', s)

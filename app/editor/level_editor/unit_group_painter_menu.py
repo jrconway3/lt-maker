@@ -300,3 +300,13 @@ class GroupUnitModel(DragDropCollectionModel):
             else:
                 return QBrush(QColor("red"))
         return None
+
+    def do_drag_drop(self, index):
+        if self.drop_to is None:
+            return False
+        if index < self.drop_to:
+            self._data.insert(self.drop_to - 1, self._data.pop(index))
+            return index, self.drop_to - 1
+        else:
+            self._data.insert(self.drop_to, self._data.pop(index))
+            return index, self.drop_to

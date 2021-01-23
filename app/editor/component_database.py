@@ -244,10 +244,12 @@ class EventItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.setMaximumWidth(120)
-        for event in DB.events.values():
+        # Only use global events
+        valid_events = [event for event in DB.events.values() if not event.level_nid]
+        for event in valid_events:
             self.editor.addItem(event.nid)
-        if not self._data.value and DB.events:
-            self._data.value = DB.events[0].nid
+        if not self._data.value and valid_events:
+            self._data.value = valid_events[0].nid
         self.editor.setValue(self._data.value)
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)

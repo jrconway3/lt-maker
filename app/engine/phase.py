@@ -47,7 +47,7 @@ class PhaseController():
             self._next()
             # Skip over any phases that no one is part of
             # but never skip player phase
-            while self.current != 0 and not any(self.get_current() == unit.team for unit in game.level.units if unit.position):
+            while self.current != 0 and not any(self.get_current() == unit.team for unit in game.level.units if unit.position and 'Tile' not in unit.tags):
                 self._next()
         else:   
             self.current = 0

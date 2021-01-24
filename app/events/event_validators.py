@@ -304,6 +304,12 @@ class ItemList(Validator):
             return text
         return None
 
+class Skill(Validator):
+    def validate(self, text, level):
+        if text in DB.skills.keys():
+            return text
+        return None
+
 class Party(Validator):
     def validate(self, text, level):
         if text in DB.parties.keys():

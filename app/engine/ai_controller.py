@@ -136,7 +136,7 @@ class AIController():
         elif self.behaviour.target[0] == 'Unit':
             target_positions = {u.position for u in game.level.units if u.position}
 
-        zero_move = max(target_system.find_potential_range(self.unit, True, True))
+        zero_move = max(target_system.find_potential_range(self.unit, True, True), default=0)
         single_move = zero_move + equations.parser.movement(self.unit)
         double_move = single_move + equations.parser.movement(self.unit)
 
@@ -524,7 +524,7 @@ class SecondaryAI():
         if self.behaviour.target in ('Unit', 'Enemy', 'Ally'):
             self.all_targets = handle_unit_spec(self.all_targets, self.behaviour)
 
-        self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True))
+        self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True), default=0)
         self.double_move = self.single_move + equations.parser.movement(self.unit)
 
         movement_group = game.movement.get_movement_group(self.unit)

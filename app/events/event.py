@@ -398,6 +398,12 @@ class Event():
         elif command.nid == 'give_exp':
             self.give_exp(command)
 
+        elif command.nid == 'give_skill':
+            self.give_skill(command)
+
+        elif command.nid == 'remove_skill':
+            self.remove_skill(command)
+
         elif command.nid == 'change_ai':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
@@ -1156,6 +1162,45 @@ class Event():
         game.memory['exp'] = (unit, exp, None, 'init')
         game.state.change('exp')
         self.state = 'paused'
+
+    def give_skill(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit with nid %s" % values[0])
+            return
+        skill_nid = values[1]
+        if skill_nid not in DB.skills.keys():
+            print("Couldn't find skill with nid %s" % values[1])
+            return
+        banner_flag = 'no_banner' not in flags
+        action.do(action.AddSkill(unit, skill_nid))
+        if banner_flag:
+            skill = DB.skills.get(skill_nid)
+            b = banner.GiveSkill(unit, skill)
+            game.alerts.append(b)
+            game.state.change('alert')
+            self.state = 'paused'
+
+    def remove_skill(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit with nid %s" % values[0])
+            return
+        skill_nid = values[1]
+        if skill_nid not in [skill.nid for skill in unit.skills]:
+            print("Couldn't find skill with nid %s" % values[1])
+            return
+        banner_flag = 'no_banner' not in flags
+        
+        action.do(action.RemoveSkill(unit, skill_nid))
+        if banner_flag:
+            skill = DB.skills.get(skill_nid)
+            b = banner.TakeSkill(unit, skill)
+            game.alerts.append(b)
+            game.state.change('alert')
+            self.state = 'paused'            
 
     def add_region(self, command):
         values, flags = event_commands.parse(command)

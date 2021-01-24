@@ -45,12 +45,14 @@ def get_skill_icon(skill):
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
     return image
 
-def draw_skill(surf, skill, topleft, compact=True):
+def draw_skill(surf, skill, topleft, compact=True, simple=False):
     image = get_skill_icon(skill)
     if not image:
         return None
 
     surf.blit(image, topleft)
+    if simple:
+        return surf
     frac = skill_system.get_cooldown(skill)
     if frac is not None:
         cooldown_surf = SPRITES.get('icon_cooldown')

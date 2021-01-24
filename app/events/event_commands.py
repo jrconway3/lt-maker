@@ -290,6 +290,20 @@ class GiveExp(EventCommand):
 
     keywords = ["GlobalUnit", "PositiveInteger"]
 
+class GiveSkill(EventCommand):
+    nid = 'give_skill'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "Skill"]
+    flags = ['no_banner']
+
+class RemoveSkill(EventCommand):
+    nid = 'remove_skill'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "Skill"]
+    flags = ['no_banner']
+
 class ChangeAI(EventCommand):
     nid = 'change_ai'
     tag = 'unit'

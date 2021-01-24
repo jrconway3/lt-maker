@@ -105,6 +105,8 @@ class PermanentStatChange(ItemComponent):
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Ignore's splash
         defender = game.board.get_unit(def_pos)
+        if not defender:
+            return False
         klass = DB.classes.get(defender.klass)
         for stat, inc in self.value.items():
             if inc <= 0 or defender.stats[stat] < klass.maximum:

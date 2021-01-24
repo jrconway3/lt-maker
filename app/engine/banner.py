@@ -124,7 +124,27 @@ class GainWexp(Banner):
 
     def draw_icon(self, surf):
         if self.weapon_type:
-            icons.draw_weapon(surf, self.item, (self.size[0] - 20, 7))        
+            icons.draw_weapon(surf, self.item, (self.size[0] - 20, 7))    
+
+class GiveSkill(Banner):
+    def __init__(self, unit, skill):
+        super().__init__()
+        self.unit = unit
+        self.item = skill
+        self.text = [unit.name, ' got ', skill.nid]
+        self.font = ['text-blue', 'text-white', 'text-blue']
+        self.figure_out_size()
+        self.sound = 'Item'
+
+    def draw_icon(self, surf):
+        if self.item:
+            icons.draw_skill(surf, self.item, (self.size[0] - 20, 7), simple=True)
+
+class TakeSkill(GiveSkill):
+    def __init__(self, unit, skill):
+        super().__init__(unit, skill)
+        self.text = [unit.name, ' lost ', skill.nid]
+        self.figure_out_size()
 
 class Custom(Banner):
     def __init__(self, text, sound=None):

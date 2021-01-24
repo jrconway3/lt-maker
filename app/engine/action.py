@@ -836,7 +836,8 @@ class GainWexp(Action):
         self.old_value, self.current_value = self.increase_wexp()
         for weapon_rank in DB.weapon_ranks:
             if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
-                game.alerts.append(banner.GainWexp(weapon_rank, self.item))
+                weapon_type = item_system.weapon_type(self.unit, self.item)
+                game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, weapon_type))
                 game.state.change('alert')
                 break
 

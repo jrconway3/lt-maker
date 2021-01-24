@@ -1,3 +1,5 @@
+from PyQt5.QtWidgets import QTableView
+
 from app.data.database import DB
 
 from app.editor.base_database_gui import DatabaseTab
@@ -15,7 +17,7 @@ class EventDatabase(DatabaseTab):
 
         collection_model = event_model.EventModel
         collection = event_properties.EventCollection
-        dialog = cls(data, title, right_frame, None, collection_model, parent, view_type=TableView, collection_type=collection)
+        dialog = cls(data, title, right_frame, None, collection_model, parent, view_type=QTableView, collection_type=collection)
         return dialog
 
 # Testing

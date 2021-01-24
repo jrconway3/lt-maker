@@ -17,7 +17,7 @@ class Banner():
 
     def figure_out_size(self):
         self.length = FONT['text-white'].width(''.join(self.text))
-        self.length += 12
+        self.length += 16
         self.length -= self.length%8
         self.length += (16 if self.item else 0)
         self.font_height = 16
@@ -31,6 +31,10 @@ class Banner():
             if self.sound:
                 from app.engine.sound import SOUNDTHREAD
                 SOUNDTHREAD.play_sfx(self.sound)
+
+    def draw_icon(self, surf):
+        if self.item:
+            icons.draw_item(surf, self.item, (self.size[0] - 20, 8), cooldown=False)
 
     def draw(self, surf):
         if not self.surf:
@@ -49,8 +53,7 @@ class Banner():
             FONT[self.font[idx]].blit(word, bg_surf, (left, self.size[1]//2 - self.font_height//2 + 3))
             left += word_width
 
-        if self.item:
-            icons.draw_item(bg_surf, self.item, (self.size[0] - 18, 8), cooldown=False)
+        self.draw_icon(bg_surf)
         engine.blit_center(surf, bg_surf)
         return surf
 
@@ -107,6 +110,21 @@ class BrokenItem(Banner):
         self.font = ['text-blue', 'text-white', 'text-blue', 'text-blue']
         self.figure_out_size()
         self.sound = 'ItemBreak'
+
+class GainWexp(Banner):
+    def __init__(self, unit, weapon_rank, weapon_type):
+        super().__init__()
+        self.unit = unit
+        self.weapon_type = self.item = weapon_type
+        self.weapon_rank = weapon_rank
+        self.text = [unit.name, ' reached rank ', self.weapon_rank]
+        self.font = ['text-blue', 'text-white', 'text-blue']
+        self.figure_out_size()
+        self.sound = 'Item'
+
+    def draw_icon(self, surf):
+        if self.weapon_type:
+            icons.draw_weapon(surf, self.item, (self.size[0] - 20, 7))        
 
 class Custom(Banner):
     def __init__(self, text, sound=None):

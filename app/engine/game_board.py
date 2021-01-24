@@ -130,12 +130,16 @@ class GameBoard(object):
         return False
 
     def get_unit(self, pos):
+        if not pos:
+            return None
         idx = pos[0] * self.height + pos[1]
         if self.unit_grid[idx]:
             return self.unit_grid[idx][0]
         return None
 
     def get_team(self, pos):
+        if not pos:
+            return None
         idx = pos[0] * self.height + pos[1]
         if self.team_grid[idx]:
             return self.team_grid[idx][0]

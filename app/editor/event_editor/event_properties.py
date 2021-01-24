@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
-    QGridLayout, QSizePolicy, QAction
-from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics
+    QGridLayout, QSizePolicy, QAction, QToolBar
+from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics, QIcon
 from PyQt5.QtCore import QRegularExpression, Qt, QSize, QRect
 
 from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, QHLine, ComboBox
@@ -303,6 +303,8 @@ class EventCollection(QWidget):
         self._data = self.window._data
         self.title = self.window.title
 
+        self.settings = MainSettingsController()
+
         self.display = None
         grid = QGridLayout()
         self.setLayout(grid)
@@ -316,7 +318,7 @@ class EventCollection(QWidget):
         self.model = collection_model(self._data, self)
         self.proxy_model = table_model.ProxyModel()
         self.proxy_model.setSourceModel(self.model)
-        self.view = view_type(None, self)
+        self.view = view_type(self)
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.view.setModel(self.proxy_model)
@@ -333,26 +335,99 @@ class EventCollection(QWidget):
         self.button = QPushButton(button_text % self.title)
         self.button.clicked.connect(self.create_new_event)
 
-        grid.addWidget(self.level_filter_box, 0, 0, Qt.AlignRight)
-        grid.addWidget(self.view, 1, 0)
-        grid.addWidget(self.button, 2, 0)
+        self.create_actions()
+        self.create_toolbar()
+        grid.addWidget(self.toolbar, 0, 0, Qt.AlignLeft)
+        grid.addWidget(self.level_filter_box, 0, 1, Qt.AlignRight)
+        grid.addWidget(self.view, 1, 0, 1, 2)
+        grid.addWidget(self.button, 2, 0, 1, 2)
 
         if self.current_level:
             self.level_filter_box.edit.setValue(self.current_level.nid)
         else:
             self.level_filter_box.edit.setValue("All")
 
+    def create_actions(self):
+        theme = self.settings.get_theme()
+        if theme == 0:
+            icon_folder = 'icons'
+        else:
+            icon_folder = 'dark_icons'
+
+        self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "New Layer", triggered=self.new)
+        self.duplicate_action = QAction(QIcon(f"{icon_folder}/duplicate.png"), "Duplicate Layer", triggered=self.duplicate)
+        self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Delete Layer", triggered=self.delete)
+        self._set_enabled(False)
+
+    def _set_enabled(self, val: bool):
+        if self.display:
+            self.display.setEnabled(val)
+        self.delete_action.setEnabled(val)
+        self.duplicate_action.setEnabled(val)
+
+    def create_toolbar(self):
+        self.toolbar = QToolBar(self)
+        self.toolbar.addAction(self.new_action)
+        self.toolbar.addAction(self.duplicate_action)
+        self.toolbar.addAction(self.delete_action)
+
+    def delete(self):
+        current_index = self.view.currentIndex()
+        model_index = self.proxy_model.mapToSource(current_index)
+        row = current_index.row()
+        self.model.delete(model_index)
+
+        if self.proxy_model.rowCount() > 0:
+            if row >= self.proxy_model.rowCount():
+                new_index = self.proxy_model.index(row - 1, 0)
+            else:
+                new_index = self.proxy_model.index(row, 0)
+            self.view.setCurrentIndex(new_index)
+            self.set_current_index(new_index)
+        else:
+            self._set_enabled(False)
+
+    def new(self):
+        """
+        # Identical to regular create new event
+        # since it will just be sorted anyway
+        """
+        self.create_new_event()
+
+    def duplicate(self):
+        current_index = self.view.currentIndex()
+        model_index = self.proxy_model.mapToSource(current_index)
+        new_index = self.model.duplicate(model_index)
+        new_proxy_index = self.proxy_model.mapFromSource(new_index)
+
+        self.view.setCurrentIndex(new_proxy_index)
+        self.set_current_index(new_proxy_index)
+
+    def _get_level_nid(self) -> str:
+        if self.level_filter_box.edit.currentText() == 'All':
+            level_nid = None
+        elif self.level_filter_box.edit.currentText() == 'Global':
+            level_nid = None
+        else:
+            level_nid = self.level_filter_box.edit.currentText()
+        return level_nid
+
     def create_new_event(self):
-        last_index = self.model.append()
-        if last_index:
-            last_event = DB.events[-1]
-            if self.level_filter_box.edit.currentText() != "All":
-                if last_event.level_nid:
-                    self.level_filter_box.edit.setValue(last_event.level_nid)
-                else:
-                    self.level_filter_box.edit.setValue("Global")
-            proxy_last_index = self.proxy_model.mapFromSource(last_index)
-            self.view.setCurrentIndex(proxy_last_index)
+        level_nid = self._get_level_nid()
+
+        self.model.layoutAboutToBeChanged.emit()
+        output = self.model.create_new(level_nid)
+        self.model.layoutChanged.emit()
+        if not output:
+            return
+
+        last_index = self.model.index(self.model.rowCount() - 1, 0)
+        
+        proxy_last_index = self.proxy_model.mapFromSource(last_index)
+        self.view.setCurrentIndex(proxy_last_index)
+        self.set_current_index(proxy_last_index)
+
+        self._set_enabled(True)
 
     def on_item_changed(self, curr, prev):
         if self._data:
@@ -382,7 +457,12 @@ class EventCollection(QWidget):
         first_index = self.proxy_model.index(0, 0)
         self.view.setCurrentIndex(first_index)
 
+        self.display.setEnabled(False)
+        if self.proxy_model.rowCount() > 0:
+            self.display.setEnabled(True)
+
     def level_filter_changed(self, idx):
+        # print("level filter changed", idx)
         filt = self.level_filter_box.edit.currentText()
         self.view.selectionModel().selectionChanged.disconnect(self.on_item_changed)
         self.proxy_model.setFilterKeyColumn(1)
@@ -403,6 +483,11 @@ class EventCollection(QWidget):
                 self.view.setCurrentIndex(first_index)
                 self.set_current_index(first_index)
         self.update_list()
+
+        if self.proxy_model.rowCount() > 0:
+            self._set_enabled(True)
+        else:
+            self._set_enabled(False)
 
     def update_list(self):
         # self.model.layoutChanged.emit()
@@ -465,12 +550,12 @@ class EventProperties(QWidget):
         self.only_once_box = PropertyCheckBox("Trigger only once?", QCheckBox, self)
         self.only_once_box.edit.stateChanged.connect(self.only_once_changed)
         
-        grid.addWidget(QHLine(), 3, 0)
-        grid.addWidget(self.name_box, 4, 0)
-        grid.addWidget(self.level_nid_box, 5, 0)
-        grid.addWidget(self.trigger_box, 6, 0)
-        grid.addWidget(self.condition_box, 7, 0)
-        grid.addWidget(self.only_once_box, 8, 0, Qt.AlignLeft)
+        grid.addWidget(QHLine(), 3, 0, 1, 2)
+        grid.addWidget(self.name_box, 4, 0, 1, 2)
+        grid.addWidget(self.level_nid_box, 5, 0, 1, 2)
+        grid.addWidget(self.trigger_box, 6, 0, 1, 2)
+        grid.addWidget(self.condition_box, 7, 0, 1, 2)
+        grid.addWidget(self.only_once_box, 8, 0, 1, 2, Qt.AlignLeft)
 
         bottom_section = QHBoxLayout()
         main_section.addLayout(bottom_section)
@@ -485,6 +570,16 @@ class EventProperties(QWidget):
         # self.show_commands_button = QPushButton("Show Commands")
         # self.show_commands_button.clicked.connect(self.show_commands)
         # bottom_section.addWidget(self.show_commands_button)
+
+    def setEnabled(self, val):
+        super().setEnabled(val)
+        # Need to also set these, since they are considered
+        # part of the left frame by Qt
+        self.name_box.setEnabled(val)
+        self.level_nid_box.setEnabled(val)
+        self.trigger_box.setEnabled(val)
+        self.condition_box.setEnabled(val)
+        self.only_once_box.setEnabled(val)
 
     def get_trigger_items(self, level_nid: str) -> list:
         all_items = ["None"]

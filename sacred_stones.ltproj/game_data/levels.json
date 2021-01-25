@@ -1334,13 +1334,67 @@
                 "name": "Cutthroat",
                 "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
+            },
+            {
+                "nid": "Wall1",
+                "variant": null,
+                "level": 1,
+                "klass": "Wall25",
+                "faction": "Soldier",
+                "starting_items": [],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    12
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Wall2",
+                "variant": null,
+                "level": 1,
+                "klass": "Wall25",
+                "faction": "Soldier",
+                "starting_items": [],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Wall3",
+                "variant": null,
+                "level": 1,
+                "klass": "Wall25",
+                "faction": "Soldier",
+                "starting_items": [],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    8,
+                    8
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [
             {
                 "nid": "Chest1",
                 "region_type": "event",
-                "position": null,
+                "position": [
+                    6,
+                    12
+                ],
                 "size": [
                     1,
                     1
@@ -1350,40 +1404,94 @@
                 "only_once": true
             },
             {
-                "nid": "New Region (1)",
-                "region_type": "normal",
-                "position": null,
+                "nid": "Chest2",
+                "region_type": "event",
+                "position": [
+                    6,
+                    3
+                ],
                 "size": [
                     1,
                     1
                 ],
-                "sub_nid": null,
-                "condition": "True",
-                "only_once": false
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
             },
             {
-                "nid": "New Region (2)",
-                "region_type": "normal",
-                "position": null,
+                "nid": "Chest3",
+                "region_type": "event",
+                "position": [
+                    8,
+                    3
+                ],
                 "size": [
                     1,
                     1
                 ],
-                "sub_nid": null,
-                "condition": "True",
-                "only_once": false
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
             },
             {
-                "nid": "New Region (3)",
-                "region_type": "normal",
-                "position": null,
+                "nid": "Chest4",
+                "region_type": "event",
+                "position": [
+                    10,
+                    3
+                ],
                 "size": [
                     1,
                     1
                 ],
-                "sub_nid": null,
-                "condition": "True",
-                "only_once": false
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "Door1",
+                "region_type": "event",
+                "position": [
+                    2,
+                    2
+                ],
+                "size": [
+                    1,
+                    3
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "Door2",
+                "region_type": "event",
+                "position": [
+                    6,
+                    9
+                ],
+                "size": [
+                    1,
+                    3
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "Door3",
+                "region_type": "event",
+                "position": [
+                    10,
+                    4
+                ],
+                "size": [
+                    1,
+                    3
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
             }
         ],
         "unit_groups": []
@@ -1596,7 +1704,7 @@
                 "nid": "105",
                 "variant": null,
                 "level": 1,
-                "klass": "Wall1",
+                "klass": "Wall25",
                 "faction": "Soldier",
                 "starting_items": [],
                 "team": "enemy2",

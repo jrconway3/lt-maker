@@ -1,4 +1,5 @@
 from app.utilities.data import Data
+from app.data.components import Type
 from app.data.item_components import ItemComponent, tags
 
 def get_item_components():
@@ -23,7 +24,16 @@ def restore_component(dat):
     _item_components = get_item_components()
     base_class = _item_components.get(nid)
     if base_class:
-        copy = base_class(value)
+        if isinstance(base_class.expose, tuple):
+            if base_class.expose[0] == Type.List:
+                # Need to make a copy
+                # so we don't keep the reference around
+                copy = base_class(value.copy())
+            elif base_class.expose[0] in (Type.Dict, Type.FloatDict):
+                val = [v.copy() for v in value]
+                copy = base_class(val)
+        else:
+            copy = base_class(value)
         return copy
     return None
 

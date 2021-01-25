@@ -354,9 +354,12 @@ class EventCollection(QWidget):
         else:
             icon_folder = 'dark_icons'
 
-        self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "New Layer", triggered=self.new)
-        self.duplicate_action = QAction(QIcon(f"{icon_folder}/duplicate.png"), "Duplicate Layer", triggered=self.duplicate)
-        self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Delete Layer", triggered=self.delete)
+        self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "New Event", triggered=self.new)
+        self.new_action.setShortcut("Ctrl+N")
+        self.duplicate_action = QAction(QIcon(f"{icon_folder}/duplicate.png"), "Duplicate Event", triggered=self.duplicate)
+        self.duplicate_action.setShortcut("Ctrl+D")
+        self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Delete Event", triggered=self.delete)
+        self.delete_action.setShortcut("Del")
         self._set_enabled(False)
 
     def _set_enabled(self, val: bool):

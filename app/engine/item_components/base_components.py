@@ -60,7 +60,7 @@ class Weapon(ItemComponent):
 
 class SiegeWeapon(ItemComponent):
     nid = 'siege_weapon'
-    desc = "Item will be treated as a siege weapon (can not double or counterattack, but can still be equipped)"
+    desc = "Item will be treated as a siege weapon (cannot counterattack or be counterattacked, but can still be equipped and can double)"
     tag = 'base'
 
     def is_weapon(self, unit, item):
@@ -74,6 +74,12 @@ class SiegeWeapon(ItemComponent):
 
     def can_double(self, unit, item):
         return True
+
+    def can_counter(self, unit, item):
+        return False
+
+    def can_be_countered(self, unit, item):
+        return False
 
     def wexp(self, playback, unit, item, target):
         return 1

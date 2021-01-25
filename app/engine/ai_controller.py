@@ -424,7 +424,9 @@ class PrimaryAI():
         # Determine if I would get countered
         target_weapon = main_target.get_weapon()
         if combat_calcs.can_counterattack(self.unit, item, main_target, target_weapon):
-            target_damage = utils.clamp(combat_calcs.compute_damage(main_target, self.unit, target_weapon, "defense"), 0, 1)
+            target_damage = combat_calcs.compute_damage(main_target, self.unit, target_weapon, "defense")
+            if not target_damage:
+                target_damage = 0
             target_accuracy = utils.clamp(combat_calcs.compute_hit(main_target, self.unit, target_weapon, "defense")/100., 0, 1)
 
         num_attacks = combat_calcs.outspeed(self.unit, main_target, item, "attack")

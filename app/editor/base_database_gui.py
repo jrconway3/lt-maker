@@ -6,7 +6,7 @@ from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 
 from app.utilities.data import Prefab
-from app.data import items
+from app.data import items, skills
 from app.extensions.custom_gui import RightClickListView
 from app.editor.data_editor import SingleDatabaseEditor
 
@@ -201,10 +201,6 @@ class CollectionModel(QAbstractListModel):
             print("Duplication!")
             print(serialized_obj, flush=True)
             new_obj = self._data.datatype.restore(serialized_obj)
-        elif isinstance(obj, items.Item):
-            serialized_obj = obj.serialize_prefab()
-            print("Duplication of Item!")
-            new_obj = self._data.datatype.deserialize_prefab(serialized_obj)
         else:
             new_obj = copy.copy(obj)
         new_obj.nid = new_nid

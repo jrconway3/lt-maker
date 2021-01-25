@@ -92,11 +92,10 @@ class Defaults():
 # HOOK CATALOG
 # All false hooks are exclusive
 false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
+               'can_counter', 'can_be_countered', 'can_double',
                'can_use', 'can_use_in_base', 'locked', 'allow_same_target',
                'ignore_weapon_advantage', 'unrepairable', 'targets_items',
                'menu_after_combat')
-# All true hooks are not exclusive
-true_hooks = ('can_counter', 'can_be_countered', 'can_double')
 # All default hooks are exclusive
 formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula', 
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
@@ -128,15 +127,6 @@ for hook in false_hooks:
                       if component.defines('%s'):
                           return component.%s(unit, item)
                   return False""" \
-        % (hook, hook, hook)
-    exec(func)
-
-for hook in true_hooks:
-    func = """def %s(unit, item):
-                  for component in item.components:
-                      if component.defines('%s') and not component.%s(unit, item):
-                          return False
-                  return True""" \
         % (hook, hook, hook)
     exec(func)
 

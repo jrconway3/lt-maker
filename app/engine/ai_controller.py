@@ -427,6 +427,7 @@ class PrimaryAI():
             target_damage = combat_calcs.compute_damage(main_target, self.unit, target_weapon, "defense")
             if not target_damage:
                 target_damage = 0
+            target_damage = utils.clamp(target_damage/main_target.get_hp(), 0, 1)
             target_accuracy = utils.clamp(combat_calcs.compute_hit(main_target, self.unit, target_weapon, "defense")/100., 0, 1)
 
         num_attacks = combat_calcs.outspeed(self.unit, main_target, item, "attack")

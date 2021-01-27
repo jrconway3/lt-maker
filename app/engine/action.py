@@ -819,6 +819,111 @@ class ApplyLevelUp(Action):
         negative_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_stat_changes(self.unit, negative_changes)
 
+class Promote(Action):
+    def __init__(self, unit, new_class_nid):
+        self.unit = unit
+        self.old_exp = self.unit.exp
+        self.old_level = self.unit.level
+        self.old_klass = self.unit.klass
+        self.new_klass = new_class_nid
+
+        promotion_gains = DB.classes.get(self.new_klass).promotion
+        current_stats = self.unit.stats
+        new_klass_maxes = DB.classes.get(self.new_klass).maximum
+
+        self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
+        for stat in promotion_gains:
+            max_gain_possible = new_klass_maxes.get(stat.nid).value - current_stats[stat.nid]
+            self.stat_changes[stat.nid] = min(stat.value, max_gain_possible)
+
+        wexp_gain = DB.classes.get(self.new_klass).wexp_gain
+        self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}
+        for weapon in wexp_gain:
+            self.new_wexp[weapon.nid] = weapon.wexp_gain
+
+        self.subactions = []
+
+    def get_data(self):
+        return self.stat_changes, self.new_wexp
+
+    def do(self):
+        self.subactions.clear()
+        for act in self.subactions:
+            act.do()
+
+        self.unit.sprite = None  # Reset sprite
+        self.unit.sound = None
+        self.unit.klass = self.new_klass
+        self.unit.set_exp(0)
+        self.unit.level = 1
+
+        unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
+
+    def reverse(self):
+        self.unit.sprite = None
+        self.unit.sound = None
+        self.unit.klass = self.old_klass
+        self.unit.set_exp(self.old_exp)
+        self.unit.level = self.old_level
+
+        reverse_stat_changes = {k: -v for k, v in self.stat_changes.items()}
+        unit_funcs.apply_stat_changes(self.unit, reverse_stat_changes)
+
+        for act in self.subactions:
+            act.reverse()
+        self.subactions.clear()
+
+class ClassChange(Action):
+    def __init__(self, unit, new_class_nid):
+        self.unit = unit
+        self.old_klass = self.unit.klass
+        self.new_klass = new_class_nid
+
+        current_stats = self.unit.stats
+        old_klass_bases = DB.classes.get(self.old_klass).bases
+        new_klass_bases = DB.classes.get(self.new_klass).bases
+        new_klass_maxes = DB.classes.get(self.new_klass).maximum
+
+        self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
+        for stat_nid in self.stat_changes:
+            change = new_klass_bases.get(stat_nid) - old_klass_bases.get(stat_nid)
+            current_stat = current_stats.get(stat_nid)
+            new_value = utils.clamp(change, -current_stat, new_klass_maxes.get(stat_nid) - current_stat)
+            self.stat_changes[stat_nid] = new_value
+
+        wexp_gain = DB.classes.get(self.new_klass).wexp_gain
+        self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}
+        for weapon in wexp_gain:
+            self.new_wexp[weapon.nid] = weapon.wexp_gain
+
+        self.subactions = []
+
+    def get_data(self):
+        return self.stat_changes, self.new_wexp
+
+    def do(self):
+        self.subactions.clear()
+        for act in self.subactions:
+            act.do()
+
+        self.unit.sprite = None  # Reset sprite
+        self.unit.sound = None
+        self.unit.klass = self.new_klass
+
+        unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
+
+    def reverse(self):
+        self.unit.sprite = None
+        self.unit.sound = None
+        self.unit.klass = self.old_klass
+
+        reverse_stat_changes = {k: -v for k, v in self.stat_changes.items()}
+        unit_funcs.apply_stat_changes(self.unit, reverse_stat_changes)
+
+        for act in self.subactions:
+            act.reverse()
+        self.subactions.clear()
+
 class GainWexp(Action):
     def __init__(self, unit, item, wexp_gain):
         self.unit = unit
@@ -849,6 +954,30 @@ class GainWexp(Action):
         if not weapon_type:
             return
         self.unit.wexp[weapon_type] = self.old_value
+
+class AddWexp(Action):
+    def __init__(self, unit, weapon_type, wexp_gain):
+        self.unit = unit
+        self.weapon_type = weapon_type
+        self.wexp_gain = wexp_gain
+
+    def increase_wexp(self):
+        self.unit.wexp[self.weapon_type] += self.wexp_gain
+        return self.unit.wexp[self.weapon_type] - self.wexp_gain, self.unit.wexp[self.weapon_type]
+
+    def do(self):
+        self.old_value, self.current_value = self.increase_wexp()
+        for weapon_rank in DB.weapon_ranks:
+            if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
+                game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
+                game.state.change('alert')
+                break
+
+    def execute(self):
+        self.old_value, self.current_value = self.increase_wexp()
+
+    def reverse(self):
+        self.unit.wexp[self.weapon_type] = self.old_value
 
 class ChangeHP(Action):
     def __init__(self, unit, num):

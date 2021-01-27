@@ -5,7 +5,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
-from app.engine import engine, image_mods, icons, unit_funcs, action
+from app.engine import engine, image_mods, icons, unit_funcs, action, banner
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
@@ -187,29 +187,22 @@ class ExpState(MapState):
                 game.events.trigger('unit_level_up', self.unit)
                 if self.combat_object:
                     self.combat_object.lighten_ui()
+
                 # check for weapon experience gain
-                # if self.new_wexp:
-                #     action.do(action.GainWexp(self.unit, self.new_wexp))
+                if self.new_wexp:
+                    for weapon_nid, value in self.new_wexp.items():
+                        action.do(action.AddWexp(self.unit, weapon_nid, value))
 
                 # check for skill gain unless the unit is using a booster to
                 # get to this screen
-                # TODO Implement with skills
-                """
                 if self.starting_state != "booster":
-                    self.unit_klass = DB.classes.get(self.unit.klass)
                     for level_needed, class_skill in self.unit_klass.learned_skills:
                         if self.unit.level == level_needed:
-                            if class_skill == 'Feat':
-                                game.cursor.cur_unit = self.unit
-                                game.state.change('feat_choice')
-                            else:
-                                skill = StatusCatalog.statusparser(class_skill, gameStateObj)
-                                # If we don't already have this skill
-                                if skill.stack or skill.id not in (s.id for s in self.unit.status_effects):
-                                    Action.do(Action.AddStatus(self.unit, skill), gameStateObj)
-                                    gameStateObj.banners.append(Banner.gainedSkillBanner(self.unit, skill))
-                                    gameStateObj.stateMachine.change('itemgain')
-                """
+                            act = action.AddSkill(self.unit, class_skill)
+                            action.do(act)
+                            if act.skill_obj:
+                                game.alerts.append(banner.GiveSkill(self.unit, act.skill_obj))
+                                game.state.change('alert')
 
         # Wait 100 ms before transferring to the promotion state
         elif self.state.get_state() == 'prepare_promote':
@@ -241,14 +234,16 @@ class ExpState(MapState):
                     action.do(action.SetExp(self.unit, 99))
                     game.state.back()
 
-        elif self.state.get_state() == 'promote':
-            # TODO for Promotion
-
+        elif self.state.get_state() in ('promote', 'class_change'):
+            # TODO Combat Anims for Promotion
             old_anim = self.unit.battle_anim
-            """
-            promote_action = Action.Promote(self.unit, self.unit.new_klass)
-            self.levelup_list, self.new_wexp = promote_action.get_data()
-            Action.do(promote_action, gameStateObj)
+            
+            if self.state.get_state() == 'promote':
+                promote_action = action.Promote(self.unit, game.memory['next_klass'])
+            else:
+                promote_action = action.ClassChange(self.unit, game.memory['next_klass'])
+            self.stat_changes, self.new_wexp = promote_action.get_data()
+            action.do(promote_action)
 
             if self.combat_object:
                 self.combat_object.darken_ui()
@@ -258,7 +253,6 @@ class ExpState(MapState):
             self.state.clear()
             self.state.change('level_screen')
             self.start_time = current_time
-            """
 
         elif self.state.get_state() == 'item_promote':
             class_options = self.unit_klass.turns_into

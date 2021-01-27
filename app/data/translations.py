@@ -14,4 +14,6 @@ class TranslationCatalog(Data):
     def add_new_default(self, db):
         nid = str_utils.get_next_name("word", self.keys())
         new_translation = Translation(nid, "")
+        print(new_translation, new_translation.nid)
         self.append(new_translation)
+        return new_translation

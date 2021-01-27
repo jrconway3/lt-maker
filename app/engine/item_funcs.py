@@ -127,8 +127,8 @@ def get_range(unit, item) -> set:
 def get_range_string(unit, item):
     if unit:
         item_range = get_range(unit, item)
-        min_range = min(item_range)
-        max_range = max(item_range)
+        min_range = min(item_range, default=0)
+        max_range = max(item_range, default=0)
     else:
         min_range = item_system.minimum_range(None, item)
         max_range = item_system.maximum_range(None, item)

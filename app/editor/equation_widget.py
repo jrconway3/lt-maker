@@ -69,7 +69,7 @@ class EquationMultiModel(MultiAttrListModel):
         DB.equations.append(new_equation)
         return new_equation
 
-    def change_watchers(self, data, attr, old_value, new_value):
+    def on_attr_changed(self, data, attr, old_value, new_value):
         if attr == 'nid':
             self._data.update_nid(data, new_value)
             affected_items = item_components.get_items_using(components.Type.Equation, old_value, DB)

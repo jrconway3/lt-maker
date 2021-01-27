@@ -20,7 +20,7 @@ class TableModel(QAbstractTableModel):
     def columnCount(self, parent=None):
         return len(self.rows)
 
-    def change_watchers(self, data, attr, old_value, new_value):
+    def on_attr_changed(self, data, attr, old_value, new_value):
         if attr == 'nid':
             self._data.update_nid(data, new_value)
 
@@ -30,7 +30,7 @@ class TableModel(QAbstractTableModel):
         d = self._data[index.row()]
         attr = self.rows[index.column()]
         current_value = getattr(d, attr)
-        self.change_watchers(d, attr, current_value, value)
+        self.on_attr_changed(d, attr, current_value, value)
         setattr(d, attr, value)
         self.dataChanged.emit(index, index)
         return True

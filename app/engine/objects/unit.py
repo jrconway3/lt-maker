@@ -148,6 +148,10 @@ class UnitObject(Prefab):
         return self._sprite
 
     @property
+    def battle_anim(self):
+        return None
+
+    @property
     def sound(self):
         if not self._sound:
             from app.engine import unit_sound

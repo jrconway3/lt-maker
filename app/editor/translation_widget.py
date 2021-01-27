@@ -7,7 +7,7 @@ class TranslationMultiModel(MultiAttrListModel):
     def create_new(self):
         return self._data.add_new_default(DB)
 
-    def change_watchers(self, data, attr, old_value, new_value):
+    def on_attr_changed(self, data, attr, old_value, new_value):
         if attr == 'nid':
             self._data.update_nid(data, new_value)
 

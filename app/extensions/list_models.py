@@ -196,8 +196,7 @@ class MultiAttrListModel(VirtualListModel):
         data = self._data[index.row()]
         attr = self._headers[index.column()]
         current_value = getattr(data, attr)
-        if attr == 'nid' or attr == 'rank':
-            self.on_attr_changed(data, attr, current_value, value)
+        self.on_attr_changed(data, attr, current_value, value)
         setattr(data, attr, value)
         self.dataChanged.emit(index, index)
         return True

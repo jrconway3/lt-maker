@@ -440,6 +440,12 @@ class Event():
                 return 
             action.do(action.ChangePortrait(unit, values[1]))
 
+        elif command.nid == 'promote':
+            self.promote(command)
+
+        elif command.nid == 'change_class':
+            self.class_change(command)
+
         elif command.nid == 'add_tag':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
@@ -1201,6 +1207,66 @@ class Event():
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'            
+
+    def promote(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return
+        new_klass = None
+        if len(values) > 1 and values[1]:
+            new_klass = values[1]
+        else:
+            klass = DB.classes.get(unit.klass)
+            if len(klass.turns_into) == 0:
+                print("No available promotions for %s" % klass)
+                return
+            elif len(klass.turns_into) == 1:
+                new_klass = klass.turns_into[0]
+            else:
+                new_klass = None
+
+        game.cursor.cur_unit = self.unit
+        if new_klass:    
+            game.memory['next_class'] = new_klass
+            game.state.change('promotion')
+            game.state.change('transition_out')
+            self.state = 'paused'
+        else:
+            game.state.change('promotion_choice')
+            game.state.change('transition_out')
+            self.state = 'paused'
+
+    def class_change(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return
+        new_klass = None
+        if len(values) > 1 and values[1]:
+            new_klass = values[1]
+        elif not unit.generic:
+            unit_prefab = DB.units.get(unit.nid)
+            if len(unit_prefab.alternate_classes) == 0:
+                print("No available alternate classes for %s" % unit)
+                return
+            elif len(unit_prefab.alternate_classes) == 1:
+                new_klass = unit_prefab.alternate_classes[0]
+            else:
+                new_klass = None
+
+        game.cursor.cur_unit = self.unit
+        if new_klass:    
+            game.memory['next_class'] = new_klass
+            game.state.change('class_change')
+            game.state.change('transition_out')
+            self.state = 'paused'
+        else:
+            game.state.change('class_change_choice')
+            game.state.change('transition_out')
+            self.state = 'paused'
 
     def add_region(self, command):
         values, flags = event_commands.parse(command)

@@ -1,4 +1,4 @@
-from app.constants import WINWIDTH
+from app.constants import WINWIDTH, WINHEIGHT
 
 from app.data.database import DB
 from app.resources.resources import RESOURCES
@@ -14,6 +14,16 @@ from app.engine import background, menus, engine, dialog, text_funcs, icons
 class PromotionChoiceState(State):
     name = 'promotion_choice'
 
+    def _get_choices(self):
+        self.class_options = self.unit_klass.turns_into
+        return [DB.classes.get(c).name for c in self.class_options]
+
+    def _proceed(self, next_class):
+        game.cursor.cur_unit = self.unit
+        game.memory['next_class'] = next_class
+        game.state.change('promotion')
+        game.state.change('transition_out')
+
     def start(self):
         self.bg = background.create_background('settings_background')
 
@@ -22,8 +32,7 @@ class PromotionChoiceState(State):
 
         self.unit = game.cursor.cur_unit
         self.unit_klass = DB.classes.get(self.unit.klass)
-        self.class_options = self.unit_klass.turns_into
-        display_options = [DB.classes.get(c).name for c in self.class_options]
+        display_options = self._get_choices()
 
         self.menu = menus.Choice(self.unit, display_options, (14, 13))
         self.child_menu = None
@@ -94,9 +103,7 @@ class PromotionChoiceState(State):
                 selection = self.child_menu.get_current()
                 if selection == 'Change':
                     SOUNDTHREAD.play_sfx('Select 1')
-                    game.memory['next_class'] = self.class_options[self.child_menu.get_current_index()]
-                    game.state.change('promotion')
-                    game.state.change('transition_out')
+                    self._proceed(self.class_options[self.child_menu.get_current_index()])
                 else:
                     SOUNDTHREAD.play_sfx('Select 4')
                     self.child_menu = None
@@ -159,8 +166,31 @@ class PromotionChoiceState(State):
 
         return surf
 
-class Promotion(State):
+class ClassChangeChoiceState(PromotionChoiceState):
+    name = 'class_change_choice'
+
+    def _get_choices(self):
+        if not self.unit.generic:
+            unit_prefab = DB.units.get(self.unit.nid)
+            self.class_options = unit_prefab.alternate_classes
+        else:  # Just every class, lol?
+            self.class_options = [c.nid for c in DB.classes.values()]
+        return [DB.classes.get(c).name for c in self.class_options]
+
+    def _proceed(self, next_class):
+        game.cursor.cur_unit = self.unit
+        game.memory['next_class'] = next_class
+        game.state.change('class_change')
+        game.state.change('transition_out')
+
+class PromotionState(State):
     name = 'promotion'
+
+    def _finalize(self, current_time):
+        self.current_state = 'level_up'
+        self.last_update = current_time
+        game.memory['exp'] = (self.unit, 0, self, 'promote')
+        game.state.change('exp')
 
     def start(self):
         img = RESOURCES.panoramas.get('promotion_background')
@@ -199,19 +229,13 @@ class Promotion(State):
         self.current_state = 'init'
 
         if not self.right_anim or not self.left_anim:
-            self.finalize(engine.get_time())
+            self._finalize(engine.get_time())
         else:
             game.state.change('transition_in')
             return 'repeat'
 
     def begin(self):
         self.last_update = engine.get_time()
-
-    def finalize(self, current_time):
-        self.current_state = 'level_up'
-        self.last_update = current_time
-        game.memory['exp'] = (self.unit, 0, self, 'promote')
-        game.state.change('exp')
 
     def update(self):
         current_time = engine.get_time()
@@ -239,3 +263,12 @@ class Promotion(State):
             self.current_anim.draw(surf, (0, 0))
 
         return surf
+
+class ClassChangeState(PromotionState):
+    name = 'class_change'
+
+    def _finalize(self, current_time):
+        self.current_state = 'level_up'
+        self.last_update = current_time
+        game.memory['exp'] = (self.unit, 0, self, 'class_change')
+        game.state.change('exp')

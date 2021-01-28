@@ -316,6 +316,12 @@ class Party(Validator):
             return text
         return None
 
+class Klass(Validator):
+    def validate(self, text, level):
+        if text in DB.classes.keys():
+            return text
+        return None
+
 class Layer(Validator):
     def validate(self, text, level):
         print(text)

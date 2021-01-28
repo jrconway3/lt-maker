@@ -254,24 +254,6 @@ class ExpState(MapState):
             self.state.change('level_screen')
             self.start_time = current_time
 
-        elif self.state.get_state() == 'item_promote':
-            class_options = self.unit_klass.turns_into
-            if len(class_options) > 1:
-                game.cursor.cur_unit = self.unit
-                game.state.change('promotion_choice')
-                game.state.change('transition_out')  # We are leaving
-                self.state.clear()
-                self.state.change('wait')
-                self.start_time = current_time
-            elif len(class_options) == 1:
-                game.cursor.cur_unit = self.unit
-                game.memory['next_class'] = class_options[0]
-                game.state.change('promotion')
-                game.state.change('transition_out')  # We are leaving
-                self.state.clear()
-                self.state.change('wait')
-                self.start_time = current_time
-
         elif self.state.get_state() == 'booster':
             self.stat_changes = game.memory['stat_changes']
             self.exp_gain = 0

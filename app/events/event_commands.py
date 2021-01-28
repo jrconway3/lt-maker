@@ -320,6 +320,18 @@ class ChangePortrait(EventCommand):
     tag = 'unit'
     keywords = ["GlobalUnit", "PortraitNid"]
 
+class Promote(EventCommand):
+    nid = 'promote'
+    tag = 'unit'
+    keywords = ["GlobalUnit"]
+    optional_keywords = ["Klass"]
+
+class ChangeClass(EventCommand):
+    nid = 'change_class'
+    tag = 'unit'
+    keywords = ["GlobalUnit"]
+    optional_keywords = ["Klass"]
+
 class AddTag(EventCommand):
     nid = 'add_tag'
     tag = 'unit'

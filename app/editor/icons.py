@@ -52,7 +52,7 @@ class PushableIcon16(QPushButton):
     def onIconSourcePicker(self):
         from app.editor.icon_editor import icon_tab
         res, ok = icon_tab.get(self.width)
-        if ok:
+        if res and ok:
             self.change_icon(res.nid, res.icon_index)
 
 class PushableIcon32(PushableIcon16):
@@ -149,5 +149,5 @@ class UnitPortrait(QPushButton):
     def onIconSourcePicker(self):
         from app.editor.portrait_editor import portrait_tab
         res, ok = portrait_tab.get()
-        if ok:
+        if res and ok:
             self.change_icon(res.nid)

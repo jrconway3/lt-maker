@@ -807,7 +807,7 @@ class IncLevel(Action):
     def reverse(self):
         self.unit.level -= 1
 
-class ApplyLevelUp(Action):
+class ApplyStatChanges(Action):
     def __init__(self, unit, stat_changes):
         self.unit = unit
         self.stat_changes = stat_changes
@@ -819,6 +819,18 @@ class ApplyLevelUp(Action):
         negative_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_stat_changes(self.unit, negative_changes)
 
+class ApplyGrowthChanges(Action):
+    def __init__(self, unit, stat_changes):
+        self.unit = unit
+        self.stat_changes = stat_changes
+
+    def do(self):
+        unit_funcs.apply_growth_changes(self.unit, self.stat_changes)
+
+    def reverse(self):
+        negative_changes = {k: -v for k, v in self.stat_changes.items()}
+        unit_funcs.apply_growth_changes(self.unit, negative_changes)
+
 class Promote(Action):
     def __init__(self, unit, new_class_nid):
         self.unit = unit
@@ -829,7 +841,7 @@ class Promote(Action):
 
         promotion_gains = DB.classes.get(self.new_klass).promotion
         current_stats = self.unit.stats
-        new_klass_maxes = DB.classes.get(self.new_klass).maximum
+        new_klass_maxes = DB.classes.get(self.new_klass).max_stats
 
         self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
         for stat in promotion_gains:
@@ -851,8 +863,7 @@ class Promote(Action):
         for act in self.subactions:
             act.do()
 
-        self.unit.sprite = None  # Reset sprite
-        self.unit.sound = None
+        self.unit.reset_sprite()
         self.unit.klass = self.new_klass
         self.unit.set_exp(0)
         self.unit.level = 1
@@ -860,8 +871,7 @@ class Promote(Action):
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
     def reverse(self):
-        self.unit.sprite = None
-        self.unit.sound = None
+        self.unit.reset_sprite()
         self.unit.klass = self.old_klass
         self.unit.set_exp(self.old_exp)
         self.unit.level = self.old_level
@@ -882,7 +892,7 @@ class ClassChange(Action):
         current_stats = self.unit.stats
         old_klass_bases = DB.classes.get(self.old_klass).bases
         new_klass_bases = DB.classes.get(self.new_klass).bases
-        new_klass_maxes = DB.classes.get(self.new_klass).maximum
+        new_klass_maxes = DB.classes.get(self.new_klass).max_stats
 
         self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
         for stat_nid in self.stat_changes:
@@ -906,15 +916,13 @@ class ClassChange(Action):
         for act in self.subactions:
             act.do()
 
-        self.unit.sprite = None  # Reset sprite
-        self.unit.sound = None
+        self.unit.reset_sprite()
         self.unit.klass = self.new_klass
 
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
     def reverse(self):
-        self.unit.sprite = None
-        self.unit.sound = None
+        self.unit.reset_sprite()
         self.unit.klass = self.old_klass
 
         reverse_stat_changes = {k: -v for k, v in self.stat_changes.items()}

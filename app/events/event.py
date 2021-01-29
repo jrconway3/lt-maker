@@ -440,6 +440,9 @@ class Event():
                 return 
             action.do(action.ChangePortrait(unit, values[1]))
 
+        elif command.nid == 'change_stats':
+            self.change_stats(command)
+
         elif command.nid == 'promote':
             self.promote(command)
 
@@ -1165,7 +1168,7 @@ class Event():
             print("Couldn't find unit with nid %s" % values[0])
             return
         exp = utils.clamp(int(values[1]), 0, 100)
-        game.memory['exp'] = (unit, exp, None, 'init')
+        game.exp_instance.append((unit, exp, None, 'init'))
         game.state.change('exp')
         self.state = 'paused'
 
@@ -1206,7 +1209,33 @@ class Event():
             b = banner.TakeSkill(unit, skill)
             game.alerts.append(b)
             game.state.change('alert')
-            self.state = 'paused'            
+            self.state = 'paused' 
+
+    def change_stats(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return
+
+        s_list = values[1].split(',')
+        stat_changes = {}
+        for idx in range(len(s_list)//2):
+            stat_nid = s_list[idx*2]
+            stat_value = int(s_list[idx*2 + 1])
+            stat_changes[stat_nid] = stat_value
+        klass = DB.classes.get(unit.klass)
+        # clamp stat changes
+        stat_changes = {k: utils.clamp(v, -unit.stats[k], klass.max_stats.get(k).value - unit.stats[k]) for k, v in stat_changes.items()}
+
+        immediate = 'immediate' in flags
+
+        action.do(action.ApplyStatChanges(unit, stat_changes))
+        if not immediate:
+            game.memory['stat_changes'] = stat_changes
+            game.exp_instance.append((unit, 0, None, 'stat_booster'))
+            game.state.change('exp')
+            self.state = 'paused'
 
     def promote(self, command):
         values, flags = event_commands.parse(command)
@@ -1227,7 +1256,7 @@ class Event():
             else:
                 new_klass = None
 
-        game.cursor.cur_unit = self.unit
+        game.memory['current_unit'] = unit
         if new_klass:    
             game.memory['next_class'] = new_klass
             game.state.change('promotion')
@@ -1257,7 +1286,7 @@ class Event():
             else:
                 new_klass = None
 
-        game.cursor.cur_unit = self.unit
+        game.memory['current_unit'] = unit
         if new_klass:    
             game.memory['next_class'] = new_klass
             game.state.change('class_change')

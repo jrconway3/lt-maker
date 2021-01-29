@@ -14,6 +14,7 @@ class Dialog():
     solo_flag = True
     cursor = SPRITES.get('waiting_cursor')
     cursor_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
+    draw_cursor_flag = True
     transition_speed = 166  # 10 frames
     pause_time = 150  # 9 frames
 
@@ -347,7 +348,7 @@ class Dialog():
             # Draw text
             end_pos = self.draw_text(surf)
 
-            if self.state == 'wait':
+            if self.state == 'wait' and self.draw_cursor_flag:
                 cursor_pos = 4 + end_pos[0], \
                     6 + end_pos[1] + self.cursor_offset[self.cursor_offset_index]
                 surf.blit(self.cursor, cursor_pos)

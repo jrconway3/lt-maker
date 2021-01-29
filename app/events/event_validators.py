@@ -304,6 +304,20 @@ class ItemList(Validator):
             return text
         return None
 
+class StatList(Validator):
+    def validate(self, text, level):
+        s_l = text.split(',')
+        if len(s_l)%2 != 0:  # Must be divisible by 2
+            return None
+        for idx in range(len(s_l)//2):
+            stat_nid = s_l[idx*2]
+            stat_value = s_l[idx*2 + 1]
+            if stat_nid not in DB.stats.keys():
+                return None
+            elif not str_utils.is_int(stat_value):
+                return None
+        return text
+
 class Skill(Validator):
     def validate(self, text, level):
         if text in DB.skills.keys():

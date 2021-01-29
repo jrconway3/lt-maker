@@ -835,7 +835,7 @@
     {
         "nid": "Swordmaster",
         "name": "Swordmaster",
-        "desc": "",
+        "desc": "Swordfighters with superior speed and skill.",
         "tier": 2,
         "movement_group": "Light Foot",
         "promotes_from": "Myrmidon",

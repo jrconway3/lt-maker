@@ -99,7 +99,7 @@ class UnitObject(Prefab):
 
         self._sprite = None
         self._sound = None
-        self.battle_anim = None
+        self._battle_anim = None
 
         self.current_move = None  # Holds the move action the unit last used
         # Maybe move to movement manager?
@@ -146,6 +146,11 @@ class UnitObject(Prefab):
             from app.engine import unit_sprite
             self._sprite = unit_sprite.UnitSprite(self)
         return self._sprite
+
+    def reset_sprite(self):
+        self._sprite = None
+        self._sound = None
+        self._battle_anim = None
 
     @property
     def battle_anim(self):
@@ -469,7 +474,7 @@ class UnitObject(Prefab):
 
         self._sprite = None
         self._sound = None
-        self.battle_anim = None
+        self._battle_anim = None
 
         self.current_move = None  # Holds the move action the unit last used
         # Maybe move to movement manager?

@@ -374,14 +374,14 @@ class MapCombat():
                 exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
             if exp > 0:
-                game.memory['exp'] = (self.attacker, exp, None, 'init')
+                game.exp_instance.append((self.attacker, exp, None, 'init'))
                 game.state.change('exp')
 
         elif self.defender and self.defender.team == 'player' and not self.defender.is_dying:
             exp = self.handle_exp(self.defender, self.def_item)
             exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
             if exp > 0:
-                game.memory['exp'] = (self.defender, exp, None, 'init')
+                game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
 
         # Skill system end combat clean up

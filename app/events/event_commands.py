@@ -320,6 +320,12 @@ class ChangePortrait(EventCommand):
     tag = 'unit'
     keywords = ["GlobalUnit", "PortraitNid"]
 
+class ChangeStats(EventCommand):
+    nid = 'change_stats'
+    tag = 'unit'
+    keywords = ["GlobalUnit", "StatList"]
+    flags = ['immediate']
+
 class Promote(EventCommand):
     nid = 'promote'
     tag = 'unit'

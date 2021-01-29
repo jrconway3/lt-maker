@@ -13,13 +13,14 @@ from app.engine import background, menus, engine, dialog, text_funcs, icons
 
 class PromotionChoiceState(State):
     name = 'promotion_choice'
+    bg = None
 
     def _get_choices(self):
         self.class_options = self.unit_klass.turns_into
         return [DB.classes.get(c).name for c in self.class_options]
 
     def _proceed(self, next_class):
-        game.cursor.cur_unit = self.unit
+        game.memory['current_unit'] = self.unit
         game.memory['next_class'] = next_class
         game.state.change('promotion')
         game.state.change('transition_out')
@@ -30,7 +31,7 @@ class PromotionChoiceState(State):
         self.can_go_back = game.memory.get('can_go_back', False)
         game.memory['can_go_back'] = None
 
-        self.unit = game.cursor.cur_unit
+        self.unit = game.memory['current_unit']
         self.unit_klass = DB.classes.get(self.unit.klass)
         display_options = self._get_choices()
 
@@ -66,28 +67,25 @@ class PromotionChoiceState(State):
         return 'repeat'
 
     def take_input(self, event):
-        first_push = self.fluid.update()
-        directions = self.fluid.get_directions()
-
         self.menu.handle_mouse()
-        if 'DOWN' in directions:
+        if event == 'DOWN':
             SOUNDTHREAD.play_sfx('Select 6')
             if self.child_menu:
-                self.child_menu.move_down(first_push)
+                self.child_menu.move_down()
             else:
-                self.menu.move_down(first_push)
+                self.menu.move_down()
                 self.target_anim_offset = True
                 self.current_desc = self._get_desc()
-        elif 'UP' in directions:
+        elif event == 'UP':
             SOUNDTHREAD.play_sfx('Select 6')
             if self.child_menu:
-                self.menu.move_up(first_push)
+                self.menu.move_up()
             else:
-                self.menu.move_up(first_push)
+                self.menu.move_up()
                 self.target_anim_offset = True
                 self.current_desc = self._get_desc()
 
-        if event == 'BACK':
+        elif event == 'BACK':
             if self.child_menu:
                 SOUNDTHREAD.play_sfx('Select 4')
                 self.child_menu = None
@@ -117,10 +115,11 @@ class PromotionChoiceState(State):
         current_klass = self.class_options[self.menu.get_current_index()]
         desc = DB.classes.get(current_klass).desc
         d = dialog.Dialog(text_funcs.translate(desc))
-        d.position = (14, 120)
+        d.position = (14, 112)
         d.text_width = WINWIDTH - 28
         d.width = d.text_width + 16
         d.font = FONT['convo-white']
+        d.draw_cursor_flag = False
         return d
 
     def update(self):
@@ -143,6 +142,8 @@ class PromotionChoiceState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        else:
+            return surf
 
         top = 88
         surf.blit(self.left_platform, (WINWIDTH//2 - self.left_platform.get_width() + self.anim_offset + 52, top))
@@ -178,18 +179,19 @@ class ClassChangeChoiceState(PromotionChoiceState):
         return [DB.classes.get(c).name for c in self.class_options]
 
     def _proceed(self, next_class):
-        game.cursor.cur_unit = self.unit
+        game.memory['current_unit'] = self.unit
         game.memory['next_class'] = next_class
         game.state.change('class_change')
         game.state.change('transition_out')
 
 class PromotionState(State):
     name = 'promotion'
+    bg = None
 
     def _finalize(self, current_time):
         self.current_state = 'level_up'
         self.last_update = current_time
-        game.memory['exp'] = (self.unit, 0, self, 'promote')
+        game.exp_instance.append((self.unit, 0, self, 'promote'))
         game.state.change('exp')
 
     def start(self):
@@ -201,7 +203,7 @@ class PromotionState(State):
 
         self.promotion_music = SOUNDTHREAD.fade_in('Promotion')
 
-        self.unit = game.cursor.cur_unit
+        self.unit = game.memory['current_unit']
         color = utils.get_team_color(self.unit.team)
 
         # Old Right Animation
@@ -237,8 +239,24 @@ class PromotionState(State):
     def begin(self):
         self.last_update = engine.get_time()
 
+    def darken_ui(self):
+        self.darken_ui_background = 1
+
+    def lighten_ui(self):
+        self.darken_ui_background = -3
+
     def update(self):
         current_time = engine.get_time()
+
+        if self.current_state == 'level_up':
+            self.last_update = current_time
+            self.current_state = 'leave'
+
+        elif self.current_state == 'leave':
+            if current_time - self.last_update > 166:  # 10 frames
+                game.state.change('transition_double_pop')
+                self.state = 'done'
+                return 'repeat'
 
         if self.current_anim:
             self.current_anim.update()
@@ -246,6 +264,8 @@ class PromotionState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        else:
+            return surf
 
         combat_surf = engine.copy_surface(self.combat_surf)
 
@@ -256,6 +276,12 @@ class PromotionState(State):
 
         # Name Tag
         combat_surf.blit(self.name_tag, (WINWIDTH + 3 - self.name_tag.get_width(), 0))
+
+        if self.darken_ui_background:
+            self.darken_ui_background = min(self.darken_ui_background, 4)
+            color = 255 - abs(self.darken_ui_background * 24)
+            engine.fill(combat_surf, (color, color, color), None, engine.BLEND_RGB_MULT)
+            self.darken_ui_background += 1
 
         surf.blit(combat_surf, (0, 0))
 
@@ -270,5 +296,5 @@ class ClassChangeState(PromotionState):
     def _finalize(self, current_time):
         self.current_state = 'level_up'
         self.last_update = current_time
-        game.memory['exp'] = (self.unit, 0, self, 'class_change')
+        game.exp_instance.append((self.unit, 0, self, 'class_change'))
         game.state.change('exp')

@@ -192,6 +192,18 @@ class Color4ItemComponent(BoolItemComponent):
         r, g, b, a = color.red(), color.green(), color.blue(), color.alpha()
         self._data.value = (r, g, b, a)
 
+class ClassItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        for klass in DB.classes.values():
+            self.editor.addItem(klass.nid)
+        if not self._data.value and DB.classes:
+            self._data.value = DB.classes[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
 class ItemItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
@@ -354,6 +366,8 @@ def get_display_widget(component, parent):
         c = Color3ItemComponent(component, parent)
     elif component.expose == Type.Color4:
         c = Color4ItemComponent(component, parent)
+    elif component.expose == Type.Class:
+        c = ClassItemComponent(component, parent)
     elif component.expose == Type.Item:
         c = ItemItemComponent(component, parent)
     elif component.expose == Type.Skill:

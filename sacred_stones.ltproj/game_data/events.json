@@ -5103,10 +5103,9 @@
         "condition": "True",
         "commands": [
             [
-                "give_skill",
+                "promote",
                 [
-                    "Joshua",
-                    "Poisoned"
+                    "Joshua"
                 ]
             ]
         ],

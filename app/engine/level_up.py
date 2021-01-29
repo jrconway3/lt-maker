@@ -20,17 +20,12 @@ class ExpState(MapState):
     state = None
 
     def start(self):
-        if 'exp' not in game.memory or game.memory['exp'] is None:
-            # Generally can only happen if a player character attacks a player character.
-            # Then two 'exp' command will be put on the stack
-            # But of the course the second will overwrites the first's memory
-            # So we'll just ignore the first
+        if game.exp_instance:
+            self.unit, self.exp_gain, self.combat_object, self.starting_state = \
+                game.exp_instance.pop()
+        else:
             game.state.back()
             return 'repeat'
-
-        self.unit, self.exp_gain, self.combat_object, self.starting_state = \
-            game.memory['exp']
-        game.memory['exp'] = None
 
         self.old_exp = self.unit.exp
         self.old_level = self.unit.level
@@ -52,6 +47,7 @@ class ExpState(MapState):
         self.total_time_for_exp = self.exp_gain * FRAMERATE  # 1 frame per exp
 
         self.stat_changes = None
+        self.new_wexp = None
 
         if self.unit.level >= self.unit_klass.max_level and not self.auto_promote:
             # We're done here
@@ -159,7 +155,7 @@ class ExpState(MapState):
             if current_time - self.start_time >= self.total_time_for_exp + 333:
                 self.stat_changes = unit_funcs.get_next_level_up(self.unit)
                 action.do(action.IncLevel(self.unit))
-                action.do(action.ApplyLevelUp(self.unit, self.stat_changes))
+                action.do(action.ApplyStatChanges(self.unit, self.stat_changes))
                 self.create_level_up_logo()
                 self.state.clear()
                 self.state.change('level_up')
@@ -195,7 +191,7 @@ class ExpState(MapState):
 
                 # check for skill gain unless the unit is using a booster to
                 # get to this screen
-                if self.starting_state != "booster":
+                if self.starting_state != "stat_booster":
                     for level_needed, class_skill in self.unit_klass.learned_skills:
                         if self.unit.level == level_needed:
                             act = action.AddSkill(self.unit, class_skill)
@@ -212,7 +208,7 @@ class ExpState(MapState):
                 if self.auto_promote:
                     self.exp_bar.update(0)
                     if len(class_options) > 1:
-                        game.cursor.cur_unit = self.unit
+                        game.memory['current_unit'] = self.unit
                         game.state.change('promotion_choice')
                         game.state.change('transition_out')
                         # We are leaving
@@ -220,7 +216,7 @@ class ExpState(MapState):
                         self.state.change('wait')
                         self.start_time = current_time
                     elif len(class_options) == 1:
-                        game.cursor.cur_unit = self.unit
+                        game.memory['current_unit'] = self.unit
                         game.memory['next_class'] = class_options[0]
                         game.state.change('promotion')
                         game.state.change('transition_out')  # We are leaving
@@ -239,9 +235,9 @@ class ExpState(MapState):
             old_anim = self.unit.battle_anim
             
             if self.state.get_state() == 'promote':
-                promote_action = action.Promote(self.unit, game.memory['next_klass'])
+                promote_action = action.Promote(self.unit, game.memory['next_class'])
             else:
-                promote_action = action.ClassChange(self.unit, game.memory['next_klass'])
+                promote_action = action.ClassChange(self.unit, game.memory['next_class'])
             self.stat_changes, self.new_wexp = promote_action.get_data()
             action.do(promote_action)
 
@@ -254,10 +250,9 @@ class ExpState(MapState):
             self.state.change('level_screen')
             self.start_time = current_time
 
-        elif self.state.get_state() == 'booster':
+        elif self.state.get_state() == 'stat_booster':
             self.stat_changes = game.memory['stat_changes']
             self.exp_gain = 0
-            action.do(action.PermanentStatIncrease(self.unit, self.stat_changes))
             self.old_level = self.unit.level
             self.state.change('level_screen')
             self.start_time = current_time

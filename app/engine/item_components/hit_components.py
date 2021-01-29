@@ -109,13 +109,32 @@ class PermanentStatChange(ItemComponent):
             return False
         klass = DB.classes.get(defender.klass)
         for stat, inc in self.value.items():
-            if inc <= 0 or defender.stats[stat] < klass.maximum:
+            if inc <= 0 or defender.stats[stat] < klass.max_stats[stat]:
                 return True
         return False
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.PermanentStatChange(unit, self.value))
-        playback.append(('hit', unit, item, target))
+        stat_changes = {k: v for (k, v) in self.value}
+        klass = DB.classes.get(target.klass)
+        # clamp stat changes
+        stat_changes = {k: utils.clamp(v, -unit.stats[k], klass.max_stats.get(k).value - target.stats[k]) for k, v in stat_changes.items()}
+        actions.append(action.ApplyStatChanges(target, stat_changes))
+        playback.append(('stat_hit', unit, item, target))
+
+    def end_combat(self, playback, unit, item, target):
+        # Count number of stat hits
+        count = 0
+        for p in playback:
+            if p[0] == 'stat_hit':
+                count += 1
+        if count > 0:
+            stat_changes = {k: v*count for (k, v) in self.value}
+            klass = DB.classes.get(target.klass)
+            # clamp stat changes
+            stat_changes = {k: utils.clamp(v, -target.stats[k], klass.max_stats.get(k).value - target.stats[k]) for k, v in stat_changes.items()}
+            game.memory['stat_changes'] = stat_changes
+            game.exp_instance.append((target, 0, None, 'stat_booster'))
+            game.state.change('exp')
 
 class PermanentGrowthChange(ItemComponent):
     nid = 'permanent_growth_change'
@@ -125,8 +144,9 @@ class PermanentGrowthChange(ItemComponent):
     expose = (Type.Dict, Type.Stat)
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
-        actions.append(action.PermanentGrowthChange(unit, self.value))
-        playback.append(('hit', unit, item, target))
+        growth_changes = {k: v for (k, v) in self.value}
+        actions.append(action.ApplyGrowthChanges(target, growth_changes))
+        playback.append(('stat_hit', unit, item, target))
 
 class WexpChange(ItemComponent):
     nid = 'wexp_change'
@@ -445,6 +465,94 @@ class Trade(ItemComponent):
             game.cursor.cur_unit = unit
             game.cursor.set_pos(target.position)
             game.state.change('combat_trade')
+        self._did_hit = False
+
+class Promote(ItemComponent):
+    nid = 'promote'
+    desc = "Item promotes target after hit"
+    tag = 'special'
+
+    def init(self, item):
+        self._did_hit = False
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        self._did_hit = True
+
+    def end_combat(self, playback, unit, item, target):
+        if self._did_hit and target:
+            klass = DB.classes.get(target.klass)
+            if len(klass.turns_into) == 0:
+                return
+            elif len(klass.turns_into) == 1:
+                new_klass = klass.turns_into[0]
+            else:
+                new_klass = None
+            game.memory['current_unit'] = target
+            game.memory['can_go_back'] = True
+            if new_klass:
+                game.memory['next_class'] = new_klass
+                game.state.change('promotion')
+                game.state.change('transition_out')
+            else:
+                game.state.change('promotion_choice')
+                game.state.change('transition_out')
+        self._did_hit = False
+
+class ForcePromote(Promote, ItemComponent):
+    nid = 'force_promote'
+    desc = "Item forcibly promotes target to class after hit"
+    tag = 'special'
+
+    expose = Type.Class
+
+    def end_combat(self, playback, unit, item, target):
+        if self._did_hit and target:
+            game.memory['current_unit'] = target
+            game.memory['next_class'] = self.value
+            game.state.change('promotion')
+            game.state.change('transition_out')
+        self._did_hit = False
+
+class ClassChange(Promote, ItemComponent):
+    nid = 'class_change'
+    desc = "Item allows target to change class after hit"
+    tag = 'special'
+
+    def end_combat(self, playback, unit, item, target):
+        if self._did_hit and target:
+            unit_prefab = DB.units.get(target.nid)
+            if target.generic or not unit_prefab:
+                return
+            if len(unit_prefab.alternate_classes) == 0:
+                return
+            elif len(unit_prefab.alternate_classes) == 1:
+                new_klass = unit_prefab.alternate_classes[0]
+            else:
+                new_klass = None
+            game.memory['current_unit'] = target
+            game.memory['can_go_back'] = True
+            if new_klass:
+                game.memory['next_class'] = new_klass
+                game.state.change('class_change')
+                game.state.change('transition_out')
+            else:
+                game.state.change('class_change_choice')
+                game.state.change('transition_out')
+        self._did_hit = False
+
+class ForceClassChange(Promote, ItemComponent):
+    nid = 'force_class_change'
+    desc = "Item forcibly changes target's class after hit"
+    tag = 'special'
+
+    expose = Type.Class
+
+    def end_combat(self, playback, unit, item, target):
+        if self._did_hit and target:
+            game.memory['current_unit'] = target
+            game.memory['next_class'] = self.value
+            game.state.change('class_change')
+            game.state.change('transition_out')
         self._did_hit = False
 
 class EventAfterCombat(ItemComponent):

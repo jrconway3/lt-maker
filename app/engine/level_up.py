@@ -239,6 +239,7 @@ class ExpState(MapState):
             else:
                 promote_action = action.ClassChange(self.unit, game.memory['next_class'])
             self.stat_changes, self.new_wexp = promote_action.get_data()
+            print(self.new_wexp)
             action.do(promote_action)
 
             if self.combat_object:
@@ -375,8 +376,13 @@ class LevelUpScreen():
             else:
                 pos = self.get_position(self.current_spark)
                 # Animations
+                # Number
+                increase = self.stat_list[self.current_spark]
                 # Arrow
-                anim = RESOURCES.animations.get('LevelUpArrow')
+                if increase > 0:
+                    anim = RESOURCES.animations.get('LevelUpArrow')
+                elif increase < 0:
+                    anim = RESOURCES.animations.get('LevelDownArrow')
                 if anim:
                     arrow_animation = Animation(anim, (pos[0] + 45, pos[1] - 11), hold=True)
                     self.arrow_animations.append(arrow_animation)
@@ -386,9 +392,10 @@ class LevelUpScreen():
                 if spark_anim:
                     self.animations.append(spark_anim)
 
-                # Number
-                increase = utils.clamp(self.stat_list[self.current_spark], 1, 7)
-                anim = RESOURCES.animations.get('LevelUpNumber' + str(increase))
+                if increase > 0:
+                    anim = RESOURCES.animations.get('LevelUpNumber' + str(increase))
+                elif increase < 0:
+                    anim = RESOURCES.animations.get('LevelDownNumber' + str(-increase))
                 if anim:
                     number_animation = Animation(anim, (pos[0] + 43, pos[1] + 49), delay=80, hold=True)
                     self.animations.append(number_animation)

@@ -105,6 +105,7 @@ class RankCatalog(Data):
         for rank in ranks:
             if wexp < rank.requirement:
                 correct_rank = rank
+                return correct_rank
         return correct_rank
 
 # === WEAPON TYPE ===

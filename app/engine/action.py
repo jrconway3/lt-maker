@@ -896,9 +896,9 @@ class ClassChange(Action):
 
         self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
         for stat_nid in self.stat_changes:
-            change = new_klass_bases.get(stat_nid) - old_klass_bases.get(stat_nid)
+            change = new_klass_bases.get(stat_nid).value - old_klass_bases.get(stat_nid).value
             current_stat = current_stats.get(stat_nid)
-            new_value = utils.clamp(change, -current_stat, new_klass_maxes.get(stat_nid) - current_stat)
+            new_value = utils.clamp(change, -current_stat, new_klass_maxes.get(stat_nid).value - current_stat)
             self.stat_changes[stat_nid] = new_value
 
         wexp_gain = DB.classes.get(self.new_klass).wexp_gain
@@ -947,7 +947,7 @@ class GainWexp(Action):
 
     def do(self):
         self.old_value, self.current_value = self.increase_wexp()
-        for weapon_rank in DB.weapon_ranks:
+        for weapon_rank in reversed(DB.weapon_ranks):
             if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                 weapon_type = item_system.weapon_type(self.unit, self.item)
                 game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, weapon_type))
@@ -975,7 +975,7 @@ class AddWexp(Action):
 
     def do(self):
         self.old_value, self.current_value = self.increase_wexp()
-        for weapon_rank in DB.weapon_ranks:
+        for weapon_rank in reversed(DB.weapon_ranks):
             if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                 game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
                 game.state.change('alert')

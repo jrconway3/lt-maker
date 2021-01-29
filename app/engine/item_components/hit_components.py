@@ -523,7 +523,7 @@ class ClassChange(Promote, ItemComponent):
             unit_prefab = DB.units.get(target.nid)
             if target.generic or not unit_prefab:
                 return
-            if len(unit_prefab.alternate_classes) == 0:
+            if not unit_prefab.alternate_classes:
                 return
             elif len(unit_prefab.alternate_classes) == 1:
                 new_klass = unit_prefab.alternate_classes[0]

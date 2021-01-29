@@ -1278,7 +1278,7 @@ class Event():
             new_klass = values[1]
         elif not unit.generic:
             unit_prefab = DB.units.get(unit.nid)
-            if len(unit_prefab.alternate_classes) == 0:
+            if not unit_prefab.alternate_classes:
                 print("No available alternate classes for %s" % unit)
                 return
             elif len(unit_prefab.alternate_classes) == 1:

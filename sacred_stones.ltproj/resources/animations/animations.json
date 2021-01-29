@@ -21,6 +21,13 @@
         "speed": "32"
     },
     {
+        "nid": "LevelDownArrow",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
         "nid": "LevelUpBattle",
         "frame_x": 5,
         "frame_y": 11,
@@ -56,7 +63,7 @@
         "speed": "32"
     },
     {
-        "nid": "LevelupNumber4",
+        "nid": "LevelUpNumber4",
         "frame_x": 10,
         "frame_y": 1,
         "num_frames": 10,
@@ -78,6 +85,55 @@
     },
     {
         "nid": "LevelUpNumber7",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelDownNumber1",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelDownNumber2",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelDownNumber3",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelDownNumber4",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelDownNumber5",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelDownNumber6",
+        "frame_x": 10,
+        "frame_y": 1,
+        "num_frames": 10,
+        "speed": "32"
+    },
+    {
+        "nid": "LevelDownNumber7",
         "frame_x": 10,
         "frame_y": 1,
         "num_frames": 10,

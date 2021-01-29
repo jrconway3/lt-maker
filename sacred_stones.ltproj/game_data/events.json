@@ -374,7 +374,7 @@
                 ]
             ]
         ],
-        "only_once": null
+        "only_once": false
     },
     {
         "name": "DeathEirika",
@@ -5103,9 +5103,10 @@
         "condition": "True",
         "commands": [
             [
-                "promote",
+                "change_class",
                 [
-                    "Joshua"
+                    "Joshua",
+                    "Fighter"
                 ]
             ]
         ],

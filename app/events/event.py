@@ -621,6 +621,9 @@ class Event():
         elif command.nid == 'spend_unlock':
             self.spend_unlock(command)
 
+        elif command.nid == 'trigger_script':
+            self.trigger_script(command)
+
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
         name = values[0]
@@ -1389,6 +1392,31 @@ class Event():
                 game.alerts.append(banner.BrokenItem(unit, chosen_item))
                 game.state.change('alert')
                 self.state = 'paused'
+
+    def trigger_script(self, command):
+        values, flags = event_commands.parse(command)
+        trigger_script = values[0]
+        if len(values) > 1 and values[1]:
+            unit = self.get_unit(values[1])
+        else:
+            unit = self.unit
+        if len(values) > 2 and values[2]:
+            unit2 = self.get_unit(values[2])
+        else:
+            unit2 = self.unit2
+        
+        valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or event_prefab.level_nid == game.level.nid)]
+        for event_prefab in valid_events:
+            event = Event(event_prefab.commands, unit, unit2, self.position, self.region)
+            game.events.append(event)
+            game.state.change('event')
+            self.state = 'paused'
+            if event_prefab.only_once:
+                action.do(action.OnlyOnceEvent(event_prefab.nid))
+            
+        if not valid_events:
+            print("Couldn't find any valid events matching name %s" % trigger_script)
+            return
 
     def parse_pos(self, text):
         position = None

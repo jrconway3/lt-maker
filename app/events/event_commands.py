@@ -444,6 +444,13 @@ class SpendUnlock(EventCommand):
     tag = 'general'
 
     keywords = ["Unit"]
+
+class TriggerScript(EventCommand):
+    nid = 'trigger_script'
+    tag = 'general'
+
+    keywords = ["Event"]
+    optional_keywords = ["GlobalUnit", "GlobalUnit"]
     
 def get_commands():
     return EventCommand.__subclasses__()

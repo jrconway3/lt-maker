@@ -350,6 +350,13 @@ class Layer(Validator):
 class LayerTransition(OptionValidator):
     valid = ['fade', 'immediate']
 
+class Event(Validator):
+    def validate(self, text, level):
+        for event in DB.events:
+            if event.name == text and (not event.level_nid or not level or event.level_nid == level.nid):
+                return text
+        return None
+
 validators = {validator.__name__: validator for validator in Validator.__subclasses__()}
 option_validators = {validator.__name__: validator for validator in OptionValidator.__subclasses__()}
 

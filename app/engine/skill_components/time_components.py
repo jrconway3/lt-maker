@@ -75,6 +75,4 @@ class EventOnRemove(SkillComponent):
     expose = Type.Event
 
     def on_remove(self, unit, skill):
-        did_something = game.events.trigger(self.value, unit)
-        if did_something:
-            game.state.change('event')
+        game.events.trigger(self.value, unit)

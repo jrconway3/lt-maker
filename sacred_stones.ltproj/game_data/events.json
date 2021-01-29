@@ -5101,15 +5101,7 @@
         "trigger": "level_start",
         "level_nid": "DEBUG",
         "condition": "True",
-        "commands": [
-            [
-                "change_class",
-                [
-                    "Joshua",
-                    "Fighter"
-                ]
-            ]
-        ],
+        "commands": [],
         "only_once": false
     },
     {
@@ -5204,13 +5196,6 @@
                 [
                     "Bone",
                     "player"
-                ]
-            ],
-            [
-                "remove_skill",
-                [
-                    "Joshua",
-                    "Poisoned"
                 ]
             ]
         ],

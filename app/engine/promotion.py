@@ -173,9 +173,9 @@ class ClassChangeChoiceState(PromotionChoiceState):
     def _get_choices(self):
         if not self.unit.generic:
             unit_prefab = DB.units.get(self.unit.nid)
-            self.class_options = unit_prefab.alternate_classes
+            self.class_options = [c for c in unit_prefab.alternate_classes if c != self.unit.klass]
         else:  # Just every class, lol?
-            self.class_options = [c.nid for c in DB.classes.values()]
+            self.class_options = [c.nid for c in DB.classes.values() if c.nid != self.unit.klass]
         return [DB.classes.get(c).name for c in self.class_options]
 
     def _proceed(self, next_class):

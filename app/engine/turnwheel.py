@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from app.constants import WINWIDTH, WINHEIGHT
 
+from app.engine.sound import SOUNDTHREAD
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 
@@ -437,6 +438,7 @@ class TurnwheelState(MapState):
             return  # Don't take input after a choice has been made
 
         if 'DOWN' in directions or 'RIGHT' in directions:
+            SOUNDTHREAD.play_sfx('Select 1')
             old_message = None
             if self.last_direction == 'BACKWARD':
                 game.action_log.current_unit = None
@@ -448,6 +450,7 @@ class TurnwheelState(MapState):
                 self.display.change_text(new_message, game.turncount)
             self.last_direction = 'FORWARD'
         elif 'UP' in directions or 'LEFT' in directions:
+            SOUNDTHREAD.play_sfx('Select 2')
             old_message = None
             if self.last_direction == 'FORWARD':
                 game.action_log.current_unit = None

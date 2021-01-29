@@ -60,6 +60,9 @@ class StatusUpkeepState(MapState):
                     return 'repeat'
 
             else:
+                # About to begin the real phase
+                if self.name == 'status_upkeep':
+                    action.do(action.MarkPhase(game.phase.get_current()))
                 game.state.back()
                 return 'repeat'
 

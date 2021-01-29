@@ -1286,6 +1286,10 @@ class Event():
             else:
                 new_klass = None
 
+        if new_klass == unit.klass:
+            print("No need to change classes")
+            return
+            
         game.memory['current_unit'] = unit
         if new_klass:    
             game.memory['next_class'] = new_klass

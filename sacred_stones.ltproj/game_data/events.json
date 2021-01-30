@@ -5103,51 +5103,17 @@
         "condition": "True",
         "commands": [
             [
-                "add_portrait",
+                "level_var",
                 [
-                    "Joshua",
-                    "Left"
+                    "_fog_of_war",
+                    "1"
                 ]
             ],
             [
-                "speak",
+                "level_var",
                 [
-                    "Joshua",
-                    "I think I'll go to the armory."
-                ]
-            ],
-            [
-                "trigger_script",
-                [
-                    "Armory",
-                    "Joshua"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Joshua",
-                    "That went well."
-                ]
-            ],
-            [
-                "trigger_script",
-                [
-                    "Armory",
-                    "Joshua"
-                ]
-            ],
-            [
-                "trigger_script",
-                [
-                    "DeathJoshua",
-                    "Joshua"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
+                    "_fog_of_war_radius",
+                    "3"
                 ]
             ]
         ],

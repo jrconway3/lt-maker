@@ -77,7 +77,7 @@ class EventState(MapState):
         if game.level_vars.get('_win_game'):
             logger.info("Player Wins!")
             # Update statistics here, if necessary
-            if game.level_vars['_level_end_triggered']:
+            if game.level_vars.get('_level_end_triggered'):
                 self.level_end()
             else:
                 did_trigger = game.events.trigger('level_end')

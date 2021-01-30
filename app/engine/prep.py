@@ -182,7 +182,7 @@ class PrepPickUnitsState(State):
         bg_surf = base_surf.create_base_surf((132, 24), 'menu_bg_white')
         player_units = game.get_units_in_party()
         on_map = [unit for unit in game.level.units if unit.position and unit in player_units]
-        num_slots = game.level_vars.get('prep_slots')
+        num_slots = game.level_vars.get('_prep_slots')
         if num_slots is None:
             num_slots = len(game.get_all_formation_spots())
         pick_s = ['Pick ', str(num_slots - len(on_map), 'units  ', str(on_map), '/', str(num_slots))]

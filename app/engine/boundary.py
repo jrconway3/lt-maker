@@ -8,7 +8,8 @@ from app.engine.game_state import game
 class BoundaryInterface():
     draw_order = ('all_spell', 'all_attack', 'spell', 'attack')
     enemy_teams = ('enemy', 'enemy2')
-    fog_of_war_tile = SPRITES.get('fog_of_war_tile1')
+    fog_of_war_tile1 = SPRITES.get('bg_fow_tile')
+    fog_of_war_tile2 = SPRITES.get('bg_black_tile')
 
     def __init__(self, width, height):
         self.modes = {'attack': SPRITES.get('boundary_red'),
@@ -69,6 +70,7 @@ class BoundaryInterface():
             self.surf = None
 
     def reset_fog_of_war(self):
+        self.surf = None
         self.fog_of_war_surf = None
 
     def _set(self, positions, mode, nid):
@@ -189,7 +191,7 @@ class BoundaryInterface():
 
                 # Remove all units that we shouldn't be able to see from the boundary
                 # Fog of War application
-                if game.level.fog_of_war:
+                if game.level_vars.get('_fog_of_war'):
                     new_grid = []
                     for cell in grid:
                         new_grid.append({nid for nid in cell if game.board.in_vision(game.level.units.get(nid).position)})
@@ -254,11 +256,15 @@ class BoundaryInterface():
     def draw_fog_of_war(self, surf, size):
         if not self.fog_of_war_surf:
             self.fog_of_war_surf = engine.create_surface(size, transparent=True)
-            for y in range(self.height):
-                for x in range(self.width):
-                    if not game.board.in_vision((x, y)):
-                        image = self.fog_of_war_tile1
-                        self.fog_of_war_surf.blit(image, (x * TILEWIDTH, y * TILEHEIGHT))
+            if game.level_vars['_fog_of_war']:
+                for y in range(self.height):
+                    for x in range(self.width):
+                        if not game.board.in_vision((x, y)):
+                            if game.level_vars['_fog_of_war'] == 2:
+                                image = self.fog_of_war_tile2
+                            else:
+                                image = self.fog_of_war_tile1
+                            self.fog_of_war_surf.blit(image, (x * TILEWIDTH, y * TILEHEIGHT))
                         
         surf.blit(self.fog_of_war_surf, (0, 0))
         return surf

@@ -443,6 +443,10 @@
             [
                 "ability",
                 "Steal"
+            ],
+            [
+                "sight_range_bonus",
+                3
             ]
         ]
     },

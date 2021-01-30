@@ -27,8 +27,8 @@ class MapView():
 
     def draw_units(self, surf):
         culled_units = [unit for unit in game.level.units if unit.position or unit.sprite.fake_position]
-        if game.level.fog_of_war:
-            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position)]
+        if game.level_vars.get('_fog_of_war'):
+            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position) or unit is game.cursor.cur_unit]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
         for unit in draw_units:
             unit.sprite.update()
@@ -45,6 +45,7 @@ class MapView():
         surf = engine.copy_surface(map_image)
         surf = surf.convert_alpha()
         surf = game.boundary.draw(surf, (surf.get_width(), surf.get_height()))
+        surf = game.boundary.draw_fog_of_war(surf, (surf.get_width(), surf.get_height()))
         surf = game.highlight.draw(surf)
         surf = game.cursor.draw_arrows(surf)
         self.draw_units(surf)

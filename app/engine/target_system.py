@@ -115,9 +115,6 @@ def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:
     return potential_range
 
 def get_valid_moves(unit, force=False) -> set:
-    # For some reason, I need to forcefully import the game
-    # object here, otherwise it is recorded as None...
-    # from app.engine.game_state import game
     # Assumes unit is on the map
     if not force and unit.finished or (unit.has_moved and not skill_system.has_canto(unit)):
         return set()
@@ -130,7 +127,7 @@ def get_valid_moves(unit, force=False) -> set:
 
     movement_left = equations.parser.movement(unit) if force else unit.movement_left
 
-    valid_moves = pathfinder.process(game.board.team_grid, movement_left)
+    valid_moves = pathfinder.process(game.board, movement_left)
     valid_moves.add(unit.position)
     return valid_moves
 
@@ -189,8 +186,11 @@ def get_valid_targets(unit, item=None) -> set:
         item = unit.get_weapon()
     if not item:
         return set()
-    return {position for position in item_system.valid_targets(unit, item) if 
-            item_system.target_restrict(unit, item, *item_system.splash(unit, item, position))}
+    valid_targets = {position for position in item_system.valid_targets(unit, item) if 
+                     item_system.target_restrict(unit, item, *item_system.splash(unit, item, position))}
+    if unit.team == 'player':
+        valid_targets = {position for position in valid_targets if game.board.in_vision(position)}
+    return valid_targets
 
 def get_all_weapons(unit) -> list:
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_weapon(unit, item) and item_funcs.available(unit, item)]

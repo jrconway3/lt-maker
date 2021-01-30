@@ -46,7 +46,18 @@ class Djikstra():
         adj.g = cell.g + adj.cost
         adj.parent = cell
 
-    def process(self, team_grid: list, movement_left: int) -> set:
+    def _can_move_through(self, game_board, adj) -> bool:
+        if self.pass_through:
+            return True
+        unit_team = next(iter(game_board.team_grid[adj.x * self.height + adj.y]), None)
+        if not unit_team or utils.compare_teams(self.unit_team, unit_team):
+            return True
+        if self.unit_team == 'player':
+            if not game_board.in_vision((adj.x, adj.y)):
+                return True  # Can always move through what you can't see
+        return False
+
+    def process(self, game_board: list, movement_left: int) -> set:
         # add starting cell to open heap queue
         heapq.heappush(self.open, (self.start_cell.g, self.start_cell))
         while self.open:
@@ -62,8 +73,7 @@ class Djikstra():
             adj_cells = self.get_adjacent_cells(cell)
             for adj in adj_cells:
                 if adj.reachable and adj not in self.closed:
-                    unit_team = next(iter(team_grid[adj.x * self.height + adj.y]), None)
-                    if not unit_team or utils.compare_teams(self.unit_team, unit_team) or self.pass_through:
+                    if self._can_move_through(game_board, adj):
                         if (adj.g, adj) in self.open:
                             # if adj cell in open list, check if current path
                             # is better than the one previously found for this adj cell
@@ -73,6 +83,8 @@ class Djikstra():
                         else:
                             self.update_cell(adj, cell)
                             heapq.heappush(self.open, (adj.g, adj))
+                    else:  # Unit is in the way
+                        pass
         # Sometimes gets here if unit is enclosed
         return {(cell.x, cell.y) for cell in self.closed}
 

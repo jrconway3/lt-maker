@@ -122,9 +122,9 @@ class FreeState(MapState):
         elif event == 'SELECT':
             cur_pos = game.cursor.position
             cur_unit = game.board.get_unit(cur_pos)
-            if cur_unit and not cur_unit.finished:
-                game.cursor.cur_unit = cur_unit
-                if skill_system.can_select(cur_unit) and 'Tile' not in cur_unit.tags:
+            if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position):
+                if skill_system.can_select(cur_unit):
+                    game.cursor.cur_unit = cur_unit
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
                 else:
@@ -388,7 +388,7 @@ class MoveState(MapState):
                     game.state.change('menu')
 
             elif game.cursor.position in self.valid_moves:
-                if game.board.get_unit(game.cursor.position):
+                if game.board.in_vision(game.cursor.position) and game.board.get_unit(game.cursor.position):
                     SOUNDTHREAD.play_sfx('Error')
                 else:
                     # Sound -- ADD FOOTSTEP SOUNDS
@@ -418,7 +418,12 @@ class MovementState(MapState):
         super().update()
         game.movement.update()
         if len(game.movement) <= 0:
-            game.state.back()
+            if game.movement.surprised:
+                game.movement.surprised = False
+                game.state.clear()
+                game.state.change('free')
+            else:
+                game.state.back()
             return 'repeat'
 
 class WaitState(MapState):
@@ -538,8 +543,9 @@ class MenuState(MapState):
             start_index = options.index('Attack') + 1
         else:
             start_index = len(self.valid_regions)
-        for ability_name in self.extra_abilities.keys():
-            options.insert(start_index, ability_name)
+        for ability_name, ability in self.extra_abilities.items():
+            if target_system.get_valid_targets(self.cur_unit, ability):
+                options.insert(start_index, ability_name)
 
         # Handle combat art options
         self.combat_arts = skill_system.get_combat_arts(self.cur_unit)

@@ -1,7 +1,9 @@
 from app.data.database import DB
 
+from app.utilities import utils
 import app.engine.config as cf
-from app.engine import engine, skill_system
+from app.engine.sound import SOUNDTHREAD
+from app.engine import engine, skill_system, action
 from app.engine.game_state import game
 
 class MovementData():
@@ -15,6 +17,8 @@ class MovementManager():
     def __init__(self):
         self.moving_units = {}
         self.camera_follow = None
+
+        self.surprised = False
 
     def add(self, unit, path, event=False, follow=True):
         self.moving_units[unit.nid] = MovementData(path, event, follow)
@@ -54,6 +58,45 @@ class MovementManager():
         movement_group = self.get_movement_group(unit_to_move)
         mcost = DB.mcost.get_mcost(movement_group, mtype)
         return mcost
+
+    def check_position(self, unit, data, new_position) -> bool:
+        """
+        # Check if we run into an enemy
+        # Returns True if position is OK
+        """
+        if data.event:
+            return True
+        elif skill_system.pass_through(unit):
+            # If this is the final position
+            if not data.path and game.board.get_unit(new_position):
+                return False
+            else:
+                return True
+        else:
+            other_team = game.board.get_team(new_position)
+            if not other_team or utils.compare_teams(unit.team, other_team):
+                return True # Allies, this is fine
+            else:  # Enemies
+                return False
+
+    def done_moving(self, unit_nid, data, unit, surprise=False):
+        del self.moving_units[unit_nid]
+        game.arrive(unit)
+        if unit.sound:
+            unit.sound.stop()
+        if data.event:
+            unit.sprite.change_state('normal')
+        else:
+            unit.has_moved = True
+        # Handle camera auto-follow
+        if self.camera_follow == unit_nid:
+            self.camera_follow = None
+
+        if surprise:
+            SOUNDTHREAD.play_sfx('Surprise')
+            unit.sprite.change_state('normal')
+            unit.sprite.reset()
+            action.do(action.Wait(unit))
         
     def update(self):
         current_time = engine.get_time()
@@ -66,6 +109,13 @@ class MovementManager():
                 if data.path:
                     new_position = data.path.pop()
                     if unit.position != new_position:
+                        if self.check_position(unit, data, new_position):
+                            pass
+                        else:  # Can only happen when not in an event
+                            self.done_moving(unit_nid, data, unit, surprise=True)
+                            self.surprised = True
+                            continue
+
                         mcost = self.get_mcost(unit, new_position)
                         unit.movement_left -= mcost
                     unit.position = new_position
@@ -77,14 +127,4 @@ class MovementManager():
                         game.cursor.set_pos(unit.position)
 
                 else: # Path is empty, so we are done
-                    del self.moving_units[unit_nid]
-                    game.arrive(unit)
-                    if unit.sound:
-                        unit.sound.stop()
-                    if data.event:
-                        unit.sprite.change_state('normal')
-                    else:
-                        unit.has_moved = True
-                    # Handle camera auto-follow
-                    if self.camera_follow == unit_nid:
-                        self.camera_follow = None
+                    self.done_moving(unit_nid, data, unit)

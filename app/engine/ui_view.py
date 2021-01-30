@@ -53,7 +53,8 @@ class UIView():
             self.unit_info_offset = max(0, self.unit_info_offset)
 
         # Tile info handling
-        if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain']:
+        if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain'] and \
+                (not game.level_vars['_fog_of_war'] == 2 or game.board.in_vision(game.cursor.position)):
             # if game.cursor.position != self.expected_coord:
             self.tile_info_disp = self.create_tile_info(game.cursor.position)
             if self.tile_info_disp:

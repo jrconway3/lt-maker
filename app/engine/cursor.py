@@ -37,7 +37,7 @@ class Cursor():
 
     def get_hover(self):
         unit = game.board.get_unit(self.position)
-        if unit and 'Tile' not in unit.tags:
+        if unit and 'Tile' not in unit.tags and game.board.in_vision(unit.position):
             return unit
         return None
 

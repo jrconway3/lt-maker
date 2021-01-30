@@ -1,14 +1,17 @@
 Special Game Vars
 
-_random_seed
-_next_level_nid
-_current_turnwheel_uses
-_max_turnwheel_uses
-_convoy
-_fatigue
-_prep_market
+_random_seed int
+_next_level_nid str
+_current_turnwheel_uses int
+_max_turnwheel_uses int
+_convoy bool
+_fatigue int ()
+_prep_market bool 
 
 Special Level Vars
-_win_game
-_lose_game
-_level_end_triggered
+_win_game bool
+_lose_game bool
+_level_end_triggered bool
+_fog_of_war int (1 -- GBA Fog, 2 -- Thracia Fog, 3 -- Can see enemy class, but no more, 4 -- Can see enemy position, but no more)
+_fog_of_war_radius int
+_prep_slots int

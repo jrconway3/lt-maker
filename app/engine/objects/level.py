@@ -20,8 +20,6 @@ class LevelObject():
         self.regions = Data()
         self.unit_groups = Data()
 
-        self.fog_of_war = 0
-
     @classmethod
     def from_prefab(cls, prefab, tilemap, unit_registry):
         level = cls()

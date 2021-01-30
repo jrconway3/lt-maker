@@ -163,6 +163,35 @@ class Locktouch(SkillComponent):
     def can_unlock(self, unit, region):
         return True
 
+class SightRangeBonus(SkillComponent):
+    nid = 'sight_range_bonus'
+    desc = "Unit gains a bonus to sight range"
+    tag = 'base'
+
+    expose = Type.Int
+    value = 3
+
+    def sight_range(self, unit):
+        return self.value
+
+class DecreasingSightRangeBonus(SkillComponent):
+    nid = 'decreasing_sight_range_bonus'
+    desc = "Unit gains a bonus to sight range that decreases by 1 each turn"
+    tag = 'base'
+
+    expose = Type.Int
+    value = 3
+
+    def init(self):
+        self.skill.data['torch_counter'] = 0
+
+    def sight_range(self, unit):
+        return max(0, self.value - self.skill.data['torch_counter'])
+
+    def on_upkeep(self, actions, playback, unit):
+        val = self.skill.data['torch_counter'] - 1
+        action.do(action.SetObjData(self.skill, 'torch_counter', val))
+
 class Hidden(SkillComponent):
     nid = 'hidden'
     desc = "Skill will not show up on screen"

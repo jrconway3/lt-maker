@@ -331,10 +331,35 @@ class Message(Action):
     def __init__(self, message):
         self.message = message
 
+class SetGameVar(Action):
+    def __init__(self, nid, val):
+        self.nid = nid
+        self.val = val
+        self.old_val = game.game_vars.get(self.nid)
+
+    def do(self):
+        game.game_vars[self.nid] = self.val
+
+    def reverse(self):
+        game.game_vars[self.nid] = self.old_val
+
+class SetLevelVar(Action):
+    def __init__(self, nid, val):
+        self.nid = nid
+        self.val = val
+        self.old_val = game.level_vars.get(self.nid)
+
+    def do(self):
+        game.level_vars[self.nid] = self.val
+
+    def reverse(self):
+        game.level_vars[self.nid] = self.old_val
+
 class Wait(Action):
     def __init__(self, unit):
         self.unit = unit
         self.action_state = self.unit.get_action_state()
+        self.update_fow_action = None
 
     def do(self):
         self.unit.has_moved = True
@@ -343,11 +368,12 @@ class Wait(Action):
         self.unit.finished = True
         self.unit.current_move = None
         self.unit.sprite.change_state('normal')
-        UpdateFogOfWar(self.unit).do()
+        self.update_fow_action = UpdateFogOfWar(self.unit)
+        self.update_fow_action.do()
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)
-        UpdateFogOfWar(self.unit).reverse()
+        self.update_fow_action.reverse()
 
 class UpdateFogOfWar(Action):
     def __init__(self, unit):
@@ -356,16 +382,18 @@ class UpdateFogOfWar(Action):
 
     def do(self):
         # Handle fog of war
-        if game.level.fog_of_war:
+        if game.level_vars.get('_fog_of_war'):
             self.prev_pos = game.board.fow_vantage_point.get(self.unit.nid)
-            sight_range = skill_system.sight_range(self.unit) + game.level.fog_of_war
+            sight_range = skill_system.sight_range(self.unit) + game.level_vars.get('_fog_of_war_radius', 0)
             game.board.update_fow(self.unit.position, self.unit, sight_range)
+            game.boundary.reset_fog_of_war()
 
     def reverse(self):
         # Handle fog of war
-        if game.level.fog_of_war:
-            sight_range = skill_system.sight_range(self.unit) + game.level.fog_of_war
+        if game.level_vars.get('_fog_of_war'):
+            sight_range = skill_system.sight_range(self.unit) + game.level_vars.get('_fog_of_war_radius', 0)
             game.board.update_fow(self.prev_pos, self.unit, sight_range)
+            game.boundary.reset_fog_of_war()
 
 class Reset(Action):
     def __init__(self, unit):
@@ -842,11 +870,17 @@ class Promote(Action):
         promotion_gains = DB.classes.get(self.new_klass).promotion
         current_stats = self.unit.stats
         new_klass_maxes = DB.classes.get(self.new_klass).max_stats
+        new_klass_bases = DB.classes.get(self.new_klass).bases
 
         self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
         for stat in promotion_gains:
-            max_gain_possible = new_klass_maxes.get(stat.nid).value - current_stats[stat.nid]
-            self.stat_changes[stat.nid] = min(stat.value, max_gain_possible)
+            if stat.value == -99:  # Just use the new klass base
+                self.stat_changes[stat.nid] = new_klass_bases.get(stat.nid).value - current_stats[stat.nid]
+            elif stat.value == -98:  # Use the new klass base only if it's bigger
+                self.stat_changes[stat.nid] = max(0, new_klass_bases.get(stat.nid).value - current_stats[stat.nid])
+            else:
+                max_gain_possible = new_klass_maxes.get(stat.nid).value - current_stats[stat.nid]
+                self.stat_changes[stat.nid] = min(stat.value, max_gain_possible)
 
         wexp_gain = DB.classes.get(self.new_klass).wexp_gain
         self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}

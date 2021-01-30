@@ -345,7 +345,7 @@ class Event():
             to_eval = values[1]
             try:
                 val = eval(to_eval)
-                game.game_vars[nid] = val
+                action.do(action.SetGameVar(nid, val))
             except:
                 logger.error("Could not evaluate {%s}" % to_eval)
 
@@ -355,9 +355,15 @@ class Event():
             to_eval = values[1]
             try:
                 val = eval(to_eval)
-                game.level_vars[nid] = val
+                action.do(action.SetLevelVar(nid, val))
             except:
                 logger.error("Could not evaluate {%s}" % to_eval)
+                return
+            # Need to update fog of war when we change it
+            if nid in ('_fog_of_war', '_fog_of_war_radius'):
+                for unit in game.level.units:
+                    if unit.position:
+                        action.do(action.UpdateFogOfWar(unit))
 
         elif command.nid == 'win_game':
             game.level_vars['_win_game'] = True

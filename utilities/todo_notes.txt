@@ -37,15 +37,11 @@ Book pages frames with a number under them?
 Better method for loading panorama movies (Separate button to load image frames?)
 
 Summoning
-
-Sequence Items
-
+Sequence Items (Test using Jewrassic Parks weird Bow)
+Auras
 Silence target restrict (test)
-
 Multi-items 
     Work as activated items
-
-Line of Sight rules
 
 For Portrait Editor:
     Auto-match blink and mouth frames button

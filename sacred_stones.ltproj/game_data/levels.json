@@ -1644,7 +1644,7 @@
                 "ai": "None",
                 "starting_position": [
                     1,
-                    6
+                    4
                 ],
                 "name": null,
                 "desc": null,
@@ -1683,6 +1683,52 @@
                 "only_once": true
             }
         ],
+        "unit_groups": []
+    },
+    {
+        "nid": "FOWDebug",
+        "name": "Fog of War",
+        "tilemap": "FogOfWarTest",
+        "party": null,
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "DEBUG",
+            "win": "",
+            "loss": ""
+        },
+        "units": [
+            {
+                "nid": "Franz",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    18,
+                    0
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Neimi",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    9,
+                    13
+                ],
+                "generic": false
+            }
+        ],
+        "regions": [],
         "unit_groups": []
     }
 ]

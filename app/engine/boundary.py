@@ -70,7 +70,6 @@ class BoundaryInterface():
             self.surf = None
 
     def reset_fog_of_war(self):
-        self.surf = None
         self.fog_of_war_surf = None
 
     def _set(self, positions, mode, nid):
@@ -262,7 +261,7 @@ class BoundaryInterface():
                         if not game.board.in_vision((x, y)):
                             if game.level_vars['_fog_of_war'] == 2:
                                 image = self.fog_of_war_tile2
-                            else:
+                            else:    
                                 image = self.fog_of_war_tile1
                             self.fog_of_war_surf.blit(image, (x * TILEWIDTH, y * TILEHEIGHT))
                         

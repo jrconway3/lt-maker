@@ -5113,7 +5113,7 @@
                 "level_var",
                 [
                     "_fog_of_war_radius",
-                    "3"
+                    "1"
                 ]
             ]
         ],
@@ -5466,6 +5466,29 @@
                 "show_layer",
                 [
                     "Breakable3"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Start",
+        "trigger": "level_start",
+        "level_nid": "FOWDebug",
+        "condition": "True",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "_fog_of_war",
+                    "1"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "_fog_of_war_radius",
+                    "4"
                 ]
             ]
         ],

@@ -12,6 +12,7 @@ class Terrain(Prefab):
     platform: str = None
 
     mtype: str = None
+    opaque: bool = False
 
     status: str = None
 

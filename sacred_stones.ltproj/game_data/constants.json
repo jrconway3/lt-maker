@@ -41,14 +41,18 @@
     ],
     [
         "line_of_sight",
-        false
-    ],
-    [
-        "spell_los",
-        false
+        true
     ],
     [
         "aura_los",
+        false
+    ],
+    [
+        "fog_los",
+        true
+    ],
+    [
+        "ai_fog_of_war",
         false
     ],
     [

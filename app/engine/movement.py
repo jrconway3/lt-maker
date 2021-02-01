@@ -113,7 +113,8 @@ class MovementManager():
                             pass
                         else:  # Can only happen when not in an event
                             self.done_moving(unit_nid, data, unit, surprise=True)
-                            self.surprised = True
+                            if unit.team == 'player':
+                                self.surprised = True
                             continue
 
                         mcost = self.get_mcost(unit, new_position)

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QSpacerItem, QDialog, \
     QLineEdit, QHBoxLayout, QVBoxLayout, \
-    QMessageBox, QSizePolicy
+    QMessageBox, QSizePolicy, QCheckBox
 from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QSize
 
@@ -70,6 +70,9 @@ class TerrainProperties(QWidget):
         self.movement_box.button.clicked.connect(self.access_movement_grid)
         movement_section.addWidget(self.movement_box)
 
+        self.opaque_box = PropertyBox("Blocks line of sight?", QCheckBox, self)
+        self.opaque_box.edit.stateChanged.connect(self.opacity_changed)
+
         self.status_box = PropertyBox("Status", ComboBox, self)
         self.status_box.edit.addItem("None")
         for skill in DB.skills:
@@ -84,6 +87,7 @@ class TerrainProperties(QWidget):
         main_section.addWidget(self.minimap_box)
         main_section.addWidget(self.platform_box)
         main_section.addLayout(movement_section)
+        main_section.addWidget(self.opaque_box)
         main_section.addWidget(self.status_box)
 
         total_section = QVBoxLayout()
@@ -118,6 +122,9 @@ class TerrainProperties(QWidget):
     def movement_changed(self, index):
         self.current.mtype = self.movement_box.edit.currentText()
 
+    def opacity_changed(self, state):
+        self.current.opaque = bool(state)
+
     def status_changed(self, index):
         status = self.status_box.edit.currentText()
         if status == 'None':
@@ -144,6 +151,7 @@ class TerrainProperties(QWidget):
         self.minimap_box.edit.setValue(current.minimap)
         self.platform_box.edit.setValue(current.platform)
         self.movement_box.edit.setValue(current.mtype)
+        self.opaque_box.edit.setChecked(bool(current.opaque))
         if current.status:
             self.status_box.edit.setValue(current.status)
         else:

@@ -188,6 +188,9 @@ class AIController():
                     elif self.behaviour.action == "Support":
                         self.inner_ai = self.build_primary()
                         self.state = "Primary"
+                    elif self.behaviour.action == 'Steal':
+                        self.inner_ai = self.build_primary()
+                        self.state = "Primary"
                     elif self.behaviour.action == 'Interact':
                         self.inner_ai = self.build_secondary()
                         self.state = "Secondary"
@@ -252,11 +255,23 @@ class PrimaryAI():
         if self.behaviour.action == "Attack":
             self.items = [item for item in item_funcs.get_all_items(self.unit) if 
                           item_funcs.available(self.unit, item)]
-            self.all_targets = {u for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)}
+            self.extra_abilities = skill_system.get_extra_abilities(self.unit)
+            for ability in self.extra_abilities.values():
+                self.items.append(ability)
         elif self.behaviour.action == 'Support':
             self.items = [item for item in item_funcs.get_all_items(self.unit) if 
                           item_funcs.available(self.unit, item)]
-            self.all_targets = {u for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)}
+            self.extra_abilities = skill_system.get_extra_abilities(self.unit)
+            for ability in self.extra_abilities.values():
+                self.items.append(ability)
+        elif self.behaviour.action == 'Steal':
+            self.items = []
+            self.extra_abilities = skill_system.get_extra_abilities(self.unit)
+            for ability in self.extra_abilities.values():
+                if ability.nid == 'Steal':
+                    self.items.append(ability)
+
+        self.all_targets = get_targets(self.unit, self.behaviour)
 
         logger.info("Testing Items: %s", self.items)
         
@@ -282,6 +297,7 @@ class PrimaryAI():
     def get_valid_targets(self, unit, item, valid_moves) -> list:
         item_range = item_funcs.get_range(unit, item)
         valid_targets = item_system.ai_targets(unit, item)
+        # valid_targets = [pos for pos in valid_targets if pos in self.all_targets]
         filtered_targets = set()
 
         for pos in valid_targets:
@@ -370,7 +386,8 @@ class PrimaryAI():
     def compute_priority(self, main_target_pos, splash, move, item) -> float:
         tp = 0
         main_target = game.board.get_unit(main_target_pos)
-        if main_target:
+        # Only count main target if it's one of the legal targets
+        if main_target and main_target_pos in self.all_targets:  
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             # If no ai priority hook defined
             if ai_priority is None:
@@ -383,7 +400,8 @@ class PrimaryAI():
 
         for splash_pos in splash:
             target = game.board.get_unit(splash_pos)
-            if not target:
+            # Only count splash target if it's one of the legal targets
+            if not target or splash_pos not in self.all_targets:
                 continue
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             if ai_priority is None:
@@ -477,19 +495,48 @@ def handle_unit_spec(all_targets, behaviour):
     if not target_spec:
         return all_targets
     if target_spec[0] == "Tag":
-        all_targets = [u.position for u in all_targets if target_spec[1] in u.tags]
+        all_targets = [pos for pos in all_targets if target_spec[1] in game.board.get_unit(pos).tags]
     elif target_spec[0] == "Class":
-        all_targets = [u.position for u in all_targets if u.klass == target_spec[1]]
+        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).klass == target_spec[1]]
     elif target_spec[0] == "Name":
-        all_targets = [u.position for u in all_targets if u.name == target_spec[1]]
+        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).name == target_spec[1]]
     elif target_spec[0] == 'Faction':
-        all_targets = [u.position for u in all_targets if u.faction == target_spec[1]]
+        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).faction == target_spec[1]]
     elif target_spec[0] == 'Party':
-        all_targets = [u.position for u in all_targets if u.party == target_spec[1]]
+        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).party == target_spec[1]]
     elif target_spec[0] == 'ID':
-        all_targets = [u.position for u in all_targets if u.nid == target_spec[1]]
-    else:
-        all_targets = [u.position for u in all_targets]
+        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).nid == target_spec[1]]
+    return all_targets
+
+def get_targets(unit, behaviour):
+    all_targets = []
+    if behaviour.target == 'Unit':
+        all_targets = [u.position for u in game.level.units if u.position]
+    elif behaviour.target == 'Enemy':
+        all_targets = [u.position for u in game.level.units if u.position and skill_system.check_enemy(unit, u)]
+    elif behaviour.target == 'Ally':
+        all_targets = [u.position for u in game.level.units if u.position and skill_system.check_ally(unit, u)]
+    elif behaviour.target == 'Event':
+        target_spec = behaviour.target_spec
+        all_targets = []
+        for region in game.level.regions:
+            try:
+                if region.region_type == 'event' and region.sub_nid == target_spec and (not region.condition or eval(region.condition)):
+                    all_targets += region.get_all_positions()
+            except:
+                print("Region Condition: Could not parse %s" % region.condition)
+        all_targets = list(set(all_targets))  # Remove duplicates
+    elif behaviour.target == 'Position':
+        if behaviour.target_spec == "Starting":
+            all_targets = [unit.starting_position]
+        else:
+            all_targets = [tuple(behaviour.target_spec)]
+    if behaviour.target in ('Unit', 'Enemy', 'Ally'):
+        all_targets = handle_unit_spec(all_targets, behaviour)
+
+    if behaviour.target != 'Position':
+        if DB.constants.value('ai_fog_of_war'):
+            all_targets = [pos for pos in all_targets if game.board.in_vision(pos, unit.team)]
     return all_targets
 
 class SecondaryAI():
@@ -503,29 +550,7 @@ class SecondaryAI():
         self.available_targets = []
 
         # Determine all targets
-        if self.behaviour.target == 'Unit':
-            self.all_targets = [u.position for u in game.level.units if u.position]
-        elif self.behaviour.target == 'Enemy':
-            self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)]
-        elif self.behaviour.target == 'Ally':
-            self.all_targets = [u.position for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)]
-        elif self.behaviour.target == 'Event':
-            target_spec = self.behaviour.target_spec
-            self.all_targets = []
-            for region in game.level.regions:
-                try:
-                    if region.region_type == 'event' and region.sub_nid == target_spec and (not region.condition or eval(region.condition)):
-                        self.all_targets += region.get_all_positions()
-                except:
-                    print("Region Condition: Could not parse %s" % region.condition)
-            self.all_targets = list(set(self.all_targets))  # Remove duplicates
-        elif self.behaviour.target == 'Position':
-            if self.behaviour.target_spec == "Starting":
-                self.all_targets = [self.unit.starting_position]
-            else:
-                self.all_targets = [tuple(self.behaviour.target_spec)]
-        if self.behaviour.target in ('Unit', 'Enemy', 'Ally'):
-            self.all_targets = handle_unit_spec(self.all_targets, self.behaviour)
+        self.all_targets = get_targets(self.unit, behaviour)
 
         self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True), default=0)
         self.double_move = self.single_move + equations.parser.movement(self.unit)
@@ -535,7 +560,8 @@ class SecondaryAI():
         self.pathfinder = \
             pathfinding.AStar(self.unit.position, None, self.grid, 
                               game.tilemap.width, game.tilemap.height, 
-                              self.unit.team, skill_system.pass_through(self.unit))
+                              self.unit.team, skill_system.pass_through(self.unit),
+                              DB.constants.value('ai_fog_of_war'))
 
         self.widen_flag = False  # Determines if we've widened our search
         self.reset()
@@ -594,7 +620,7 @@ class SecondaryAI():
         else:
             adj_good_enough = True
 
-        path = self.pathfinder.process(game.board.team_grid, adj_good_enough=adj_good_enough, ally_block=False)
+        path = self.pathfinder.process(game.board, adj_good_enough=adj_good_enough, ally_block=False)
         self.pathfinder.reset()
         return path
 

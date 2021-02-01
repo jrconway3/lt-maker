@@ -1,6 +1,7 @@
 from app.data.database import DB
 
-from app.engine import target_system
+from app.engine import target_system, line_of_sight
+from app.engine.game_state import game
 
 class Node():
     __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f']
@@ -59,6 +60,9 @@ class GameBoard(object):
         # Key: Aura, Value: Set of positions
         self.known_auras = {}  
 
+        # For opacity
+        self.opacity_grid = self.init_opacity_grid(tilemap)
+
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
@@ -115,8 +119,14 @@ class GameBoard(object):
                 grid[idx].add(unit.nid)
 
     def in_vision(self, pos, team='player') -> bool:
+        if not game.level_vars.get('_fog_of_war'):
+            return True  # Always in vision if not in fog of war
         idx = pos[0] * self.height + pos[1]
         if team == 'player':
+            if DB.constants.value('fog_los'):
+                valid = line_of_sight.simple_check(pos, 'player', game.level_vars.get('_fog_of_war_radius'))
+                if not valid:
+                    return False
             player_grid = self.fog_of_war_grids['player']
             if player_grid[idx]:
                 return True
@@ -124,6 +134,10 @@ class GameBoard(object):
             if other_grid[idx]:
                 return True
         else:
+            if DB.constants.value('fog_los'):
+                valid = line_of_sight.simple_check(pos, team, game.level_vars.get('_fog_of_war_radius'))
+                if not valid:
+                    return False
             grid = self.fog_of_war_grids[team]
             if grid[idx]:
                 return True
@@ -151,3 +165,21 @@ class GameBoard(object):
             for y in range(self.height):
                 cells.append(set())
         return cells
+
+    def init_opacity_grid(self, tilemap):
+        cells = []
+        for x in range(self.width):
+            for y in range(self.height):
+                terrain = tilemap.get_terrain((x, y))
+                t = DB.terrain.get(terrain)
+                if t:
+                    cells.append(t.opaque)
+                else:
+                    cells.append(False)
+        return cells
+
+    def get_opacity(self, pos) -> bool:
+        if not pos:
+            return False
+        idx = pos[0] * self.height + pos[1]
+        return self.opacity_grid[idx]

@@ -21,7 +21,7 @@ def test_play():
     DB.load('./sacred_stones.ltproj')
     title = DB.constants.value('title')
     driver.start(title, from_editor=True)
-    game = game_state.start_level('DEBUG')
+    game = game_state.start_level('FOWDebug')
     driver.run(game)
 
 def create_debug_log():

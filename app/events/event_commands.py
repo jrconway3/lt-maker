@@ -396,6 +396,13 @@ class HideLayer(EventCommand):
     keywords = ["Layer"]
     optional_keywords = ["LayerTransition"]
 
+class MapAnim(EventCommand):
+    nid = 'map_anim'
+    tag = 'map'
+
+    keywords = ["MapAnim", "Position"]
+    flags = ["no_block"]
+
 class Prep(EventCommand):
     nid = 'prep'
     tag = 'general'

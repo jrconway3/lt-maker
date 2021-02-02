@@ -1107,12 +1107,16 @@ class ChangeTeam(Action):
         self.team = team
         self.old_team = self.unit.team
         self.action = Reset(self.unit)
+        self.ai_action = ChangeAI(self.unit, 'None')
 
     def do(self):
         if self.unit.position:
             game.leave(self.unit)
         self.unit.team = self.team
         self.action.do()
+        if self.team == 'player':
+            # Make sure player unit's don't keep their AI 
+            self.ai_action.do()
         if self.unit.position:
             game.arrive(self.unit)
         game.boundary.reset_unit(self.unit)
@@ -1122,6 +1126,8 @@ class ChangeTeam(Action):
         if self.unit.position:
             game.leave(self.unit)
         self.unit.team = self.old_team
+        if self.team == 'player':
+            self.ai_action.reverse()
         self.action.reverse()
         if self.unit.position:
             game.arrive(self.unit)

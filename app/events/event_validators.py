@@ -180,6 +180,8 @@ class Position(Validator):
             text = text[0]
             if level and text in level.units.keys():
                 return text
+            elif text in ('{unit}', '{unit1}', '{unit2}', '{position}'):
+                return text
             return None
         if len(text) > 2:
             return None
@@ -349,6 +351,12 @@ class Layer(Validator):
 
 class LayerTransition(OptionValidator):
     valid = ['fade', 'immediate']
+
+class MapAnim(Validator):
+    def validate(self, text, level):
+        if text in RESOURCES.animations.keys():
+            return text
+        return None
 
 class Event(Validator):
     def validate(self, text, level):

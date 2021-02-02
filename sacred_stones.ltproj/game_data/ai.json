@@ -295,13 +295,38 @@
             {
                 "action": "Interact",
                 "target": "Event",
-                "target_spec": "Unlock",
+                "target_spec": "Door",
                 "view_range": -4
             },
             {
                 "action": "Interact",
                 "target": "Event",
-                "target_spec": "Hidden_Escape",
+                "target_spec": "Chest",
+                "view_range": -4
+            }
+        ],
+        "priority": 12,
+        "offense_bias": 2.0
+    },
+    {
+        "nid": "SimpleThief",
+        "behaviours": [
+            {
+                "action": "Steal",
+                "target": "Enemy",
+                "target_spec": null,
+                "view_range": -2
+            },
+            {
+                "action": "Attack",
+                "target": "Enemy",
+                "target_spec": "Door",
+                "view_range": -2
+            },
+            {
+                "action": "None",
+                "target": "None",
+                "target_spec": "Chest",
                 "view_range": -4
             }
         ],

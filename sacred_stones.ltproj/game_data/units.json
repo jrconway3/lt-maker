@@ -1492,11 +1492,11 @@
                 false
             ],
             [
-                "Vulnerary",
+                "Lockpick",
                 false
             ],
             [
-                "Red Gem",
+                "Vulnerary",
                 false
             ]
         ],
@@ -2611,7 +2611,7 @@
     {
         "nid": "Bazba",
         "name": "Bazba",
-        "desc": "One of Bazba's henchmen.",
+        "desc": "The leader of Bazba's bandits.",
         "variant": null,
         "level": 6,
         "klass": "Brigand",

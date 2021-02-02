@@ -1,5 +1,5 @@
 from app.utilities import str_utils
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
 
 from app.engine import engine, image_mods
 
@@ -49,6 +49,12 @@ class Animation():
 
     def set_tint_after_delay(self, i):
         self.tint_after_delay = i
+
+    def get_wait(self) -> int:
+        if str_utils.is_int(self.speed):
+            return self.num_frames * self.speed
+        else:
+            return sum(self.speed) * FRAMERATE
 
     def update(self):
         current_time = engine.get_time()

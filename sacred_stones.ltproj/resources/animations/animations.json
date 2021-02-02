@@ -180,5 +180,12 @@
         "frame_y": 1,
         "num_frames": 11,
         "speed": "32"
+    },
+    {
+        "nid": "Snag",
+        "frame_x": 5,
+        "frame_y": 13,
+        "num_frames": 64,
+        "speed": "16"
     }
 ]

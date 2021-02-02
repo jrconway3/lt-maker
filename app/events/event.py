@@ -1,4 +1,4 @@
-from app.constants import WINWIDTH, WINHEIGHT, FRAMERATE
+from app.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 from app.engine.sound import SOUNDTHREAD
 from app.data.database import DB
@@ -8,6 +8,7 @@ from app.utilities import utils
 from app.engine import dialog, engine, background, target_system, action, \
     interaction, item_funcs, item_system, banner, skill_system
 from app.engine.objects.item import ItemObject
+from app.engine.animations import MapAnimation
 from app.engine.game_state import game
 
 import logging
@@ -65,6 +66,9 @@ class Event():
         self.transition_speed = self._transition_speed
         self.transition_color = self._transition_color
 
+        # For map animations
+        self.animations = []
+
     def update(self):
         current_time = engine.get_time()
         # print(self.state)
@@ -101,6 +105,10 @@ class Event():
                 self.transition_state = None
 
     def draw(self, surf):
+        self.animations = [anim for anim in self.animations if not anim.update()]
+        for anim in self.animations:
+            anim.draw(surf, offset=(-game.camera.get_x(), -game.camera.get_y()))
+
         if self.background:
             self.background.draw(surf)
 
@@ -551,7 +559,24 @@ class Event():
             else:
                 transition = 'fade'
 
-            action.do(action.HideLayer(nid, transition))            
+            action.do(action.HideLayer(nid, transition))
+
+        elif command.nid == 'map_anim':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            if nid not in RESOURCES.animations.keys():
+                print("Could not find map animtion %s" % nid)
+                return
+            pos = self.parse_pos(values[1])
+            anim = RESOURCES.animations.get(nid)
+            anim = MapAnimation(anim, pos)
+            self.animations.append(anim)
+
+            if 'no_block' in flags:
+                pass
+            else:
+                self.wait_time = engine.get_time() + anim.get_wait()
+                self.state = 'waiting'
 
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
@@ -1428,6 +1453,8 @@ class Event():
         position = None
         if ',' in text:
             position = tuple(int(_) for _ in text.split(','))
+        elif text == '{position}':
+            position = self.position
         elif self.get_unit(text):
             position = self.get_unit(text).position
         return position

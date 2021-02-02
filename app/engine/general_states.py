@@ -53,6 +53,10 @@ class TurnChangeState(MapState):
             # EVENTS TRIGGER HERE
             if game.phase.get_current() == 'enemy':
                 game.events.trigger('enemy_turn_change')
+            elif game.phase.get_current() == 'enemy2':
+                game.events.trigger('enemy2_turn_change')
+            elif game.phase.get_current() == 'other':
+                game.events.trigger('other_turn_change')
 
     def take_input(self, event):
         return 'repeat'

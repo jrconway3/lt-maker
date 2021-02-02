@@ -14,6 +14,8 @@ all_triggers = Data([
     Trigger('level_end'),
     Trigger('turn_change'),
     Trigger('enemy_turn_change'),
+    Trigger('enemy2_turn_change'),
+    Trigger('other_turn_change'),
     Trigger('unit_death', True, False, True),
     Trigger('unit_wait', True, False, True),
     Trigger('unit_level_up', True, False, False),

@@ -994,7 +994,7 @@
     },
     {
         "nid": "3",
-        "name": "The Bandits of Borgo",
+        "name": "Ch. 3: The Bandits of Borgo",
         "tilemap": "Chapter 3",
         "party": null,
         "music": {
@@ -1009,8 +1009,8 @@
             "base": null
         },
         "objective": {
-            "simple": "Seize",
-            "win": "Seize",
+            "simple": "Seize throne",
+            "win": "Seize throne",
             "loss": "Eirika dies"
         },
         "units": [
@@ -1099,8 +1099,8 @@
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
-                    3,
-                    9
+                    1,
+                    10
                 ],
                 "generic": false
             },
@@ -1326,7 +1326,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Thief",
+                "ai": "SimpleThief",
                 "starting_position": [
                     9,
                     11
@@ -1340,7 +1340,7 @@
                 "variant": null,
                 "level": 1,
                 "klass": "Wall25",
-                "faction": "Soldier",
+                "faction": "Wall",
                 "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
@@ -1348,8 +1348,8 @@
                     4,
                     12
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Wall",
+                "desc": "",
                 "generic": true
             },
             {
@@ -1357,7 +1357,7 @@
                 "variant": null,
                 "level": 1,
                 "klass": "Wall25",
-                "faction": "Soldier",
+                "faction": "Wall",
                 "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
@@ -1365,8 +1365,8 @@
                     4,
                     9
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Wall",
+                "desc": "",
                 "generic": true
             },
             {
@@ -1374,7 +1374,7 @@
                 "variant": null,
                 "level": 1,
                 "klass": "Wall25",
-                "faction": "Soldier",
+                "faction": "Wall",
                 "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
@@ -1382,8 +1382,8 @@
                     8,
                     8
                 ],
-                "name": null,
-                "desc": null,
+                "name": "Wall",
+                "desc": "",
                 "generic": true
             }
         ],
@@ -1494,7 +1494,23 @@
                 "only_once": true
             }
         ],
-        "unit_groups": []
+        "unit_groups": [
+            {
+                "nid": "PlayerTeam",
+                "units": [
+                    "Eirika",
+                    "Seth",
+                    "Franz",
+                    "Gilliam",
+                    "Vanessa",
+                    "Moulder",
+                    "Ross",
+                    "Neimi",
+                    "Garcia"
+                ],
+                "positions": {}
+            }
+        ]
     },
     {
         "nid": "DEBUG",

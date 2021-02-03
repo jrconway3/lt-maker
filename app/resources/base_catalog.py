@@ -32,9 +32,13 @@ class ManifestCatalog(Data):
             json.dump(save, serialize_file, indent=4)
 
     def save(self, loc):
+        import time
+        start = time.time_ns()/1e6
         for datum in self:
             new_full_path = os.path.join(loc, datum.nid + self.filetype)
             if os.path.abspath(datum.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(datum.full_path, new_full_path)
                 datum.set_full_path(new_full_path)
         self.dump(loc)
+        end = time.time_ns()/1e6
+        print("Time Taken: %s ms" % (end - start))

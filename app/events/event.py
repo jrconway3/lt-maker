@@ -1,14 +1,20 @@
 from app.constants import WINWIDTH, WINHEIGHT
+from app.utilities import utils
+
 from app.resources.resources import RESOURCES
-from app.engine.sound import SOUNDTHREAD
+
 from app.data.database import DB
 from app.events import event_commands, regions
 from app.events.event_portrait import EventPortrait
-from app.utilities import utils
+from app.data.level_units import UniqueUnit, GenericUnit
+
 from app.engine import dialog, engine, background, target_system, action, \
     interaction, item_funcs, item_system, banner, skill_system
 from app.engine.objects.item import ItemObject
+from app.engine.objects.unit import UnitObject
+from app.engine.objects.tilemap import TileMapObject
 from app.engine.animations import MapAnimation
+from app.engine.sound import SOUNDTHREAD
 from app.engine.game_state import game
 
 import logging
@@ -378,6 +384,15 @@ class Event():
 
         elif command.nid == 'lose_game':
             game.level_vars['_lose_game'] = True
+
+        elif command.nid == 'change_tilemap':
+            self.change_tilemap(command)
+
+        elif command.nid == 'load_unit':
+            self.load_unit(command)
+
+        elif command.nid == 'make_generic':
+            self.make_generic(command)
 
         elif command.nid == 'add_unit':
             self.add_unit(command)
@@ -1107,6 +1122,92 @@ class Event():
                 return position
         else:
             return position
+
+    def change_tilemap(self, command):
+        values, flags = event_commands.parse(command)
+        tilemap_nid = values[1]
+        tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
+        if not tilemap_prefab:
+            print("Couldn't find tilemap %s" % tilemap_nid)
+            return
+        reload_map = 'reload' in flags
+        
+        # Remove all units from the map
+        # But remember their original positions for later
+        previous_unit_pos = {}
+        for unit in game.level.units:
+            if unit.position:
+                previous_unit_pos[unit.nid] = unit.position
+                act = action.LeaveMap(unit)
+                act.execute()
+        current_tilemap_nid = game.level.tilemap.nid
+        game.level_vars['_prev_pos_%s' % current_tilemap_nid] = previous_unit_pos
+        
+        tilemap = TileMapObject.from_prefab(tilemap_prefab)
+        game.level.tilemap = tilemap
+        game.set_up_game_board(game.level.tilemap)
+
+        # If we're reloading the map
+        if reload_map and game.level_vars.get('_prev_pos_%s' % tilemap_nid):
+            for unit_nid, pos in game.level_vars['_prev_pos_%s' % tilemap_nid].items():
+                unit = game.get_unit(unit_nid)
+                act = action.ArriveOnMap(unit, pos)
+                act.execute()
+
+        # Can't use turnwheel to go any further back
+        game.action_log.set_first_free_action()
+
+    def load_unit(self, command):
+        values, flags = event_commands.parse(command)
+        unit_nid = values[0]
+        if game.get_unit(unit_nid):
+            print("Unit with NID %s already exists!" % uni_nid)
+            return
+        unit_prefab = DB.units.get(unit_nid)
+        if not unit_prefab:
+            print("Could not find unit %s in database" % unit_nid)
+            return
+        if len(values) > 1 and values[1]:
+            team = values[1]
+        else:
+            team = 'player'
+        if len(values) > 2 and values[2]:
+            ai_nid = values[2]
+        else:
+            ai_nid = 'None'
+        level_unit_prefab = UniqueUnit(unit_nid, team, ai_nid, None)
+        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        game.level.units.append(new_unit)
+
+    def make_generic(self, command):
+        values, flags = event_commands.parse(command)
+        # Get input
+        unit_nid = values[0]
+        if game.get_unit(unit_nid):
+            print("Unit with NID %s already exists!" % unit_nid)
+            return
+        klass = values[1]
+        if klass not in DB.classes.keys():
+            print("Class %s doesn't exist in database " % klass)
+            return
+        level = int(values[2])
+        team = values[3]
+        if len(values) > 4 and values[4]:
+            ai_nid = values[4]
+        else:
+            ai_nid = 'None'
+        if len(values) > 5 and values[5]:
+            faction = values[5]
+        else:
+            faction = DB.factions[0].nid
+        if len(values) > 6 and values[6]:
+            variant = values[6]
+        else:
+            variant = None
+
+        level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, [], team, ai_nid)
+        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        game.level.units.append(new_unit)
 
     def give_item(self, command):
         values, flags = event_commands.parse(command)

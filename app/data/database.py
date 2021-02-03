@@ -2,13 +2,13 @@ import os
 import json
 
 from app.data import constants, stats, equations, tags, weapons, factions, terrain, mcost, \
-    minimap, items, klass, units, parties, ai, translations, skills, levels
+    minimap, items, klass, units, parties, ai, translations, skills, levels, lore
 from app.events import event_prefab
 
 class Database(object):
     save_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                        "weapons", "factions", "items", "skills", "tags", "classes", 
-                       "units", "ai", "parties", "translations", "levels", "events")
+                       "units", "ai", "parties", "translations", "lore", "levels", "events")
 
     def __init__(self):
         self.constants = constants.constants
@@ -33,6 +33,7 @@ class Database(object):
         self.events = event_prefab.EventCatalog()
 
         self.translations = translations.TranslationCatalog()
+        self.lore = lore.LoreCatalog()
 
     # === Saving and loading important data functions ===
     def restore(self, save_obj):
@@ -66,7 +67,7 @@ class Database(object):
             os.replace(temp_save_loc, save_loc)
 
         end = time.time_ns()/1e6
-        print("Time Taken: %s ms" % (end - start))
+        print("Total Time Taken for Database: %s ms" % (end - start))
         print("Done serializing!")
 
     def load(self, proj_dir):

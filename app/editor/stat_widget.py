@@ -248,6 +248,12 @@ class ClassStatAveragesModel(VirtualListModel):
         self.layoutChanged.emit()
 
     def determine_average(self, obj, stat_nid, level_ups):
+        if obj.tier > 1:
+            if obj.promotes_from:
+                prev_klass = DB.classes.get(obj.promotes_from)
+                level_ups += prev_klass.max_level
+            else:
+                level_ups += 20
         stat_base = obj.bases.get(stat_nid).value
         stat_growth = obj.growths.get(stat_nid).value
         stat_max = obj.max_stats.get(stat_nid).value

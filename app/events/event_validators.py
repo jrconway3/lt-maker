@@ -244,6 +244,12 @@ class StartingGroup(Validator):
             return text
         return None
 
+class UniqueUnit(Validator):
+    def validate(self, text, level):
+        if text in DB.units.keys():
+            return text
+        return None
+
 class GlobalUnit(Validator):
     def validate(self, text, level):
         if level:
@@ -332,6 +338,12 @@ class Party(Validator):
             return text
         return None
 
+class Faction(Validator):
+    def validate(self, text, level):
+        if text in DB.factions.keys():
+            return text
+        return None
+
 class Klass(Validator):
     def validate(self, text, level):
         if text in DB.classes.keys():
@@ -355,6 +367,12 @@ class LayerTransition(OptionValidator):
 class MapAnim(Validator):
     def validate(self, text, level):
         if text in RESOURCES.animations.keys():
+            return text
+        return None
+
+class Tilemap(Validator):
+    def validate(self, text, level):
+        if text in RESOURCES.tilemaps.keys():
             return text
         return None
 

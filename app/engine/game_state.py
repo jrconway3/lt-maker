@@ -63,6 +63,7 @@ class GameState():
 
         self.records = []
         self.market_items = []
+        self.unlocked_lore = []
         self.already_triggered_events = []
         self.sweep()
         self.generic()
@@ -76,6 +77,7 @@ class GameState():
         self.level_vars = Counter()
         self.turncount = 0
         self.talk_options = []
+        self.base_convos = []
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
 
@@ -173,8 +175,10 @@ class GameState():
                   'state': self.state.save(),
                   'action_log': self.action_log.save(),
                   'market_items': self.market_items,  # Item nids
-                  'talk_options': self.talk_options,
+                  'unlocked_lore': self.unlocked_lore,
                   'already_triggered_events': self.already_triggered_events,
+                  'talk_options': self.talk_options,
+                  'base_convos': self.base_convos,
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
@@ -232,8 +236,10 @@ class GameState():
                 subitem.parent_item = item
 
         self.market_items = s_dict.get('market_items', [])
+        self.unlocked_lore = s_dict.get('unlocked_lore', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])
+        self.base_convos = s_dict.get('base_convos', [])
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
 

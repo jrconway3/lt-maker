@@ -330,6 +330,8 @@ class Choice(Simple):
                     option = menu_options.ItemOption(idx, option)
                 option.help_box = option.get_help_box()
                 self.options.append(option)
+            elif isinstance(option, Lore):
+                option = menu_options.LoreOption(idx, option)
             else:
                 if self.horizontal:
                     option = menu_options.HorizOption(idx, option)

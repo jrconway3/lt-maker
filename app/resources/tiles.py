@@ -221,4 +221,8 @@ class TileMapCatalog(ManifestCatalog):
         # No need to finagle with full paths
         # Because TileMaps are don't have any connection to any actual file.
         # They are all references to TileSets
+        import time
+        start = time.time_ns()/1e6
         self.dump(loc)
+        end = time.time_ns()/1e6
+        print("Time Taken: %s ms" % (end - start))

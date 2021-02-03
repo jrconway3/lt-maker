@@ -380,3 +380,33 @@ class UnitOption(BasicOption):
 
         self.draw_map_sprite(surf, x, y, highlight=True)
         self.draw_text(surf, x, y)
+
+class LoreOption(BasicOption):
+    def __init__(self, idx, lore):
+        self.idx = idx
+        self.lore = lore
+        self.text = lore.name
+        self.display_text = text_funcs.translate(self.text)
+        self.help_box = None
+        self.color = None
+        self.ignore = False
+
+    def get(self):
+        return self.lore
+
+    def set_text(self, text):
+        pass
+
+    def set_lore(self, lore):
+        self.lore = lore
+        self.text = lore.name
+        self.display_text = text_funcs.translate(self.text)
+
+    def width(self):
+        return 68
+
+    def height(self):
+        return 16
+
+    def get_color(self):
+        return self.color

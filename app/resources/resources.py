@@ -103,7 +103,7 @@ class Resources():
             getattr(self, data_type).save(data_dir)
 
         end = time.time_ns()/1e6
-        print("Time Taken: %s ms" % (end - start))
+        print("Total Time Taken for Resources: %s ms" % (end - start))
         print('Done Resource Serializing!')
 
 RESOURCES = Resources()

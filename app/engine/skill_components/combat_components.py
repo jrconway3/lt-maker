@@ -339,10 +339,8 @@ class Miracle(SkillComponent):
 
 class IgnoreDamage(SkillComponent):
     nid = 'ignore_damage'
-    desc = "Unit will ignore damage"
+    desc = "Unit will ignore all damage"
     tag = 'combat2'
-
-    expose = Type.Skill
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         # Remove any acts that reduce my HP!

@@ -189,6 +189,28 @@ class LoseGame(EventCommand):
     nid = 'lose_game'
     tag = "general"
 
+class ChangeTilemap(EventCommand):
+    nid = 'change_tilemap'
+    tag = 'general'
+
+    keywords = ["Tilemap"]
+    flags = ["reload"]  # Should place units in previously recorded positions
+
+class LoadUnit(EventCommand):
+    nid = 'load_unit'
+    tag = 'general'
+
+    keywords = ["UniqueUnit"]
+    optional_keywords = ["Team", "AI"]
+
+class MakeGeneric(EventCommand):
+    nid = 'make_generic'
+    tag = 'general'
+
+    # Nid, class, level, team, ai, faction, anim variant
+    keywords = ["String", "Klass", "Integer", "Team"]
+    optional_keywords = ["AI", "Faction", "String"]
+
 class AddUnit(EventCommand):
     nid = 'add_unit'
     nickname = 'add'

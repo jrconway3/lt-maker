@@ -272,7 +272,7 @@ class UnitProperties(QWidget):
 
     def class_changed(self, index):
         self.current.klass = self.class_box.edit.currentText()
-        self.level_box.edit.setMaximum(DB.classes.get(self.current.klass).max_level)
+        # self.level_box.edit.setMaximum(DB.classes.get(self.current.klass).max_level)
         if self.averages_dialog:
             self.averages_dialog.update()
 

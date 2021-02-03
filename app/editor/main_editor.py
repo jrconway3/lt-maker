@@ -53,6 +53,7 @@ from app.editor.mcost_dialog import McostDialog
 from app.editor.translation_widget import TranslationDialog
 from app.editor.equation_widget import EquationDialog
 from app.editor.event_editor.event_tab import EventDatabase
+from app.editor.lore_editor.lore_tab import LoreDatabase
 
 # Resources
 from app.editor.icon_editor import icon_tab
@@ -226,6 +227,7 @@ class MainEditor(QMainWindow):
                             "Stats": StatTypeDatabase.edit,
                             "Equations": self.edit_equations,
                             "Constants": ConstantDatabase.edit,
+                            "Lore": LoreDatabase.edit,
                             "Translations": self.edit_translations
                             }
         self.database_actions = {}
@@ -368,6 +370,8 @@ class MainEditor(QMainWindow):
         self.test_current_act.setEnabled(False)
         self.test_load_act.setEnabled(False)
         self.test_full_act.setEnabled(False)
+        # Make a save before playing
+        self.save()
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play_current(
             self.app_state_manager.state.selected_level)
@@ -380,6 +384,8 @@ class MainEditor(QMainWindow):
         self.test_current_act.setEnabled(False)
         self.test_load_act.setEnabled(False)
         self.test_full_act.setEnabled(False)
+        # Make a save before playing
+        self.save()
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play()
         timer.get_timer().start()
@@ -398,6 +404,8 @@ class MainEditor(QMainWindow):
         self.test_current_act.setEnabled(False)
         self.test_load_act.setEnabled(False)
         self.test_full_act.setEnabled(False)
+        # Make a save before playing
+        self.save()
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play_load(
             self.app_state_manager.state.selected_level, save_loc)

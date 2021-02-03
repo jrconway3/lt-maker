@@ -7,14 +7,14 @@ Combat Animations
 Overworld
 Supports
 Base
-    Manage, Market?, Arena, Repair, Forge, Convos, Support, Codex (World Map, Lore, Records, Achievements, Tactics), Options, Save, Continue/Finish
+    Manage, Market?, Arena, Repair (in market), Forge (optional), Bonus Exp / Skills, Convos, Support, Codex (World Map, Lore, Records, Achievements, Tactics), Options, Save, Continue/Finish
 Minimap
 Turnwheel mouse support
 Autotiles (not just 29 frames)
 Status Screen
-Fog of War
 Unit Menu
 Joystick Remapping
+Guide (on Options Menu and in Base -> Codex -> Guide)
 
 Base > Fog of War > Combat Anims > Overworld > Autotiles > Supports
 
@@ -22,7 +22,7 @@ Dialog box should pop up when saving and autosaving
 
 Translations need a better GUI interface
 
-Work with Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
+Test Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
 
 Dialogue Log on R press
 

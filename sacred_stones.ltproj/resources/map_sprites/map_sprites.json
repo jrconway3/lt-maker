@@ -26,5 +26,10 @@
     "Assassin",
     "General",
     "Hero",
-    "Rogue"
+    "Rogue",
+    "MageKnight",
+    "MageKnightFemale",
+    "WyvernRider",
+    "WyvernLord",
+    "WyvernKnight"
 ]

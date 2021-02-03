@@ -54,6 +54,8 @@ class MusicCatalog(ManifestCatalog):
             self.append(new_song)
 
     def save(self, loc):
+        import time
+        start = time.time_ns()/1e6
         for song in self:
             # Full Path
             new_full_path = os.path.join(loc, song.nid + '.ogg')
@@ -71,6 +73,8 @@ class MusicCatalog(ManifestCatalog):
                 shutil.copy(song.intro_full_path, new_full_path)
                 song.set_intro_full_path(new_full_path)
         self.dump(loc)
+        end = time.time_ns()/1e6
+        print("Time Taken: %s ms" % (end - start))
 
 class SFX():
     def __init__(self, nid, full_path=None, tag=None):

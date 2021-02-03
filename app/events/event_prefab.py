@@ -22,7 +22,7 @@ all_triggers = Data([
     Trigger('combat_start', True, True, True),
     Trigger('combat_end', True, True, True),
     Trigger('on_talk', True, True, True),
-    Trigger('before_base'),
+    Trigger('on_base_convo', True, True, False),
     Trigger('on_title_screen'),
 ])
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.utilities.data import Data, Prefab
+from app.utilities.data import Prefab
 
 @dataclass 
 class GenericUnit(Prefab):

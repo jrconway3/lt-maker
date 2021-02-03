@@ -42,7 +42,6 @@ config_icons = [engine.subsurface(SPRITES.get('settings_icons'), (0, c[2] * 16, 
 class SettingsMenuState(State):
     name = 'settings_menu'
     in_level = False
-    show_map = False
 
     def start(self):
         self.bg = background.create_background('settings_background')

@@ -365,7 +365,7 @@ class MapCombat():
         if self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
-        # handle exp & records
+        # handle exp
         if self.attacker.team == 'player' and not self.attacker.is_dying:
             exp = self.handle_exp(self.attacker, self.item)
             if self.defender and skill_system.check_ally(self.attacker, self.defender):
@@ -383,6 +383,8 @@ class MapCombat():
             if exp > 0:
                 game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
+
+        self.handle_records(self.full_playback, all_units)
 
         # Skill system end combat clean up
         skill_system.end_combat(self.full_playback, self.attacker, self.item, self.defender)
@@ -526,6 +528,43 @@ class MapCombat():
             total_exp += exp
 
         return total_exp
+
+    def handle_records(self, full_playback, all_units):
+        miss_marks = self.get_from_full_playback('mark_miss')
+        hit_marks = self.get_from_full_playback('mark_hit')
+        crit_marks = self.get_from_full_playback('mark_crit')
+
+        for mark in miss_marks:
+            attacker = mark[1]
+            defender = mark[2]
+            action.do(action.UpdateRecords('miss', (attacker.nid, defender.nid)))
+
+        for mark in hit_marks:
+            attacker = mark[1]
+            defender = mark[2]
+            action.do(action.UpdateRecords('hit', (attacker.nid, defender.nid)))
+
+        for mark in crit_marks:
+            attacker = mark[1]
+            defender = mark[2]
+            action.do(action.UpdateRecords('crit', (attacker.nid, defender.nid)))
+
+        for mark in self.full_playback:
+            if mark[0] in ('mark_miss', 'mark_hit', 'mark_crit'):
+                attacker = mark[1]
+                defender = mark[2]
+                if defender.is_dying:
+                    act = action.UpdateRecords('kill', (attacker.nid, defender.nid))
+                    action.do(act)
+                    if defender.team == 'player':  # If player is dying, save this result even if we turnwheel back
+                        act = action.UpdateRecords('death', (attacker.nid, defender.nid))
+                        act.do()
+                if attacker.is_dying:
+                    act = action.UpdateRecords('kill', (defender.nid, attacker.nid))
+                    action.do(act)
+                    if defender.team == 'player':  # If player is dying, save this result even if we turnwheel back
+                        act = action.UpdateRecords('death', (defender.nid, attacker.nid))
+                        act.do()
 
     def handle_death(self, units):
         for unit in units:

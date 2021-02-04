@@ -1082,12 +1082,16 @@ class Resurrect(Action):
     def reverse(self):
         self.unit.dead = True
 
-class UpdateUnitRecords(Action):
-    def __init__(self, unit, record):
-        self.unit = unit
-        self.record = record
+class UpdateRecords(Action):
+    def __init__(self, record_type, data):
+        self.record_type = record_type
+        self.data = data
 
-    # TODO Implement rest of this
+    def do(self):
+        game.records.append(self.record_type, self.data)
+
+    def reverse(self):
+        game.records.pop(self.record_type)
 
 class ChangeAI(Action):
     def __init__(self, unit, ai):

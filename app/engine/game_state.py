@@ -34,6 +34,7 @@ class GameState():
     # Start a new game
     # When the player clicks "New Game"
     def build_new(self):
+        from app.engine import records
         logger.info("Building New Game")
         self.playtime = 0
 
@@ -61,7 +62,7 @@ class GameState():
         else:
             self.overworld = None
 
-        self.records = []
+        self.records = records.Recordkeeper()
         self.market_items = []
         self.unlocked_lore = []
         self.already_triggered_events = []
@@ -174,6 +175,7 @@ class GameState():
                   'current_party': self.current_party,
                   'state': self.state.save(),
                   'action_log': self.action_log.save(),
+                  'records': self.records.save(),
                   'market_items': self.market_items,  # Item nids
                   'unlocked_lore': self.unlocked_lore,
                   'already_triggered_events': self.already_triggered_events,
@@ -205,7 +207,7 @@ class GameState():
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import turnwheel
+        from app.engine import turnwheel, records
 
         from app.engine.objects.item import ItemObject
         from app.engine.objects.skill import SkillObject
@@ -242,6 +244,10 @@ class GameState():
         self.base_convos = s_dict.get('base_convos', [])
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
+        if s_dict.get('records'):
+            self.records = records.Recordkeeper.restore(s_dict['records'])
+        else:
+            self.records = records.Recordkeeper()
 
         if s_dict['level']:
             logger.info("Loading Level...")

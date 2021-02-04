@@ -429,7 +429,13 @@ class Prep(EventCommand):
     nid = 'prep'
     tag = 'general'
 
-    optional_keywords = ["Bool"]
+    optional_keywords = ["Bool"]  # Pick units
+
+class Base(EventCommand):
+    nid = 'base'
+    tag = 'general'
+
+    keywords = ["Panorama"]
 
 class Shop(EventCommand):
     nid = 'shop'

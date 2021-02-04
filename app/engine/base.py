@@ -13,7 +13,7 @@ from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine import menus, banner, action, base_surf, background, \
     info_menu, engine, equations, item_funcs, text_funcs, image_mods, \
-    convoy_funcs, item_system, interaction, gui, icons
+    convoy_funcs, item_system, interaction, gui, icons, prep
 from app.engine.fluid_scroll import FluidScroll
 
 class BaseMainState(State):
@@ -80,7 +80,7 @@ class BaseMainState(State):
                 game.memory['next_state'] = 'prep_manage'
                 game.state.change('transition_to')
             elif selection == 'Market':
-                game.memory['next_state'] = 'prep_market'
+                game.memory['next_state'] = 'base_market_select'
                 game.state.change('transition_to')
             elif selection == 'Convos':
                 game.memory['option_owner'] = selection
@@ -113,6 +113,57 @@ class BaseMainState(State):
             self.menu.draw(surf)
         return surf
 
+class BaseMarketSelectState(prep.PrepManageState):
+    name = 'base_market_select'
+
+    def create_quick_disp(self):
+        sprite = SPRITES.get('buttons')
+        buttons = [sprite.subsurface(0, 66, 14, 13)]
+        font = FONT['text-white']
+        commands = ['Market']
+        commands = [text_funcs.translate(c) for c in commands]
+        size = (49 + max(font.width(c) for c in commands), 40)
+        bg_surf = base_surf.create_base_surf(size[0], size[1], 'menu_bg_brown')
+        bg_surf = image_mods.make_translucent(bg_surf, 0.1)
+        bg_surf.blit(buttons[0], (20 - buttons[0].get_width()//2, 18 - buttons[0].get_height()))
+        for idx, command in enumerate(commands):
+            font.blit(command, bg_surf, (38, idx * 16 + 3))
+        return bg_surf
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+        elif 'LEFT' in directions:
+            if self.menu.move_left(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+        elif 'RIGHT' in directions:
+            if self.menu.move_right(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+
+        if event == 'SELECT':
+            unit = self.menu.get_current()
+            game.memory['current_unit'] = unit
+            game.memory['next_state'] = 'prep_market'
+            game.state.change('transition_to')
+            SOUNDTHREAD.play_sfx('Select 1')
+        elif event == 'BACK':
+            game.state.change('transition_pop')
+            SOUNDTHREAD.play_sfx('Select 4')
+        elif event == 'INFO':
+            SOUNDTHREAD.play_sfx('Select 1')
+            game.memory['scroll_units'] = game.get_units_in_party()
+            game.memory['next_state'] = 'info_menu'
+            game.memory['current_unit'] = self.menu.get_current()
+            game.state.change('transition_to')
+
 class BaseConvosChildState(State):
     name = 'base_convos_child'
     transparent = True
@@ -124,7 +175,7 @@ class BaseConvosChildState(State):
         selection = game.memory['option_owner']
         topleft = game.memory['option_menu']
 
-        self.menu - menus.choice(selection, options, topleft)
+        self.menu = menus.Choice(selection, options, topleft)
         color = ['text-grey' if i else 'text-white' for i in ignore]
         self.menu.set_color(color)
 
@@ -174,11 +225,12 @@ class BaseCodexChildState(State):
         # TODO Records
         # TODO Achievements?
         # TODO Tactics?
+        # TODO Guide
 
         selection = game.memory['option_owner']
         topleft = game.memory['option_menu']
 
-        self.menu - menus.choice(selection, options, topleft)
+        self.menu = menus.Choice(selection, options, topleft)
 
     def begin(self):
         ignore = [bool(game.memory.get('_ignore_' + event_nid)) for event_nid in game.base_convos]

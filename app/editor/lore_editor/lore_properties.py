@@ -31,6 +31,11 @@ class LoreProperties(QWidget):
         self.long_name_box.edit.textChanged.connect(self.long_name_changed)
         name_section.addWidget(self.long_name_box)
 
+        self.category_box = PropertyBox("Category", QLineEdit, self)
+        self.category_box.edit.setMaxLength(13)
+        self.category_box.edit.textChanged.connect(self.category_changed)
+        name_section.addWidget(self.category_box)
+
         self.desc_box = PropertyBox("Description Text", QTextEdit, self)
         font_height = QFontMetrics(self.desc_box.edit.font())
         self.desc_box.edit.setFixedHeight(font_height.lineSpacing() * 20 + 20)
@@ -64,10 +69,12 @@ class LoreProperties(QWidget):
 
     def short_name_changed(self, text):
         self.current.name = text
-        self.window.update_list()
 
     def long_name_changed(self, text):
         self.current.title = text
+
+    def category_changed(self, category):
+        self.current.category = category
         self.window.update_list()
 
     def desc_changed(self, text=None):
@@ -78,4 +85,5 @@ class LoreProperties(QWidget):
         self.nid_box.edit.setText(current.nid)
         self.short_name_box.edit.setText(current.name)
         self.long_name_box.edit.setText(current.title)
+        self.category_box.edit.setText(current.category)
         self.desc_box.edit.setText(current.text)

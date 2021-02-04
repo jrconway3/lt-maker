@@ -7,6 +7,7 @@ class Lore(Prefab):
     nid: str = None
     name: str = None
     title: str = None
+    category: str = "Character"
     text: str = ""
 
 class LoreCatalog(Data):

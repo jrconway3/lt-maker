@@ -603,6 +603,13 @@ class Event():
             game.state.change('prep_main')
             self.state = 'paused'  # So that the message will leave the update loop
 
+        elif command.nid == 'base':
+            values, flags = event_commands.parse(command)
+            panorama_nid = values[0]
+            game.memory['base_bg_name'] = panorama_nid
+            game.state.change('base_main')
+            self.state = 'paused'
+
         elif command.nid == 'shop':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])

@@ -12,7 +12,7 @@ class LoreModel(DragDropCollectionModel):
             return None
         if role == Qt.DisplayRole:
             lore = self._data[index.row()]
-            text = lore.nid
+            text = lore.nid + ': ' + lore.category
             return text
         return None
 

@@ -38,6 +38,7 @@ class TurnChangeState(MapState):
         # If entering player phase
         if game.phase.get_current() == 'player':
             action.do(action.IncrementTurn())
+            action.do(action.UpdateRecords('turn'))
             game.state.change('free')
             game.state.change('status_upkeep') 
             game.state.change('phase_change')

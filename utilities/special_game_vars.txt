@@ -8,7 +8,7 @@ _convoy bool
 _fatigue int ()
 _prep_market bool 
 _base_market bool
-_show_world_map bool
+_world_map_in_base bool
 
 Special Level Vars
 _win_game bool

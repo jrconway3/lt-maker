@@ -549,6 +549,17 @@ class MapCombat():
             defender = mark[2]
             action.do(action.UpdateRecords('crit', (attacker.nid, defender.nid)))
 
+        damage_marks = self.get_from_full_playback('damage_hit')
+        damage_marks += self.get_from_full_playback('damage_crit')
+        for mark in damage_marks:
+            kind, dealer, item, receiver, damage, true_damage = mark
+            action.do(action.UpdateRecords('damage', (dealer.nid, receiver.nid, item.nid, damage, true_damage, 'crit' if kind == 'damage_crit' else 'hit')))
+
+        heal_marks = self.get_from_full_playback('heal_hit')
+        for mark in heal_marks:
+            kind, dealer, item, receiver, heal, true_heal = mark
+            action.do(action.UpdateRecords('heal', (dealer.nid, receiver.nid, item.nid, heal, true_heal, 'hit')))
+
         for mark in self.full_playback:
             if mark[0] in ('mark_miss', 'mark_hit', 'mark_crit'):
                 attacker = mark[1]

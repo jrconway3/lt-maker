@@ -155,15 +155,15 @@ class Lifelink(ItemComponent):
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         total_damage_dealt = 0
-        playbacks = [p for p in playback if p[0] == 'damage_hit' and p[1] == unit]
+        playbacks = [p for p in playback if p[0] in ('damage_hit', 'damage_crit') and p[1] == unit]
         for p in playbacks:
-            total_damage_dealt += p[4]
+            total_damage_dealt += p[5]
 
         damage = utils.clamp(total_damage_dealt, 0, target.get_hp())
         true_damage = int(damage * self.value)
         actions.append(action.ChangeHP(unit, true_damage))
 
-        playback.append(('heal_hit', unit, item, unit, true_damage))
+        playback.append(('heal_hit', unit, item, unit, true_damage, true_damage))
 
 class DamageOnMiss(ItemComponent):
     nid = 'damage_on_miss'
@@ -176,12 +176,13 @@ class DamageOnMiss(ItemComponent):
 
     def on_miss(self, actions, playback, unit, item, target, mode=None):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
-        true_damage = int(-damage * self.value)
+        damage = int(damage * self.value)
 
-        actions.append(action.ChangeHP(target, true_damage))
+        true_damage = min(damage, target.get_hp())
+        actions.append(action.ChangeHP(target, -damage))
 
         # For animation
-        playback.append(('damage_hit', unit, item, target, true_damage))
+        playback.append(('damage_hit', unit, item, target, damage, true_damage))
         if true_damage == 0:
             playback.append(('hit_sound', 'No Damage'))
             playback.append(('hit_anim', 'MapNoDamage', target))        

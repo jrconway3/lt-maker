@@ -20,9 +20,11 @@ class Uses(ItemComponent):
 
     def on_hit(self, actions, playback, unit, item, target, mode):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
+        actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
     def on_miss(self, actions, playback, unit, item, target, mode):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
+        actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
     def on_not_usable(self, unit, item):
         action.do(action.RemoveItem(unit, item))
@@ -48,9 +50,11 @@ class ChapterUses(ItemComponent):
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
+        actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
     def on_miss(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
+        actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
     def on_not_usable(self, unit, item):
         if unit.equipped_weapon is item:

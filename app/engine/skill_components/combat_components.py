@@ -382,15 +382,15 @@ class Lifelink(SkillComponent):
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         total_damage_dealt = 0
-        playbacks = [p for p in playback if p[0] == 'damage_hit' and p[1] == unit]
+        playbacks = [p for p in playback if p[0] in ('damage_hit', 'damage_crit') and p[1] == unit]
         for p in playbacks:
-            total_damage_dealt += p[4]
+            total_damage_dealt += p[5]
 
         damage = utils.clamp(total_damage_dealt, 0, target.get_hp())
         true_damage = int(damage * self.value)
         actions.append(action.ChangeHP(unit, true_damage))
 
-        playback.append(('heal_hit', unit, item, unit, true_damage))
+        playback.append(('heal_hit', unit, item, unit, true_damage, true_damage))
 
         actions.append(action.TriggerCharge(unit, self.skill))
 

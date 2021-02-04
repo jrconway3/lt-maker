@@ -28,12 +28,14 @@ class KillRecord(Record):
         self.killee = killee
 
 class DamageRecord(Record):
-    def __init__(self, dealer: str, receiver: str, might: int, damage: int):
+    def __init__(self, dealer: str, receiver: str, item_nid: str, over_damage: int, damage: int, kind: str):
         super().__init__()
         self.dealer = dealer
         self.receiver = receiver
-        self.might = might
+        self.item_nid = item_nid
+        self.over_damage = over_damage
         self.damage = damage
+        self.kind = kind  # hit, crit, miss
 
 class ItemRecord(Record):
     def __init__(self, user: str, item_nid: str):

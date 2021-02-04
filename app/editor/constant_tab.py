@@ -327,17 +327,8 @@ class MiscExperienceWidget(QWidget):
         self.default_exp.edit.valueChanged.connect(default_exp.set_value)
         self.default_exp.edit.valueChanged.connect(self.parameters_changed)
 
-        # steal_exp = data.get('steal_exp')
-        # self.steal_exp = PropertyBox(steal_exp.name, QSpinBox, self)
-        # self.steal_exp.edit.setRange(0, 100)
-        # self.steal_exp.edit.setAlignment(Qt.AlignRight)
-        # self.steal_exp.edit.setValue(steal_exp.value)
-        # self.steal_exp.edit.valueChanged.connect(steal_exp.set_value)
-        # self.steal_exp.edit.valueChanged.connect(self.parameters_changed)
-
         layout.addWidget(self.heal_min, 2, 0)
         layout.addWidget(self.default_exp, 2, 1)
-        # layout.addWidget(self.steal_exp, 2, 2)
 
     def parameters_changed(self, val):
         self.display_exp.update_parameters()

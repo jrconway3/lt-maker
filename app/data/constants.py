@@ -74,7 +74,6 @@ constants = ConstantCatalog([
     Constant('boss_bonus', "Extra exp for killing a boss", int, 40, 'exp'),
     Constant('min_exp', "Min exp gained in combat", int, 1, 'exp'),
     Constant('default_exp', "Default exp gain", int, 11, 'exp'),
-    Constant('steal_exp', "Exp gained on steal", int, 0, 'exp'),
     Constant('heal_curve', "How much to multiply the amount healed by to determine experience gain", float, 0, 'exp'),
     Constant('heal_magnitude', "Added to total exp for healing", int, 0, 'exp'),
     Constant('heal_offset', "Modifies expected healing", int, 11, 'exp'),

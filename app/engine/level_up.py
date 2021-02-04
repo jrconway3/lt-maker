@@ -135,6 +135,7 @@ class ExpState(MapState):
             done = self.exp_bar.update()
             if done:
                 action.do(action.GainExp(self.unit, self.exp_gain))
+                action.do(action.UpdateRecords('exp_gain', (self.unit, self.exp_gain, self.unit.klass)))
                 self.state.back()
                 self.start_time = current_time
                 # If we're ready to leave
@@ -156,6 +157,7 @@ class ExpState(MapState):
                 self.stat_changes = unit_funcs.get_next_level_up(self.unit)
                 action.do(action.IncLevel(self.unit))
                 action.do(action.ApplyStatChanges(self.unit, self.stat_changes))
+                action.do(action.UpdateRecords('level_gain', (self.unit, self.unit.level, self.unit.klass)))
                 self.create_level_up_logo()
                 self.state.clear()
                 self.state.change('level_up')
@@ -241,6 +243,7 @@ class ExpState(MapState):
             self.stat_changes, self.new_wexp = promote_action.get_data()
             print(self.new_wexp)
             action.do(promote_action)
+            action.do(action.UpdateRecords('level_gain', (self.unit, self.unit.level, self.unit.klass)))
 
             if self.combat_object:
                 self.combat_object.darken_ui()

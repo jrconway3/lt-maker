@@ -45,7 +45,7 @@ class HealExp(ItemComponent):
         healing_done = 0
         for record in playback:
             if record[0] == 'heal_hit' and record[1] == unit and record[3] == target:
-                healing_done += record[4]
+                healing_done += record[5]
         if healing_done <= 0:
             return 0
         heal_diff = healing_done - unit.get_internal_level()

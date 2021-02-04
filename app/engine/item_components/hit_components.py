@@ -33,10 +33,11 @@ class Heal(ItemComponent):
 
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         heal = self._get_heal_amount(unit)
+        true_heal = min(heal, equations.parser.hitpoints(target) - target.get_hp())
         actions.append(action.ChangeHP(target, heal))
 
         # For animation
-        playback.append(('heal_hit', unit, item, target, heal))
+        playback.append(('heal_hit', unit, item, target, heal, true_heal))
         playback.append(('hit_sound', 'MapHeal'))
         if heal >= 30:
             name = 'MapBigHealTrans'
@@ -77,10 +78,12 @@ class Damage(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, mode):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
 
+        true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))
+        actions.append(action.UpdateRecords('damage', (unit.nid, target.nid, damage, true_damage)))
 
         # For animation
-        playback.append(('damage_hit', unit, item, target, damage))
+        playback.append(('damage_hit', unit, item, target, damage, true_damage))
         if damage == 0:
             playback.append(('hit_sound', 'No Damage'))
             playback.append(('hit_anim', 'MapNoDamage', target))
@@ -88,9 +91,10 @@ class Damage(ItemComponent):
     def on_crit(self, actions, playback, unit, item, target, mode):
         damage = combat_calcs.compute_damage(unit, target, item, mode, crit=True)
 
+        true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))
 
-        playback.append(('damage_crit', unit, item, target, damage))
+        playback.append(('damage_crit', unit, item, target, damage, true_damage))
         if damage == 0:
             playback.append(('hit_sound', 'No Damage'))
             playback.append(('hit_anim', 'MapNoDamage', target))
@@ -377,6 +381,7 @@ class Steal(ItemComponent):
         if target_item:
             actions.append(action.RemoveItem(target, target_item))
             actions.append(action.DropItem(unit, target_item))
+            actions.append(action.UpdateRecords('steal', (unit.nid, target.nid, target_item.nid)))
             self._did_steal = True
 
     def end_combat(self, playback, unit, item, target):

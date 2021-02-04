@@ -220,9 +220,10 @@ class BaseCodexChildState(State):
     
     def start(self):
         options = ['Library']
-        if game.game_vars['_show_world_map']:
+        if game.game_vars['_world_map_in_base']:
             options.append('Map')
         # TODO Records
+        options.append('Records')
         # TODO Achievements?
         # TODO Tactics?
         # TODO Guide

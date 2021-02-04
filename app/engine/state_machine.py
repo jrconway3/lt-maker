@@ -27,7 +27,7 @@ class StateMachine():
 
     def load_states(self, starting_states=None, temp_state=None):
         from app.engine import title_screen, transitions, general_states, level_up, \
-            turnwheel, game_over, settings, info_menu, prep, trade, promotion, \
+            turnwheel, game_over, settings, info_menu, prep, base, trade, promotion, \
             status_upkeep, debug_mode, chapter_title
         from app.events import event_state
         self.all_states = \
@@ -97,6 +97,12 @@ class StateMachine():
              'prep_items': prep.PrepItemsState,
              'prep_restock': prep.PrepRestockState,
              'prep_market': prep.PrepMarketState,
+             'base_main': base.BaseMainState,
+             'base_market_select': base.BaseMarketSelectState,
+             'base_convos_child': base.BaseConvosChildState,
+             'base_codex_child': base.BaseCodexChildState,
+             'base_library': base.BaseLibraryState,
+             'base_records': base.BaseRecordsState,
              'debug': debug_mode.DebugState,
              }
 

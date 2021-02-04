@@ -2,6 +2,7 @@ from app.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data.database import DB
 from app.utilities import utils
 
+from app.data import lore
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
@@ -91,6 +92,7 @@ class Simple():
         self.limit = 1000
         self.hard_limit = False
         self.scroll = 0
+        self.y_offset = 0  # Make room for header
 
         self.options = []
         self.create_options(options, info)
@@ -238,7 +240,7 @@ class Simple():
         return max_width - max_width%8
 
     def get_menu_height(self):
-        return sum(option.height() for option in self.options[:self.limit]) + 8
+        return self.y_offset + sum(option.height() for option in self.options[:self.limit]) + 8
 
     def get_topleft(self):
         if not self.topleft:
@@ -330,7 +332,7 @@ class Choice(Simple):
                     option = menu_options.ItemOption(idx, option)
                 option.help_box = option.get_help_box()
                 self.options.append(option)
-            elif isinstance(option, Lore):
+            elif isinstance(option, lore.Lore):
                 option = menu_options.LoreOption(idx, option)
             else:
                 if self.horizontal:
@@ -446,8 +448,10 @@ class Choice(Simple):
             help_box.draw(surf, (rect[0] + self.get_menu_width(), rect[1] + 16), right=True)
         return surf
 
-    def vert_draw(self, surf):
+    def vert_draw(self, surf, offset=None):
         topleft = self.get_topleft()
+        if offset:
+            topleft = (topleft[0] + offset[0], topleft[1] + offset[1])
 
         bg_surf = self.create_bg_surf()
         surf.blit(bg_surf, (topleft[0] - 2, topleft[1] - 4))
@@ -458,7 +462,7 @@ class Choice(Simple):
         start_index = self.scroll
         end_index = self.scroll + self.limit
         choices = self.options[start_index:end_index]
-        running_height = 0
+        running_height = self.y_offset
         menu_width = self.get_menu_width()
         if choices:
             for idx, choice in enumerate(choices):
@@ -524,7 +528,7 @@ class Choice(Simple):
         topleft = self.get_topleft()
         end_index = self.scroll + self.limit
         choices = self.options[self.scroll:end_index]
-        running_height = 0
+        running_height = self.y_offset
         idxs, rects = [], []
         for idx, choice in enumerate(choices):
             top = topleft[1] + 4 + running_height

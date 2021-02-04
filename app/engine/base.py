@@ -1,4 +1,4 @@
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -6,14 +6,11 @@ from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
-from app.engine.state import State, MapState
+from app.engine.state import State
 
-from app.engine.background import SpriteBackground
-from app.engine import config as cf
 from app.engine.game_state import game
-from app.engine import menus, banner, action, base_surf, background, \
-    info_menu, engine, equations, item_funcs, text_funcs, image_mods, \
-    convoy_funcs, item_system, interaction, gui, icons, prep
+from app.engine import menus, base_surf, background, text_funcs, \
+    image_mods, gui, icons, prep, record_book
 from app.engine.fluid_scroll import FluidScroll
 
 class BaseMainState(State):
@@ -183,6 +180,7 @@ class BaseConvosChildState(State):
         ignore = [bool(game.memory.get('_ignore_' + event_nid)) for event_nid in game.base_convos]
         color = ['text-grey' if i else 'text-white' for i in ignore]
         self.menu.set_color(color)
+        SOUNDTHREAD.fade_in(game.level.music['base'])
 
     def take_input(self, event):
         self.menu.handle_mouse()
@@ -261,6 +259,9 @@ class BaseCodexChildState(State):
             elif selection == 'Map':
                 game.memory['next_state'] = 'base_world_map'
                 game.state.change('transition_to')
+            elif selection == 'Records':
+                game.memory['next_state'] = 'base_records'
+                game.state.change('transition_to')
 
     def update(self):
         if self.menu:
@@ -278,6 +279,9 @@ class LoreDisplay():
         self.width = WINWIDTH - 76
         self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8)
 
+        self.left_arrow = gui.ScrollArrow('left', (self.topleft[0] + 4, 4))
+        self.right_arrow = gui.ScrollArrow('right', (self.topleft[0] + self.width - 23, 4), 0.5)
+
     def update_entry(self, lore_nid):
         self.lore = DB.lore.get(lore_nid)
         self.page_num = 0
@@ -287,18 +291,22 @@ class LoreDisplay():
     def page_right(self, first_push=False) -> bool:
         if self.page_num < self.num_pages:
             self.page_num += 1
+            self.right_arrow.pulse()
             return True
         elif first_push:
             self.page_num = (self.page_num + 1) % self.num_pages
+            self.right_arrow.pulse()
             return True
         return False
 
     def page_left(self, first_push=False) -> bool:
         if self.page_num > 0:
             self.page_num -= 1
+            self.left_arrow.pulse()
             return True
         elif first_push:
             self.page_num = (self.page_num - 1) % self.num_pages
+            self.left_arrow.pulse()
             return True
         return False
 
@@ -314,6 +322,13 @@ class LoreDisplay():
             lines = text_funcs.line_wrap(FONT['text-white'], text, self.width - 8)
             for idx, line in enumerate(lines):
                 FONT['text-white'].blit(line, surf, (4, FONT['text-white'].height * idx + 20))
+
+            if self.num_pages > 1:
+                text = '%d / %d' % (self.page_num + 1, self.num_pages)
+                FONT['text-white'].blit_right(text, surf, (self.width - 4, WINHEIGHT - 12 - 16))
+
+                self.left_arrow.draw(surf)
+                self.right_arrow.draw(surf)
 
         return surf
 
@@ -368,10 +383,10 @@ class BaseLibraryState(State):
                 self.display.update_entry(self.menu.get_current().nid)
         elif 'RIGHT' in directions:
             if self.display.page_right():
-                SOUNDTHREAD.play_sfx('TradeRight')
+                SOUNDTHREAD.play_sfx('Status_Page_Change')
         elif 'LEFT' in directions:
             if self.display.page_left():
-                SOUNDTHREAD.play_sfx('TradeRight')
+                SOUNDTHREAD.play_sfx('Status_Page_Change')
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
@@ -379,7 +394,7 @@ class BaseLibraryState(State):
 
         elif event == 'SELECT':
             if self.display.page_right(True):
-                SOUNDTHREAD.play_sfx('TradeRight')
+                SOUNDTHREAD.play_sfx('Status_Page_Change')
 
         elif event == 'AUX':
             SOUNDTHREAD.play_sfx('Info')
@@ -414,4 +429,153 @@ class BaseLibraryState(State):
             self.menu.draw(surf)
         if self.display:
             self.display.draw(surf)
+        return surf
+
+class BaseRecordsState(State):
+    name = 'base_records'
+
+    def __init__(self, name=None):
+        super().__init__(name)
+        self.fluid = FluidScroll()
+
+    def start(self):
+        self.bg = game.memory['base_bg']
+
+        levels = game.records.get_levels()
+
+        self.record_menu = record_book.RecordsDisplay()
+        self.chapter_menus = [record_book.ChapterStats(level_nid) for level_nid in levels]
+        self.mvp = record_book.MVPDisplay()
+        units = game.get_all_units_in_party()
+        self.unit_menus = [record_book.UnitStats(unit.nid) for unit in units]
+
+        self.state = 'records'
+        self.current_menu = self.record_menu
+        self.prev_menu = None
+
+        self.current_offset_x = 0
+        self.current_offset_y = 0
+        self.prev_offset_x = 0
+        self.prev_offset_y = 0
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            if self.current_menu.move_down(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
+
+        if event == 'LEFT':
+            SOUNDTHREAD.play_sfx('Status_Page_Change')
+            self.prev_menu = self.current_menu
+            self.current_offset_x = -WINWIDTH
+            self.prev_offset_x = 1
+            if self.state == 'records':
+                self.state = 'mvp'
+                self.current_menu = self.mvp
+            elif self.state == 'mvp':
+                self.state = 'records'
+                self.current_menu = self.records
+            elif self.state == 'chapter':
+                self.records.move_up(True)
+                self.current_menu = self.chapter_menus[self.records.get_current_index()]
+            elif self.state == 'unit':
+                self.mvp.move_up(True)
+                self.current_menu = self.unit_menus[self.mvp.get_current_index()]
+                
+        elif event == 'RIGHT':
+            SOUNDTHREAD.play_sfx('Status_Page_Change')
+            self.prev_menu = self.current_menu
+            self.current_offset_x = WINWIDTH
+            self.prev_offset_x = -1
+            if self.state == 'records':
+                self.state = 'mvp'
+                self.current_menu = self.mvp
+            elif self.state == 'mvp':
+                self.state = 'records'
+                self.current_menu = self.records
+            elif self.state == 'chapter':
+                self.records.move_down(True)
+                self.current_menu = self.chapter_menus[self.records.get_current_index()]
+            elif self.state == 'unit':
+                self.mvp.move_down(True)
+                self.current_menu = self.unit_menus[self.mvp.get_current_index()]
+
+        elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
+            if self.state in ('records', 'mvp'):
+                game.state.change('transition_pop')
+            else:
+                self.prev_menu = self.current_menu
+                self.current_offset_y = -WINHEIGHT
+                self.prev_offset_y = 1
+
+            if self.state == 'unit':
+                self.state = 'mvp'
+                self.current_menu = self.mvp
+            elif self.state == 'chapter':
+                self.state = 'records'
+                self.current_menu = self.records
+
+        elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
+            if self.state in ('records', 'mvp'):
+                self.prev_menu = self.current_menu
+                self.current_offset_y = WINHEIGHT
+                self.prev_offset_y = -1
+
+            if self.state == 'records':
+                self.state = 'chapter'
+                self.current_menu = self.chapter_menus[self.records.get_current_index()]
+            elif self.state == 'mvp':
+                self.state = 'unit'
+                self.current_menu = self.unit_menus[self.records.get_current_index()]
+
+    def update(self):
+        if self.current_menu:
+            self.current_menu.update()
+
+        # X axis
+        if self.current_offset_x > 0:
+            self.current_offset_x -= 16
+        elif self.current_offset_x < 0:
+            self.current_offset_x += 16
+        if self.prev_menu:
+            if self.prev_offset_x > 0:
+                self.prev_offset_x += 16
+            elif self.prev_offset_x < 0:
+                self.prev_offset_x -= 16
+            if self.prev_offset_x > WINWIDTH or self.prev_offset_x < -WINWIDTH:
+                self.prev_offset_x = 0
+                self.prev_menu = None
+
+        # Y axis
+        if self.current_offset_y > 0:
+            self.current_offset_y -= 16
+        elif self.current_offset_y < 0:
+            self.current_offset_y += 16
+        if self.prev_menu:
+            if self.prev_offset_y > 0:
+                self.prev_offset_y += 16
+            elif self.prev_offset_y < 0:
+                self.prev_offset_y -= 16
+            if self.prev_offset_y > WINHEIGHT or self.prev_offset_y < -WINHEIGHT:
+                self.prev_offset_y = 0
+                self.prev_menu = None
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        if self.current_menu:
+            self.current_menu.draw(surf, offset=(self.current_offset_x, self.current_offset_y))
+        if self.prev_menu:
+            self.prev_menu.draw(surf, offset=(self.prev_offset_x, self.prev_offset_y))
         return surf

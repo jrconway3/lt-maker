@@ -171,5 +171,66 @@ class Recordkeeper():
             return self.exp.pop()
 
     # Interogation functions
-    def get_number_of_kills(self, unit_nid: str) -> int: 
-        return len([record for record in self.kills if record.killer == unit_nid])
+    def get_levels(self) -> list:
+        """
+        Returns list of chapters played in order
+        """
+        levels = []
+        for record in self.turn_taken:
+            if record.level_nid not in levels:
+                levels.append(record.level_nid)
+        return levels
+
+    def get_turncounts(self, level_list: list) -> list:
+        """
+        For each level in list, return the number of turns spent in level/chapter
+        """
+        turncounts = []
+        for level in level_list:
+            max_turncount = 0
+            for record in self.turn_taken:
+                if record.level_nid == level:
+                    max_turncount = max(record.turn, max_turncount)
+            turncounts.append(max_turncount)
+        return turncounts
+
+    def get_kills(self, unit_nid: str, level_nid: str = None) -> int:
+        """
+        Returns number of kills by unit in chapter
+        If level_nid is None, for all chapters
+        """
+        if level_nid is not None:
+            return len([record for record in self.kills if record.killer == unit_nid and record.level_nid == level_nid])
+        else:
+            return len([record for record in self.kills if record.killer == unit_nid])
+
+    def get_damage(self, unit_nid: str, level_nid: str = None) -> int:
+        """
+        Returns total damage dealt by unit in chapter
+        If level_nid is None, for all chapters
+        """
+        if level_nid is not None:
+            return sum([record.damage for record in self.damage if record.dealer == unit_nid and record.level_nid == level_nid])
+        else:
+            return sum([record.damage for record in self.damage if record.dealer == unit_nid])
+
+    def get_heal(self, unit_nid: str, level_nid: str = None) -> int:
+        """
+        Returns total healing done by unit in chapter
+        If level_nid is None, for all chapters
+        """
+        if level_nid is not None:
+            return sum([record.damage for record in self.healing if record.dealer == unit_nid and record.level_nid == level_nid])
+        else:
+            return sum([record.damage for record in self.healing if record.dealer == unit_nid])
+
+    def determine_score(self, unit_nid: str, level_nid: str = None) -> int:
+        """
+        Returns score for unit in chapter
+        If level_nid is None, for all chapters
+        """
+        kill_score = self.get_kills(unit_nid, level_nid)
+        damage_score = self.get_damage(unit_nid, level_nid)
+        heal_score = self.get_heal(unit_nid, level_nid)
+
+        return kill_score * 20 + damage_score + heal_score

@@ -12,7 +12,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.input_manager import INPUT
 from app.engine.state import State
 from app.engine import engine, background, menu_options, help_menu, gui, \
-    unit_sprite, icons, image_mods, item_funcs, equations, \
+    icons, image_mods, item_funcs, equations, \
     combat_calcs, menus, skill_system
 from app.engine.game_state import game
 from app.engine.fluid_scroll import FluidScroll

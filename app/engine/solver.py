@@ -38,10 +38,10 @@ class AttackerState(SolverState):
         if command == '--':
             if solver.main_target:
                 if DB.constants.value('def_double') or skill_system.def_double(solver.main_target):
-                    defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense')
+                    defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, solver.item, 'defense')
                 else:
                     defender_outspeed = 1
-                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack')
+                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, solver.target_item, 'attack')
             else:
                 attacker_outspeed = defender_outspeed = 1
             multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
@@ -65,12 +65,12 @@ class AttackerState(SolverState):
     def process(self, solver, actions, playback):
         playback.append(('attacker_phase',))
         if solver.main_target:
-            solver.process(actions, playback, solver.attacker, solver.main_target, solver.item, 'attack')
+            solver.process(actions, playback, solver.attacker, solver.main_target, solver.item, solver.target_item, 'attack')
         for target in solver.splash:
-            solver.process(actions, playback, solver.attacker, target, solver.item, 'splash')
+            solver.process(actions, playback, solver.attacker, target, solver.item, solver.target_item, 'splash')
             # Make sure that we run on_hit even if otherwise unavailable
         if not solver.main_target and not solver.splash:
-            solver.simple_process(actions, playback, solver.attacker, None, solver.item, None)
+            solver.simple_process(actions, playback, solver.attacker, None, solver.item, None, None)
         
         solver.num_subattacks += 1
         multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
@@ -83,10 +83,10 @@ class DefenderState(SolverState):
         if command == '--':
             if solver.attacker_alive() and solver.main_target_alive():
                 if DB.constants.value('def_double') or skill_system.def_double(solver.main_target):
-                    defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, 'defense')
+                    defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, solver.item, 'defense')
                 else:
                     defender_outspeed = 1
-                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, 'attack')
+                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, solver.target_item, 'attack')
                 multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
                 
                 if solver.allow_counterattack() and \
@@ -105,7 +105,7 @@ class DefenderState(SolverState):
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))
-        solver.process(actions, playback, solver.main_target, solver.attacker, solver.target_item, 'defense')
+        solver.process(actions, playback, solver.main_target, solver.attacker, solver.target_item, solver.item, 'defense')
         
         solver.num_subdefends += 1
         multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
@@ -183,8 +183,8 @@ class CombatPhaseSolver():
     def generate_crit_roll(self):
         return static_random.get_combat()
 
-    def process(self, actions, playback, attacker, defender, item, mode):
-        to_hit = combat_calcs.compute_hit(attacker, defender, item, mode)
+    def process(self, actions, playback, attacker, defender, item, def_item, mode):
+        to_hit = combat_calcs.compute_hit(attacker, defender, item, def_item, mode)
 
         if self.current_command in ('hit1', 'hit2', 'crit1', 'crit2'):
             roll = -1
@@ -196,7 +196,7 @@ class CombatPhaseSolver():
         if roll < to_hit:
             crit = False
             if DB.constants.get('crit').value or self.current_command in ('crit1', 'crit2'):
-                to_crit = combat_calcs.compute_crit(attacker, defender, item, mode)
+                to_crit = combat_calcs.compute_crit(attacker, defender, item, def_item, mode)
                 if self.current_command in ('crit1', 'crit2'):
                     crit = True
                 elif self.current_command in ('hit1', 'hit2', 'miss1', 'miss2'):
@@ -217,7 +217,7 @@ class CombatPhaseSolver():
             item_system.on_miss(actions, playback, attacker, item, defender, mode)
             playback.append(('mark_miss', attacker, defender, self.attacker))
 
-    def simple_process(self, actions, playback, attacker, defender, item, mode):
+    def simple_process(self, actions, playback, attacker, defender, item, def_item, mode):
         item_system.on_hit(actions, playback, attacker, item, defender, mode)
         playback.append(('mark_hit', attacker, defender, self.attacker))
 

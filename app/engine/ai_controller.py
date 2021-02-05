@@ -406,9 +406,9 @@ class PrimaryAI():
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             if ai_priority is None:
                 if item_system.damage(self.unit, item):
-                    raw_damage = combat_calcs.compute_damage(self.unit, target, item, "attack")
+                    raw_damage = combat_calcs.compute_damage(self.unit, target, item, target.get_weapon(), "attack")
                     lethality = utils.clamp(raw_damage / float(target.get_hp()), 0, 1)
-                    accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, "attack")/100., 0, 1)
+                    accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, target.get_weapon(), "attack")/100., 0, 1)
                     ai_priority = 3 if lethality * accuracy >= 1 else lethality * accuracy
                     if skill_system.check_enemy(self.unit, target):
                         tp += ai_priority
@@ -425,8 +425,8 @@ class PrimaryAI():
         defense_term = 1
         status_term = 0
 
-        raw_damage = combat_calcs.compute_damage(self.unit, main_target, item, "attack")
-        crit_damage = combat_calcs.compute_damage(self.unit, main_target, item, "attack", crit=True)
+        raw_damage = combat_calcs.compute_damage(self.unit, main_target, item, main_target.get_weapon(), "attack")
+        crit_damage = combat_calcs.compute_damage(self.unit, main_target, item, main_target.get_weapon(), "attack", crit=True)
 
         # Damage I do compared to target's current hp
         lethality = utils.clamp(raw_damage / float(main_target.get_hp()), 0, 1)
@@ -434,21 +434,21 @@ class PrimaryAI():
         # Do I add a new status to the target
         status = 1 if item.status_on_hit else 0
         # Accuracy
-        accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, main_target, item, "attack")/100., 0, 1)
-        crit_accuracy = utils.clamp(combat_calcs.compute_crit(self.unit, main_target, item, "attack")/100., 0, 1)
+        accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, main_target, item, main_target.get_weapon(), "attack")/100., 0, 1)
+        crit_accuracy = utils.clamp(combat_calcs.compute_crit(self.unit, main_target, item, main_target.get_weapon(), "attack")/100., 0, 1)
 
         target_damage = 0
         target_accuracy = 0
         # Determine if I would get countered
         target_weapon = main_target.get_weapon()
         if combat_calcs.can_counterattack(self.unit, item, main_target, target_weapon):
-            target_damage = combat_calcs.compute_damage(main_target, self.unit, target_weapon, "defense")
+            target_damage = combat_calcs.compute_damage(main_target, self.unit, target_weapon, item, "defense")
             if not target_damage:
                 target_damage = 0
             target_damage = utils.clamp(target_damage/main_target.get_hp(), 0, 1)
-            target_accuracy = utils.clamp(combat_calcs.compute_hit(main_target, self.unit, target_weapon, "defense")/100., 0, 1)
+            target_accuracy = utils.clamp(combat_calcs.compute_hit(main_target, self.unit, target_weapon, item, "defense")/100., 0, 1)
 
-        num_attacks = combat_calcs.outspeed(self.unit, main_target, item, "attack")
+        num_attacks = combat_calcs.outspeed(self.unit, main_target, item, target_weapon, "attack")
         first_strike = lethality * accuracy if lethality >= 1 else 0
 
         if num_attacks > 1 and target_damage >= 1:
@@ -637,8 +637,8 @@ class SecondaryAI():
         for item in items:
             status_term = 1 if item.status else 0
             if item_system.is_weapon(self.unit, item) or item_system.is_spell(self.unit, item):
-                raw_damage = combat_calcs.compute_damage(self.unit, enemy, item)
-                hit = utils.clamp(combat_calcs.compute_hit(self.unit, enemy, item)/100., 0, 1)
+                raw_damage = combat_calcs.compute_damage(self.unit, enemy, item, enemy.get_weapon(), 'attack')
+                hit = utils.clamp(combat_calcs.compute_hit(self.unit, enemy, item, enemy.get_weapon(), 'attack')/100., 0, 1)
                 if raw_damage:
                     true_damage = raw_damage * hit
                 else:

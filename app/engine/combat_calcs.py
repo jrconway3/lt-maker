@@ -77,13 +77,14 @@ def accuracy(unit, item=None):
 
     return accuracy
 
-def avoid(unit, item_to_avoid=None):
+def avoid(unit, item, item_to_avoid=None):
     if not item_to_avoid:
         avoid = equations.parser.avoid(unit)
     else:
         equation = item_system.avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
-        avoid += item_system.modify_avoid(unit, item_to_avoid)
+    if item:
+        avoid += item_system.modify_avoid(unit, item)
     avoid += skill_system.modify_avoid(unit, item_to_avoid)
     return avoid
 
@@ -109,13 +110,14 @@ def crit_accuracy(unit, item=None):
 
     return crit_accuracy
 
-def crit_avoid(unit, item_to_avoid=None):
+def crit_avoid(unit, item, item_to_avoid=None):
     if not item_to_avoid:
         avoid = equations.parser.crit_avoid(unit)
     else:
         equation = item_system.crit_avoid_formula(unit, item_to_avoid)
         avoid = equations.parser.get(equation, unit)
-        avoid += item_system.modify_crit_avoid(unit, item_to_avoid)
+    if item:
+        avoid += item_system.modify_crit_avoid(unit, item)
     avoid += skill_system.modify_crit_avoid(unit, item_to_avoid)
     return avoid
 
@@ -143,13 +145,14 @@ def damage(unit, item=None):
 
     return might
 
-def defense(unit, item_to_avoid=None):
+def defense(unit, item, item_to_avoid=None):
     if not item_to_avoid:
         res = equations.parser.defense(unit)
     else:
         equation = item_system.resist_formula(unit, item_to_avoid)
         res = equations.parser.get(equation, unit)
-        res += item_system.modify_resist(unit, item_to_avoid)
+    if item:
+        res += item_system.modify_resist(unit, item)
     res += skill_system.modify_resist(unit, item_to_avoid)
     return res
 
@@ -173,19 +176,18 @@ def attack_speed(unit, item=None):
 
     return attack_speed
 
-def defense_speed(unit, item_to_avoid=None):
+def defense_speed(unit, item, item_to_avoid=None):
     if not item_to_avoid:
         speed = equations.parser.defense_speed(unit)
     else:
         equation = item_system.defense_speed_formula(unit, item_to_avoid)
         speed = equations.parser.get(equation, unit)
-        speed += item_system.modify_defense_speed(unit, item_to_avoid)
+    if item:
+        speed += item_system.modify_defense_speed(unit, item)
     speed += skill_system.modify_defense_speed(unit, item_to_avoid)
     return speed
 
-def compute_hit(unit, target, item=None, mode=None):
-    if not item:
-        item = unit.get_weapon()
+def compute_hit(unit, target, item, def_item, mode):
     if not item:
         return None
 
@@ -198,31 +200,29 @@ def compute_hit(unit, target, item=None, mode=None):
     
     # Weapon Triangle
     triangle_bonus = 0
-    adv = compute_advantage(unit, target, item, target.get_weapon())
-    disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
+    adv = compute_advantage(unit, target, item, def_item)
+    disadv = compute_advantage(unit, target, item, def_item, False)
     if adv:
         triangle_bonus += int(adv.accuracy)
     if disadv:
         triangle_bonus += int(disadv.accuracy)
 
-    adv = compute_advantage(target, unit, target.get_weapon(), item)
-    disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
+    adv = compute_advantage(target, unit, def_item, item)
+    disadv = compute_advantage(target, unit, def_item, item, False)
     if adv:
         triangle_bonus -= int(adv.avoid)
     if disadv:
         triangle_bonus -= int(disadv.avoid)
     hit += triangle_bonus
 
-    hit -= avoid(target, item)
+    hit -= avoid(target, def_item, item)
 
     hit += skill_system.dynamic_accuracy(unit, item, target, mode)
     hit -= skill_system.dynamic_avoid(target, item, unit, mode)
 
     return utils.clamp(hit, 0, 100)
 
-def compute_crit(unit, target, item=None, mode=None):
-    if not item:
-        item = unit.get_weapon()
+def compute_crit(unit, target, item, def_item, mode):
     if not item:
         return None
 
@@ -235,31 +235,29 @@ def compute_crit(unit, target, item=None, mode=None):
     
     # Weapon Triangle
     triangle_bonus = 0
-    adv = compute_advantage(unit, target, item, target.get_weapon())
-    disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
+    adv = compute_advantage(unit, target, item, def_item)
+    disadv = compute_advantage(unit, target, item, def_item, False)
     if adv:
         triangle_bonus += int(adv.crit)
     if disadv:
         triangle_bonus += int(disadv.crit)
 
-    adv = compute_advantage(target, unit, target.get_weapon(), item)
-    disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
+    adv = compute_advantage(target, unit, def_item, item)
+    disadv = compute_advantage(target, unit, def_item, item, False)
     if adv:
         triangle_bonus -= int(adv.dodge)
     if disadv:
         triangle_bonus -= int(disadv.dodge)
     crit += triangle_bonus
 
-    crit -= crit_avoid(target, item)
+    crit -= crit_avoid(target, def_item, item)
 
     crit += skill_system.dynamic_crit_accuracy(unit, item, target, mode)
     crit -= skill_system.dynamic_crit_avoid(target, item, unit, mode)
 
     return utils.clamp(crit, 0, 100)
 
-def compute_damage(unit, target, item=None, mode=None, crit=False):
-    if not item:
-        item = unit.get_weapon()
+def compute_damage(unit, target, item, def_item, mode, crit=False):
     if not item:
         return None
 
@@ -272,15 +270,15 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
 
     # Weapon Triangle
     triangle_bonus = 0
-    adv = compute_advantage(unit, target, item, target.get_weapon())
-    disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
+    adv = compute_advantage(unit, target, item, def_item)
+    disadv = compute_advantage(unit, target, item, def_item, False)
     if adv:
         triangle_bonus += int(adv.damage)
     if disadv:
         triangle_bonus += int(disadv.damage)
 
-    adv = compute_advantage(target, unit, target.get_weapon(), item)
-    disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
+    adv = compute_advantage(target, unit, def_item, item)
+    disadv = compute_advantage(target, unit, def_item, item, False)
     if adv:
         triangle_bonus -= int(adv.resist)
     if disadv:
@@ -288,7 +286,7 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
     might += triangle_bonus
     total_might = might
 
-    might -= defense(target, item)
+    might -= defense(target, def_item, item)
 
     if crit:
         might *= equations.parser.crit_mult(unit)
@@ -302,9 +300,7 @@ def compute_damage(unit, target, item=None, mode=None, crit=False):
     might *= skill_system.resist_multiplier(target, item, unit, mode)
     return int(max(DB.constants.get('min_damage').value, might))
 
-def outspeed(unit, target, item, mode=None) -> bool:
-    if not item:
-        item = unit.get_weapon()
+def outspeed(unit, target, item, def_item, mode) -> bool:
     if not item:
         return 1
     if not item_system.can_double(unit, item):
@@ -318,30 +314,28 @@ def outspeed(unit, target, item, mode=None) -> bool:
     # Weapon Triangle
     triangle_bonus = 0
 
-    adv = compute_advantage(unit, target, item, target.get_weapon())
-    disadv = compute_advantage(unit, target, item, target.get_weapon(), False)
+    adv = compute_advantage(unit, target, item, def_item)
+    disadv = compute_advantage(unit, target, item, def_item, False)
     if adv:
         triangle_bonus += int(adv.attack_speed)
     if disadv:
         triangle_bonus += int(disadv.attack_speed)
 
-    adv = compute_advantage(target, unit, target.get_weapon(), item)
-    disadv = compute_advantage(target, unit, target.get_weapon(), item, False)
+    adv = compute_advantage(target, unit, def_item, item)
+    disadv = compute_advantage(target, unit, def_item, item, False)
     if adv:
         triangle_bonus -= int(adv.defense_speed)
     if disadv:
         triangle_bonus -= int(disadv.defense_speed)
 
-    speed -= defense_speed(target, item)
+    speed -= defense_speed(target, def_item, item)
 
     speed += skill_system.dynamic_attack_speed(unit, item, target, mode)
     speed -= skill_system.dynamic_defense_speed(target, item, unit, mode)
 
     return 2 if speed >= equations.parser.speed_to_double(unit) else 1
 
-def compute_multiattacks(unit, target, item=None, mode=None):
-    if not item:
-        item = unit.get_weapon()
+def compute_multiattacks(unit, target, item, mode):
     if not item:
         return None
 

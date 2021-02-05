@@ -76,11 +76,10 @@ class Damage(ItemComponent):
         return self.value
 
     def on_hit(self, actions, playback, unit, item, target, mode):
-        damage = combat_calcs.compute_damage(unit, target, item, mode)
+        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
 
         true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))
-        actions.append(action.UpdateRecords('damage', (unit.nid, target.nid, damage, true_damage)))
 
         # For animation
         playback.append(('damage_hit', unit, item, target, damage, true_damage))
@@ -89,7 +88,7 @@ class Damage(ItemComponent):
             playback.append(('hit_anim', 'MapNoDamage', target))
 
     def on_crit(self, actions, playback, unit, item, target, mode):
-        damage = combat_calcs.compute_damage(unit, target, item, mode, crit=True)
+        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, crit=True)
 
         true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))

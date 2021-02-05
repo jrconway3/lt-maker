@@ -833,7 +833,7 @@ class InfoMenuState(State):
         else:
             rng, dam, acc, crt = '--', '--', '--', '--'
 
-        avo = str(combat_calcs.avoid(self.unit))
+        avo = str(combat_calcs.avoid(self.unit, weapon))
         FONT['text-blue'].blit_right(rng, surf, (127, top))
         FONT['text-blue'].blit_right(dam, surf, (71, top + 16))
         FONT['text-blue'].blit_right(acc, surf, (71, top + 32))

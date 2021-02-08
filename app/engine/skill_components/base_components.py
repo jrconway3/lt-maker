@@ -40,6 +40,20 @@ class IgnoreAlliances(SkillComponent):
     def check_enemy(self, unit1, unit2) -> bool:
         return True
 
+class ChangeAI(SkillComponent):
+    nid = 'change_ai'
+    desc = "Unit's AI is forcibly changed"
+    tag = 'base'
+
+    expose = Type.AI
+
+    def on_add(self, unit, skill):
+        self.prev_ai = unit.ai
+        unit.ai = self.value
+
+    def on_remove(self, unit, skill):
+        unit.ai = self.prev_ai
+
 class CannotDouble(SkillComponent):
     nid = 'cannot_double'
     desc = "Unit cannot double"

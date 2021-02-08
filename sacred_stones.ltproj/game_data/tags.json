@@ -11,5 +11,8 @@
     "NoAutoPromote",
     "Convoy",
     "AdjConvoy",
-    "Tile"
+    "Tile",
+    "Flying",
+    "Monster",
+    "Sword"
 ]

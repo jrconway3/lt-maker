@@ -48,6 +48,7 @@ For Portrait Editor:
     Position in main info menu setters
 
 Clean and Rename files/resources button in Help
+Import and Export JSON for Classes, Items, Skills, Units
 
 Make Chapter 3 of Sacred Stones
 

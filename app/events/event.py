@@ -1168,7 +1168,7 @@ class Event():
         values, flags = event_commands.parse(command)
         unit_nid = values[0]
         if game.get_unit(unit_nid):
-            print("Unit with NID %s already exists!" % uni_nid)
+            print("Unit with NID %s already exists!" % unit_nid)
             return
         unit_prefab = DB.units.get(unit_nid)
         if not unit_prefab:

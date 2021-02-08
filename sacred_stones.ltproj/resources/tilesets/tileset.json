@@ -22,5 +22,17 @@
     {
         "nid": "SacredStonesVillage",
         "terrain_grid": {}
+    },
+    {
+        "nid": "GradoKeep",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "Chpt14B",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "Chpt4",
+        "terrain_grid": {}
     }
 ]

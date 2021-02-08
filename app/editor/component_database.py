@@ -252,6 +252,21 @@ class MapAnimationItemComponent(BoolItemComponent):
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
+class AIItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        self.editor.addItems(DB.ai.keys())
+        if not self._data.value and DB.ai:
+            self._data.value = DB.ai[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+    def on_value_changed(self):
+        val = self.editor.currentText()
+        self._data.value = val
+
 class EventItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
@@ -378,6 +393,8 @@ def get_display_widget(component, parent):
         c = EquationItemComponent(component, parent)
     elif component.expose == Type.Sound:
         c = SoundItemComponent(component, parent)
+    elif component.expose == Type.AI:
+        c = AIItemComponent(component, parent)
     elif component.expose == Type.Event:
         c = EventItemComponent(component, parent)
     elif isinstance(component.expose, tuple):

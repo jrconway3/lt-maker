@@ -44,6 +44,10 @@ class StatList(Data):
     def default(cls, db, starting_value=0):
         return cls([Stat(nid, starting_value) for nid in db.stats.keys()])
 
+    @classmethod
+    def default_to_max(cls, db):
+        return cls([Stat(nid, db.stats[nid].maximum) for idx, nid in db.stats.keys()])
+
     def new_key(self, idx, nid):
         new_stat = Stat(nid, 0)
         self.insert(idx, new_stat)

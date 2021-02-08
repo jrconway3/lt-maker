@@ -25,7 +25,7 @@ class UnitDatabase(DatabaseTab):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
         fn, ok = QFileDialog.getOpenFileName(self, "Import units from units.xml", starting_path, "Units XML (units.xml);;All Files(*)")
-        if ok and fn.endswith('units.xml'):
+        if ok and fn:
             parent_dir = os.path.split(fn)[0]
             settings.set_last_open_path(parent_dir)
             new_units = unit_import.get_from_xml(parent_dir, fn)

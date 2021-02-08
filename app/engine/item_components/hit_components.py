@@ -98,6 +98,21 @@ class Damage(ItemComponent):
             playback.append(('hit_sound', 'No Damage'))
             playback.append(('hit_anim', 'MapNoDamage', target))
 
+class Eclipse(ItemComponent):
+    nid = 'Eclipse'
+    desc = "Target loses half current HP on hit"
+    tag = 'special'
+
+    def on_hit(self, actions, playback, unit, item, target, mode):
+        true_damage = damage = target.get_hp()//2
+        actions.append(action.ChangeHP(target, -damage))
+
+        # For animation
+        playback.append(('damage_hit', unit, item, target, damage, true_damage))
+        if damage == 0:
+            playback.append(('hit_sound', 'No Damage'))
+            playback.append(('hit_anim', 'MapNoDamage', target))
+
 class PermanentStatChange(ItemComponent):
     nid = 'permanent_stat_change'
     desc = "Item changes target's stats on hit."

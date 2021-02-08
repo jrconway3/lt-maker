@@ -49,7 +49,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
             if s:
                 s.value = num
         promotion = stats.StatList.default(DB)
-        if klass.find('promotion'):
+        if klass.find('promotion') is not None and klass.find('promotion').text is not None:
             klass_promotion = str_utils.intify(klass.find('promotion').text)
             for idx, num in enumerate(klass_promotion):
                 s = promotion.get(stat_list[idx])

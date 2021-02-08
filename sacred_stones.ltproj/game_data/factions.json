@@ -28,5 +28,15 @@
             0,
             0
         ]
+    },
+    {
+        "nid": "Monster",
+        "name": "Monster",
+        "desc": "It's a monster.",
+        "icon_nid": "MonsterEmblem",
+        "icon_index": [
+            0,
+            0
+        ]
     }
 ]

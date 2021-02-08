@@ -131,7 +131,7 @@ class ClassModel(DragDropCollectionModel):
         growths = stats.StatList.default(DB)
         growth_bonus = stats.StatList.default(DB)
         promotion = stats.StatList.default(DB)
-        max_stats = stats.StatList.default(DB, 30)
+        max_stats = stats.StatList.default_to_max(DB)
         wexp_gain = weapons.WexpGainList.default(DB)
         new_class = klass.Klass(
             nid, name, "", 1, movement_group, None, [], [], 20,

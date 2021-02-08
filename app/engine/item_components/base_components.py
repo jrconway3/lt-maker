@@ -158,6 +158,18 @@ class MaximumRange(ItemComponent):
     def maximum_range(self, unit, item) -> int:
         return self.value
 
+class MaximumEquationRange(ItemComponent):
+    nid = 'max_equation_range'
+    desc = "Set the maximum_range of the item to an equation"
+    tag = 'target'
+
+    expose = Type.Equation
+
+    def maximum_range(self, unit, item) -> int:
+        from app.engine import equations
+        value = equations.parser.get(self.value, unit)
+        return int(value)
+
 class Usable(ItemComponent):
     nid = 'usable'
     desc = "Item is usable"

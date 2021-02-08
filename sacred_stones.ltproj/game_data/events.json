@@ -6585,6 +6585,12 @@
                 ]
             ],
             [
+                "change_tilemap",
+                [
+                    "Grado Keep"
+                ]
+            ],
+            [
                 "transition",
                 [
                     "Open",
@@ -6600,7 +6606,7 @@
             [
                 "flicker_cursor",
                 [
-                    "5,5"
+                    "10,4"
                 ]
             ],
             [
@@ -6749,6 +6755,116 @@
                 ]
             ],
             [
+                "change_tilemap",
+                [
+                    "Chapter 14B"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Load the units that are necessary to display for cutscene"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Vigarde",
+                    "enemy"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Valter",
+                    "enemy"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Riev",
+                    "enemy"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Caellach",
+                    "enemy"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "Glen",
+                    "Wyvern Lord",
+                    "1",
+                    "enemy"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Duessel",
+                    "enemy"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Selena",
+                    "enemy"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Lyon",
+                    "enemy"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Vigarde",
+                    "15,2",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Riev",
+                    "16,3",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Duessel",
+                    "15,5",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Selena",
+                    "16,5",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Lyon",
+                    "16,3",
+                    "immediate"
+                ]
+            ],
+            [
                 "change_background",
                 []
             ],
@@ -6855,6 +6971,101 @@
                 "comment",
                 [
                     "# Do map stuff"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "TopDoor"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Glen",
+                    "13,5",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Selena",
+                    "17,5",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Duessel",
+                    "13,4"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Valter",
+                    "14,10",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Riev",
+                    "15,10",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Caellach",
+                    "16,10",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Valter",
+                    "14,5",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Riev",
+                    "15,5",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Caellach",
+                    "16,5"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vigarde"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Back to dialogue"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vigarde",
+                    "Left"
                 ]
             ],
             [

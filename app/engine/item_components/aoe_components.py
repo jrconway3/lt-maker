@@ -161,6 +161,21 @@ class AllAlliesAOE(ItemComponent):
         splash = [(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)]
         return splash
 
+class AllAlliesExceptSelfAOE(ItemComponent):
+    nid = 'all_allies_except_self_aoe'
+    desc = "Item affects all allies on the map except user"
+    tag = 'aoe'
+
+    def splash(self, unit, item, position) -> tuple:
+        from app.engine import skill_system
+        splash = [u.position for u in game.level.units if u.position and skill_system.check_ally(unit, u) and u is not unit]
+        return None, splash
+
+    def splash_positions(self, unit, item, position) -> set:
+        # All positions
+        splash = [(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)]
+        return splash
+
 class AllEnemiesAOE(ItemComponent):
     nid = 'all_enemies_aoe'
     desc = "Item affects all enemies on the map"

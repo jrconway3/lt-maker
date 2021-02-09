@@ -82,15 +82,10 @@ def _dynamic_levelup(r, stats, growth_points, growth_nid, growth_rate):
             else:
                 growth_points[growth_nid] += new_growth/variance
 
-def auto_level(unit):
+def auto_level(unit, num_levels):
     """
     Only for generics
     """
-    klass = DB.classes.get(unit.klass)
-    if klass.tier == 0:
-        num_levels = unit.level - 1
-    else:
-        num_levels = unit.get_internal_level() - 1
 
     # Get how to level
     if unit.team == 'player':
@@ -124,6 +119,7 @@ def auto_level(unit):
                 _dynamic_levelup(r, unit.stats, unit.growth_points, growth_nid, growth_value)
                 
     # Make sure we don't exceed max
+    klass = DB.classes.get(unit.klass)
     unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k).value) for (k, v) in unit.stats.items()}
     unit.set_hp(1000)  # Go back to full hp
 
@@ -156,9 +152,10 @@ def get_starting_skills(unit) -> list:
     all_klasses.reverse()
     
     skills_to_add = []
+    current_skills = [skill.nid for skill in unit.skills]
     for idx, klass in enumerate(all_klasses):
         for learned_skill in klass.learned_skills:
-            if learned_skill[0] <= unit.level or klass != klass_obj:
+            if learned_skill[0] <= unit.level or klass != klass_obj and learned_skill[1] not in current_skills:
                 skills_to_add.append(learned_skill[1])
 
     klass_skills = item_funcs.create_skills(unit, skills_to_add)
@@ -166,8 +163,9 @@ def get_starting_skills(unit) -> list:
 
 def get_personal_skills(unit, prefab):
     skills_to_add = []
+    current_skills = [skill.nid for skill in unit.skills]
     for learned_skill in prefab.learned_skills:
-        if learned_skill[0] <= unit.level:
+        if learned_skill[0] <= unit.level and learned_skill[1] not in current_skills:
             skills_to_add.append(learned_skill[1])
 
     personal_skills = item_funcs.create_skills(unit, skills_to_add)

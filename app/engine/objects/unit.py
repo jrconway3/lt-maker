@@ -105,7 +105,12 @@ class UnitObject(Prefab):
         # Maybe move to movement manager?
 
         if self.generic:
-            unit_funcs.auto_level(self)
+            klass = DB.classes.get(self.klass)
+            if klass.tier == 0:
+                num_levels = self.level - 1
+            else:
+                num_levels = self.get_internal_level() - 1
+            unit_funcs.auto_level(self, num_levels)
 
         return self
 

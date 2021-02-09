@@ -386,10 +386,10 @@ class GameState():
         return self.parties.get(party_nid)
 
     def get_player_units(self):
-        return [unit for unit in self.level.units if unit.team == 'player' and unit.position and not unit.dead and not unit.is_dying]
+        return [unit for unit in self.level.units if unit.team == 'player' and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
 
     def get_enemy_units(self):
-        return [unit for unit in self.level.units if unit.team.startswith('enemy') and unit.position and not unit.dead and not unit.is_dying]
+        return [unit for unit in self.level.units if unit.team.startswith('enemy') and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
 
     def check_dead(self, nid):
         return any(unit.nid == nid and (unit.dead or unit.is_dying) for unit in self.level.units)

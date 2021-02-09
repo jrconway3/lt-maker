@@ -9,7 +9,7 @@ from app.events.event_portrait import EventPortrait
 from app.data.level_units import UniqueUnit, GenericUnit
 
 from app.engine import dialog, engine, background, target_system, action, \
-    interaction, item_funcs, item_system, banner, skill_system
+    interaction, item_funcs, item_system, banner, skill_system, unit_funcs
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
@@ -341,6 +341,17 @@ class Event():
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 
+        elif command.nid == 'center_cursor':
+            values, flags = event_commands.parse(command)
+            position = self.parse_pos(values[0])
+            game.cursor.set_pos(position)
+            if 'immediate' in flags or self.do_skip:
+                game.camera.force_center(*position)
+            else:
+                game.camera.set_center(*position)
+                game.state.change('move_camera')
+                self.state = 'paused'  # So that the message will leave the update loop
+
         elif command.nid == 'flicker_cursor':
             # This is a macro that just adds new commands to command list
             move_cursor_command = event_commands.MoveCursor(command.values)
@@ -471,6 +482,12 @@ class Event():
 
         elif command.nid == 'change_stats':
             self.change_stats(command)
+
+        elif command.nid == 'set_stats':
+            self.set_stats(command)
+
+        elif command.nid == 'autolevel_to':
+            self.autolevel_to(command)
 
         elif command.nid == 'promote':
             self.promote(command)
@@ -1353,6 +1370,20 @@ class Event():
             game.state.change('alert')
             self.state = 'paused' 
 
+    def _apply_stat_changes(self, unit, stat_changes, flags):
+        klass = DB.classes.get(unit.klass)
+        # clamp stat changes
+        stat_changes = {k: utils.clamp(v, -unit.stats[k], klass.max_stats.get(k).value - unit.stats[k]) for k, v in stat_changes.items()}
+
+        immediate = 'immediate' in flags
+
+        action.do(action.ApplyStatChanges(unit, stat_changes))
+        if not immediate:
+            game.memory['stat_changes'] = stat_changes
+            game.exp_instance.append((unit, 0, None, 'stat_booster'))
+            game.state.change('exp')
+            self.state = 'paused'
+
     def change_stats(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
@@ -1366,18 +1397,51 @@ class Event():
             stat_nid = s_list[idx*2]
             stat_value = int(s_list[idx*2 + 1])
             stat_changes[stat_nid] = stat_value
-        klass = DB.classes.get(unit.klass)
-        # clamp stat changes
-        stat_changes = {k: utils.clamp(v, -unit.stats[k], klass.max_stats.get(k).value - unit.stats[k]) for k, v in stat_changes.items()}
 
-        immediate = 'immediate' in flags
+        self._apply_stat_changes(unit, stat_changes, flags)
 
-        action.do(action.ApplyStatChanges(unit, stat_changes))
-        if not immediate:
-            game.memory['stat_changes'] = stat_changes
-            game.exp_instance.append((unit, 0, None, 'stat_booster'))
-            game.state.change('exp')
-            self.state = 'paused'
+    def set_stats(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return
+
+        s_list = values[1].split(',')
+        stat_changes = {}
+        for idx in range(len(s_list)//2):
+            stat_nid = s_list[idx*2]
+            stat_value = int(s_list[idx*2 + 1])
+            current = unit.stats[stat_nid]
+            stat_changes[stat_nid] = stat_value - current
+
+        self._apply_stat_changes(unit, stat_changes, flags)
+
+    def autolevel_to(self, command):
+        """
+        Cannot be turnwheeled
+        """
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return
+
+        final_level = int(values[1])
+        current_level = unit.level
+        diff = max(0, final_level - current_level)
+        if diff <= 0:
+            return
+
+        unit_funcs.auto_level(unit, diff)
+        if not unit.generic and DB.units.get(unit.nid):
+            unit_prefab = DB.units.get(unit.nid)
+            personal_skills = unit_funcs.get_personal_skills(unit, unit_prefab)
+            for personal_skill in personal_skills:
+                action.do(action.AddSkill(unit, personal_skill))
+        class_skills = unit_funcs.get_starting_skills(unit)
+        for class_skill in class_skills:
+            action.do(action.AddSkill(unit, class_skill))
 
     def promote(self, command):
         values, flags = event_commands.parse(command)

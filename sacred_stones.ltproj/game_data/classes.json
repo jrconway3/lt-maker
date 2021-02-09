@@ -12310,7 +12310,7 @@
     {
         "nid": "Revenant",
         "name": "Revenant",
-        "desc": "A summoned phantom.",
+        "desc": "Walking corpses that move slowly\nbut attack with sharp claws.",
         "tier": 1,
         "movement_group": "Regular",
         "promotes_from": null,
@@ -12590,7 +12590,7 @@
     {
         "nid": "Entombed",
         "name": "Entombed",
-        "desc": "A summoned phantom.",
+        "desc": "Reanimated corpses. They're not fast,\nbut their talons rend flesh with ease.",
         "tier": 2,
         "movement_group": "Regular",
         "promotes_from": "Revenant",
@@ -13984,7 +13984,7 @@
     {
         "nid": "Mogall",
         "name": "Mogall",
-        "desc": "A summoned phantom.",
+        "desc": "Perilous floating orbs filled with\nblighting dark magic.",
         "tier": 1,
         "movement_group": "Fliers",
         "promotes_from": null,
@@ -14562,6 +14562,289 @@
             [
                 "HP",
                 25
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                40
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growth_bonus": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "promotion": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "max_stats": [
+            [
+                "HP",
+                30
+            ],
+            [
+                "STR",
+                30
+            ],
+            [
+                "MAG",
+                30
+            ],
+            [
+                "SKL",
+                30
+            ],
+            [
+                "SPD",
+                40
+            ],
+            [
+                "LCK",
+                30
+            ],
+            [
+                "DEF",
+                30
+            ],
+            [
+                "RES",
+                30
+            ],
+            [
+                "CON",
+                30
+            ],
+            [
+                "MOV",
+                30
+            ]
+        ],
+        "learned_skills": [
+            [
+                1,
+                "NoAvoid"
+            ]
+        ],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "icon_nid": "Generic_Portrait_Citizen",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Invisible",
+        "combat_anim_nid": null
+    },
+    {
+        "nid": "Snag20",
+        "name": "Snag",
+        "desc": "",
+        "tier": 1,
+        "movement_group": "Light Foot",
+        "promotes_from": null,
+        "turns_into": [],
+        "tags": [
+            "Tile"
+        ],
+        "max_level": 20,
+        "bases": [
+            [
+                "HP",
+                20
             ],
             [
                 "STR",

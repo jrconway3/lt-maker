@@ -1,4 +1,5 @@
 from app.constants import TILEX, TILEY
+from app.utilities import utils
 from app.engine.game_state import game
 
 class Camera():
@@ -44,7 +45,6 @@ class Camera():
             new_x = x - TILEX + 3
         else:
             new_x = self.target_x
-        # new_x = utils.clamp(new_x, 0, game.tilemap)
         return new_x
 
     def _change_y(self, y):
@@ -56,31 +56,35 @@ class Camera():
             new_y = self.target_y
         return new_y
 
-    def set_x(self, x):
+    def _center_x(self, x):
+        return utils.clamp(x - TILEX//2, 0, game.tilemap.width - TILEX)
+
+    def _center_y(self, y):
+        return utils.clamp(y - TILEY//2, 0, game.tilemap.height - TILEY)
+
+    def set_xy(self, x, y):
         x = self._change_x(x)
         self.target_x = x
-
-    def set_y(self, y):
         y = self._change_y(y)
         self.target_y = y
 
-    def set_xy(self, x, y):
-        self.set_x(x)
-        self.set_y(y)
-
-    def force_x(self, x):
-        # Make minimal required change
+    def force_xy(self, x, y):
         x = self._change_x(x)
         self.current_x = self.target_x = x
-
-    def force_y(self, y):
-        # Make minimal required change
         y = self._change_y(y)
         self.current_y = self.target_y = y
 
-    def force_xy(self, x, y):
-        self.force_x(x)
-        self.force_y(y)
+    def set_center(self, x, y):
+        x = self._center_x(x)
+        self.target_x = x
+        y = self._center_y(y)
+        self.target_y = y
+
+    def force_center(self, x, y):
+        x = self._center_x(x)
+        self.current_x = self.target_x = x
+        y = self._center_y(y)
+        self.current_y = self.target_y = y
 
     def get_x(self):
         return self.current_x

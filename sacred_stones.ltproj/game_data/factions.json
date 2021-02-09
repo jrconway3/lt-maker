@@ -32,7 +32,7 @@
     {
         "nid": "Monster",
         "name": "Monster",
-        "desc": "It's a monster.",
+        "desc": "A grotesque creature created by magic and born in darkness.",
         "icon_nid": "MonsterEmblem",
         "icon_index": [
             0,

@@ -161,6 +161,13 @@ class MoveCursor(EventCommand):
     keywords = ["Position"]
     flags = ["immediate"]
 
+class CenterCursor(EventCommand):
+    nid = "center_cursor"
+    tag = "cursor"
+    
+    keywords = ["Position"]
+    flags = ["immediate"]
+
 class FlickerCursor(EventCommand):
     nid = 'flicker_cursor'
     nickname = 'highlight'
@@ -347,6 +354,18 @@ class ChangeStats(EventCommand):
     tag = 'unit'
     keywords = ["GlobalUnit", "StatList"]
     flags = ['immediate']
+
+class SetStats(EventCommand):
+    nid = 'set_stats'
+    tag = 'unit'
+    keywords = ["GlobalUnit", "StatList"]
+    flags = ['immediate']
+
+class AutolevelTo(EventCommand):
+    # Note: This is not reversible
+    nid = 'autolevel_to'
+    tag = 'unit'
+    keywords = ["GlobalUnit", "Integer"]
 
 class Promote(EventCommand):
     nid = 'promote'

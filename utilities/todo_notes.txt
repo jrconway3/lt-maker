@@ -7,7 +7,7 @@ Combat Animations
 Overworld
 Supports
 Base
-    Manage, Market?, Arena, Repair (in market), Forge (optional), Bonus Exp / Skills, Convos, Support, Codex (World Map, Lore, Records, Achievements, Tactics), Options, Save, Continue/Finish
+    Manage, Market?, Arena, *Repair (in market)*, Forge (optional), Bonus Exp / Skills, Convos, Support, Codex (World Map, Lore, Records, Achievements, Tactics), Options, Save, Continue/Finish
 Minimap
 Turnwheel mouse support
 Autotiles (not just 29 frames)
@@ -16,7 +16,7 @@ Unit Menu
 Joystick Remapping
 Guide (on Options Menu and in Base -> Codex -> Guide)
 
-Base > Fog of War > Combat Anims > Overworld > Autotiles > Supports
+Combat Anims > Overworld > Autotiles > Supports
 
 Dialog box should pop up when saving and autosaving
 
@@ -34,7 +34,7 @@ Item System -- Multiple Target Items (test), Multiple Item Items (test)
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
-Better method for loading panorama movies (Separate button to load image frames?)
+Better method for loading panorama movies (Separate button to load image frames/movies?)
 
 Summoning
 Sequence Items (Test using Jewrassic Parks weird Bow)
@@ -48,9 +48,22 @@ For Portrait Editor:
     Position in main info menu setters
 
 Clean and Rename files/resources button in Help
+Auto-check cross-references on editor load
 Import and Export JSON for Classes, Items, Skills, Units
 
-Make Chapter 3 of Sacred Stones
+Consider making StatList and WeaponList into a dictionary instead, that just references the actual order in DB.stats and DB.weapons to display order, and then uses the dictionary keys to display contents/values.
+
+Consider giving each object a UID which is used for crossreferences... (This is probably the better way...)
+I will consider it after finishing Chapter 5 of Sacred Stones
+
+Make Chapter 5 of Sacred Stones
+Test First 5 chapters of Sacred Stones
+
+Dialog {eval:game.game_vars['tactician']}
+Dialog {var:tactician}
+Dialog {red}{/red}
+
+
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

@@ -255,6 +255,14 @@
                 ]
             ],
             [
+                "remove_item",
+                [
+                    "Eirika",
+                    "Rapier",
+                    "no_banner"
+                ]
+            ],
+            [
                 "give_item",
                 [
                     "Eirika",
@@ -3958,7 +3966,7 @@
                 "add_portrait",
                 [
                     "{unit}",
-                    "Left",
+                    "Right",
                     "no_block"
                 ]
             ],
@@ -3966,15 +3974,158 @@
                 "add_portrait",
                 [
                     "Lute",
-                    "Right"
+                    "Left"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Artur Convo"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "unit.nid == 'Artur'"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "Lute, help has arrived."
                 ]
             ],
             [
                 "speak",
                 [
                     "Lute",
-                    "text"
+                    "......"
                 ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "Lute?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "Your flesh shows no sign of putrefaction.|It seems you\u2019re not a revenant."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "Well, I should hope not! I wanted you to know help has arrived.|Please be patient a bit longer..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "No, no. I insist on joining you in combat.|I\u2019ve been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Eirika Convo"
+                ]
+            ],
+            [
+                "elif",
+                [
+                    "unit.nid == 'Eirika'"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "Who are you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "......"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "Um..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "Your flesh shows no sign of putrefaction.|It seems you\u2019re not a revenant."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "No, I'm not{br}Are you from around here?|There are still monsters about, so you should stay in--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "No, no. I insist on joining you in combat.|My name is Lute. I'm a mage of superior wisdom and rare ability.|I\u2019ve been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "What an odd girl..."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Other Convo"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "......"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "{unit}",
+                    "Hm?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "Your flesh shows no sign of putrefaction.|It seems you\u2019re not a revenant.|I\u2019ve decided to join you in battle now.|My name is Lute. I\u2019m a mage of superior wisdom and rare ability.|I\u2019ve been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
+                ]
+            ],
+            [
+                "end",
+                []
             ],
             [
                 "transition",
@@ -5327,6 +5478,23 @@
                     "_fog_of_war_radius",
                     "1"
                 ]
+            ],
+            [
+                "if",
+                [
+                    "engine.cf.SETTINGS['autoend_turn'] == 1"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Wow"
+                ]
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false
@@ -8307,7 +8475,8 @@
                 [
                     "L'arachel",
                     "13,0",
-                    "immediate"
+                    "immediate",
+                    "stack"
                 ]
             ],
             [
@@ -8315,7 +8484,8 @@
                 [
                     "Dozla",
                     "12,0",
-                    "immediate"
+                    "immediate",
+                    "stack"
                 ]
             ],
             [
@@ -8323,13 +8493,17 @@
                 [
                     "Rennac",
                     "14,0",
-                    "immediate"
+                    "immediate",
+                    "stack"
                 ]
             ],
             [
                 "move_unit",
                 [
                     "L'arachel",
+                    "",
+                    "",
+                    "closest",
                     "no_block"
                 ]
             ],
@@ -8337,13 +8511,19 @@
                 "move_unit",
                 [
                     "Dozla",
+                    "",
+                    "",
+                    "closest",
                     "no_block"
                 ]
             ],
             [
                 "move_unit",
                 [
-                    "Rennac"
+                    "Rennac",
+                    "",
+                    "",
+                    "closest"
                 ]
             ],
             [
@@ -8444,7 +8624,9 @@
                 "move_unit",
                 [
                     "L'arachel",
-                    "14,2"
+                    "14,2",
+                    "",
+                    "closest"
                 ]
             ],
             [
@@ -8457,7 +8639,9 @@
                 "move_unit",
                 [
                     "Dozla",
-                    "14,1"
+                    "14,1",
+                    "",
+                    "closest"
                 ]
             ],
             [
@@ -8493,6 +8677,555 @@
                 [
                     "RevenantRein",
                     "RevenantRein"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "4",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Artur') or game.check_alive('Lute')"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "MidLeft",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "FarLeft",
+                    "no_block"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_dead('Artur')"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Lute",
+                    "Right"
+                ]
+            ],
+            [
+                "elif",
+                [
+                    "game.check_dead('Lute')"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Artur",
+                    "Right"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "add_portrait",
+                [
+                    "Artur",
+                    "MidRight",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Lute",
+                    "FarRight"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Right",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "We\u2019ve killed all the monsters.|Still, we\u2019d best burn the bones to ash to be sure they don\u2019t return.",
+                    "low_priority"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "I still can\u2019t believe what we\u2019ve been fighting here...|I\u2019d thought those fiends nothing more than myth and legend."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Those revenants are said to be the least of the dark creatures.|And yet, the weakest of them could outmatch any normal man.|We cannot take this enemy lightly.",
+                    "low_priority"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Lute')"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Lute",
+                    "Oh, yes. There are much worse then those revenants and the entombed...|Let\u2019s see, there\u2019s the bonewalkers, mauthe doogs, gargoyles, baels... |Why, I\u2019ll bet you just about any creature of lore could be walking again.|Yes, we\u2019re in for some trouble. Even my fabulous power may not be enough."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Artur')"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Artur",
+                    "O divine light, show me... Is this a sign of dark days to come?",
+                    "low_priority"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Lute"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Artur"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Artur') or game.check_alive('Lute')"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "By all that\u2019s holy, what is happening?"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Right"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "By all that\u2019s holy, what is happening?"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Princess Eirika, perhaps it would be wise to return to Frelia and regroup.|Pressing forward seems foolish in light of recent events.|We cannot face both Grado\u2019s forces and more of those terrible things."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Seth, I follow your point, and nothing would please me more then running for safety.|But what of my brother? He and his men are still trapped in the same situation we are.|I know full well that I may be leading us into even greater danger, but...|Please try to understand."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "I do, my princess, and I vow to see you through this safely."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "add_unit",
+                [
+                    "Eirika",
+                    "8,5",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Seth",
+                    "8,4",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (L'arachel and her gang rides up)"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# remove all units"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "LGang",
+                    "14,5",
+                    "",
+                    "stack"
+                ]
+            ],
+            [
+                "move_group",
+                [
+                    "LGang",
+                    "LGang"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "L'arachel"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "L'arachel",
+                    "OffscreenRight",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "L'arachel",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "L'arachel",
+                    "Aha! Foul creatures, beware!|I, L'arachel, bestow upon you the honor at banishment at my blessed hands!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "......"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "L'arachel",
+                    "Oh...Where are the monsters?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Well, we just finished..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "L'arachel",
+                    "Ah, glad tidings indeed!{br}The heavens must be rejoicing!|I am...a tad disappointed however.|After all, I did rush all the way here to show you the splendor of my might."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Dozla",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Dozla",
+                    "Gwah ha ha! It\u2019s a real shame, innit, Lady L'Arachel?!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Dozla"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Rennac",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Rennac",
+                    "What\u2019s shameful is the way you drag us around the countryside."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Rennac"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Pardon me, but...who are you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "L'arachel",
+                    "Me?|Since you ask, please allow me to introduce myself.|It is I, the true light and glory of the sacred realm of Rausten..."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Dozla",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Dozla",
+                    "Stop! Lady L'arachel, you mustn\u2019t continue!|You cannot reveal your true identity here!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "L'arachel",
+                    "Oh, yes, you\u2019re right. Oh, I get so careless sometimes!|Now, I must ride off in anonymity. Oh, how beautifully romantic!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Uh... Right."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "L'arachel",
+                    "Fare thee well, strangers.{br}Perhaps our paths will cross again.|Come, Dozla! Rennac!{br}We ride!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "L'arachel"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Dozla",
+                    "Gwah ha ha!{br}Let\u2019s go, Rennac!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Dozla"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Rennac",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Rennac",
+                    "All right, all right."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (They leave)"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "...What was that about?"
                 ]
             ]
         ],

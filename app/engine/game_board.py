@@ -77,9 +77,15 @@ class GameBoard(object):
         for x in range(self.width):
             for y in range(self.height):
                 terrain_nid = tilemap.get_terrain((x, y))
-                terrain = DB.terrain.get(terrain_nid)
-                tile_cost = DB.mcost.get_mcost(movement_group, terrain.mtype)
+                if DB.terrain:
+                    terrain = DB.terrain.get(terrain_nid)
+                    if not terrain:
+                        terrain = DB.terrain[0]
+                    tile_cost = DB.mcost.get_mcost(movement_group, terrain.mtype)
+                else:
+                    tile_cost = 1
                 cells.append(Node(x, y, tile_cost < 99, tile_cost))
+
         return cells
 
     def get_grid(self, movement_group):

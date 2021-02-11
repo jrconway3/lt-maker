@@ -278,6 +278,8 @@ class GroupUnitModel(DragDropCollectionModel):
         elif role == Qt.DecorationRole:
             unit_nid = self._data[index.row()]
             unit = self.window.window.current_level.units.get(unit_nid)            
+            if not unit:
+                return None
             # Don't draw any units which have been deleted in editor
             if not unit.generic and unit_nid not in DB.units.keys():
                 return None

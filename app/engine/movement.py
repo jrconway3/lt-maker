@@ -53,10 +53,15 @@ class MovementManager():
         return movement_group
 
     def get_mcost(self, unit_to_move, pos):
-        terrain = game.tilemap.get_terrain(pos)
-        mtype = DB.terrain.get(terrain).mtype
-        movement_group = self.get_movement_group(unit_to_move)
-        mcost = DB.mcost.get_mcost(movement_group, mtype)
+        if DB.terrain:
+            terrain_nid = game.tilemap.get_terrain(pos)
+            terrain = DB.terrain.get(terrain_nid)
+            if not terrain:
+                terrain = DB.terrain[0]
+            movement_group = self.get_movement_group(unit_to_move)
+            mcost = DB.mcost.get_mcost(movement_group, terrain.mtype)
+        else:
+            mcost = 1
         return mcost
 
     def check_position(self, unit, data, new_position) -> bool:

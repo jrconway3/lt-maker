@@ -97,11 +97,10 @@ def condition(skill, unit) -> bool:
 for behaviour in default_behaviours:
     func = """def %s(unit):
                   for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue
                       for component in skill.components:
                           if component.defines('%s'):
-                              return component.%s(unit)
+                              if condition(skill, unit):
+                                  return component.%s(unit)
                   return False""" \
         % (behaviour, behaviour, behaviour)
     exec(func)
@@ -109,11 +108,10 @@ for behaviour in default_behaviours:
 for behaviour in exclusive_behaviours:
     func = """def %s(unit):
                   for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue
                       for component in skill.components:
                           if component.defines('%s'):
-                              return component.%s(unit)
+                              if condition(skill, unit):
+                                  return component.%s(unit)
                   return Defaults.%s(unit)""" \
         % (behaviour, behaviour, behaviour, behaviour)
     exec(func)
@@ -121,11 +119,10 @@ for behaviour in exclusive_behaviours:
 for behaviour in targeted_behaviours:
     func = """def %s(unit1, unit2):
                   for skill in unit1.skills:
-                      if not condition(skill, unit1):
-                          continue
                       for component in skill.components:
                           if component.defines('%s'):
-                              return component.%s(unit1, unit2)
+                              if condition(skill, unit1):
+                                  return component.%s(unit1, unit2)
                   return Defaults.%s(unit1, unit2)""" \
         % (behaviour, behaviour, behaviour, behaviour)
     exec(func)
@@ -133,11 +130,10 @@ for behaviour in targeted_behaviours:
 for behaviour in item_behaviours:
     func = """def %s(unit, item):
                   for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue
                       for component in skill.components:
                           if component.defines('%s'):
-                              return component.%s(unit, item)
+                              if condition(skill, unit):
+                                  return component.%s(unit, item)
                   return Defaults.%s(unit, item)""" \
         % (behaviour, behaviour, behaviour, behaviour)
     exec(func)
@@ -146,11 +142,10 @@ for hook in modify_hooks:
     func = """def %s(unit, item):
                   val = 0
                   for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue
                       for component in skill.components:
                           if component.defines('%s'):
-                              val += component.%s(unit, item)
+                              if condition(skill, unit):
+                                  val += component.%s(unit, item)
                   return val""" \
         % (hook, hook, hook)
     exec(func)
@@ -159,11 +154,10 @@ for hook in dynamic_hooks:
     func = """def %s(unit, item, target, mode):
                   val = 0
                   for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue
                       for component in skill.components:
                           if component.defines('%s'):
-                              val += component.%s(unit, item, target, mode)
+                              if condition(skill, unit):
+                                  val += component.%s(unit, item, target, mode)
                   return val""" \
         % (hook, hook, hook)
     exec(func)
@@ -172,34 +166,31 @@ for hook in multiply_hooks:
     func = """def %s(unit, item, target, mode):
                   val = 1
                   for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue
                       for component in skill.components:
                           if component.defines('%s'):
-                              val *= component.%s(unit, item, target, mode)
+                              if condition(skill, unit):
+                                  val *= component.%s(unit, item, target, mode)
                   return val""" \
         % (hook, hook, hook)
     exec(func)
 
 for hook in simple_event_hooks:
     func = """def %s(unit):
-                  for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue 
+                  for skill in unit.skills: 
                       for component in skill.components:
                           if component.defines('%s'):
-                              component.%s(unit)""" \
+                              if condition(skill, unit):
+                                  component.%s(unit)""" \
         % (hook, hook, hook)
     exec(func)
 
 for hook in combat_event_hooks:
     func = """def %s(playback, unit, item, target):
                   for skill in unit.skills:
-                      if not condition(skill, unit):
-                          continue 
                       for component in skill.components:
                           if component.defines('%s'):
-                              component.%s(playback, unit, item, target)""" \
+                              if condition(skill, unit):
+                                  component.%s(playback, unit, item, target)""" \
         % (hook, hook, hook)
     exec(func)
 
@@ -226,59 +217,53 @@ def available(unit, item) -> bool:
     If any hook reports false, then it is false
     """
     for skill in unit.skills:
-        if not condition(skill, unit):
-            continue
         for component in skill.components:
             if component.defines('available'):
-                if not component.available(unit, item):
-                    return False
+                if condition(skill, unit):
+                    if not component.available(unit, item):
+                        return False
     return True
 
 def stat_change(unit, stat) -> int:
     bonus = 0
     for skill in unit.skills:
-        if not condition(skill, unit):
-            continue
         for component in skill.components:
             if component.defines('stat_change'):
-                d = component.stat_change(unit)
-                bonus += d.get(stat, 0)
+                if condition(skill, unit):
+                    d = component.stat_change(unit)
+                    bonus += d.get(stat, 0)
     return bonus
 
 def can_unlock(unit, region) -> bool:
     for skill in unit.skills:
-        if not condition(skill, unit):
-            continue
         for component in skill.components:
             if component.defines('can_unlock'):
-                if component.can_unlock(unit, region):
-                    return True
+                if condition(skill, unit):
+                    if component.can_unlock(unit, region):
+                        return True
     return False
 
 def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
-        if not condition(skill, unit):
-            continue
         for component in skill.components:
             if component.defines('on_upkeep'):
-                component.on_upkeep(actions, playback, unit)
+                if condition(skill, unit):
+                    component.on_upkeep(actions, playback, unit)
     return actions, playback
 
 def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
-        if not condition(skill, unit):
-            continue
         for component in skill.component:
             if component.defines('on_endstep'):
-                component.on_endstep(actions, playback, unit)
+                if condition(skill, unit):
+                    component.on_endstep(actions, playback, unit)
     return actions, playback
 
 def on_end_chapter(unit, skill):
-    if not condition(skill, unit):
-        return
     for component in skill.components:
         if component.defines('on_end_chapter'):
-            component.on_end_chapter(unit, skill)
+            if condition(skill, unit):
+                component.on_end_chapter(unit, skill)
 
 def init(skill):
     for component in skill.components:
@@ -320,26 +305,25 @@ def trigger_charge(unit, skill):
 def get_extra_abilities(unit):
     abilities = {}
     for skill in unit.skills:
-        if not condition(skill, unit):
-            continue
         for component in skill.components:
             if component.defines('extra_ability'):
-                new_item = component.extra_ability(unit)
-                ability_name = new_item.name
-                abilities[ability_name] = new_item
+                if condition(skill, unit):
+                    new_item = component.extra_ability(unit)
+                    ability_name = new_item.name
+                    abilities[ability_name] = new_item
     return abilities
 
 def get_combat_arts(unit):
     combat_arts = {}
     for skill in unit.skills:
-        if not condition(skill, unit):
-            continue
         combat_art, combat_art_weapons = None, []
         for component in skill.components:
             if component.defines('combat_art'):
-                combat_art = component.combat_art(unit)
+                if condition(skill, unit):
+                    combat_art = component.combat_art(unit)
             if component.defines('combat_art_weapon_filter'):
-                combat_art_weapons = component.combat_art_weapon_filter(unit)
+                if condition(skill, unit):
+                    combat_art_weapons = component.combat_art_weapon_filter(unit)
         if combat_art and combat_art_weapons:
             combat_arts[skill.name] = (skill, combat_art_weapons)
     return combat_arts

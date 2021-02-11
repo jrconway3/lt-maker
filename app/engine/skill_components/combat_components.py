@@ -2,7 +2,7 @@ from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
 from app.utilities import utils
-from app.engine import equations, action, item_funcs
+from app.engine import equations, action, item_funcs, item_system
 from app.engine.game_state import game
 
 class StatChange(SkillComponent):
@@ -58,13 +58,13 @@ class Resist(SkillComponent):
 
 class Hit(SkillComponent):
     nid = 'hit'
-    desc = "Gives +X hit"
+    desc = "Gives +X accuracy"
     tag = 'combat'
 
     expose = Type.Int
     value = 15
 
-    def modify_hit(self, unit, item):
+    def modify_accuracy(self, unit, item):
         return self.value
 
 class Avoid(SkillComponent):

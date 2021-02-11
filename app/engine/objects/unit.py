@@ -62,7 +62,12 @@ class UnitObject(Prefab):
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}
 
+        # -- Equipped Items
+        self.equipped_weapon = None
+        self.equipped_accessory = None
+
         # Handle skills
+        self.skills = []
         personal_skills = unit_funcs.get_personal_skills(self, prefab)
         class_skills = unit_funcs.get_starting_skills(self)
         self.skills = personal_skills + class_skills
@@ -78,8 +83,6 @@ class UnitObject(Prefab):
         self.traveler = None
 
         # -- Equipped Items
-        self.equipped_weapon = None
-        self.equipped_accessory = None
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
 

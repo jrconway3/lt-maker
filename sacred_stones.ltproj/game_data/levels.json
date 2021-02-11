@@ -2397,6 +2397,28 @@
                     "Mogall"
                 ],
                 "positions": {}
+            },
+            {
+                "nid": "LGang",
+                "units": [
+                    "L'arachel",
+                    "Dozla",
+                    "Rennac"
+                ],
+                "positions": {
+                    "L'arachel": [
+                        10,
+                        5
+                    ],
+                    "Dozla": [
+                        11,
+                        4
+                    ],
+                    "Rennac": [
+                        11,
+                        6
+                    ]
+                }
             }
         ]
     },

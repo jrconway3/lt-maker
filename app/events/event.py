@@ -411,6 +411,12 @@ class Event():
         elif command.nid == 'remove_unit':
             self.remove_unit(command)
 
+        elif command.nid == 'remove_all_units':
+            values, flags = self.parse(command)
+            for unit in game.level.units:
+                if unit.position:
+                    action.do(action.LeaveMap(unit))
+
         elif command.nid == 'move_unit':
             self.move_unit(command)
 
@@ -431,6 +437,9 @@ class Event():
 
         elif command.nid == 'give_item':
             self.give_item(command)
+
+        elif command.nid == 'remove_item':
+            self.remove_item(command)
 
         elif command.nid == 'give_money':
             self.give_money(command)
@@ -852,6 +861,9 @@ class Event():
     def move_unit(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit %s" % values[0])
+            return 
         if not unit.position:
             print("Unit not on map!")
             return
@@ -1201,7 +1213,9 @@ class Event():
             ai_nid = 'None'
         level_unit_prefab = UniqueUnit(unit_nid, team, ai_nid, None)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit.party = game.current_party
         game.level.units.append(new_unit)
+        game.register_unit(new_unit)
 
     def make_generic(self, command):
         values, flags = event_commands.parse(command)
@@ -1231,7 +1245,9 @@ class Event():
 
         level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, [], team, ai_nid)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit.party = game.current_party
         game.level.units.append(new_unit)
+        game.register_unit(new_unit)
 
     def give_item(self, command):
         values, flags = event_commands.parse(command)
@@ -1300,6 +1316,27 @@ class Event():
                 game.alerts.append(banner.SentToConvoy(item))
                 game.state.change('alert')
                 self.state = 'paused'
+
+    def remove_item(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            print("Couldn't find unit with nid %s" % values[0])
+            return
+        item_nid = values[1]
+        if item_nid not in [item.nid for item in unit.items]:
+            print("Couldn't find item with nid %s" % values[1])
+            return
+        banner_flag = 'no_banner' not in flags
+        item = [item for item in unit.items if item.nid == item_nid][0]
+        
+        action.do(action.RemoveItem(unit, item))
+        if banner_flag:
+            item = DB.items.get(item_nid)
+            b = banner.TakeItem(unit, item)
+            game.alerts.append(b)
+            game.state.change('alert')
+            self.state = 'paused' 
 
     def give_money(self, command):
         values, flags = event_commands.parse(command)

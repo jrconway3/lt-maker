@@ -81,7 +81,7 @@ class Dialog():
         # Pipe character replacement
         text = text.replace('|', '{w}{br}')
         if text.endswith('{no_wait}'):
-            text = text[:-4]
+            text = text[:-len('{no_wait}')]
         elif not text.endswith('{w}'):
             text += '{w}'
         command = None

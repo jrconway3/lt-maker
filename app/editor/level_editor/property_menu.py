@@ -180,7 +180,7 @@ class PropertiesMenu(QWidget):
 
     def select_tilemap(self):
         res, ok = tile_tab.get_tilemaps()
-        if ok:
+        if ok and res:
             nid = res.nid
             self.current.tilemap = nid
             self.state_manager.change_and_broadcast('ui_refresh_signal', None)

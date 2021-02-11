@@ -111,6 +111,12 @@ class BrokenItem(Banner):
         self.figure_out_size()
         self.sound = 'ItemBreak'
 
+class TakeItem(BrokenItem):
+    def __init__(self, unit, item):
+        super().__init__(unit, item)
+        self.text = [unit.name, ' lost ', item.name, '.']
+        self.figure_out_size()
+
 class GainWexp(Banner):
     def __init__(self, unit, weapon_rank, weapon_type):
         super().__init__()
@@ -131,7 +137,7 @@ class GiveSkill(Banner):
         super().__init__()
         self.unit = unit
         self.item = skill
-        self.text = [unit.name, ' got ', skill.nid]
+        self.text = [unit.name, ' got ', skill.name]
         self.font = ['text-blue', 'text-white', 'text-blue']
         self.figure_out_size()
         self.sound = 'Item'
@@ -143,7 +149,7 @@ class GiveSkill(Banner):
 class TakeSkill(GiveSkill):
     def __init__(self, unit, skill):
         super().__init__(unit, skill)
-        self.text = [unit.name, ' lost ', skill.nid]
+        self.text = [unit.name, ' lost ', skill.name]
         self.figure_out_size()
 
 class Custom(Banner):

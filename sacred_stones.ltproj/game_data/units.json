@@ -24,7 +24,7 @@
             ],
             [
                 "SKL",
-                8
+                0
             ],
             [
                 "SPD",
@@ -103,7 +103,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Sword Hit +10"
+            ]
+        ],
         "wexp_gain": [
             [
                 true,

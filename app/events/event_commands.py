@@ -243,6 +243,10 @@ class RemoveUnit(EventCommand):
     keywords = ["Unit"]
     optional_keywords = ["RemoveType"]
 
+class RemoveAllUnits(EventCommand):
+    nid = 'remove_all_units'
+    tag = 'unit'
+
 class InteractUnit(EventCommand):
     nid = 'interact_unit'
     nickname = 'interact'
@@ -300,6 +304,13 @@ class RemoveGroup(EventCommand):
 
 class GiveItem(EventCommand):
     nid = 'give_item'
+    tag = 'unit'
+    
+    keywords = ["GlobalUnit", "Item"]
+    flags = ['no_banner']
+
+class RemoveItem(EventCommand):
+    nid = 'remove_item'
     tag = 'unit'
     
     keywords = ["GlobalUnit", "Item"]

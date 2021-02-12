@@ -295,8 +295,40 @@ class Event():
         elif command.nid == 'add_portrait':
             self.add_portrait(command)
 
+        elif command.nid == 'multi_add_portrait':
+            values, flags = self.parse(command)
+            commands = []
+            for idx in range(len(values)//2):
+                portrait = values[idx*2]
+                if idx*2 + 1 < len(values):
+                    position = values[idx*2 + 1]
+                else:
+                    print('No Portrait position given')
+                    break
+                if idx >= len(values)//2 - 1:  # If last command, don't need no_block flag
+                    add_portrait_command = event_commands.AddPortrait([portrait, position])
+                else:
+                    add_portrait_command = event_commands.AddPortrait([portrait, position, 'no_block'])
+                commands.append(add_portrait_command)
+            for command in reversed(commands):
+                # Done backwards to preserve order upon insertion
+                self.commands.insert(self.command_idx + 1, command)
+
         elif command.nid == 'remove_portrait':
             self.remove_portrait(command)
+
+        elif command.nid == 'multi_remove_portrait':
+            values, flags = self.parse(command)
+            commands = []
+            for idx, portrait in enumerate(values):
+                if idx >= len(values) - 1:
+                    remove_portrait_command = event_commands.RemovePortrait([portrait])
+                else:
+                    remove_portrait_command = event_commands.RemovePortrait([portrait, 'no_block'])
+                commands.append(remove_portrait_command)
+            for command in reversed(commands):
+                # Done backwards to preserve order upon insertion
+                self.commands.insert(self.command_idx + 1, command)
 
         elif command.nid == 'move_portrait':
             self.move_portrait(command)
@@ -1019,9 +1051,43 @@ class Event():
             path = target_system.get_path(unit, position)
             action.do(action.Move(unit, position, path, event=True, follow=follow))
 
-    def _add_unit(self, unit, position):
-        position = tuple(position)
-        action.do(action.ArriveOnMap(unit, position))
+    def _add_unit_from_direction(self, unit, position, direction) -> bool:
+        offsets = [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, -6, 6, -7, 7]
+        final_pos = None
+
+        if direction == 'west':
+            test_pos = (0, position[1])
+            for x in offsets:
+                if game.movement.check_traversable(unit, test_pos):
+                    final_pos = test_pos
+                else:
+                    test_pos = (0, position[1] + x)
+        elif direction == 'east':
+            test_pos = (game.tilemap.width, position[1])
+            for x in offsets:
+                if game.movement.check_traversable(unit, test_pos):
+                    final_pos = test_pos
+                else:
+                    test_pos = (game.tilemap.width, position[1] + x)
+        elif direction == 'north':
+            test_pos = (position[0], 0)
+            for x in offsets:
+                if game.movement.check_traversable(unit, test_pos):
+                    final_pos = test_pos
+                else:
+                    test_pos = (position[0] + x, 0)
+        elif direction == 'east':
+            test_pos = (position[0], game.tilemap.height)
+            for x in offsets:
+                if game.movement.check_traversable(unit, test_pos):
+                    final_pos = test_pos
+                else:
+                    test_pos = (position[1] + x, game.tilemap.height)
+
+        if final_pos:
+            action.do(action.ArriveOnMap(unit, final_pos))
+            return True
+        return False
 
     def _get_position(self, next_pos, unit, group):
         if not next_pos:
@@ -1067,14 +1133,7 @@ class Event():
             if not position:
                 continue
             
-            if cardinal_direction == 'west':
-                self._add_unit(unit, (0, position[1]))
-            elif cardinal_direction == 'east':
-                self._add_unit(unit, (game.tilemap.width - 1, position[1]))
-            elif cardinal_direction == 'north':
-                self._add_unit(unit, (position[0], 0))
-            elif cardinal_direction == 'south':
-                self._add_unit(unit, (position[0], game.tilemap.height - 1))
+            self._add_unit_from_direction(unit, position, cardinal_direction)
             self._move_unit(movement_type, placement, follow, unit, position)
 
         if 'no_block' in flags or self.do_skip:

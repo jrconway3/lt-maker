@@ -385,6 +385,17 @@
         ]
     },
     {
+        "nid": "Saar",
+        "blinking_offset": [
+            16,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
         "nid": "Selena",
         "blinking_offset": [
             24,

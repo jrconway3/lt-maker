@@ -34,5 +34,9 @@
     {
         "nid": "Chpt4",
         "terrain_grid": {}
+    },
+    {
+        "nid": "Chpt5",
+        "terrain_grid": {}
     }
 ]

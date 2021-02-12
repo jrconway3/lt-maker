@@ -956,6 +956,42 @@
         "only_once": false
     },
     {
+        "name": "DeathSaar",
+        "trigger": "unit_death",
+        "level_nid": "5",
+        "condition": "unit.nid == \"Saar\"",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "O'Neill",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "O'Neill",
+                    "What? How?"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "O'Neill",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "O'Neill"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
         "name": "DeathBreguet",
         "trigger": "unit_death",
         "level_nid": "1",
@@ -1111,10 +1147,23 @@
         "only_once": true
     },
     {
-        "name": "Win",
+        "name": "Defeat Boss",
         "trigger": "combat_end",
         "level_nid": "0",
         "condition": "game.check_dead(\"O'Neill\")",
+        "commands": [
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Defeat Boss",
+        "trigger": "combat_end",
+        "level_nid": "5",
+        "condition": "game.check_dead(\"Saar\")",
         "commands": [
             [
                 "win_game",
@@ -1164,6 +1213,42 @@
         "trigger": "combat_start",
         "level_nid": "0",
         "condition": "unit.nid == \"O'Neill\" or unit2.nid == \"O'Neill\"",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "O'Neill",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "O'Neill",
+                    "You will be the first to die!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "O'Neill"
+                ]
+            ],
+            [
+                "change_music",
+                [
+                    "player_phase",
+                    "Grasp at Victory"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
+        "name": "FightSaar",
+        "trigger": "combat_start",
+        "level_nid": "5",
+        "condition": "unit.nid == \"Saar\" or unit2.nid == \"Saar\"",
         "commands": [
             [
                 "add_portrait",
@@ -3570,6 +3655,63 @@
         "only_once": false
     },
     {
+        "name": "Armory",
+        "trigger": "Armory",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "shop",
+                [
+                    "{unit}",
+                    "Iron Sword,Slim Sword,Steel Sword,Iron Lance,Slim Lance,Steel Lance,Iron Axe,Steel Axe,Iron Bow,Steel Bow"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Vendor",
+        "trigger": "Vendor",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "shop",
+                [
+                    "{unit}",
+                    "Heal,Vulnerary,Fire,Shine",
+                    "Vendor"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
         "name": "Village1Eirika",
         "trigger": "Visit",
         "level_nid": "2",
@@ -3843,6 +3985,342 @@
                 [
                     "{unit}",
                     "Red Gem"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Village1",
+        "trigger": "Visit",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village1'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man1",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "text"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village1"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Dracoshield"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Village2",
+        "trigger": "Visit",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village2'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man1",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "text"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village2"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Armorslayer"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Village3",
+        "trigger": "Visit",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village3'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man1",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "text"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village3"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Secret Book"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Village4",
+        "trigger": "Visit",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village4'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man1",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "text"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village4"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Torch"
                 ]
             ],
             [
@@ -4445,6 +4923,84 @@
         "trigger": "on_talk",
         "level_nid": "2",
         "condition": "unit.nid == 'Ross' and unit2.nid == 'Garcia'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Garcia",
+                    "Right"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Ross"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Dad!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Ross?! Boy, what did I tell you!? What are you doing here?|Don't worry about me. Hurry up and get yourself to safety!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Did you really think I could just run away while you fight, Dad?|You taught me that fighters fight for what's important to them!|There's no way I'm leaving!{br}I'm fighting just like you!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Ross...|All right, listen to me. We'll cut our way out of here together!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ross",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Garcia"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Garcia",
+                    "player"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "NatashaJoshuaTalk",
+        "trigger": "on_talk",
+        "level_nid": "5",
+        "condition": "unit.nid == 'Natasha' and unit2.nid == 'Joshua'",
         "commands": [
             [
                 "add_portrait",
@@ -5503,7 +6059,7 @@
         "name": "DestroyVillage1",
         "trigger": "Destructible",
         "level_nid": "2",
-        "condition": "region.nid == 'Village1'",
+        "condition": "region.nid == 'DestroyVillage1'",
         "commands": [
             [
                 "flicker_cursor",
@@ -5527,10 +6083,118 @@
         "only_once": true
     },
     {
+        "name": "DestroyVillage1",
+        "trigger": "Destructible",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village1'",
+        "commands": [
+            [
+                "flicker_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Ruin1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
+        "name": "DestroyVillage2",
+        "trigger": "Destructible",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village2'",
+        "commands": [
+            [
+                "flicker_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Ruin2"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
+        "name": "DestroyVillage3",
+        "trigger": "Destructible",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village3'",
+        "commands": [
+            [
+                "flicker_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Ruin3"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
+        "name": "DestroyVillage4",
+        "trigger": "Destructible",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village4'",
+        "commands": [
+            [
+                "flicker_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Ruin4"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true
+    },
+    {
         "name": "DestroyVillage2",
         "trigger": "Destructible",
         "level_nid": "2",
-        "condition": "region.nid == 'Village2'",
+        "condition": "region.nid == 'DestroyVillage2'",
         "commands": [
             [
                 "flicker_cursor",
@@ -5557,7 +6221,7 @@
         "name": "DestroyVillage3",
         "trigger": "Destructible",
         "level_nid": "2",
-        "condition": "region.nid == 'Village3'",
+        "condition": "region.nid == 'DestroyVillage3'",
         "commands": [
             [
                 "flicker_cursor",
@@ -9229,6 +9893,1103 @@
                 ]
             ]
         ],
+        "only_once": false
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "chapter_title",
+                []
+            ],
+            [
+                "change_background",
+                [
+                    "Village"
+                ]
+            ],
+            [
+                "remove_all_units",
+                []
+            ],
+            [
+                "add_unit",
+                [
+                    "Joshua",
+                    "9,6",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joshua",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Well, well. There\u2019s an arena in this town.|Perfect. My pocket\u2019s feeling a bit light."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Say, is that a cleric? It is!{br}And a gorgeous one at that."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joshua"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "center_cursor",
+                [
+                    "9,9",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (Natasha runs past Joshua)"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Natasha",
+                    "9,16",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Natasha",
+                    "9,8"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Joshua",
+                    "9,7"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Joshua"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Village"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Natasha",
+                    "Left"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Natasha",
+                    "MidRight"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joshua",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Something amiss, Sister?{br}You look flustered."
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Natasha"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "Ahhh!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Natasha"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Natasha",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "P-pardon me."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "No, pardon me! I never meant to startle you.|May I offer my apologies...."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "No, it\u2019s not necessary...{br}It was my fault.|Excuse me, I must be going...{br}Good day to you."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (Natasha leaves)"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Natasha"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "...And there she goes.|Not my lucky day...{br}She was quite the beauty, too.|Ah, such is life. I think I\u2019ve time still to visit the arena, though."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joshua"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "remove_all_units",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# (View moves north, Glen is talking to Saar)"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Saar",
+                    "9,7",
+                    "immediate"
+                ]
+            ],
+            [
+                "load_unit",
+                [
+                    "Cormag",
+                    "enemy"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Cormag",
+                    "8,10",
+                    "immediate"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "Glen",
+                    "Wyvern Lord",
+                    "1",
+                    "enemy"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Glen",
+                    "9,9",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Glen"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Village"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Saar",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Glen",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Glen",
+                    "Captain Saar of the Serafew Border Guard. How fare you?|I bring orders from His Majesty.|Rumor has it that Princess Eirika of Renais is making her way to Grado.|You are to find her and to place her in custody immediately."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Saar",
+                    "Yes, sir!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Glen",
+                    "One more thing...|A traitor to the empire has fled Castle Grado.|We\u2019ve received reports she is hiding somewhere here in Serafew.|I don\u2019t care if you have to tear this town apart. Find the turncoat."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Saar",
+                    "Yes, sir, General Glen!|If she resists, do we have permission to execute her?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Glen",
+                    "...Yes. Permission granted."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Saar",
+                    "Understood! Grado\u2019s will be done.|The Grado Empire will repay the debt of betrayal with blood!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Glen",
+                    "...His Majesty relies upon you, Captain. Be sure his trust is not misplaced.|That is all."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Saar",
+                    "Yes, sir!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Saar",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Glen"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (Saar leaves, Cormag comes)"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Saar",
+                    "9,2"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Saar",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Cormag",
+                    "8,9"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Glen"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Village"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Cormag",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Glen",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Glen",
+                    "Such loyalty to the crown.|If only I could hold such conviction in the righteousness of our emperor."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Cormag",
+                    "Something troubling you, Brother?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Glen",
+                    "No...Pay no mind to me.|Come, Cormag. Let\u2019s go.|From here, we ride northeast, back to the fort."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Cormag",
+                    "Very well."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Cormag",
+                    "Glen"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (They fly off, replaces by Seth and Eirika, outside the town)"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Glen",
+                    "14,5",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Cormag",
+                    "14,4",
+                    "no_block"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "250"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "VillageGate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Eirika",
+                    "Left",
+                    "Seth",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "It\u2019s been so long since I last visited Serafew.|My brother and I used to pass through here en route to Grado.|I remember the harmony in which the people of both countries lived.|No walls divided our borders. No soldiers stood guard in high towers.|The border town... It was to me a symbol of the trust between Grado and Renais."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "...And now, it is firmly under the thumb of Grado\u2019s emperor."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "The peace I remember in this city...|It seems like something from another time. It seems lost now... Forever."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "...The city doesn\u2019t seem to be very heavily patrolled.|They must feel it\u2019s not worth guarding with Castle Renais under their control.|We must try to not draw attention to ourselves. The west gate is undermanned...."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Saleh",
+                    "OffscreenRight",
+                    "immediate"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Saleh",
+                    "Pardon me, may I ask you a question?"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (Saleh appears)"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Eirika",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Saleh",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "What is it?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Saleh",
+                    "I\u2019m looking for someone.|Have you seen a young girl with indigo hair?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Indigo hair?|No...Sorry."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Saleh",
+                    "Hmmm...|Thank you. Sorry to intrude."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (Saleh leaves)"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Saleh",
+                    "Eirika",
+                    "Seth"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Seth",
+                    "FarLeft",
+                    "Eirika",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "There was something very odd about that man, wouldn\u2019t you say?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "He did seem unusual. He didn\u2019t strike me as a Grado spy, but..."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierRed",
+                    "OffscreenRight",
+                    "immediate"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "Catch her! Don\u2019t let her escape!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "That way! She went that way!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "What\u2019s that?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "It\u2019s coming from over there."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Let\u2019s see what the commotion is."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Seth",
+                    "Eirika"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "remove_all_units",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Natasha",
+                    "10,3",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Natasha",
+                    "9,12"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "ThreeEnemies",
+                    "ThreeEnemies",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_group",
+                [
+                    "ThreeEnemies",
+                    "Starting"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Natasha",
+                    "Left",
+                    "SoldierRed",
+                    "Right"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (Screen goes to town, there are some soldiers surrounding Natasha)"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "Traitor Natasha!{br}Surrender peacefully.|Come quietly, and you may have the chance to explain yourself before His Majesty."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "Wait, please.{br}You must listen to me!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Soldier",
+                    "Take her."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "No, you must believe me!|The emperor is not himself. You MUST be able to see that!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Soldier",
+                    "Impugn the emperor at your peril!|We\u2019ve been ordered to execute you if you offer any resistance.|But your words condemn you!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Natasha",
+                    "SoldierRed"
+                ]
+            ],
+            [
+                "spawn_group",
+                [
+                    "EnemyTeam",
+                    "North",
+                    "Starting"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "7,14"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Eirika",
+                    "0,16",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Seth",
+                    "0,15",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Seth",
+                    "5,15",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Eirika",
+                    "6,16"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Seth",
+                    "FarLeft",
+                    "Eirika",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "That cleric is a traitor to the throne of Grado?|What madness is this?"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# (Natasha runs up to Eirika)"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Natasha",
+                    "6,15"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Natasha",
+                    "Left",
+                    "Eirika",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "Ah..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Are you all right?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "Who are you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "I\u2019m from Renais. Why are these Grado men after you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "You\u2019re from Renais... Oh!|I have something I must tell you. It\u2019s about Grado--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Wait--Grado soldiers are coming this way.|We\u2019ll have to talk later.{br}Now we must fight!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Natasha",
+                    "Eirika"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Eirika",
+                    "",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Natasha",
+                    "",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Seth",
+                    "immediate"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "Eirika",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "prep",
+                []
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [],
         "only_once": false
     }
 ]

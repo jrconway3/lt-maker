@@ -150,6 +150,21 @@
         "status": null
     },
     {
+        "nid": "Fence",
+        "name": "Fence",
+        "color": [
+            64,
+            40,
+            40,
+            255
+        ],
+        "minimap": "Wall",
+        "platform": "Wall",
+        "mtype": "Fence",
+        "opaque": false,
+        "status": null
+    },
+    {
         "nid": "10",
         "name": "Lake",
         "color": [
@@ -300,21 +315,6 @@
         "status": "Throne"
     },
     {
-        "nid": "38",
-        "name": "Throne",
-        "color": [
-            150,
-            0,
-            77,
-            255
-        ],
-        "minimap": "Throne",
-        "platform": "Throne",
-        "mtype": "Throne",
-        "opaque": null,
-        "status": "Throne"
-    },
-    {
         "nid": "33",
         "name": "Armory",
         "color": [
@@ -325,6 +325,36 @@
         ],
         "minimap": "Shop",
         "platform": "Armory",
+        "mtype": "Normal",
+        "opaque": null,
+        "status": "Avoid10"
+    },
+    {
+        "nid": "34",
+        "name": "Vendor",
+        "color": [
+            160,
+            1,
+            4,
+            255
+        ],
+        "minimap": "Shop",
+        "platform": "Vendor",
+        "mtype": "Normal",
+        "opaque": null,
+        "status": "Avoid10"
+    },
+    {
+        "nid": "Arena",
+        "name": "Arena",
+        "color": [
+            152,
+            1,
+            4,
+            255
+        ],
+        "minimap": "Shop",
+        "platform": "Arena",
         "mtype": "Normal",
         "opaque": null,
         "status": "Avoid10"
@@ -373,6 +403,21 @@
         "mtype": "Wall",
         "opaque": null,
         "status": null
+    },
+    {
+        "nid": "38",
+        "name": "Throne",
+        "color": [
+            150,
+            0,
+            77,
+            255
+        ],
+        "minimap": "Throne",
+        "platform": "Throne",
+        "mtype": "Throne",
+        "opaque": null,
+        "status": "Throne"
     },
     {
         "nid": "Ruins",

@@ -3,7 +3,7 @@ from app.data.database import DB
 from app.utilities import utils
 import app.engine.config as cf
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, skill_system, action
+from app.engine import engine, skill_system, action, equations
 from app.engine.game_state import game
 
 class MovementData():
@@ -52,7 +52,7 @@ class MovementManager():
             movement_group = DB.classes.get(unit_to_move.klass).movement_group
         return movement_group
 
-    def get_mcost(self, unit_to_move, pos):
+    def get_mcost(self, unit_to_move, pos) -> int:
         if DB.terrain:
             terrain_nid = game.tilemap.get_terrain(pos)
             terrain = DB.terrain.get(terrain_nid)
@@ -63,6 +63,15 @@ class MovementManager():
         else:
             mcost = 1
         return mcost
+
+    def check_traversable(self, unit_to_move, pos) -> bool:
+        if not game.tilemap.check_bounds(pos):
+            return False
+        mcost = self.get_mcost(unit_to_move, pos)
+        movement = equations.parser.movement(unit_to_move)
+        if mcost <= movement:
+            return True
+        return False
 
     def check_position(self, unit, data, new_position) -> bool:
         """

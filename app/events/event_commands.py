@@ -93,6 +93,14 @@ class AddPortrait(EventCommand):
     optional_keywords = ['Slide', 'ExpressionList']
     flags = ["mirror", "low_priority", "immediate", "no_block"]
 
+class MultiAddPortrait(EventCommand):
+    nid = "multi_add_portrait"
+    nickname = "uu"
+    tag = "dialogue"
+
+    keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']
+    optional_keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']
+
 class RemovePortrait(EventCommand):
     nid = "remove_portrait"
     nickname = "r"
@@ -100,6 +108,14 @@ class RemovePortrait(EventCommand):
 
     keywords = ['Portrait']
     flags = ["immediate", "no_block"]
+
+class MultiRemovePortrait(EventCommand):
+    nid = "multi_remove_portrait"
+    nickname = "rr"
+    tag = "dialogue"
+
+    keywords = ['Portrait', 'Portrait']
+    optional_keywords = ['Portrait', 'Portrait']
 
 class MovePortrait(EventCommand):
     nid = "move_portrait"

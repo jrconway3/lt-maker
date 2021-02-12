@@ -63,7 +63,7 @@ Dialog {eval:game.game_vars['tactician']}
 Dialog {var:tactician}
 Dialog {red}{/red}
 
-
+Fix Unpromoted Unit Growth Displays
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

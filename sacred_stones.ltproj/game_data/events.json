@@ -964,28 +964,28 @@
             [
                 "add_portrait",
                 [
-                    "O'Neill",
+                    "Saar",
                     "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "O'Neill",
-                    "What? How?"
+                    "Saar",
+                    "Emperor Vigarde...{br}Glory to His...Majesty..."
                 ]
             ],
             [
                 "expression",
                 [
-                    "O'Neill",
+                    "Saar",
                     "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "O'Neill"
+                    "Saar"
                 ]
             ]
         ],
@@ -1253,28 +1253,21 @@
             [
                 "add_portrait",
                 [
-                    "O'Neill",
+                    "Saar",
                     "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "O'Neill",
-                    "You will be the first to die!"
+                    "Saar",
+                    "Enemy of the empire!{br}Death's too good for you!"
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "O'Neill"
-                ]
-            ],
-            [
-                "change_music",
-                [
-                    "player_phase",
-                    "Grasp at Victory"
+                    "Saar"
                 ]
             ]
         ],
@@ -4011,7 +4004,7 @@
             [
                 "change_background",
                 [
-                    "Town"
+                    "House"
                 ]
             ],
             [
@@ -4024,34 +4017,28 @@
                 "add_portrait",
                 [
                     "{unit}",
-                    "Left",
+                    "Right",
                     "no_block"
                 ]
             ],
             [
                 "add_portrait",
                 [
-                    "Man1",
-                    "Right"
+                    "Tethys",
+                    "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Man1",
-                    "text"
+                    "Tethys",
+                    "Oh, hello.{br}Did you come to see me dance?|I'm sorry, but I just finished a few moments ago.{w}{clear}Oh, by the way...Would you be interested in one of these items?|A wealthy patron left me a small ransom in gifts after watching my performance.|You can sell one for gold if you'd like or use them to improve your skills.|I simply cannot carry all of this by myself, so please, take this one.|Wealth is useless if you can't use it to bring happiness to others, right? Thanks for dropping my. Perhaps we'll meet again someday."
                 ]
             ],
             [
                 "transition",
                 [
                     "Close"
-                ]
-            ],
-            [
-                "show_layer",
-                [
-                    "Village1"
                 ]
             ],
             [
@@ -4068,7 +4055,13 @@
                 "give_item",
                 [
                     "{unit}",
-                    "Dracoshield"
+                    "Dragonshield"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village1"
                 ]
             ],
             [
@@ -4095,7 +4088,7 @@
             [
                 "change_background",
                 [
-                    "Town"
+                    "House"
                 ]
             ],
             [
@@ -4108,34 +4101,28 @@
                 "add_portrait",
                 [
                     "{unit}",
-                    "Left",
+                    "Right",
                     "no_block"
                 ]
             ],
             [
                 "add_portrait",
                 [
-                    "Man1",
-                    "Right"
+                    "Man2",
+                    "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Man1",
-                    "text"
+                    "Man2",
+                    "Life in Serafew's been harder since the Grado occupation force took over here.|Serafew's got Renais citizens as well as Grado, but it's been hardest on us.|They've singled out families from Renais for the most awful atrocities.{w}{clear}Please, traveler, take this sword.|It's an armorslayer. It'll cut through even the strongest armor.|Take it and strike down that blackheart, Saar."
                 ]
             ],
             [
                 "transition",
                 [
                     "Close"
-                ]
-            ],
-            [
-                "show_layer",
-                [
-                    "Village2"
                 ]
             ],
             [
@@ -4153,6 +4140,12 @@
                 [
                     "{unit}",
                     "Armorslayer"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village2"
                 ]
             ],
             [
@@ -4179,7 +4172,7 @@
             [
                 "change_background",
                 [
-                    "Town"
+                    "House"
                 ]
             ],
             [
@@ -4192,34 +4185,28 @@
                 "add_portrait",
                 [
                     "{unit}",
-                    "Left",
+                    "Right",
                     "no_block"
                 ]
             ],
             [
                 "add_portrait",
                 [
-                    "Man1",
-                    "Right"
+                    "OldMan1",
+                    "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Man1",
-                    "text"
+                    "OldMan1",
+                    "In my youth, I was a knight of some renown, I'll have you know.|I've even crossed blades with one of Grado's most famous generals, I have.|Ah, but I'm an old man now...|I'm starting to worry... What if I die without passing on my techniques?|So I decided to write down what I've learned in a book. I have it here.|You seem like a strong warrior. I'd be honored if you would accept it."
                 ]
             ],
             [
                 "transition",
                 [
                     "Close"
-                ]
-            ],
-            [
-                "show_layer",
-                [
-                    "Village3"
                 ]
             ],
             [
@@ -4237,6 +4224,12 @@
                 [
                     "{unit}",
                     "Secret Book"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village3"
                 ]
             ],
             [
@@ -4263,7 +4256,7 @@
             [
                 "change_background",
                 [
-                    "Town"
+                    "House"
                 ]
             ],
             [
@@ -4275,35 +4268,41 @@
             [
                 "add_portrait",
                 [
-                    "{unit}",
-                    "Left",
-                    "no_block"
+                    "Amelia",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Amelia",
+                    "Hope everyone's well back home in Silva. Just a bit more, and I'll be in the empire.|Let's see, I\u2019ve got vulneraries, antitoxins...|Oh! And I can't let myself forget torches for when it gets dark.|Yep! I'm all set!{br}Now I just need to get to the capital.|I'll be the finest soldier the Grado army's ever seen! I swear it!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Amelia"
                 ]
             ],
             [
                 "add_portrait",
                 [
-                    "Man1",
+                    "{unit}",
                     "Right"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Man1",
-                    "text"
+                    "{unit}",
+                    "Hm... What's this?"
                 ]
             ],
             [
                 "transition",
                 [
                     "Close"
-                ]
-            ],
-            [
-                "show_layer",
-                [
-                    "Village4"
                 ]
             ],
             [
@@ -4321,6 +4320,12 @@
                 [
                     "{unit}",
                     "Torch"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Village4"
                 ]
             ],
             [
@@ -5005,7 +5010,7 @@
             [
                 "add_portrait",
                 [
-                    "Ross",
+                    "Natasha",
                     "Left",
                     "no_block"
                 ]
@@ -5013,61 +5018,153 @@
             [
                 "add_portrait",
                 [
-                    "Garcia",
+                    "Joshua",
                     "Right"
                 ]
             ],
             [
-                "bop_portrait",
+                "speak",
                 [
-                    "Ross"
+                    "Natasha",
+                    "You...You\u2019re that man I met...|Are you here to capture me? You\u2019ve been hired to silence me, haven\u2019t you..."
                 ]
             ],
             [
                 "speak",
                 [
-                    "Ross",
-                    "Dad!"
+                    "Joshua",
+                    "Yeah, Grado\u2019s paying the bill.{br}They want you dead, you know?|But don\u2019t feel bad. It\u2019s not personal."
                 ]
             ],
             [
                 "speak",
                 [
-                    "Garcia",
-                    "Ross?! Boy, what did I tell you!? What are you doing here?|Don't worry about me. Hurry up and get yourself to safety!"
+                    "Natasha",
+                    "Wait, please...|It doesn\u2019t matter what happens to me, but you must hear my words.|The emperor of Grado is changed.{br}He is not the man he once was.|The other nations must be warned before he extinguishes all light from out lands."
                 ]
             ],
             [
                 "speak",
                 [
-                    "Ross",
-                    "Did you really think I could just run away while you fight, Dad?|You taught me that fighters fight for what's important to them!|There's no way I'm leaving!{br}I'm fighting just like you!"
+                    "Joshua",
+                    "Hey, no offense, but I\u2019m just a mercenary. I don\u2019t care about Grado or its emperor.|Everything you say may be true, or it may be lies. I don\u2019t care either way."
                 ]
             ],
             [
                 "speak",
                 [
-                    "Garcia",
-                    "Ross...|All right, listen to me. We'll cut our way out of here together!"
+                    "Natasha",
+                    "But that\u2019s..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Even so...Killing a beautiful lady like you would leave a bad taste in my mouth.{w}{clear}Tell me, do you like to gamble?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "What?!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Gambling\u2019s what I live for. Even when I lose, I never want to stop.|Let\u2019s have us a little wager.{br}If you win, I\u2019ll believe you.|Heads or tails, you call it."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "You can\u2019t...{br}This is no time for games..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Would you rather I get on with the job I was hired for?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "......{br}Um, heads...|No! Tails!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "All right. So I\u2019m heads, and you\u2019re tails.|Here we go.|... ... ..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "......{br}Which...Which is it?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "What do you know?!{w}{clear}It\u2019s tails. You win. Figures. I haven\u2019t won anything all day.|Well, Lady Luck has spoken.{br}Guess I\u2019m on your side now."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "Are you serious?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Yeah. Sure, I might cheat, but I never worm out of a bet. It\u2019s a rule of mine."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "Oh, thank heaven! Thank you, blessed light, for your protection!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "I got nothing against heaven, but I\u2019m right here if you want someone to thank...|No? Well , get behind me then. I\u2019ve got to take care of these fools."
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "Ross",
+                    "Natasha",
                     "no_block"
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "Garcia"
+                    "Joshua"
                 ]
             ],
             [
                 "change_team",
                 [
-                    "Garcia",
+                    "Joshua",
                     "player"
                 ]
             ]
@@ -9113,6 +9210,98 @@
         "only_once": false
     },
     {
+        "name": "Turn2",
+        "trigger": "turn_change",
+        "level_nid": "5",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "14,16"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "Brigand1",
+                    "Brigand1"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "14,16"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Brigand1",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Brigand1",
+                    "Look at this. Now's our chance!|C'mon, lads!|Let's join the fights and steal our way through this pathetic town!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Brigand1"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Turn4",
+        "trigger": "turn_change",
+        "level_nid": "5",
+        "condition": "game.turncount == 4",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "14,7"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "Brigand2",
+                    "Brigand2"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Turn8",
+        "trigger": "turn_change",
+        "level_nid": "5",
+        "condition": "game.turncount == 8",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "14,0"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "Brigand3",
+                    "Brigand3"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
         "name": "Turn3",
         "trigger": "turn_change",
         "level_nid": "4",
@@ -9930,7 +10119,7 @@
                 "speak",
                 [
                     "Joshua",
-                    "Well, well. There\u2019s an arena in this town.|Perfect. My pocket\u2019s feeling a bit light."
+                    "Well, well. There's an arena in this town.|Perfect. My pocket's feeling a bit light."
                 ]
             ],
             [
@@ -10093,7 +10282,7 @@
                 "speak",
                 [
                     "Natasha",
-                    "No, it\u2019s not necessary...{br}It was my fault.|Excuse me, I must be going...{br}Good day to you."
+                    "No, it's not necessary...{br}It was my fault.|Excuse me, I must be going...{br}Good day to you."
                 ]
             ],
             [
@@ -10112,7 +10301,7 @@
                 "speak",
                 [
                     "Joshua",
-                    "...And there she goes.|Not my lucky day...{br}She was quite the beauty, too.|Ah, such is life. I think I\u2019ve time still to visit the arena, though."
+                    "...And there she goes.|Not my lucky day...{br}She was quite the beauty, too.|Ah, such is life. I think I've time still to visit the arena, though."
                 ]
             ],
             [
@@ -10244,7 +10433,7 @@
                 "speak",
                 [
                     "Glen",
-                    "One more thing...|A traitor to the empire has fled Castle Grado.|We\u2019ve received reports she is hiding somewhere here in Serafew.|I don\u2019t care if you have to tear this town apart. Find the turncoat."
+                    "One more thing...|A traitor to the empire has fled Castle Grado.|We've received reports she is hiding somewhere here in Serafew.|I don't care if you have to tear this town apart. Find the turncoat."
                 ]
             ],
             [
@@ -10265,7 +10454,7 @@
                 "speak",
                 [
                     "Saar",
-                    "Understood! Grado\u2019s will be done.|The Grado Empire will repay the debt of betrayal with blood!"
+                    "Understood! Grado's will be done.|The Grado Empire will repay the debt of betrayal with blood!"
                 ]
             ],
             [
@@ -10395,7 +10584,7 @@
                 "speak",
                 [
                     "Glen",
-                    "No...Pay no mind to me.|Come, Cormag. Let\u2019s go.|From here, we ride northeast, back to the fort."
+                    "No...Pay no mind to me.|Come, Cormag. Let's go.|From here, we ride northeast, back to the fort."
                 ]
             ],
             [
@@ -10487,14 +10676,14 @@
                 "speak",
                 [
                     "Eirika",
-                    "It\u2019s been so long since I last visited Serafew.|My brother and I used to pass through here en route to Grado.|I remember the harmony in which the people of both countries lived.|No walls divided our borders. No soldiers stood guard in high towers.|The border town... It was to me a symbol of the trust between Grado and Renais."
+                    "It's been so long since I last visited Serafew.|My brother and I used to pass through here en route to Grado.|I remember the harmony in which the people of both countries lived.|No walls divided our borders. No soldiers stood guard in high towers.|The border town... It was to me a symbol of the trust between Grado and Renais."
                 ]
             ],
             [
                 "speak",
                 [
                     "Seth",
-                    "...And now, it is firmly under the thumb of Grado\u2019s emperor."
+                    "...And now, it is firmly under the thumb of Grado's emperor."
                 ]
             ],
             [
@@ -10508,7 +10697,7 @@
                 "speak",
                 [
                     "Seth",
-                    "...The city doesn\u2019t seem to be very heavily patrolled.|They must feel it\u2019s not worth guarding with Castle Renais under their control.|We must try to not draw attention to ourselves. The west gate is undermanned...."
+                    "...The city doesn't seem to be very heavily patrolled.|They must feel it's not worth guarding with Castle Renais under their control.|We must try to not draw attention to ourselves. The west gate is undermanned...."
                 ]
             ],
             [
@@ -10570,7 +10759,7 @@
                 "speak",
                 [
                     "Saleh",
-                    "I\u2019m looking for someone.|Have you seen a young girl with indigo hair?"
+                    "I'm looking for someone.|Have you seen a young girl with indigo hair?"
                 ]
             ],
             [
@@ -10614,14 +10803,14 @@
                 "speak",
                 [
                     "Eirika",
-                    "There was something very odd about that man, wouldn\u2019t you say?"
+                    "There was something very odd about that man, wouldn't you say?"
                 ]
             ],
             [
                 "speak",
                 [
                     "Seth",
-                    "He did seem unusual. He didn\u2019t strike me as a Grado spy, but..."
+                    "He did seem unusual. He didn't strike me as a Grado spy, but..."
                 ]
             ],
             [
@@ -10636,7 +10825,7 @@
                 "speak",
                 [
                     "SoldierRed",
-                    "Catch her! Don\u2019t let her escape!"
+                    "Catch her! Don't let her escape!"
                 ]
             ],
             [
@@ -10650,21 +10839,21 @@
                 "speak",
                 [
                     "Eirika",
-                    "What\u2019s that?"
+                    "What's that?"
                 ]
             ],
             [
                 "speak",
                 [
                     "Seth",
-                    "It\u2019s coming from over there."
+                    "It's coming from over there."
                 ]
             ],
             [
                 "speak",
                 [
                     "Eirika",
-                    "Let\u2019s see what the commotion is."
+                    "Let's see what the commotion is."
                 ]
             ],
             [
@@ -10771,7 +10960,7 @@
                 "speak",
                 [
                     "Soldier",
-                    "Impugn the emperor at your peril!|We\u2019ve been ordered to execute you if you offer any resistance.|But your words condemn you!"
+                    "Impugn the emperor at your peril!|We've been ordered to execute you if you offer any resistance.|But your words condemn you!"
                 ]
             ],
             [
@@ -10901,21 +11090,21 @@
                 "speak",
                 [
                     "Eirika",
-                    "I\u2019m from Renais. Why are these Grado men after you?"
+                    "I'm from Renais. Why are these Grado men after you?"
                 ]
             ],
             [
                 "speak",
                 [
                     "Natasha",
-                    "You\u2019re from Renais... Oh!|I have something I must tell you. It\u2019s about Grado--"
+                    "You're from Renais... Oh!|I have something I must tell you. It's about Grado--"
                 ]
             ],
             [
                 "speak",
                 [
                     "Eirika",
-                    "Wait--Grado soldiers are coming this way.|We\u2019ll have to talk later.{br}Now we must fight!"
+                    "Wait--Grado soldiers are coming this way.|We'll have to talk later.{br}Now we must fight!"
                 ]
             ],
             [
@@ -10970,6 +11159,136 @@
             [
                 "prep",
                 []
+            ],
+            [
+                "comment",
+                [
+                    "# After prep, have Joshua appear"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "12,6"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "12,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Joshua",
+                    "12,6"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Joshua"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Joshua"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joshua",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "So much for my dreams of making my fortune here...|First the girl, now the gold.{br}It really isn't my lucky day."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierRed",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "You there! Mercenary! What are you doing here at the arena?|Get back to the staging area now!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "C'mon, why don't we both hit the arena?{br}It'll be good training.|If you're going to risk your life anyway, you may as well try to earn some gold."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "I'm reporting you to the captain! You'll be lucky if he just docks your pay!|Don't forget--You can be replaced in an eyeblink, you filthy sellsword!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierRed"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Don't worry, little man.{br}I won't forget.|Work's work, but I don't like fighting women...|Now then, what's the rest of the day got in store for me?{w}{clear}...Tails huh? That's nothing but bad luck and more bad luck..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joshua"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Natasha"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Natasha",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Natasha",
+                    "They may not want to hear what I have to say, but...|I must speak with one of the Grado soldiers.|Oh, if only one of them will listen to my words...|Please! Grant me strength."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Natasha"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Now actually start!"
+                ]
             ]
         ],
         "only_once": false

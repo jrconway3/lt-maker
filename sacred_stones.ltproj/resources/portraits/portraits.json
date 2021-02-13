@@ -396,6 +396,17 @@
         ]
     },
     {
+        "nid": "Bandit1",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
         "nid": "Selena",
         "blinking_offset": [
             24,
@@ -514,6 +525,17 @@
         "smiling_offset": [
             16,
             48
+        ]
+    },
+    {
+        "nid": "OldMan1",
+        "blinking_offset": [
+            24,
+            40
+        ],
+        "smiling_offset": [
+            16,
+            56
         ]
     },
     {

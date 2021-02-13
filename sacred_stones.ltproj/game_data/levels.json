@@ -2462,7 +2462,7 @@
             {
                 "nid": "Joshua",
                 "team": "enemy",
-                "ai": "Defend",
+                "ai": "JoshuaDefend",
                 "starting_position": [
                     9,
                     7
@@ -2482,7 +2482,7 @@
             {
                 "nid": "101",
                 "variant": null,
-                "level": 1,
+                "level": 3,
                 "klass": "Soldier",
                 "faction": "Soldier",
                 "starting_items": [
@@ -2536,7 +2536,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Defend",
+                "ai": "Attack",
                 "starting_position": [
                     0,
                     0
@@ -2602,7 +2602,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Pursue",
                 "starting_position": [
                     10,
                     0
@@ -2624,7 +2624,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Pursue",
                 "starting_position": [
                     9,
                     4
@@ -2646,7 +2646,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "starting_position": [
                     11,
                     2
@@ -2668,7 +2668,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "starting_position": [
                     13,
                     3
@@ -2690,7 +2690,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "starting_position": [
                     8,
                     8
@@ -2712,7 +2712,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "starting_position": [
                     10,
                     8
@@ -2734,7 +2734,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "starting_position": [
                     9,
                     9
@@ -2778,7 +2778,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "starting_position": [
                     3,
                     7
@@ -2814,7 +2814,7 @@
                 "variant": null,
                 "level": 4,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Bandit",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -2824,8 +2824,8 @@
                 "team": "enemy",
                 "ai": "PursueVillage",
                 "starting_position": null,
-                "name": null,
-                "desc": null,
+                "name": "Bandit",
+                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -2833,7 +2833,7 @@
                 "variant": null,
                 "level": 4,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Bandit",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -2843,8 +2843,8 @@
                 "team": "enemy",
                 "ai": "PursueVillage",
                 "starting_position": null,
-                "name": null,
-                "desc": null,
+                "name": "Bandit",
+                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -2852,7 +2852,7 @@
                 "variant": null,
                 "level": 5,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Bandit",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -2862,8 +2862,8 @@
                 "team": "enemy",
                 "ai": "PursueVillage",
                 "starting_position": null,
-                "name": null,
-                "desc": null,
+                "name": "Bandit",
+                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -2871,7 +2871,7 @@
                 "variant": null,
                 "level": 5,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Bandit",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -2881,8 +2881,8 @@
                 "team": "enemy",
                 "ai": "PursueVillage",
                 "starting_position": null,
-                "name": null,
-                "desc": null,
+                "name": "Bandit",
+                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -2890,7 +2890,7 @@
                 "variant": null,
                 "level": 5,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Bandit",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -2900,8 +2900,8 @@
                 "team": "enemy",
                 "ai": "PursueVillage",
                 "starting_position": null,
-                "name": null,
-                "desc": null,
+                "name": "Bandit",
+                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -2909,7 +2909,7 @@
                 "variant": null,
                 "level": 5,
                 "klass": "Brigand",
-                "faction": "Soldier",
+                "faction": "Bandit",
                 "starting_items": [
                     [
                         "Iron Axe",
@@ -2919,8 +2919,8 @@
                 "team": "enemy",
                 "ai": "PursueVillage",
                 "starting_position": null,
-                "name": null,
-                "desc": null,
+                "name": "Bandit",
+                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             }
         ],

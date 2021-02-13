@@ -42,7 +42,6 @@ Test Warp, Rescue, Berserk, Silence, Sleep and all other items from Sacred Stone
 
 Clean and Rename files/resources button in Help
 Auto-check cross-references on editor load
-Import and Export JSON for Classes, Items, Skills, Units, AI
 
 Consider making StatList and WeaponList into a dictionary instead, that just references the actual order in DB.stats and DB.weapons to display order, and then uses the dictionary keys to display contents/values.
 
@@ -55,8 +54,10 @@ Test First 5 chapters of Sacred Stones
 Customizable stat screen within Info Menu
 Customizable item screen (to handle accessories...) within Info Menu
 
-Slide parameter in unit portrait
+Supply Adjconvoy and Convoy skills
 
+Weapon Level increment by weapon level ranks
+Copy rows of stats and paste rows of stats
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

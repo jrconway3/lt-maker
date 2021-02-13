@@ -829,6 +829,12 @@ class Event():
             self.state = 'waiting'
 
     def _evaluate_evals(self, text) -> str:
+        # Set up variables so evals work well
+        unit = unit1 = self.unit
+        unit2 = self.unit2
+        position = self.position
+        region = self.region
+        
         to_evaluate = re.findall(r'\{eval:[^{}]*\}', text)
         evaluated = []
         for evaluate in to_evaluate:

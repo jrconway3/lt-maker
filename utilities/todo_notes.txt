@@ -34,14 +34,13 @@ Item System -- Multiple Target Items (test), Multiple Item Items (test)
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
-Better method for loading panorama movies (Separate button to load image frames/movies?)
-
 Summoning
 Sequence Items (Test using Jewrassic Parks weird Bow)
 Auras
 Silence target restrict (test)
 Multi-items 
     Work as activated items
+Test Warp, Rescue, Berserk, Silence, Sleep and all other items from Sacred Stones
 
 For Portrait Editor:
     Auto-match blink and mouth frames button
@@ -59,11 +58,7 @@ I will consider it after finishing Chapter 5 of Sacred Stones
 Make Chapter 5 of Sacred Stones
 Test First 5 chapters of Sacred Stones
 
-Dialog {eval:game.game_vars['tactician']}
-Dialog {var:tactician}
 Dialog {red}{/red}
-
-Fix Unpromoted Unit Growth Displays
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

@@ -15,23 +15,23 @@ class EditorState():
     main_editor_mode: MainEditorScreenStates = MainEditorScreenStates.GLOBAL_EDITOR
 
     """
-    This one is a cheeky dummy signal; broadcast this whenever you want to refresh the whole editor
+    # This one is a cheeky dummy signal; broadcast this whenever you want to refresh the whole editor
 
-    [!!!WARNING!!!]
-    Be EXTREMELY cautious when using any signal, but particularly this one. This could very easily get stuck
-    in a broadcast loop, for example:
+    # [!!!WARNING!!!]
+    # Be EXTREMELY cautious when using any signal, but particularly this one. This could very easily get stuck
+    # in a broadcast loop, for example:
 
-        def __init__(self):
-          [...]
-              ### when the UI signal is refreshed, of course I want to update my own view!
-          self.state_manager.subscribe(self.__name__, 'ui_refresh_signal', self.update_view)
+    #     def __init__(self):
+    #       [...]
+    #           ### when the UI signal is refreshed, of course I want to update my own view!
+    #       self.state_manager.subscribe(self.__name__, 'ui_refresh_signal', self.update_view)
 
-        def update_view(self):
-          update_self_with_data_that_changed_elsewhere()
-              ### Since I updated, let's update everyone!
-          self.state_manager.change_and_broadcast('ui_refresh_signal', None)
+    #     def update_view(self):
+    #       update_self_with_data_that_changed_elsewhere()
+    #           ### Since I updated, let's update everyone!
+    #       self.state_manager.change_and_broadcast('ui_refresh_signal', None)
     
-    Broadcasting is DANGEROUS, kids.
+    # Broadcasting is DANGEROUS, kids.
     """
     ui_refresh_signal: str = None
 

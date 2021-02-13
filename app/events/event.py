@@ -1,3 +1,5 @@
+import re
+
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils
 
@@ -826,6 +828,37 @@ class Event():
             self.wait_time = engine.get_time() + portrait.travel_time + 66
             self.state = 'waiting'
 
+    def _evaluate_evals(self, text) -> str:
+        to_evaluate = re.findall(r'\{eval:[^{}]*\}', text)
+        evaluated = []
+        for evaluate in to_evaluate:
+            try:
+                val = eval(evaluate[6:-1])
+                evaluated.append(str(val))
+            except Exception as e:
+                print("Could not evaluate %s (%s)" % (evaluate[6:-1], e))
+                evaluated.append('??')
+        for idx in range(len(to_evaluate)):
+            text = text.replace(to_evaluate[idx], evaluated[idx])
+        return text
+
+    def _evaluate_vars(self, text) -> str:
+        to_evaluate = re.findall(r'\{var:[^{}]*\}', text)
+        evaluated = []
+        for evaluate in to_evaluate:
+            key = evaluate[5:-1]
+            if key in game.level_vars:
+                val = str(game.level_vars[key])
+            elif key in game.game_vars:
+                val = str(game.game_vars[key])
+            else:
+                print("Could not find var {%s} in game.level_vars or game.game_vars" % key)
+                val = '??'
+            evaluated.append(val)
+        for idx in range(len(to_evaluate)):
+            text = text.replace(to_evaluate[idx], evaluated[idx])
+        return text
+
     def speak(self, command):
         values, flags = event_commands.parse(command)
 
@@ -842,6 +875,8 @@ class Event():
             width = None
 
         portrait = self.portraits.get(speaker)
+        text = self._evaluate_evals(text)
+        text = self._evaluate_vars(text)
         new_dialog = dialog.Dialog(text, portrait, 'message_bg_base', position, width)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'

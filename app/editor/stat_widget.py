@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
+from app.utilities import utils
 from app.data.stats import StatList
 from app.data.database import DB
 
@@ -143,6 +144,7 @@ class StatAverageDialog(QDialog):
         self.setWindowTitle("%s Stat Averages Display" % title)
         self.window = parent
         self.current = current
+        self.setMinimumWidth(400)
 
         column_titles = DB.stats.keys()
         self.setup(column_titles, "Average Stats", model)
@@ -253,7 +255,7 @@ class ClassStatAveragesModel(VirtualListModel):
                 prev_klass = DB.classes.get(obj.promotes_from)
                 level_ups += prev_klass.max_level
             else:
-                level_ups += 20
+                level_ups += 0
         stat_base = obj.bases.get(stat_nid).value
         stat_growth = obj.growths.get(stat_nid).value
         stat_max = obj.max_stats.get(stat_nid).value
@@ -348,15 +350,16 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
         for i in [1] + list(range(5, max_level, 5)) + [max_level]:
             self._rows.append((klass.nid, i, i))
         true_levels = 0
-        while klass.turns_into:
+        while klass.promotion_options(DB):
             true_levels += max_level
-            klass = DB.classes.get(klass.turns_into[0])  
+            klass = DB.classes.get(klass.promotion_options(DB)[0])  
             if klass:
                 max_level = klass.max_level
                 for i in [1] + list(range(5, max_level, 5)) + [max_level]:
                     self._rows.append((klass.nid, i, i + true_levels))
             else:
                 return
+        print(self._rows)
 
     def set_current(self, current):
         self.current = current
@@ -377,35 +380,49 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
             return self._columns[idx]
 
     def determine_average(self, obj, stat_nid, level_ups):
+        print(obj.nid, stat_nid, level_ups)
         stat_base = obj.bases.get(stat_nid).value
         stat_growth = obj.growths.get(stat_nid).value
+        print(stat_base, stat_growth)
         average = 0.5
         quantile10 = 0
         quantile90 = 0
         classes = [obj.klass]
         base_klass = DB.classes.get(obj.klass)
-        tier = base_klass.tier
-        turns_into = [k for k in base_klass.turns_into if DB.classes.get(k).tier == tier + 1]
-        if level_ups > base_klass.max_level - 1 and turns_into:
+        turns_into = base_klass.promotion_options(DB)
+        while turns_into:
             classes.append(turns_into[0])
-            level_ups -= 1  # In order to promote
+            new_klass = DB.classes.get(turns_into[0])
+            turns_into = new_klass.promotion_options(DB)
+        print(classes)
+
         for idx, klass in enumerate(classes):
             klass = DB.classes.get(klass)
-            if idx == 0:
-                ticks = min(level_ups, klass.max_level - obj.level)
-            else:
-                ticks = min(level_ups, klass.max_level - 1)
-            level_ups -= ticks
-            growth_bonus = klass.growth_bonus.get(stat_nid).value        
             stat_max = klass.max_stats.get(stat_nid).value
+            if idx == 0:
+                ticks = utils.clamp(level_ups, 0, klass.max_level - obj.level)
+            else:
+                ticks = utils.clamp(level_ups, 0, klass.max_level - 1)
+            level_ups -= klass.max_level
+            print(klass.nid, ticks, level_ups)
+            growth_bonus = klass.growth_bonus.get(stat_nid).value        
             if idx > 0:
                 promotion_bonus = klass.promotion.get(stat_nid).value
+                if promotion_bonus in (-99, -98):
+                    if idx > 0:
+                        prev_klass = classes[idx - 1]
+                        promotion_bonus = klass.bases.get(stat_nid).value - DB.classes.get(prev_klass).bases.get(stat_nid).value
+                    else:
+                        promotion_bonus = 0
             else:
                 promotion_bonus = stat_base
+            print(promotion_bonus)
             growth = (stat_growth + growth_bonus)/100
             average += min(stat_max, promotion_bonus + (growth * ticks))
             quantile10 += min(stat_max, Binomial.quantile(.1, ticks, growth) + promotion_bonus)
             quantile90 += min(stat_max, Binomial.quantile(.9, ticks, growth) + promotion_bonus)
+            if level_ups < 0:
+                break
         return stat_max, int(average), quantile10, quantile90
 
     def get_data(self, index):

@@ -6036,21 +6036,11 @@
                 ]
             ],
             [
-                "if",
-                [
-                    "engine.cf.SETTINGS['autoend_turn'] == 1"
-                ]
-            ],
-            [
                 "speak",
                 [
                     "Joshua",
-                    "Wow"
+                    "Say, how are doing {eval:2+2}head?|The fog of war is {var:_fog_of_war}."
                 ]
-            ],
-            [
-                "end",
-                []
             ]
         ],
         "only_once": false

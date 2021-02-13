@@ -341,9 +341,9 @@ class MainEditor(QMainWindow):
         self.toolbar.addAction(self.test_button_action)
         # let current editor to further customize toolbar
         try:
-          self.current_editor.create_toolbar(self.toolbar)
+            self.current_editor.create_toolbar(self.toolbar)
         except AttributeError:
-          pass
+            pass
 
     def create_statusbar(self):
         self.status_bar = self.statusBar()
@@ -423,8 +423,10 @@ class MainEditor(QMainWindow):
             if not self.mode.GLOBAL_EDITOR:
                 self.app_state_manager.change_and_broadcast(
                     'main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
-        self.app_state_manager.change_and_broadcast(
-            'ui_refresh_signal', None)
+            self.app_state_manager.change_and_broadcast(
+                'selected_level', DB.levels[0].nid)  # Needed in order to update map view
+            self.app_state_manager.change_and_broadcast(
+                'ui_refresh_signal', None)
 
     def open(self):
         if self.project_save_load_handler.open():
@@ -432,11 +434,13 @@ class MainEditor(QMainWindow):
             self.set_window_title(title)
             print("Loaded project from %s" % self.settings.get_current_project())
             self.status_bar.showMessage(
-               "Loaded project from %s" % self.settings.get_current_project())
+                "Loaded project from %s" % self.settings.get_current_project())
             # Return to global
             if not self.mode.GLOBAL_EDITOR:
                 self.app_state_manager.change_and_broadcast(
                     'main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
+            self.app_state_manager.change_and_broadcast(
+                'selected_level', DB.levels[0].nid)  # Needed in order to update map view
             self.app_state_manager.change_and_broadcast(
                 'ui_refresh_signal', None)
 
@@ -452,6 +456,8 @@ class MainEditor(QMainWindow):
         if not self.mode.GLOBAL_EDITOR:
             self.app_state_manager.change_and_broadcast(
                 'main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
+        self.app_state_manager.change_and_broadcast(
+            'selected_level', DB.levels[0].nid)  # Needed in order to update map view
         self.app_state_manager.change_and_broadcast(
             'ui_refresh_signal', None)
 
@@ -509,14 +515,14 @@ class MainEditor(QMainWindow):
 
     def render_editor(self, main_editor_mode):
         self.mode = main_editor_mode
-        if(self.mode == MainEditorScreenStates.GLOBAL_EDITOR):
+        if self.mode == MainEditorScreenStates.GLOBAL_EDITOR:
             self.current_editor = self.global_editor
             self.editor_stack.setCurrentIndex(0)
             self.test_current_act.setEnabled(True)
             self.test_load_act.setEnabled(True)
             self.recreate_menus()
             self.recreate_toolbar()
-        elif(self.mode == MainEditorScreenStates.LEVEL_EDITOR):
+        elif self.mode == MainEditorScreenStates.LEVEL_EDITOR:
             self.current_editor = self.level_editor
             self.editor_stack.setCurrentIndex(1)
             self.test_current_act.setEnabled(True)

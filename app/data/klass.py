@@ -45,6 +45,9 @@ class Klass(Prefab):
             if skill[1] == old_nid:
                 skill[1] = new_nid
 
+    def promotion_options(self, db) -> list:
+        return [option for option in self.turns_into if db.classes.get(option).tier == self.tier + 1]
+
     def save_attr(self, name, value):
         if name == 'learned_skills':
             value = [skill for skill in value]

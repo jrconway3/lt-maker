@@ -33,8 +33,8 @@ class ProjectFileBackend():
         # if not self.undo_stack.isClean():
         if True:  # For now, since undo stack is not being used
             ret = QMessageBox.warning(self.parent, "Main Editor", "The current project may have been modified.\n"
-                                            "Do you want to save your changes?",
-                                            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+                                      "Do you want to save your changes?",
+                                      QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
             if ret == QMessageBox.Save:
                 return self.save()
             elif ret == QMessageBox.Cancel:
@@ -102,13 +102,16 @@ class ProjectFileBackend():
 
     def open(self):
         if self.maybe_save():
-            starting_path = self.current_proj or QDir.currentPath()
+            # Go up one directory when starting
+            starting_path = os.path.join(self.current_proj, '..') or QDir.currentPath()
             fn = QFileDialog.getExistingDirectory(
                 self.parent, "Open Project Directory", starting_path)
             if fn:
                 self.current_proj = fn
                 self.settings.set_current_project(self.current_proj)
+                print("Opening project %s" % self.current_proj)
                 self.load()
+                return True
             else:
                 return False
         return False

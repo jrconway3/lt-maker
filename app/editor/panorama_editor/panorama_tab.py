@@ -44,6 +44,10 @@ class PanoramaTab(QWidget):
         self.button.clicked.connect(self.model.append)
         self.layout.addWidget(self.button, 1, 0, 1, 1)
 
+        self.movie_button = QPushButton("Add New Multi-Image Background...")
+        self.movie_button.clicked.connect(self.model.append_multi)
+        self.layout.addWidget(self.movie_button, 1, 1, 1, 1)
+
         self.display = None
 
         timer.get_timer().tick_elapsed.connect(self.tick)

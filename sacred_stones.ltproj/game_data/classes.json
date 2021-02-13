@@ -2255,7 +2255,8 @@
         "movement_group": "Light Foot",
         "promotes_from": null,
         "turns_into": [
-            "Hero"
+            "Hero",
+            "Ranger"
         ],
         "tags": [
             "Sword"
@@ -3930,7 +3931,7 @@
     {
         "nid": "Soldier",
         "name": "Soldier",
-        "desc": "Average soliders possessing\nno special abilities.",
+        "desc": "Average soldiers possessing\nno special abilities.",
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
@@ -5061,7 +5062,10 @@
         "tier": 1,
         "movement_group": "Fliers",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Falcoknight",
+            "Wyvern Knight"
+        ],
         "tags": [
             "Mounted",
             "Flying"
@@ -5629,6 +5633,7 @@
         "movement_group": "Armors",
         "promotes_from": null,
         "turns_into": [
+            "Great_Knight",
             "General"
         ],
         "tags": [
@@ -6465,7 +6470,10 @@
         "tier": 1,
         "movement_group": "Regular",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Hero",
+            "Warrior"
+        ],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -7017,7 +7025,9 @@
         "tier": 1,
         "movement_group": "Pirates",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Berserker"
+        ],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -7574,7 +7584,9 @@
         "tier": 1,
         "movement_group": "Bandits",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Berserker"
+        ],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -7850,7 +7862,10 @@
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Sniper",
+            "Ranger"
+        ],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -8686,7 +8701,9 @@
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Bishop"
+        ],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -8962,7 +8979,9 @@
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Bishop"
+        ],
         "tags": [],
         "max_level": 20,
         "bases": [
@@ -9519,7 +9538,10 @@
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Sage",
+            "Mage Knight"
+        ],
         "tags": [],
         "max_level": 20,
         "bases": [

@@ -203,10 +203,15 @@ class UIView():
         return bg_surf
 
     def eval_string(self, text):
-        to_evaluate = re.findall(r'\{[^}]*\}', text)
+        to_evaluate = re.findall(r'\{eval:[^{}]*\}', text)
         evaluated = []
-        for evalute in to_evaluate:
-            evaluated.append(str(eval(evalute[1:-1])))
+        for evaluate in to_evaluate:
+            try:
+                val = eval(evaluate[1:-1])
+                evaluated.append(str(val))
+            except Exception as e:
+                print("Could not evaluate %s (%s)" % (evaluate[1:-1], e))
+                evaluated.append('??')
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])
         return text

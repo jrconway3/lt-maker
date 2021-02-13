@@ -2418,195 +2418,6 @@
         ]
     },
     {
-        "nid": "DEBUG",
-        "name": "DEBUG",
-        "tilemap": "Chapter 2",
-        "party": "Eirika",
-        "music": {
-            "player_phase": null,
-            "enemy_phase": null,
-            "other_phase": null,
-            "player_battle": null,
-            "enemy_battle": null,
-            "other_battle": null,
-            "base": null
-        },
-        "objective": {
-            "simple": "DEBUG",
-            "win": "Don't Crash",
-            "loss": "Crash"
-        },
-        "units": [
-            {
-                "nid": "Joshua",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    2,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Bone",
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": [
-                    4,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Ross",
-                "team": "other",
-                "ai": "None",
-                "starting_position": [
-                    10,
-                    5
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Eirika",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    6,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Moulder",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    4,
-                    5
-                ],
-                "generic": false
-            },
-            {
-                "nid": "103",
-                "variant": null,
-                "level": 1,
-                "klass": "Soldier",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ],
-                    [
-                        "Slim Lance",
-                        false
-                    ],
-                    [
-                        "Vulnerary",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": [
-                    6,
-                    10
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "Colm",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    5,
-                    9
-                ],
-                "generic": false
-            },
-            {
-                "nid": "106",
-                "variant": null,
-                "level": 1,
-                "klass": "Cavalier",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Sword",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": [
-                    14,
-                    14
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "101",
-                "variant": null,
-                "level": 1,
-                "klass": "Fighter",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Axe",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": [
-                    1,
-                    4
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            }
-        ],
-        "regions": [
-            {
-                "nid": "Armory",
-                "region_type": "event",
-                "position": [
-                    5,
-                    7
-                ],
-                "size": [
-                    1,
-                    1
-                ],
-                "sub_nid": "Armory",
-                "condition": "True",
-                "only_once": false
-            },
-            {
-                "nid": "Door1",
-                "region_type": "event",
-                "position": [
-                    4,
-                    2
-                ],
-                "size": [
-                    1,
-                    1
-                ],
-                "sub_nid": "Door",
-                "condition": "unit.can_unlock(region)",
-                "only_once": true
-            }
-        ],
-        "unit_groups": []
-    },
-    {
         "nid": "5",
         "name": "Ch. 5: The Empire's Reach",
         "tilemap": "Chapter 5",
@@ -3464,5 +3275,194 @@
                 "positions": {}
             }
         ]
+    },
+    {
+        "nid": "DEBUG",
+        "name": "DEBUG",
+        "tilemap": "Chapter 2",
+        "party": "Eirika",
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "DEBUG",
+            "win": "Don't Crash",
+            "loss": "Crash"
+        },
+        "units": [
+            {
+                "nid": "Joshua",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Bone",
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Ross",
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    10,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Eirika",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Moulder",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Slim Lance",
+                        false
+                    ],
+                    [
+                        "Vulnerary",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    10
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Colm",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    9
+                ],
+                "generic": false
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 1,
+                "klass": "Cavalier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    14,
+                    14
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    1,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Armory",
+                "region_type": "event",
+                "position": [
+                    5,
+                    7
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Door1",
+                "region_type": "event",
+                "position": [
+                    4,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            }
+        ],
+        "unit_groups": []
     }
 ]

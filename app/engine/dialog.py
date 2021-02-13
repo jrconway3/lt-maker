@@ -21,7 +21,9 @@ class Dialog():
     def __init__(self, text, portrait=None, background=None, position=None, width=None):
         self.plain_text = text
         self.portrait = portrait
-        self.font = FONT['convo-black']
+        self.font_type = 'convo'
+        self.font_color = 'black'
+        self.font = FONT[self.font_type + '-' + self.font_color]
 
         # States: process, transition, pause, wait, done, new_line
         self.state = 'transition'
@@ -39,7 +41,7 @@ class Dialog():
             self.determine_size()
         else:
             self.text_width, self.text_height = (WINWIDTH - 24, self.num_lines * 16)
-            self.width, self.height = self.text_width + 16, self.text_height + 8
+            self.width, self.height = self.text_width + 16, self.text_height + 16
 
         # Position
         if position:
@@ -98,7 +100,6 @@ class Dialog():
             else:
                 processed_text.append(character)
         processed_text = [';' if char == '{semicolon}' else char for char in processed_text]
-
         return processed_text
 
     def determine_desired_center(self, portrait):

@@ -6,6 +6,8 @@ from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.ai_editor import ai_model, ai_properties
 
 class AIDatabase(DatabaseTab):
+    allow_copy_and_paste = True
+    
     @classmethod
     def create(cls, parent=None):
         data = DB.ai

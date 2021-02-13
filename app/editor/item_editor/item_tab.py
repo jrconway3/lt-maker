@@ -20,6 +20,7 @@ class ItemProperties(ComponentProperties):
 
 class ItemDatabase(DatabaseTab):
     allow_import_from_lt = True
+    allow_copy_and_paste = True
 
     @classmethod
     def create(cls, parent=None):

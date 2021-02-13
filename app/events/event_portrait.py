@@ -248,7 +248,7 @@ class EventPortrait():
 
         if self.transition:
             if self.slide:
-                image = image_mods.make_translucent(image, 1 - self.transition_progress)
+                image = image_mods.make_translucent(image.convert_alpha(), 1 - self.transition_progress)
             else:
                 image = image_mods.make_black_colorkey(image, 1 - self.transition_progress)
 

@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QApplication, QFileDialog
 
 from app.data.database import DB
 from app.editor.data_editor import SingleDatabaseEditor
@@ -11,6 +11,7 @@ from app.editor.class_editor import class_model, class_properties, class_import
 
 class ClassDatabase(DatabaseTab):
     allow_import_from_lt = True
+    allow_copy_and_paste = True
     
     @classmethod
     def create(cls, parent=None):
@@ -44,7 +45,6 @@ class ClassDatabase(DatabaseTab):
 # Run "python -m app.editor.unit_editor.unit_tab" from main directory
 if __name__ == '__main__':
     import sys
-    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     from app import dark_theme
     d = dark_theme.QDarkBGPalette()

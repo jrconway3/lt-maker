@@ -10,6 +10,7 @@ from app.editor.unit_editor import unit_model, unit_properties, unit_import
 
 class UnitDatabase(DatabaseTab):
     allow_import_from_lt = True
+    allow_copy_and_paste = True
 
     @classmethod
     def create(cls, parent=None):

@@ -55,6 +55,9 @@ Test First 5 chapters of Sacred Stones
 Customizable stat screen within Info Menu
 Customizable item screen (to handle accessories...) within Info Menu
 
+Slide parameter in unit portrait
+
+
 == Maybe, maybe not: ==
 Klok's Combining items idea
 " imagine that, when you select an item, an arrow appears on its left and the item would 'highlight'

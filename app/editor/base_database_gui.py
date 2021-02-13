@@ -1,7 +1,8 @@
 import copy
+import json
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
-    QSizePolicy, QSplitter, QMessageBox
+    QSizePolicy, QSplitter, QMessageBox, QApplication
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 
@@ -40,13 +41,21 @@ class Collection(QWidget):
         self.button = QPushButton(button_text % self.title)
         self.button.clicked.connect(self.model.append)
 
-        grid.addWidget(self.view, 0, 0)
-        grid.addWidget(self.button, 1, 0)
+        grid.addWidget(self.view, 0, 0, 1, 2)
+        grid.addWidget(self.button, 1, 0, 1, 2)
 
         if self.window.allow_import_from_lt:
             self.import_button = QPushButton("Import Legacy data file...")
             self.import_button.clicked.connect(self.window.import_data)
-            grid.addWidget(self.import_button, 2, 0)
+            grid.addWidget(self.import_button, 2, 0, 1, 2)
+
+        if self.window.allow_copy_and_paste:
+            self.copy_button = QPushButton("Copy to clipboard")
+            self.copy_button.clicked.connect(self.window.copy_data)
+            grid.addWidget(self.copy_button, 3, 0)
+            self.paste_button = QPushButton("Paste from clipboard")
+            self.paste_button.clicked.connect(self.window.paste_data)
+            grid.addWidget(self.paste_button, 3, 1)
 
     def on_item_changed(self, curr, prev):
         if self._data:
@@ -76,6 +85,7 @@ class Collection(QWidget):
 
 class DatabaseTab(QWidget):
     allow_import_from_lt = False
+    allow_copy_and_paste = False
 
     def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent,
                  button_text="Create %s", view_type=RightClickListView, collection_type=Collection):
@@ -132,6 +142,39 @@ class DatabaseTab(QWidget):
         window = SingleDatabaseEditor(cls, parent)
         window.exec_()
 
+    def copy_data(self):
+        clipboard = QApplication.clipboard()
+        view = self.left_frame.view
+        selected_indices = view.selectionModel().selectedIndexes()
+        ser_list = []
+        for index in selected_indices:
+            row = index.row()
+            current_class = self._data[row]
+            ser_dict = current_class.save()
+            ser_list.append(ser_dict)
+        json_string = json.dumps(ser_list)
+        clipboard.setText(json_string)
+
+    def paste_data(self):
+        view = self.left_frame.view
+        selected_indices = view.selectionModel().selectedIndexes()
+        if selected_indices:
+            row = selected_indices[0].row() + 1
+        else:
+            row = len(self._data)
+        
+        clipboard = QApplication.clipboard()
+        json_string = clipboard.text()
+        try:
+            ser_list = json.loads(json_string)
+            for ser_dict in reversed(ser_list):
+                new_obj = self._data.datatype.restore(ser_dict)
+                new_obj.nid = str_utils.get_next_name(new_obj.nid, self._data.keys())
+                self._data.insert(row, new_obj)
+            self.update_list()
+        except Exception as e:
+            print("Could not read from clipboard! %s" % e)
+            QMessageBox.critical(None, "Import Error", "Could not read valid json from clipboard!")
 
 class CollectionModel(QAbstractListModel):
     def __init__(self, data, window):

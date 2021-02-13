@@ -26,8 +26,6 @@ Test Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
 
 Dialogue Log on R press
 
-Check box in AI behaviour for unit specification that has the ability to flip from target ONLY to target EXCEPT.
-
 Skill System -- Auras, Modify AOE, Modify Forced Movement
 Item System -- Multiple Target Items (test), Multiple Item Items (test)
 
@@ -48,7 +46,7 @@ For Portrait Editor:
 
 Clean and Rename files/resources button in Help
 Auto-check cross-references on editor load
-Import and Export JSON for Classes, Items, Skills, Units
+Import and Export JSON for Classes, Items, Skills, Units, AI
 
 Consider making StatList and WeaponList into a dictionary instead, that just references the actual order in DB.stats and DB.weapons to display order, and then uses the dictionary keys to display contents/values.
 
@@ -57,8 +55,6 @@ I will consider it after finishing Chapter 5 of Sacred Stones
 
 Make Chapter 5 of Sacred Stones
 Test First 5 chapters of Sacred Stones
-
-Dialog {red}{/red}
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

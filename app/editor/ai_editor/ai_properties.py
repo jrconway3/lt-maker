@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QGroupBox, QRadioButton, \
-    QVBoxLayout, QComboBox, QStackedWidget, QDoubleSpinBox
+    QVBoxLayout, QComboBox, QStackedWidget, QDoubleSpinBox, QCheckBox, \
+    QGridLayout
 from PyQt5.QtCore import Qt
 
 import app.data.ai as ai
@@ -28,7 +29,7 @@ class UnitSpecification(QWidget):
         super().__init__(parent)
         self.window = parent
 
-        self.layout = QHBoxLayout()
+        self.layout = QGridLayout()
         self.box1 = ComboBox(self)
         for spec in ai.unit_spec:
             self.box1.addItem(spec)
@@ -59,14 +60,21 @@ class UnitSpecification(QWidget):
         unit_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
         self.box2.addWidget(unit_box)
 
-        self.layout.addWidget(self.box1)
-        self.layout.addWidget(self.box2)
+        self.except_check_box = QCheckBox(self)
+        self.except_check_box.setText("Except")
+        self.except_check_box.toggled.connect(self.check_box_toggled)
+        self.except_check_box.setEnabled(False)
+
+        self.layout.addWidget(self.except_check_box, 0, 0)
+        self.layout.addWidget(self.box1, 1, 0)
+        self.layout.addWidget(self.box2, 0, 1, 2, 1)
 
         self.setLayout(self.layout)
 
     def unit_spec_changed(self, index):
         unit_spec = self.box1.currentText()
         self.box2.setEnabled(True)
+        self.except_check_box.setEnabled(True)
         if unit_spec == "Class":
             self.box2.setCurrentIndex(1)
         elif unit_spec == "Tag":
@@ -82,6 +90,7 @@ class UnitSpecification(QWidget):
         else:
             self.box2.setCurrentIndex(0)
             self.box2.setEnabled(False)
+            self.except_check_box.setEnabled(False)
 
     def sub_spec_changed(self, index):
         unit_spec = self.box1.currentText()
@@ -91,14 +100,19 @@ class UnitSpecification(QWidget):
             sub_spec = self.box2.currentWidget().edit.currentText()
         self.window.current.target_spec = (unit_spec, sub_spec)
 
+    def check_box_toggled(self, checked):
+        self.window.current.invert_targeting = bool(checked)
+
     def set_current(self, target_spec):
         print("Unit Spec:", target_spec)
+        self.except_check_box.setChecked(bool(self.window.current.invert_targeting))
         if target_spec:
             self.box1.setValue(target_spec[0])
             self.box2.currentWidget().setValue(target_spec[1])
         else:
             self.box1.setValue("All")
             self.box2.setEnabled(False)
+            self.except_check_box.setEnabled(False)
 
 class EventSpecification(QWidget):
     def __init__(self, parent=None):
@@ -169,10 +183,14 @@ class PositionSpecification(QWidget):
         if target_spec == "Starting":
             self.window.current.target_spec = "Starting"
             self.starting.setChecked(True)
-        else:
+        elif target_spec:
             self.starting.setChecked(False)
             self.x_spinbox.setValue(int(target_spec[0]))
             self.y_spinbox.setValue(int(target_spec[1]))
+        else:
+            self.starting.setChecked(False)
+            self.x_spinbox.setValue(0)
+            self.y_spinbox.setValue(0)
 
 class BehaviourBox(QGroupBox):
     def __init__(self, parent=None):

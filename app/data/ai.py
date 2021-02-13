@@ -56,6 +56,7 @@ class AIBehaviour(Prefab):
         self.target = target
         self.target_spec = target_spec
         self.view_range: int = view_range
+        self.invert_targeting: bool = False
 
     @classmethod
     def DoNothing(cls):

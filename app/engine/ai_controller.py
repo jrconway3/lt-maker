@@ -494,18 +494,20 @@ def handle_unit_spec(all_targets, behaviour):
     target_spec = behaviour.target_spec
     if not target_spec:
         return all_targets
+    invert = bool(behaviour.invert_targeting)
+    # Uses ^ (which is XOR) to handle inverting the targeting
     if target_spec[0] == "Tag":
-        all_targets = [pos for pos in all_targets if target_spec[1] in game.board.get_unit(pos).tags]
+        all_targets = [pos for pos in all_targets if bool(target_spec[1] in game.board.get_unit(pos).tags) ^ invert]
     elif target_spec[0] == "Class":
-        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).klass == target_spec[1]]
+        all_targets = [pos for pos in all_targets if bool(game.board.get_unit(pos).klass == target_spec[1]) ^ invert]
     elif target_spec[0] == "Name":
-        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).name == target_spec[1]]
+        all_targets = [pos for pos in all_targets if bool(game.board.get_unit(pos).name == target_spec[1]) ^ invert]
     elif target_spec[0] == 'Faction':
-        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).faction == target_spec[1]]
+        all_targets = [pos for pos in all_targets if bool(game.board.get_unit(pos).faction == target_spec[1]) ^ invert]
     elif target_spec[0] == 'Party':
-        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).party == target_spec[1]]
+        all_targets = [pos for pos in all_targets if bool(game.board.get_unit(pos).party == target_spec[1]) ^ invert]
     elif target_spec[0] == 'ID':
-        all_targets = [pos for pos in all_targets if game.board.get_unit(pos).nid == target_spec[1]]
+        all_targets = [pos for pos in all_targets if bool(game.board.get_unit(pos).nid == target_spec[1]) ^ invert]
     return all_targets
 
 def get_targets(unit, behaviour):

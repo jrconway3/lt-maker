@@ -9,6 +9,7 @@ from app.extensions.spinbox_xy import SpinBoxXY
 from app.extensions.custom_gui import PropertyBox
 from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
+from app.editor.portrait_editor import portrait_model
 import app.editor.utilities as editor_utilities
 
 class PortraitProperties(QWidget):
@@ -77,6 +78,9 @@ class PortraitProperties(QWidget):
         self.smiling_offset.edit.coordsChanged.connect(self.smiling_changed)
         right_section.addWidget(self.blinking_offset)
         right_section.addWidget(self.smiling_offset)
+        self.auto_frame_button = QPushButton("Auto-guess Offsets")
+        self.auto_frame_button.clicked.connect(self.auto_guess_offset)
+        right_section.addWidget(self.auto_frame_button)
         right_section.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         left_frame = QFrame(self)
@@ -210,6 +214,10 @@ class PortraitProperties(QWidget):
 
     def smiling_changed(self, x, y):
         self.current.smiling_offset = [x, y]
+
+    def auto_guess_offset(self):
+        portrait_model.auto_frame_portrait(self.current)
+        self.set_current(self.current)
 
     def talk_button_clicked(self, checked):
         self.talk_on = checked

@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QImage
 
 from app.resources.portraits import Portrait
 from app.resources.resources import RESOURCES
@@ -15,6 +15,42 @@ from app.editor.base_database_gui import ResourceCollectionModel
 from app.editor.settings import MainSettingsController
 from app.utilities import str_utils
 import app.editor.utilities as editor_utilities
+
+def auto_frame_portrait(portrait: Portrait):
+    width, height = 32, 16
+
+    def test_similarity(im1: QImage, im2: QImage) -> int:
+        diff = 0
+        for x in range(width):
+            for y in range(height):
+                color1 = im1.pixel(x, y)  # Returns QRgb
+                color2 = im2.pixel(x, y)
+                diff += color1 ^ color2
+        return diff
+
+    if not portrait.pixmap:
+        portrait.pixmap = QPixmap(portrait.full_path)
+    pixmap = portrait.pixmap
+    blink_frame1 = QImage(pixmap.copy(96, 48, 32, 16))
+    mouth_frame1 = QImage(pixmap.copy(96, 80, 32, 16))
+    main_frame = QImage(pixmap.copy(0, 0, 96, 80))
+    best_blink_similarity = width * height * 128**3
+    best_mouth_similarity = width * height * 128**3
+    best_blink_pos = [0, 0]
+    best_mouth_pos = [0, 0]
+    for x in range(0, main_frame.width() - width, 8):
+        for y in range(0, main_frame.height() - height, 8):
+            sub_frame = main_frame.copy(x, y, 32, 16)
+            blink_similarity = test_similarity(blink_frame1, sub_frame)
+            mouth_similarity = test_similarity(mouth_frame1, sub_frame)
+            if blink_similarity < best_blink_similarity:
+                best_blink_similarity = blink_similarity
+                best_blink_pos = [x, y]
+            if mouth_similarity < best_mouth_similarity:
+                best_mouth_similarity = mouth_similarity
+                best_mouth_pos = [x, y]
+    portrait.blinking_offset = best_blink_pos
+    portrait.smiling_offset = best_mouth_pos
 
 class PortraitModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -51,6 +87,7 @@ class PortraitModel(ResourceCollectionModel):
                     nid = str_utils.get_next_name(nid, [d.nid for d in RESOURCES.portraits])
                     if pix.width() == 128 and pix.height() == 112:
                         new_portrait = Portrait(nid, fn, pix)
+                        auto_frame_portrait(new_portrait)
                         RESOURCES.portraits.append(new_portrait)
                     else:
                         QMessageBox.critical(self.window, "Error", "Image is not correct size (128x112 px)")

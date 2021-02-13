@@ -6039,7 +6039,7 @@
                 "speak",
                 [
                     "Joshua",
-                    "Say, how are doing {eval:2+2}head?|The fog of war is {var:_fog_of_war}."
+                    "Say, how are doing {red}head?|The fog of war is{/red}not red."
                 ]
             ]
         ],

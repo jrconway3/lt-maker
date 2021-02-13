@@ -18,6 +18,8 @@ class Dialog():
     transition_speed = 166  # 10 frames
     pause_time = 150  # 9 frames
 
+    aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}')
+
     def __init__(self, text, portrait=None, background=None, position=None, width=None):
         self.plain_text = text
         self.portrait = portrait
@@ -177,12 +179,12 @@ class Dialog():
         return lines
 
     def _next_line(self):
-        self.text_lines.append('')
+        self.text_lines.append([])
         self.y_offset = 16
         self.state = 'new_line'
 
     def _add_letter(self, letter):
-        self.text_lines[-1] += letter
+        self.text_lines[-1].append(letter)
 
     def _next_char(self, sound=True):  # Add the next character to the text_lines list
         self.new_line_flag = False
@@ -198,7 +200,7 @@ class Dialog():
             self.text_lines.clear()
             self._next_line()
         elif command == ' ':  # Check to see if we should move to next line
-            current_line = self.text_lines[-1]
+            current_line = ''.join(self.text_lines[-1])
             # Remove any commands from line
             current_line = re.sub(r'\{[^}]*\}', ' ', current_line)
             next_word = self._get_next_word(self.text_index)
@@ -208,6 +210,8 @@ class Dialog():
                 self._add_letter(' ')
                 if sound:
                     self.play_talk_boop()
+        elif command in self.aesthetic_commands:
+            self._add_letter(command)
         else:
             self._add_letter(command)
             if sound:
@@ -284,9 +288,46 @@ class Dialog():
 
         self.cursor_offset_index = (self.cursor_offset_index + 1) % len(self.cursor_offset)
 
+    def chunkify(self, line: list, current_color: str):
+        chunks = []
+        current_chunk = ['', current_color]
+        for char in line:
+            if char in self.aesthetic_commands:
+                if char == '{red}':
+                    current_color = 'red'
+                elif char == '{/red}':
+                    current_color = self.font_color
+                elif char == '{black}':
+                    current_color = 'black'
+                elif char == '{/black}':
+                    current_color = self.font_color
+                # Create new chunk
+                chunks.append(current_chunk)
+                current_chunk = ['', current_color]
+            else:
+                current_chunk[0] += char
+        chunks.append(current_chunk)
+        return chunks, current_color
+
     def draw_text(self, surf):
         end_x_pos, end_y_pos = 0, 0
         text_surf = engine.create_surface((self.text_width, self.text_height), transparent=True)
+
+        current_color = self.font_color
+
+        # Draw line that's disappearing
+        if self.y_offset and len(self.text_lines) > self.num_lines:
+            x_pos = 0
+            y_pos = -16 + self.y_offset
+            line = self.text_lines[-self.num_lines - 1]
+
+            line_chunks, current_color = self.chunkify(line, current_color)
+            for chunk in line_chunks:
+                text, color = chunk
+                font = FONT[self.font_type + '-' + color]
+                width = font.width(text)
+                font.blit(text, text_surf, (x_pos, y_pos))
+                x_pos += width
 
         display_lines = self.text_lines[-self.num_lines:]
         for idx, line in enumerate(display_lines):
@@ -296,16 +337,17 @@ class Dialog():
                 y_set = y_pos + self.y_offset
             else:
                 y_set = y_pos
-            self.font.blit(line, text_surf, (x_pos, y_set))
-            end_x_pos = self.position[0] + 8 + x_pos + self.font.width(line)
-            end_y_pos = self.position[1] + 8 + y_pos
 
-        # Draw line that's disappearing
-        if self.y_offset and len(self.text_lines) > self.num_lines:
-            x_pos = 0
-            y_pos = -16 + self.y_offset
-            line = self.text_lines[-self.num_lines - 1]
-            self.font.blit(line, text_surf, (x_pos, y_pos))
+            line_chunks, current_color = self.chunkify(line, current_color)
+            for chunk in line_chunks:
+                text, color = chunk
+                font = FONT[self.font_type + '-' + color]
+                width = font.width(text)
+                font.blit(text, text_surf, (x_pos, y_set))
+                x_pos += width
+            
+            end_x_pos = self.position[0] + 8 + x_pos
+            end_y_pos = self.position[1] + 8 + y_pos
 
         surf.blit(text_surf, (self.position[0] + 8, self.position[1] + 8))
 

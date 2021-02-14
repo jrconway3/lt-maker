@@ -479,6 +479,8 @@ class UnitObject(Prefab):
         action_state = s_dict.get('action_state')
         if action_state:
             self.set_action_state(action_state)
+        else:
+            self.reset()
 
         self._sprite = None
         self._sound = None

@@ -12,7 +12,7 @@ class Record():
         for attr in self.__dict__.items():
             name, value = attr
             ser_dict[name] = value
-        return (self.__class.__name__, ser_dict)
+        return (self.__class__.__name__, ser_dict)
 
     @classmethod
     def restore(cls, ser_dict):
@@ -93,7 +93,7 @@ class Recordkeeper():
         self.item_use = []
         self.steal = []
         self.combat_results = []
-        self.turn_taken = []
+        self.turns_taken = []
         self.levels = []
         self.exp = []
 
@@ -121,6 +121,7 @@ class Recordkeeper():
                 record_type = getattr(sys.modules[__name__], obj_name)
                 record = record_type.restore(value)
                 cur_list.append(record)
+        return self
 
     def append(self, record_type: str, data: tuple):
         if record_type == 'kill':
@@ -142,7 +143,7 @@ class Recordkeeper():
         elif record_type == 'crit':
             self.combat_results.append(CombatRecord(*data, 'crit'))
         elif record_type == 'turn':
-            self.turn_taken.append(Record())
+            self.turns_taken.append(Record())
         elif record_type == 'level_gain':
             self.levels.append(LevelRecord(*data))
         elif record_type == 'exp_gain':
@@ -164,7 +165,7 @@ class Recordkeeper():
         elif record_type in ('hit', 'miss', 'crit'):
             return self.combat_results.pop()
         elif record_type == 'turn':
-            return self.turn_taken.pop()
+            return self.turns_taken.pop()
         elif record_type == 'level_gain':
             return self.levels.pop()
         elif record_type == 'exp_gain':
@@ -176,7 +177,7 @@ class Recordkeeper():
         Returns list of chapters played in order
         """
         levels = []
-        for record in self.turn_taken:
+        for record in self.turns_taken:
             if record.level_nid not in levels:
                 levels.append(record.level_nid)
         return levels
@@ -188,7 +189,7 @@ class Recordkeeper():
         turncounts = []
         for level in level_list:
             max_turncount = 0
-            for record in self.turn_taken:
+            for record in self.turns_taken:
                 if record.level_nid == level:
                     max_turncount = max(record.turn, max_turncount)
             turncounts.append(max_turncount)
@@ -227,7 +228,7 @@ class Recordkeeper():
     def determine_score(self, unit_nid: str, level_nid: str = None) -> int:
         """
         Returns score for unit in chapter
-        If level_nid is None, for all chapters
+        If level_nid is None, instead for all chapters
         """
         kill_score = self.get_kills(unit_nid, level_nid)
         damage_score = self.get_damage(unit_nid, level_nid)

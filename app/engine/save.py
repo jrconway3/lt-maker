@@ -50,6 +50,13 @@ class SaveSlot():
         else:
             return self.name
 
+def dict_print(d):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            dict_print(v)
+        else:
+            print("{0} : {1}".format(k, v))
+
 def save_io(s_dict, meta_dict, slot=None, force_loc=None):
     if force_loc:
         save_loc = 'saves/' + GAME_NID + '-' + force_loc + '.p'
@@ -61,6 +68,7 @@ def save_io(s_dict, meta_dict, slot=None, force_loc=None):
 
     with open(save_loc, 'wb') as fp:
         # pickle.dump(s_dict, fp, -1)
+        dict_print(s_dict)
         pickle.dump(s_dict, fp)
     with open(meta_loc, 'wb') as fp:
         pickle.dump(meta_dict, fp)

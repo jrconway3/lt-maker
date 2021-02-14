@@ -367,6 +367,9 @@ class Event():
         elif command.nid == 'move_cursor':
             values, flags = event_commands.parse(command)
             position = self.parse_pos(values[0])
+            if not position:
+                print("Could not determine position from %s" % values[0])
+                return
             game.cursor.set_pos(position)
             if 'immediate' in flags or self.do_skip:
                 game.camera.force_xy(*position)
@@ -1101,29 +1104,33 @@ class Event():
             for x in offsets:
                 if game.movement.check_traversable(unit, test_pos):
                     final_pos = test_pos
+                    break
                 else:
                     test_pos = (0, position[1] + x)
         elif direction == 'east':
-            test_pos = (game.tilemap.width, position[1])
+            test_pos = (game.tilemap.width - 1, position[1])
             for x in offsets:
                 if game.movement.check_traversable(unit, test_pos):
                     final_pos = test_pos
+                    break
                 else:
-                    test_pos = (game.tilemap.width, position[1] + x)
+                    test_pos = (game.tilemap.width - 1, position[1] + x)
         elif direction == 'north':
             test_pos = (position[0], 0)
             for x in offsets:
                 if game.movement.check_traversable(unit, test_pos):
                     final_pos = test_pos
+                    break
                 else:
                     test_pos = (position[0] + x, 0)
-        elif direction == 'east':
-            test_pos = (position[0], game.tilemap.height)
+        elif direction == 'south':
+            test_pos = (position[0], game.tilemap.height - 1)
             for x in offsets:
                 if game.movement.check_traversable(unit, test_pos):
                     final_pos = test_pos
+                    break
                 else:
-                    test_pos = (position[1] + x, game.tilemap.height)
+                    test_pos = (position[1] + x, game.tilemap.height - 1)
 
         if final_pos:
             action.do(action.ArriveOnMap(unit, final_pos))
@@ -1174,8 +1181,10 @@ class Event():
             if not position:
                 continue
             
-            self._add_unit_from_direction(unit, position, cardinal_direction)
-            self._move_unit(movement_type, placement, follow, unit, position)
+            if self._add_unit_from_direction(unit, position, cardinal_direction):
+                self._move_unit(movement_type, placement, follow, unit, position)
+            else:
+                print("Couldn't add unit %s to position %s" % (unit.nid, position))
 
         if 'no_block' in flags or self.do_skip:
             pass

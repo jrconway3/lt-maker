@@ -48,7 +48,6 @@ Consider making StatList and WeaponList into a dictionary instead, that just ref
 Consider giving each object a UID which is used for crossreferences... (This is probably the better way...)
 I will consider it after finishing Chapter 5 of Sacred Stones
 
-Make Chapter 5 of Sacred Stones
 Test First 5 chapters of Sacred Stones
 
 Customizable stat screen within Info Menu

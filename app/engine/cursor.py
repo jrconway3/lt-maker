@@ -59,6 +59,7 @@ class Cursor():
     def set_pos(self, pos):
         logger.info("New position %s", pos)
         self.position = pos
+        self.offset_x, self.offset_y = 0, 0
         game.camera.set_xy(*self.position)
         game.ui_view.remove_unit_display()
 

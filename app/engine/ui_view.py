@@ -207,7 +207,7 @@ class UIView():
         evaluated = []
         for evaluate in to_evaluate:
             try:
-                val = eval(evaluate[1:-1])
+                val = eval(evaluate[6:-1])
                 evaluated.append(str(val))
             except Exception as e:
                 print("Could not evaluate %s (%s)" % (evaluate[1:-1], e))

@@ -18,7 +18,7 @@ class Dialog():
     transition_speed = 166  # 10 frames
     pause_time = 150  # 9 frames
 
-    aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}')
+    aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}')
 
     def __init__(self, text, portrait=None, background=None, position=None, width=None):
         self.plain_text = text
@@ -295,11 +295,11 @@ class Dialog():
             if char in self.aesthetic_commands:
                 if char == '{red}':
                     current_color = 'red'
-                elif char == '{/red}':
-                    current_color = self.font_color
                 elif char == '{black}':
                     current_color = 'black'
-                elif char == '{/black}':
+                elif char == '{white}':
+                    current_color = 'white'
+                elif char in ('{/red}', '{/black}', '{/white}'):
                     current_color = self.font_color
                 # Create new chunk
                 chunks.append(current_chunk)

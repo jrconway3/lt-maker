@@ -1,4 +1,5 @@
 import os, shutil, glob
+from datetime import datetime
 import threading
 
 try:
@@ -68,8 +69,12 @@ def save_io(s_dict, meta_dict, slot=None, force_loc=None):
 
     with open(save_loc, 'wb') as fp:
         # pickle.dump(s_dict, fp, -1)
-        dict_print(s_dict)
-        pickle.dump(s_dict, fp)
+        try:
+            pickle.dump(s_dict, fp)
+        except TypeError as e:
+            # There's a surface somewhere in the dictionary of things to save...
+            dict_print(s_dict)
+            print(e)
     with open(meta_loc, 'wb') as fp:
         pickle.dump(meta_dict, fp)
 
@@ -98,6 +103,7 @@ def suspend_game(game_state, kind, slot=None):
     s_dict, meta_dict = game_state.save()
     print(s_dict['state'])
     meta_dict['kind'] = kind
+    meta_dict['time'] = datetime.now()
 
     if kind == 'suspend':
         force_loc = 'suspend'

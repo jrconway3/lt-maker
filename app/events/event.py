@@ -298,7 +298,7 @@ class Event():
             self.add_portrait(command)
 
         elif command.nid == 'multi_add_portrait':
-            values, flags = self.parse(command)
+            values, flags = event_commands.parse(command)
             commands = []
             for idx in range(len(values)//2):
                 portrait = values[idx*2]
@@ -320,7 +320,7 @@ class Event():
             self.remove_portrait(command)
 
         elif command.nid == 'multi_remove_portrait':
-            values, flags = self.parse(command)
+            values, flags = event_commands.parse(command)
             commands = []
             for idx, portrait in enumerate(values):
                 if idx >= len(values) - 1:
@@ -449,7 +449,7 @@ class Event():
             self.remove_unit(command)
 
         elif command.nid == 'remove_all_units':
-            values, flags = self.parse(command)
+            values, flags = event_commands.parse(command)
             for unit in game.level.units:
                 if unit.position:
                     action.do(action.LeaveMap(unit))

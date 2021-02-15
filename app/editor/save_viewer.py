@@ -37,16 +37,21 @@ class SaveViewer(Dialog):
             meta_dict = pickle.load(fp)
         level_nid = meta_dict['level_nid']
         level_name = meta_dict['level_title']
+        time = meta_dict.get('time')
         self.display_box.edit.clear()
         text = 'Level %s: %s\n' % (level_nid, level_name)
         self.display_box.edit.insertPlainText(text)
+        if time:
+            text = 'Saved: %s\n' % time
+            self.display_box.edit.insertPlainText(text)
         self.display_box.edit.insertPlainText("Units:\n")
         item_registry = {i['uid']: i['nid'] for i in s_dict['items']}
         for unit in s_dict['units']:
-            items = ', '.join(item_registry.get(item) for item in unit['items'])
-            unit_text = '%s Lv %s Items: %s\n' % (unit['nid'], unit['level'], items)
+            if not unit['dead'] and unit['team'] == 'player':
+                items = ', '.join(item_registry.get(item) for item in unit['items'])
+                unit_text = '%s Lv %d Exp %d Items: %s\n' % (unit['nid'], unit['level'], unit['exp'], items)
 
-            self.display_box.edit.insertPlainText(unit_text)
+                self.display_box.edit.insertPlainText(unit_text)
 
         self.display_box.edit.moveCursor(QTextCursor.Start)
         self.display_box.edit.ensureCursorVisible()

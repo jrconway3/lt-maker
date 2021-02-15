@@ -1458,6 +1458,7 @@ class AIState(MapState):
             # Center camera on current unit
             if did_something and self.cur_unit.position:
                 game.cursor.set_pos(self.cur_unit.position)
+                game.camera.set_xy(self.cur_unit.position)
                 game.state.change('move_camera')
 
             if game.ai.is_done():
@@ -1533,6 +1534,7 @@ class ShopState(State):
         d.text_width = WINWIDTH - 80
         d.width = d.text_width + 16
         d.font = FONT['convo-white']
+        d.font_color = 'white'
         return d
 
     def update_options(self):

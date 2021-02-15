@@ -1576,8 +1576,8 @@
     {
         "name": "Seize",
         "trigger": "Seize",
-        "level_nid": "2",
-        "condition": "True",
+        "level_nid": "1",
+        "condition": "'Lord' in unit.tags",
         "commands": [
             [
                 "win_game",
@@ -3065,17 +3065,10 @@
                 ]
             ],
             [
-                "remove_portrait",
+                "multi_remove_portrait",
                 [
                     "Bazba",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Bone",
-                    "no_block"
+                    "Bone"
                 ]
             ],
             [
@@ -3351,7 +3344,7 @@
                 "speak",
                 [
                     "Garcia",
-                    "Don't risk youself so foolishly...{br}We need to get you some help.|Please! Someone help my son!"
+                    "Don't risk yourself so foolishly...{br}We need to get you some help.|Please! Someone help my son!"
                 ]
             ],
             [
@@ -3476,7 +3469,7 @@
                 "speak",
                 [
                     "Moulder",
-                    "We have arrive at our first dilemma.|We must move quickly and attract as little attention as possible, but..."
+                    "We have arrived at our first dilemma.|We must move quickly and attract as little attention as possible, but..."
                 ]
             ],
             [
@@ -5331,6 +5324,12 @@
         "condition": "True",
         "commands": [
             [
+                "if",
+                [
+                    "game.check_alive(\"Garcia\") and game.check_alive(\"Ross\")"
+                ]
+            ],
+            [
                 "transition",
                 [
                     "Close"
@@ -5454,7 +5453,7 @@
                 "speak",
                 [
                     "Garcia",
-                    "...When I was a soldier, I lived my life fighting for my country's honor.|I left no time for my family.|I spent my life fighting for faceless, uncaring nobles.{w}{clear}When my wife fell ill and died, I met the child she had left behind...|At that moment, I finally realized what my duty had cost me."
+                    "...When I was a soldier, I lived my life fighting for my country's honor.|I left no time for my family.|I spent my life fighting for faceless, uncaring nobles.{w}{clear}When my wife fell ill and died, I met the child she had left behind...|At that moment, I finally     realized what my duty had cost me."
                 ]
             ],
             [
@@ -5694,6 +5693,34 @@
                 ]
             ],
             [
+                "comment",
+                [
+                    "# If either die, they don't join your party"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "change_team",
+                [
+                    "Garcia",
+                    "other"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Ross",
+                    "other"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
                 "transition",
                 [
                     "Close"
@@ -5744,7 +5771,7 @@
                 "speak",
                 [
                     "Man2",
-                    "Ah, well...|My, tht is a splendid bracelet you're wearing."
+                    "Ah, well...|My, that is a splendid bracelet you're wearing."
                 ]
             ],
             [
@@ -5910,7 +5937,7 @@
                 "speak",
                 [
                     "EirikaSepia",
-                    "I've always relied on your to protect me, Brother.|I would rather not be such a burden to you in the future.|So, I thought maybe I should learn to protect myself..."
+                    "I've always relied on you to protect me, Brother.|I would rather not be such a burden to you in the future.|So, I thought maybe I should learn to protect myself..."
                 ]
             ],
             [
@@ -6033,6 +6060,12 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
                 "add_portrait",
                 [
                     "Seth",
@@ -6078,7 +6111,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "Don't worry about it, Seth.|That bracelet was a gift from my father, but Ephraim needs our help.|I can't let setnimentality get in the way of my duty."
+                    "Don't worry about it, Seth.|That bracelet was a gift from my father, but Ephraim needs our help.|I can't let sentimentality get in the way of my duty."
                 ]
             ],
             [

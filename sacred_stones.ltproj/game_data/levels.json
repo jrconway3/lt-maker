@@ -570,7 +570,7 @@
             "base": null
         },
         "objective": {
-            "simple": "Defeat enemy,Left {len(game.get_enemy_units())}",
+            "simple": "Defeat enemy,Left {eval:len(game.get_enemy_units())}",
             "win": "Defeat all enemies",
             "loss": "Eirika dies"
         },
@@ -935,11 +935,16 @@
             {
                 "nid": "BanditReinforcements",
                 "units": [
-                    "106"
+                    "106",
+                    "107"
                 ],
                 "positions": {
                     "106": [
                         0,
+                        9
+                    ],
+                    "107": [
+                        1,
                         9
                     ]
                 }

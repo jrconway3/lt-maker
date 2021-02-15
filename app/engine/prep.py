@@ -639,6 +639,7 @@ class PrepItemsState(State):
                                 options = ['Take', 'Use']
                             self.sub_menu = menus.Choice(current, options, topleft)
                         else:
+                            action.do(action.HasTraded(self.unit))
                             if item_funcs.inventory_full(self.unit, current):
                                 self.state = 'trade_inventory'
                                 self.menu.move_to_inventory()
@@ -656,6 +657,7 @@ class PrepItemsState(State):
                 current = self.sub_menu.get_current()
                 item = self.menu.get_current()
                 if current == 'Store':
+                    action.do(action.HasTraded(self.unit))
                     convoy_funcs.store_item(item, self.unit)
                     self.menu.update_options()
                     self.menu.move_to_item_type(item)
@@ -665,9 +667,11 @@ class PrepItemsState(State):
                     self.menu.move_to_convoy()
                     self.menu.update_options()
                 elif current == 'Use':
+                    action.do(action.HasTraded(self.unit))
                     interaction.start_combat(self.unit, None, item)
                     self.state = 'free'
                 elif current == 'Restock':
+                    action.do(action.HasTraded(self.unit))
                     convoy_funcs.restock(item)
                     self.menu.update_options()
                     self.state = 'free'
@@ -677,18 +681,21 @@ class PrepItemsState(State):
                 current = self.sub_menu.get_current()
                 item = self.menu.get_current()
                 if current == 'Take':
+                    action.do(action.HasTraded(self.unit))
                     convoy_funcs.take_item(item, self.unit)
                     self.state = 'free'
                 elif current == 'Trade':
                     self.state = 'trade_inventory'
                     self.menu.move_to_inventory()
                 elif current == 'Use':
+                    action.do(action.HasTraded(self.unit))
                     interaction.start_combat(self.unit, None, item)
                     self.state = 'free'
                 self.sub_menu = None
                 self.menu.update_options()
 
             elif self.state == 'trade_convoy':
+                action.do(action.HasTraded(self.unit))
                 unit_item = self.menu.get_inventory_current()
                 convoy_item = self.menu.get_convoy_current()
                 print(unit_item, convoy_item, self.unit.nid)
@@ -698,6 +705,7 @@ class PrepItemsState(State):
                 self.state = 'free'
 
             elif self.state == 'trade_inventory':
+                action.do(action.HasTraded(self.unit))
                 convoy_item = self.menu.get_convoy_current()
                 unit_item = self.menu.get_inventory_current()
                 convoy_funcs.trade_items(convoy_item, unit_item, self.unit)

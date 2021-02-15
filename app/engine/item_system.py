@@ -220,16 +220,31 @@ def available(unit, item) -> bool:
                     return False
     return True
 
-def on_not_usable(unit, item) -> bool:
+def is_broken(unit, item) -> bool:
+    """
+    If any hook reports true, then it is true
+    """
+    for component in item.components:
+        if component.defines('is_broken'):
+            if component.is_broken(unit, item):
+                return True
+    if item.parent_item:
+        for component in item.parent_item.components:
+            if component.defines('is_broken'):
+                if component.is_broken(unit, item.parent_item):
+                    return True
+    return False
+
+def on_broken(unit, item) -> bool:
     alert = False
     for component in item.components:
-        if component.defines('on_not_usable'):
-            if component.on_not_usable(unit, item):
+        if component.defines('on_broken'):
+            if component.on_broken(unit, item):
                 alert = True
     if item.parent_item:
         for component in item.parent_item.components:
-            if component.defines('on_not_usable'):
-                if component.on_not_usable(unit, item.parent_item):
+            if component.defines('on_broken'):
+                if component.on_broken(unit, item.parent_item):
                     alert = True
     return alert
 

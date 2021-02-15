@@ -18,6 +18,9 @@ class Uses(ItemComponent):
     def available(self, unit, item) -> bool:
         return item.data['uses'] > 0
 
+    def is_broken(self, unit, item) -> bool:
+        return item.data['uses'] <= 0
+
     def on_hit(self, actions, playback, unit, item, target, mode):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
@@ -26,7 +29,7 @@ class Uses(ItemComponent):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
-    def on_not_usable(self, unit, item):
+    def on_broken(self, unit, item):
         action.do(action.RemoveItem(unit, item))
         return True
 
@@ -48,6 +51,9 @@ class ChapterUses(ItemComponent):
     def available(self, unit, item) -> bool:
         return item.data['c_uses'] > 0
 
+    def is_broken(self, unit, item) -> bool:
+        return item.data['c_uses'] <= 0
+
     def on_hit(self, actions, playback, unit, item, target, mode=None):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
@@ -56,7 +62,7 @@ class ChapterUses(ItemComponent):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
-    def on_not_usable(self, unit, item):
+    def on_broken(self, unit, item):
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
         return True
@@ -112,6 +118,9 @@ class Cooldown(ItemComponent):
     def available(self, unit, item) -> bool:
         return item.data['cooldown'] == 0
 
+    def is_broken(self, unit, item) -> bool:
+        return item.data['cooldown'] != 0
+
     def on_hit(self, actions, playback, unit, item, target, mode):
         self._used_in_combat = True
 
@@ -123,10 +132,10 @@ class Cooldown(ItemComponent):
             action.do(action.SetObjData(item, 'cooldown', self.value))
             self._used_in_combat = False
 
-    def on_not_usable(self, unit, item):
+    def on_broken(self, unit, item):
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
-        return True
+        return False
 
     def on_upkeep(self, actions, playback, unit, item):
         if item.data['cooldown'] > 0:

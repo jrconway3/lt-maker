@@ -592,11 +592,11 @@
                 ]
             ],
             [
-                "cannot_use_items",
+                "negative",
                 null
             ],
             [
-                "negative",
+                "cannot_use_items",
                 null
             ]
         ]

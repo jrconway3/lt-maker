@@ -35,10 +35,9 @@ Book pages frames with a number under them?
 Summoning
 Sequence Items (Test using Jewrassic Parks weird Bow)
 Auras
-Silence target restrict (test)
 Multi-items 
     Work as activated items
-Test Warp, Rescue, Berserk, Silence, Sleep and all other items from Sacred Stones
+Test Warp, Rescue and all other items from Sacred Stones
 
 Clean and Rename files/resources button in Help
 Auto-check cross-references on editor load
@@ -53,10 +52,9 @@ Test First 5 chapters of Sacred Stones
 Customizable stat screen within Info Menu
 Customizable item screen (to handle accessories...) within Info Menu
 
-Supply Adjconvoy and Convoy skills
-
-Weapon Level increment by weapon level ranks
-Copy rows of stats and paste rows of stats
+Once StatList and Weapon List are fixed:
+    Weapon Level increment by weapon level ranks
+    Copy rows of stats and paste rows of stats
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

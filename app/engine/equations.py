@@ -50,6 +50,18 @@ class Parser():
         equations = self.equations
         return eval(expr)
 
+    def get_mana(self, unit):
+        if hasattr(self, 'mana'):
+            return self.mana(unit)
+        else:
+            return 0
+
+    def get_fatigue(self, unit):
+        if hasattr(self, 'fatigue'):
+            return self.fatigue(unit)
+        else:
+            return 0
+
 PARSER = Parser()
 
 def __getattr__(name):

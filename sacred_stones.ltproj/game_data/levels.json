@@ -3342,16 +3342,6 @@
                 "generic": false
             },
             {
-                "nid": "Moulder",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    4,
-                    5
-                ],
-                "generic": false
-            },
-            {
                 "nid": "103",
                 "variant": null,
                 "level": 1,
@@ -3430,6 +3420,58 @@
                 "starting_position": [
                     1,
                     4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Bishop",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Sleep",
+                        false
+                    ],
+                    [
+                        "Silence",
+                        false
+                    ],
+                    [
+                        "Berserk",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 1,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    7
                 ],
                 "name": null,
                 "desc": null,

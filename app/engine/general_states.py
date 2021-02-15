@@ -1021,6 +1021,11 @@ class TargetingState(MapState):
             SOUNDTHREAD.play_sfx('Select 1')
             self.ability.do(self.cur_unit)
 
+        elif event == 'AUX':
+            SOUNDTHREAD.play_sfx('Select 6')
+            new_position = self.selection.get_next(game.cursor.position)
+            game.cursor.set_pos(new_position)
+
     def draw_rescue_preview(self, rescuee, surf):
         window = SPRITES.get('rescue_window').copy()
         con = str(equations.parser.rescue_weight(rescuee))
@@ -1212,7 +1217,14 @@ class CombatTargetingState(MapState):
         if mouse_position:
             game.cursor.set_pos(mouse_position)
 
-        if event == 'BACK':
+        if event == 'AUX':
+            new_position = self.selection.get_next(game.cursor.position)
+            game.cursor.set_pos(new_position)
+            SOUNDTHREAD.play_sfx('Select 6')
+            game.ui_view.reset_info()
+            self.display_single_attack()
+
+        elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             equip_action = game.memory.get('equip_action')
             if equip_action:
@@ -1458,7 +1470,6 @@ class AIState(MapState):
             # Center camera on current unit
             if did_something and self.cur_unit.position:
                 game.cursor.set_pos(self.cur_unit.position)
-                game.camera.set_xy(self.cur_unit.position)
                 game.state.change('move_camera')
 
             if game.ai.is_done():

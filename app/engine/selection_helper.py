@@ -4,7 +4,7 @@ from app.engine.input_manager import INPUT
 
 class SelectionHelper():
     def __init__(self, pos_list):
-        self.pos_list = pos_list
+        self.pos_list = list(pos_list)
 
     def count(self):
         return len(self.pos_list)
@@ -25,6 +25,18 @@ class SelectionHelper():
     def get_closest(self, position):
         if self.pos_list:
             return min(self.pos_list, key=lambda pos: utils.calculate_distance(pos, position))
+        else:
+            return None
+
+    # For a given position, get the next in the list
+    def get_next(self, position):
+        if position in self.pos_list:
+            idx = self.pos_list.index(position)
+            new_idx = (idx + 1) % len(self.pos_list)
+            new_pos = self.pos_list[new_idx]
+            return new_pos
+        elif self.pos_list:
+            return self.pos_list[0]
         else:
             return None
 

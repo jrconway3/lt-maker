@@ -127,17 +127,13 @@ class UnitObject(Prefab):
         return self.current_mana
 
     def set_mana(self, val):
-        if 'MANA' in DB.equations:
-            max_mana = equations.parser.mana(self)
-            self.current_mana = int(utils.clamp(val, 0, max_mana))
-        else:
-            self.current_mana = 0
+        self.current_mana = int(utils.clamp(val, 0, equations.parser.get_mana(self)))
 
     def get_fatigue(self):
         return self.current_fatigue
 
     def set_fatigue(self, val):
-        self.current_fatigue = int(utils.clamp(val, 0, equations.parser.fatigue(self)))
+        self.current_fatigue = int(utils.clamp(val, 0, equations.parser.get_fatigue(self)))
 
     def get_exp(self):
         return self.exp

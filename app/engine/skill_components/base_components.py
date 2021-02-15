@@ -35,10 +35,10 @@ class IgnoreAlliances(SkillComponent):
     tag = 'base'
 
     def check_ally(self, unit1, unit2) -> bool:
-        return False
+        return unit1 is unit2
 
     def check_enemy(self, unit1, unit2) -> bool:
-        return True
+        return unit1 is not unit2
 
 class ChangeAI(SkillComponent):
     nid = 'change_ai'

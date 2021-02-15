@@ -5,7 +5,9 @@ class Defaults():
 
     @staticmethod
     def check_ally(unit1, unit2) -> bool:
-        if unit1.team == 'player' or unit1.team == 'other':
+        if unit1 is unit2:
+            return True
+        elif unit1.team == 'player' or unit1.team == 'other':
             return unit2.team == 'player' or unit2.team == 'other'
         else:
             return unit2.team == unit1.team

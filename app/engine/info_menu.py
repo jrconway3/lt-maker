@@ -772,9 +772,11 @@ class InfoMenuState(State):
 
         weapon = self.unit.get_weapon()
         accessory = self.unit.get_accessory()
+        print(self.unit.items, weapon, accessory)
         
         # Blit items
         for idx, item in enumerate(self.unit.nonaccessories):
+            print(idx, item)
             if item.multi_item and any(subitem is weapon for subitem in item.subitems):
                 surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
                 for subitem in item.subitems:

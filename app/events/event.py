@@ -1735,8 +1735,8 @@ class Event():
             action.do(action.SetHP(unit, 1))
 
         # Check to see if we broke the item we were using
-        if not item_funcs.available(unit, chosen_item):
-            alert = item_system.on_not_usable(unit, chosen_item)
+        if item_funcs.is_broken(unit, chosen_item):
+            alert = item_system.on_broken(unit, chosen_item)
             if alert and unit.team == 'player':
                 game.alerts.append(banner.BrokenItem(unit, chosen_item))
                 game.state.change('alert')

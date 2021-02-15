@@ -464,21 +464,21 @@ class MapCombat():
 
     def find_broken_items(self):
         a_broke, d_broke = False, False
-        if not item_funcs.available(self.attacker, self.item):
+        if item_system.is_broken(self.attacker, self.item):
             a_broke = True
-        if self.def_item and not item_funcs.available(self.defender, self.def_item):
+        if self.def_item and item_system.is_broken(self.defender, self.def_item):
             d_broke = True
         return a_broke, d_broke
 
     def handle_broken_items(self, a_broke, d_broke):
         if a_broke:
-            alert = item_system.on_not_usable(self.attacker, self.item)
+            alert = item_system.on_broken(self.attacker, self.item)
             if self.attacker is not self.defender and alert and \
                     self.attacker.team == 'player' and not self.attacker.is_dying:
                 game.alerts.append(banner.BrokenItem(self.attacker, self.item))
                 game.state.change('alert')
         if d_broke:
-            alert = item_system.on_not_usable(self.defender, self.def_item)
+            alert = item_system.on_broken(self.defender, self.def_item)
             if self.attacker is not self.defender and alert and \
                     self.defender.team == 'player' and not self.defender.is_dying:
                 game.alerts.append(banner.BrokenItem(self.defender, self.def_item))

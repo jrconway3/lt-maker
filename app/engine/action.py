@@ -395,6 +395,26 @@ class UpdateFogOfWar(Action):
             game.board.update_fow(self.prev_pos, self.unit, sight_range)
             game.boundary.reset_fog_of_war()
 
+class ResetUnitVars(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_current_hp = self.unit.get_hp()
+        self.old_current_mana = self.unit.get_mana()
+        self.old_current_fatigue = self.unit.get_fatigue()
+        self.old_movement_left = self.unit.movement_left
+
+    def do(self):
+        self.unit.set_hp(min(self.unit.get_hp(), equations.parser.hitpoints(self.unit)))
+        self.unit.set_mana(min(self.unit.get_mana(), equations.parser.get_mana(self.unit)))
+        self.unit.set_fatigue(min(self.unit.get_fatigue(), equations.parser.get_fatigue(self.unit)))
+        self.unit.movement_left = min(self.unit.movement_left, equations.parser.movement(self.unit))
+
+    def reverse(self):
+        self.unit.set_hp(self.old_current_hp)
+        self.unit.set_mana(self.old_current_mana)
+        self.unit.set_fatigue(self.old_current_fatigue)
+        self.unit.movement_left = self.old_movement_left
+
 class Reset(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -1379,6 +1399,7 @@ class AddSkill(Action):
                 game.register_skill(skill_obj)
         self.skill_obj = skill_obj
         self.subactions = []
+        self.reset_action = ResetUnitVars(self.unit)
 
     def do(self):
         if not self.skill_obj:
@@ -1395,7 +1416,15 @@ class AddSkill(Action):
         self.unit.skills.append(self.skill_obj)
         skill_system.on_add(self.unit, self.skill_obj)
 
+        # Handle affects movement
+        self.reset_action.execute()
+        if self.unit.team in game.boundary.enemy_teams:
+            game.boundary._remove_unit(self.unit)
+            if self.unit.position:
+                game.boundary._add_unit(self.unit)
+
     def reverse(self):
+        self.reset_action.reverse()
         if self.skill_obj in self.unit.skills:
             self.unit.skills.remove(self.skill_obj)
             skill_system.on_remove(self.unit, self.skill_obj)
@@ -1411,6 +1440,7 @@ class RemoveSkill(Action):
         self.skill = skill # Skill obj or skill nid str
         self.removed_skills = []
         self.old_owner_nid = None
+        self.reset_action = ResetUnitVars(self.unit)
 
     def do(self):
         if isinstance(self.skill, str):
@@ -1429,7 +1459,15 @@ class RemoveSkill(Action):
             else:
                 logger.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
 
+        # Handle affects movement
+        self.reset_action.execute()
+        if self.unit.team in game.boundary.enemy_teams:
+            game.boundary._remove_unit(self.unit)
+            if self.unit.position:
+                game.boundary._add_unit(self.unit)
+
     def reverse(self):
+        self.reset_action.reverse()
         for skill in self.removed_skills:
             skill.owner_nid = self.unit.nid
             self.unit.skills.append(skill)

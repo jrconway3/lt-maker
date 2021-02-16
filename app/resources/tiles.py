@@ -23,6 +23,12 @@ class TileMapPrefab(Prefab):
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
+    def get_base_terrain(self, pos):
+        layer = self.layers[0]
+        if pos in layer.terrain_grid:
+            return layer.terrain_grid[pos]
+        return None
+
     def get_terrain(self, pos):
         for layer in reversed(self.layers):
             if layer.visible and pos in layer.terrain_grid:

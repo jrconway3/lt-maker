@@ -1095,7 +1095,7 @@ class Event():
             path = target_system.get_path(unit, position)
             action.do(action.Move(unit, position, path, event=True, follow=follow))
 
-    def _add_unit_from_direction(self, unit, position, direction) -> bool:
+    def _add_unit_from_direction(self, unit, position, direction, placement) -> bool:
         offsets = [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, -6, 6, -7, 7]
         final_pos = None
 
@@ -1131,7 +1131,8 @@ class Event():
                     break
                 else:
                     test_pos = (position[1] + x, game.tilemap.height - 1)
-
+        if final_pos:
+            final_pos = self.check_placement(final_pos, placement)
         if final_pos:
             action.do(action.ArriveOnMap(unit, final_pos))
             return True
@@ -1181,7 +1182,7 @@ class Event():
             if not position:
                 continue
             
-            if self._add_unit_from_direction(unit, position, cardinal_direction):
+            if self._add_unit_from_direction(unit, position, cardinal_direction, placement):
                 self._move_unit(movement_type, placement, follow, unit, position)
             else:
                 print("Couldn't add unit %s to position %s" % (unit.nid, position))

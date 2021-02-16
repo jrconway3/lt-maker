@@ -1390,6 +1390,20 @@
                 "name": "Wall",
                 "desc": "",
                 "generic": true
+            },
+            {
+                "nid": "Placeholder",
+                "variant": null,
+                "level": 1,
+                "klass": "Citizen",
+                "faction": "Soldier",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": null,
+                "name": "Soldier",
+                "desc": "The army of Grado, the largest nation on the entire continent",
+                "generic": true
             }
         ],
         "regions": [

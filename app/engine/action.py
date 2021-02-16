@@ -1306,18 +1306,21 @@ class ShowLayer(Action):
         else:
             layer.show()
         game.board.reset_grid(game.level.tilemap)
+        game.boundary.reset()
 
     def execute(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
         layer.quick_show()
         game.level.tilemap.reset()
         game.board.reset_grid(game.level.tilemap)
+        game.boundary.reset()
 
     def reverse(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
         layer.quick_hide()
         game.level.tilemap.reset()
         game.board.reset_grid(game.level.tilemap)
+        game.boundary.reset()
 
 class HideLayer(Action):
     def __init__(self, layer_nid, transition):
@@ -1332,18 +1335,21 @@ class HideLayer(Action):
         else:
             layer.hide()
         game.board.reset_grid(game.level.tilemap)
+        game.boundary.reset()
 
     def execute(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
         layer.quick_hide()
         game.level.tilemap.reset()
         game.board.reset_grid(game.level.tilemap)
+        game.boundary.reset()
 
     def reverse(self):
         layer = game.level.tilemap.layers.get(self.layer_nid)
         layer.quick_show()
         game.level.tilemap.reset()
         game.board.reset_grid(game.level.tilemap)
+        game.boundary.reset()
 
 class OnlyOnceEvent(Action):
     def __init__(self, event_nid):

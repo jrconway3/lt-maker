@@ -18,6 +18,7 @@ class SaveViewer(Dialog):
 
         self.save_box = PropertyBox("Save", ComboBox, self)
         self.save_box.edit.addItems(saves)
+        self.save_box.edit.setCurrentIndex(len(saves) - 1)
         self.save_box.edit.activated.connect(self.save_changed)
         layout.addWidget(self.save_box)
 

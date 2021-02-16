@@ -5,7 +5,7 @@ from app.constants import FRAMERATE
 from app.data.database import DB
 
 from app.engine import engine, action, interaction, combat_calcs, pathfinding, target_system, \
-    equations, item_system, item_funcs, skill_system
+    equations, item_system, item_funcs, skill_system, line_of_sight
 from app.engine.game_state import game
 
 import logging
@@ -107,7 +107,7 @@ class AIController():
             region = None
             unit, position = self.unit, self.goal_position
             for r in game.level.regions:
-                if r.contains(self.goal_position) and r.region_type == 'event' and r.sub_nid == self.behaviour.sub_nid:
+                if r.contains(self.goal_position) and r.region_type == 'event' and r.sub_nid == self.behaviour.target_spec:
                     try:
                         if not r.condition or eval(r.condition):
                             region = r
@@ -167,7 +167,7 @@ class AIController():
         self.did_something = False
         orig_pos = self.unit.position
 
-        logger.info("AI Thinking...")
+        logger.info("*** AI Thinking... ***")
 
         # Can spend up to half a frame thinking
         while engine.get_true_time() - time < FRAMERATE//2:
@@ -271,7 +271,7 @@ class PrimaryAI():
                 if ability.nid == 'Steal':
                     self.items.append(ability)
 
-        self.all_targets = get_targets(self.unit, self.behaviour)
+        self.behaviour_targets = get_targets(self.unit, self.behaviour)
 
         logger.info("Testing Items: %s", self.items)
         
@@ -290,20 +290,24 @@ class PrimaryAI():
 
     def item_setup(self):
         if self.item_index < len(self.items):
+            logger.info("Testing %s" % self.items[self.item_index])
             self.unit.equip(self.items[self.item_index])
             self.get_all_valid_targets()
             self.possible_moves = self.get_possible_moves()
+            logger.info(self.possible_moves)
 
     def get_valid_targets(self, unit, item, valid_moves) -> list:
         item_range = item_funcs.get_range(unit, item)
-        valid_targets = item_system.ai_targets(unit, item)
+        ai_targets = item_system.ai_targets(unit, item)
+        logger.info("AI Targets: %s", ai_targets)
         # valid_targets = [pos for pos in valid_targets if pos in self.all_targets]
         filtered_targets = set()
 
-        for pos in valid_targets:
+        for pos in ai_targets:
             for valid_move in valid_moves:
                 # Determine if we can hit this unit at one of our moves
-                if utils.calculate_distance(pos, valid_move) in item_range:
+                if (utils.calculate_distance(pos, valid_move) in item_range) and \
+                   (not DB.constants.value('ai_fog_of_war') or game.board.in_vision(pos, self.unit.team)):
                     filtered_targets.add(pos)
                     break
 
@@ -358,7 +362,16 @@ class PrimaryAI():
             if self.unit.position != move:
                 self.quick_move(move)
 
-            self.determine_utility(move, target, item)
+            # Check line of sight
+            line_of_sight_flag = True
+            if DB.constants.value('line_of_sight'):
+                max_item_range = max(item_funcs.get_range(self.unit, item))
+                valid_targets = line_of_sight.line_of_sight([move], [target], max_item_range)
+                if not valid_targets:
+                    line_of_sight_flag = False
+
+            if line_of_sight_flag:
+                self.determine_utility(move, target, item)
             self.move_index += 1
 
         # Not done yet
@@ -387,7 +400,7 @@ class PrimaryAI():
         tp = 0
         main_target = game.board.get_unit(main_target_pos)
         # Only count main target if it's one of the legal targets
-        if main_target and main_target_pos in self.all_targets:  
+        if main_target and main_target_pos in self.behaviour_targets:  
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             # If no ai priority hook defined
             if ai_priority is None:
@@ -401,7 +414,7 @@ class PrimaryAI():
         for splash_pos in splash:
             target = game.board.get_unit(splash_pos)
             # Only count splash target if it's one of the legal targets
-            if not target or splash_pos not in self.all_targets:
+            if not target or splash_pos not in self.behaviour_targets:
                 continue
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             if ai_priority is None:
@@ -602,6 +615,8 @@ class SecondaryAI():
 
         elif self.best_target:
             self.best_position = target_system.travel_algorithm(self.best_path, self.unit.movement_left, self.unit, self.grid)
+            logger.info("Best Target: %s", self.best_target)
+            logger.info("Best Position: %s", self.best_position)
             return True, self.best_position
 
         else:
@@ -676,6 +691,8 @@ class SecondaryAI():
                 terms += new_terms
             else:
                 return 0
+        elif self.behaviour.action == "Steal" and enemy:
+            return 0  # TODO: For now, Steal just won't work with secondary AI
         else:
             pass
 

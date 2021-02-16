@@ -117,7 +117,7 @@ class TargetsEnemies(ItemComponent):
         return {other.position for other in game.level.units if other.position and 
                 skill_system.check_enemy(unit, other)}
 
-    def valid_targets(self, unit, item, ai=False) -> set:
+    def valid_targets(self, unit, item) -> set:
         targets = {other.position for other in game.level.units if other.position and 
                    skill_system.check_enemy(unit, other)}        
         return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
@@ -131,7 +131,7 @@ class TargetsAllies(ItemComponent):
         return {other.position for other in game.level.units if other.position and 
                 skill_system.check_ally(unit, other)}
 
-    def valid_targets(self, unit, item, ai=False) -> set:
+    def valid_targets(self, unit, item) -> set:
         targets = {other.position for other in game.level.units if other.position and 
                    skill_system.check_ally(unit, other)}        
         return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}

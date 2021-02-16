@@ -6728,6 +6728,13 @@
                 ]
             ],
             [
+                "remove_group",
+                [
+                    "PlayerTeam",
+                    "immediate"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "# Actual dialogue content"
@@ -6912,7 +6919,7 @@
                 "speak",
                 [
                     "Neimi",
-                    "All right...Sniff.|I'm Neimi.|I'm from... I used to be from a village named Lark...| Except the village is gone."
+                    "All right...Sniff.|I'm Neimi.|I'm from... I used to be from a village named Lark...|Except the village is gone."
                 ]
             ],
             [
@@ -6947,7 +6954,7 @@
                 "speak",
                 [
                     "Neimi",
-                    "Bazba's Bandits... They have a hideout here in these mountains.|That's where Colm...| Um, Colm's my...uh...We've known each other since we were kids.|He went to steal back something the bandits took from me..."
+                    "Bazba's Bandits... They have a hideout here in these mountains.|That's where Colm...|Um, Colm's my...uh...We've known each other since we were kids.|He went to steal back something the bandits took from me..."
                 ]
             ],
             [
@@ -6989,7 +6996,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "If the thief we're after has gone to the bandits?lair as well...|Well, it seems as though we share a common cause with Neimi.|She is a citizen of Renais, after all.|And isn't it our duty to defend our countrymen?|I'm only sad that we weren't here to protect her friends and neighbors...|So, yes, I feel we must help her."
+                    "If the thief we're after has gone to the bandits' lair as well...|Well, it seems as though we share a common cause with Neimi.|She is a citizen of Renais, after all.|And isn't it our duty to defend our countrymen?|I'm only sad that we weren't here to protect her friends and neighbors...|So, yes, I feel we must help her."
                 ]
             ],
             [
@@ -7037,6 +7044,10 @@
                 []
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "transition",
                 [
                     "Open"
@@ -7046,6 +7057,12 @@
                 "comment",
                 [
                     "# Move player team onto map"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "0,11"
                 ]
             ],
             [
@@ -7178,8 +7195,15 @@
         "name": "Turn2",
         "trigger": "other_turn_change",
         "level_nid": "3",
-        "condition": "game.turncount == 2",
+        "condition": "game.turncount == 1",
         "commands": [
+            [
+                "remove_unit",
+                [
+                    "Placeholder",
+                    "immediate"
+                ]
+            ],
             [
                 "move_cursor",
                 [
@@ -11333,5 +11357,22 @@
         "condition": "True",
         "commands": [],
         "only_once": false
+    },
+    {
+        "name": "AddPlaceholder",
+        "trigger": "enemy_turn_change",
+        "level_nid": "3",
+        "condition": "game.turncount == 1",
+        "commands": [
+            [
+                "add_unit",
+                [
+                    "Placeholder",
+                    "16,15",
+                    "immediate"
+                ]
+            ]
+        ],
+        "only_once": true
     }
 ]

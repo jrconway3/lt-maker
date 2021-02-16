@@ -175,7 +175,7 @@ class GlobalModeLevelMapView(SimpleMapView):
         if self.current_map and self.current_map.check_bounds(pos):
             self.current_mouse_pos = pos
             self.main_editor.set_position_bar(pos)
-            terrain_nid = self.current_map.get_terrain(pos)
+            terrain_nid = self.current_map.get_base_terrain(pos)
             terrain = DB.terrain.get(terrain_nid)
             if terrain:
                 self.main_editor.set_message(
@@ -453,7 +453,7 @@ class NewMapView(SimpleMapView):
             elif self.edit_mode == EditMode.GROUPS and group_unit_nid:
                 self.main_editor.set_message("Unit: %s" % group_unit_nid)
             else:
-                terrain_nid = self.current_map.get_terrain(pos)
+                terrain_nid = self.current_map.get_base_terrain(pos)
                 terrain = DB.terrain.get(terrain_nid)
                 if terrain:
                     self.main_editor.set_message(

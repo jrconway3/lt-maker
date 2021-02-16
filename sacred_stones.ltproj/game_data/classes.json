@@ -14794,6 +14794,10 @@
             [
                 1,
                 "NoAvoid"
+            ],
+            [
+                1,
+                "Void Curse"
             ]
         ],
         "wexp_gain": [
@@ -15077,6 +15081,10 @@
             [
                 1,
                 "NoAvoid"
+            ],
+            [
+                1,
+                "Void Curse"
             ]
         ],
         "wexp_gain": [

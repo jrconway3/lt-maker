@@ -366,7 +366,7 @@ class Dialog():
         if x_pos > self.background.get_width() + self.position[0] - 24:
             x_pos = self.position[0] + self.background.get_width() - 24
         elif x_pos < self.position[0] + 8:
-            x_pos = self.position + 8
+            x_pos = self.position[0] + 8
 
         tail_surf = image_mods.make_translucent(tail_surf, .05)
         surf.blit(tail_surf, (x_pos, y_pos))

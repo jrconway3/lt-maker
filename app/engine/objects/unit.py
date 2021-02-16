@@ -376,20 +376,7 @@ class UnitObject(Prefab):
         self.has_dropped = False
         self.has_taken = False
         self.has_given = False
-
-    def clean_up(self):
-        if self.traveler:
-            self.traveler = None
-            # Remove rescue penalty
-
-        self.set_hp(1000)  # Set to full health
-
-        # TODO remove temporary statuses
-        self.position = None
-        if self._sprite:
-            self._sprite.change_state('normal')
-        self.reset()
-
+        
     def save(self):
         s_dict = {'nid': self.nid,
                   'position': self.position,

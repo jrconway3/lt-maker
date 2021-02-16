@@ -368,7 +368,7 @@ class MapCombat():
         # handle exp
         if self.attacker.team == 'player' and not self.attacker.is_dying:
             exp = self.handle_exp(self.attacker, self.item)
-            if self.defender and skill_system.check_ally(self.attacker, self.defender):
+            if self.defender and (skill_system.check_ally(self.attacker, self.defender) or 'Tile' in self.defender.tags):
                 exp = int(utils.clamp(exp, 0, 100))
             else:
                 exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))

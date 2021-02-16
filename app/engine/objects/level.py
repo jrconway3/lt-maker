@@ -37,7 +37,10 @@ class LevelObject():
             if unit_prefab.nid in unit_registry:
                 unit = unit_registry[unit_prefab.nid]
                 unit.starting_position = tuple(unit_prefab.starting_position)
-                unit.position = unit.starting_position
+                if not unit.dead:
+                    unit.position = unit.starting_position
+                else:
+                    unit.position = None
                 level.units.append(unit)
             else:
                 new_unit = UnitObject.from_prefab(unit_prefab)

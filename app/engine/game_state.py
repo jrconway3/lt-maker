@@ -263,12 +263,20 @@ class GameState():
             self.cursor.autocursor()
 
     def clean_up(self):
-        from app.engine import item_system, skill_system, item_funcs
+        from app.engine import item_system, skill_system, item_funcs, action
 
         for unit in self.unit_registry.values():
             self.leave(unit)
         for unit in self.unit_registry.values():
-            unit.clean_up()
+            # Unit cleanup
+            if unit.traveler:
+                unit.traveler = None
+                action.execute(action.RemoveSkill(self, 'Rescue'))
+            unit.set_hp(1000)  # Set to full health
+            unit.set_mana(1000)  # Set to full mana
+            unit.position = None
+            unit.sprite.change_state('normal')
+            unit.reset()
         
         for item in self.item_registry.values():
             unit = None
@@ -284,8 +292,8 @@ class GameState():
 
         self.terrain_status_registry.clear()
 
-        # Remove non-player team units and all generics
-        self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.team == 'player' and not v.generic}
+        # Remove all generics
+        self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if not v.generic}
         # Remove any skill that's not on a unit
         for k, v in list(self.skill_registry.items()):
             if v.owner_nid:  # Remove skills from units that no longer exist

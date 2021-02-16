@@ -41,7 +41,7 @@
     ],
     [
         "line_of_sight",
-        true
+        false
     ],
     [
         "aura_los",
@@ -49,7 +49,7 @@
     ],
     [
         "fog_los",
-        true
+        false
     ],
     [
         "ai_fog_of_war",
@@ -97,11 +97,11 @@
     ],
     [
         "attack_zero_hit",
-        false
+        true
     ],
     [
         "attack_zero_dam",
-        false
+        true
     ],
     [
         "zero_move",

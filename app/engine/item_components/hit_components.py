@@ -371,12 +371,20 @@ class Steal(ItemComponent):
         defense = equations.parser.steal_def(unit)
         defender = game.board.get_unit(def_pos)        
         if attack >= defense:
-            for item in defender.items:
-                if not item_system.locked(defender, item) and \
-                        not item_funcs.inventory_full(unit, item) and \
-                        not item is defender.get_weapon():
+            for def_item in defender.items:
+                if self.item_restrict(unit, item, defender, def_item):
                     return True
         return False
+
+    def ai_targets(self, unit, item):
+        positions = set()
+        for other in game.level.units:
+            if other.position and skill_system.check_enemy(unit, other):
+                for def_item in other.items:
+                    if self.item_restrict(unit, item, other, def_item):
+                        positions.add(other.position)
+                        break
+        return positions
 
     def targets_items(self, unit, item) -> bool:
         return True
@@ -410,20 +418,6 @@ class GBASteal(Steal, ItemComponent):
     nid = 'gba_steal'
     desc = "Steal any non-weapon, non-spell from target on hit"
     tag = 'special'
-
-    def target_restrict(self, unit, item, def_pos, splash) -> bool:
-        # Unit has item that can be stolen
-        attack = equations.parser.steal_atk(unit)
-        defense = equations.parser.steal_def(unit)
-        defender = game.board.get_unit(def_pos)
-        if attack >= defense:
-            for item in defender.items:
-                if not item_system.locked(defender, item) and \
-                        not item_funcs.inventory_full(unit, item) and \
-                        not item_system.is_weapon(defender, item) and \
-                        not item_system.is_spell(defender, item):
-                    return True
-        return False
 
     def item_restrict(self, unit, item, defender, def_item) -> bool:
         if item_system.locked(defender, def_item):

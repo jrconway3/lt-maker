@@ -38,9 +38,9 @@ def handle_aux():
 
     if avail_units:
         cur_unit = game.cursor.get_hover()
-        if not cur_unit:
+        if not cur_unit or cur_unit not in avail_units:
             cur_unit = game.memory.get('aux_unit')
-        if not cur_unit:
+        if not cur_unit or cur_unit not in avail_units:
             cur_unit = avail_units[0]
 
         if cur_unit in avail_units:
@@ -772,11 +772,9 @@ class InfoMenuState(State):
 
         weapon = self.unit.get_weapon()
         accessory = self.unit.get_accessory()
-        print(self.unit.items, weapon, accessory)
         
         # Blit items
         for idx, item in enumerate(self.unit.nonaccessories):
-            print(idx, item)
             if item.multi_item and any(subitem is weapon for subitem in item.subitems):
                 surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
                 for subitem in item.subitems:

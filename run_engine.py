@@ -19,7 +19,7 @@ def test_play():
     DB.load('./sacred_stones.ltproj')
     title = DB.constants.value('title')
     driver.start(title, from_editor=True)
-    game = game_state.start_level('FOWDebug')
+    game = game_state.start_level('DEBUG')
     driver.run(game)
 
 def inform_error():
@@ -31,16 +31,16 @@ def inform_error():
     print("=== === === === === ===")
 
 if __name__ == '__main__':
-    import traceback
+    import logging, traceback
     from app import lt_log
-    logger = lt_log.create_logger()
-    if not logger:
+    success = lt_log.create_logger()
+    if not success:
         engine.terminate()
     try:
         # main()
         test_play()
     except Exception as e:
-        logger.exception(e)
+        logging.exception(e)
         inform_error()
         print('*** Lex Talionis Engine Version %s ***' % VERSION)
         print('Main Crash {0}'.format(str(e)))

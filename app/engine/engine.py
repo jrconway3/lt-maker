@@ -43,8 +43,9 @@ def remove_display():
 
 def terminate(crash=False):
     on_end(crash)
-    pygame.mixer.music.stop()
-    pygame.mixer.quit()
+    if pygame.mixer.get_init():
+        pygame.mixer.music.stop()
+        pygame.mixer.quit()
     pygame.quit()
     if constants['standalone']:
         sys.exit()

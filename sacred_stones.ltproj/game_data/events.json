@@ -1587,6 +1587,19 @@
         "only_once": false
     },
     {
+        "name": "Seize",
+        "trigger": "Seize",
+        "level_nid": "3",
+        "condition": "'Lord' in unit.tags",
+        "commands": [
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false
+    },
+    {
         "name": "Intro",
         "trigger": "level_start",
         "level_nid": "1",
@@ -6477,6 +6490,12 @@
         "condition": "region.nid == 'Chest1'",
         "commands": [
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "show_layer",
                 [
                     "Chest1"
@@ -6498,6 +6517,12 @@
         "level_nid": "3",
         "condition": "region.nid == 'Chest4'",
         "commands": [
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
             [
                 "show_layer",
                 [
@@ -6521,6 +6546,12 @@
         "condition": "region.nid == 'Chest3'",
         "commands": [
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "show_layer",
                 [
                     "Chest3"
@@ -6542,6 +6573,12 @@
         "level_nid": "3",
         "condition": "region.nid == 'Chest2'",
         "commands": [
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
             [
                 "show_layer",
                 [
@@ -6565,6 +6602,12 @@
         "condition": "region.nid == 'Door1'",
         "commands": [
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "show_layer",
                 [
                     "Door1"
@@ -6580,6 +6623,12 @@
         "condition": "region.nid == 'Door2'",
         "commands": [
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "show_layer",
                 [
                     "Door2"
@@ -6592,8 +6641,14 @@
         "name": "Door3",
         "trigger": "Door",
         "level_nid": "3",
-        "condition": "region.nid == 'Door3",
+        "condition": "region.nid == 'Door3'",
         "commands": [
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
             [
                 "show_layer",
                 [
@@ -7272,7 +7327,7 @@
                 "speak",
                 [
                     "Neimi",
-                    "Uh-huh..."
+                    "C-Colm..."
                 ]
             ],
             [
@@ -7285,14 +7340,14 @@
                 "speak",
                 [
                     "Colm",
-                    "Neimi?!{br}What are you doing here?|I told you to wait for me, didn\u2019t I?"
+                    "Neimi?!{br}What are you doing here?|I told you to wait for me, didnt I?"
                 ]
             ],
             [
                 "speak",
                 [
                     "Neimi",
-                    "I couldn\u2019t... It\u2019s too dangerous.|C\u2019mon, let\u2019s go home."
+                    "I couldnt... Its too dangerous.|Cmon, lets go home."
                 ]
             ],
             [
@@ -7306,7 +7361,7 @@
                 "speak",
                 [
                     "Colm",
-                    "We don\u2019t have a home! Don\u2019t you get it? Look, just leave everything to me.|I can take care of it in a flash, but I don\u2019t need a clumsy oaf like you tagging along."
+                    "We dont have a home! Dont you get it? Look, just leave everything to me.|I can take care of it in a flash, but I dont need a clumsy oaf like you tagging along."
                 ]
             ],
             [
@@ -7327,7 +7382,7 @@
                 "speak",
                 [
                     "Colm",
-                    "Oh, this is ridiculous.|We\u2019ll talk later. Don\u2019t leave my side, Neimi."
+                    "Oh, this is ridiculous.|Well talk later. Dont leave my side, Neimi."
                 ]
             ],
             [
@@ -7366,6 +7421,25 @@
         "level_nid": "3",
         "condition": "True",
         "commands": [
+            [
+                "if",
+                [
+                    "game.check_alive('Neimi') and game.check_alive('Colm')"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Just in case"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Colm",
+                    "player"
+                ]
+            ],
             [
                 "transition",
                 [
@@ -7409,7 +7483,7 @@
                 "speak",
                 [
                     "Colm",
-                    "What now? I told you not to worry.|I could\u2019ve robbed these bandits blind on my own, thank you very much."
+                    "What now? I told you not to worry.|I could've robbed these bandits blind on my own, thank you very much."
                 ]
             ],
             [
@@ -7423,7 +7497,7 @@
                 "speak",
                 [
                     "Colm",
-                    "H-Hold on! I\u2019m sorry!{br}C\u2019mon! Don\u2019t start bawling!"
+                    "H-Hold on! I'm sorry!{br}C'mon! Don't start bawling!"
                 ]
             ],
             [
@@ -7479,7 +7553,7 @@
                 "speak",
                 [
                     "Colm",
-                    "I got your mirror back.|Remember how you cried when we left Lark? You thought you\u2019d lost this.|I knew it was your mother\u2019s, and I knew those thugs had taken it.|So I went and got it back!|See what happens when you give me a job? Guaranteed results!"
+                    "I got your mirror back.|Remember how you cried when we left Lark? You thought you'd lost this.|I knew it was your mother's, and I knew those thugs had taken it.|So I went and got it back!|See what happens when you give me a job? Guaranteed results!"
                 ]
             ],
             [
@@ -7500,7 +7574,7 @@
                 "speak",
                 [
                     "Colm",
-                    "Hey Wh-why are you crying this time?|C\u2019mon! Stop! Knock it off! Please, Neimi..."
+                    "Hey wh-why are you crying this time?|C'mon! Stop! Knock it off! Please, Neimi..."
                 ]
             ],
             [
@@ -7520,7 +7594,7 @@
                 "speak",
                 [
                     "Seth",
-                    "...This is quite touching, but...|I think you\u2019d best return Princess Eirika\u2019s bracelet to her now."
+                    "...This is quite touching, but...|I think you'd best return Princess Eirika's bracelet to her now."
                 ]
             ],
             [
@@ -7547,7 +7621,7 @@
                 "speak",
                 [
                     "Colm",
-                    "Wh-what are you talking about?{br}Are you trying to say that I\u2013"
+                    "Wh-what are you talking about?{br}Are you trying to say that I--"
                 ]
             ],
             [
@@ -7567,7 +7641,7 @@
                 "speak",
                 [
                     "Colm",
-                    "Whoa! Whoa there! Hold it! It\u2019s right here! Take it!"
+                    "Whoa! Whoa there! Hold it! It's right here! Take it!"
                 ]
             ],
             [
@@ -7581,7 +7655,7 @@
                 "speak",
                 [
                     "Seth",
-                    "......|Tell me, boy, is this the path you\u2019ve chosen for your life?|If this girl matters to you, you must quit this dark road."
+                    "......|Tell me, boy, is this the path you've chosen for your life?|If this girl matters to you, you must quit this dark road."
                 ]
             ],
             [
@@ -7595,14 +7669,14 @@
                 "speak",
                 [
                     "Seth",
-                    "We\u2019re leaving. Do not expect to be rescued again.|Farewell."
+                    "We're leaving. Do not expect to be rescued again.|Farewell."
                 ]
             ],
             [
                 "speak",
                 [
                     "Colm",
-                    "...Hey, wait!|Let us go with you. You can\u2019t just leave us here."
+                    "...Hey, wait!|Let us go with you. You can't just leave us here."
                 ]
             ],
             [
@@ -7616,21 +7690,21 @@
                 "speak",
                 [
                     "Colm",
-                    "Neimi and I... We\u2019ve got no home to return to.|No matter where we go, there\u2019s just gonna be more fighting.|You\u2019re mercenaries, right?{br}Well, then take us with you.|I\u2019m a handy guy to have around. I know I can help you out."
+                    "Neimi and I... We've got no home to return to.|No matter where we go, there's just gonna be more fighting.|You're mercenaries, right?{br}Well, then take us with you.|I'm a handy guy to have around. I know I can help you out."
                 ]
             ],
             [
                 "speak",
                 [
                     "Seth",
-                    "I would prefer not, but I\u2019ll agree with Eirika\u2019s decision.|Our duty is a grave one however. We\u2019ve no time to waste shepherding you."
+                    "I would prefer not, but I'll agree with Eirika's decision.|Our duty is a grave one however. We've no time to waste shepherding you."
                 ]
             ],
             [
                 "speak",
                 [
                     "Colm",
-                    "That\u2019s fine with us.|You just wait--I promise you won\u2019t regret your decision."
+                    "That's fine with us.|You just wait--I promise you won't regret your decision."
                 ]
             ],
             [
@@ -7652,6 +7726,14 @@
                 [
                     "Neimi"
                 ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "end",
+                []
             ],
             [
                 "transition",
@@ -7696,7 +7778,7 @@
                 "speak",
                 [
                     "Seth",
-                    "I retrieved your bracelet from the bandit\u2019s stronghold.|Here you are, Princess."
+                    "I retrieved your bracelet from the bandit's stronghold.|Here you are, Princess."
                 ]
             ],
             [
@@ -7717,14 +7799,14 @@
                 "speak",
                 [
                     "Eirika",
-                    "Seth...What is it you\u2019re not telling me?"
+                    "Seth...What is it you're not telling me?"
                 ]
             ],
             [
                 "speak",
                 [
                     "Seth",
-                    "...I apologize, Your Highness.|When the times comes, I will tell you what I know. Until then, I..."
+                    "...I apologize, Your Highness.|When the time comes, I will tell you what I know. Until then, I..."
                 ]
             ],
             [
@@ -7738,28 +7820,28 @@
                 "speak",
                 [
                     "Seth",
-                    "Then we should get moving again.|We\u2019re safe from bandits for now, but I can\u2019t guarantee for how long."
+                    "Then we should get moving again.|We're safe from bandits for now, but I can't guarantee for how long."
                 ]
             ],
             [
                 "speak",
                 [
                     "Eirika",
-                    "This... This is just the beginning, isn\u2019t it?|If we hope to free our homeland, it will take battle after battle..."
+                    "This... This is just the beginning, isn't it?|If we hope to free our homeland, it will take battle after battle..."
                 ]
             ],
             [
                 "speak",
                 [
                     "Seth",
-                    "I\u2019m afraid so, Your Highness.|The day you and Prince Ephraim win back the freedom and honor of Renais will come.|But I fear it lies at the end of a long and treacherous road."
+                    "I'm afraid so, Your Highness.|The day you and Prince Ephraim win back the freedom and honor of Renais will come.|But I fear it lies at the end of a long and treacherous road."
                 ]
             ],
             [
                 "speak",
                 [
                     "Eirika",
-                    "I know. I must fight for that day.|In the names of all those I could not save, I\u2019ll lead us home.|Let\u2019s go. My brother awaits!"
+                    "I know. I must fight for that day.|In the names of all those I could not save, I'll lead us home.|Let's go. My brother awaits!"
                 ]
             ],
             [
@@ -7789,10 +7871,18 @@
                 ]
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "change_tilemap",
                 [
                     "Grado Keep"
                 ]
+            ],
+            [
+                "change_background",
+                []
             ],
             [
                 "transition",
@@ -7873,21 +7963,21 @@
                 "speak",
                 [
                     "Selena",
-                    "Signs of chaos abound.|Brigands ride without fear, and the peasant\u2019s cries fill the air."
+                    "Signs of chaos abound.|Brigands ride without fear, and the peasant's cries fill the air."
                 ]
             ],
             [
                 "speak",
                 [
                     "Duessel",
-                    "Hmm...|If Grado\u2019s troops do not enforce public order, the situation will only worsen.| And still, His Majesty has given us no orders.|Perhaps, just this once, I should take the lead..."
+                    "Hmm...|If Grado's troops do not enforce public order, the situation will only worsen.|And still, His Majesty has given us no orders.|Perhaps, just this once, I should take the lead..."
                 ]
             ],
             [
                 "speak",
                 [
                     "Glen",
-                    "What could His Majesty be thinking?|Breaking our long-held alliance with Renais--invading without warning...|He\u2019s never been this way before. He abhors violence.",
+                    "What could His Majesty be thinking?|Breaking our long-held alliance with Renais--invading without warning...|He's never been this way before. He abhors violence.",
                     "low_priority"
                 ]
             ],
@@ -7902,14 +7992,14 @@
                 "speak",
                 [
                     "Glen",
-                    "And have you noticed the recent promotions? Who are they are going to?|Certainly not to the soldiers who have Grado\u2019s best interests at heart.|I feel this invasion is the prelude to a much larger war.|I feel as though His Majesty is no longer the man we knew him to be."
+                    "And have you noticed the recent promotions? Who are they are going to?|Certainly not to the soldiers who have Grado's best interests at heart.|I feel this invasion is the prelude to a much larger war.|I feel as though His Majesty is no longer the man we knew him to be."
                 ]
             ],
             [
                 "speak",
                 [
                     "Selena",
-                    "Glen, it doesn\u2019t matter what any of us might think of our orders.|We are his servants, and we will not question His Majesty\u2019s intentions.\u201d"
+                    "Glen, it doesn't matter what any of us might think of our orders.|We are his servants, and we will not question His Majesty's intentions."
                 ]
             ],
             [
@@ -7923,26 +8013,14 @@
                 "speak",
                 [
                     "Duessel",
-                    "That\u2019s enough. Both of you. His Majesty summons us.|Let\u2019s hope we can learn a little during our audience."
+                    "That's enough. Both of you. His Majesty summons us.|Let's hope we can learn a little during our audience."
                 ]
             ],
             [
-                "remove_portrait",
+                "multi_remove_portrait",
                 [
                     "Duessel",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
                     "Glen",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
                     "Selena"
                 ]
             ],
@@ -7951,6 +8029,10 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "end_skip",
+                []
             ],
             [
                 "comment",
@@ -8032,15 +8114,15 @@
                 "add_unit",
                 [
                     "Vigarde",
-                    "15,2",
+                    "14,2",
                     "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
-                    "Riev",
-                    "16,3",
+                    "Glen",
+                    "13,5",
                     "immediate"
                 ]
             ],
@@ -8048,7 +8130,7 @@
                 "add_unit",
                 [
                     "Duessel",
-                    "15,5",
+                    "14,5",
                     "immediate"
                 ]
             ],
@@ -8056,7 +8138,7 @@
                 "add_unit",
                 [
                     "Selena",
-                    "16,5",
+                    "15,5",
                     "immediate"
                 ]
             ],
@@ -8064,7 +8146,7 @@
                 "add_unit",
                 [
                     "Lyon",
-                    "16,3",
+                    "15,3",
                     "immediate"
                 ]
             ],
@@ -8102,7 +8184,7 @@
                 "speak",
                 [
                     "Vigarde",
-                    "...I appreciate your work in fulfilling your previous orders.|You are the hammers that drive the nails of the empire\u2019s will...|You will continue to operate{br}...without hesitation...|wherever I send you."
+                    "...I appreciate your work in fulfilling your previous orders.|You are the hammers that drive the nails of the empire's will...|You will continue to operate{br}...without hesitation...|wherever I send you."
                 ]
             ],
             [
@@ -8136,7 +8218,7 @@
                 "speak",
                 [
                     "Selena",
-                    "In Your Majesty\u2019s name."
+                    "In Your Majesty's name."
                 ]
             ],
             [
@@ -8169,7 +8251,7 @@
                 "speak",
                 [
                     "Vigarde",
-                    "...However, I know this...|You, my Imperial Three, lack the strength to conquer the remaining nations alone.|In the invasion of Renais, certain soldiers performed beyond expectation.|I have chosen them to join you as new generals in the empire\u2019s service.|...Come."
+                    "...However, I know this...|You, my Imperial Three, lack the strength to conquer the remaining nations alone.|In the invasion of Renais, certain soldiers performed beyond expectation.|I have chosen them to join you as new generals in the empire's service.|...Come."
                 ]
             ],
             [
@@ -8177,6 +8259,10 @@
                 [
                     "Vigarde"
                 ]
+            ],
+            [
+                "end_skip",
+                []
             ],
             [
                 "comment",
@@ -8194,30 +8280,33 @@
                 "move_unit",
                 [
                     "Glen",
-                    "13,5",
-                    "no_block"
+                    "12,5",
+                    "no_block",
+                    "no_follow"
                 ]
             ],
             [
                 "move_unit",
                 [
                     "Selena",
-                    "17,5",
-                    "no_block"
+                    "16,5",
+                    "no_block",
+                    "no_follow"
                 ]
             ],
             [
                 "move_unit",
                 [
                     "Duessel",
-                    "13,4"
+                    "12,4",
+                    "no_follow"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Valter",
-                    "14,10",
+                    "13,11",
                     "immediate"
                 ]
             ],
@@ -8225,7 +8314,7 @@
                 "add_unit",
                 [
                     "Riev",
-                    "15,10",
+                    "14,11",
                     "immediate"
                 ]
             ],
@@ -8233,7 +8322,7 @@
                 "add_unit",
                 [
                     "Caellach",
-                    "16,10",
+                    "15,11",
                     "immediate"
                 ]
             ],
@@ -8241,23 +8330,26 @@
                 "move_unit",
                 [
                     "Valter",
+                    "13,5",
+                    "no_block",
+                    "no_follow"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Riev",
                     "14,5",
-                    "no_block"
-                ]
-            ],
-            [
-                "move_unit",
-                [
-                    "Riev",
-                    "15,5",
-                    "no_block"
+                    "no_block",
+                    "no_follow"
                 ]
             ],
             [
                 "move_unit",
                 [
                     "Caellach",
-                    "16,5"
+                    "15,5",
+                    "no_follow"
                 ]
             ],
             [
@@ -8287,10 +8379,30 @@
                 ]
             ],
             [
+                "remove_portrait",
+                [
+                    "Vigarde"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Riev",
+                    "Right"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Riev",
                     "Heh heh heh...|I am Riev, given the name Blood Beryl by His Majesty.|I know I am a newcomer, but I pray for your favor."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Duessel",
+                    "Left"
                 ]
             ],
             [
@@ -8301,10 +8413,29 @@
                 ]
             ],
             [
+                "remove_portrait",
+                [
+                    "Duessel"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Riev"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Caellach",
+                    "Right"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Caellach",
-                    "I\u2019m Caellach. I was a mercenary, fighting in the desert.|Seems I\u2019m to be called Tiger Eye...|You\u2019re a fine lookin\u2019 lass, aren\u2019t you? Yeah, I\u2019m gonna love working with you."
+                    "I'm Caellach. I was a mercenary, fighting in the desert.|Seems I'm to be called Tiger Eye...|You're a fine lookin' lass, aren't you? Yeah, I'm gonna love working with you."
                 ]
             ],
             [
@@ -8328,10 +8459,23 @@
                 ]
             ],
             [
+                "remove_portrait",
+                [
+                    "Caellach"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Valter",
+                    "Right"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Valter",
-                    "So we meet again. You know me as General Valter, but you will call me the Moonstone.|I\u2019ll save you worthless dogs from your own incompetence. You\u2019ll thank me later."
+                    "So we meet again. You know me as General Valter, but you will call me the Moonstone.|I'll save you worthless dogs from your own incompetence. You'll thank me later."
                 ]
             ],
             [
@@ -8480,10 +8624,22 @@
                 ]
             ],
             [
+                "remove_portrait",
+                [
+                    "Duessel"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Riev"
+                ]
+            ],
+            [
                 "add_portrait",
                 [
                     "Valter",
-                    "MidLeft"
+                    "MidRight"
                 ]
             ],
             [
@@ -8608,7 +8764,8 @@
                 "set_stats",
                 [
                     "Boss",
-                    "HP,39,STR,5,SKL,1,SPD,2,LCK,2,DEF,1,RES,0"
+                    "HP,39,STR,5,SKL,1,SPD,2,LCK,2,DEF,1,RES,0",
+                    "immediate"
                 ]
             ],
             [
@@ -8666,7 +8823,8 @@
             [
                 "move_cursor",
                 [
-                    "0,0"
+                    "0,0",
+                    "immediate"
                 ]
             ],
             [
@@ -8907,7 +9065,7 @@
                 "speak",
                 [
                     "Artur",
-                    "What have we done to deserve the trials before us? What is happening to us?|How could such abominations walk out lands while the Sacred Stones protect us?"
+                    "What have we done to deserve the trials before us? What is happening to us?|How could such abominations walk our lands while the Sacred Stones protect us?"
                 ]
             ],
             [
@@ -8956,7 +9114,7 @@
                 "speak",
                 [
                     "Lute",
-                    "Very well. I don't mind staying here. In fact, it seems that smarter choice."
+                    "Very well. I don't mind staying here. In fact, it seems the smarter choice."
                 ]
             ],
             [
@@ -9024,7 +9182,8 @@
             [
                 "move_unit",
                 [
-                    "Artur"
+                    "Artur",
+                    "no_follow"
                 ]
             ],
             [
@@ -9066,7 +9225,7 @@
                 "speak",
                 [
                     "Artur",
-                    "My name is Artur.|The temple has assigned me the task of cleansing the forest of these...things.|There are so many of the fiends, though.{br}I wonder if I stand much chance alone. So if you would, please flee now while you have the chance."
+                    "My name is Artur.|The temple has assigned me the task of cleansing the forest of these...things.|There are so many of the fiends, though.{br}I wonder if I stand much chance alone.|So if you would, please flee now while you have the chance."
                 ]
             ],
             [
@@ -9080,7 +9239,7 @@
                 "speak",
                 [
                     "Artur",
-                    "Yes, I felt the same say when I heard.|And yet here they are. This place is filled with them.|I wonder how far they're spread...{br}Surely they're not in Renais alone."
+                    "Yes, I felt the same way when I heard.|And yet here they are. This place is filled with them.|I wonder how far they've spread...{br}Surely they're not in Renais alone."
                 ]
             ],
             [
@@ -9105,22 +9264,10 @@
                 ]
             ],
             [
-                "remove_portrait",
+                "multi_remove_portrait",
                 [
                     "Eirika",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
                     "Seth",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
                     "Artur"
                 ]
             ],
@@ -9162,6 +9309,12 @@
                 [
                     "Artur",
                     "Evil shade! May the blessed light drive you from this land!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Artur"
                 ]
             ],
             [

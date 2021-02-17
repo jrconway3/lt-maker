@@ -370,8 +370,9 @@ class MainEditor(QMainWindow):
         self.test_current_act.setEnabled(False)
         self.test_load_act.setEnabled(False)
         self.test_full_act.setEnabled(False)
-        # Make a save before playing
-        self.save()
+        # Make a save before playing if not on default
+        if os.path.basename(self.settings.get_current_project()) != 'default.ltproj':
+            self.save()
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play_current(
             self.app_state_manager.state.selected_level)
@@ -384,8 +385,9 @@ class MainEditor(QMainWindow):
         self.test_current_act.setEnabled(False)
         self.test_load_act.setEnabled(False)
         self.test_full_act.setEnabled(False)
-        # Make a save before playing
-        self.save()
+        # Make a save before playing if not on default
+        if os.path.basename(self.settings.get_current_project()) != 'default.ltproj':
+            self.save()
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play()
         timer.get_timer().start()
@@ -404,8 +406,9 @@ class MainEditor(QMainWindow):
         self.test_current_act.setEnabled(False)
         self.test_load_act.setEnabled(False)
         self.test_full_act.setEnabled(False)
-        # Make a save before playing
-        self.save()
+        # Make a save before playing if not on default
+        if os.path.basename(self.settings.get_current_project()) != 'default.ltproj':
+            self.save()
         timer.get_timer().stop()  # Don't need these while running game
         GAME_ACTIONS.test_play_load(
             self.app_state_manager.state.selected_level, save_loc)

@@ -16,8 +16,8 @@ if __name__ == '__main__':
         print("Maybe not Windows?")
 
     from app import lt_log
-    logger = lt_log.create_logger()
-    if not logger:
+    success = lt_log.create_logger()
+    if not success:
         sys.exit()
 
     lockfile = QLockFile(QDir.tempPath() + '/lt-maker.lock')

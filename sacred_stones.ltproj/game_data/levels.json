@@ -1511,6 +1511,21 @@
                 "sub_nid": "Door",
                 "condition": "unit.can_unlock(region)",
                 "only_once": true
+            },
+            {
+                "nid": "Seize",
+                "region_type": "event",
+                "position": [
+                    14,
+                    1
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Seize",
+                "condition": "'Lord' in unit.tags",
+                "only_once": true
             }
         ],
         "unit_groups": [

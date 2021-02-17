@@ -1,20 +1,5 @@
 [
     {
-        "nid": "0",
-        "name": "--",
-        "color": [
-            0,
-            0,
-            0,
-            255
-        ],
-        "minimap": "Wall",
-        "platform": "Wall",
-        "mtype": "Fence",
-        "opaque": null,
-        "status": null
-    },
-    {
         "nid": "1",
         "name": "Plain",
         "color": [
@@ -26,6 +11,21 @@
         "minimap": "Grass",
         "platform": "Plains",
         "mtype": "Normal",
+        "opaque": null,
+        "status": null
+    },
+    {
+        "nid": "0",
+        "name": "--",
+        "color": [
+            0,
+            0,
+            0,
+            255
+        ],
+        "minimap": "Wall",
+        "platform": "Wall",
+        "mtype": "Fence",
         "opaque": null,
         "status": null
     },
@@ -385,7 +385,7 @@
         ],
         "minimap": "Chest",
         "platform": "Chest",
-        "mtype": "Wall",
+        "mtype": "Normal",
         "opaque": null,
         "status": null
     },

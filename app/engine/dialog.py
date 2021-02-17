@@ -54,6 +54,8 @@ class Dialog():
             pos_x = utils.clamp(desired_center - self.width//2, 8, WINWIDTH - 8 - self.width)
             if pos_x % 8 != 0:
                 pos_x += 4
+            if pos_x == 0:
+                pos_x = 4
             pos_y = 24
         else:
             pos_x = 4
@@ -160,7 +162,7 @@ class Dialog():
         self.text_width = self.determine_width()
         self.text_width = utils.clamp(self.text_width, 48, WINWIDTH - 32)
         self.width = self.text_width + 24 - self.text_width%8
-        if self.width < 200:
+        if self.width <= WINWIDTH - 16:
             self.width += 8
         self.determine_height()
 

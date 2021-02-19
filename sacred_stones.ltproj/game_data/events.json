@@ -8778,6 +8778,13 @@
             [
                 "remove_group",
                 [
+                    "PlayerTeam",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
                     "EnemyArmy",
                     "immediate"
                 ]
@@ -9365,7 +9372,9 @@
             ],
             [
                 "prep",
-                []
+                [
+                    "1"
+                ]
             ],
             [
                 "flicker_cursor",
@@ -11527,5 +11536,27 @@
             ]
         ],
         "only_once": true
+    },
+    {
+        "name": "Debug Setup",
+        "trigger": "level_start",
+        "level_nid": null,
+        "condition": "cf.SETTINGS['debug']",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Give access to the convoy"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_convoy",
+                    "True"
+                ]
+            ]
+        ],
+        "only_once": false
     }
 ]

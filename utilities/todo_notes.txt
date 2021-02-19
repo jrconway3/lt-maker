@@ -32,6 +32,43 @@ Item System -- Multiple Target Items (test), Multiple Item Items (test)
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
+# Remaining Priorities
+```
+change statlist and weaponlist into dictionaries
+weapon level increment by weapon level ranks
+copy and paste rows of stats
+Auras
+Sequence Items (Warp, Rescue, Crazier stuff)
+test Multi Items for the AI
+turnwheel mouse support / info menu mouse support better?
+AOE modification skills
+Movement modification skills
+The Lion Throne full implementation
+Combat Animations
+    - Combat Anims, Combat Effects, Palettes
+Proc Skills
+Weather Effects/Particle System
+Supports (GUI + Engine)
+Overworld (GUI + Engine) (currently mag is working on this)
+Autotiles (GUI + Engine)
+Clean and Rename files/resources button in GUI
+Modifiable stat screen in InfoMenu
+Minimap (port)
+Status/Objective Menu
+Guide Menu (also in Base)
+Unit Menu (port)
+Summoning
+Arena
+--- 1.0 release
+Fatigue
+Bonus Exp
+Skill Swapping
+Arena in base
+Joystick Remapping
+Map Animation GUI
+Dialogue Log
+Achievements
+```
 Summoning
 Sequence Items (Test using Jewrassic Parks weird Bow)
 Auras
@@ -45,7 +82,6 @@ Auto-check cross-references on editor load
 Consider making StatList and WeaponList into a dictionary instead, that just references the actual order in DB.stats and DB.weapons to display order, and then uses the dictionary keys to display contents/values.
 
 Consider giving each object a UID which is used for crossreferences... (This is probably the better way...)
-I will consider it after finishing Chapter 5 of Sacred Stones
 
 Test First 5 chapters of Sacred Stones
 
@@ -55,6 +91,8 @@ Customizable item screen (to handle accessories...) within Info Menu
 Once StatList and Weapon List are fixed:
     Weapon Level increment by weapon level ranks
     Copy rows of stats and paste rows of stats
+
+unload_unit
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

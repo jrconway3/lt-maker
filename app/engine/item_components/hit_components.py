@@ -344,13 +344,14 @@ class EvalTargetRestrict(ItemComponent):
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
+        from app.engine import evaluate
         try:
             unit = game.board.get_unit(def_pos)
-            if unit and eval(self.value):
+            if unit and evaluate.evaluate(self.value, unit, position=def_pos):
                 return True
             for s_pos in splash:
                 unit = game.board.get_unit(s_pos)
-                if eval(self.value):
+                if evaluate.evaluate(self.value, unit, position=s_pos):
                     return True
         except:
             return True

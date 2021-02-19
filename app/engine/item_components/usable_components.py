@@ -194,8 +194,9 @@ class CanUnlock(ItemComponent):
     value = 'True'
 
     def can_unlock(self, unit, item, region) -> bool:
+        from app.engine import evaluate
         try:
-            return bool(eval(self.value))
+            return bool(evaluate.evaluate(self.value, unit, item, region=region))
         except:
             print("Could not evaluate %s" % self.value)
         return False

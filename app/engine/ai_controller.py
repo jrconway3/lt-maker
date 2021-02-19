@@ -5,7 +5,7 @@ from app.constants import FRAMERATE
 from app.data.database import DB
 
 from app.engine import engine, action, interaction, combat_calcs, pathfinding, target_system, \
-    equations, item_system, item_funcs, skill_system, line_of_sight
+    equations, item_system, item_funcs, skill_system, line_of_sight, evaluate
 from app.engine.game_state import game
 
 import logging
@@ -105,11 +105,10 @@ class AIController():
         elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':
             # Get region
             region = None
-            unit, position = self.unit, self.goal_position
             for r in game.level.regions:
                 if r.contains(self.goal_position) and r.region_type == 'event' and r.sub_nid == self.behaviour.target_spec:
                     try:
-                        if not r.condition or eval(r.condition):
+                        if not r.condition or evaluate.evaluate(r.condition, self.unit, position=self.goal_position):
                             region = r
                             break
                     except:
@@ -536,7 +535,7 @@ def get_targets(unit, behaviour):
         all_targets = []
         for region in game.level.regions:
             try:
-                if region.region_type == 'event' and region.sub_nid == target_spec and (not region.condition or eval(region.condition)):
+                if region.region_type == 'event' and region.sub_nid == target_spec and (not region.condition or evaluate.evaluate(region.condition, unit)):
                     all_targets += region.get_all_positions()
             except:
                 print("Region Condition: Could not parse %s" % region.condition)

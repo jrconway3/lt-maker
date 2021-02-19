@@ -6,7 +6,7 @@ from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine, base_surf, image_mods, text_funcs, icons, \
+from app.engine import engine, base_surf, image_mods, text_funcs, icons, evaluate, \
     combat_calcs, skill_system, equations, item_system, item_funcs, menu_options
 import app.engine.config as cf
 from app.engine.game_state import game
@@ -205,12 +205,12 @@ class UIView():
     def eval_string(self, text):
         to_evaluate = re.findall(r'\{eval:[^{}]*\}', text)
         evaluated = []
-        for evaluate in to_evaluate:
+        for to_eval in to_evaluate:
             try:
-                val = eval(evaluate[6:-1])
+                val = evaluate.evaluate(to_eval[6:-1])
                 evaluated.append(str(val))
             except Exception as e:
-                print("Could not evaluate %s (%s)" % (evaluate[1:-1], e))
+                print("Could not evaluate %s (%s)" % (to_eval[1:-1], e))
                 evaluated.append('??')
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])

@@ -18,17 +18,18 @@ from app.engine.fluid_scroll import FluidScroll
 
 class PrepMainState(MapState):
     name = 'prep_main'
+    bg = None
+    menu = None
 
     def start(self):
         game.cursor.hide()
         game.cursor.autocursor()
         game.boundary.hide()
 
-        img = SPRITES.get('focus_fade').convert_alpha()
-        self.bg = SpriteBackground(img)
+        self.create_background()
 
         options = ['Manage', 'Formation', 'Options', 'Save', 'Fight']
-        if game.memory['prep_pick']:
+        if game.level_vars.get('_prep_pick'):
             options.insert(0, 'Pick Units')
         self.menu = menus.Choice(None, options, topleft='center')
 
@@ -45,6 +46,10 @@ class PrepMainState(MapState):
         # game.state.change('transition_in')
         # return 'repeat'
         # game.events.trigger('prep_start')
+
+    def create_background(self):
+        img = SPRITES.get('focus_fade').convert_alpha()
+        self.bg = SpriteBackground(img)
 
     def take_input(self, event):
         if self.fade_out:
@@ -101,6 +106,8 @@ class PrepMainState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
+        if not self.bg:
+            self.create_background()
         if self.bg:
             self.bg.draw(surf)
         if self.menu:
@@ -111,12 +118,14 @@ class PrepPickUnitsState(State):
     name = 'prep_pick_units'
 
     def start(self):
+        self.fluid = FluidScroll()
         player_units = game.get_units_in_party()
-        stuck_units = [unit for unit in player_units if unit.position and game.check_for_region(unit.position, 'Formation')]
-        unstuck_units = [unit for unit in player_units if unit not in stuck_units]
+        unstuck_units = [unit for unit in player_units if unit.position and game.check_for_region(unit.position, 'formation')]
+        stuck_units = [unit for unit in player_units if unit not in unstuck_units]
 
-        units = stuck_units + unstuck_units
+        units = stuck_units + sorted(unstuck_units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, units, (6, 2), (110, 24))
+        self.menu.set_mode('position')
 
         self.bg = background.create_background('rune_background')
         game.memory['prep_bg'] = self.bg
@@ -144,7 +153,7 @@ class PrepPickUnitsState(State):
 
         if event == 'SELECT':
             unit = self.menu.get_current()
-            if unit.position and game.check_for_region(unit.position, 'Formation'):
+            if unit.position and not game.check_for_region(unit.position, 'formation'):
                 SOUNDTHREAD.play_sfx('Select 4')  # Locked/Lord character
             elif unit.position and 'Required' in unit.tags:
                 SOUNDTHREAD.play_sfx('Select 4')  # Required unit, can't be removed
@@ -175,21 +184,23 @@ class PrepPickUnitsState(State):
             game.state.change('transition_to')
 
     def update(self):
+        game.map_view.update()  # For menu
         self.menu.update()
 
     def draw_pick_units_card(self, surf):
-        bg_surf = base_surf.create_base_surf((132, 24), 'menu_bg_white')
+        bg_surf = base_surf.create_base_surf(132, 24, 'menu_bg_white')
         player_units = game.get_units_in_party()
-        on_map = [unit for unit in game.level.units if unit.position and unit in player_units]
+        on_map = [unit for unit in game.level.units if unit.position and unit in player_units and game.check_for_region(unit.position, 'formation')]
         num_slots = game.level_vars.get('_prep_slots')
         if num_slots is None:
             num_slots = len(game.get_all_formation_spots())
-        pick_s = ['Pick ', str(num_slots - len(on_map), 'units  ', str(on_map), '/', str(num_slots))]
+        num_on_map = len(on_map)
+        pick_s = ['Pick ', str(num_slots - num_on_map), ' units  ', str(num_on_map), '/', str(num_slots)]
         pick_f = ['text-white', 'text-blue', 'text-white', 'text-blue', 'text-white', 'text-blue']
         left_justify = 8
         for word, font in zip(pick_s, pick_f):
-            FONT[pick_f].blit(word, bg_surf, (left_justify, 4))
-            left_justify += FONT[pick_f].width(word)
+            FONT[font].blit(word, bg_surf, (left_justify, 4))
+            left_justify += FONT[font].width(word)
         surf.blit(bg_surf, (110, 4))
 
     def draw(self, surf):
@@ -207,6 +218,7 @@ class PrepFormationState(MapState):
 
     def begin(self):
         game.cursor.show()
+        game.highlight.show_formation(game.get_all_formation_spots())
         game.boundary.show()
 
     def take_input(self, event):
@@ -221,7 +233,7 @@ class PrepFormationState(MapState):
         elif event == 'SELECT':
             cur_unit = game.cursor.get_hover()
             if cur_unit:
-                if game.check_for_region(game.cursor.position, 'Formation'):
+                if game.check_for_region(game.cursor.position, 'formation'):
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('prep_formation_select')
                 else:
@@ -240,12 +252,15 @@ class PrepFormationState(MapState):
             SOUNDTHREAD.play_sfx('Select 5')
             game.state.change('minimap')
 
-        def update(self):
-            super().update()
-            game.highlight.handle_hover()
+    def update(self):
+        super().update()
+        game.highlight.handle_hover()
 
-        def finish(self):
-            game.highlight.remove_highlights()
+    def finish(self):
+        game.ui_view.remove_unit_display()
+        game.cursor.hide()
+        game.highlight.hide_formation()
+        game.highlight.remove_highlights()
 
 class PrepFormationSelectState(MapState):
     name = 'prep_formation_select'
@@ -253,6 +268,7 @@ class PrepFormationSelectState(MapState):
     marker_offset = [0, 1, 2, 3, 4, 5, 4, 3, 2, 1]
 
     def start(self):
+        game.cursor.formation_show()
         self.last_update = engine.get_time()
         self.counter = 0
         self.unit = game.cursor.get_hover()
@@ -261,10 +277,10 @@ class PrepFormationSelectState(MapState):
         game.cursor.take_input()
 
         if event == 'SELECT':
-            if game.check_for_region(game.cursor.position, 'Formation'):
+            if game.check_for_region(game.cursor.position, 'formation'):
                 SOUNDTHREAD.play_sfx('FormationSelect')
                 cur_unit = game.cursor.get_hover()
-                if cur_unit.team != 'player':
+                if cur_unit and cur_unit.team != 'player':
                     pass
                 elif cur_unit:
                     game.leave(cur_unit)
@@ -301,7 +317,7 @@ class PrepFormationSelectState(MapState):
             y = (pos[1] - game.camera.get_y() - 1) * TILEHEIGHT
             surf.blit(self.marker, (x, y))
 
-        if game.check_for_region(game.cursor.position, 'Formation'):
+        if game.check_for_region(game.cursor.position, 'formation'):
             pos = game.cursor.position
             while engine.get_time() - 50 > self.last_update:
                 self.last_update += 50
@@ -328,7 +344,9 @@ class PrepManageState(State):
     def start(self):
         self.fluid = FluidScroll()
 
+        print(game.current_party)
         units = game.get_units_in_party()
+        print(units)
         units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, units, (4, 3), (6, 0))
         self.menu.set_mode('unit')

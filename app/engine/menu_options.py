@@ -344,7 +344,7 @@ class UnitOption(BasicOption):
         elif self.mode == 'position':
             if not self.unit.position:
                 font = 'text-grey'
-            elif self.unit.position and not game.check_for_region(self.unit.position, 'Formation'):
+            elif self.unit.position and not game.check_for_region(self.unit.position, 'formation'):
                 font = 'text-green'
             else:
                 font = 'text-white'

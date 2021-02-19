@@ -12,7 +12,6 @@ from app.engine.state import MapState
 from app.engine import engine, base_surf, image_mods
 
 import logging
-logger = logging.getLogger(__name__)
 
 class ActionLog():
     def __init__(self):
@@ -31,12 +30,12 @@ class ActionLog():
         self.unique_moves = []
 
     def append(self, action):
-        logger.info("Add Action %d: %s", self.action_index + 1, action.__class__.__name__)
+        logging.debug("Add Action %d: %s", self.action_index + 1, action.__class__.__name__)
         self.actions.append(action)
         self.action_index += 1
 
     def remove(self, action):
-        logger.info("Remove Action %d: %s", self.action_index, action.__class__.__name__)
+        logging.debug("Remove Action %d: %s", self.action_index, action.__class__.__name__)
         self.actions.remove(action)
         self.action_index -= 1
 
@@ -110,8 +109,8 @@ class ActionLog():
             elif last_move[1] < last_action_index:
                 self.unique_moves.append(('Extra', last_move[1] + 1, last_action_index))
 
-        logger.info("*** Turnwheel Begin ***")
-        logger.info(self.unique_moves)
+        logging.debug("*** Turnwheel Begin ***")
+        logging.debug(self.unique_moves)
 
         self.current_move_index = len(self.unique_moves)
 
@@ -134,7 +133,7 @@ class ActionLog():
             return None
 
         self.current_move = self.unique_moves[self.current_move_index - 1]
-        logger.info("Backward %s %s %s", self.current_move_index, self.current_move, self.action_index)
+        logging.debug("Backward %s %s %s", self.current_move_index, self.current_move, self.action_index)
         self.current_move_index -= 1
         action = None
 
@@ -155,7 +154,7 @@ class ActionLog():
                     prev_action = None
                     if self.action_index >= 1:
                         prev_action = self.actions[self.action_index]
-                        logger.info("Prev Action %s", prev_action)
+                        logging.debug("Prev Action %s", prev_action)
                     if self.current_unit.position:
                         game.cursor.set_pos(self.current_unit.position)
                     # Unless the current unit just DIED!
@@ -164,7 +163,7 @@ class ActionLog():
                     self.hover_on(self.current_unit)
                     text_list = self.get_unit_turn(self.current_unit, self.action_index)
                     self.current_move_index += 1
-                    logger.info("In Backward %s %s %s %s", text_list, self.current_unit.nid, self.current_unit.position, prev_action)
+                    logging.debug("In Backward %s %s %s %s", text_list, self.current_unit.nid, self.current_unit.position, prev_action)
                     return text_list
                 else:
                     while self.action_index >= self.current_move.begin:
@@ -198,7 +197,7 @@ class ActionLog():
             return None
 
         self.current_move = self.unique_moves[self.current_move_index]
-        logger.info("Forward %s %s %s", self.current_move_index, self.current_move, self.action_index)
+        logging.debug("Forward %s %s %s", self.current_move_index, self.current_move, self.action_index)
         self.current_move_index += 1
         action = None
 
@@ -211,7 +210,7 @@ class ActionLog():
                 elif isinstance(action, Action.Die):
                     game.cursor.set_pos(action.old_pos)
                 text_list = self.get_unit_turn(self.current_unit, self.action_index)
-                logger.info("In Forward %s %s %s", text_list, self.current_unit.name, action)
+                logging.debug("In Forward %s %s %s", text_list, self.current_unit.name, action)
                 self.current_unit = None
                 # Extra Moves
                 if self.current_move_index < len(self.unique_moves):
@@ -314,7 +313,7 @@ class ActionLog():
 
     def set_first_free_action(self):
         if self.first_free_action == -1:
-            logger.info("*** First Free Action ***")
+            logging.debug("*** First Free Action ***")
             self.first_free_action = self.action_index
 
     def hover_on(self, unit):

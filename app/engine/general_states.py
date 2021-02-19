@@ -12,7 +12,7 @@ from app.engine.game_state import game
 from app.engine import engine, action, menus, interaction, image_mods, \
     banner, save, phase, skill_system, target_system, item_system, \
     item_funcs, ui_view, info_menu, base_surf, gui, background, dialog, \
-    text_funcs, equations, menu_options
+    text_funcs, equations, evaluate
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES
 from app.engine.input_manager import INPUT
@@ -515,10 +515,9 @@ class MenuState(MapState):
         for region in game.level.regions:
             if region.region_type == 'event' and region.contains(self.cur_unit.position):
                 try:
-                    unit = self.cur_unit  # For condition
-                    logger.debug("Testing region: %s %s", region.condition, eval(region.condition))
+                    logger.debug("Testing region: %s %s", region.condition, evaluate.evaluate(region.condition, self.cur_unit))
                     # No duplicates
-                    if eval(region.condition) and region.sub_nid not in options:
+                    if evaluate.evaluate(region.condition, self.cur_unit) and region.sub_nid not in options:
                         options.append(region.sub_nid)
                         self.valid_regions.append(region)
                 except:

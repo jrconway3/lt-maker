@@ -75,7 +75,7 @@ class PropertiesMenu(QWidget):
         form.addWidget(self.title_box)
 
         self.party_box = PartyBox(self)
-        self.party_box.edit.currentIndexChanged.connect(self.party_changed)
+        self.party_box.edit.activated.connect(self.party_changed)
         form.addWidget(self.party_box)
 
         self.music_button = QPushButton("Edit Level's Music...", self)
@@ -162,7 +162,8 @@ class PropertiesMenu(QWidget):
         self.current.name = text
         self.state_manager.change_and_broadcast('ui_refresh_signal', None)
 
-    def party_changed(self, idx):
+    def party_changed(self):
+        idx = self.party_box.edit.currentIndex()
         party = DB.parties[idx]
         self.current.party = party.nid
 

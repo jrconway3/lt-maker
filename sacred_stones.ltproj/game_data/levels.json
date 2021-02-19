@@ -1001,7 +1001,7 @@
         "nid": "3",
         "name": "Ch. 3: The Bandits of Borgo",
         "tilemap": "Chapter 3",
-        "party": null,
+        "party": "Eirika",
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -1550,7 +1550,7 @@
         "nid": "4",
         "name": "Ch. 4: Ancient Horrors",
         "tilemap": "Chapter 4",
-        "party": null,
+        "party": "Eirika",
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -1563,8 +1563,8 @@
             "base": null
         },
         "objective": {
-            "simple": "Defeat enemy{br}Left {len(game.get_enemy_units())}",
-            "win": "Defeat enemy{br}Left {len(game.get_enemy_units())}",
+            "simple": "Defeat enemy,Left {eval:len(game.get_enemy_units())}",
+            "win": "Defeat enemy,Left {eval:len(game.get_enemy_units())}",
             "loss": "Eirika dies"
         },
         "units": [
@@ -2455,7 +2455,7 @@
         "nid": "5",
         "name": "Ch. 5: The Empire's Reach",
         "tilemap": "Chapter 5",
-        "party": null,
+        "party": "Eirika",
         "music": {
             "player_phase": null,
             "enemy_phase": null,

@@ -6,14 +6,13 @@ import app.engine.config as cf
 from app.engine.game_state import game
 
 import logging
-logger = logging.getLogger(__name__)
 
 class EventState(MapState):
     name = 'event'
     event = None
 
     def begin(self):
-        logger.info("Begin Event State")
+        logging.debug("Begin Event State")
         self.game_over: bool = False  # Whether we've called for a game over
         if not self.event:
             self.event = game.events.get()
@@ -39,7 +38,7 @@ class EventState(MapState):
         if self.event:
             self.event.update()
         else:
-            logger.info("Event complete")
+            logging.debug("Event complete")
             game.state.back()
             return 'repeat'
 
@@ -64,18 +63,19 @@ class EventState(MapState):
             next_level = DB.levels[current_level_index + 1]
             game.game_vars['_next_level_nid'] = next_level.nid
             game.state.clear()
-            logger.info('Creating save...')
+            logging.info('Creating save...')
             game.memory['save_kind'] = 'start'
             game.state.change('title_save')
         else:
-            logger.info('No more levels!')
+            logging.info('No more levels!')
             game.state.clear()
             game.state.change('title_start')
 
     def end_event(self):
-        logger.debug("Ending Event")
+        logging.debug("Ending Event")
+        game.events.end(self.event)
         if game.level_vars.get('_win_game'):
-            logger.info("Player Wins!")
+            logging.info("Player Wins!")
             # Update statistics here, if necessary
             if game.level_vars.get('_level_end_triggered'):
                 self.level_end()

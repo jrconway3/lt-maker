@@ -376,7 +376,10 @@ class UnitObject(Prefab):
         self.has_dropped = False
         self.has_taken = False
         self.has_given = False
-        
+
+    def __repr__(self):
+        return "Unit %s: %s" % (self.nid, self.position)
+
     def save(self):
         s_dict = {'nid': self.nid,
                   'position': self.position,

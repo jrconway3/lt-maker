@@ -12,6 +12,8 @@ from app.resources.tiles import TileSetCatalog, TileMapCatalog
 from app.resources.sounds import SFXCatalog, MusicCatalog
 from app.resources.combat_anims import CombatCatalog, CombatEffectCatalog
 
+import logging
+
 class Resources():
     save_data_types = ("icons16", "icons32", "icons80", "portraits", "animations", "panoramas",
                        "map_sprites", "combat_anims", "combat_effects", "music", "sfx", 
@@ -77,12 +79,12 @@ class Resources():
         else:
             save_data_types = self.save_data_types
         for data_type in save_data_types:
-            print("Resources: Loading %s from %s..." % (data_type, self.main_folder))
+            logging.info("Loading %s from %s..." % (data_type, self.main_folder))
             getattr(self, data_type).clear()  # Now always clears first
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
 
     def save(self, proj_dir, specific=None):
-        print("Starting Resource Serialization...")
+        logging.info("Starting Resource Serialization...")
         import time
         start = time.time_ns()/1e6
         # Make the directory to save this resource pack in
@@ -103,8 +105,8 @@ class Resources():
             getattr(self, data_type).save(data_dir)
 
         end = time.time_ns()/1e6
-        print("Total Time Taken for Resources: %s ms" % (end - start))
-        print('Done Resource Serializing!')
+        logging.info("Total Time Taken for Resources: %s ms" % (end - start))
+        logging.info('Done Resource Serializing!')
 
 RESOURCES = Resources()
 

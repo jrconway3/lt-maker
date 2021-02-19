@@ -11,7 +11,7 @@ from app.events.event_portrait import EventPortrait
 from app.data.level_units import UniqueUnit, GenericUnit
 
 from app.engine import dialog, engine, background, target_system, action, \
-    interaction, item_funcs, item_system, banner, skill_system, unit_funcs
+    interaction, item_funcs, item_system, banner, skill_system, unit_funcs, evaluate
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
@@ -39,7 +39,8 @@ class Event():
     skippable = {"speak", "transition", "wait", "bop_portrait",
                  "sound", "location_card"}
 
-    def __init__(self, commands, unit=None, unit2=None, position=None, region=None):
+    def __init__(self, nid, commands, unit=None, unit2=None, position=None, region=None):
+        self.nid = nid
         self.commands = commands.copy()
         self.command_idx = 0
 
@@ -75,6 +76,38 @@ class Event():
 
         # For map animations
         self.animations = []
+
+    def save(self):
+        ser_dict = {}
+        ser_dict['nid'] = self.nid
+        ser_dict['commands'] = self.commands
+        ser_dict['command_idx'] = self.command_idx
+        ser_dict['unit1'] = self.unit.nid if self.unit else None
+        ser_dict['unit2'] = self.unit2.nid if self.unit2 else None
+        ser_dict['region'] = self.region.nid if self.region else None
+        ser_dict['position'] = self.position
+        ser_dict['if_stack'] = self.if_stack
+        ser_dict['parse_stack'] = self.parse_stack
+        return ser_dict
+
+    @classmethod
+    def restore(cls, ser_dict):
+        unit = game.get_unit(ser_dict['unit1'])
+        unit2 = game.get_unit(ser_dict['unit2'])
+        region = None
+        if game.level:
+            for reg in game.level.regions:
+                if reg.nid == ser_dict['region']:
+                    region = reg
+                    break
+        position = ser_dict['position']
+        commands = ser_dict['commands']
+        nid = ser_dict['nid']
+        self = cls(nid, commands, unit, unit2, position, region)
+        self.command_idx = ser_dict['command_idx']
+        self.if_stack = ser_dict['if_stack']
+        self.parse_stack = ser_dict['parse_stack']
+        return self
 
     def update(self):
         current_time = engine.get_time()
@@ -171,7 +204,7 @@ class Event():
         """
         if command.nid == 'if':
             if not self.if_stack or self.if_stack[-1]:
-                truth = eval(command.values[0])
+                truth = evaluate.evaluate(command.values[0], self.unit, self.unit2, self.region, self.position)
                 self.if_stack.append(truth)
                 self.parse_stack.append(truth)
             else:
@@ -184,7 +217,7 @@ class Event():
                 return False
             # If we haven't encountered a truth yet
             if not self.parse_stack[-1]:
-                truth = eval(command.values[0])
+                truth = evaluate.evaluate(command.values[0], self.unit, self.unit2, self.region, self.position)
                 self.if_stack[-1] = truth
                 self.parse_stack[-1] = truth
             else:
@@ -405,7 +438,7 @@ class Event():
             nid = values[0]
             to_eval = values[1]
             try:
-                val = eval(to_eval)
+                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.region, self.position)
                 action.do(action.SetGameVar(nid, val))
             except:
                 logging.error("Could not evaluate {%s}" % to_eval)
@@ -415,7 +448,7 @@ class Event():
             nid = values[0]
             to_eval = values[1]
             try:
-                val = eval(to_eval)
+                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.region, self.position)
                 action.do(action.SetLevelVar(nid, val))
             except:
                 logging.error("Could not evaluate {%s}" % to_eval)
@@ -661,7 +694,7 @@ class Event():
                 b = True
             else:
                 b = False
-            game.memory['prep_pick'] = b
+            action.do(action.SetLevelVar('_prep_pick', b))
             game.state.change('prep_main')
             self.state = 'paused'  # So that the message will leave the update loop
 
@@ -833,19 +866,14 @@ class Event():
 
     def _evaluate_evals(self, text) -> str:
         # Set up variables so evals work well
-        unit = unit1 = self.unit
-        unit2 = self.unit2
-        position = self.position
-        region = self.region
-        
         to_evaluate = re.findall(r'\{eval:[^{}]*\}', text)
         evaluated = []
-        for evaluate in to_evaluate:
+        for to_eval in to_evaluate:
             try:
-                val = eval(evaluate[6:-1])
+                val = evaluate.evaluate(to_eval[6:-1], self.unit, self.unit2, self.region, self.position)
                 evaluated.append(str(val))
             except Exception as e:
-                logging.error("Could not evaluate %s (%s)" % (evaluate[6:-1], e))
+                logging.error("Could not evaluate %s (%s)" % (to_eval[6:-1], e))
                 evaluated.append('??')
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])
@@ -854,8 +882,8 @@ class Event():
     def _evaluate_vars(self, text) -> str:
         to_evaluate = re.findall(r'\{var:[^{}]*\}', text)
         evaluated = []
-        for evaluate in to_evaluate:
-            key = evaluate[5:-1]
+        for to_eval in to_evaluate:
+            key = to_eval[5:-1]
             if key in game.level_vars:
                 val = str(game.level_vars[key])
             elif key in game.game_vars:
@@ -1177,6 +1205,7 @@ class Event():
             if create:
                 unit = self.copy_unit(unit)
             elif unit.position or unit.dead:
+                logging.warning("Unit %s in group %s already on map or dead", unit.nid, group.nid)
                 continue
             position = self._get_position(next_pos, unit, group)
             if not position:

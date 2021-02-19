@@ -11,7 +11,6 @@ from app.engine.input_manager import INPUT
 from app.engine.fluid_scroll import FluidScroll
 
 import logging
-logger = logging.getLogger(__name__)
 
 class Cursor():
     def __init__(self):
@@ -53,11 +52,14 @@ class Cursor():
     def set_turnwheel_sprite(self):
         self.draw_state = 3
 
+    def formation_show(self):
+        self.draw_state = 4
+
     def set_speed_state(self, val: bool):
         self.speed_state = val
 
     def set_pos(self, pos):
-        logger.info("New position %s", pos)
+        logging.debug("New position %s", pos)
         self.position = pos
         self.offset_x, self.offset_y = 0, 0
         game.camera.set_xy(*self.position)
@@ -255,7 +257,12 @@ class Cursor():
         self.cursor_counter.update(engine.get_time())
         left = self.cursor_counter.count * TILEWIDTH * 2
         hovered_unit = self.get_hover()
-        if self.draw_state == 2:
+        if self.draw_state == 4:
+            if game.check_for_region(self.position, 'formation'):
+                self.image = engine.subsurface(self.formation_sprite, (0, 0, 32, 32))
+            else:
+                self.image = engine.subsurface(self.formation_sprite, (32, 0, 32, 32))
+        elif self.draw_state == 2:
             self.image = engine.subsurface(self.red_sprite, (left, 0, 32, 32))
         elif self.draw_state == 3:  # Green for turnwheel
             self.image = engine.subsurface(self.green_sprite, (left, 0, 32, 32))

@@ -5,6 +5,8 @@ from app.data import constants, stats, equations, tags, weapons, factions, terra
     minimap, items, klass, units, parties, ai, translations, skills, levels, lore
 from app.events import event_prefab
 
+import logging
+
 class Database(object):
     save_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                        "weapons", "factions", "items", "skills", "tags", "classes", 
@@ -38,7 +40,7 @@ class Database(object):
     # === Saving and loading important data functions ===
     def restore(self, save_obj):
         for data_type in self.save_data_types:
-            print("Database: Restoring %s..." % data_type)
+            logging.info("Database: Restoring %s..." % data_type)
             getattr(self, data_type).restore(save_obj[data_type])
 
     def save(self):
@@ -51,7 +53,7 @@ class Database(object):
         data_dir = os.path.join(proj_dir, 'game_data')
         if not os.path.exists(data_dir):
             os.mkdir(data_dir)
-        print("Serializing data in %s..." % data_dir)
+        logging.info("Serializing data in %s..." % data_dir)
 
         import time
         start = time.time_ns()/1e6
@@ -61,32 +63,32 @@ class Database(object):
         for key, value in to_save.items():
             temp_save_loc = os.path.join(data_dir, key + '_temp.json')
             save_loc = os.path.join(data_dir, key + '.json')
-            print("Serializing %s to %s" % (key, save_loc))
+            logging.info("Serializing %s to %s" % (key, save_loc))
             with open(temp_save_loc, 'w') as serialize_file:
                 json.dump(value, serialize_file, indent=4)
             os.replace(temp_save_loc, save_loc)
 
         end = time.time_ns()/1e6
-        print("Total Time Taken for Database: %s ms" % (end - start))
-        print("Done serializing!")
+        logging.info("Total Time Taken for Database: %s ms" % (end - start))
+        logging.info("Done serializing!")
 
     def load(self, proj_dir):
         data_dir = os.path.join(proj_dir, 'game_data')
-        print("Deserializing data from %s..." % data_dir)
+        logging.info("Deserializing data from %s..." % data_dir)
 
         save_obj = {}
         for key in self.save_data_types:
             save_loc = os.path.join(data_dir, key + '.json')
             if os.path.exists(save_loc):
-                print("Deserializing %s from %s" % (key, save_loc))
+                logging.info("Deserializing %s from %s" % (key, save_loc))
                 with open(save_loc) as load_file:
                     save_obj[key] = json.load(load_file)
             else:
-                print("%s does not exist!" % save_loc)
+                logging.warning("%s does not exist!" % save_loc)
                 save_obj[key] = []
 
         self.restore(save_obj)
-        print("Done deserializing!")
+        logging.info("Done deserializing!")
 
 DB = Database()
 

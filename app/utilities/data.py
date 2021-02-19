@@ -1,3 +1,5 @@
+import logging
+
 class Data(object):
     """
     Only accepts data points that have nid attribute
@@ -47,14 +49,14 @@ class Data(object):
             old_value.nid = new_key
             self._dict[new_key] = old_value
         else:
-            print('%s not found in self._dict' % old_key)
+            logging.error('%s not found in self._dict' % old_key)
 
     def append(self, val):
         if val.nid not in self._dict:
             self._list.append(val)
             self._dict[val.nid] = val
         else:
-            print("%s already present in data" % val.nid)
+            logging.warning("%s already present in data" % val.nid)
 
     def delete(self, val):
         # Fails silently

@@ -26,6 +26,8 @@ class HighlightController():
 
         self.current_hover = None
 
+        self.formation_highlights = []
+
     def check_in_move(self, position):
         return position in self.highlights['move']
 
@@ -86,10 +88,24 @@ class HighlightController():
         self.display_moves(valid_moves, light=light)
         return valid_moves
 
+    def show_formation(self, positions: list):
+        self.formation_highlights += positions
+
+    def hide_formation(self):
+        self.formation_highlights.clear()
+
     def update(self):
         self.update_idx = (self.update_idx + 1) % 64
 
     def draw(self, surf):
+        # Handle Formation Highlight
+        formation_image = SPRITES.get('highlight_blue')
+        rect = (self.update_idx//4 * TILEWIDTH, 0, TILEWIDTH, TILEHEIGHT)
+        formation_image = engine.subsurface(formation_image, rect)
+        for position in self.formation_highlights:
+            surf.blit(formation_image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT))
+
+        # Regular highlights
         for name, highlight_set in self.highlights.items():
             if not highlight_set:
                 continue

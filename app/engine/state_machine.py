@@ -1,5 +1,4 @@
 import logging
-logger = logging.getLogger(__name__)
 
 class SimpleStateMachine():
     def __init__(self, starting_state):
@@ -137,7 +136,7 @@ class StateMachine():
 
     def process_temp_state(self):
         if self.temp_state:
-            logger.info("Temp State: %s", self.temp_state)
+            logging.debug("Temp State: %s", self.temp_state)
         for transition in self.temp_state:
             if transition == 'pop':
                 if self.state:
@@ -152,7 +151,7 @@ class StateMachine():
                 new_state = self.all_states[transition](transition)
                 self.state.append(new_state)
         if self.temp_state:
-            logger.info("State: %s", [s.name for s in self.state])
+            logging.debug("State: %s", [s.name for s in self.state])
         self.temp_state.clear()
         
     def update(self, event, surf):

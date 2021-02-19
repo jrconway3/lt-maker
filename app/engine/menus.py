@@ -1030,7 +1030,7 @@ class Table(Simple):
         max_width = max(option.width() for option in self.options)
         total_width = max_width * self.columns
         total_width = total_width - total_width%8
-        if self.mode in ('unit', 'position'):
+        if self.mode in ('unit',):
             total_width += 32
         return total_width
 
@@ -1068,7 +1068,7 @@ class Table(Simple):
             for idx, choice in enumerate(choices):
                 top = topleft[1] + 4 + (idx // self.columns * height)
                 left = topleft[0] + (idx % self.columns * width)
-                if self.mode in ('unit', 'position'):
+                if self.mode in ('unit',):
                     left += 16
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
@@ -1100,7 +1100,7 @@ class Table(Simple):
         for idx, choice in enumerate(choices):
             top = topleft[1] + 4 + (idx // self.columns * height)
             left = topleft[0] + (idx % self.columns * width)
-            if self.mode in ('unit', 'position'):
+            if self.mode in ('unit',):
                 left += 16
             rect = (left, top, width, height)
             rects.append(rect)
@@ -1168,7 +1168,7 @@ class Convoy():
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item))
             value.sort(key=lambda item: item.name)
-            value.sort(key=lambda item: item_system.sell_price(self.unit, item))
+            value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
 
         return sorted_dict
 
@@ -1429,7 +1429,7 @@ class Market(Convoy):
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item))
             value.sort(key=lambda item: item.name)
-            value.sort(key=lambda item: item_system.sell_price(self.unit, item))
+            value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
 
         return sorted_dict
 

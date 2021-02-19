@@ -79,10 +79,11 @@ class CombatArtAllowedWeapons(SkillComponent):
     expose = Type.String
 
     def combat_art_weapon_filter(self, unit) -> list:
+        from app.engine import evaluate
         good_weapons = []
         for item in item_funcs.get_all_items(unit):
             try:
-                if bool(eval(self.value)):
+                if bool(evaluate.evaluate(self.value)):
                     good_weapons.append(item)
             except:
                 print("Couldn't evaluate conditional: %s" % self.value)

@@ -175,6 +175,7 @@ class GameState():
                   'current_party': self.current_party,
                   'state': self.state.save(),
                   'action_log': self.action_log.save(),
+                  'events': self.events.save(),
                   'records': self.records.save(),
                   'market_items': self.market_items,  # Item nids
                   'unlocked_lore': self.unlocked_lore,
@@ -208,6 +209,7 @@ class GameState():
 
     def load(self, s_dict):
         from app.engine import turnwheel, records
+        from app.events import event_manager
 
         from app.engine.objects.item import ItemObject
         from app.engine.objects.skill import SkillObject
@@ -261,6 +263,8 @@ class GameState():
                 self.arrive(unit)
 
             self.cursor.autocursor()
+
+        self.events = event_manager.EventManager.restore(s_dict.get('events'))
 
     def clean_up(self):
         from app.engine import item_system, skill_system, item_funcs, action
@@ -351,22 +355,22 @@ class GameState():
         return [unit for unit in self.unit_registry.values() if unit.team == 'player' and not unit.generic and unit.party == party]
 
     def register_unit(self, unit):
-        logger.info("Registering unit %s as %s", unit, unit.nid)
+        logger.debug("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
 
     def register_item(self, item):
-        logger.info("Registering item %s as %s", item, item.uid)
+        logger.debug("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
         # For multi-items
         for subitem in item.subitems:
             self.item_registry[subitem.uid] = subitem
 
     def register_skill(self, skill):
-        logger.info("Registering skill %s as %s", skill, skill.uid)
+        logger.debug("Registering skill %s as %s", skill, skill.uid)
         self.skill_registry[skill.uid] = skill
 
     def register_terrain_status(self, pos, skill_uid):
-        logger.info("Registering terrain status %s", skill_uid)
+        logger.debug("Registering terrain status %s", skill_uid)
         self.terrain_status_registry[pos] = skill_uid
 
     def get_unit(self, unit_nid):
@@ -409,7 +413,7 @@ class GameState():
     def leave(self, unit, test=False):
         from app.engine import action
         if unit.position:
-            logger.info("Leave %s %s", unit.nid, unit.position)
+            logger.debug("Leave %s %s", unit.nid, unit.position)
             if not test:
                 self.board.remove_unit(unit.position, unit)
                 self.boundary.leave(unit)
@@ -435,7 +439,7 @@ class GameState():
     def arrive(self, unit, test=False):
         from app.engine import skill_system
         if unit.position:
-            logger.info("Arrive %s %s", unit.nid, unit.position)
+            logger.debug("Arrive %s %s", unit.nid, unit.position)
             if not test:
                 self.board.set_unit(unit.position, unit)
                 self.boundary.arrive(unit)

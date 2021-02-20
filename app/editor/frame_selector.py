@@ -14,8 +14,8 @@ from app.editor.settings import MainSettingsController
 
 from app.extensions.custom_gui import Dialog
 from app.editor.base_database_gui import ResourceCollectionModel
-from app.editor.icon_display import IconView
-from app.editor import combat_animation_imports
+from app.editor.icon_editor.icon_view import IconView
+from app.editor.combat_animation_editor import combat_animation_imports
 import app.editor.utilities as editor_utilities
 
 class FrameModel(ResourceCollectionModel):

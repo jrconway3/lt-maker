@@ -399,11 +399,14 @@ class TitleExtrasState(TitleLoadState):
         elif event == 'SELECT':
             selection = self.menu.get_current()
             if selection == 'Credits':
-                game.state.change('credits')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'credits'
+                game.state.change('transition_to')
             elif selection == 'Options':
-                game.state.change('config_menu')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'settings_menu'
+                game.state.change('transition_to')
+
+                #game.state.change('config_menu')
+                #game.state.change('transition_out')
 
 class TitleWaitState(State):
     name = 'title_wait'

@@ -3334,10 +3334,7 @@
                 "nid": "Joshua",
                 "team": "player",
                 "ai": "None",
-                "starting_position": [
-                    2,
-                    3
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
@@ -3345,8 +3342,8 @@
                 "team": "enemy",
                 "ai": "None",
                 "starting_position": [
-                    4,
-                    3
+                    2,
+                    5
                 ],
                 "generic": false
             },
@@ -3354,10 +3351,7 @@
                 "nid": "Ross",
                 "team": "other",
                 "ai": "None",
-                "starting_position": [
-                    10,
-                    5
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
@@ -3365,8 +3359,8 @@
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
-                    6,
-                    3
+                    2,
+                    6
                 ],
                 "generic": false
             },
@@ -3392,10 +3386,7 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
-                "starting_position": [
-                    6,
-                    10
-                ],
+                "starting_position": null,
                 "name": null,
                 "desc": null,
                 "generic": true
@@ -3404,10 +3395,7 @@
                 "nid": "Colm",
                 "team": "player",
                 "ai": "None",
-                "starting_position": [
-                    5,
-                    9
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
@@ -3424,10 +3412,7 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
-                "starting_position": [
-                    14,
-                    14
-                ],
+                "starting_position": null,
                 "name": null,
                 "desc": null,
                 "generic": true
@@ -3446,10 +3431,7 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
-                "starting_position": [
-                    1,
-                    4
-                ],
+                "starting_position": null,
                 "name": null,
                 "desc": null,
                 "generic": true
@@ -3476,10 +3458,7 @@
                 ],
                 "team": "player",
                 "ai": "None",
-                "starting_position": [
-                    3,
-                    5
-                ],
+                "starting_position": null,
                 "name": null,
                 "desc": null,
                 "generic": true
@@ -3498,13 +3477,20 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
-                "starting_position": [
-                    3,
-                    7
-                ],
+                "starting_position": null,
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Seth",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    4
+                ],
+                "generic": false
             }
         ],
         "regions": [

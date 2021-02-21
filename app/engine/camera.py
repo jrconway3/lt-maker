@@ -86,6 +86,13 @@ class Camera():
         y = self._center_y(y)
         self.current_y = self.target_y = y
 
+    def set_center2(self, pos1, pos2):
+        x1, y1 = pos1
+        x2, y2 = pos2
+        mid_x = (x1 + x2) // 2
+        mid_y = (y1 + y2) // 2
+        self.set_center(mid_x, mid_y)
+
     def get_x(self):
         return self.current_x
 

@@ -22,12 +22,18 @@ def can_use(unit, item) -> bool:
 
 def buy_price(unit, item):
     value = item_system.buy_price(unit, item)
-    value *= skill_system.modify_buy_price(unit, item)
+    if value:
+        value *= skill_system.modify_buy_price(unit, item)
+    else:
+        return 0
     return int(value)
 
 def sell_price(unit, item):
     value = item_system.sell_price(unit, item)
-    value *= skill_system.modify_sell_price(unit, item)
+    if value:
+        value *= skill_system.modify_sell_price(unit, item)
+    else:
+        return 0
     return int(value)
 
 # def can_wield(unit, item) -> bool:

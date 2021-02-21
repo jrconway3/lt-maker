@@ -4282,7 +4282,7 @@
                 "speak",
                 [
                     "Amelia",
-                    "Hope everyone's well back home in Silva. Just a bit more, and I'll be in the empire.|Let's see, I\u2019ve got vulneraries, antitoxins...|Oh! And I can't let myself forget torches for when it gets dark.|Yep! I'm all set!{br}Now I just need to get to the capital.|I'll be the finest soldier the Grado army's ever seen! I swear it!"
+                    "Hope everyone's well back home in Silva. Just a bit more, and I'll be in the empire.|Let's see, I've got vulneraries, antitoxins...|Oh! And I can't let myself forget torches for when it gets dark.|Yep! I'm all set!{br}Now I just need to get to the capital.|I'll be the finest soldier the Grado army's ever seen! I swear it!"
                 ]
             ],
             [
@@ -5032,35 +5032,35 @@
                 "speak",
                 [
                     "Natasha",
-                    "You...You\u2019re that man I met...|Are you here to capture me? You\u2019ve been hired to silence me, haven\u2019t you..."
+                    "You...You're that man I met...|Are you here to capture me? You've been hired to silence me, haven't you..."
                 ]
             ],
             [
                 "speak",
                 [
                     "Joshua",
-                    "Yeah, Grado\u2019s paying the bill.{br}They want you dead, you know?|But don\u2019t feel bad. It\u2019s not personal."
+                    "Yeah, Grado's paying the bill.{br}They want you dead, you know?|But don't feel bad. It's not personal."
                 ]
             ],
             [
                 "speak",
                 [
                     "Natasha",
-                    "Wait, please...|It doesn\u2019t matter what happens to me, but you must hear my words.|The emperor of Grado is changed.{br}He is not the man he once was.|The other nations must be warned before he extinguishes all light from out lands."
+                    "Wait, please...|It doesn't matter what happens to me, but you must hear my words.|The emperor of Grado is changed.{br}He is not the man he once was.|The other nations must be warned before he extinguishes all light from out lands."
                 ]
             ],
             [
                 "speak",
                 [
                     "Joshua",
-                    "Hey, no offense, but I\u2019m just a mercenary. I don\u2019t care about Grado or its emperor.|Everything you say may be true, or it may be lies. I don\u2019t care either way."
+                    "Hey, no offense, but I'm just a mercenary. I don't care about Grado or its emperor.|Everything you say may be true, or it may be lies. I don't care either way."
                 ]
             ],
             [
                 "speak",
                 [
                     "Natasha",
-                    "But that\u2019s..."
+                    "But that's..."
                 ]
             ],
             [
@@ -5081,14 +5081,14 @@
                 "speak",
                 [
                     "Joshua",
-                    "Gambling\u2019s what I live for. Even when I lose, I never want to stop.|Let\u2019s have us a little wager.{br}If you win, I\u2019ll believe you.|Heads or tails, you call it."
+                    "Gambling's what I live for. Even when I lose, I never want to stop.|Let's have us a little wager.{br}If you win, I'll believe you.|Heads or tails, you call it."
                 ]
             ],
             [
                 "speak",
                 [
                     "Natasha",
-                    "You can\u2019t...{br}This is no time for games..."
+                    "You can't...{br}This is no time for games..."
                 ]
             ],
             [
@@ -5109,7 +5109,7 @@
                 "speak",
                 [
                     "Joshua",
-                    "All right. So I\u2019m heads, and you\u2019re tails.|Here we go.|... ... ..."
+                    "All right. So I'm heads, and you're tails.|Here we go.|... ... ..."
                 ]
             ],
             [
@@ -5123,7 +5123,7 @@
                 "speak",
                 [
                     "Joshua",
-                    "What do you know?!{w}{clear}It\u2019s tails. You win. Figures. I haven\u2019t won anything all day.|Well, Lady Luck has spoken.{br}Guess I\u2019m on your side now."
+                    "What do you know?!{w}{clear}It's tails. You win. Figures. I haven't won anything all day.|Well, Lady Luck has spoken.{br}Guess I'm on your side now."
                 ]
             ],
             [
@@ -5137,7 +5137,7 @@
                 "speak",
                 [
                     "Joshua",
-                    "Yeah. Sure, I might cheat, but I never worm out of a bet. It\u2019s a rule of mine."
+                    "Yeah. Sure, I might cheat, but I never worm out of a bet. It's a rule of mine."
                 ]
             ],
             [
@@ -5151,7 +5151,7 @@
                 "speak",
                 [
                     "Joshua",
-                    "I got nothing against heaven, but I\u2019m right here if you want someone to thank...|No? Well , get behind me then. I\u2019ve got to take care of these fools."
+                    "I got nothing against heaven, but I'm right here if you want someone to thank...|No? Well, get behind me then. I've got to take care of these fools."
                 ]
             ],
             [
@@ -6165,24 +6165,21 @@
         "condition": "True",
         "commands": [
             [
-                "level_var",
+                "comment",
                 [
-                    "_fog_of_war",
-                    "1"
+                    "# level_var;_fog_of_war;1"
                 ]
             ],
             [
-                "level_var",
+                "comment",
                 [
-                    "_fog_of_war_radius",
-                    "8"
+                    "# level_var;_fog_of_war_radius;8"
                 ]
             ],
             [
-                "speak",
+                "comment",
                 [
-                    "Joshua",
-                    "Say, how are doing {red}head?|The fog of war is{/red}not red."
+                    "# speak;Joshua;Say, how are doing {red}head?|The fog of war is{/red}not red."
                 ]
             ]
         ],
@@ -9460,21 +9457,21 @@
             [
                 "add_portrait",
                 [
-                    "Brigand1",
+                    "Bandit1",
                     "FarRight"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Brigand1",
+                    "Bandit1",
                     "Look at this. Now's our chance!|C'mon, lads!|Let's join the fights and steal our way through this pathetic town!"
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "Brigand1"
+                    "Bandit1"
                 ]
             ]
         ],
@@ -11563,6 +11560,13 @@
                 "comment",
                 [
                     "# Now actually start!"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Natasha",
+                    "Joshua"
                 ]
             ]
         ],

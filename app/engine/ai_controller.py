@@ -219,7 +219,8 @@ class AIController():
                 done, self.goal_position = self.inner_ai.run()
                 if done:
                     if self.goal_position:
-                        success = True
+                        if self.goal_position != self.unit.position:
+                            success = True
                         self.state = "Done"
                     else:
                         self.state = "Init"  # Try another behaviour
@@ -588,7 +589,10 @@ class SecondaryAI():
         if self.view_range == -3:
             self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.double_move]
         elif self.view_range == -2:
-            self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.single_move]
+            if self.behaviour.action in ('Attack', 'Support', 'Steal'):
+                self.available_targets = []  # Because the primary AI should have already taken care of this...
+            else:
+                self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.single_move]
         elif self.view_range == -1:
             self.available_targets = []
         else:

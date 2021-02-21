@@ -814,6 +814,8 @@ class ItemChildState(MapState):
 
 class ItemDiscardState(MapState):
     name = 'item_discard'
+    menu = None
+    pennant = None
 
     def start(self):
         game.cursor.hide()
@@ -829,8 +831,8 @@ class ItemDiscardState(MapState):
     def begin(self):
         self.menu.update_options(self.cur_unit.items)
         # Don't need to do this if we are under items
-        if (len(self.cur_unit.accessories) <= DB.constants.value('max_accessories') and
-                len(self.cur_unit.nonaccessories) <= DB.constants.value('max_items')):
+        if (len(self.cur_unit.accessories) <= DB.constants.value('num_accessories') and
+                len(self.cur_unit.nonaccessories) <= DB.constants.value('num_items')):
             game.state.back()
             return 'repeat'
 
@@ -852,7 +854,8 @@ class ItemDiscardState(MapState):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
-            game.memory['option_owner'] = selection
+            owner = 'Storage' if game.game_vars.get('_convoy') else 'Discard'
+            game.memory['option_owner'] = owner
             game.memory['option_item'] = selection
             game.memory['option_unit'] = self.cur_unit
             game.memory['option_menu'] = self.menu
@@ -870,7 +873,8 @@ class ItemDiscardState(MapState):
         if self.pennant:
             draw_on_top = game.cursor.position[1] >= game.tilemap.height - 1
             self.pennant.draw(surf, draw_on_top)
-        surf = self.menu.draw(surf)
+        if self.menu:
+            surf = self.menu.draw(surf)
         return surf
 
 class WeaponChoiceState(MapState):
@@ -1472,6 +1476,12 @@ class AIState(MapState):
             # Center camera on current unit
             if did_something and self.cur_unit.position:
                 game.cursor.set_pos(self.cur_unit.position)
+                if game.ai.goal_target:
+                    game.camera.set_center2(self.cur_unit.position, game.ai.goal_target)
+                elif game.ai.goal_position:
+                    game.camera.set_center2(self.cur_unit.position, game.ai.goal_position)
+                else:
+                    game.camera.set_center(*self.cur_unit.position)  # Actually center the camera
                 game.state.change('move_camera')
 
             if game.ai.is_done():

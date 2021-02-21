@@ -132,8 +132,10 @@ class Cursor():
         lord_units = [unit for unit in player_units if 'Lord' in unit.tags]
         if lord_units:
             self.set_pos(lord_units[0].position)
+            game.camera.set_center(*self.position)
         elif player_units:
             self.set_pos(player_units[0].position)
+            game.camera.set_center(*self.position)
 
     def place_arrows(self):
         self.path.clear()

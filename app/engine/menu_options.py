@@ -188,7 +188,7 @@ class ItemOption(BasicOption):
             uses_font = self.color
             if main_font == 'text-white':
                 uses_font = 'text-blue'
-        elif item_funcs.available(owner, self.item):
+        elif not owner or item_funcs.available(owner, self.item):
             main_font = 'text-white'
             uses_font = 'text-blue'
         return main_font, uses_font

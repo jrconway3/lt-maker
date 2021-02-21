@@ -14,6 +14,7 @@ class SingleDatabaseEditor(QDialog):
         self.main_editor = self.window
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        self.setWindowFlag(Qt.WindowMinMaxButtonsHint, True)
 
         self.save()
 
@@ -95,6 +96,7 @@ class SingleResourceEditor(QDialog):
         self.resource_types = resource_types
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        self.setWindowFlag(Qt.WindowMinMaxButtonsHint, True)
 
         self.grid = QGridLayout(self)
         self.setLayout(self.grid)
@@ -154,6 +156,7 @@ class MultiResourceEditor(SingleResourceEditor):
         self.setWindowTitle("Resource Editor")
         self.setStyleSheet("font: 10pt;")
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        self.setWindowFlag(Qt.WindowMinMaxButtonsHint, True)
 
         self.grid = QGridLayout(self)
         self.setLayout(self.grid)

@@ -1,10 +1,11 @@
-import time, os
+import time, os, pickle
+from pprint import pprint
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
     QLabel, QToolButton, QInputDialog, QColorDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QByteArray, QDataStream, QIODevice
 from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter, QColor
 
 from app.constants import WINWIDTH, WINHEIGHT
@@ -15,13 +16,13 @@ from app.resources import combat_anims
 
 from app.editor.settings import MainSettingsController
 
-from app.editor.timer import TIMER
-from app.editor.icon_display import IconView
+from app.editor.timer import get_timer
+from app.editor.icon_editor.icon_view import IconView
 from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
 from app.editor.palette_display import PaletteMenu
 from app.editor.timeline_menu import TimelineMenu
 from app.editor.frame_selector import FrameSelector
-import app.editor.combat_animation_imports as combat_animation_imports
+import app.editor.combat_animation_editor.combat_animation_imports as combat_animation_imports
 from app.extensions.custom_gui import ResourceListView, ComboBox, DeletionDialog
 
 import app.editor.utilities as editor_utilities
@@ -132,8 +133,9 @@ class CombatAnimProperties(QWidget):
         # Populate resources
         for combat_anim in self._data:
             for weapon_anim in combat_anim.weapon_anims:
-                if not weapon_anim.pixmap:
+                if not hasattr(weapon_anim, 'pixmap'):
                     weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
+
                 for frame in weapon_anim.frames:
                     x, y, width, height = frame.rect
                     frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
@@ -279,7 +281,7 @@ class CombatAnimProperties(QWidget):
         self.setLayout(final_section)
         final_section.addWidget(main_splitter)
 
-        TIMER.tick_elapsed.connect(self.tick)
+        get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
         self.draw_frame()
@@ -386,7 +388,7 @@ class CombatAnimProperties(QWidget):
     def get_available_weapon_types(self) -> list:
         items = []
         for weapon in DB.weapons:
-            if weapon.magic:
+            if hasattr(weapon, 'magic'):
                 items.append("Magic" + weapon.nid)
             else:
                 items.append(weapon.nid)
@@ -432,13 +434,46 @@ class CombatAnimProperties(QWidget):
 
         current_weapon_nid = self.weapon_box.currentText()
         current_weapon = self.current.weapon_anims.get(current_weapon_nid)
+
         # Make a copy
-        ser = current_weapon.serialize()
-        new_weapon = combat_anims.WeaponAnimation.deserialize(ser)
+        has_pixmap = False
+
+        main_pixmap_backup = None
+        if hasattr(current_weapon, 'pixmap'):
+            main_pixmap_backup = current_weapon.pixmap #Could contain references
+            current_weapon.pixmap = None
+            has_pixmap = True
+
+            for index in range(0,len(current_weapon.frames)):
+                frame = current_weapon.frames[index]
+                frame.pixmap = None
+
+        # Pickle (Serialize)
+        ser = pickle.dumps(current_weapon)
+        new_weapon = pickle.loads(ser)
+
         new_weapon.nid = new_nid
+
+        # Restore pixmaps
+        if has_pixmap:
+            current_weapon.pixmap = main_pixmap_backup           
+            new_weapon.pixmap = QPixmap(current_weapon.full_path)
+
+            for index in range(0,len(current_weapon.frames)):
+                frame = current_weapon.frames[index]
+                new_frame = new_weapon.frames[index]
+                x, y, width, height = frame.rect
+
+                frame.pixmap = current_weapon.pixmap.copy(x, y, width, height)
+                
+                new_frame.nid = frame.nid
+                new_frame.rect = frame.rect 
+                new_frame.pixmap = current_weapon.pixmap.copy(x, y, width, height)
+
         self.current.weapon_anims.append(new_weapon)
         self.weapon_box.addItem(new_nid)
         self.weapon_box.setValue(new_nid)
+
         return new_weapon
 
     def delete_weapon(self):

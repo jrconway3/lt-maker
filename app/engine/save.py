@@ -157,6 +157,18 @@ def load_restarts():
         save_slots.append(ss)
     return save_slots
 
+def get_all_saves():
+    """
+    Grabs all the turn_change saves
+    """
+    save_slots = []
+    name = 'saves/' + GAME_NID + '-turn_change-*-*.pmeta'
+    for meta_fn in glob.glob(name):
+        ss = SaveSlot(meta_fn, 0)
+        save_slots.append(ss)
+    save_slots = sorted(save_slots, key=lambda x: x.realtime, reverse=True)
+    return save_slots
+
 def remove_suspend():
     if not cf.SETTINGS['debug'] and os.path.exists(SUSPEND_LOC):
         os.remove(SUSPEND_LOC)

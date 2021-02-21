@@ -184,7 +184,9 @@ class SettingsMenuState(State):
         SOUNDTHREAD.play_sfx('Select 4')
         cf.save_settings()
         self.update_sound()
-        game.cursor.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+        if game.cursor is not None:
+            game.cursor.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+            
         game.state.change('transition_pop')
 
     def update_sound(self):

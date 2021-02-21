@@ -103,7 +103,7 @@ def simple_check(dest_pos: tuple, team: str, max_range: int) -> bool:
     """
     Returns true if can see position with line of sight
     """
-    player_pos = [unit.position for unit in game.level.units if unit.position and unit.team == team]
+    player_pos = [unit.position for unit in game.units if unit.position and unit.team == team]
     for s_pos in player_pos:
         if s_pos == dest_pos:
             return True

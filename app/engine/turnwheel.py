@@ -390,7 +390,7 @@ class TurnwheelDisplay():
         surf.blit(turn_bg, (WINWIDTH - 52, 4 + self.transition))
         # Unit Count
         count_bg = base_surf.create_base_surf(48, 24, 'trans_menu_bg_base')
-        player_units = [unit for unit in game.level.units if unit.team == 'player' and unit.position]
+        player_units = [unit for unit in game.units if unit.team == 'player' and unit.position]
         unused_units = [unit for unit in player_units if not unit.finished]
         count_str = str(len(unused_units)) + "/" + str(len(player_units))
         count_width = FONT['text-blue'].width(count_str)
@@ -407,7 +407,7 @@ class TurnwheelDisplay():
 class TurnwheelState(MapState):
     def begin(self):
         # Kill off any units who are currently dying
-        for unit in game.level.units:
+        for unit in game.units:
             if unit.is_dying:
                 game.death.force_death(unit)
 

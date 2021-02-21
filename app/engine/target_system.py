@@ -24,7 +24,7 @@ def find_manhattan_spheres(rng: set, x: int, y: int) -> set:
             main_set.add((x + i, y - r + magn))
     return main_set
 
-def get_nearest_open_tile(self, unit, position):
+def get_nearest_open_tile(unit, position):
     r = 0
     _abs = abs
     while r < 10:
@@ -32,21 +32,18 @@ def get_nearest_open_tile(self, unit, position):
             magn = _abs(x)
             n1 = position[0] + x, position[1] + r - magn
             n2 = position[0] + x, position[1] - r + magn
-            if not game.board.check_bounds(n1) and game.board.get_unit(n1):
-                mcost = game.movement.get_mcost(unit, n1)
-                if mcost < 5:
-                    return n1
-            elif not game.board.check_bounds(n1) and game.board.get_unit(n1):
-                mcost = game.movement.get_mcost(unit, n2)
-                if mcost < 5:
-                    return n2
+            print(n1, n2)
+            if game.movement.check_traversable(unit, n1) and not game.board.get_unit(n1):
+                return n1
+            elif game.movement.check_traversable(unit, n2) and not game.board.get_unit(n2):
+                return n2
         r += 1
     return None
 
 def distance_to_closest_enemy(unit, pos=None):
     if pos is None:
         pos = unit.position
-    enemy_list = [u for u in game.level.units if u.position and skill_system.check_enemy(u, unit)]
+    enemy_list = [u for u in game.units if u.position and skill_system.check_enemy(u, unit)]
     if not enemy_list:
         return 100  # No enemies
     dist_list = [utils.calculate_distance(enemy.position, pos) for enemy in enemy_list]
@@ -187,7 +184,7 @@ def travel_algorithm(path, moves, unit, grid):
             break
     # Don't move where a unit already is, and don't make through path < 0
     # Lower the through path by one, cause we can't move that far
-    while through_path > 0 and any(other_unit.position == path[-(through_path + 1)] for other_unit in game.level.units if unit is not other_unit):
+    while through_path > 0 and any(other_unit.position == path[-(through_path + 1)] for other_unit in game.units if unit is not other_unit):
         through_path -= 1
     return path[-(through_path + 1)]  # Travel as far as we can
 

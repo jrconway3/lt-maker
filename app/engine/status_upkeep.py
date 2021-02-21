@@ -13,7 +13,7 @@ class StatusUpkeepState(MapState):
 
     def start(self):
         game.cursor.hide()
-        self.units = [unit for unit in game.level.units if 
+        self.units = [unit for unit in game.units if 
                       unit.position and 
                       unit.team == game.phase.get_current() and
                       not unit.dead]

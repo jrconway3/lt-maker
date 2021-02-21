@@ -40,9 +40,9 @@ class ChapterTitleState(State):
             if song:
                 self.music_flag = True
 
-        self.name = game.memory.get('chapter_title_title')
-        if not self.name:
-            self.name = game.level.name
+        self.title = game.memory.get('chapter_title_title')
+        if not self.title:
+            self.title = game.level.name
 
         game.memory['transition_speed'] = 0.2
         game.state.change('transition_in')
@@ -55,6 +55,7 @@ class ChapterTitleState(State):
             game.memory['transition_speed'] = 0.2
             game.state.change('transition_pop')
             self.state = 'end'
+            return 'repeat'
 
     def update(self):
         current_time = engine.get_time()
@@ -128,9 +129,9 @@ class ChapterTitleState(State):
         # # Draw ribbon
         if self.state in ('ribbon_fade_in', 'wait', 'ribbon_close', 'sigil_out', 'end'):
             new_ribbon = engine.copy_surface(self.ribbon)
-            name_width = FONT['chapter-yellow'].width(self.name)
+            name_width = FONT['chapter-yellow'].width(self.title)
             position = (WINWIDTH//2 - name_width//2, self.ribbon.get_height()//2 - 6)
-            FONT['chapter-yellow'].blit(self.name, new_ribbon, position)
+            FONT['chapter-yellow'].blit(self.title, new_ribbon, position)
             rect = (0, (self.ribbon.get_height() - self.banner_grow_y)//2, self.ribbon.get_width(), self.banner_grow_y)
             new_ribbon = engine.subsurface(new_ribbon, rect)
             engine.blit_center(surf, new_ribbon)

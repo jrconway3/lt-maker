@@ -276,6 +276,11 @@ class SetCurrentHP(EventCommand):
     tag = 'unit'
     keywords = ["Unit", "PositiveInteger"]
 
+class Reset(EventCommand):
+    nid = 'reset'
+    tag = 'unit'
+    keywords = ["Unit"]
+
 class HasAttacked(EventCommand):
     nid = 'has_attacked'
     tag = 'unit'

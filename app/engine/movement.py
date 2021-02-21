@@ -6,6 +6,8 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, skill_system, action, equations
 from app.engine.game_state import game
 
+import logging
+
 class MovementData():
     def __init__(self, path, event, follow):
         self.path = path
@@ -24,6 +26,7 @@ class MovementManager():
         self.moving_units[unit.nid] = MovementData(path, event, follow)
 
     def begin_move(self, unit, path, event=False, follow=True):
+        logging.info("Unit %s begin move", unit.nid)
         self.add(unit, path, event, follow)
         unit.sprite.change_state('moving')
         game.leave(unit)
@@ -118,7 +121,11 @@ class MovementManager():
             data = self.moving_units[unit_nid]
             if current_time - data.last_update > cf.SETTINGS['unit_speed']:
                 data.last_update = current_time
-                unit = game.level.units.get(unit_nid)
+                unit = game.get_unit(unit_nid)
+                if not unit:
+                    logging.error("Could not find unit with nid %s", unit_nid)
+                    del self.moving_units[unit_nid]
+                    continue
 
                 if data.path:
                     new_position = data.path.pop()

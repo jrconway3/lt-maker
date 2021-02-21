@@ -74,7 +74,7 @@ class PhaseChangeState(MapState):
         # And they technically happen before I want the player to have the turnwheel locked
         # units reset, etc.
         action.do(action.LockTurnwheel(game.phase.get_current() != 'player'))
-        action.do(action.ResetAll([unit for unit in game.level.units if not unit.dead]))
+        action.do(action.ResetAll([unit for unit in game.units if not unit.dead]))
         game.cursor.hide()
         game.phase.slide_in()
 
@@ -94,14 +94,15 @@ class PhaseChangeState(MapState):
         phase.fade_in_phase_music()
 
     def save_state(self):
+        GAME_NID = str(DB.constants.value('game_nid'))
         if game.phase.get_current() == 'player':
             logger.info("Saving as we enter player phase!")
-            name = game.level.nid + '_' + str(game.turncount)
-            # TODO SUSPEND
+            name = GAME_NID + '-turn_change-' + game.level.nid + '-' + str(game.turncount)
+            save.suspend_game(game, 'turn_change', name=name)
         elif game.phase.get_current() == 'enemy':
             logger.info("Saving as we enter enemy phase!")
-            name = game.level.nid + '_' + str(game.turncount) + 'b'
-            # TODO SUSPEND
+            name = GAME_NID + '-enemy_turn_change-' + game.level.nid + '-' + str(game.turncount)
+            save.suspend_game(game, 'enemy_turn_change', name=name)
 
 class FreeState(MapState):
     name = 'free'
@@ -154,8 +155,8 @@ class FreeState(MapState):
 
         # Auto-end turn
         # Check to see if all ally units have completed their turns and no unit is active and the game is in the free state.
-        if cf.SETTINGS['autoend_turn'] and any(unit.position for unit in game.level.units) and \
-                all(unit.finished for unit in game.level.units if unit.position and unit.team == 'player'):
+        if cf.SETTINGS['autoend_turn'] and any(unit.position for unit in game.units) and \
+                all(unit.finished for unit in game.units if unit.position and unit.team == 'player'):
             # End the turn
             logger.info('Autoending turn.')
             game.state.change('turn_change')
@@ -171,6 +172,8 @@ def suspend():
     game.state.process_temp_state()
     logger.info('Suspending game...')
     save.suspend_game(game, 'suspend')
+    logging.debug("Suspend state: %s", game.state.state_names())
+    logging.debug("Suspend temp state: %s", game.state.temp_state)
     game.state.clear()
     game.state.change('title_start')
 
@@ -440,7 +443,7 @@ class WaitState(MapState):
     def update(self):
         super().update()
         game.state.back()
-        for unit in game.level.units:
+        for unit in game.units:
             if unit.has_attacked and not unit.finished:
                 action.do(action.Wait(unit))
         return 'repeat'
@@ -1078,13 +1081,13 @@ class TargetingState(MapState):
         elif self.ability.name == 'Take':
             holder = game.board.get_unit(game.cursor.position)
             if holder and holder.traveler:
-                traveler = game.level.units.get(holder.traveler)
+                traveler = game.get_unit(holder.traveler)
                 if traveler:
                     self.draw_rescue_preview(traveler, surf)
         elif self.ability.name == 'Give':
             if self.cur_unit.traveler:
                 give_to = game.board.get_unit(game.cursor.position)
-                traveler = game.level.units.get(self.cur_unit.traveler)
+                traveler = game.get_unit(self.cur_unit.traveler)
                 if give_to and traveler:
                     self.draw_give_preview(traveler, give_to, surf)
         elif self.ability.name == 'Trade':
@@ -1437,7 +1440,7 @@ class AIState(MapState):
     def start(self):
         logger.info("Starting AI State")
         game.cursor.hide()
-        self.unit_list = [unit for unit in game.level.units if unit.position and 
+        self.unit_list = [unit for unit in game.units if unit.position and 
                           not unit.finished and unit.team == game.phase.get_current()]
         # Sort by distance to closest enemy (ascending)
         self.unit_list = sorted(self.unit_list, key=lambda unit: target_system.distance_to_closest_enemy(unit))
@@ -1454,7 +1457,7 @@ class AIState(MapState):
         super().update()
 
         # Don't bother if someone is dying!!!
-        if any(unit.is_dying for unit in game.level.units):
+        if any(unit.is_dying for unit in game.units):
             return
 
         if (not self.cur_unit or not self.cur_unit.position) and self.unit_list:

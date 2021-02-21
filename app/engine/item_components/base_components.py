@@ -102,10 +102,10 @@ class TargetsUnits(ItemComponent):
     tag = 'target'
 
     def ai_targets(self, unit, item):
-        return {other.position for other in game.level.units if other.position}
+        return {other.position for other in game.units if other.position}
 
     def valid_targets(self, unit, item) -> set:
-        targets = {other.position for other in game.level.units if other.position}
+        targets = {other.position for other in game.units if other.position}
         return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
 
 class TargetsEnemies(ItemComponent):
@@ -114,11 +114,11 @@ class TargetsEnemies(ItemComponent):
     tag = 'target'
 
     def ai_targets(self, unit, item):
-        return {other.position for other in game.level.units if other.position and 
+        return {other.position for other in game.units if other.position and 
                 skill_system.check_enemy(unit, other)}
 
     def valid_targets(self, unit, item) -> set:
-        targets = {other.position for other in game.level.units if other.position and 
+        targets = {other.position for other in game.units if other.position and 
                    skill_system.check_enemy(unit, other)}        
         return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
 
@@ -128,11 +128,11 @@ class TargetsAllies(ItemComponent):
     tag = 'target'
 
     def ai_targets(self, unit, item):
-        return {other.position for other in game.level.units if other.position and 
+        return {other.position for other in game.units if other.position and 
                 skill_system.check_ally(unit, other)}
 
     def valid_targets(self, unit, item) -> set:
-        targets = {other.position for other in game.level.units if other.position and 
+        targets = {other.position for other in game.units if other.position and 
                    skill_system.check_ally(unit, other)}        
         return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
 

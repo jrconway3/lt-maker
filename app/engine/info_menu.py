@@ -29,7 +29,7 @@ def handle_info():
 
 def handle_aux():
     avail_units = [
-        u for u in game.level.units
+        u for u in game.units
         if u.team == 'player' and 
         u.position and 
         not u.finished and 
@@ -227,7 +227,7 @@ class InfoMenuState(State):
         self.unit = game.memory.get('current_unit')
         self.scroll_units = game.memory.get('scroll_units')
         if self.scroll_units is None:
-            self.scroll_units = [unit for unit in game.level.units if not unit.dead and unit.team == self.unit.team]
+            self.scroll_units = [unit for unit in game.units if not unit.dead and unit.team == self.unit.team and unit.party == self.unit.party]
             if self.unit.position:
                 self.scroll_units = [unit for unit in self.scroll_units if unit.position and game.board.in_vision(unit.position)]
         self.scroll_units = [unit for unit in self.scroll_units if 'Tile' not in unit.tags]

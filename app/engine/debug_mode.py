@@ -54,7 +54,7 @@ class DebugState(MapState):
         event_command = event_commands.parse_text(command)
         if not event_command:
             return
-        new_event = Event([event_command], game.cursor.get_hover())
+        new_event = Event('debug_console', [event_command], game.cursor.get_hover())
         game.events.append(new_event)
         game.state.change('event')
 

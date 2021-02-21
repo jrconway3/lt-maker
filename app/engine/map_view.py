@@ -26,7 +26,7 @@ class MapView():
         self.x2_counter.update(current_time)
 
     def draw_units(self, surf):
-        culled_units = [unit for unit in game.level.units if unit.position or unit.sprite.fake_position]
+        culled_units = [unit for unit in game.units if unit.position or unit.sprite.fake_position]
         if game.level_vars.get('_fog_of_war'):
             culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position) or unit is game.cursor.cur_unit]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])

@@ -1074,7 +1074,7 @@ class Die(Action):
 
     def do(self):
         if self.unit.traveler:
-            drop_me = game.level.units.get(self.unit.traveler)
+            drop_me = game.get_unit(self.unit.traveler)
             self.drop = Drop(self.unit, drop_me, self.unit.position)
             self.drop.do()
             # TODO Drop Sound
@@ -1238,7 +1238,7 @@ class AddRegion(Action):
             self.did_add = True
             # Remember to add the status from the unit
             if self.region.region_type == 'status':
-                for unit in game.level.units:
+                for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
                         new_skill = DB.skills.get(self.region.sub_nid)
                         self.subactions.append(AddSkill(unit, new_skill))
@@ -1275,7 +1275,7 @@ class RemoveRegion(Action):
         if self.region.nid in game.level.regions.keys():
             # Remember to remove the status from the unit
             if self.region.region_type == 'status':
-                for unit in game.level.units:
+                for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
                         self.subactions.append(RemoveSkill(unit, self.region.sub_nid))
 

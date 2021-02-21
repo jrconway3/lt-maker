@@ -122,18 +122,18 @@ class AIController():
 
     def canto_retreat(self):
         valid_positions = self.get_true_valid_moves()
-        enemy_positions = {u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)}
+        enemy_positions = {u.position for u in game.units if u.position and skill_system.check_enemy(self.unit, u)}
         self.goal_position = utils.farthest_away_pos(self.unit.position, valid_positions, enemy_positions)
 
     def smart_retreat(self):
         valid_positions = self.get_true_valid_moves()
 
         if self.behaviour.target[0] == 'Enemy':
-            target_positions = {u.position for u in game.level.units if u.position and skill_system.check_enemy(self.unit, u)}
+            target_positions = {u.position for u in game.units if u.position and skill_system.check_enemy(self.unit, u)}
         elif self.behaviour.target[0] == 'Ally':
-            target_positions = {u.position for u in game.level.units if u.position and skill_system.check_ally(self.unit, u)}
+            target_positions = {u.position for u in game.units if u.position and skill_system.check_ally(self.unit, u)}
         elif self.behaviour.target[0] == 'Unit':
-            target_positions = {u.position for u in game.level.units if u.position}
+            target_positions = {u.position for u in game.units if u.position}
 
         zero_move = max(target_system.find_potential_range(self.unit, True, True), default=0)
         single_move = zero_move + equations.parser.movement(self.unit)
@@ -156,7 +156,7 @@ class AIController():
 
     def get_true_valid_moves(self) -> set:
         valid_moves = target_system.get_valid_moves(self.unit)
-        other_unit_positions = {unit.position for unit in game.level.units if unit.position and unit is not self.unit}
+        other_unit_positions = {unit.position for unit in game.units if unit.position and unit is not self.unit}
         valid_moves -= other_unit_positions
         return valid_moves
 
@@ -525,11 +525,11 @@ def handle_unit_spec(all_targets, behaviour):
 def get_targets(unit, behaviour):
     all_targets = []
     if behaviour.target == 'Unit':
-        all_targets = [u.position for u in game.level.units if u.position]
+        all_targets = [u.position for u in game.units if u.position]
     elif behaviour.target == 'Enemy':
-        all_targets = [u.position for u in game.level.units if u.position and skill_system.check_enemy(unit, u)]
+        all_targets = [u.position for u in game.units if u.position and skill_system.check_enemy(unit, u)]
     elif behaviour.target == 'Ally':
-        all_targets = [u.position for u in game.level.units if u.position and skill_system.check_ally(unit, u)]
+        all_targets = [u.position for u in game.units if u.position and skill_system.check_ally(unit, u)]
     elif behaviour.target == 'Event':
         target_spec = behaviour.target_spec
         all_targets = []

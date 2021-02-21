@@ -59,6 +59,7 @@ class TitleMainState(State):
     bg = None
 
     def start(self):
+        save.check_save_slots()
         options = ['New Game', 'Extras']
         if any(ss.kind for ss in save.SAVE_SLOTS):
             options.insert(0, 'Restart Level')
@@ -187,6 +188,7 @@ class TitleLoadState(State):
 
         self.bg = game.memory['title_bg']
 
+        save.check_save_slots()
         options, colors = save.get_save_title(save.SAVE_SLOTS)
         self.menu = menus.ChapterSelect(options, colors)
         most_recent = save.SAVE_SLOTS.index(max(save.SAVE_SLOTS, key=lambda x: x.realtime))
@@ -210,7 +212,9 @@ class TitleLoadState(State):
             selection = self.menu.current_index
             save_slot = save.SAVE_SLOTS[selection]
             if save_slot.kind:
-                logger.info("Loading game...")
+                logger.info("Loading save of kind %s...", save_slot.kind)
+                game.state.clear()
+                game.state.process_temp_state()
                 game.build_new()
                 save.load_game(game, save_slot)
                 if save_slot.kind == 'start':  # Restart

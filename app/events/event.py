@@ -111,29 +111,39 @@ class Event():
 
     def update(self):
         current_time = engine.get_time()
-        # print(self.state)
+        
+        # Can move through its own internal state up to 5 times in a frame
+        counter = 0
+        while counter < 5:
+            counter += 1
+            if self.state != self.prev_state:
+                self.prev_state = self.state
+                logging.debug("Event State: %s", self.state)
 
-        if self.state != self.prev_state:
-            self.prev_state = self.state
-            logging.debug("Event State: %s", self.state)
+            if self.state == 'waiting':
+                if current_time > self.wait_time:
+                    self.state = 'processing'
+                else:
+                    break
 
-        if self.state == 'waiting':
-            if current_time > self.wait_time:
+            elif self.state == 'processing':
+                if self.command_idx >= len(self.commands):
+                    self.end()
+                else:
+                    self.process()
+                if self.state == 'paused':
+                    break  # Necessary so we don't go right back to processing
+
+            elif self.state == 'dialog':
+                if self.text_boxes:
+                    if self.text_boxes[-1].is_done():
+                        self.state = 'processing'
+
+            elif self.state == 'paused':
                 self.state = 'processing'
 
-        elif self.state == 'processing':
-            if self.command_idx >= len(self.commands):
-                self.end()
-            else:
-                self.process()
-
-        elif self.state == 'dialog':
-            if self.text_boxes:
-                if self.text_boxes[-1].is_done():
-                    self.state = 'processing'
-
-        elif self.state == 'paused':
-            self.state = 'processing'
+            elif self.state == 'complete':
+                break
 
         # Handle transition
         if self.transition_state:
@@ -455,7 +465,7 @@ class Event():
                 return
             # Need to update fog of war when we change it
             if nid in ('_fog_of_war', '_fog_of_war_radius'):
-                for unit in game.level.units:
+                for unit in game.units:
                     if unit.position:
                         action.do(action.UpdateFogOfWar(unit))
 
@@ -482,7 +492,7 @@ class Event():
 
         elif command.nid == 'remove_all_units':
             values, flags = event_commands.parse(command)
-            for unit in game.level.units:
+            for unit in game.units:
                 if unit.position:
                     action.do(action.LeaveMap(unit))
 
@@ -600,6 +610,14 @@ class Event():
             hp = int(values[1])
             action.do(action.SetHP(unit, hp))
 
+        elif command.nid == 'reset':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            action.do(action.Reset(unit))
+
         elif command.nid == 'has_attacked':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
@@ -695,6 +713,8 @@ class Event():
             else:
                 b = False
             action.do(action.SetLevelVar('_prep_pick', b))
+            # Arrange formation
+            self.arrange_formation()
             game.state.change('prep_main')
             self.state = 'paused'  # So that the message will leave the update loop
 
@@ -1088,7 +1108,7 @@ class Event():
             placement = 'giveup'
         create = 'create' in flags
         for unit_nid in group.units:
-            unit = game.level.units.get(unit_nid)
+            unit = game.get_unit(unit_nid)
             if create:
                 unit = self.copy_unit(unit)
             elif unit.position or unit.dead:
@@ -1201,7 +1221,7 @@ class Event():
         follow = 'no_follow' not in flags
 
         for unit_nid in group.units:
-            unit = game.level.units.get(unit_nid)
+            unit = game.get_unit(unit_nid)
             if create:
                 unit = self.copy_unit(unit)
             elif unit.position or unit.dead:
@@ -1240,7 +1260,7 @@ class Event():
         follow = 'no_follow' not in flags
 
         for unit_nid in group.units:
-            unit = game.level.units.get(unit_nid)
+            unit = game.get_unit(unit_nid)
             if not unit.position:
                 continue
             position = self._get_position(next_pos, unit, group)
@@ -1265,7 +1285,7 @@ class Event():
         else:
             remove_type = 'fade'
         for unit_nid in group.units:
-            unit = game.level.units.get(unit_nid)
+            unit = game.get_unit(unit_nid)
             if unit.position:
                 if self.do_skip:
                     action.do(action.LeaveMap(unit))
@@ -1280,14 +1300,14 @@ class Event():
         current_occupant = game.board.get_unit(position)
         if current_occupant:
             if placement == 'giveup':
-                logging.info("Unit already present on tile %s", position)
+                logging.warning("Check placement (giveup): Unit already present on tile %s", position)
                 return None
             elif placement == 'stack':
                 return position
             elif placement == 'closest':
                 position = target_system.get_nearest_open_tile(current_occupant, position)
                 if not position:
-                    logging.info("Somehow wasn't able to find a nearby open tile")
+                    logging.warning("Somehow wasn't able to find a nearby open tile")
                     return None
                 return position
             elif placement == 'push':
@@ -1310,7 +1330,7 @@ class Event():
         # Remove all units from the map
         # But remember their original positions for later
         previous_unit_pos = {}
-        for unit in game.level.units:
+        for unit in game.units:
             if unit.position:
                 previous_unit_pos[unit.nid] = unit.position
                 act = action.LeaveMap(unit)
@@ -1353,7 +1373,6 @@ class Event():
         level_unit_prefab = UniqueUnit(unit_nid, team, ai_nid, None)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party
-        game.level.units.append(new_unit)
         game.register_unit(new_unit)
 
     def make_generic(self, command):
@@ -1385,7 +1404,6 @@ class Event():
         level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, [], team, ai_nid)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party
-        game.level.units.append(new_unit)
         game.register_unit(new_unit)
 
     def give_item(self, command):
@@ -1588,8 +1606,9 @@ class Event():
         for idx in range(len(s_list)//2):
             stat_nid = s_list[idx*2]
             stat_value = int(s_list[idx*2 + 1])
-            current = unit.stats[stat_nid]
-            stat_changes[stat_nid] = stat_value - current
+            if stat_nid in unit.stats:
+                current = unit.stats[stat_nid]
+                stat_changes[stat_nid] = stat_value - current
 
         self._apply_stat_changes(unit, stat_changes, flags)
 
@@ -1710,6 +1729,24 @@ class Event():
 
         action.do(action.AddRegion(new_region))
 
+    def arrange_formation(self):
+        """
+        # Takes all the units that can be placed on a formation spot that aren't already
+        # and places them on an open formation spot
+        """
+        player_units = game.get_units_in_party()
+        stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
+        unstuck_units = [unit for unit in player_units if unit not in stuck_units]
+        num_slots = game.level_vars.get('_prep_slots')
+        all_formation_spots = game.get_open_formation_spots()
+        if num_slots is None:
+            num_slots = len(all_formation_spots)
+        assign_these = unstuck_units[:num_slots]
+        for idx, unit in enumerate(assign_these):
+            position = all_formation_spots[idx]
+            action.execute(action.ArriveOnMap(unit, position))
+            action.execute(action.Reset(unit))
+
     def find_unlock(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
@@ -1786,7 +1823,7 @@ class Event():
         
         valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or event_prefab.level_nid == game.level.nid)]
         for event_prefab in valid_events:
-            event = Event(event_prefab.commands, unit, unit2, self.position, self.region)
+            event = Event(event_prefab.nid, event_prefab.commands, unit, unit2, self.position, self.region)
             game.events.append(event)
             game.state.change('event')
             self.state = 'paused'

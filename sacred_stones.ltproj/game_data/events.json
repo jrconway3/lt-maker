@@ -4038,7 +4038,7 @@
                 "speak",
                 [
                     "Tethys",
-                    "Oh, hello.{br}Did you come to see me dance?|I'm sorry, but I just finished a few moments ago.{w}{clear}Oh, by the way...Would you be interested in one of these items?|A wealthy patron left me a small ransom in gifts after watching my performance.|You can sell one for gold if you'd like or use them to improve your skills.|I simply cannot carry all of this by myself, so please, take this one.|Wealth is useless if you can't use it to bring happiness to others, right? Thanks for dropping my. Perhaps we'll meet again someday."
+                    "Oh, hello.{br}Did you come to see me dance?|I'm sorry, but I just finished a few moments ago.{w}{clear}Oh, by the way...Would you be interested in one of these items?|A wealthy patron left me a small ransom in gifts after watching my performance.|You can sell one for gold if you'd like or use them to improve your skills.|I simply cannot carry all of this by myself, so please, take this one.|Wealth is useless if you can't use it to bring happiness to others, right?| Thanks for dropping by. Perhaps we'll meet again someday."
                 ]
             ],
             [
@@ -4503,7 +4503,7 @@
                 "speak",
                 [
                     "Lute",
-                    "Your flesh shows no sign of putrefaction.|It seems you\u2019re not a revenant."
+                    "Your flesh shows no sign of putrefaction.|It seems you're not a revenant."
                 ]
             ],
             [
@@ -4517,7 +4517,7 @@
                 "speak",
                 [
                     "Lute",
-                    "No, no. I insist on joining you in combat.|I\u2019ve been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
+                    "No, no. I insist on joining you in combat.|I've been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
                 ]
             ],
             [
@@ -4557,7 +4557,7 @@
                 "speak",
                 [
                     "Lute",
-                    "Your flesh shows no sign of putrefaction.|It seems you\u2019re not a revenant."
+                    "Your flesh shows no sign of putrefaction.|It seems you're not a revenant."
                 ]
             ],
             [
@@ -4571,7 +4571,7 @@
                 "speak",
                 [
                     "Lute",
-                    "No, no. I insist on joining you in combat.|My name is Lute. I'm a mage of superior wisdom and rare ability.|I\u2019ve been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
+                    "No, no. I insist on joining you in combat.|My name is Lute. I'm a mage of superior wisdom and rare ability.|I've been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
                 ]
             ],
             [
@@ -4609,7 +4609,7 @@
                 "speak",
                 [
                     "Lute",
-                    "Your flesh shows no sign of putrefaction.|It seems you\u2019re not a revenant.|I\u2019ve decided to join you in battle now.|My name is Lute. I\u2019m a mage of superior wisdom and rare ability.|I\u2019ve been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
+                    "Your flesh shows no sign of putrefaction.|It seems you're not a revenant.|I've decided to join you in battle now.|My name is Lute. I'm a mage of superior wisdom and rare ability.|I've been reading up on these revenants.{br}They are, quite simply, no match for me.|I am superior after all."
                 ]
             ],
             [
@@ -4649,7 +4649,7 @@
                 "add_unit",
                 [
                     "Lute",
-                    "{position}",
+                    "1,12",
                     "immediate",
                     "closest"
                 ]
@@ -9371,6 +9371,10 @@
                 ]
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "prep",
                 [
                     "1"
@@ -9625,13 +9629,13 @@
                 "speak",
                 [
                     "Dozla",
-                    "Ha ha ha! Right you are, Lady L\u2019Arachel!"
+                    "Ha ha ha! Right you are, Lady L'Arachel!"
                 ]
             ],
             [
                 "speak",
                 [
-                    "L\u2019Arachel",
+                    "L'Arachel",
                     "I cannot allow this to happen!{br}Come!|We must charge down these cliffs and rush to their aid!"
                 ]
             ],
@@ -9646,13 +9650,13 @@
                 "speak",
                 [
                     "Rennac",
-                    "We charge down these cliffs, and the only thing we\u2019ll be rushing to is death.|How about we find us a nice, gentle path down, hm?"
+                    "We charge down these cliffs, and the only thing we'll be rushing to is death.|How about we find us a nice, gentle path down, hm?"
                 ]
             ],
             [
                 "speak",
                 [
-                    "L\u2019arachel",
+                    "L'arachel",
                     "Ah...Yes, well...Let us hurry nonetheless.|I simply cannot abide those wicked beasts running amok!"
                 ]
             ],
@@ -9688,13 +9692,8 @@
                     "L'arachel",
                     "14,2",
                     "",
-                    "closest"
-                ]
-            ],
-            [
-                "remove_unit",
-                [
-                    "L'arachel"
+                    "closest",
+                    "no_block"
                 ]
             ],
             [
@@ -9703,7 +9702,14 @@
                     "Dozla",
                     "14,1",
                     "",
-                    "closest"
+                    "closest",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "L'arachel"
                 ]
             ],
             [
@@ -9731,7 +9737,9 @@
                 "add_group",
                 [
                     "RevenantRein",
-                    "0,0"
+                    "0,0",
+                    "immediate",
+                    "stack"
                 ]
             ],
             [
@@ -9866,7 +9874,7 @@
                 "speak",
                 [
                     "Seth",
-                    "We\u2019ve killed all the monsters.|Still, we\u2019d best burn the bones to ash to be sure they don\u2019t return.",
+                    "We've killed all the monsters.|Still, we'd best burn the bones to ash to be sure they don't return.",
                     "low_priority"
                 ]
             ],
@@ -9874,7 +9882,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "I still can\u2019t believe what we\u2019ve been fighting here...|I\u2019d thought those fiends nothing more than myth and legend."
+                    "I still can't believe what we've been fighting here...|I'd thought those fiends nothing more than myth and legend."
                 ]
             ],
             [
@@ -9895,7 +9903,7 @@
                 "speak",
                 [
                     "Lute",
-                    "Oh, yes. There are much worse then those revenants and the entombed...|Let\u2019s see, there\u2019s the bonewalkers, mauthe doogs, gargoyles, baels... |Why, I\u2019ll bet you just about any creature of lore could be walking again.|Yes, we\u2019re in for some trouble. Even my fabulous power may not be enough."
+                    "Oh, yes. There are much worse then those revenants and the entombed...|Let's see, there's the bonewalkers, mauthe doogs, gargoyles, baels... |Why, I'll bet you just about any creature of lore could be walking again.|Yes, we're in for some trouble. Even my fabulous power may not be enough."
                 ]
             ],
             [
@@ -9955,7 +9963,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "By all that\u2019s holy, what is happening?"
+                    "By all that's holy, what is happening?"
                 ]
             ],
             [
@@ -9973,7 +9981,7 @@
                 "speak",
                 [
                     "Eirika",
-                    "By all that\u2019s holy, what is happening?"
+                    "By all that's holy, what is happening?"
                 ]
             ],
             [
@@ -9984,7 +9992,7 @@
                 "speak",
                 [
                     "Seth",
-                    "Princess Eirika, perhaps it would be wise to return to Frelia and regroup.|Pressing forward seems foolish in light of recent events.|We cannot face both Grado\u2019s forces and more of those terrible things."
+                    "Princess Eirika, perhaps it would be wise to return to Frelia and regroup.|Pressing forward seems foolish in light of recent events.|We cannot face both Grado's forces and more of those terrible things."
                 ]
             ],
             [
@@ -10117,7 +10125,7 @@
                 "move_portrait",
                 [
                     "L'arachel",
-                    "MidLeft"
+                    "MidRight"
                 ]
             ],
             [
@@ -10166,7 +10174,7 @@
                 "speak",
                 [
                     "Dozla",
-                    "Gwah ha ha! It\u2019s a real shame, innit, Lady L'Arachel?!"
+                    "Gwah ha ha! It's a real shame, innit, Lady L'Arachel?!"
                 ]
             ],
             [
@@ -10186,7 +10194,7 @@
                 "speak",
                 [
                     "Rennac",
-                    "What\u2019s shameful is the way you drag us around the countryside."
+                    "What's shameful is the way you drag us around the countryside."
                 ]
             ],
             [
@@ -10220,14 +10228,14 @@
                 "speak",
                 [
                     "Dozla",
-                    "Stop! Lady L'arachel, you mustn\u2019t continue!|You cannot reveal your true identity here!"
+                    "Stop! Lady L'arachel, you mustn't continue!|You cannot reveal your true identity here!"
                 ]
             ],
             [
                 "speak",
                 [
                     "L'arachel",
-                    "Oh, yes, you\u2019re right. Oh, I get so careless sometimes!|Now, I must ride off in anonymity. Oh, how beautifully romantic!"
+                    "Oh, yes, you're right. Oh, I get so careless sometimes!|Now, I must ride off in anonymity. Oh, how beautifully romantic!"
                 ]
             ],
             [
@@ -10254,7 +10262,7 @@
                 "speak",
                 [
                     "Dozla",
-                    "Gwah ha ha!{br}Let\u2019s go, Rennac!"
+                    "Gwah ha ha!{br}Let's go, Rennac!"
                 ]
             ],
             [
@@ -10275,6 +10283,12 @@
                 [
                     "Rennac",
                     "All right, all right."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Rennac"
                 ]
             ],
             [
@@ -10536,6 +10550,10 @@
                 ]
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "change_background",
                 []
             ],
@@ -10729,7 +10747,8 @@
                 "move_unit",
                 [
                     "Saar",
-                    "9,2"
+                    "9,2",
+                    "no_follow"
                 ]
             ],
             [
@@ -10847,7 +10866,8 @@
                 [
                     "Glen",
                     "14,5",
-                    "no_block"
+                    "no_block",
+                    "no_follow"
                 ]
             ],
             [
@@ -10855,13 +10875,19 @@
                 [
                     "Cormag",
                     "14,4",
-                    "no_block"
+                    "no_follow"
                 ]
             ],
             [
-                "wait",
+                "remove_unit",
                 [
-                    "250"
+                    "Glen"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Cormag"
                 ]
             ],
             [
@@ -11089,6 +11115,10 @@
                 ]
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "change_background",
                 []
             ],
@@ -11118,6 +11148,12 @@
                 ]
             ],
             [
+                "center_cursor",
+                [
+                    "9,10"
+                ]
+            ],
+            [
                 "add_group",
                 [
                     "ThreeEnemies",
@@ -11129,7 +11165,8 @@
                 "move_group",
                 [
                     "ThreeEnemies",
-                    "Starting"
+                    "Starting",
+                    "no_follow"
                 ]
             ],
             [
@@ -11164,7 +11201,7 @@
             [
                 "speak",
                 [
-                    "Soldier",
+                    "SoldierRed",
                     "Take her."
                 ]
             ],
@@ -11178,7 +11215,7 @@
             [
                 "speak",
                 [
-                    "Soldier",
+                    "SoldierRed",
                     "Impugn the emperor at your peril!|We've been ordered to execute you if you offer any resistance.|But your words condemn you!"
                 ]
             ],
@@ -11190,11 +11227,17 @@
                 ]
             ],
             [
+                "end_skip",
+                []
+            ],
+            [
                 "spawn_group",
                 [
                     "EnemyTeam",
                     "North",
-                    "Starting"
+                    "Starting",
+                    "",
+                    "stack"
                 ]
             ],
             [
@@ -11254,6 +11297,13 @@
                 [
                     "Eirika",
                     "That cleric is a traitor to the throne of Grado?|What madness is this?"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Seth",
+                    "Eirika"
                 ]
             ],
             [
@@ -11376,8 +11426,14 @@
                 ]
             ],
             [
-                "prep",
+                "end_skip",
                 []
+            ],
+            [
+                "prep",
+                [
+                    "1"
+                ]
             ],
             [
                 "comment",
@@ -11547,6 +11603,12 @@
                 "comment",
                 [
                     "# Give access to the convoy"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "BlackBackground"
                 ]
             ],
             [

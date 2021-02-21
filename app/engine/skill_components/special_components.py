@@ -151,7 +151,7 @@ class DeathTether(SkillComponent):
     tag = 'advanced'
 
     def on_death(self, unit):
-        for other_unit in game.level.units:
+        for other_unit in game.units:
             for skill in other_unit.skills:
                 if skill.initiator_nid == unit.nid:
                     action.do(action.RemoveSkill(other_unit, skill))

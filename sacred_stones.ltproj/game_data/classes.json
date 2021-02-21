@@ -4714,7 +4714,12 @@
                 26
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Canto"
+            ]
+        ],
         "wexp_gain": [
             [
                 true,
@@ -5057,7 +5062,7 @@
     },
     {
         "nid": "Pegasus_Knight",
-        "name": "Peg. Knigh",
+        "name": "Peg. Knight",
         "desc": "Knights who soar through the skies.",
         "tier": 1,
         "movement_group": "Fliers",
@@ -5569,7 +5574,16 @@
                 15
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Flying"
+            ],
+            [
+                1,
+                "Canto"
+            ]
+        ],
         "wexp_gain": [
             [
                 true,
@@ -8638,7 +8652,12 @@
                 15
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Canto"
+            ]
+        ],
         "wexp_gain": [
             [
                 true,
@@ -10584,7 +10603,12 @@
                 15
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Canto"
+            ]
+        ],
         "wexp_gain": [
             [
                 false,
@@ -11437,7 +11461,16 @@
                 15
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Flying"
+            ],
+            [
+                1,
+                "Canto"
+            ]
+        ],
         "wexp_gain": [
             [
                 false,
@@ -11717,7 +11750,16 @@
                 15
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Flying"
+            ],
+            [
+                1,
+                "Canto"
+            ]
+        ],
         "wexp_gain": [
             [
                 2,
@@ -11997,7 +12039,16 @@
                 15
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Flying"
+            ],
+            [
+                1,
+                "Canto"
+            ]
+        ],
         "wexp_gain": [
             [
                 false,

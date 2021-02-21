@@ -111,6 +111,9 @@ class StateMachine():
         if temp_state:
             self.temp_state = temp_state
 
+    def state_names(self):
+        return [s.name for s in self.state]
+
     def change(self, new_state):
         self.temp_state.append(new_state)
 
@@ -151,7 +154,7 @@ class StateMachine():
                 new_state = self.all_states[transition](transition)
                 self.state.append(new_state)
         if self.temp_state:
-            logging.debug("State: %s", [s.name for s in self.state])
+            logging.debug("State: %s", self.state_names())
         self.temp_state.clear()
         
     def update(self, event, surf):
@@ -195,4 +198,4 @@ class StateMachine():
         return surf, repeat_flag
 
     def save(self):
-        return [state.name for state in self.state], self.temp_state
+        return [state.name for state in self.state], self.temp_state[:]  # Needs to be a copy!!!

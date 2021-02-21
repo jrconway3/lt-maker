@@ -115,6 +115,9 @@ class UnitObject(Prefab):
                 num_levels = self.get_internal_level() - 1
             unit_funcs.auto_level(self, num_levels)
 
+        for skill in self.skills:
+            skill_system.on_add(self, skill)
+
         return self
 
     def get_hp(self):
@@ -474,4 +477,8 @@ class UnitObject(Prefab):
 
         self.current_move = None  # Holds the move action the unit last used
         # Maybe move to movement manager?
+
+        for skill in self.skills:
+            skill_system.on_add(self, skill)
+
         return self

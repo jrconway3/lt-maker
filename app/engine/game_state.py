@@ -111,6 +111,7 @@ class GameState():
         Done at the beginning of a new level to start the level up
         """
         self.generic()
+        logging.debug("Starting Level %s", level_nid)
         
         from app.engine.objects.level import LevelObject
         from app.engine.objects.tilemap import TileMapObject
@@ -159,8 +160,9 @@ class GameState():
         # Units need to leave before saving -- this is so you don't 
         # have to save region and terrain statuses
         if self.current_level:
-            for unit in self.current_level.units:
-                self.leave(unit, True)
+            for unit in self.units:
+                if unit.position:
+                    self.leave(unit, True)
 
         s_dict = {'units': [unit.save() for unit in self.unit_registry.values()],
                   'items': [item.save() for item in self.item_registry.values()],
@@ -201,8 +203,9 @@ class GameState():
 
         # Now have units actually arrive on map
         if self.current_level:
-            for unit in self.current_level.units:
-                self.arrive(unit, True)
+            for unit in self.units:
+                if unit.position:
+                    self.arrive(unit, True)
 
         self.action_log.record = True
         return s_dict, meta_dict
@@ -259,8 +262,9 @@ class GameState():
             self.generic()
 
             # Now have units actually arrive on map
-            for unit in self.current_level.units:
-                self.arrive(unit)
+            for unit in self.units:
+                if unit.position:
+                    self.arrive(unit)
 
             self.cursor.autocursor()
 
@@ -298,6 +302,7 @@ class GameState():
 
         # Remove all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if not v.generic}
+
         # Remove any skill that's not on a unit
         for k, v in list(self.skill_registry.items()):
             if v.owner_nid:  # Remove skills from units that no longer exist
@@ -305,6 +310,7 @@ class GameState():
                     del self.skill_registry[k]
             else:
                 del self.skill_registry[k]
+
         # Remove any item that's not on a unit or in the convoy
         for k, v in list(self.item_registry.items()):
             if v.owner_nid:  # Remove items from units that no longer exist
@@ -343,6 +349,10 @@ class GameState():
     @property
     def party(self):
         return self.parties[self.current_party]
+
+    @property
+    def units(self):
+        return list(self.unit_registry.values())
 
     def get_units_in_party(self, party=None):
         if party is None:
@@ -502,17 +512,21 @@ class GameState():
                         legal_spots.add((region.position[0] + x, region.position[1] + y))
         return legal_spots
 
+    def get_open_formation_spots(self) -> list:
+        all_formation_spots = self.get_all_formation_spots()
+        return sorted({pos for pos in all_formation_spots if not self.board.get_unit(pos)})
+
     def get_next_formation_spot(self) -> tuple:
-        legal_spots = sorted(self.get_all_formation_spots())
+        legal_spots = self.get_open_formation_spots()
         if legal_spots:
             return legal_spots[0]
         return None
 
     def get_money(self):
-        return self.party.money
+        return self.parties[self.current_party].money
 
     def set_money(self, val):
-        self.party.money = val
+        self.parties[self.current_party].money = val
 
 game = GameState()
 
@@ -527,7 +541,7 @@ def start_game():
 
 def start_level(level_nid):
     global game
-    print("Start Level %s" % level_nid)
+    logging.info("Start Level %s" % level_nid)
     if not game:
         game = GameState()
     else:
@@ -539,7 +553,7 @@ def start_level(level_nid):
 
 def load_level(level_nid, save_loc):
     global game
-    print("Load Level %s" % level_nid)
+    logging.info("Load Level %s" % level_nid)
     if not game:
         game = GameState()
     else:

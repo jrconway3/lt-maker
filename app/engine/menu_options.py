@@ -359,7 +359,7 @@ class UnitOption(BasicOption):
             map_sprite = self.unit.sprite.create_image('gray')
         elif highlight:
             map_sprite = self.unit.sprite.create_image('active')
-        surf.blit(map_sprite, (x - 20, y - 24))
+        surf.blit(map_sprite, (x - 20, y - 24 - 1))
 
     def draw_text(self, surf, x, y):
         font = self.get_color()

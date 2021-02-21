@@ -118,7 +118,7 @@ class BoundaryInterface():
         # Update ranges of other units that might be affected by my leaving
         if unit.position:
             x, y = unit.position
-            other_units = {game.level.units.get(nid) for nid in self.grids['movement'][x * self.height + y]}
+            other_units = {game.get_unit(nid) for nid in self.grids['movement'][x * self.height + y]}
             other_units = {other_unit for other_unit in other_units if not utils.compare_teams(unit.team, other_unit.team)}
 
             for other_unit in other_units:
@@ -135,7 +135,7 @@ class BoundaryInterface():
             # Update ranges of other units that might be affected by my arrival
             x, y = unit.position
             # print(self.grids['movement'][x * self.height + y])
-            other_units = {game.level.units.get(nid) for nid in self.grids['movement'][x * self.height + y]}
+            other_units = {game.get_unit(nid) for nid in self.grids['movement'][x * self.height + y]}
             other_units = {other_unit for other_unit in other_units if not utils.compare_teams(unit.team, other_unit.team)}
 
             for other_unit in other_units:
@@ -147,7 +147,7 @@ class BoundaryInterface():
     # Called when map changes
     def reset(self):
         self.clear()
-        for unit in game.level.units:
+        for unit in game.units:
             if unit.position and unit.team in self.enemy_teams:
                 self._add_unit(unit)
 
@@ -193,7 +193,7 @@ class BoundaryInterface():
                 if game.level_vars.get('_fog_of_war'):
                     new_grid = []
                     for cell in grid:
-                        new_grid.append({nid for nid in cell if game.board.in_vision(game.level.units.get(nid).position)})
+                        new_grid.append({nid for nid in cell if game.board.in_vision(game.get_unit(nid).position)})
                 else:
                     new_grid = grid
 

@@ -85,7 +85,7 @@ class PrepMainState(MapState):
                 game.memory['next_state'] = 'in_chapter_save'
                 game.state.change('transition_to')
             elif selection == 'Fight':
-                if any(unit.position for unit in game.level.units):
+                if any(unit.position for unit in game.units):
                     self.bg.fade_out()
                     self.menu = None
                     self.fade_out = True
@@ -120,8 +120,8 @@ class PrepPickUnitsState(State):
     def start(self):
         self.fluid = FluidScroll()
         player_units = game.get_units_in_party()
-        unstuck_units = [unit for unit in player_units if unit.position and game.check_for_region(unit.position, 'formation')]
-        stuck_units = [unit for unit in player_units if unit not in unstuck_units]
+        stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
+        unstuck_units = [unit for unit in player_units if unit not in stuck_units]
 
         units = stuck_units + sorted(unstuck_units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, units, (6, 2), (110, 24))
@@ -168,8 +168,8 @@ class PrepPickUnitsState(State):
                         is_fatigued = True  
                 if possible_position and not is_fatigued:
                     SOUNDTHREAD.play_sfx('Select 1')
-                    action.ArriveOnMap(unit, possible_position).do()
-                    unit.reset()
+                    action.do(action.ArriveOnMap(unit, possible_position))
+                    action.do(action.Reset(unit))
                 elif is_fatigued:
                     SOUNDTHREAD.play_sfx('Select 4')
 
@@ -190,7 +190,7 @@ class PrepPickUnitsState(State):
     def draw_pick_units_card(self, surf):
         bg_surf = base_surf.create_base_surf(132, 24, 'menu_bg_white')
         player_units = game.get_units_in_party()
-        on_map = [unit for unit in game.level.units if unit.position and unit in player_units and game.check_for_region(unit.position, 'formation')]
+        on_map = [unit for unit in game.units if unit.position and unit in player_units and game.check_for_region(unit.position, 'formation')]
         num_slots = game.level_vars.get('_prep_slots')
         if num_slots is None:
             num_slots = len(game.get_all_formation_spots())
@@ -344,9 +344,7 @@ class PrepManageState(State):
     def start(self):
         self.fluid = FluidScroll()
 
-        print(game.current_party)
         units = game.get_units_in_party()
-        print(units)
         units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, units, (4, 3), (6, 0))
         self.menu.set_mode('unit')

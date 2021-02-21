@@ -153,7 +153,7 @@ class AllAlliesAOE(ItemComponent):
 
     def splash(self, unit, item, position) -> tuple:
         from app.engine import skill_system
-        splash = [u.position for u in game.level.units if u.position and skill_system.check_ally(unit, u)]
+        splash = [u.position for u in game.units if u.position and skill_system.check_ally(unit, u)]
         return None, splash
 
     def splash_positions(self, unit, item, position) -> set:
@@ -168,7 +168,7 @@ class AllAlliesExceptSelfAOE(ItemComponent):
 
     def splash(self, unit, item, position) -> tuple:
         from app.engine import skill_system
-        splash = [u.position for u in game.level.units if u.position and skill_system.check_ally(unit, u) and u is not unit]
+        splash = [u.position for u in game.units if u.position and skill_system.check_ally(unit, u) and u is not unit]
         return None, splash
 
     def splash_positions(self, unit, item, position) -> set:
@@ -183,7 +183,7 @@ class AllEnemiesAOE(ItemComponent):
 
     def splash(self, unit, item, position) -> tuple:
         from app.engine import skill_system
-        splash = [u.position for u in game.level.units if u.position and skill_system.check_enemy(unit, u)]
+        splash = [u.position for u in game.units if u.position and skill_system.check_enemy(unit, u)]
         return None, splash
 
     def splash_positions(self, unit, item, position) -> set:

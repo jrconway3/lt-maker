@@ -126,8 +126,8 @@ class PermanentStatChange(ItemComponent):
         if not defender:
             return False
         klass = DB.classes.get(defender.klass)
-        for stat, inc in self.value.items():
-            if inc <= 0 or defender.stats[stat] < klass.max_stats[stat]:
+        for stat, inc in self.value:
+            if inc <= 0 or defender.stats[stat] < klass.max_stats.get(stat).value:
                 return True
         return False
 
@@ -379,7 +379,7 @@ class Steal(ItemComponent):
 
     def ai_targets(self, unit, item):
         positions = set()
-        for other in game.level.units:
+        for other in game.units:
             if other.position and skill_system.check_enemy(unit, other):
                 for def_item in other.items:
                     if self.item_restrict(unit, item, other, def_item):

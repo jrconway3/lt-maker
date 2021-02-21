@@ -9,7 +9,9 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
 from app.engine import engine, save, image_mods, banner, menus
+from app.engine import config as cf
 from app import autoupdate
+from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
 
 
@@ -27,8 +29,6 @@ class TitleStartState(State):
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
         game.memory['transition_speed'] = 0.5
-
-        # SOUNDTHREAD.fade_in('Chapter Sound')
 
         # Wait until saving thread has finished
         if save.SAVE_THREAD:
@@ -187,9 +187,10 @@ class TitleLoadState(State):
 
         self.bg = game.memory['title_bg']
 
-        options, colors = save.get_save_title(save.SAVE_SLOTS)
+        self.save_slots = save.SAVE_SLOTS
+        options, colors = save.get_save_title(self.save_slots)
         self.menu = menus.ChapterSelect(options, colors)
-        most_recent = save.SAVE_SLOTS.index(max(save.SAVE_SLOTS, key=lambda x: x.realtime))
+        most_recent = self.save_slots.index(max(self.save_slots, key=lambda x: x.realtime))
         self.menu.move_to(most_recent)
 
     def take_input(self, event):
@@ -380,6 +381,8 @@ class TitleExtrasState(TitleLoadState):
         self.bg = game.memory['title_bg']
 
         options = ['Options', 'Credits']
+        if cf.SETTINGS['debug']:
+            options.insert(0, 'All Saves')
         self.menu = menus.Main(options, 'title_menu_dark')
 
     def take_input(self, event):
@@ -404,9 +407,25 @@ class TitleExtrasState(TitleLoadState):
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')
+            elif selection == 'All Saves':
+                game.memory['next_state'] = 'title_all_saves'
+                game.state.change('transition_to')
 
-                #game.state.change('config_menu')
-                #game.state.change('transition_out')
+class TitleAllSavesState(TitleLoadState):
+    name = 'title_all_saves'
+    in_level = False
+    show_map = False
+
+    def start(self):
+        self.fluid = FluidScroll(128)
+        self.state = 'transition_in'
+        self.position_x = int(WINWIDTH * 1.5)
+
+        self.bg = game.memory['title_bg']
+    
+        self.save_slots = save.get_all_saves()
+        options, colors = save.get_save_title(self.save_slots)
+        self.menu = menus.ChapterSelect(options, colors)
 
 class TitleWaitState(State):
     name = 'title_wait'

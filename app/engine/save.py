@@ -58,8 +58,10 @@ def dict_print(d):
         else:
             print("{0} : {1}".format(k, v))
 
-def save_io(s_dict, meta_dict, slot=None, force_loc=None):
-    if force_loc:
+def save_io(s_dict, meta_dict, slot=None, force_loc=None, name=None):
+    if name:
+        save_loc = 'saves/' + name + '.p'
+    elif force_loc:
         save_loc = 'saves/' + GAME_NID + '-' + force_loc + '.p'
     elif slot is not None:
         save_loc = 'saves/' + GAME_NID + '-' + str(slot) + '.p'
@@ -96,12 +98,14 @@ def save_io(s_dict, meta_dict, slot=None, force_loc=None):
         shutil.copy(save_loc, preload_save)
         shutil.copy(meta_loc, preload_save_meta)
 
-def suspend_game(game_state, kind, slot=None):
+def suspend_game(game_state, kind, slot=None, name=None):
     """
     Saves game state to file
     """
+    logging.debug("Suspending game...")
     s_dict, meta_dict = game_state.save()
-    print(s_dict['state'])
+    logging.debug("Suspend state: %s", game_state.state.state_names())
+    logging.debug("Suspend temp state: %s", game_state.state.temp_state)
     meta_dict['kind'] = kind
     meta_dict['time'] = datetime.now()
 
@@ -110,7 +114,7 @@ def suspend_game(game_state, kind, slot=None):
     else:
         force_loc = None
 
-    SAVE_THREAD = threading.Thread(target=save_io, args=(s_dict, meta_dict, slot, force_loc))
+    SAVE_THREAD = threading.Thread(target=save_io, args=(s_dict, meta_dict, slot, force_loc, name))
     SAVE_THREAD.start()
 
 def load_game(game_state, save_slot):
@@ -118,6 +122,7 @@ def load_game(game_state, save_slot):
     Load game state from file
     """
     save_loc = save_slot.save_loc
+    logging.info("Loading from %s", save_loc)
     with open(save_loc, 'rb') as fp:
         s_dict = pickle.load(fp)
     game_state.build_new()
@@ -138,7 +143,7 @@ def set_next_uids(game_state):
 
 def load_saves():
     save_slots = []
-    for num in range(0, int(DB.constants.get('num_save_slots').value)):
+    for num in range(0, int(DB.constants.value('num_save_slots'))):
         meta_fp = 'saves/' + GAME_NID + '-' + str(num) + '.pmeta'
         ss = SaveSlot(meta_fp, num)
         save_slots.append(ss)
@@ -146,10 +151,22 @@ def load_saves():
 
 def load_restarts():
     save_slots = []
-    for num in range(0, int(DB.constants.get('num_save_slots').value)):
+    for num in range(0, int(DB.constants.value('num_save_slots'))):
         meta_fp = 'saves/' + GAME_NID + '-restart' + str(num) + '.pmeta'
         ss = SaveSlot(meta_fp, num)
         save_slots.append(ss)
+    return save_slots
+
+def get_all_saves():
+    """
+    Grabs all the turn_change saves
+    """
+    save_slots = []
+    name = 'saves/' + GAME_NID + '-turn_change-*-*.pmeta'
+    for meta_fn in glob.glob(name):
+        ss = SaveSlot(meta_fn, 0)
+        save_slots.append(ss)
+    save_slots = sorted(save_slots, key=lambda x: x.realtime, reverse=True)
     return save_slots
 
 def remove_suspend():

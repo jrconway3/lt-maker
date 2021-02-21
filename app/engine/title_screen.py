@@ -211,7 +211,7 @@ class TitleLoadState(State):
 
         elif event == 'SELECT':
             selection = self.menu.current_index
-            save_slot = save.SAVE_SLOTS[selection]
+            save_slot = self.save_slots[selection]
             if save_slot.kind:
                 logger.info("Loading save of kind %s...", save_slot.kind)
                 game.state.clear()
@@ -324,7 +324,7 @@ class TitleNewState(TitleLoadState):
 
         elif event == 'SELECT':
             selection = self.menu.current_index
-            save_slot = save.SAVE_SLOTS[selection]
+            save_slot = self.save_slots[selection]
             if save_slot.kind:
                 game.memory['option_owner'] = selection
                 game.memory['option_menu'] = self.menu
@@ -332,7 +332,7 @@ class TitleNewState(TitleLoadState):
             else:
                 # TODO Save Sound
                 build_new_game(selection)
-                options, color = save.get_save_title(save.SAVE_SLOTS)
+                options, color = save.get_save_title(self.save_slots)
                 self.menu.set_colors(color)
                 self.menu.update_options(options)
                 game.state.change('title_wait')
@@ -384,7 +384,8 @@ class TitleExtrasState(TitleLoadState):
 
         self.bg = game.memory['title_bg']
 
-        options = ['Options', 'Credits']
+        # options = ['Options', 'Credits']
+        options = ['Options']  # TODO Credits not implemented yet
         if cf.SETTINGS['debug']:
             options.insert(0, 'All Saves')
         self.menu = menus.Main(options, 'title_menu_dark')
@@ -428,6 +429,7 @@ class TitleAllSavesState(TitleLoadState):
         self.bg = game.memory['title_bg']
     
         self.save_slots = save.get_all_saves()
+        print(self.save_slots)
         options, colors = save.get_save_title(self.save_slots)
         self.menu = menus.ChapterSelect(options, colors)
 

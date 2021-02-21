@@ -59,6 +59,7 @@ Guide Menu (also in Base)
 Unit Menu (port)
 Summoning
 Arena
+Credits
 --- 1.0 release
 Fatigue
 Bonus Exp

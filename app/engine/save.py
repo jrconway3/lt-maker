@@ -1,4 +1,4 @@
-import os, shutil, glob
+import os, shutil, glob, re
 from datetime import datetime
 import threading
 
@@ -46,10 +46,16 @@ class SaveSlot():
             self.kind = save_metadata['kind']
 
     def get_name(self):
-        if self.kind:
+        if self.kind == 'turn_change':
+            turn = int(re.findall(r'\d+', self.meta_loc)[-1])
+            return self.name + (' - Turn %d' % turn)
+        elif self.kind:
             return self.name + ' - ' + self.kind
         else:
             return self.name
+
+    def __repr__(self):
+        return '%d: %s' % (self.idx, self.get_name())
 
 def dict_print(d):
     for k, v in d.items():

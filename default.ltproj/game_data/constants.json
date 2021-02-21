@@ -36,15 +36,23 @@
         true
     ],
     [
+        "growth_info",
+        true
+    ],
+    [
         "line_of_sight",
         false
     ],
     [
-        "spell_los",
+        "aura_los",
         false
     ],
     [
-        "aura_los",
+        "fog_los",
+        false
+    ],
+    [
+        "ai_fog_of_war",
         false
     ],
     [
@@ -57,7 +65,7 @@
     ],
     [
         "enemy_leveling",
-        "Match"
+        "Dynamic"
     ],
     [
         "rng",
@@ -89,11 +97,11 @@
     ],
     [
         "attack_zero_hit",
-        false
+        true
     ],
     [
         "attack_zero_dam",
-        false
+        true
     ],
     [
         "zero_move",
@@ -146,10 +154,6 @@
     [
         "default_exp",
         11
-    ],
-    [
-        "steal_exp",
-        0
     ],
     [
         "heal_curve",

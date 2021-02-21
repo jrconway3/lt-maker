@@ -48,6 +48,10 @@
         "expression": "RES"
     },
     {
+        "nid": "MAGIC_RANGE",
+        "expression": "max(5, MAG//2)"
+    },
+    {
         "nid": "CRIT_ADD",
         "expression": "0"
     },
@@ -86,5 +90,9 @@
     {
         "nid": "CONSTITUTION",
         "expression": "CON"
+    },
+    {
+        "nid": "ZERO",
+        "expression": "0"
     }
 ]

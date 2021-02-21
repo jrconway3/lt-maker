@@ -625,7 +625,7 @@
         "nid": "Vanessa",
         "name": "Vanessa",
         "desc": "A sincere, honest, and honourable pegasus knight of Frelia.",
-        "variant": null,
+        "variant": "",
         "level": 1,
         "klass": "Pegasus_Knight",
         "tags": [],
@@ -835,7 +835,7 @@
             ],
             [
                 "STR",
-                150
+                50
             ],
             [
                 "MAG",
@@ -1245,7 +1245,7 @@
         "nid": "Neimi",
         "name": "Neimi",
         "desc": "A childhood friend of Colm who hails from Renais. She cries a lot.",
-        "variant": null,
+        "variant": "Female",
         "level": 1,
         "klass": "Archer",
         "tags": [],
@@ -1492,11 +1492,11 @@
                 false
             ],
             [
-                "Vulnerary",
+                "Lockpick",
                 false
             ],
             [
-                "Red Gem",
+                "Vulnerary",
                 false
             ]
         ],
@@ -1708,7 +1708,7 @@
         "nid": "Lute",
         "name": "Lute",
         "desc": "A young mage of Renais. She believes she is a prodigy.",
-        "variant": null,
+        "variant": "Female",
         "level": 1,
         "klass": "Mage",
         "tags": [],
@@ -1798,7 +1798,7 @@
         ],
         "starting_items": [
             [
-                "Anima",
+                "Fire",
                 false
             ]
         ],
@@ -1856,8 +1856,8 @@
     {
         "nid": "Natasha",
         "name": "Natasha",
-        "desc": "A beautiful cleric from the Grado Empire. She\u2019s graceful and serious.",
-        "variant": null,
+        "desc": "A beautiful cleric from the Grado Empire. She's graceful and serious.",
+        "variant": "Female",
         "level": 1,
         "klass": "Cleric",
         "tags": [],
@@ -2010,7 +2010,7 @@
         "nid": "Joshua",
         "name": "Joshua",
         "desc": "A wandering sword fighter from Jehanna. He loves to gamble.",
-        "variant": null,
+        "variant": "",
         "level": 5,
         "klass": "Myrmidon",
         "tags": [],
@@ -2154,6 +2154,2659 @@
         ],
         "alternate_classes": null,
         "portrait_nid": "Joshua"
+    },
+    {
+        "nid": "Ephraim",
+        "name": "Ephraim",
+        "desc": "The prince of Renais. He is a man of great honour and bravery.",
+        "variant": null,
+        "level": 4,
+        "klass": "Ephraim_Lord",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                23
+            ],
+            [
+                "STR",
+                8
+            ],
+            [
+                "MAG",
+                4
+            ],
+            [
+                "SKL",
+                9
+            ],
+            [
+                "SPD",
+                11
+            ],
+            [
+                "LCK",
+                8
+            ],
+            [
+                "DEF",
+                7
+            ],
+            [
+                "RES",
+                2
+            ],
+            [
+                "CON",
+                8
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                80
+            ],
+            [
+                "STR",
+                55
+            ],
+            [
+                "MAG",
+                25
+            ],
+            [
+                "SKL",
+                55
+            ],
+            [
+                "SPD",
+                45
+            ],
+            [
+                "LCK",
+                50
+            ],
+            [
+                "DEF",
+                35
+            ],
+            [
+                "RES",
+                25
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Reginleif",
+                false
+            ],
+            [
+                "Steel Lance",
+                false
+            ],
+            [
+                "Elixir",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                true,
+                "Lance",
+                31
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Ephraim"
+    },
+    {
+        "nid": "Forde",
+        "name": "Forde",
+        "desc": "A cavalier from Renais. He is skilled, but reckless. He\u2019s Franz\u2019s brother.",
+        "variant": null,
+        "level": 6,
+        "klass": "Cavalier",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                24
+            ],
+            [
+                "STR",
+                7
+            ],
+            [
+                "MAG",
+                4
+            ],
+            [
+                "SKL",
+                8
+            ],
+            [
+                "SPD",
+                8
+            ],
+            [
+                "LCK",
+                7
+            ],
+            [
+                "DEF",
+                8
+            ],
+            [
+                "RES",
+                2
+            ],
+            [
+                "CON",
+                9
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                85
+            ],
+            [
+                "STR",
+                40
+            ],
+            [
+                "MAG",
+                25
+            ],
+            [
+                "SKL",
+                50
+            ],
+            [
+                "SPD",
+                45
+            ],
+            [
+                "LCK",
+                35
+            ],
+            [
+                "DEF",
+                20
+            ],
+            [
+                "RES",
+                25
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Steel Sword",
+                false
+            ],
+            [
+                "Javelin",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                true,
+                "Sword",
+                31
+            ],
+            [
+                true,
+                "Lance",
+                71
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Forde"
+    },
+    {
+        "nid": "Kyle",
+        "name": "Kyle",
+        "desc": "A steadfast and honourable cavalier in sworn service to Renais.",
+        "variant": null,
+        "level": 5,
+        "klass": "Cavalier",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                25
+            ],
+            [
+                "STR",
+                9
+            ],
+            [
+                "MAG",
+                4
+            ],
+            [
+                "SKL",
+                6
+            ],
+            [
+                "SPD",
+                7
+            ],
+            [
+                "LCK",
+                6
+            ],
+            [
+                "DEF",
+                9
+            ],
+            [
+                "RES",
+                1
+            ],
+            [
+                "CON",
+                10
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                90
+            ],
+            [
+                "STR",
+                50
+            ],
+            [
+                "MAG",
+                25
+            ],
+            [
+                "SKL",
+                40
+            ],
+            [
+                "SPD",
+                40
+            ],
+            [
+                "LCK",
+                20
+            ],
+            [
+                "DEF",
+                25
+            ],
+            [
+                "RES",
+                20
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Iron Sword",
+                false
+            ],
+            [
+                "Steel Lance",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                true,
+                "Sword",
+                31
+            ],
+            [
+                true,
+                "Lance",
+                71
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Kyle"
+    },
+    {
+        "nid": "Orson",
+        "name": "Orson",
+        "desc": "A cavalier of Renais. He\u2019s a devoted husband and a serene and quiet man.",
+        "variant": null,
+        "level": 3,
+        "klass": "Paladin",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                34
+            ],
+            [
+                "STR",
+                15
+            ],
+            [
+                "MAG",
+                8
+            ],
+            [
+                "SKL",
+                13
+            ],
+            [
+                "SPD",
+                11
+            ],
+            [
+                "LCK",
+                4
+            ],
+            [
+                "DEF",
+                13
+            ],
+            [
+                "RES",
+                7
+            ],
+            [
+                "CON",
+                12
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                80
+            ],
+            [
+                "STR",
+                55
+            ],
+            [
+                "MAG",
+                30
+            ],
+            [
+                "SKL",
+                45
+            ],
+            [
+                "SPD",
+                40
+            ],
+            [
+                "LCK",
+                25
+            ],
+            [
+                "DEF",
+                45
+            ],
+            [
+                "RES",
+                30
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Silver Sword",
+                false
+            ],
+            [
+                "Steel Lance",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                true,
+                "Sword",
+                181
+            ],
+            [
+                true,
+                "Lance",
+                181
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Orson"
+    },
+    {
+        "nid": "Tana",
+        "name": "Tana",
+        "desc": "A young lady of Frelia. She is both cheery and sociable.",
+        "variant": null,
+        "level": 4,
+        "klass": "Pegasus_Knight",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                20
+            ],
+            [
+                "STR",
+                7
+            ],
+            [
+                "MAG",
+                4
+            ],
+            [
+                "SKL",
+                9
+            ],
+            [
+                "SPD",
+                13
+            ],
+            [
+                "LCK",
+                8
+            ],
+            [
+                "DEF",
+                6
+            ],
+            [
+                "RES",
+                7
+            ],
+            [
+                "CON",
+                5
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                65
+            ],
+            [
+                "STR",
+                45
+            ],
+            [
+                "MAG",
+                25
+            ],
+            [
+                "SKL",
+                40
+            ],
+            [
+                "SPD",
+                65
+            ],
+            [
+                "LCK",
+                60
+            ],
+            [
+                "DEF",
+                20
+            ],
+            [
+                "RES",
+                25
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Heavy Spear",
+                false
+            ],
+            [
+                "Javelin",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                true,
+                "Lance",
+                31
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Tana"
+    },
+    {
+        "nid": "Amelia",
+        "name": "Amelia",
+        "desc": "A young girl from a small village in Grado. She is honest and sincere.",
+        "variant": null,
+        "level": 1,
+        "klass": "Recruit",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                16
+            ],
+            [
+                "STR",
+                4
+            ],
+            [
+                "MAG",
+                2
+            ],
+            [
+                "SKL",
+                3
+            ],
+            [
+                "SPD",
+                4
+            ],
+            [
+                "LCK",
+                6
+            ],
+            [
+                "DEF",
+                2
+            ],
+            [
+                "RES",
+                3
+            ],
+            [
+                "CON",
+                6
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                70
+            ],
+            [
+                "STR",
+                45
+            ],
+            [
+                "MAG",
+                30
+            ],
+            [
+                "SKL",
+                50
+            ],
+            [
+                "SPD",
+                50
+            ],
+            [
+                "LCK",
+                60
+            ],
+            [
+                "DEF",
+                35
+            ],
+            [
+                "RES",
+                20
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Slim Lance",
+                false
+            ],
+            [
+                "Speedwing",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                true,
+                "Lance",
+                1
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Amelia"
+    },
+    {
+        "nid": "Innes",
+        "name": "Innes",
+        "desc": "The prince of Frelia. He\u2019s brash and arrogant, but good at heart.",
+        "variant": null,
+        "level": 1,
+        "klass": "Sniper",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                31
+            ],
+            [
+                "STR",
+                14
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                13
+            ],
+            [
+                "SPD",
+                15
+            ],
+            [
+                "LCK",
+                14
+            ],
+            [
+                "DEF",
+                10
+            ],
+            [
+                "RES",
+                9
+            ],
+            [
+                "CON",
+                9
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                75
+            ],
+            [
+                "STR",
+                40
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                40
+            ],
+            [
+                "SPD",
+                45
+            ],
+            [
+                "LCK",
+                45
+            ],
+            [
+                "DEF",
+                20
+            ],
+            [
+                "RES",
+                25
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Silver Bow",
+                false
+            ],
+            [
+                "White Gem",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                true,
+                "Bow",
+                181
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Innes"
+    },
+    {
+        "nid": "Gerik",
+        "name": "Gerik",
+        "desc": "A mercenary leader from Jehanna. He\u2019s better known as the Desert Tiger.",
+        "variant": null,
+        "level": 10,
+        "klass": "Mercenary",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                32
+            ],
+            [
+                "STR",
+                14
+            ],
+            [
+                "MAG",
+                7
+            ],
+            [
+                "SKL",
+                13
+            ],
+            [
+                "SPD",
+                13
+            ],
+            [
+                "LCK",
+                8
+            ],
+            [
+                "DEF",
+                10
+            ],
+            [
+                "RES",
+                4
+            ],
+            [
+                "CON",
+                13
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                90
+            ],
+            [
+                "STR",
+                45
+            ],
+            [
+                "MAG",
+                20
+            ],
+            [
+                "SKL",
+                40
+            ],
+            [
+                "SPD",
+                30
+            ],
+            [
+                "LCK",
+                30
+            ],
+            [
+                "DEF",
+                35
+            ],
+            [
+                "RES",
+                25
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Steel Blade",
+                false
+            ],
+            [
+                "Hero Crest",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                true,
+                "Sword",
+                71
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Gerik"
+    },
+    {
+        "nid": "Tethys",
+        "name": "Tethys",
+        "desc": "A beautiful and charming dancer from Jehanna.",
+        "variant": null,
+        "level": 1,
+        "klass": "Dancer",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                18
+            ],
+            [
+                "STR",
+                1
+            ],
+            [
+                "MAG",
+                1
+            ],
+            [
+                "SKL",
+                2
+            ],
+            [
+                "SPD",
+                12
+            ],
+            [
+                "LCK",
+                10
+            ],
+            [
+                "DEF",
+                5
+            ],
+            [
+                "RES",
+                4
+            ],
+            [
+                "CON",
+                5
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                85
+            ],
+            [
+                "STR",
+                5
+            ],
+            [
+                "MAG",
+                5
+            ],
+            [
+                "SKL",
+                10
+            ],
+            [
+                "SPD",
+                70
+            ],
+            [
+                "LCK",
+                80
+            ],
+            [
+                "DEF",
+                30
+            ],
+            [
+                "RES",
+                75
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Elixir",
+                false
+            ],
+            [
+                "Goddess Icon",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Tethys"
+    },
+    {
+        "nid": "Marisa",
+        "name": "Marisa",
+        "desc": "An aloof sword fighter from Jehanna. She\u2019s known as the Crimson Flash.",
+        "variant": null,
+        "level": 5,
+        "klass": "Myrmidon",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                23
+            ],
+            [
+                "STR",
+                7
+            ],
+            [
+                "MAG",
+                4
+            ],
+            [
+                "SKL",
+                12
+            ],
+            [
+                "SPD",
+                13
+            ],
+            [
+                "LCK",
+                9
+            ],
+            [
+                "DEF",
+                4
+            ],
+            [
+                "RES",
+                3
+            ],
+            [
+                "CON",
+                5
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                75
+            ],
+            [
+                "STR",
+                30
+            ],
+            [
+                "MAG",
+                20
+            ],
+            [
+                "SKL",
+                55
+            ],
+            [
+                "SPD",
+                60
+            ],
+            [
+                "LCK",
+                50
+            ],
+            [
+                "DEF",
+                15
+            ],
+            [
+                "RES",
+                25
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Shamshir",
+                false
+            ],
+            [
+                "Elixir",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                true,
+                "Sword",
+                31
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Marisa"
+    },
+    {
+        "nid": "L'arachel",
+        "name": "L'arachel",
+        "desc": "A young woman from Rausten. She fights for justice and honour.",
+        "variant": null,
+        "level": 3,
+        "klass": "Troubadour",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                18
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                6
+            ],
+            [
+                "SKL",
+                6
+            ],
+            [
+                "SPD",
+                10
+            ],
+            [
+                "LCK",
+                12
+            ],
+            [
+                "DEF",
+                5
+            ],
+            [
+                "RES",
+                8
+            ],
+            [
+                "CON",
+                5
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                45
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                50
+            ],
+            [
+                "SKL",
+                45
+            ],
+            [
+                "SPD",
+                45
+            ],
+            [
+                "LCK",
+                65
+            ],
+            [
+                "DEF",
+                15
+            ],
+            [
+                "RES",
+                50
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Mend",
+                false
+            ],
+            [
+                "White Gem",
+                false
+            ],
+            [
+                "Elixir",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                true,
+                "Staff",
+                31
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "L'arachel"
+    },
+    {
+        "nid": "Dozla",
+        "name": "Dozla",
+        "desc": "A berserker from Rausten. He\u2019s a hearty man with a thirst for life.",
+        "variant": null,
+        "level": 1,
+        "klass": "Berserker",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                43
+            ],
+            [
+                "STR",
+                16
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                11
+            ],
+            [
+                "SPD",
+                9
+            ],
+            [
+                "LCK",
+                4
+            ],
+            [
+                "DEF",
+                11
+            ],
+            [
+                "RES",
+                6
+            ],
+            [
+                "CON",
+                16
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                85
+            ],
+            [
+                "STR",
+                50
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                35
+            ],
+            [
+                "SPD",
+                40
+            ],
+            [
+                "LCK",
+                30
+            ],
+            [
+                "DEF",
+                30
+            ],
+            [
+                "RES",
+                25
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Battle Axe",
+                false
+            ],
+            [
+                "Elixir",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                true,
+                "Axe",
+                121
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Dozla"
+    },
+    {
+        "nid": "Saleh",
+        "name": "Saleh",
+        "desc": "A sage from the village Caer Pelyn. He\u2019s Ewan\u2019s solemn, but kind, teacher.",
+        "variant": null,
+        "level": 1,
+        "klass": "Sage",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                30
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                16
+            ],
+            [
+                "SKL",
+                18
+            ],
+            [
+                "SPD",
+                14
+            ],
+            [
+                "LCK",
+                11
+            ],
+            [
+                "DEF",
+                8
+            ],
+            [
+                "RES",
+                13
+            ],
+            [
+                "CON",
+                8
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                50
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                30
+            ],
+            [
+                "SKL",
+                25
+            ],
+            [
+                "SPD",
+                40
+            ],
+            [
+                "LCK",
+                40
+            ],
+            [
+                "DEF",
+                30
+            ],
+            [
+                "RES",
+                35
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Elfire",
+                false
+            ],
+            [
+                "Thunder",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                true,
+                "Staff",
+                71
+            ],
+            [
+                true,
+                "Light",
+                121
+            ],
+            [
+                true,
+                "Anima",
+                181
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Saleh"
+    },
+    {
+        "nid": "Ewan",
+        "name": "Ewan",
+        "desc": "A sage-in-training from Jehanna. He reveres his teacher, Saleh.",
+        "variant": null,
+        "level": 1,
+        "klass": "Citizen",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                15
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                3
+            ],
+            [
+                "SKL",
+                2
+            ],
+            [
+                "SPD",
+                5
+            ],
+            [
+                "LCK",
+                5
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                3
+            ],
+            [
+                "CON",
+                5
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                60
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                55
+            ],
+            [
+                "SKL",
+                50
+            ],
+            [
+                "SPD",
+                45
+            ],
+            [
+                "LCK",
+                60
+            ],
+            [
+                "DEF",
+                20
+            ],
+            [
+                "RES",
+                45
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Fire",
+                false
+            ],
+            [
+                "Energy Ring",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                true,
+                "Anima",
+                1
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Ewan"
+    },
+    {
+        "nid": "Cormag",
+        "name": "Cormag",
+        "desc": "A wyvern knight of Grado. A gentle man, but a ferocious warrior.",
+        "variant": null,
+        "level": 9,
+        "klass": "Wyvern Rider",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                30
+            ],
+            [
+                "STR",
+                14
+            ],
+            [
+                "MAG",
+                7
+            ],
+            [
+                "SKL",
+                9
+            ],
+            [
+                "SPD",
+                10
+            ],
+            [
+                "LCK",
+                4
+            ],
+            [
+                "DEF",
+                12
+            ],
+            [
+                "RES",
+                2
+            ],
+            [
+                "CON",
+                11
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                85
+            ],
+            [
+                "STR",
+                55
+            ],
+            [
+                "MAG",
+                25
+            ],
+            [
+                "SKL",
+                40
+            ],
+            [
+                "SPD",
+                45
+            ],
+            [
+                "LCK",
+                35
+            ],
+            [
+                "DEF",
+                25
+            ],
+            [
+                "RES",
+                15
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Killer Lance",
+                false
+            ],
+            [
+                "Iron Lance",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                true,
+                "Lance",
+                71
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Cormag"
+    },
+    {
+        "nid": "Rennac",
+        "name": "Rennac",
+        "desc": "A lazy, greedy, but exceptional fighter from the Republic of Carcino.",
+        "variant": null,
+        "level": 1,
+        "klass": "Rogue",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                28
+            ],
+            [
+                "STR",
+                10
+            ],
+            [
+                "MAG",
+                5
+            ],
+            [
+                "SKL",
+                16
+            ],
+            [
+                "SPD",
+                17
+            ],
+            [
+                "LCK",
+                5
+            ],
+            [
+                "DEF",
+                9
+            ],
+            [
+                "RES",
+                11
+            ],
+            [
+                "CON",
+                7
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                65
+            ],
+            [
+                "STR",
+                25
+            ],
+            [
+                "MAG",
+                15
+            ],
+            [
+                "SKL",
+                45
+            ],
+            [
+                "SPD",
+                60
+            ],
+            [
+                "LCK",
+                25
+            ],
+            [
+                "DEF",
+                25
+            ],
+            [
+                "RES",
+                30
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Steel Sword",
+                false
+            ],
+            [
+                "Elixir",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                true,
+                "Sword",
+                1
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Rennac"
+    },
+    {
+        "nid": "Duessel",
+        "name": "Duessel",
+        "desc": "A courageous general in Grado\u2019s army. He\u2019s better known as Obsidian.",
+        "variant": null,
+        "level": 9,
+        "klass": "Great_Knight",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                41
+            ],
+            [
+                "STR",
+                17
+            ],
+            [
+                "MAG",
+                2
+            ],
+            [
+                "SKL",
+                12
+            ],
+            [
+                "SPD",
+                12
+            ],
+            [
+                "LCK",
+                8
+            ],
+            [
+                "DEF",
+                17
+            ],
+            [
+                "RES",
+                9
+            ],
+            [
+                "CON",
+                15
+            ],
+            [
+                "MOV",
+                6
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                85
+            ],
+            [
+                "STR",
+                55
+            ],
+            [
+                "MAG",
+                5
+            ],
+            [
+                "SKL",
+                40
+            ],
+            [
+                "SPD",
+                30
+            ],
+            [
+                "LCK",
+                20
+            ],
+            [
+                "DEF",
+                45
+            ],
+            [
+                "RES",
+                30
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Silver Lance",
+                false
+            ],
+            [
+                "Silver Axe",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                181
+            ],
+            [
+                false,
+                "Lance",
+                181
+            ],
+            [
+                false,
+                "Axe",
+                181
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Duessel"
     },
     {
         "nid": "O'Neill",
@@ -2607,5 +5260,1233 @@
         ],
         "alternate_classes": null,
         "portrait_nid": "Bone"
+    },
+    {
+        "nid": "Bazba",
+        "name": "Bazba",
+        "desc": "The leader of Bazba's bandits.",
+        "variant": "",
+        "level": 6,
+        "klass": "Brigand",
+        "tags": [
+            "Boss"
+        ],
+        "bases": [
+            [
+                "HP",
+                26
+            ],
+            [
+                "STR",
+                9
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                6
+            ],
+            [
+                "SPD",
+                8
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                5
+            ],
+            [
+                "CON",
+                12
+            ],
+            [
+                "MOV",
+                5
+            ],
+            [
+                "RES",
+                3
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ],
+            [
+                "RES",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Steel Axe",
+                false
+            ],
+            [
+                "Hand Axe",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                true,
+                "Axe",
+                71
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Bazba"
+    },
+    {
+        "nid": "Saar",
+        "name": "Saar",
+        "desc": "Commander of Grado's border guard.\nHis loyalty is unshakable.",
+        "variant": "",
+        "level": 8,
+        "klass": "Knight",
+        "tags": [
+            "Boss"
+        ],
+        "bases": [
+            [
+                "HP",
+                30
+            ],
+            [
+                "STR",
+                12
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                8
+            ],
+            [
+                "SPD",
+                3
+            ],
+            [
+                "LCK",
+                4
+            ],
+            [
+                "DEF",
+                11
+            ],
+            [
+                "CON",
+                13
+            ],
+            [
+                "MOV",
+                4
+            ],
+            [
+                "RES",
+                3
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ],
+            [
+                "RES",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Javelin",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                71
+            ],
+            [
+                true,
+                "Axe",
+                710
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Saar"
+    },
+    {
+        "nid": "Selena",
+        "name": "Selena",
+        "desc": "",
+        "variant": "Female",
+        "level": 11,
+        "klass": "Mage Knight",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                39
+            ],
+            [
+                "STR",
+                6
+            ],
+            [
+                "MAG",
+                14
+            ],
+            [
+                "SKL",
+                14
+            ],
+            [
+                "SPD",
+                17
+            ],
+            [
+                "LCK",
+                11
+            ],
+            [
+                "DEF",
+                11
+            ],
+            [
+                "RES",
+                18
+            ],
+            [
+                "CON",
+                6
+            ],
+            [
+                "MOV",
+                7
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Bolting",
+                false
+            ],
+            [
+                "Elfire",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                121
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                181
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Selena"
+    },
+    {
+        "nid": "Vigarde",
+        "name": "Vigarde",
+        "desc": "",
+        "variant": "",
+        "level": 13,
+        "klass": "General",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                54
+            ],
+            [
+                "STR",
+                22
+            ],
+            [
+                "MAG",
+                7
+            ],
+            [
+                "SKL",
+                15
+            ],
+            [
+                "SPD",
+                11
+            ],
+            [
+                "LCK",
+                10
+            ],
+            [
+                "DEF",
+                21
+            ],
+            [
+                "RES",
+                13
+            ],
+            [
+                "CON",
+                17
+            ],
+            [
+                "MOV",
+                5
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Spear",
+                false
+            ],
+            [
+                "Knight Crest",
+                true
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                181
+            ],
+            [
+                false,
+                "Lance",
+                251
+            ],
+            [
+                false,
+                "Axe",
+                181
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "VigardeHealthy"
+    },
+    {
+        "nid": "Caellach",
+        "name": "Caellach",
+        "desc": "",
+        "variant": null,
+        "level": 12,
+        "klass": "Hero",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                50
+            ],
+            [
+                "STR",
+                20
+            ],
+            [
+                "MAG",
+                3
+            ],
+            [
+                "SKL",
+                15
+            ],
+            [
+                "SPD",
+                14
+            ],
+            [
+                "LCK",
+                15
+            ],
+            [
+                "DEF",
+                16
+            ],
+            [
+                "RES",
+                14
+            ],
+            [
+                "CON",
+                13
+            ],
+            [
+                "MOV",
+                6
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Tomahawk",
+                false
+            ],
+            [
+                "Silver Axe",
+                false
+            ],
+            [
+                "Hoplon Guard",
+                true
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                181
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                251
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Caellach"
+    },
+    {
+        "nid": "Valter",
+        "name": "Valter",
+        "desc": "",
+        "variant": null,
+        "level": 131,
+        "klass": "Wyvern Knight",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                48
+            ],
+            [
+                "STR",
+                20
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                18
+            ],
+            [
+                "SPD",
+                18
+            ],
+            [
+                "LCK",
+                4
+            ],
+            [
+                "DEF",
+                14
+            ],
+            [
+                "RES",
+                13
+            ],
+            [
+                "CON",
+                11
+            ],
+            [
+                "MOV",
+                8
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Spear",
+                false
+            ],
+            [
+                "Killer Lance",
+                false
+            ],
+            [
+                "Fili Shield",
+                true
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                251
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                0
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Valter"
+    },
+    {
+        "nid": "Riev",
+        "name": "Riev",
+        "desc": "",
+        "variant": null,
+        "level": 16,
+        "klass": "Cleric",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                51
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                16
+            ],
+            [
+                "SKL",
+                22
+            ],
+            [
+                "SPD",
+                20
+            ],
+            [
+                "LCK",
+                11
+            ],
+            [
+                "DEF",
+                16
+            ],
+            [
+                "RES",
+                20
+            ],
+            [
+                "CON",
+                7
+            ],
+            [
+                "MOV",
+                6
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Aura",
+                true
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                181
+            ],
+            [
+                false,
+                "Light",
+                251
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                0
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Riev"
+    },
+    {
+        "nid": "Lyon",
+        "name": "Lyon",
+        "desc": "",
+        "variant": null,
+        "level": 14,
+        "klass": "Necromancer",
+        "tags": [],
+        "bases": [
+            [
+                "HP",
+                46
+            ],
+            [
+                "STR",
+                1
+            ],
+            [
+                "MAG",
+                24
+            ],
+            [
+                "SKL",
+                14
+            ],
+            [
+                "SPD",
+                12
+            ],
+            [
+                "LCK",
+                5
+            ],
+            [
+                "DEF",
+                17
+            ],
+            [
+                "RES",
+                20
+            ],
+            [
+                "CON",
+                7
+            ],
+            [
+                "MOV",
+                6
+            ]
+        ],
+        "growths": [
+            [
+                "HP",
+                0
+            ],
+            [
+                "STR",
+                0
+            ],
+            [
+                "MAG",
+                0
+            ],
+            [
+                "SKL",
+                0
+            ],
+            [
+                "SPD",
+                0
+            ],
+            [
+                "LCK",
+                0
+            ],
+            [
+                "DEF",
+                0
+            ],
+            [
+                "RES",
+                0
+            ],
+            [
+                "CON",
+                0
+            ],
+            [
+                "MOV",
+                0
+            ]
+        ],
+        "starting_items": [
+            [
+                "Nosferatu",
+                false
+            ],
+            [
+                "Fenrir",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "wexp_gain": [
+            [
+                false,
+                "Sword",
+                0
+            ],
+            [
+                false,
+                "Lance",
+                0
+            ],
+            [
+                false,
+                "Axe",
+                0
+            ],
+            [
+                false,
+                "Bow",
+                0
+            ],
+            [
+                false,
+                "Staff",
+                181
+            ],
+            [
+                false,
+                "Light",
+                0
+            ],
+            [
+                false,
+                "Anima",
+                0
+            ],
+            [
+                false,
+                "Dark",
+                251
+            ],
+            [
+                false,
+                "Default",
+                0
+            ]
+        ],
+        "alternate_classes": null,
+        "portrait_nid": "Lyon"
     }
 ]

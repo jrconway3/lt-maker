@@ -42,9 +42,8 @@ class ProjectFileBackend():
         return True
 
     def save(self, new=False):
-        print("Save", self.current_proj, os.path.basename(self.current_proj))
         # check if we're editing default, if so, prompt to save as
-        if os.path.basename(self.current_proj) == 'default.ltproj':
+        if self.current_proj and os.path.basename(self.current_proj) == 'default.ltproj':
             self.current_proj = None
         if new or not self.current_proj:
             starting_path = self.current_proj or QDir.currentPath()
@@ -103,7 +102,10 @@ class ProjectFileBackend():
     def open(self):
         if self.maybe_save():
             # Go up one directory when starting
-            starting_path = os.path.join(self.current_proj, '..') or QDir.currentPath()
+            if self.current_proj:
+                starting_path = os.path.join(self.current_proj, '..')
+            else:
+                starting_path = QDir.currentPath()
             fn = QFileDialog.getExistingDirectory(
                 self.parent, "Open Project Directory", starting_path)
             if fn:

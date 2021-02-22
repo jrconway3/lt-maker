@@ -384,14 +384,22 @@ class UpdateFogOfWar(Action):
         # Handle fog of war
         if game.level_vars.get('_fog_of_war'):
             self.prev_pos = game.board.fow_vantage_point.get(self.unit.nid)
-            sight_range = skill_system.sight_range(self.unit) + game.level_vars.get('_fog_of_war_radius', 0)
+            if self.unit.team == 'player':
+                fog_of_war_radius = game.level_vars.get('_fog_of_war_radius', 0)
+            else:
+                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))
+            sight_range = skill_system.sight_range(self.unit) + fog_of_war_radius
             game.board.update_fow(self.unit.position, self.unit, sight_range)
             game.boundary.reset_fog_of_war()
 
     def reverse(self):
         # Handle fog of war
         if game.level_vars.get('_fog_of_war'):
-            sight_range = skill_system.sight_range(self.unit) + game.level_vars.get('_fog_of_war_radius', 0)
+            if self.unit.team == 'player':
+                fog_of_war_radius = game.level_vars.get('_fog_of_war_radius', 0)
+            else:
+                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))
+            sight_range = skill_system.sight_range(self.unit) + fog_of_war_radius
             game.board.update_fow(self.prev_pos, self.unit, sight_range)
             game.boundary.reset_fog_of_war()
 

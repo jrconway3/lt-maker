@@ -464,7 +464,7 @@ class Event():
                 logging.error("Could not evaluate {%s}" % to_eval)
                 return
             # Need to update fog of war when we change it
-            if nid in ('_fog_of_war', '_fog_of_war_radius'):
+            if nid in ('_fog_of_war', '_fog_of_war_radius', '_ai_fog_of_war_radius'):
                 for unit in game.units:
                     if unit.position:
                         action.do(action.UpdateFogOfWar(unit))
@@ -552,6 +552,8 @@ class Event():
                 return 
             if values[1] in DB.teams:
                 action.do(action.ChangeTeam(unit, values[1]))
+                if unit.position:
+                    action.do(action.UpdateFogOfWar(unit))
             else:
                 logging.error("Not a valid team: %s" % values[1])
                 return

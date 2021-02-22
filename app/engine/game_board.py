@@ -130,7 +130,8 @@ class GameBoard(object):
         idx = pos[0] * self.height + pos[1]
         if team == 'player':
             if DB.constants.value('fog_los'):
-                valid = line_of_sight.simple_check(pos, 'player', game.level_vars.get('_fog_of_war_radius'))
+                fog_of_war_radius = game.level_vars.get('_fog_of_war_radius', 0)
+                valid = line_of_sight.simple_check(pos, 'player', fog_of_war_radius)
                 if not valid:
                     return False
             player_grid = self.fog_of_war_grids['player']
@@ -141,7 +142,8 @@ class GameBoard(object):
                 return True
         else:
             if DB.constants.value('fog_los'):
-                valid = line_of_sight.simple_check(pos, team, game.level_vars.get('_fog_of_war_radius'))
+                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))
+                valid = line_of_sight.simple_check(pos, team, fog_of_war_radius)
                 if not valid:
                     return False
             grid = self.fog_of_war_grids[team]

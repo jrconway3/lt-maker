@@ -22,3 +22,6 @@ class LoreModel(DragDropCollectionModel):
         new_lore = lore.Lore(nid, name, name)
         DB.lore.append(new_lore)
         return new_lore
+
+    def on_nid_changed(self, old_value, new_value):
+        pass

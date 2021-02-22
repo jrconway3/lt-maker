@@ -16,5 +16,6 @@ _lose_game bool
 _level_end_triggered bool
 _fog_of_war int (1 -- GBA Fog, 2 -- Thracia Fog, 3 -- Can see enemy class, but no more, 4 -- Can see enemy position, but no more)
 _fog_of_war_radius int
+_ai_fog_of_war_radius int
 _prep_slots int
 _prep_pick bool

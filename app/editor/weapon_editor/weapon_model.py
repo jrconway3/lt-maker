@@ -122,11 +122,12 @@ class WeaponModel(DragDropCollectionModel):
         for unit in DB.units:
             unit.wexp_gain.new(idx, DB.weapons)
 
-    def removeRows(self, row, count, parent):
+    def removeRows(self, row, count, parent) -> bool:
         result = super().removeRows(row, count, parent)
         if result and self.most_recent_dragdrop:
             fro, to = self.most_recent_dragdrop[0], self.most_recent_dragdrop[1]
             self._drag_foreign_data(fro, to)
+        return result
 
     # Called on drag and drop
     def _drag_foreign_data(self, fro, to):

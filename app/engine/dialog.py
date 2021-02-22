@@ -20,9 +20,10 @@ class Dialog():
 
     aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}')
 
-    def __init__(self, text, portrait=None, background=None, position=None, width=None):
+    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None):
         self.plain_text = text
         self.portrait = portrait
+        self.speaker = speaker
         self.font_type = 'convo'
         self.font_color = 'black'
         self.font = FONT[self.font_type + '-' + self.font_color]
@@ -68,6 +69,7 @@ class Dialog():
         else:
             self.background = None
             self.tail = None
+        self.name_tag_surf = create_base_surf(64, 16, 'name_tag')
 
         # For drawing
         self.cursor_offset_index = 0
@@ -373,6 +375,16 @@ class Dialog():
         tail_surf = image_mods.make_translucent(tail_surf, .05)
         surf.blit(tail_surf, (x_pos, y_pos))
 
+    def draw_nametag(self, surf, name):
+        x_pos = self.position[0] - 4
+        y_pos = self.position[1] - 10
+        if x_pos < 0:
+            x_pos = self.position[0] + 16
+        name_tag_surf = self.name_tag_surf.copy()
+        self.font.blit_center(name, name_tag_surf, (name_tag_surf.get_width()//2, name_tag_surf.get_height()//2 - self.font.height//2))
+        surf.blit(name_tag_surf, (x_pos, y_pos))
+        return surf
+
     def draw(self, surf):
         if self.background:
             if self.state == 'transition':
@@ -390,6 +402,9 @@ class Dialog():
             # Draw message tail
             if self.portrait and self.background and self.tail:
                 self.draw_tail(surf, self.portrait)
+            # Draw nametag
+            if not self.portrait and self.speaker and self.speaker != 'Narrator':
+                self.draw_nametag(surf, self.speaker)
             # Draw text
             end_pos = self.draw_text(surf)
 

@@ -35,9 +35,10 @@ class MapView():
             unit.sound.update()
             if unit.position or unit.sprite.fake_position:
                 surf = unit.sprite.draw(surf)
-        for unit in draw_units:
-            if unit.position or unit.sprite.fake_position:
-                surf = unit.sprite.draw_hp(surf)
+        if 'event' not in game.state.state_names():
+            for unit in draw_units:
+                if unit.position or unit.sprite.fake_position:
+                    surf = unit.sprite.draw_hp(surf)
 
     def draw(self):
         game.level.tilemap.update()

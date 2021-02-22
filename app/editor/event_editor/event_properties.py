@@ -480,7 +480,7 @@ class EventCollection(QWidget):
             # real_index = self.proxy_model.mapToSource(current_index)
             # obj = self._data[real_index.row()]
             obj = self.display.current
-            if obj and (filt != obj.level_nid or (filt == "Global" and obj.level_nid)):
+            if obj and ((filt != "Global" and filt != obj.level_nid) or (filt == "Global" and obj.level_nid)):
                 # Change selection only if we need to!
                 first_index = self.proxy_model.index(0, 0)
                 self.view.setCurrentIndex(first_index)
@@ -645,6 +645,7 @@ class EventProperties(QWidget):
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Event ID %s already in use' % self.current.nid)
             self.current.name = str_utils.get_next_name(self.current.name, other_names)
+            self.name_box.edit.setText(self.current.name)
         self._data.update_nid(self.current, self.current.nid, set_nid=False)
         self.window.update_list()
 
@@ -661,11 +662,13 @@ class EventProperties(QWidget):
     def level_nid_changed(self, idx):
         if idx == 0:
             self.current.level_nid = None
+            self.name_done_editing()
             self.show_map_button.setEnabled(False)
             if self.level_filter_box.edit.currentText() != "All":
                 self.level_filter_box.edit.setValue("Global")
         else:
             self.current.level_nid = DB.levels[idx - 1].nid
+            self.name_done_editing()
             current_level = DB.levels.get(self.current.level_nid)
             if current_level.tilemap:
                 self.show_map_button.setEnabled(True)

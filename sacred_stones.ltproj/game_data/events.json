@@ -6,6 +6,13 @@
         "condition": "True",
         "commands": [
             [
+                "set_current_hp",
+                [
+                    "Seth",
+                    "13"
+                ]
+            ],
+            [
                 "remove_unit",
                 [
                     "Eirika",
@@ -372,13 +379,6 @@
                 "remove_portrait",
                 [
                     "Seth"
-                ]
-            ],
-            [
-                "set_current_hp",
-                [
-                    "Seth",
-                    "13"
                 ]
             ]
         ],
@@ -6186,9 +6186,10 @@
                 ]
             ],
             [
-                "comment",
+                "speak",
                 [
-                    "# speak;Joshua;Say, how are doing {red}head?|The fog of war is{/red}not red."
+                    "Joshua",
+                    "Say, how are doing {red}head?|The fog of war is{/red}not red."
                 ]
             ]
         ],

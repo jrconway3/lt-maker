@@ -936,7 +936,7 @@ class Event():
         portrait = self.portraits.get(speaker)
         text = self._evaluate_evals(text)
         text = self._evaluate_vars(text)
-        new_dialog = dialog.Dialog(text, portrait, 'message_bg_base', position, width)
+        new_dialog = dialog.Dialog(text, portrait, 'message_bg_base', position, width, speaker=speaker)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
         # Bring portrait to forefront

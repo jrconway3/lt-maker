@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
-from app.data import stats, weapons
+from app.data import weapons
 
 @dataclass
 class UnitPrefab(Prefab):
@@ -14,8 +14,8 @@ class UnitPrefab(Prefab):
     klass: str = None
 
     tags: list = None
-    bases: stats.StatList = None
-    growths: stats.StatList = None
+    bases: dict = None
+    growths: dict = None
     starting_items: list = None  # of tuples (ItemPrefab, droppable)
 
     learned_skills: list = None
@@ -49,9 +49,10 @@ class UnitPrefab(Prefab):
 
     def restore_attr(self, name, value):
         if name in ('bases', 'growths'):
-            value = stats.StatList().restore(value)
-        elif name == 'learned_skills':
-            value = [skill for skill in value]
+            if isinstance(value, list):
+                value = {k: v for (k, v) in value}
+            else:
+                value = value
         elif name == 'wexp_gain':
             value = weapons.WexpGainList().restore(value)
         elif name == 'starting_items':

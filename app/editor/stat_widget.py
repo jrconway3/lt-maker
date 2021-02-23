@@ -7,7 +7,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
 from app.utilities import utils
-from app.data.stats import StatList
 from app.data.database import DB
 
 from app.extensions.custom_gui import IntDelegate
@@ -35,7 +34,7 @@ class StatListWidget(QWidget):
             row_values = obj.get_stat_lists()
         else:
             row_titles = ['Example']
-            row_values = [StatList.default(DB)]
+            row_values = [{}]
 
         self.reset_button_flag = reset_button
 
@@ -116,9 +115,9 @@ class StatModel(VirtualListModel):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            row = self._data[index.row()]  # row is a StatList
+            row = self._data[index.row()]  # row is a dict
             key = self._columns[index.column()]
-            val = row.get(key).value
+            val = row.get(key, 0)
             return val
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignRight + Qt.AlignVCenter
@@ -126,10 +125,9 @@ class StatModel(VirtualListModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        row = self._data[index.row()]  # A StatList
+        row = self._data[index.row()]  # A dict
         key = self._columns[index.column()]  # A stat key
-        stat = row.get(key)
-        stat.value = value
+        row[key] = value
         self.dataChanged.emit(index, index)
         return True
 
@@ -256,9 +254,9 @@ class ClassStatAveragesModel(VirtualListModel):
                 level_ups += prev_klass.max_level
             else:
                 level_ups += 0
-        stat_base = obj.bases.get(stat_nid).value
-        stat_growth = obj.growths.get(stat_nid).value
-        stat_max = obj.max_stats.get(stat_nid).value
+        stat_base = obj.bases.get(stat_nid, 0)
+        stat_growth = obj.growths.get(stat_nid, 0)
+        stat_max = obj.max_stats.get(stat_nid, 0)
 
         average = int(stat_base + 0.5 + (stat_growth/100) * level_ups)
 
@@ -324,9 +322,9 @@ class GenericStatAveragesModel(ClassStatAveragesModel):
 
     def determine_average(self, obj, stat_nid, level_ups):
         klass = DB.classes.get(obj.klass)
-        stat_base = klass.bases.get(stat_nid).value
-        stat_growth = klass.growths.get(stat_nid).value
-        stat_max = klass.max_stats.get(stat_nid).value
+        stat_base = klass.bases.get(stat_nid, 0)
+        stat_growth = klass.growths.get(stat_nid, 0)
+        stat_max = klass.max_stats.get(stat_nid, 0)
 
         average = int(stat_base + 0.5 + (stat_growth/100) * level_ups)
 
@@ -381,8 +379,8 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
 
     def determine_average(self, obj, stat_nid, level_ups):
         print(obj.nid, stat_nid, level_ups)
-        stat_base = obj.bases.get(stat_nid).value
-        stat_growth = obj.growths.get(stat_nid).value
+        stat_base = obj.bases.get(stat_nid, 0)
+        stat_growth = obj.growths.get(stat_nid, 0)
         print(stat_base, stat_growth)
         average = 0.5
         quantile10 = 0
@@ -398,20 +396,20 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
 
         for idx, klass in enumerate(classes):
             klass = DB.classes.get(klass)
-            stat_max = klass.max_stats.get(stat_nid).value
+            stat_max = klass.max_stats.get(stat_nid, 0)
             if idx == 0:
                 ticks = utils.clamp(level_ups, 0, klass.max_level - obj.level)
             else:
                 ticks = utils.clamp(level_ups, 0, klass.max_level - 1)
             level_ups -= klass.max_level
             print(klass.nid, ticks, level_ups)
-            growth_bonus = klass.growth_bonus.get(stat_nid).value        
+            growth_bonus = klass.growth_bonus.get(stat_nid, 0)
             if idx > 0:
-                promotion_bonus = klass.promotion.get(stat_nid).value
+                promotion_bonus = klass.promotion.get(stat_nid, 0)
                 if promotion_bonus in (-99, -98):
                     if idx > 0:
                         prev_klass = classes[idx - 1]
-                        promotion_bonus = klass.bases.get(stat_nid).value - DB.classes.get(prev_klass).bases.get(stat_nid).value
+                        promotion_bonus = klass.bases.get(stat_nid, 0) - DB.classes.get(prev_klass).bases.get(stat_nid, 0)
                     else:
                         promotion_bonus = 0
             else:

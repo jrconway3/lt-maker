@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
-from app.data import stats, weapons
+from app.data import weapons
 
 @dataclass
 class Klass(Prefab):
@@ -17,11 +17,11 @@ class Klass(Prefab):
     tags: list = None
     max_level: int = 20
 
-    bases: stats.StatList = None
-    growths: stats.StatList = None
-    growth_bonus: stats.StatList = None
-    promotion: stats.StatList = None
-    max_stats: stats.StatList = None
+    bases: dict = None
+    growths: dict = None
+    growth_bonus: dict = None
+    promotion: dict = None
+    max_stats: dict = None
 
     learned_skills: list = None
     wexp_gain: weapons.WexpGainList = None
@@ -48,18 +48,12 @@ class Klass(Prefab):
     def promotion_options(self, db) -> list:
         return [option for option in self.turns_into if db.classes.get(option).tier == self.tier + 1]
 
-    def save_attr(self, name, value):
-        if name == 'learned_skills':
-            value = [skill for skill in value]
-        else:
-            value = super().save_attr(name, value)
-        return value
-
     def restore_attr(self, name, value):
         if name in ('bases', 'growths', 'growth_bonus', 'promotion', 'max_stats'):
-            value = stats.StatList().restore(value)
-        elif name == 'learned_skills':
-            value = [skill for skill in value]
+            if isinstance(value, list):
+                value = {k: v for (k, v) in value}
+            else:
+                value = value
         elif name == 'wexp_gain':
             value = weapons.WexpGainList().restore(value)
         else:

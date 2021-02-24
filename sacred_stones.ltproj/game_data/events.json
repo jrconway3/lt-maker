@@ -6186,10 +6186,40 @@
                 ]
             ],
             [
-                "speak",
+                "music",
                 [
-                    "Joshua",
-                    "Say, how are doing {red}head?|The fog of war is{/red}not red."
+                    "Attack"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "10000"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Armory"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "10000"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Attack",
+                    "0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "10000"
                 ]
             ]
         ],

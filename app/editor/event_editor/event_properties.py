@@ -711,7 +711,10 @@ class EventProperties(QWidget):
         else:
             self.level_nid_box.edit.setValue('Global')
             # self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
-        self.trigger_box.edit.setValue(current.trigger)
+        if current.trigger:
+            self.trigger_box.edit.setValue(current.trigger)
+        else:
+            self.trigger_box.edit.setValue("None")
         self.condition_box.edit.setText(current.condition)
         self.only_once_box.edit.setChecked(bool(current.only_once))
 

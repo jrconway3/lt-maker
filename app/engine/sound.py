@@ -109,7 +109,8 @@ class Channel():
             else:
                 self._channel.play(self.current_song.song, 0)
 
-    def set_current_song(self, song, num_plays=-1):
+    def set_current_song(self, song, num_plays=-1, fade_in=400):
+        self.fade_in_time = max(fade_in, 1)
         self.current_song = song
         self.num_plays = num_plays
         self.played_intro = False
@@ -185,11 +186,11 @@ class ChannelPair():
         res2 = self.battle.update(event_list, current_time)
         return res1 or res2
 
-    def set_current_song(self, song, num_plays=-1):
+    def set_current_song(self, song, num_plays=-1, fade_in=400):
         song.channel = self
         self.current_song = song
-        self.channel.set_current_song(song, num_plays)
-        self.battle.set_current_song(song, num_plays)
+        self.channel.set_current_song(song, num_plays, fade_in)
+        self.battle.set_current_song(song, num_plays, fade_in)
 
     def crossfade(self):
         if self.battle_mode:
@@ -295,19 +296,19 @@ class SoundController():
     def is_playing(self):
         return self.current_channel.is_playing()
 
-    def set_next_song(self, song, num_plays):
+    def set_next_song(self, song, num_plays, fade_in=400):
         # Clear the oldest channel and use it
         # to play the next song
         oldest_channel = self.channel_stack[0]
         oldest_channel.clear()
         self.channel_stack.remove(oldest_channel)
         self.channel_stack.append(oldest_channel)
-        oldest_channel.set_current_song(song, num_plays)
+        oldest_channel.set_current_song(song, num_plays, fade_in)
 
     def crossfade(self):
         self.current_channel.crossfade()
 
-    def fade_in(self, next_song, num_plays=-1):
+    def fade_in(self, next_song, num_plays=-1, fade_in=400):
         logger.info("Fade in %s" % next_song)
         next_song = MUSIC.get(next_song)
         if not next_song:
@@ -342,13 +343,13 @@ class SoundController():
                     self.channel_stack.append(song.channel)
                     song.channel.num_plays = num_plays
                 else:
-                    self.set_next_song(song, num_plays)
+                    self.set_next_song(song, num_plays, fade_in)
                 break
         else:
             logger.info("New song %s" % next_song)
             self.song_stack.append(next_song)
             # Clear the oldest channel and use it
-            self.set_next_song(next_song, num_plays)
+            self.set_next_song(next_song, num_plays, fade_in)
 
         return self.song_stack[-1]
 

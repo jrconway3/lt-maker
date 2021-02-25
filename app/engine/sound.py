@@ -254,6 +254,7 @@ class SoundController():
 
         self.fade_out_start = 0
         self.fade_out_stop = 0
+        self.fade_out_pause = 0
 
     @property
     def current_channel(self):
@@ -273,6 +274,10 @@ class SoundController():
     def fade_to_stop(self, fade_out=400):
         self.current_channel.fade_out(fade_out)
         self.fade_out_stop = engine.get_time()
+
+    def fade_to_pause(self, fade_out=400):
+        self.current_channel.fade_out(fade_out)
+        self.fade_out_pause = engine.get_time()
 
     def pause(self):
         self.current_channel.pause()
@@ -391,6 +396,9 @@ class SoundController():
         elif self.fade_out_stop and any_changes:
             self.fade_out_stop = 0
             self.stop()
+        elif self.fade_out_pause and any_changes:
+            self.fade_out_pause = 0
+            self.pause()
 
     def play_sfx(self, sound, loop=False):
         sfx = SFX.get(sound)

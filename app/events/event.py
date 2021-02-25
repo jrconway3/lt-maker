@@ -286,7 +286,7 @@ class Event():
             if len(command.values) > 1 and command.values[1]:
                 fade = int(command.values[1]) 
             if music == 'None':
-                SOUNDTHREAD.fade_to_stop(fade_out=fade)
+                SOUNDTHREAD.fade_to_pause(fade_out=fade)
             else:
                 SOUNDTHREAD.fade_in(music, fade_in=fade)
 

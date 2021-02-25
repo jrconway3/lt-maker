@@ -82,6 +82,7 @@ class WexpGainDelegate(QItemDelegate):
         if index.column() == self.int_column:
             editor = ComboBox(parent)
             editor.setEditable(True)
+            editor.addItem('0')
             for rank in DB.weapon_ranks:
                 editor.addItem(rank.rank)
             return editor
@@ -91,7 +92,7 @@ class WexpGainDelegate(QItemDelegate):
 class WexpGainMultiAttrModel(DefaultMultiAttrListModel):
     def rowCount(self, parent=None):
         return len(DB.weapons)
-        
+
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -132,6 +133,10 @@ class WexpGainMultiAttrModel(DefaultMultiAttrListModel):
                 value = int(value)
             else:
                 value = 0
+            usable = getattr(data, 'usable')
+            if value > 0 and not usable:
+                self.on_attr_changed(data, 'usable', usable, True)
+                setattr(data, 'usable', True)
         self.on_attr_changed(data, attr, current_value, value)
         setattr(data, attr, value)
         self.dataChanged.emit(index, index)

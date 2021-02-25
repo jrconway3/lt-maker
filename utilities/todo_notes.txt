@@ -50,15 +50,6 @@ Supports:
 
 # Remaining Priorities
 ```
-Music Clear
-weapon level increment by weapon level ranks
-copy and paste rows of stats
-Auras
-Sequence Items (Warp, Rescue, Crazier stuff)
-test Multi Items for the AI
-turnwheel mouse support / info menu mouse support better?
-AOE modification skills
-Movement modification skills
 Base Menu bugs
     - Optimize All
     - Grey out Lore when none is available
@@ -66,6 +57,24 @@ Base Menu bugs
     - Test Access Records
     - Add Base Convo command
     - Grey Out Base Convo command
+Auras
+    - Auras have a instantiated child aura they keep a reference to. Works like child items in the item system
+    - Aura board keeps track of where the aura_child belongs
+    - Aura board is updated on arrive and leave
+    - Within the skill system, the skill system calls up the aura children
+    - Needs to be able to handle ally auras and enemy auras
+    ```
+        for aura_uid in game.board.get_auras(unit.team, unit.position):
+            aura = game.get_skill(aura_uid)
+            if aura.defines('??'):
+                # Do the thing
+    ```
+Sequence Items (Warp, Rescue, Crazier stuff)
+test Multi Items for the AI
+turnwheel mouse support / info menu mouse support better?
+AOE modification skills
+Movement modification skills
+
 Records in Base Menu (test)
 Lore in Base Menu (test)
 The Lion Throne full implementation

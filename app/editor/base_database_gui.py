@@ -149,8 +149,8 @@ class DatabaseTab(QWidget):
         ser_list = []
         for index in selected_indices:
             row = index.row()
-            current_class = self._data[row]
-            ser_dict = current_class.save()
+            current_obj = self._data[row]
+            ser_dict = current_obj.save()
             ser_list.append(ser_dict)
         json_string = json.dumps(ser_list)
         clipboard.setText(json_string)

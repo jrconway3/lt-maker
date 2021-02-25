@@ -2,7 +2,7 @@ import math
 
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
     QSizePolicy, QTableView, QPushButton, QDialog, QHBoxLayout, \
-    QButtonGroup
+    QButtonGroup, QMenu, QAction, QApplication, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
@@ -12,7 +12,75 @@ from app.data.database import DB
 from app.extensions.custom_gui import IntDelegate
 from app.extensions.list_models import VirtualListModel
 
+import logging
+
 class MultiEditTableView(QTableView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.window = parent
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.customMenuRequested)
+
+        self.copy_action = QAction("Copy", self, shortcut="Ctrl+C", triggered=self.copy)
+        self.paste_action = QAction("Paste", self, shortcut="Ctrl+V", triggered=self.paste)
+
+    def customMenuRequested(self, pos):
+        index = self.indexAt(pos)
+        if not index.isValid():
+            return None
+
+        menu = QMenu(self)
+        menu.addAction(self.copy_action)
+        menu.addAction(self.paste_action) 
+
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+    def copy(self):
+        if not (self.currentIndex() and self.currentIndex().isValid()):
+            return None
+        clipboard = QApplication.clipboard()
+        model = self.currentIndex().model()
+        all_values = []
+        for index in self.selectionModel().selectedIndexes():
+            value = model.data(index, Qt.DisplayRole)
+            all_values.append(str(value))
+        final_text = ','.join(all_values)
+        clipboard.setText(final_text)
+
+    def paste(self):
+        if not (self.currentIndex() and self.currentIndex().isValid()):
+            return None
+        clipboard = QApplication.clipboard()
+        model = self.currentIndex().model()
+        final_text = clipboard.text()
+        logging.debug(final_text)
+        try:
+            if ',' in final_text:
+                all_values = [int(_) for _ in final_text.split(',')]
+            else:
+                all_values = [int(_) for _ in final_text.split()]
+            if len(self.selectionModel().selectedIndexes()) > 1:
+                current_index = self.selectionModel().selectedIndexes()[0]
+            else:
+                current_index = self.currentIndex()
+
+            for idx, value in enumerate(all_values):
+                model.setData(current_index, value, Qt.EditRole)
+                next_column = current_index.column() + 1
+                current_index = model.index(current_index.row(), next_column)
+
+        except Exception as e:
+            logging.error("Could not read from clipboard! %s" % e)
+            QMessageBox.critical(None, "Import Error", "Could not read valid text from clipboard!")
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if event.key() == Qt.Key_C and (QApplication.keyboardModifiers() & Qt.ControlModifier):
+            self.copy()
+        elif event.key() == Qt.Key_V and (QApplication.keyboardModifiers() & Qt.ControlModifier):
+            self.paste()
+
     def commitData(self, editor):
         super().commitData(editor)
         model = self.currentIndex().model()

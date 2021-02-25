@@ -110,6 +110,7 @@ class HorizWeaponListDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, idnex):
         editor = ComboBox(parent)
         editor.setEditable(True)
+        editor.addItem('0')
         for rank in DB.weapon_ranks:
             editor.addItem(rank.rank)
         return editor

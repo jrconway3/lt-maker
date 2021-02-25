@@ -584,5 +584,7 @@ class EventAfterCombat(ItemComponent):
 
     def end_combat(self, playback, unit, item, target):
         if self._did_hit and target:
-            game.events.trigger(self.value, unit=unit, unit2=target, position=unit.position)
+            event_prefab = DB.events.get_from_nid(self.value)
+            if event_prefab:
+                game.events.add_event(event_prefab.nid, event_prefab.commands, unit=unit, unit2=target, item=item, position=unit.position)
         self._did_hit = False

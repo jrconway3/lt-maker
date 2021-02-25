@@ -54,9 +54,7 @@ class DebugState(MapState):
         event_command = event_commands.parse_text(command)
         if not event_command:
             return
-        new_event = Event('debug_console', [event_command], game.cursor.get_hover())
-        game.events.append(new_event)
-        game.state.change('event')
+        game.events.add_event('debug_console', [event_command], game.cursor.get_hover())
 
     def draw(self, surf):
         surf = super().draw(surf)

@@ -284,7 +284,10 @@ class Event():
             if music == 'None':
                 SOUNDTHREAD.fade_to_stop()
             else:
-                SOUNDTHREAD.fade_in(music)
+                fade = 400
+                if len(command.values) > 1 and command.values[1]:
+                    fade = int(command.values[1]) 
+                SOUNDTHREAD.fade_in(music, fade_in=fade)
 
         elif command.nid == 'sound':
             sound = command.values[0]
@@ -1825,9 +1828,7 @@ class Event():
         
         valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or event_prefab.level_nid == game.level.nid)]
         for event_prefab in valid_events:
-            event = Event(event_prefab.nid, event_prefab.commands, unit, unit2, self.position, self.region)
-            game.events.append(event)
-            game.state.change('event')
+            game.events.add_event(event_prefab.nid, event_prefab.commands, unit, unit2, position=self.position, region=self.region)
             self.state = 'paused'
             if event_prefab.only_once:
                 action.do(action.OnlyOnceEvent(event_prefab.nid))

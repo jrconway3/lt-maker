@@ -2,10 +2,11 @@ from app.utilities.data import Data, Prefab
 from app.events import event_commands
 
 class Trigger(object):
-    def __init__(self, nid, unit1=False, unit2=False, position=False, region=False):
+    def __init__(self, nid, unit1=False, unit2=False, item=False, position=False, region=False):
         self.nid: str = nid
         self.unit1: bool = unit1
         self.unit2: bool = unit2
+        self.item: bool = item
         self.position: bool = position
         self.region: bool = region
 
@@ -16,13 +17,13 @@ all_triggers = Data([
     Trigger('enemy_turn_change'),
     Trigger('enemy2_turn_change'),
     Trigger('other_turn_change'),
-    Trigger('unit_death', True, False, True),
-    Trigger('unit_wait', True, False, True),
-    Trigger('unit_level_up', True, False, False),
-    Trigger('combat_start', True, True, True),
-    Trigger('combat_end', True, True, True),
-    Trigger('on_talk', True, True, True),
-    Trigger('on_base_convo', True, True, False),
+    Trigger('unit_death', True, False, False, True),
+    Trigger('unit_wait', True, False, False, True),
+    Trigger('unit_level_up', True, False, False, False),
+    Trigger('combat_start', True, True, True, True),
+    Trigger('combat_end', True, True, True, True),
+    Trigger('on_talk', True, True, False, True),
+    Trigger('on_base_convo', True, True, False, False),
     Trigger('on_title_screen'),
 ])
 
@@ -69,3 +70,6 @@ class EventCatalog(Data):
     def get(self, trigger, level_nid):
         return [event for event in self._list if event.trigger == trigger and
                 (not event.level_nid or event.level_nid == level_nid)]
+
+    def get_from_nid(self, key, fallback=None):
+        return self._dict.get(key, fallback)

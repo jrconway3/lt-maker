@@ -71,6 +71,7 @@ class Music(EventCommand):
     tag = "sound"
 
     keywords = ['Music']
+    optional_keywords = ['Time']  # How long to fade in (default 400)
 
 class Sound(EventCommand):
     nid = "sound"

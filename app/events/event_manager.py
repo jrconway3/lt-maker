@@ -11,7 +11,7 @@ class EventManager():
         self.all_events = []  # Keeps all events, both in use and not yet used
         self.event_stack = []  # A stack of events that haven't been used yet
 
-    def trigger(self, trigger, unit=None, unit2=None, position=None, region=None):
+    def trigger(self, trigger, unit=None, unit2=None, item=None, position=None, region=None):
         unit1 = unit  # noqa: F841
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
@@ -24,14 +24,17 @@ class EventManager():
 
         new_event = False
         for event_prefab in triggered_events:
-            event = Event(event_prefab.nid, event_prefab.commands, unit, unit2, position, region)
-            self.all_events.append(event)
-            self.event_stack.append(event)
+            self.add_event(event_prefab.nid, event_prefab.commands, unit, unit2, item, position, region)
             new_event = True
-            game.state.change('event')
             if event_prefab.only_once:
                 action.do(action.OnlyOnceEvent(event_prefab.nid))
         return new_event
+
+    def add_event(self, nid, commands, unit=None, unit2=None, item=None, position=None, region=None):
+        event = Event(nid, commands, unit, unit2, item, position, region)
+        self.all_events.append(event)
+        self.event_stack.append(event)
+        game.state.change('event')
 
     def append(self, event):
         self.all_events.append(event)

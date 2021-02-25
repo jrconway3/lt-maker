@@ -58,7 +58,7 @@ class MapCombat():
         if self.state == 'init':
             if self._skip or current_time > 200:
 
-                game.events.trigger('combat_start', self.attacker, self.defender, self.attacker.position)
+                game.events.trigger('combat_start', self.attacker, self.defender, self.item, self.attacker.position)
                 skill_system.pre_combat(self.full_playback, self.attacker, self.item, self.defender)
                 if self.defender:
                     skill_system.pre_combat(self.full_playback, self.defender, self.def_item, self.attacker)
@@ -355,7 +355,7 @@ class MapCombat():
         self.turnwheel_death_messages(all_units)
 
         self.handle_state_stack()
-        game.events.trigger('combat_end', self.attacker, self.defender, self.attacker.position)
+        game.events.trigger('combat_end', self.attacker, self.defender, self.item, self.attacker.position)
         self.handle_item_gain()
         a_broke, d_broke = self.find_broken_items()
 

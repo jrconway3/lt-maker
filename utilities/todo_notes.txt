@@ -50,7 +50,7 @@ Supports:
 
 # Remaining Priorities
 ```
-change statlist and weaponlist into dictionaries
+Music Clear
 weapon level increment by weapon level ranks
 copy and paste rows of stats
 Auras
@@ -59,6 +59,13 @@ test Multi Items for the AI
 turnwheel mouse support / info menu mouse support better?
 AOE modification skills
 Movement modification skills
+Base Menu bugs
+    - Optimize All
+    - Grey out Lore when none is available
+    - Unlock Lore command
+    - Test Access Records
+    - Add Base Convo command
+    - Grey Out Base Convo command
 Records in Base Menu (test)
 Lore in Base Menu (test)
 The Lion Throne full implementation

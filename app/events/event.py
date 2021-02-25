@@ -39,7 +39,7 @@ class Event():
     skippable = {"speak", "transition", "wait", "bop_portrait",
                  "sound", "location_card"}
 
-    def __init__(self, nid, commands, unit=None, unit2=None, position=None, region=None):
+    def __init__(self, nid, commands, unit=None, unit2=None, item=None, position=None, region=None):
         self.nid = nid
         self.commands = commands.copy()
         self.command_idx = 0
@@ -48,6 +48,7 @@ class Event():
 
         self.unit = self.unit1 = unit
         self.unit2 = unit2
+        self.item = item
         self.position = position
         self.region = region
 
@@ -281,13 +282,22 @@ class Event():
 
         elif command.nid == 'music':
             music = command.values[0]
+            fade = 400
+            if len(command.values) > 1 and command.values[1]:
+                fade = int(command.values[1]) 
             if music == 'None':
-                SOUNDTHREAD.fade_to_stop()
+                SOUNDTHREAD.fade_to_stop(fade_out=fade)
             else:
-                fade = 400
-                if len(command.values) > 1 and command.values[1]:
-                    fade = int(command.values[1]) 
                 SOUNDTHREAD.fade_in(music, fade_in=fade)
+
+        elif command.nid == 'music_clear':
+            fade = 0
+            if len(command.values) > 0 and command.values[0]:
+                fade = int(command.values[0])
+            if fade > 0:
+                SOUNDTHREAD.fade_clear(fade)
+            else:
+                SOUNDTHREAD.clear()
 
         elif command.nid == 'sound':
             sound = command.values[0]

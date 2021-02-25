@@ -73,6 +73,13 @@ class Music(EventCommand):
     keywords = ['Music']
     optional_keywords = ['Time']  # How long to fade in (default 400)
 
+class MusicClear(EventCommand):
+    nid = "music_clear"
+    nickname = "m"
+    tag = "sound"
+
+    optional_keywords = ['Time']  # How long to fade out
+
 class Sound(EventCommand):
     nid = "sound"
     tag = "sound"

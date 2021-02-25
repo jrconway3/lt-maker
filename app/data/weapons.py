@@ -113,7 +113,6 @@ class RankCatalog(Data):
 class WeaponType(Prefab):
     nid: str = None
     name: str = None
-    # magic: bool = False
     rank_bonus: CombatBonusList = None
     advantage: CombatBonusList = None
     disadvantage: CombatBonusList = None
@@ -144,42 +143,22 @@ class WeaponType(Prefab):
 class WeaponCatalog(Data):
     datatype = WeaponType
 
-# === WEAPON EXPERIENCE GAINED ===
-class WexpGain(Prefab):
-    def __init__(self, usable: bool, weapon_type: str, wexp_gain: int):
-        self.usable = usable
-        self.nid = weapon_type
-        self.wexp_gain = wexp_gain
+    def default(self):
+        return WexpGain(False, 0)
 
-    @property
-    def weapon_type(self):
-        return self.nid
+# === WEAPON EXPERIENCE GAINED ===
+class WexpGain():
+    def __init__(self, usable: bool, wexp_gain: int):
+        self.usable = usable
+        self.wexp_gain = wexp_gain
 
     def absorb(self, wexp_gain):
         self.usable = wexp_gain.usable
         self.wexp_gain = wexp_gain.wexp_gain
 
     def save(self):
-        return (self.usable, self.nid, self.wexp_gain)
+        return (self.usable, self.wexp_gain)
     
     @classmethod
     def restore(cls, s_tuple):
         return cls(*s_tuple)
-
-class WexpGainList(Data):
-    datatype = WexpGain
-
-    def new(self, idx, db_weapons):
-        new_weapon_type = db_weapons[idx]
-        self.insert(idx, WexpGain(False, new_weapon_type.nid, 0))
-
-    def change_key(self, old, new):
-        if new in self.keys():
-            self.get(new).absorb(self.get(old))
-        else:
-            super().change_key(old, new)
-            self.get(new).nid = new  # Remember to change the name/nid of the wexp gain as well
-
-    @classmethod
-    def default(cls, db):
-        return cls([WexpGain(False, nid, 0) for nid in db.weapons.keys()])

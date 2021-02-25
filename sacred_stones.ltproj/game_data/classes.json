@@ -36,7 +36,7 @@
         "growth_bonus": {
             "HP": 0,
             "STR": 0,
-            "MAG": 0,
+            "MAG": 35,
             "SKL": 0,
             "SPD": 0,
             "LCK": 0,
@@ -70,53 +70,44 @@
             "RES": 20
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 0,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
-                false,
-                "Axe",
+            "Axe": [
+                0,
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -166,7 +157,7 @@
         "growth_bonus": {
             "HP": 0,
             "STR": 0,
-            "MAG": 0,
+            "MAG": 35,
             "SKL": 0,
             "SPD": 0,
             "LCK": 0,
@@ -200,53 +191,44 @@
             "RES": 20
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -335,53 +317,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 70
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -463,53 +436,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -597,53 +561,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 40
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -728,53 +683,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -859,53 +805,44 @@
             "RES": 20
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 31
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Myrmidon",
         "icon_index": [
             0,
@@ -992,53 +929,44 @@
                 "Crit +15"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 2,
-                "Sword",
                 40
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Swordmaster",
         "icon_index": [
             0,
@@ -1123,53 +1051,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 31
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Mercenary",
         "icon_index": [
             0,
@@ -1251,53 +1170,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 2,
-                "Sword",
                 40
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 2,
-                "Axe",
                 31
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Vanguard",
         "icon_index": [
             0,
@@ -1387,53 +1297,44 @@
                 "Steal"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Thief",
         "icon_index": [
             0,
@@ -1515,53 +1416,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 2,
-                "Sword",
                 30
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Assassin",
         "icon_index": [
             0,
@@ -1643,53 +1535,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 2,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Assassin",
         "icon_index": [
             0,
@@ -1773,53 +1656,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 1
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -1899,53 +1773,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 1
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Soldier",
         "icon_index": [
             0,
@@ -2036,53 +1901,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Cavalier",
         "icon_index": [
             0,
@@ -2170,53 +2026,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 30
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 30
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Paladin",
         "icon_index": [
             0,
@@ -2305,53 +2152,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 1
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 31
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Great_Knight",
         "icon_index": [
             0,
@@ -2446,53 +2284,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Pegasus_Knight",
         "icon_index": [
             0,
@@ -2584,53 +2413,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 40
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Falcoknight",
         "icon_index": [
             0,
@@ -2715,53 +2535,44 @@
             "RES": 20
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Knight",
         "icon_index": [
             0,
@@ -2843,53 +2654,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 2,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 2,
-                "Lance",
                 40
             ],
-            [
+            "Axe": [
                 2,
-                "Axe",
                 1
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_General",
         "icon_index": [
             0,
@@ -2972,53 +2774,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 1
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -3101,53 +2894,44 @@
             "RES": 20
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 31
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Fighter",
         "icon_index": [
             0,
@@ -3227,53 +3011,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 40
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 1
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Warrior",
         "icon_index": [
             0,
@@ -3355,53 +3130,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 31
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Pirate",
         "icon_index": [
             0,
@@ -3486,53 +3252,44 @@
                 "Crit +15"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 40
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Berserker",
         "icon_index": [
             0,
@@ -3614,53 +3371,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 31
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Brigand",
         "icon_index": [
             0,
@@ -3743,53 +3491,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 31
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Archer",
         "icon_index": [
             0,
@@ -3874,53 +3613,44 @@
                 "Sure_Strike"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 40
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Sniper",
         "icon_index": [
             0,
@@ -4008,53 +3738,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 31
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 1
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Ranger",
         "icon_index": [
             0,
@@ -4136,53 +3857,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 true,
-                "Light",
                 1
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Monk",
         "icon_index": [
             0,
@@ -4264,53 +3976,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 31
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Cleric",
         "icon_index": [
             0,
@@ -4395,53 +4098,44 @@
                 "Slayer"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 1
             ],
-            [
+            "Light": [
                 true,
-                "Light",
                 16
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Bishop",
         "icon_index": [
             0,
@@ -4524,53 +4218,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 true,
-                "Anima",
                 31
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Mage (1)",
         "icon_index": [
             0,
@@ -4650,53 +4335,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 31
             ],
-            [
+            "Light": [
                 true,
-                "Light",
                 31
             ],
-            [
+            "Anima": [
                 true,
-                "Anima",
                 31
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Sage",
         "icon_index": [
             0,
@@ -4776,53 +4452,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 true,
-                "Dark",
                 31
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Shaman",
         "icon_index": [
             0,
@@ -4909,53 +4576,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 0,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 2,
-                "Staff",
                 31
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 2,
-                "Anima",
                 71
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Mage_Knight",
         "icon_index": [
             0,
@@ -5045,53 +4703,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 31
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Troubadour",
         "icon_index": [
             0,
@@ -5179,53 +4828,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 31
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Valkyrie",
         "icon_index": [
             0,
@@ -5321,53 +4961,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 2,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Wyvern_Rider",
         "icon_index": [
             0,
@@ -5460,53 +5091,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 2,
-                "Sword",
                 31
             ],
-            [
+            "Lance": [
                 2,
-                "Lance",
                 40
             ],
-            [
+            "Axe": [
                 0,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Wyvern_Lord",
         "icon_index": [
             0,
@@ -5599,53 +5221,44 @@
                 "Canto"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 2,
-                "Lance",
                 40
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Wyvern_Rider",
         "icon_index": [
             0,
@@ -5725,53 +5338,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 2,
-                "Staff",
                 251
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 2,
-                "Dark",
                 251
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -5855,53 +5459,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Revenant",
         "icon_index": [
             0,
@@ -5983,53 +5578,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Entombed",
         "icon_index": [
             0,
@@ -6113,53 +5699,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 71
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 71
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Sword_Bonewalker",
         "icon_index": [
             0,
@@ -6241,53 +5818,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 181
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 181
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Sword_Wight",
         "icon_index": [
             0,
@@ -6371,53 +5939,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 71
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Sword_Bonewalker",
         "icon_index": [
             0,
@@ -6499,53 +6058,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 181
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Sword_Wight",
         "icon_index": [
             0,
@@ -6635,53 +6185,44 @@
                 "Flying"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 true,
-                "Dark",
                 71
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Mogall",
         "icon_index": [
             0,
@@ -6764,53 +6305,44 @@
             "MOV": 15
         },
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 true,
-                "Dark",
                 181
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Arch_Mogall",
         "icon_index": [
             0,
@@ -6901,53 +6433,44 @@
                 "Void Curse"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,
@@ -7038,53 +6561,44 @@
                 "Void Curse"
             ]
         ],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "icon_nid": "Generic_Portrait_Citizen",
         "icon_index": [
             0,

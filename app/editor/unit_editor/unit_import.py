@@ -26,21 +26,19 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
         # Handle stats
         stat_list = ('HP', 'STR', 'MAG', 'SKL', 'SPD', 'LCK', 'DEF', 'RES', 'CON', 'MOV')
         unit_stats = str_utils.intify(unit.find('bases').text)
-        bases = stats.StatList.default(DB)
+        bases = {k: 0 for k in DB.stats.keys()}
         for idx, num in enumerate(unit_stats):
-            s = bases.get(stat_list[idx])
-            if s:
-                s.value = num
+            if stat_list[idx] in DB.stats.keys():
+                bases[stat_list[idx]] = num
         unit_growths = str_utils.intify(unit.find('growths').text)
-        growths = stats.StatList.default(DB)
+        growths = {nid: 0 for nid in DB.stats.keys()}
         for idx, num in enumerate(unit_growths):
-            s = growths.get(stat_list[idx])
-            if s:
-                s.value = num
+            if stat_list[idx] in DB.stats.keys():
+                growths[stat_list[idx]] = num
 
         # Create weapon experience
         wexp = unit.find('wexp').text.split(',')
-        wexp_gain = weapons.WexpGainList.default(DB)
+        wexp_gain = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         weapon_order = ['Sword', 'Lance', 'Axe', 'Bow', 'Staff', 'Light', 'Anima', 'Dark']
         if os.path.exists(parent_dir + '/weapon_triangle.txt'):
             with open(parent_dir + '/weapon_triangle.txt') as wfn:

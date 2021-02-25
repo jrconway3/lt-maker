@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
+from app.data.weapons import WexpGain
 
 @dataclass
 class UnitPrefab(Prefab):
@@ -46,6 +47,12 @@ class UnitPrefab(Prefab):
             if skill[1] == old_nid:
                 skill[1] = new_nid
 
+    def save_attr(self, name, value):
+        if name == 'wexp_gain':
+            return {k: v.save() for (k, v) in self.wexp_gain.items()}
+        else:
+            return super().save_attr(name, value)
+
     def restore_attr(self, name, value):
         if name in ('bases', 'growths'):
             if isinstance(value, list):
@@ -54,9 +61,9 @@ class UnitPrefab(Prefab):
                 value = value
         elif name == 'wexp_gain':
             if isinstance(value, list):
-                value = {k: v for (k, v) in value}
+                value = {nid: WexpGain(usable, wexp_gain) for (usable, nid, wexp_gain) in value}
             else:
-                value = value
+                value = {k: WexpGain(usable, wexp_gain) for (k, (usable, wexp_gain)) in value.items()}
         elif name == 'starting_items':
             # Need to convert to item nid + droppable
             value = [i if isinstance(i, list) else [i, False] for i in value]

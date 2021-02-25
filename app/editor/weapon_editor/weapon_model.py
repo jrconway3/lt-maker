@@ -70,18 +70,24 @@ class WeaponModel(DragDropCollectionModel):
             else:
                 return  # User cancelled swap
         # Delete watchers
-        for klass in DB.classes:
-            klass.wexp_gain.remove_key(nid)
-        for unit in DB.units:
-            unit.wexp_gain.remove_key(nid)
+        # None needed
         super().delete(idx)
 
     def on_nid_changed(self, old_value, new_value):
         old_nid, new_nid = old_value, new_value
         for klass in DB.classes:
-            klass.wexp_gain.change_key(old_nid, new_nid)
+            if old_nid in klass.wexp_gain:
+                if klass.wexp_gain.get(new_nid):
+                    klass.wexp_gain[new_nid].wexp_gain += klass.wexp_gain[old_nid].wexp_gain
+                    klass.wexp_gain[new_nid].usable = bool(klass.wexp_gain[new_nid].usable) or bool(klass.wexp_gain[old_nid].usable)
+                else:
+                    klass.wexp_gain[new_nid] = klass.wexp_gain[old_nid]
         for unit in DB.units:
-            unit.wexp_gain.change_key(old_nid, new_nid)
+            if old_nid in unit.wexp_gain:
+                if unit.wexp_gain.get(new_nid):
+                    unit.wexp_gain[new_nid].wexp_gain += unit.wexp_gain[old_nid].wexp_gain
+                else:
+                    unit.wexp_gain[new_nid] = unit.wexp_gain[old_nid]
         for weapon in DB.weapons:
             weapon.rank_bonus.swap_type(old_nid, new_nid)
             weapon.advantage.swap_type(old_nid, new_nid)
@@ -97,41 +103,3 @@ class WeaponModel(DragDropCollectionModel):
             weapons.CombatBonusList(), weapons.CombatBonusList())
         DB.weapons.append(new_weapon)
         return new_weapon
-
-    def append(self):
-        last_index = super().append()
-        if last_index:
-            idx = last_index.row()
-            self._update_foreign_data(idx)
-
-    def new(self, idx):
-        new_index = super().new(idx)
-        if new_index:
-            idx = new_index.row()
-            self._update_foreign_data(idx)
-
-    def duplicate(self, idx):
-        new_index = super().duplicate(idx)
-        if new_index:
-            idx = new_index.row()
-            self._update_foreign_data(idx)
-
-    def _update_foreign_data(self, idx):
-        for klass in DB.classes:
-            klass.wexp_gain.new(idx, DB.weapons)
-        for unit in DB.units:
-            unit.wexp_gain.new(idx, DB.weapons)
-
-    def removeRows(self, row, count, parent) -> bool:
-        result = super().removeRows(row, count, parent)
-        if result and self.most_recent_dragdrop:
-            fro, to = self.most_recent_dragdrop[0], self.most_recent_dragdrop[1]
-            self._drag_foreign_data(fro, to)
-        return result
-
-    # Called on drag and drop
-    def _drag_foreign_data(self, fro, to):
-        for klass in DB.classes:
-            klass.wexp_gain.move_index(fro, to)
-        for unit in DB.units:
-            unit.wexp_gain.move_index(fro, to)

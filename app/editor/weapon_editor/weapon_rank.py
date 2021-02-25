@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QItemDelegate
+from PyQt5.QtCore import Qt
 
 from app.utilities import str_utils
 from app.utilities.data import Data
@@ -88,11 +89,41 @@ class WexpGainDelegate(QItemDelegate):
             return None
 
 class WexpGainMultiAttrModel(DefaultMultiAttrListModel):
+    def rowCount(self, parent=None):
+        return len(DB.weapons)
+        
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if index.column() in self.checked_columns:
+            if role == Qt.CheckStateRole:
+                weapon_key = DB.weapons.keys()[index.row()]
+                data = self._data.get(weapon_key, DB.weapons.default())
+                attr = self._headers[index.column()]
+                val = getattr(data, attr)
+                return Qt.Checked if bool(val) else Qt.Unchecked
+            else:
+                return None
+        elif role == Qt.DisplayRole or role == Qt.EditRole:
+            weapon_key = DB.weapons.keys()[index.row()]
+            data = self._data.get(weapon_key, DB.weapons.default())
+            attr = self._headers[index.column()]
+            if attr == 'nid':
+                return weapon_key
+            else:
+                return getattr(data, attr)
+        return None
+
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        data = self._data[index.row()]
+        weapon_key = DB.weapons.keys()[index.row()]
+        data = self._data.get(weapon_key)
+        if not data:
+            self._data[weapon_key] = DB.weapons.default()
+            data = self._data[weapon_key]
         attr = self._headers[index.column()]
+        
         current_value = getattr(data, attr)
         if attr == 'wexp_gain':
             if value in DB.weapon_ranks.keys():

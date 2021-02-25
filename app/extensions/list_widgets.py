@@ -74,6 +74,22 @@ class BasicMultiListWidget(BasicSingleListWidget):
 
         self.placement(data, title)
 
+class MultiDictWidget(BasicSingleListWidget):
+    def __init__(self, data, title, attrs, dlgate, parent=None, model=DefaultMultiAttrListModel):
+        QWidget.__init__(self, parent)
+        self.initiate(data, parent)
+        self.title = title
+
+        self.model = model(self.current, attrs, parent=self)
+        self.view = QTreeView(self)
+        self.view.setModel(self.model)
+        delegate = dlgate(self.view)
+        self.view.setItemDelegate(delegate)
+        for col in range(len(attrs)):
+            self.view.resizeColumnToContents(col)
+
+        self.placement(data, title)
+
 class AppendMultiListWidget(BasicSingleListWidget):
     def __init__(self, data, title, attrs, dlgate, parent=None, model=DefaultMultiAttrListModel):
         QWidget.__init__(self, parent)

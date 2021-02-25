@@ -127,12 +127,12 @@ class ClassModel(DragDropCollectionModel):
         nids = [d.nid for d in self._data]
         nid = name = str_utils.get_next_name("New Class", nids)
         movement_group = DB.mcost.unit_types[0]
-        bases = stats.StatList.default(DB)
-        growths = stats.StatList.default(DB)
-        growth_bonus = stats.StatList.default(DB)
-        promotion = stats.StatList.default(DB)
-        max_stats = stats.StatList.default_to_max(DB)
-        wexp_gain = weapons.WexpGainList.default(DB)
+        bases = {k: 0 for k in DB.stats.keys()}
+        growths = {k: 0 for k in DB.stats.keys()}
+        growth_bonus = {k: 0 for k in DB.stats.keys()}
+        promotion = {k: 0 for k in DB.stats.keys()}
+        max_stats = {stat.nid: stat.maximum for stat in DB.stats}
+        wexp_gain = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         new_class = klass.Klass(
             nid, name, "", 1, movement_group, None, [], [], 20,
             bases, growths, growth_bonus, promotion, max_stats, 

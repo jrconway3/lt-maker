@@ -49,10 +49,16 @@ class StatTypeProperties(QWidget):
     def on_nid_changed(self, old_nid, new_nid):
         for klass in DB.classes:
             for row in klass.get_stat_lists():
-                row.change_key(old_nid, new_nid)
+                if new_nid in row:
+                    row[new_nid] += row.get(old_nid, 0)
+                else:
+                    row[new_nid] = row.get(old_nid, 0)
         for unit in DB.units:
             for row in unit.get_stat_lists():
-                row.change_key(old_nid, new_nid)
+                if new_nid in row:
+                    row[new_nid] += row.get(old_nid, 0)
+                else:
+                    row[new_nid] = row.get(old_nid, 0)
 
     def nid_done_editing(self):
         # Check validity of nid!

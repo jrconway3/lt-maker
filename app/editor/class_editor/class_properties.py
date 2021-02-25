@@ -4,11 +4,10 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt
 
-from app.data.weapons import WexpGainList
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine
-from app.extensions.list_widgets import AppendMultiListWidget, BasicMultiListWidget
+from app.extensions.list_widgets import AppendMultiListWidget, MultiDictWidget
 from app.extensions.list_models import ReverseDoubleListModel
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
@@ -113,8 +112,11 @@ class ClassProperties(QWidget):
 
         weapon_section = QHBoxLayout()
 
-        attrs = ("usable", "weapon_type", "wexp_gain")
-        self.wexp_gain_widget = BasicMultiListWidget(WexpGainList.default(DB), "Weapon Experience", attrs, WexpGainDelegate, self, model=WexpGainMultiAttrModel)
+        attrs = ("usable", "nid", "wexp_gain")
+        default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
+        self.wexp_gain_widget = MultiDictWidget(
+            default_weapons, "Weapon Experience", 
+            attrs, WexpGainDelegate, self, model=WexpGainMultiAttrModel)
         self.wexp_gain_widget.model.checked_columns = {0}  # Add checked column
         weapon_section.addWidget(self.wexp_gain_widget)
 

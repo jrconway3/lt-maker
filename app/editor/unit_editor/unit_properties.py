@@ -6,7 +6,6 @@ from PyQt5.QtCore import Qt, QItemSelection, QItemSelectionModel
 
 from app.utilities import str_utils
 
-from app.data.weapons import WexpGainList
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, QHLine, ComboBox
@@ -28,7 +27,7 @@ class WexpModel(VirtualListModel):
         super().__init__(parent)
         self.window = parent
         self._columns = self._headers = columns
-        self._data: WexpGainList = data
+        self._data: dict = data
 
     def rowCount(self, parent=None):
         return 1
@@ -36,8 +35,8 @@ class WexpModel(VirtualListModel):
     def columnCount(self, parent=None):
         return len(self._headers)
 
-    def set_new_data(self, wexp_gain: WexpGainList):
-        self._data: WexpGainList = wexp_gain
+    def set_new_data(self, wexp_gain: dict):
+        self._data: dict = wexp_gain
         self.layoutChanged.emit()
 
     def update_column_header(self, columns):
@@ -72,6 +71,9 @@ class WexpModel(VirtualListModel):
             return False
         weapon = self._columns[index.column()]
         wexp_gain = self._data.get(weapon.nid)
+        if not wexp_gain:
+            self._data[weapon.nid] = DB.weapons.default()
+            wexp_gain = self._data[weapon.nid]
         if value in DB.weapon_ranks.keys():
             value = DB.weapon_ranks.get(value).requirement
         elif str_utils.is_int(value):
@@ -196,9 +198,9 @@ class UnitProperties(QWidget):
         # Changing of Personal skills done automatically also
         # self.personal_skill_widget.activated.connect(self.learned_skills_changed)
 
-        attrs = ("weapon_type", "wexp_gain")
+        default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         self.wexp_gain_widget = HorizWeaponListWidget(
-            WexpGainList.default(DB), "Starting Weapon Experience", HorizWeaponListDelegate, self)
+            default_weapons, "Starting Weapon Experience", HorizWeaponListDelegate, self)
         # Changing of Weapon Gain done automatically
         # self.wexp_gain_widget.activated.connect(self.wexp_gain_changed)
 

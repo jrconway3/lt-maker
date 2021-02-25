@@ -44,53 +44,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Eirika"
     },
@@ -141,53 +132,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 181
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 181
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Seth"
     },
@@ -242,53 +224,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Franz"
     },
@@ -331,53 +304,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 71
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Gilliam"
     },
@@ -428,53 +392,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Vanessa"
     },
@@ -521,53 +476,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 71
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Moulder"
     },
@@ -614,53 +560,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 1
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Ross"
     },
@@ -711,53 +648,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 71
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Garcia"
     },
@@ -804,53 +732,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 31
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Neimi"
     },
@@ -901,53 +820,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 71
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Colm"
     },
@@ -994,53 +904,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 true,
-                "Light",
                 1
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Artur"
     },
@@ -1083,53 +984,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 true,
-                "Anima",
                 71
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Lute"
     },
@@ -1176,53 +1068,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 31
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Natasha"
     },
@@ -1265,53 +1148,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 71
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Joshua"
     },
@@ -1362,53 +1236,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Ephraim"
     },
@@ -1459,53 +1324,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 31
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 71
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Forde"
     },
@@ -1556,53 +1412,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 31
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 71
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Kyle"
     },
@@ -1653,53 +1500,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 181
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 181
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Orson"
     },
@@ -1750,53 +1588,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 31
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Tana"
     },
@@ -1847,53 +1676,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 1
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Amelia"
     },
@@ -1944,53 +1764,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 true,
-                "Bow",
                 181
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Innes"
     },
@@ -2041,53 +1852,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 71
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Gerik"
     },
@@ -2138,53 +1940,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Tethys"
     },
@@ -2231,53 +2024,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 31
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Marisa"
     },
@@ -2328,53 +2112,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 31
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "L'arachel"
     },
@@ -2421,53 +2196,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 121
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Dozla"
     },
@@ -2514,53 +2280,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 true,
-                "Staff",
                 71
             ],
-            [
+            "Light": [
                 true,
-                "Light",
                 121
             ],
-            [
+            "Anima": [
                 true,
-                "Anima",
                 181
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Saleh"
     },
@@ -2611,53 +2368,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 true,
-                "Anima",
                 1
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Ewan"
     },
@@ -2708,53 +2456,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 71
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Cormag"
     },
@@ -2801,53 +2540,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 true,
-                "Sword",
                 1
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Rennac"
     },
@@ -2898,53 +2628,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 181
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 181
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 181
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Duessel"
     },
@@ -2989,53 +2710,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 71
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Mercenary1"
     },
@@ -3080,53 +2792,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 true,
-                "Lance",
                 71
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Breguet"
     },
@@ -3171,53 +2874,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 31
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Bone"
     },
@@ -3266,53 +2960,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 71
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Bazba"
     },
@@ -3357,53 +3042,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 71
             ],
-            [
+            "Axe": [
                 true,
-                "Axe",
                 710
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Saar"
     },
@@ -3450,53 +3126,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 121
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 181
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Selena"
     },
@@ -3543,53 +3210,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 181
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 251
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 181
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "VigardeHealthy"
     },
@@ -3640,53 +3298,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 181
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 251
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Caellach"
     },
@@ -3737,53 +3386,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 251
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 0
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Valter"
     },
@@ -3826,53 +3466,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 181
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 251
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 0
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Riev"
     },
@@ -3919,53 +3550,44 @@
             ]
         ],
         "learned_skills": [],
-        "wexp_gain": [
-            [
+        "wexp_gain": {
+            "Sword": [
                 false,
-                "Sword",
                 0
             ],
-            [
+            "Lance": [
                 false,
-                "Lance",
                 0
             ],
-            [
+            "Axe": [
                 false,
-                "Axe",
                 0
             ],
-            [
+            "Bow": [
                 false,
-                "Bow",
                 0
             ],
-            [
+            "Staff": [
                 false,
-                "Staff",
                 181
             ],
-            [
+            "Light": [
                 false,
-                "Light",
                 0
             ],
-            [
+            "Anima": [
                 false,
-                "Anima",
                 0
             ],
-            [
+            "Dark": [
                 false,
-                "Dark",
                 251
             ],
-            [
+            "Default": [
                 false,
-                "Default",
                 0
             ]
-        ],
+        },
         "alternate_classes": null,
         "portrait_nid": "Lyon"
     }

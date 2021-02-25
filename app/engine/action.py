@@ -901,14 +901,15 @@ class Promote(Action):
         new_klass_bases = DB.classes.get(self.new_klass).bases
 
         self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
-        for stat in promotion_gains:
-            if stat.value == -99:  # Just use the new klass base
-                self.stat_changes[stat.nid] = new_klass_bases.get(stat.nid).value - current_stats[stat.nid]
-            elif stat.value == -98:  # Use the new klass base only if it's bigger
-                self.stat_changes[stat.nid] = max(0, new_klass_bases.get(stat.nid).value - current_stats[stat.nid])
+        for stat_nid in DB.stats.keys():
+            stat_value = promotion_gains.get(stat_nid, 0)
+            if stat_value == -99:  # Just use the new klass base
+                self.stat_changes[stat_nid] = new_klass_bases.get(stat_nid, 0) - current_stats[stat_nid]
+            elif stat_value == -98:  # Use the new klass base only if it's bigger
+                self.stat_changes[stat_nid] = max(0, new_klass_bases.get(stat_nid, 0) - current_stats[stat_nid])
             else:
-                max_gain_possible = new_klass_maxes.get(stat.nid).value - current_stats[stat.nid]
-                self.stat_changes[stat.nid] = min(stat.value, max_gain_possible)
+                max_gain_possible = new_klass_maxes.get(stat_nid, 0) - current_stats[stat_nid]
+                self.stat_changes[stat_nid] = min(stat_value, max_gain_possible)
 
         wexp_gain = DB.classes.get(self.new_klass).wexp_gain
         self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}
@@ -957,16 +958,17 @@ class ClassChange(Action):
         new_klass_maxes = DB.classes.get(self.new_klass).max_stats
 
         self.stat_changes = {nid: 0 for nid in DB.stats.keys()}
-        for stat_nid in self.stat_changes:
-            change = new_klass_bases.get(stat_nid).value - old_klass_bases.get(stat_nid).value
+        for stat_nid in self.stat_changes.keys():
+            change = new_klass_bases.get(stat_nid, 0) - old_klass_bases.get(stat_nid, 0)
             current_stat = current_stats.get(stat_nid)
-            new_value = utils.clamp(change, -current_stat, new_klass_maxes.get(stat_nid).value - current_stat)
+            new_value = utils.clamp(change, -current_stat, new_klass_maxes.get(stat_nid, 0) - current_stat)
             self.stat_changes[stat_nid] = new_value
 
         wexp_gain = DB.classes.get(self.new_klass).wexp_gain
         self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}
-        for weapon in wexp_gain:
-            self.new_wexp[weapon.nid] = weapon.wexp_gain
+        for weapon_nid in self.new_wexp.keys():
+            weapon_info = wexp_gain.get(weapon_nid, DB.weapons.default())
+            self.new_wexp[weapon_nid] = weapon_info.wexp_gain
 
         self.subactions = []
 

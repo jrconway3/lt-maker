@@ -127,7 +127,7 @@ class PermanentStatChange(ItemComponent):
             return False
         klass = DB.classes.get(defender.klass)
         for stat, inc in self.value:
-            if inc <= 0 or defender.stats[stat] < klass.max_stats.get(stat).value:
+            if inc <= 0 or defender.stats[stat] < klass.max_stats.get(stat, 30):
                 return True
         return False
 
@@ -135,7 +135,7 @@ class PermanentStatChange(ItemComponent):
         stat_changes = {k: v for (k, v) in self.value}
         klass = DB.classes.get(target.klass)
         # clamp stat changes
-        stat_changes = {k: utils.clamp(v, -unit.stats[k], klass.max_stats.get(k).value - target.stats[k]) for k, v in stat_changes.items()}
+        stat_changes = {k: utils.clamp(v, -unit.stats[k], klass.max_stats.get(k, 30) - target.stats[k]) for k, v in stat_changes.items()}
         actions.append(action.ApplyStatChanges(target, stat_changes))
         playback.append(('stat_hit', unit, item, target))
 
@@ -149,7 +149,7 @@ class PermanentStatChange(ItemComponent):
             stat_changes = {k: v*count for (k, v) in self.value}
             klass = DB.classes.get(target.klass)
             # clamp stat changes
-            stat_changes = {k: utils.clamp(v, -target.stats[k], klass.max_stats.get(k).value - target.stats[k]) for k, v in stat_changes.items()}
+            stat_changes = {k: utils.clamp(v, -target.stats[k], klass.max_stats.get(k, 30) - target.stats[k]) for k, v in stat_changes.items()}
             game.memory['stat_changes'] = stat_changes
             game.exp_instance.append((target, 0, None, 'stat_booster'))
             game.state.change('exp')

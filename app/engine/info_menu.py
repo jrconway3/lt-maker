@@ -621,7 +621,7 @@ class InfoMenuState(State):
         stat_list = ('STR', 'MAG', 'SKL', 'SPD', 'DEF', 'RES')
         for idx, stat_nid in enumerate(stat_list):
             highest_stat = DB.stats.get(stat_nid).maximum
-            max_stat = max_stats.get(stat_nid).value
+            max_stat = max_stats.get(stat_nid, 30)
             total_length = int(max_stat / highest_stat * 44)
             frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)
             build_groove(surf, (27, 16 * idx + 32), total_length, frac)

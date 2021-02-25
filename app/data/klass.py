@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
-from app.data import weapons
 
 @dataclass
 class Klass(Prefab):
@@ -24,7 +23,7 @@ class Klass(Prefab):
     max_stats: dict = None
 
     learned_skills: list = None
-    wexp_gain: weapons.WexpGainList = None
+    wexp_gain: dict = None
 
     icon_nid: str = None
     icon_index: tuple = (0, 0)
@@ -55,7 +54,10 @@ class Klass(Prefab):
             else:
                 value = value
         elif name == 'wexp_gain':
-            value = weapons.WexpGainList().restore(value)
+            if isinstance(value, list):
+                value = {k: v for (k, v) in value}
+            else:
+                value = value
         else:
             value = super().restore_attr(name, value)
         return value

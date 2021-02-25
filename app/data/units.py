@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from app.utilities.data import Data, Prefab
-from app.data import weapons
 
 @dataclass
 class UnitPrefab(Prefab):
@@ -19,7 +18,7 @@ class UnitPrefab(Prefab):
     starting_items: list = None  # of tuples (ItemPrefab, droppable)
 
     learned_skills: list = None
-    wexp_gain: weapons.WexpGainList = None
+    wexp_gain: dict = None
 
     alternate_classes: list = None
 
@@ -54,7 +53,10 @@ class UnitPrefab(Prefab):
             else:
                 value = value
         elif name == 'wexp_gain':
-            value = weapons.WexpGainList().restore(value)
+            if isinstance(value, list):
+                value = {k: v for (k, v) in value}
+            else:
+                value = value
         elif name == 'starting_items':
             # Need to convert to item nid + droppable
             value = [i if isinstance(i, list) else [i, False] for i in value]

@@ -161,7 +161,7 @@ def draw_stat(surf, stat_nid, unit, topright, compact=False):
     if compact:
         pass
     else:
-        if value >= class_obj.max_stats.get(stat_nid).value:
+        if value >= class_obj.max_stats.get(stat_nid, 30):
             FONT['text-yellow'].blit_right(str(value), surf, topright)
         else:
             FONT['text-blue'].blit_right(str(value), surf, topright)

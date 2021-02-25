@@ -92,7 +92,7 @@ class StatModel(VirtualListModel):
         self.window = parent
         self._columns = self._headers = columns
         self._rows = rows
-        self._data: list = data  # Must be list of StatLists
+        self._data: list = data  # Must be list of dicts
 
     def set_new_data(self, stat_titles: list, stat_lists: list):
         self._rows: list = stat_titles
@@ -378,10 +378,8 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
             return self._columns[idx]
 
     def determine_average(self, obj, stat_nid, level_ups):
-        print(obj.nid, stat_nid, level_ups)
         stat_base = obj.bases.get(stat_nid, 0)
         stat_growth = obj.growths.get(stat_nid, 0)
-        print(stat_base, stat_growth)
         average = 0.5
         quantile10 = 0
         quantile90 = 0
@@ -392,7 +390,6 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
             classes.append(turns_into[0])
             new_klass = DB.classes.get(turns_into[0])
             turns_into = new_klass.promotion_options(DB)
-        print(classes)
 
         for idx, klass in enumerate(classes):
             klass = DB.classes.get(klass)
@@ -402,7 +399,6 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
             else:
                 ticks = utils.clamp(level_ups, 0, klass.max_level - 1)
             level_ups -= klass.max_level
-            print(klass.nid, ticks, level_ups)
             growth_bonus = klass.growth_bonus.get(stat_nid, 0)
             if idx > 0:
                 promotion_bonus = klass.promotion.get(stat_nid, 0)
@@ -414,7 +410,6 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
                         promotion_bonus = 0
             else:
                 promotion_bonus = stat_base
-            print(promotion_bonus)
             growth = (stat_growth + growth_bonus)/100
             average += min(stat_max, promotion_bonus + (growth * ticks))
             quantile10 += min(stat_max, Binomial.quantile(.1, ticks, growth) + promotion_bonus)

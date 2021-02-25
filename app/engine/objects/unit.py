@@ -32,10 +32,13 @@ class UnitObject(Prefab):
             self.name = DB.factions.get(self.faction).name
             self.desc = DB.factions.get(self.faction).desc
             self._tags = []
-            self.stats = {stat.nid: stat.value for stat in DB.classes.get(self.klass).bases}
-            self.growths = {stat.nid: stat.value for stat in DB.classes.get(self.klass).growths}
             klass_obj = DB.classes.get(self.klass)
-            self.wexp = {weapon.nid: klass_obj.wexp_gain.get(weapon.nid).wexp_gain if klass_obj.wexp_gain.get(weapon.nid) else 0 for weapon in DB.weapons}
+            bases = klass_obj.bases
+            growths = klass_obj.growths
+            self.stats = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            weapon_gain = klass_obj.wexp_gain
+            self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
             self.calculate_needed_wexp_from_items()
             self.portrait_nid = None
         else:
@@ -43,9 +46,12 @@ class UnitObject(Prefab):
             self.name = prefab.name
             self.desc = prefab.desc
             self._tags = [tag for tag in prefab.tags]
-            self.stats = {stat.nid: stat.value for stat in prefab.bases}
-            self.growths = {stat.nid: stat.value for stat in prefab.growths}
-            self.wexp = {weapon.nid: weapon.wexp_gain for weapon in prefab.wexp_gain}
+            bases = prefab.bases
+            growths = prefab.growths
+            self.stats = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            weapon_gain = prefab.wexp_gain
+            self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
             self.portrait_nid = prefab.portrait_nid
         self.starting_position = self.position
 

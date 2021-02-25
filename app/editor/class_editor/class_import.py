@@ -31,31 +31,27 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
         # Handle stats
         stat_list = ('HP', 'STR', 'MAG', 'SKL', 'SPD', 'LCK', 'DEF', 'RES', 'CON', 'MOV')
         klass_stats = str_utils.intify(klass.find('bases').text)
-        bases = stats.StatList.default(DB)
+        bases = {nid: 0 for nid in DB.stats.keys()}
         for idx, num in enumerate(klass_stats):
-            s = bases.get(stat_list[idx])
-            if s:
-                s.value = num
+            if stat_list[idx] in DB.stats.keys():
+                bases[stat_list[idx]] = num
         klass_growths = str_utils.intify(klass.find('growths').text)
-        growths = stats.StatList.default(DB)
+        growths = {nid: 0 for nid in DB.stats.keys()}
         for idx, num in enumerate(klass_growths):
-            s = growths.get(stat_list[idx])
-            if s:
-                s.value = num
+            if stat_list[idx] in DB.stats.keys():
+                growths[stat_list[idx]] = num
         klass_max = str_utils.intify(klass.find('max').text)
-        maxes = stats.StatList.default(DB, 30)
+        maxes = {nid: 30 for nid in DB.stats.keys()}
         for idx, num in enumerate(klass_max):
-            s = maxes.get(stat_list[idx])
-            if s:
-                s.value = num
-        promotion = stats.StatList.default(DB)
+            if stat_list[idx] in DB.stats.keys():
+                maxes[stat_list[idx]] = num
+        promotion = {nid: 0 for nid in DB.stats.keys()}
         if klass.find('promotion') is not None and klass.find('promotion').text is not None:
             klass_promotion = str_utils.intify(klass.find('promotion').text)
             for idx, num in enumerate(klass_promotion):
-                s = promotion.get(stat_list[idx])
-                if s:
-                    s.value = num
-        growth_bonus = stats.StatList.default(DB)
+                if stat_list[idx] in DB.stats.keys():
+                    promotion[stat_list[idx]] = num
+        growth_bonus = {nid: 0 for nid in DB.stats.keys()}
 
         learned_skills = str_utils.skill_parser(klass.find('skills').text)
 

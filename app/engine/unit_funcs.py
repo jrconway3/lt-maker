@@ -19,7 +19,7 @@ def get_next_level_up(unit) -> dict:
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
     klass = DB.classes.get(unit.klass)
     for nid in DB.stats.keys():
-        growth = unit.growths[nid] + klass.growth_bonus.get(nid).value
+        growth = unit.growths[nid] + klass.growth_bonus.get(nid, 0)
         if method == 'Fixed':
             if growth > 0:
                 stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
@@ -120,7 +120,7 @@ def auto_level(unit, num_levels):
                 
     # Make sure we don't exceed max
     klass = DB.classes.get(unit.klass)
-    unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k).value) for (k, v) in unit.stats.items()}
+    unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k, 30)) for (k, v) in unit.stats.items()}
     unit.set_hp(1000)  # Go back to full hp
 
 def apply_stat_changes(unit, stat_changes: dict, in_base: bool = False):

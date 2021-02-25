@@ -32,6 +32,22 @@ Item System -- Multiple Target Items (test), Multiple Item Items (test)
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
 
+Supports:
+    GBA style
+        - Support bonus while within range
+        - Support level up while in combat within 3
+    Path of Radiance Style
+        - In Base vs In-map conversations
+        - Support level up if both survive a chapter
+    Radiant Dawn Style (allow player to swap current support partner)
+    Lock supports (Time-gate)
+    Three Houses Style 
+         - Support bonus while has enough range to attack target
+         - Support level up while within enough range to attack target
+    Limited Support (only 1 support chain, only X number of support levels, unlimited except for only 1 final level, just unlimited)
+
+    Bonuses to Hit, Crit, Damage, Avoid, Resist, Crit Avoid
+
 # Remaining Priorities
 ```
 change statlist and weaponlist into dictionaries

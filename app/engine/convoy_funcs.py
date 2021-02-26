@@ -43,7 +43,7 @@ def optimize_all():
     restock_convoy()
     # Distribute Weapons
     weapons = [item for item in game.party.convoy if item_system.is_weapon(None, item)]
-    weapons = sorted(weapons, key=lambda i: (item_system.weapon_rank(None, i), 1000 - i.data.get('uses', 0)))
+    weapons = sorted(weapons, key=lambda item: (item_system.weapon_rank(None, item) or '', 1000 - item.data.get('uses', 0)))
     for weapon in weapons:
         units_that_can_wield = [
             unit for unit in units
@@ -54,10 +54,10 @@ def optimize_all():
         if units_that_can_wield:
             unit = units_that_can_wield.pop()
             take_item(weapon, unit)
-    del weapon
+            
     # Distribute Spells
     spells = [item for item in game.party.convoy if item_system.is_spell(None, item)]
-    spells = sorted(spells, key=lambda i: (item_system.weapon_rank(None, i), 1000 - i.data.get('uses', 0)))
+    spells = sorted(spells, key=lambda item: (item_system.weapon_rank(None, item) or '', 1000 - item.data.get('uses', 0)))
     for spell in spells:
         units_that_can_wield = [
             unit for unit in units
@@ -68,7 +68,7 @@ def optimize_all():
         if units_that_can_wield:
             unit = units_that_can_wield.pop()
             take_item(spell, unit)
-    del spell
+
     # Distribute healing items
     healing_items = sorted([item for item in game.party.convoy if item.heal], key=lambda i: (i.heal.value, 1000 - i.data.get('uses', 0)))
     # Sort by max hp
@@ -91,13 +91,13 @@ def optimize(unit):
         item for item in game.party.convoy 
         if item_system.is_weapon(None, item) and 
         item_funcs.available(unit, item)]
-    weapons = sorted(weapons, key=lambda i: (item_system.weapon_rank(None, i), 1000 - i.data.get('uses', 0)))
+    weapons = sorted(weapons, key=lambda item: (item_system.weapon_rank(None, item) or '', 1000 - item.data.get('uses', 0)))
     # Distribute Spells
     spells = [
         item for item in game.party.convoy 
         if item_system.is_spell(None, item) and
         item_funcs.available(unit, item)]
-    spells = sorted(spells, key=lambda i: (item_system.weapon_rank(None, i), 1000 - i.data.get('uses', 0)))
+    spells = sorted(spells, key=lambda item: (item_system.weapon_rank(None, item) or '', 1000 - item.data.get('uses', 0)))
 
     # Give two spells if possible
     num_weapons = 2

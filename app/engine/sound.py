@@ -5,7 +5,6 @@ from app.resources.resources import RESOURCES
 from app.engine import engine
 
 import logging
-logger = logging.getLogger(__name__)
 
 class Song():
     def __init__(self, prefab):
@@ -78,16 +77,20 @@ class Channel():
             if progress >= 1:
                 if self.state == 'fade_out':
                     self.state = "paused"
+                    self.last_state = "paused"
+                    logging.debug('%s Paused', self.nid)
                     self._channel.pause()
                     return True
                 elif self.state == 'crossfade_out':
                     self.state = "playing"
+                    self.last_state = "playing"
         if self.state in ("fade_in", "crossfade_in"):
             progress = utils.clamp((current_time - self.last_update) / self.fade_in_time, 0, 1)
             self.local_volume = progress
             self._channel.set_volume(self.local_volume * self.global_volume)
             if progress >= 1:
                 self.state = "playing"
+                self.last_state = "playing"
                 return True
         return False
 
@@ -109,11 +112,16 @@ class Channel():
             else:
                 self._channel.play(self.current_song.song, 0)
 
-    def set_current_song(self, song, num_plays=-1, fade_in=400):
-        self.fade_in_time = max(fade_in, 1)
+    def set_current_song(self, song, num_plays=-1):
         self.current_song = song
         self.num_plays = num_plays
         self.played_intro = False
+
+    def set_fade_in_time(self, fade_in):
+        self.fade_in_time = max(fade_in, 1)
+
+    def set_fade_out_time(self, fade_out):
+        self.fade_out_time = max(fade_out, 1)
 
     def clear(self):
         self.current_song = None
@@ -122,30 +130,28 @@ class Channel():
         self.last_state = "stopped"
         self.state = "stopped"
 
-    def fade_in(self, fade_in=400):
-        self.fade_in_time = max(fade_in, 1)
+    def fade_in(self):
+        logging.debug("%s Fade In: %s", self.nid, self.last_state)
         if self.last_state == "paused":
+            logging.debug("%s Unpause", self.nid)
             self._channel.unpause()
         elif self.last_state == "stopped":
             self._play()
-        self.last_state = self.state
+        self.last_state = "playing"
         self.state = "fade_in"
         self.last_update = engine.get_time()
 
-    def fade_out(self, fade_out=400):
-        self.fade_out_time = max(fade_out, 1)
-        self.last_state = self.state
+    def fade_out(self):
+        logging.debug("%s Fade Out", self.nid)
         self.state = "fade_out"
         self.last_update = engine.get_time()
 
-    def crossfade_in(self, fade_in=400):
-        self.fade_in_time = max(fade_in, 1)
+    def crossfade_in(self):
         self.last_state = "playing"
         self.state = "crossfade_in"
         self.last_update = engine.get_time()
 
-    def crossfade_out(self, fade_out=400):
-        self.fade_out_time = max(fade_out, 1)
+    def crossfade_out(self):
         self.last_state = "playing"
         self.state = "crossfade_out"
         self.last_update = engine.get_time()
@@ -190,21 +196,29 @@ class ChannelPair():
         res2 = self.battle.update(event_list, current_time)
         return res1 or res2
 
-    def set_current_song(self, song, num_plays=-1, fade_in=400):
+    def set_current_song(self, song, num_plays=-1):
         song.channel = self
         self.current_song = song
-        self.channel.set_current_song(song, num_plays, fade_in)
-        self.battle.set_current_song(song, num_plays, fade_in)
+        self.channel.set_current_song(song, num_plays)
+        self.battle.set_current_song(song, num_plays)
 
-    def crossfade(self, fade=400):
+    def crossfade(self):
         if self.battle_mode:
             self.battle_mode = False
-            self.channel.crossfade_in(fade)
-            self.battle.crossfade_out(fade)
+            self.channel.crossfade_in()
+            self.battle.crossfade_out()
         else:
             self.battle_mode = True
-            self.channel.crossfade_out(fade)
-            self.battle.crossfade_in(fade)
+            self.channel.crossfade_out()
+            self.battle.crossfade_in()
+
+    def set_fade_in_time(self, fade_in):
+        self.channel.set_fade_in_time(fade_in)
+        self.battle.set_fade_in_time(fade_in)
+
+    def set_fade_out_time(self, fade_out):
+        self.channel.set_fade_out_time(fade_out)
+        self.battle.set_fade_out_time(fade_out)
 
     def clear(self):
         if self.current_song:
@@ -213,13 +227,13 @@ class ChannelPair():
         self.channel.clear()
         self.battle.clear()
 
-    def fade_in(self, fade_in=400):
-        self.channel.fade_in(fade_in)
-        self.battle.fade_in(fade_in)
+    def fade_in(self):
+        self.channel.fade_in()
+        self.battle.fade_in()
 
-    def fade_out(self, fade_out=400):
-        self.channel.fade_out(fade_out)
-        self.battle.fade_out(fade_out)
+    def fade_out(self):
+        self.channel.fade_out()
+        self.battle.fade_out()
 
     def pause(self):
         self.channel.pause()
@@ -267,16 +281,19 @@ class SoundController():
         self.song_stack.clear()
 
     def fade_clear(self, fade_out=400):
-        self.current_channel.fade_out(fade_out)
+        self.current_channel.set_fade_out_time(fade_out)
+        self.current_channel.fade_out()
         self.fade_out_stop = engine.get_time()
         self.song_stack.clear()
 
     def fade_to_stop(self, fade_out=400):
-        self.current_channel.fade_out(fade_out)
+        self.current_channel.set_fade_out_time(fade_out)
+        self.current_channel.fade_out()
         self.fade_out_stop = engine.get_time()
 
     def fade_to_pause(self, fade_out=400):
-        self.current_channel.fade_out(fade_out)
+        self.current_channel.set_fade_out_time(fade_out)
+        self.current_channel.fade_out()
         self.fade_out_pause = engine.get_time()
 
     def pause(self):
@@ -308,31 +325,35 @@ class SoundController():
     def set_next_song(self, song, num_plays, fade_in=400):
         # Clear the oldest channel and use it
         # to play the next song
-        logger.info("Set Next Song: %s" % song)
+        logging.info("Set Next Song: %s" % song)
         oldest_channel = self.channel_stack[0]
         oldest_channel.clear()
         self.channel_stack.remove(oldest_channel)
         self.channel_stack.append(oldest_channel)
-        oldest_channel.set_current_song(song, num_plays, fade_in)
+        oldest_channel.set_fade_in_time(fade_in)
+        oldest_channel.set_current_song(song, num_plays)
 
     def crossfade(self, fade=400):
-        self.current_channel.crossfade(fade)
+        self.current_channel.set_fade_in_time(fade)
+        self.current_channel.set_fade_out_time(fade)
+        self.current_channel.crossfade()
 
     def fade_in(self, next_song, num_plays=-1, fade_in=400):
-        logger.info("Fade in %s" % next_song)
+        logging.info("Fade in %s" % next_song)
         next_song = MUSIC.get(next_song)
         if not next_song:
-            logger.info("Song does not exist")
+            logging.info("Song does not exist")
             return None
 
-        if self.is_playing():
+        is_playing = self.is_playing()
+        if is_playing:
             current_song = self.song_stack[-1]
         else:
             current_song = None
 
         # Confirm that we're not just replacing the same song
         if current_song is next_song:
-            logger.info("Song already present")
+            logging.info("Song already present")
             return None
 
         # Fade out the current channel
@@ -343,22 +364,28 @@ class SoundController():
         for song in self.song_stack:
             # If so, move to top of stack
             if song is next_song:
-                logger.info("Pull up %s" % next_song)
+                logging.info("Pull up %s" % next_song)
                 self.song_stack.remove(song)
                 self.song_stack.append(song)
                 # If we can use our old channel
                 if song.channel and song.channel.current_song == song:
                     # Move to top
-                    logger.info("Using original channel")
+                    logging.info("Using original channel")
                     self.channel_stack.remove(song.channel)
                     self.channel_stack.append(song.channel)
                     song.channel.num_plays = num_plays
-                    song.channel.fade_in(fade_in)
+                    song.channel.set_fade_in_time(fade_in)
+                    logging.debug("Is Playing? %s", is_playing)
+                    if is_playing:
+                        pass
+                    else:
+                        song.channel.fade_in()
+                        self.fade_out_start = 0  # Necessary so we don't fade in twice
                 else:
                     self.set_next_song(song, num_plays, fade_in)
                 break
         else:
-            logger.info("New song %s" % next_song)
+            logging.info("New song %s" % next_song)
             self.song_stack.append(next_song)
             # Clear the oldest channel and use it
             self.set_next_song(next_song, num_plays, fade_in)
@@ -366,12 +393,13 @@ class SoundController():
         return self.song_stack[-1]
 
     def fade_back(self, fade_out=400):
-        logger.info("Fade back")
+        logging.info("Fade back")
 
         if not self.song_stack:
             return
         current_channel = self.current_channel
-        current_channel.fade_out(fade_out)
+        current_channel.set_fade_out_time(fade_out)
+        current_channel.fade_out()
         last_song = self.song_stack.pop()
         next_song = self.song_stack[-1] if self.song_stack else None
         # Move current channel down to bottom of world

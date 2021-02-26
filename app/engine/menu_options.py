@@ -388,7 +388,7 @@ class LoreOption(BasicOption):
         self.text = lore.name
         self.display_text = text_funcs.translate(self.text)
         self.help_box = None
-        self.color = None
+        self.color = 'text-white'
         self.ignore = False
 
     def get(self):
@@ -409,4 +409,13 @@ class LoreOption(BasicOption):
         return 16
 
     def get_color(self):
+        if self.ignore:
+            return 'text-yellow'
         return self.color
+
+    def draw(self, surf, x, y):
+        font = FONT[self.get_color()]
+        if self.ignore:
+            font.blit(self.lore.category, surf, (x + 6, y))
+        else:
+            font.blit(self.display_text, surf, (x + 6, y))

@@ -1115,7 +1115,7 @@
                 ]
             ]
         ],
-        "only_once": null
+        "only_once": false
     },
     {
         "name": "OnlyBoss",
@@ -6186,63 +6186,21 @@
                 ]
             ],
             [
-                "music",
+                "add_lore",
                 [
-                    "Attack"
+                    "Eirika"
                 ]
             ],
             [
-                "wait",
+                "add_base_convo",
                 [
-                    "3000"
+                    "Dreams of Home"
                 ]
             ],
             [
-                "music",
+                "base",
                 [
-                    "Armory"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "3000"
-                ]
-            ],
-            [
-                "music",
-                [
-                    "Attack"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "3000"
-                ]
-            ],
-            [
-                "music",
-                [
-                    "None"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "3000"
-                ]
-            ],
-            [
-                "music",
-                [
-                    "Attack"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "3000"
+                    "InsideCastle"
                 ]
             ]
         ],
@@ -11683,6 +11641,38 @@
                 [
                     "_convoy",
                     "True"
+                ]
+            ]
+        ],
+        "only_once": false
+    },
+    {
+        "name": "Dreams of Home",
+        "trigger": "on_base_convo",
+        "level_nid": "DEBUG",
+        "condition": "unit == 'Dreams of Home'",
+        "commands": [
+            [
+                "multi_add_portrait",
+                [
+                    "Eirika",
+                    "Left",
+                    "Seth",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "I miss home"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Eirika",
+                    "Seth"
                 ]
             ]
         ],

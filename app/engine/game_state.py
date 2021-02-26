@@ -78,7 +78,7 @@ class GameState():
         self.level_vars = Counter()
         self.turncount = 0
         self.talk_options = []
-        self.base_convos = []
+        self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
 
@@ -246,7 +246,7 @@ class GameState():
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])
-        self.base_convos = s_dict.get('base_convos', [])
+        self.base_convos = s_dict.get('base_convos', {})
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
         if s_dict.get('records'):

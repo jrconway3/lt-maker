@@ -657,6 +657,28 @@ class Event():
             values, flags = event_commands.parse(command)
             action.do(action.RemoveTalk(values[0], values[1]))
 
+        elif command.nid == 'add_lore':
+            values, flags = event_commands.parse(command)
+            action.do(action.AddLore(values[0]))
+
+        elif command.nid == 'remove_lore':
+            values, flags = event_commands.parse(command)
+            action.do(action.RemoveLore(values[0]))
+
+        elif command.nid == 'add_base_convo':
+            values, flags = event_commands.parse(command)
+            game.base_convos[values[0]] = False
+
+        elif command.nid == 'remove_base_convo':
+            values, flags = event_commands.parse(command)
+            if values[0] in game.base_convos:
+                del game.base_convos[values[0]]
+
+        elif command.nid == 'ignore_base_convo':
+            values, flags = event_commands.parse(command)
+            if values[0] in game.base_convos:
+                game.base_convos[values[0]] = True
+
         elif command.nid == 'add_region':
             self.add_region(command)
 
@@ -736,7 +758,7 @@ class Event():
         elif command.nid == 'base':
             values, flags = event_commands.parse(command)
             panorama_nid = values[0]
-            game.memory['base_bg_name'] = panorama_nid
+            action.do(action.SetGameVar('_base_bg_name', panorama_nid))
             game.state.change('base_main')
             self.state = 'paused'
 

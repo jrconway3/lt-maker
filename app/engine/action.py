@@ -1234,6 +1234,31 @@ class RemoveTalk(Action):
         if self.did_remove:
             game.talk_options.append((self.unit1, self.unit2))
 
+class AddLore(Action):
+    def __init__(self, lore_nid):
+        self.lore_nid = lore_nid
+
+    def do(self):
+        game.unlocked_lore.append(self.lore_nid)
+
+    def reverse(self):
+        if self.lore_nid in game.unlocked_lore:
+            game.unlocked_lore.remove(self.lore_nid)
+
+class RemoveLore(Action):
+    def __init__(self, lore_nid):
+        self.lore_nid = lore_nid
+        self.did_remove = False
+
+    def do(self):
+        if self.lore_nid in game.unlocked_lore:
+            game.unlocked_lore.remove(self.lore_nid)
+            self.did_remove = True
+
+    def reverse(self):
+        if self.did_remove:
+            game.unlocked_lore.append(self.lore_nid)
+
 class AddRegion(Action):
     def __init__(self, region):
         self.region = region

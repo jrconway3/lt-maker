@@ -16,8 +16,10 @@ class EventManager():
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
             try:
-                logger.debug("%s %s %s", event_prefab.trigger, event_prefab.condition, evaluate.evaluate(event_prefab.condition, unit, unit2, region, position))
-                if event_prefab.nid not in game.already_triggered_events and evaluate.evaluate(event_prefab.condition, unit, unit2, region, position):
+                logger.debug("%s %s", event_prefab.trigger, event_prefab.condition)
+                result = evaluate.evaluate(event_prefab.condition, unit, unit2, item, position, region)
+                logger.debug("%s" % result)
+                if event_prefab.nid not in game.already_triggered_events and result:
                     triggered_events.append(event_prefab)
             except:
                 logger.error("Condition {%s} could not be evaluated" % event_prefab.condition)

@@ -26,7 +26,7 @@ class BaseMainState(State):
         game.cursor.autocursor()
         game.boundary.hide()
         # build background
-        bg_name = game.memory.get('base_bg_name')
+        bg_name = game.game_vars.get('_base_bg_name')
         panorama = None
         if bg_name:
             panorama = RESOURCES.panoramas.get(bg_name)
@@ -166,20 +166,22 @@ class BaseConvosChildState(State):
     transparent = True
 
     def start(self):
-        options = [event_nid for event_nid in game.base_convos]
-        ignore = [bool(game.memory.get('_ignore_' + event_nid)) for event_nid in game.base_convos]
+        self.options = [event_nid for event_nid in game.base_convos.keys()]
+        ignore = [game.base_convos[event_nid] for event_nid in self.options]
 
         selection = game.memory['option_owner']
         topleft = game.memory['option_menu']
 
-        self.menu = menus.Choice(selection, options, topleft)
-        color = ['text-grey' if i else 'text-white' for i in ignore]
-        self.menu.set_color(color)
+        self.menu = menus.Choice(selection, self.options, topleft)
+        # color = ['text-grey' if i else 'text-white' for i in ignore]
+        # self.menu.set_color(color)
+        self.menu.set_ignore(ignore)
 
     def begin(self):
-        ignore = [bool(game.memory.get('_ignore_' + event_nid)) for event_nid in game.base_convos]
-        color = ['text-grey' if i else 'text-white' for i in ignore]
-        self.menu.set_color(color)
+        ignore = [game.base_convos[event_nid] for event_nid in self.options]
+        # color = ['text-grey' if i else 'text-white' for i in ignore]
+        # self.menu.set_color(color)
+        self.menu.set_ignore(ignore)
         SOUNDTHREAD.fade_in(game.level.music['base'])
 
     def take_input(self, event):
@@ -197,17 +199,17 @@ class BaseConvosChildState(State):
 
         elif event == 'SELECT':
             selection = self.menu.get_current()
-            SOUNDTHREAD.play_sfx('Select 1')
-            game.memory['_ignore_' + selection] = True
-            game.events.trigger('on_base_convo', selection)
+            if not game.base_convos[selection]:
+                SOUNDTHREAD.play_sfx('Select 1')
+                # Auto-ignore
+                game.base_convos[selection] = True
+                game.events.trigger('on_base_convo', selection)
 
     def update(self):
         if self.menu:
             self.menu.update()
 
     def draw(self, surf):
-        if self.bg:
-            self.bg.draw(surf)
         if self.menu:
             self.menu.draw(surf)
         return surf
@@ -217,10 +219,12 @@ class BaseCodexChildState(State):
     transparent = True
     
     def start(self):
-        options = ['Library']
+        options = []
+        unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore]
+        if unlocked_lore:
+            options.append('Library')
         if game.game_vars['_world_map_in_base']:
             options.append('Map')
-        # TODO Records
         options.append('Records')
         # TODO Achievements?
         # TODO Tactics?
@@ -230,11 +234,6 @@ class BaseCodexChildState(State):
         topleft = game.memory['option_menu']
 
         self.menu = menus.Choice(selection, options, topleft)
-
-    def begin(self):
-        ignore = [bool(game.memory.get('_ignore_' + event_nid)) for event_nid in game.base_convos]
-        color = ['text-grey' if i else 'text-white' for i in ignore]
-        self.menu.set_color(color)
 
     def take_input(self, event):
         self.menu.handle_mouse()
@@ -275,12 +274,12 @@ class BaseCodexChildState(State):
 class LoreDisplay():
     def __init__(self):
         self.lore = None
-        self.topleft = (72, 4)
-        self.width = WINWIDTH - 76
+        self.topleft = (76, 4)
+        self.width = WINWIDTH - 80
         self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8)
 
-        self.left_arrow = gui.ScrollArrow('left', (self.topleft[0] + 4, 4))
-        self.right_arrow = gui.ScrollArrow('right', (self.topleft[0] + self.width - 23, 4), 0.5)
+        self.left_arrow = gui.ScrollArrow('left', (self.topleft[0] + 4, 8))
+        self.right_arrow = gui.ScrollArrow('right', (self.topleft[0] + self.width - 11, 8), 0.5)
 
     def update_entry(self, lore_nid):
         self.lore = DB.lore.get(lore_nid)
@@ -289,7 +288,7 @@ class LoreDisplay():
         self.num_pages = len(self.lines)
 
     def page_right(self, first_push=False) -> bool:
-        if self.page_num < self.num_pages:
+        if self.page_num < self.num_pages - 1:
             self.page_num += 1
             self.right_arrow.pulse()
             return True
@@ -312,21 +311,25 @@ class LoreDisplay():
 
     def draw(self, surf):
         if self.lore:
+            image = self.bg_surf.copy()
             if game.get_unit(self.lore.nid):
                 unit = game.get_unit(self.lore.nid)
-                icons.draw_portrait(surf, unit, (self.width - 96, WINHEIGHT - 12 - 80))
+                icons.draw_portrait(image, unit, (self.width - 96, WINHEIGHT - 12 - 80))
 
-            FONT['text-yellow'].blit_center(self.lore.title, surf, (self.width//2, 4))
+            FONT['text-yellow'].blit_center(self.lore.title, image, (self.width//2, 4))
 
             text = self.lines[self.page_num]
-            lines = text_funcs.line_wrap(FONT['text-white'], text, self.width - 8)
+            lines = text_funcs.line_wrap(FONT['text-white'], text, self.width - 12)
             for idx, line in enumerate(lines):
-                FONT['text-white'].blit(line, surf, (4, FONT['text-white'].height * idx + 20))
+                FONT['text-white'].blit(line, image, (4, FONT['text-white'].height * idx + 20))
 
             if self.num_pages > 1:
                 text = '%d / %d' % (self.page_num + 1, self.num_pages)
-                FONT['text-white'].blit_right(text, surf, (self.width - 4, WINHEIGHT - 12 - 16))
+                FONT['text-white'].blit_right(text, image, (self.width - 4, WINHEIGHT - 12 - 16))
 
+            surf.blit(image, self.topleft)
+
+            if self.num_pages > 1:
                 self.left_arrow.draw(surf)
                 self.right_arrow.draw(surf)
 
@@ -350,9 +353,8 @@ class BaseLibraryState(State):
         for lore in sorted_lore:
             if lore.category not in self.categories:
                 self.categories.append(lore.category)
-                options.append(lore.category)
+                options.append(lore)
                 ignore.append(True)
-                continue
             options.append(lore)
             ignore.append(False)
 
@@ -364,6 +366,7 @@ class BaseLibraryState(State):
         self.menu.set_ignore(ignore)
 
         self.display = LoreDisplay()
+        self.display.update_entry(self.menu.get_current().nid)
 
         game.state.change('transition_in')
         return 'repeat'
@@ -465,12 +468,12 @@ class BaseRecordsState(State):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
-        self.menu.handle_mouse()
+        self.current_menu.handle_mouse()
         if 'DOWN' in directions:
             if self.current_menu.move_down(first_push):
                 SOUNDTHREAD.play_sfx('Select 6')
         elif 'UP' in directions:
-            if self.menu.move_up(first_push):
+            if self.current_menu.move_up(first_push):
                 SOUNDTHREAD.play_sfx('Select 6')
 
         if event == 'LEFT':
@@ -483,10 +486,10 @@ class BaseRecordsState(State):
                 self.current_menu = self.mvp
             elif self.state == 'mvp':
                 self.state = 'records'
-                self.current_menu = self.records
+                self.current_menu = self.record_menu
             elif self.state == 'chapter':
-                self.records.move_up(True)
-                self.current_menu = self.chapter_menus[self.records.get_current_index()]
+                self.record_menu.move_up(True)
+                self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
             elif self.state == 'unit':
                 self.mvp.move_up(True)
                 self.current_menu = self.unit_menus[self.mvp.get_current_index()]
@@ -501,10 +504,10 @@ class BaseRecordsState(State):
                 self.current_menu = self.mvp
             elif self.state == 'mvp':
                 self.state = 'records'
-                self.current_menu = self.records
+                self.current_menu = self.record_menu
             elif self.state == 'chapter':
-                self.records.move_down(True)
-                self.current_menu = self.chapter_menus[self.records.get_current_index()]
+                self.record_menu.move_down(True)
+                self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
             elif self.state == 'unit':
                 self.mvp.move_down(True)
                 self.current_menu = self.unit_menus[self.mvp.get_current_index()]
@@ -523,7 +526,7 @@ class BaseRecordsState(State):
                 self.current_menu = self.mvp
             elif self.state == 'chapter':
                 self.state = 'records'
-                self.current_menu = self.records
+                self.current_menu = self.record_menu
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
@@ -534,10 +537,10 @@ class BaseRecordsState(State):
 
             if self.state == 'records':
                 self.state = 'chapter'
-                self.current_menu = self.chapter_menus[self.records.get_current_index()]
+                self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
             elif self.state == 'mvp':
                 self.state = 'unit'
-                self.current_menu = self.unit_menus[self.records.get_current_index()]
+                self.current_menu = self.unit_menus[self.record_menu.get_current_index()]
 
     def update(self):
         if self.current_menu:

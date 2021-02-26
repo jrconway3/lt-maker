@@ -52,6 +52,10 @@
         "text": "Select which unit to trade with."
     },
     {
+        "nid": "Talk_desc",
+        "text": "Select a unit to talk to."
+    },
+    {
         "nid": "Config_desc",
         "text": "Change your settings."
     },
@@ -298,5 +302,17 @@
     {
         "nid": "config_desc",
         "text": "Change settings."
+    },
+    {
+        "nid": "record_header",
+        "text": "Chapter Name       Turn Count        MVP"
+    },
+    {
+        "nid": "mvp_record_header",
+        "text": "Rank    Name        Kills    Damage    Healing"
+    },
+    {
+        "nid": "unit_record_header",
+        "text": "Chapter Name        Kills    Damage    Healing"
     }
 ]

@@ -443,6 +443,37 @@ class RemoveTalk(EventCommand):
 
     keywords = ["Unit", "Unit"]
 
+class AddLore(EventCommand):
+    nid = 'add_lore'
+    nickname = 'unlock_lore'
+    tag = 'general'
+
+    keywords = ["Lore"]
+
+class RemoveLore(EventCommand):
+    nid = 'remove_lore'
+    tag = 'general'
+
+    keywords = ["Lore"]
+
+class AddBaseConvo(EventCommand):
+    nid = 'add_base_convo'
+    tag = 'general'
+
+    keywords = ["String"]
+
+class IgnoreBaseConvo(EventCommand):
+    nid = 'ignore_base_convo'
+    tag = 'general'
+
+    keywords = ["String"]
+
+class RemoveBaseConvo(EventCommand):
+    nid = 'remove_base_convo'
+    tag = 'general'
+
+    keywords = ["String"]
+
 class AddRegion(EventCommand):
     nid = 'add_region'
     tag = 'map'

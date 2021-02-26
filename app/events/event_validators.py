@@ -350,6 +350,12 @@ class Klass(Validator):
             return text
         return None
 
+class Lore(Validator):
+    def validate(self, text, level):
+        if text in DB.lore.keys():
+            return text
+        return None
+
 class Layer(Validator):
     def validate(self, text, level):
         print(text)

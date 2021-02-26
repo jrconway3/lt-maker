@@ -8,6 +8,7 @@ _convoy bool
 _fatigue int ()
 _prep_market bool 
 _base_market bool
+_base_bg_name Panorama nid
 _world_map_in_base bool
 
 Special Level Vars

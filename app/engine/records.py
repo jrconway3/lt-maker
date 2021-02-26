@@ -235,3 +235,21 @@ class Recordkeeper():
         heal_score = self.get_heal(unit_nid, level_nid)
 
         return kill_score * 20 + damage_score + heal_score
+
+    def get_mvp(self, level_nid: str = None) -> str:
+        """
+        Returns which unit has the highest score 
+        of units that participated in the level
+        If level_nid is None, instead for all levels
+        """
+        best_score = -1
+        mvp = None
+        for unit in game.get_all_units_in_party():
+            score = self.determine_score(unit.nid, level_nid)
+            if score > best_score:
+                best_score = score
+                mvp = unit.nid
+        if mvp:
+            return mvp
+        else:
+            return game.get_all_units_in_party()[0].nid

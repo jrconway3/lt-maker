@@ -117,8 +117,13 @@ class Simple():
 
     def set_ignore(self, ignores):
         for idx, option in enumerate(self.options):
-            option.ignore = ignores[idx]
-        self.current_index = self.get_first_option().idx
+            if idx >= len(ignores):
+                option.ignore = True
+            else:
+                option.ignore = ignores[idx]
+        first_valid = self.get_first_option()
+        if first_valid:
+            self.current_index = first_valid.idx
 
     def set_cursor(self, val):
         self.draw_cursor = val
@@ -258,10 +263,11 @@ class Simple():
             else:
                 return self.topleft
         elif isinstance(self.topleft, Simple):
-            if game.cursor.position[0] > TILEX//2 + game.camera.get_x():
-                return (-20 + self.topleft.get_menu_width(), self.topleft.current_index * 16 + 4)
+            parent_topleft = self.topleft.get_topleft()
+            if parent_topleft[0] < WINWIDTH//2:
+                return (parent_topleft[0] - 20 + self.topleft.get_menu_width(), parent_topleft[1] + self.topleft.current_index * 16 + 4)
             else:
-                return (WINWIDTH - 40 - self.topleft.get_menu_width(), self.topleft.current_index * 16 + 8)
+                return (WINWIDTH - 40 - self.topleft.get_menu_width(), parent_topleft[1] + self.topleft.current_index * 16 + 8)
         else:
             return self.topleft
 
@@ -334,6 +340,7 @@ class Choice(Simple):
                 self.options.append(option)
             elif isinstance(option, lore.Lore):
                 option = menu_options.LoreOption(idx, option)
+                self.options.append(option)
             else:
                 if self.horizontal:
                     option = menu_options.HorizOption(idx, option)

@@ -1169,18 +1169,23 @@ class CombatTargetingState(MapState):
     def _engage_combat(self):
         game.memory['full_playback'] = []
         if self.parent_item:  # For sequence item
+            item = self.parent_item
+            targets = []
             target_counter = 0
             for item in self.parent_item.subitems:
                 num_targets = item_system.num_targets(self.cur_unit, item)
-                targets = self.prev_targets[target_counter:target_counter + num_targets]
+                t = self.prev_targets[target_counter:target_counter + num_targets]
+                if num_targets > 1:
+                    targets.append(t)
+                else:
+                    targets.append(t[0])
                 target_counter += num_targets
-                combat = interaction.engage(self.cur_unit, targets, item)
-                game.combat_instance.append(combat)
-                game.state.change('combat')
         else:
-            combat = interaction.engage(self.cur_unit, self.prev_targets, self.item)
-            game.combat_instance.append(combat)
-            game.state.change('combat')
+            item = self.item
+            targets = self.prev_targets
+        combat = interaction.engage(self.cur_unit, targets, item)
+        game.combat_instance.append(combat)
+        game.state.change('combat')
 
     def _get_next_target(self):
         allow_same_target = item_system.allow_same_target(self.cur_unit, self.item)

@@ -3,7 +3,7 @@ from app.utilities import utils
 from app.data.item_components import ItemComponent
 
 from app.engine import action
-from app.engine import item_funcs
+from app.engine import item_funcs, skill_system
 from app.engine.game_state import game
 
 class UnlockStaff(ItemComponent):
@@ -39,11 +39,11 @@ class UnlockStaff(ItemComponent):
                     return True
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
     def end_combat(self, playback, unit, item, target):
-        if self._did_hit or True:
+        if self._did_hit:
             pos = game.cursor.position
             region = None
             for reg in game.level.regions:
@@ -55,3 +55,34 @@ class UnlockStaff(ItemComponent):
                 if did_trigger and region.only_once:
                     action.do(action.RemoveRegion(region))
         self._did_hit = False
+
+class StoreUnit(ItemComponent):
+    nid = 'store_unit'
+    desc = "Item removes unit from map on hit, and stores the unit in memory"
+    tag = 'special'
+
+    def init(self, item):
+        self.item.data['stored_unit'] = None
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        if not skill_system.ignore_forced_movement(target):
+            self.item.data['stored_unit'] = target.nid
+            actions.append(action.LeaveMap(target))
+            playback.append(('rescue_hit', unit, item, target))
+
+class UnloadUnit(ItemComponent):
+    nid = 'unload_unit'
+    desc = "Item takes stored unit and puts them back on the map"
+    tag = 'special'
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        if not game.get_unit(def_pos) and game.movement.check_simple_traversable(def_pos):
+            return True
+        return False
+    
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        # Since no defender, target is a position
+        if self.item.data.get('stored_unit'):
+            rescuee = game.get_unit(self.item.data['stored_unit'])
+            if rescuee:
+                actions.append(action.ArriveOnMap(rescuee, target_pos))

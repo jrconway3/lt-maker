@@ -5,6 +5,8 @@ from app.engine import item_system, skill_system
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 
+import logging
+
 def is_magic(unit, item) -> bool:
     if item.magic:
         return True
@@ -58,6 +60,9 @@ def create_item(unit, item_nid, droppable=False):
     def create_subitem(subitem_nid):
         subitem_prefab = DB.items.get(subitem_nid)
         subitem = ItemObject.from_prefab(subitem_prefab)
+        # Make self.item in components always point to parent item
+        for component in subitem.components:
+            component.item = item
         if unit:
             subitem.owner_nid = unit.nid
         item_system.init(subitem)
@@ -153,7 +158,7 @@ def create_skill(unit, skill_nid):
         skill_system.init(skill)
         return skill
     else:
-        print("Couldn't find skill %s" % skill_nid)
+        logging.warning("Couldn't find skill %s" % skill_nid)
         return None
 
 def create_skills(unit, skill_nid_list: list) -> list:

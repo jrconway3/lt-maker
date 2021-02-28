@@ -36,17 +36,17 @@ class AttackerState(SolverState):
     def get_next_state(self, solver):
         command = solver.get_script()
         if command == '--':
-            if solver.main_target:
-                if DB.constants.value('def_double') or skill_system.def_double(solver.main_target):
-                    defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, solver.item, 'defense')
+            if solver.defender:
+                if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
+                    defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
                 else:
                     defender_outspeed = 1
-                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, solver.target_item, 'attack')
+                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
             else:
                 attacker_outspeed = defender_outspeed = 1
-            multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
+            multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
 
-            if solver.attacker_alive() and solver.main_target_alive():
+            if solver.attacker_alive() and solver.defender_alive():
                 if solver.item_has_uses() and \
                         solver.num_subattacks < multiattacks:
                     return 'attacker'
@@ -64,16 +64,20 @@ class AttackerState(SolverState):
 
     def process(self, solver, actions, playback):
         playback.append(('attacker_phase',))
-        if solver.main_target:
-            solver.process(actions, playback, solver.attacker, solver.main_target, solver.item, solver.target_item, 'attack')
-        for target in solver.splash:
-            solver.process(actions, playback, solver.attacker, target, solver.item, solver.target_item, 'splash')
+        for idx, item in enumerate(solver.items):
+            defender = solver.defenders[idx]
+            splash = solver.splashes[idx]
+            target_pos = solver.target_positions[idx]
+            if defender:
+                solver.process(actions, playback, solver.attacker, defender, target_pos, item, defender.get_weapon(), 'attack')
+            for target in splash:
+                solver.process(actions, playback, solver.attacker, target, target_pos, item, None, 'splash')
             # Make sure that we run on_hit even if otherwise unavailable
-        if not solver.main_target and not solver.splash:
-            solver.simple_process(actions, playback, solver.attacker, None, solver.item, None, None)
+            if not defender and not splash:
+                solver.simple_process(actions, playback, solver.attacker, None, target_pos, item, None, None)
         
         solver.num_subattacks += 1
-        multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.main_target, solver.item, 'attack')
+        multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
         if solver.num_subattacks >= multiattacks:
             solver.num_attacks += 1
 
@@ -81,13 +85,13 @@ class DefenderState(SolverState):
     def get_next_state(self, solver):
         command = solver.get_script()
         if command == '--':
-            if solver.attacker_alive() and solver.main_target_alive():
-                if DB.constants.value('def_double') or skill_system.def_double(solver.main_target):
-                    defender_outspeed = combat_calcs.outspeed(solver.main_target, solver.attacker, solver.target_item, solver.item, 'defense')
+            if solver.attacker_alive() and solver.defender_alive():
+                if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
+                    defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
                 else:
                     defender_outspeed = 1
-                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.main_target, solver.item, solver.target_item, 'attack')
-                multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
+                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
+                multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
                 
                 if solver.allow_counterattack() and \
                         solver.num_subdefends < multiattacks:
@@ -105,10 +109,10 @@ class DefenderState(SolverState):
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))
-        solver.process(actions, playback, solver.main_target, solver.attacker, solver.target_item, solver.item, 'defense')
+        solver.process(actions, playback, solver.defender, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
         
         solver.num_subdefends += 1
-        multiattacks = combat_calcs.compute_multiattacks(solver.main_target, solver.attacker, solver.target_item, 'defense')
+        multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
         if solver.num_subdefends >= multiattacks:
             solver.num_defends += 1
 
@@ -117,15 +121,18 @@ class CombatPhaseSolver():
               'attacker': AttackerState,
               'defender': DefenderState}
 
-    def __init__(self, attacker, main_target, splash, item, script=None):
+    def __init__(self, attacker, main_item, items, defenders, 
+                 splashes, target_positions, defender, def_item, 
+                 script=None):
         self.attacker = attacker
-        self.main_target = main_target
-        self.splash = splash
-        self.item = item
-        if self.main_target:
-            self.target_item = self.main_target.get_weapon()
-        else:
-            self.target_item = None
+        self.main_item = main_item
+        self.items = items
+        self.defenders = defenders
+        self.splashes = splashes
+        self.target_positions = target_positions
+        self.defender = defender
+        self.def_item = def_item        
+
         self.state = InitState()
         self.num_attacks, self.num_defends = 0, 0
         self.num_subattacks, self.num_subdefends = 0, 0
@@ -183,7 +190,7 @@ class CombatPhaseSolver():
     def generate_crit_roll(self):
         return static_random.get_combat()
 
-    def process(self, actions, playback, attacker, defender, item, def_item, mode):
+    def process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
         to_hit = combat_calcs.compute_hit(attacker, defender, item, def_item, mode)
 
         if self.current_command in ('hit1', 'hit2', 'crit1', 'crit2'):
@@ -206,36 +213,40 @@ class CombatPhaseSolver():
                     if crit_roll < to_crit:
                         crit = True
             if crit:
-                item_system.on_crit(actions, playback, attacker, item, defender, mode)
-                playback.append(('mark_crit', attacker, defender, self.attacker))
+                item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode)
+                if defender:
+                    playback.append(('mark_crit', attacker, defender, self.attacker))
             else:
-                item_system.on_hit(actions, playback, attacker, item, defender, mode)
-                playback.append(('mark_hit', attacker, defender, self.attacker))
+                item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode)
+                if defender:
+                    playback.append(('mark_hit', attacker, defender, self.attacker))
             item_system.after_hit(actions, playback, attacker, item, defender, mode)
             skill_system.after_hit(actions, playback, attacker, item, defender, mode)
         else:
-            item_system.on_miss(actions, playback, attacker, item, defender, mode)
-            playback.append(('mark_miss', attacker, defender, self.attacker))
+            item_system.on_miss(actions, playback, attacker, item, defender, def_pos, mode)
+            if defender:
+                playback.append(('mark_miss', attacker, defender, self.attacker))
 
-    def simple_process(self, actions, playback, attacker, defender, item, def_item, mode):
-        item_system.on_hit(actions, playback, attacker, item, defender, mode)
-        playback.append(('mark_hit', attacker, defender, self.attacker))
+    def simple_process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
+        item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode)
+        if defender:
+            playback.append(('mark_hit', attacker, defender, self.attacker))
 
     def attacker_alive(self):
         return self.attacker.get_hp() > 0
 
-    def main_target_alive(self):
-        return self.main_target and self.main_target.get_hp() > 0
+    def defender_alive(self):
+        return self.defender and self.defender.get_hp() > 0
 
     def defender_has_vantage(self) -> bool:
         return self.allow_counterattack() and \
-            skill_system.vantage(self.main_target)
+            skill_system.vantage(self.defender)
 
     def allow_counterattack(self) -> bool:
-        return combat_calcs.can_counterattack(self.attacker, self.item, self.main_target, self.target_item)
+        return combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item)
 
     def item_has_uses(self):
-        return item_funcs.available(self.attacker, self.item)
+        return item_funcs.available(self.attacker, self.main_item)
 
     def target_item_has_uses(self):
-        return self.main_target and self.target_item and item_funcs.available(self.main_target, self.target_item)
+        return self.defender and self.def_item and item_funcs.available(self.defender, self.def_item)

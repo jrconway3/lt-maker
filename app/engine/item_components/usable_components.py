@@ -21,11 +21,11 @@ class Uses(ItemComponent):
     def is_broken(self, unit, item) -> bool:
         return item.data['uses'] <= 0
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
-    def on_miss(self, actions, playback, unit, item, target, mode):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
@@ -54,11 +54,11 @@ class ChapterUses(ItemComponent):
     def is_broken(self, unit, item) -> bool:
         return item.data['c_uses'] <= 0
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
-    def on_miss(self, actions, playback, unit, item, target, mode=None):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
@@ -121,10 +121,10 @@ class Cooldown(ItemComponent):
     def is_broken(self, unit, item) -> bool:
         return item.data['cooldown'] != 0
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._used_in_combat = True
 
-    def on_miss(self, actions, playback, unit, item, target, mode):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
         self._used_in_combat = True
 
     def end_combat(self, playback, unit, item, target):

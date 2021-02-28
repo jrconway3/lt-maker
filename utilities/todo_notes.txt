@@ -1,5 +1,12 @@
 TODO List:
 
+on_unit_select
+event_priority
+unit sprite for warp and rescue
+using the item twice for warp and rescue
+warp / swoosh animations
+SelectionHelper for mouse
+
 Combat Animations
     Combat Anims / Palettes as a separate tab?
     Combat Effects
@@ -50,13 +57,6 @@ Supports:
 
 # Remaining Priorities
 ```
-Base Menu bugs
-    - Optimize All
-    - Grey out Lore when none is available
-    - Unlock Lore command
-    - Test Access Records
-    - Add Base Convo command
-    - Grey Out Base Convo command
 Auras
     - Auras have a instantiated child aura they keep a reference to. Works like child items in the item system
     - Aura board keeps track of where the aura_child belongs
@@ -69,9 +69,9 @@ Auras
             if aura.defines('??'):
                 # Do the thing
     ```
-Sequence Items (Warp, Rescue, Crazier stuff)
+Sequence Items (Warp, Rescue, Ember, Crazier stuff)
 test Multi Items for the AI
-turnwheel mouse support / info menu mouse support better?
+turnwheel mouse support / info menu mouse support better / records?
 AOE modification skills
 Movement modification skills
 

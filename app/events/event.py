@@ -285,6 +285,8 @@ class Event():
             fade = 400
             if len(command.values) > 1 and command.values[1]:
                 fade = int(command.values[1]) 
+            if self.do_skip:
+                fade = 0
             if music == 'None':
                 SOUNDTHREAD.fade_to_pause(fade_out=fade)
             else:
@@ -294,6 +296,8 @@ class Event():
             fade = 0
             if len(command.values) > 0 and command.values[0]:
                 fade = int(command.values[0])
+            if self.do_skip:
+                fade = 0
             if fade > 0:
                 SOUNDTHREAD.fade_clear(fade)
             else:
@@ -1829,7 +1833,7 @@ class Event():
         actions, playback = [], []
         # In order to proc uses, c_uses etc.
         item_system.start_combat(playback, unit, chosen_item, None)
-        item_system.on_hit(actions, playback, unit, chosen_item, None, None)
+        item_system.on_hit(actions, playback, unit, chosen_item, None, self.position, None)
         for act in actions:
             action.do(act)
         item_system.end_combat(playback, unit, chosen_item, None)

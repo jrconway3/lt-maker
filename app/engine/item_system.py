@@ -294,7 +294,7 @@ def ai_priority(unit, item, target, move) -> float:
 
 def splash(unit, item, position) -> tuple:
     """
-    Returns main target and splash
+    Returns main target position and splash positions
     """
     main_target = []
     splash = []
@@ -316,10 +316,7 @@ def splash(unit, item, position) -> tuple:
     if main_target or splash:
         return main_target, splash
     else:
-        from app.engine.game_state import game
-        if game.board.get_unit(position):
-            return position, []
-    return None, []
+        return position, []
 
 def splash_positions(unit, item, position) -> set:
     positions = set()
@@ -347,14 +344,14 @@ def after_hit(actions, playback, unit, item, target, mode):
             if component.defines('after_hit'):
                 component.after_hit(actions, playback, unit, item.parent_item, target, mode)
 
-def on_hit(actions, playback, unit, item, target, mode):
+def on_hit(actions, playback, unit, item, target, target_pos, mode):
     for component in item.components:
         if component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item, target, mode)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
     if item.parent_item:
         for component in item.parent_item.components:
             if component.defines('on_hit'):
-                component.on_hit(actions, playback, unit, item.parent_item, target, mode)
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
 
     # Default playback
     if target and find_hp(actions, target) <= 0:
@@ -368,18 +365,18 @@ def on_hit(actions, playback, unit, item, target, mode):
     if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
         playback.append(('unit_tint_add', target, (255, 255, 255)))
 
-def on_crit(actions, playback, unit, item, target, mode):
+def on_crit(actions, playback, unit, item, target, target_pos, mode):
     for component in item.components:
         if component.defines('on_crit'):
-            component.on_crit(actions, playback, unit, item, target, mode)
+            component.on_crit(actions, playback, unit, item, target, target_pos, mode)
         elif component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item, target, mode)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
     if item.parent_item:
         for component in item.parent_item.components:
             if component.defines('on_crit'):
-                component.on_crit(actions, playback, unit, item.parent_item, target, mode)
+                component.on_crit(actions, playback, unit, item.parent_item, target, target_pos, mode)
             elif component.defines('on_hit'):
-                component.on_hit(actions, playback, unit, item.parent_item, target, mode)
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
 
     # Default playback
     playback.append(('shake', 3))
@@ -393,14 +390,14 @@ def on_crit(actions, playback, unit, item, target, mode):
         if not any(brush for brush in playback if brush[0] == 'crit_tint'):
             playback.append(('crit_tint', target, (255, 255, 255)))
 
-def on_miss(actions, playback, unit, item, target, mode):
+def on_miss(actions, playback, unit, item, target, target_pos, mode):
     for component in item.components:
         if component.defines('on_miss'):
-            component.on_miss(actions, playback, unit, item, target, mode)
+            component.on_miss(actions, playback, unit, item, target, target_pos, mode)
     if item.parent_item:
         for component in item.parent_item.components:
             if component.defines('on_miss'):
-                component.on_miss(actions, playback, unit, item.parent_item, target, mode)
+                component.on_miss(actions, playback, unit, item.parent_item, target, target_pos, mode)
 
     # Default playback
     playback.append(('hit_sound', 'Attack Miss 2'))

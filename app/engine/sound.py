@@ -346,7 +346,7 @@ class SoundController():
             return None
 
         is_playing = self.is_playing()
-        if is_playing:
+        if is_playing and self.song_stack:
             current_song = self.song_stack[-1]
         else:
             current_song = None

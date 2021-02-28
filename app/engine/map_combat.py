@@ -15,23 +15,45 @@ class MapCombat():
     ai_combat = False
     event_combat = False
 
-    def __init__(self, attacker, item, position, main_target_pos, splash, script):
-        self.target_position = position
+    def __init__(self, attacker, main_item, items, positions, main_target_positions, splash_positions, script):
         self.attacker = attacker
-        self.defender = game.board.get_unit(main_target_pos) if main_target_pos else None
-        self.splash = [game.board.get_unit(s) for s in splash]
+        self.main_item = main_item
+        self.target_positions = positions
+        self.defenders = [game.board.get_unit(main_target_pos) if main_target_pos else None for main_target_pos in main_target_positions]
+        self.defender = None
+        if len(self.defenders) == 1:
+            self.defender = self.defenders[0]
 
-        self.item = item
-        self.def_item = self.defender.get_weapon() if self.defender else None
+        # Load in the splash units
+        self.splashes = []
+        for splash in splash_positions:
+            s = []
+            for splash_pos in splash:
+                unit = game.board.get_unit(s)
+                if unit:
+                    s.append(unit)
+            self.splashes.append(s)
 
-        self.state_machine = CombatPhaseSolver(attacker, self.defender, self.splash, item, script)
+        all_splash = [a for sublist in self.splashes for a in sublist]  # Flatten list
+        self.all_splash = set([s for s in all_splash if s])
+
+        self.items = items
+        self.def_items = [defender.get_weapon() if defender else None for defender in self.defenders]
+        self.def_item = None
+        if self.defender:
+            self.def_item = self.defender.get_weapon()
+
+        self.state_machine = CombatPhaseSolver(
+            attacker, self.main_item, self.items, 
+            self.defenders, self.splashes, self.target_positions, 
+            self.defender, self.def_item, script)
 
         self.last_update = engine.get_time()
         self.state = 'init'
         self.hp_bar_time = 400
 
         self._skip = False
-        self.full_playback = game.memory.get('full_playback', [])  # From all phases
+        self.full_playback = []
         self.playback = []
         self.actions = []
 
@@ -51,28 +73,34 @@ class MapCombat():
     def get_from_full_playback(self, s):
         return [brush for brush in self.full_playback if brush[0] == s]
 
+    def start_combat(self):
+        game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position)
+        skill_system.pre_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        for idx, defender in enumerate(self.defenders):
+            if defender:
+                def_item = self.def_items[idx]
+                skill_system.pre_combat(self.full_playback, defender, def_item, self.attacker)
+        for unit in self.all_splash:
+            skill_system.pre_combat(self.full_playback, unit, None, None)
+
+        skill_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        item_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        for idx, defender in enumerate(self.defenders):
+            if defender:
+                def_item = self.def_items[idx]
+                skill_system.start_combat(self.full_playback, defender, def_item, self.attacker)
+                if def_item:
+                    item_system.start_combat(self.full_playback, defender, def_item, self.attacker)
+        for unit in self.all_splash:
+            skill_system.start_combat(self.full_playback, unit, None, None)
+
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
 
         # Only for the very first phase
         if self.state == 'init':
             if self._skip or current_time > 200:
-
-                game.events.trigger('combat_start', self.attacker, self.defender, self.item, self.attacker.position)
-                skill_system.pre_combat(self.full_playback, self.attacker, self.item, self.defender)
-                if self.defender:
-                    skill_system.pre_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-                for unit in self.splash:
-                    skill_system.pre_combat(self.full_playback, unit, None, None)
-                skill_system.start_combat(self.full_playback, self.attacker, self.item, self.defender)
-                item_system.start_combat(self.full_playback, self.attacker, self.item, self.defender)
-                if self.defender:
-                    skill_system.start_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-                    if self.def_item:
-                        item_system.start_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-                for unit in self.splash:
-                    skill_system.start_combat(self.full_playback, unit, None, None)
-
+                self.start_combat()
                 self.state = 'begin_phase'
                 self.last_update = engine.get_time()
 
@@ -80,13 +108,7 @@ class MapCombat():
         elif self.state == 'begin_phase':
             # Get playback
             if not self.state_machine.get_state():
-                # If there are still more combats to get to
-                if game.combat_instance:
-                    game.memory['full_playback'] += self.full_playback
-                    game.state.back()
-                else:
-                    game.memory['full_playback'] = []
-                    self.clean_up()
+                self.clean_up()
                 return True
             self.actions, self.playback = self.state_machine.do()
             self.full_playback += self.playback
@@ -102,26 +124,23 @@ class MapCombat():
                 if self.defender:
                     game.cursor.set_pos(self.defender.position)
                 else:
-                    game.cursor.set_pos(self.target_position)
+                    game.cursor.set_pos(self.target_positions[0])
             if not self._skip:
                 game.state.change('move_camera')
 
             # Sprites
             if self.get_from_playback('defender_phase'):
-                self.defender.sprite.change_state('combat_attacker')
+                if self.defender:
+                    self.defender.sprite.change_state('combat_attacker')
                 self.attacker.sprite.change_state('combat_counter')
             else:
                 self.attacker.sprite.change_state('combat_attacker')
                 if self.defender:
                     self.defender.sprite.change_state('combat_defender')
-            # for unit in self.splash:
-            #     unit.sprite.change_state('combat_defender')
             self.state = 'red_cursor'
 
         elif self.state == 'red_cursor':
             if self.defender:
-                game.cursor.combat_show()
-            elif any(unit.position == self.target_position for unit in self.splash):
                 game.cursor.combat_show()
             else:
                 game.cursor.hide()
@@ -192,7 +211,7 @@ class MapCombat():
         return False
 
     def _build_health_bars(self):
-        if (self.defender and self.splash) or len(self.splash) > 1:
+        if (self.defender and self.all_splash) or len(self.all_splash) > 1:
             # Many splash attacks
             # No health bars!!
             self.health_bars.clear()
@@ -200,23 +219,23 @@ class MapCombat():
         else:
             # P1 on P1
             if self.defender and self.attacker is self.defender:
-                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.item, self.def_item, 'attack')
-                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.item, self.def_item, 'attack')
+                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
+                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
                 if self.attacker not in self.health_bars:
-                    attacker_health = MapCombatInfo('p1', self.attacker, self.item, self.defender, (hit, mt))
+                    attacker_health = MapCombatInfo('p1', self.attacker, self.main_item, self.defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
 
             # P1 on P2
             elif self.defender:
-                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.item, self.def_item, 'attack')
-                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.item, self.def_item, 'attack')
+                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
+                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
                 if self.attacker not in self.health_bars:
-                    attacker_health = MapCombatInfo('p1', self.attacker, self.item, self.defender, (hit, mt))
+                    attacker_health = MapCombatInfo('p1', self.attacker, self.main_item, self.defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
 
-                if combat_calcs.can_counterattack(self.attacker, self.item, self.defender, self.def_item):
-                    hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.item, 'defense')
-                    mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.item, 'defense')
+                if combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item):
+                    hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
+                    mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
                 else:
                     hit, mt = None, None
                 if self.defender not in self.health_bars:
@@ -224,12 +243,12 @@ class MapCombat():
                     self.health_bars[self.defender] = defender_health
 
             # P1 on single splash
-            elif len(self.splash) == 1:
-                defender = self.splash[0]
-                hit = combat_calcs.compute_hit(self.attacker, defender, self.item, None, 'attack')
-                mt = combat_calcs.compute_damage(self.attacker, defender, self.item, None, 'attack')
+            elif len(self.all_splash) == 1:
+                defender = self.all_splash[0]
+                hit = combat_calcs.compute_hit(self.attacker, defender, self.main_item, None, 'attack')
+                mt = combat_calcs.compute_damage(self.attacker, defender, self.main_item, None, 'attack')
                 if self.attacker not in self.health_bars:
-                    attacker_health = MapCombatInfo('p1', self.attacker, self.item, defender, (hit, mt))
+                    attacker_health = MapCombatInfo('p1', self.attacker, self.main_item, defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
                 if defender not in self.health_bars:
                     splash_health = MapCombatInfo('splash', defender, None, self.attacker, (None, None))
@@ -338,14 +357,17 @@ class MapCombat():
             elif self.attacker is not self.defender:
                 action.do(action.Message("%s helped %s" % (self.attacker.name, self.defender.name)))
             else:
-                action.do(action.Message("%s used %s" % (self.attacker.name, self.item.name)))
+                action.do(action.Message("%s used %s" % (self.attacker.name, self.main_item.name)))
         else:
             action.do(action.Message("%s attacked" % self.attacker.name))
 
+        # Get all units list
+        all_units = list(self.all_splash) + [self.attacker]
+        for unit in self.defenders:
+            if unit and unit is not self.attacker:
+                all_units.append(unit)
+
         # Handle death
-        all_units = [unit for unit in self.splash] + [self.attacker]
-        if self.defender and self.attacker is not self.defender:
-            all_units.append(self.defender)
         for unit in all_units:
             if unit.get_hp() <= 0:
                 game.death.should_die(unit)
@@ -355,19 +377,19 @@ class MapCombat():
         self.turnwheel_death_messages(all_units)
 
         self.handle_state_stack()
-        game.events.trigger('combat_end', self.attacker, self.defender, self.item, self.attacker.position)
-        self.handle_item_gain()
+        game.events.trigger('combat_end', self.attacker, self.defender, self.main_item, self.attacker.position)
+        self.handle_item_gain(all_units)
         a_broke, d_broke = self.find_broken_items()
 
         # handle wexp & skills
         if not self.attacker.is_dying:
-            self.handle_wexp(self.attacker, self.item, self.defender)
-        if self.def_item and not self.defender.is_dying:
+            self.handle_wexp(self.attacker, self.main_item, self.defender)
+        if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
         # handle exp
         if self.attacker.team == 'player' and not self.attacker.is_dying:
-            exp = self.handle_exp(self.attacker, self.item)
+            exp = self.handle_exp(self.attacker, self.main_item)
             if self.defender and (skill_system.check_ally(self.attacker, self.defender) or 'Tile' in self.defender.tags):
                 exp = int(utils.clamp(exp, 0, 100))
             else:
@@ -387,23 +409,29 @@ class MapCombat():
         self.handle_records(self.full_playback, all_units)
 
         # Skill system end combat clean up
-        skill_system.end_combat(self.full_playback, self.attacker, self.item, self.defender)
-        item_system.end_combat(self.full_playback, self.attacker, self.item, self.defender)
-        if self.defender:
-            skill_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-            if self.def_item:
-                item_system.end_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-        for unit in self.splash:
+        skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        for idx, defender in enumerate(self.defenders):
+            if defender:
+                def_item = self.def_items[idx]
+                skill_system.end_combat(self.full_playback, defender, def_item, self.attacker)
+                if def_item:
+                    item_system.end_combat(self.full_playback, defender, def_item, self.attacker)
+        for unit in self.all_splash:
             skill_system.end_combat(self.full_playback, unit, None, None)
-        skill_system.post_combat(self.full_playback, self.attacker, self.item, self.defender)
-        if self.defender:
-            skill_system.post_combat(self.full_playback, self.defender, self.def_item, self.attacker)
-        for unit in self.splash:
+
+        skill_system.post_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        for idx, defender in enumerate(self.defenders):
+            if defender:
+                def_item = self.def_items[idx]
+                skill_system.post_combat(self.full_playback, defender, def_item, self.attacker)
+        for unit in self.all_splash:
             skill_system.post_combat(self.full_playback, unit, None, None)
 
         self.handle_death(all_units)
 
         self.handle_broken_items(a_broke, d_broke)
+        # Done
 
 # === POSSIBLY SHOULD BE SHARED AMONGST ALL COMBATS ===
     def turnwheel_death_messages(self, units):
@@ -435,7 +463,7 @@ class MapCombat():
             game.state.change('free')
             game.state.change('wait')
         else:
-            if not self.attacker.has_attacked or item_system.menu_after_combat(self.attacker, self.item):
+            if not self.attacker.has_attacked or item_system.menu_after_combat(self.attacker, self.main_item):
                 game.state.change('menu')
             elif skill_system.has_canto(self.attacker):
                 game.state.change('move')
@@ -444,10 +472,9 @@ class MapCombat():
                 game.state.change('free')
                 game.state.change('wait')
 
-    def handle_item_gain(self):
-        enemies = self.splash
-        if self.defender:
-            enemies.append(self.defender)
+    def handle_item_gain(self, all_units):
+        enemies = all_units.copy()
+        enemies.remove(self.attacker)
         for unit in enemies:
             if unit.is_dying:
                 for item in unit.items:
@@ -464,7 +491,7 @@ class MapCombat():
 
     def find_broken_items(self):
         a_broke, d_broke = False, False
-        if item_system.is_broken(self.attacker, self.item):
+        if item_system.is_broken(self.attacker, self.main_item):
             a_broke = True
         if self.def_item and item_system.is_broken(self.defender, self.def_item):
             d_broke = True
@@ -472,10 +499,10 @@ class MapCombat():
 
     def handle_broken_items(self, a_broke, d_broke):
         if a_broke:
-            alert = item_system.on_broken(self.attacker, self.item)
+            alert = item_system.on_broken(self.attacker, self.main_item)
             if self.attacker is not self.defender and alert and \
                     self.attacker.team == 'player' and not self.attacker.is_dying:
-                game.alerts.append(banner.BrokenItem(self.attacker, self.item))
+                game.alerts.append(banner.BrokenItem(self.attacker, self.main_item))
                 game.state.change('alert')
         if d_broke:
             alert = item_system.on_broken(self.defender, self.def_item)

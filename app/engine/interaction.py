@@ -6,46 +6,62 @@ from app.engine.game_state import game
 def has_animation(attacker, item, main_target, splash):
     return False
 
-def engage(attacker, positions, item, skip=False, script=None):
-    # Does one round of combat
-    if len(positions) > 1:
-        # Multiple targets
-        splash = set()
-        for pos in positions:
-            main_target, s = item_system.splash(attacker, item, pos)
-            if main_target:
-                splash.add(main_target)
-            splash |= s
-        main_target = None
-    elif len(positions) == 0:
-        main_target, splash = item_system.splash(attacker, item, attacker.position)
+def engage(attacker, positions, main_item, skip=False, script=None):
+    target_positions = []
+    main_targets = []
+    splashes = []
+    if main_item.sequence_item:
+        items = main_item.subitems
     else:
-        main_target, splash = item_system.splash(attacker, item, positions[0])
+        items = [main_item]
+    for idx, position in enumerate(positions):
+        item = items[idx]
+        splash = set()
+        if isinstance(position, list):
+            for pos in position:
+                main_target, s = item_system.splash(attacker, item, pos)
+                if main_target:
+                    splash.add(main_target)
+                splash |= set(s)
+            main_target = None
+            target_positions.append(position[0])
+        else:
+            main_target, splash = item_system.splash(attacker, item, position)
+            target_positions.append(position)
+        main_targets.append(main_target)
+        splashes.append(splashes)
+
     if skip:
         combat = SimpleCombat(attacker, item, main_target, splash, script)
     elif has_animation(attacker, item, main_target, splash):
         combat = AnimationCombat(attacker, item, main_target, splash, script)
     else:
-        combat = MapCombat(attacker, item, positions[0], main_target, splash, script)
+        combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
     return combat
 
 def start_combat(unit, target: tuple, item, ai_combat=False, event_combat=False, script=None):
     # Target is a position tuple
+    # Set up the target positions
     if item.sequence_item:
+        targets = []
         for subitem in item.subitems:
             num_targets = item_system.num_targets(unit, subitem)
-            combat = engage(unit, [target] * num_targets, subitem, script=script)
-            combat.ai_combat = ai_combat # Must mark this so we can come back!
-            combat.event_combat = event_combat # Must mark this so we can come back!
-            game.combat_instance.append(combat)
-            game.state.change('combat')
+            if num_targets > 1:
+                targets.append([target] * num_targets)
+            else:
+                targets.append(target)
     else:
         num_targets = item_system.num_targets(unit, item)
-        combat = engage(unit, [target] * num_targets, item, script=script)
-        combat.ai_combat = ai_combat # Must mark this so we can come back!
-        combat.event_combat = event_combat # Must mark this so we can come back!
-        game.combat_instance.append(combat)
-        game.state.change('combat')
+        if num_targets > 1:
+            targets = [[target] * num_targets]
+        else:
+            targets = [target]
+
+    combat = engage(unit, targets, item, script=script)
+    combat.ai_combat = ai_combat # Must mark this so we can come back!
+    combat.event_combat = event_combat # Must mark this so we can come back!
+    game.combat_instance.append(combat)
+    game.state.change('combat')
 
 class SimpleCombat():
     """

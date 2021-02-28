@@ -61,7 +61,10 @@ class MovementManager():
             terrain = DB.terrain.get(terrain_nid)
             if not terrain:
                 terrain = DB.terrain[0]
-            movement_group = self.get_movement_group(unit_to_move)
+            if unit_to_move:
+                movement_group = self.get_movement_group(unit_to_move)
+            else:
+                movement_group = DB.classes[0].movement_group
             mcost = DB.mcost.get_mcost(movement_group, terrain.mtype)
         else:
             mcost = 1
@@ -75,6 +78,12 @@ class MovementManager():
         if mcost <= movement:
             return True
         return False
+
+    def check_simple_traversable(self, pos) -> bool:
+        if not game.tilemap.check_bounds(pos):
+            return False
+        mcost = self.get_mcost(None, pos)
+        return mcost <= 5
 
     def check_position(self, unit, data, new_position) -> bool:
         """

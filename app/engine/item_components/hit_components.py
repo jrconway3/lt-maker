@@ -31,7 +31,7 @@ class Heal(ItemComponent):
                 return True
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode=None):
         heal = self._get_heal_amount(unit)
         true_heal = min(heal, equations.parser.hitpoints(target) - target.get_hp())
         actions.append(action.ChangeHP(target, heal))
@@ -75,7 +75,7 @@ class Damage(ItemComponent):
     def damage(self, unit, item):
         return self.value
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
 
         true_damage = min(damage, target.get_hp())
@@ -87,7 +87,7 @@ class Damage(ItemComponent):
             playback.append(('hit_sound', 'No Damage'))
             playback.append(('hit_anim', 'MapNoDamage', target))
 
-    def on_crit(self, actions, playback, unit, item, target, mode):
+    def on_crit(self, actions, playback, unit, item, target, target_pos, mode):
         damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, crit=True)
 
         true_damage = min(damage, target.get_hp())
@@ -103,7 +103,7 @@ class Eclipse(ItemComponent):
     desc = "Target loses half current HP on hit"
     tag = 'special'
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         true_damage = damage = target.get_hp()//2
         actions.append(action.ChangeHP(target, -damage))
 
@@ -131,7 +131,7 @@ class PermanentStatChange(ItemComponent):
                 return True
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode=None):
         stat_changes = {k: v for (k, v) in self.value}
         klass = DB.classes.get(target.klass)
         # clamp stat changes
@@ -161,7 +161,7 @@ class PermanentGrowthChange(ItemComponent):
 
     expose = (Type.Dict, Type.Stat)
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode=None):
         growth_changes = {k: v for (k, v) in self.value}
         actions.append(action.ApplyGrowthChanges(target, growth_changes))
         playback.append(('stat_hit', unit, item, target))
@@ -173,7 +173,7 @@ class WexpChange(ItemComponent):
 
     expose = (Type.Dict, Type.WeaponType)
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode=None):
         actions.append(action.WexpChange(unit, self.value))
         playback.append(('hit', unit, item, target))
 
@@ -192,7 +192,7 @@ class Refresh(ItemComponent):
             if s.finished:
                 return True
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         actions.append(action.Reset(target))
         playback.append(('refresh_hit', unit, item, target))
 
@@ -203,7 +203,7 @@ class StatusOnHit(ItemComponent):
 
     expose = Type.Skill  # Nid
 
-    def on_hit(self, actions, playback, unit, item, target, mode=None):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         act = action.AddSkill(target, self.value, unit)
         actions.append(act)
         playback.append(('status_hit', unit, item, target, self.value))
@@ -227,7 +227,7 @@ class Restore(ItemComponent):
                 return True
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         for skill in unit.skill:
             if self._can_be_restored(skill):
                 actions.append(action.RemoveSkill(unit, skill))
@@ -264,7 +264,7 @@ class Shove(ItemComponent):
             return new_position
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         if not skill_system.ignore_forced_movement(target):
             new_position = self._check_shove(target, unit.position, self.value)
             if new_position:
@@ -306,7 +306,7 @@ class ShoveTargetRestrict(Shove, ItemComponent):
                 return True
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         pass
 
     def end_combat(self, playback, unit, item, target):
@@ -317,7 +317,7 @@ class Swap(ItemComponent):
     desc = "Item swaps user with target on hit"
     tag = 'special'
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         if not skill_system.ignore_forced_movement(unit) and not skill_system.ignore_forced_movement(target):
             actions.append(action.Swap(unit, target))
             playback.append(('swap_hit', unit, item, target))
@@ -399,7 +399,7 @@ class Steal(ItemComponent):
             return False
         return True
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         target_item = item.data.get('target_item')
         if target_item:
             actions.append(action.RemoveItem(target, target_item))
@@ -455,7 +455,7 @@ class Repair(ItemComponent):
             return True
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         target_item = item.data.get('target_item')
         if target_item:
             actions.append(action.RepairItem(target_item))
@@ -471,7 +471,7 @@ class Trade(ItemComponent):
     def init(self, item):
         self._did_hit = False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
     def end_combat(self, playback, unit, item, target):
@@ -489,7 +489,7 @@ class Promote(ItemComponent):
     def init(self, item):
         self._did_hit = False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
     def end_combat(self, playback, unit, item, target):
@@ -579,7 +579,7 @@ class EventAfterCombat(ItemComponent):
     def init(self, item):
         self._did_hit = False
 
-    def on_hit(self, actions, playback, unit, item, target, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
     def end_combat(self, playback, unit, item, target):

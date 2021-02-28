@@ -5591,6 +5591,284 @@
         ]
     },
     {
+        "nid": "Rescue",
+        "name": "Rescue",
+        "desc": "Bring an ally to a space adjacent to the user",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "weapon_type",
+                "Staff"
+            ],
+            [
+                "weapon_rank",
+                "B"
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "uses",
+                3
+            ],
+            [
+                "value",
+                1800
+            ],
+            [
+                "exp",
+                40
+            ],
+            [
+                "wexp",
+                7
+            ],
+            [
+                "sequence_item",
+                [
+                    "Rescue1",
+                    "Rescue2"
+                ]
+            ],
+            [
+                "no_ai",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_equation_range",
+                "MAGIC_RANGE"
+            ],
+            [
+                "target_tile",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Rescue1",
+        "name": "Rescue",
+        "desc": "Rescues an ally.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_equation_range",
+                "MAGIC_RANGE"
+            ],
+            [
+                "store_unit",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Rescue2",
+        "name": "Rescue",
+        "desc": "Rescues an ally.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "target_tile",
+                null
+            ],
+            [
+                "unload_unit",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Warp",
+        "name": "Warp",
+        "desc": "Move an ally to another square.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            9
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "weapon_type",
+                "Staff"
+            ],
+            [
+                "weapon_rank",
+                "A"
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "uses",
+                5
+            ],
+            [
+                "value",
+                7500
+            ],
+            [
+                "exp",
+                85
+            ],
+            [
+                "wexp",
+                7
+            ],
+            [
+                "sequence_item",
+                [
+                    "Warp1",
+                    "Warp2"
+                ]
+            ],
+            [
+                "no_ai",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "max_range",
+                1
+            ]
+        ]
+    },
+    {
+        "nid": "Warp1",
+        "name": "Warp",
+        "desc": "Warps an ally.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            9
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "store_unit",
+                null
+            ],
+            [
+                "max_range",
+                1
+            ]
+        ]
+    },
+    {
+        "nid": "Warp2",
+        "name": "Warp",
+        "desc": "Warps an ally.",
+        "icon_nid": "Staff",
+        "icon_index": [
+            0,
+            9
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "target_tile",
+                null
+            ],
+            [
+                "unload_unit",
+                null
+            ],
+            [
+                "max_equation_range",
+                "MAGIC_RANGE"
+            ]
+        ]
+    },
+    {
         "nid": "Latona",
         "name": "Latona",
         "desc": "Restores HP and condition of all allied units",
@@ -6353,6 +6631,94 @@
             [
                 "wexp",
                 2
+            ]
+        ]
+    },
+    {
+        "nid": "Sear",
+        "name": "Sear",
+        "desc": "Attack up to three units.",
+        "icon_nid": "Anima",
+        "icon_index": [
+            0,
+            2
+        ],
+        "components": [
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                5
+            ],
+            [
+                "damage",
+                10
+            ],
+            [
+                "hit",
+                85
+            ],
+            [
+                "crit",
+                0
+            ],
+            [
+                "weight",
+                10
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "weapon_type",
+                "Anima"
+            ],
+            [
+                "weapon_rank",
+                "C"
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    224,
+                    96,
+                    0
+                ]
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "value",
+                1200
+            ],
+            [
+                "uses",
+                30
+            ],
+            [
+                "wexp",
+                2
+            ],
+            [
+                "spell",
+                null
+            ],
+            [
+                "multi_target",
+                3
+            ],
+            [
+                "allow_same_target",
+                null
             ]
         ]
     },
@@ -9437,6 +9803,25 @@
             [
                 "spell",
                 null
+            ]
+        ]
+    },
+    {
+        "nid": "Super Sword",
+        "name": "Super Sword",
+        "desc": "",
+        "icon_nid": "Sword",
+        "icon_index": [
+            0,
+            9
+        ],
+        "components": [
+            [
+                "multi_item",
+                [
+                    "Iron Sword",
+                    "Slim Sword"
+                ]
             ]
         ]
     }

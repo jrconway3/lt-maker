@@ -15,6 +15,8 @@ from app.editor.data_editor import SingleDatabaseEditor
 from app.extensions.checkable_list_dialog import ComponentModel
 from app.extensions.frame_layout import FrameLayout
 
+import logging
+
 class BoolConstantsModel(ComponentModel):
     def __init__(self, data, parent=None):
         QAbstractItemModel.__init__(self, parent)
@@ -427,7 +429,7 @@ class ConstantDatabase(DatabaseTab):
         for constant_nid in constants:
             constant = self._data.get(constant_nid)
             if not constant:
-                print("Couldn't find constant %s" % constant_nid)
+                logging.error("Couldn't find constant %s" % constant_nid)
                 continue
             if constant.attr == int:
                 box = PropertyBox(constant.name, QSpinBox, self)

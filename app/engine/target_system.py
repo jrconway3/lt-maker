@@ -32,7 +32,6 @@ def get_nearest_open_tile(unit, position):
             magn = _abs(x)
             n1 = position[0] + x, position[1] + r - magn
             n2 = position[0] + x, position[1] - r + magn
-            print(n1, n2)
             if game.movement.check_traversable(unit, n1) and not game.board.get_unit(n1):
                 return n1
             elif game.movement.check_traversable(unit, n2) and not game.board.get_unit(n2):
@@ -196,8 +195,13 @@ def get_valid_targets(unit, item=None) -> set:
         item = unit.get_weapon()
     if not item:
         return set()
-    valid_targets = {position for position in item_system.valid_targets(unit, item) if 
-                     item_system.target_restrict(unit, item, *item_system.splash(unit, item, position))}
+    all_targets = item_system.valid_targets(unit, item)
+    valid_targets = set()
+    for position in all_targets:
+        splash = item_system.splash(unit, item, position)
+        valid = item_system.target_restrict(unit, item, *splash)
+        if valid:
+            valid_targets.add(position)
     # Fog of War
     if unit.team == 'player' or DB.constants.value('ai_fog_of_war'):
         valid_targets = {position for position in valid_targets if game.board.in_vision(position, unit.team)}

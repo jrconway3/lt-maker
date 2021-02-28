@@ -6165,24 +6165,21 @@
         "condition": "True",
         "commands": [
             [
-                "level_var",
+                "comment",
                 [
-                    "_fog_of_war",
-                    "1"
+                    "#level_var;_fog_of_war;1"
                 ]
             ],
             [
-                "level_var",
+                "comment",
                 [
-                    "_fog_of_war_radius",
-                    "3"
+                    "#level_var;_fog_of_war_radius;3"
                 ]
             ],
             [
-                "level_var",
+                "comment",
                 [
-                    "_ai_fog_of_war_radius",
-                    "5"
+                    "#level_var;_ai_fog_of_war_radius;5"
                 ]
             ],
             [
@@ -6195,12 +6192,6 @@
                 "add_base_convo",
                 [
                     "Dreams of Home"
-                ]
-            ],
-            [
-                "base",
-                [
-                    "InsideCastle"
                 ]
             ]
         ],

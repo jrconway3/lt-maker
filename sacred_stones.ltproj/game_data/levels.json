@@ -3386,7 +3386,10 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
-                "starting_position": null,
+                "starting_position": [
+                    4,
+                    9
+                ],
                 "name": null,
                 "desc": null,
                 "generic": true
@@ -3406,13 +3409,16 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Super Sword",
                         false
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
-                "starting_position": null,
+                "ai": "Attack",
+                "starting_position": [
+                    5,
+                    8
+                ],
                 "name": null,
                 "desc": null,
                 "generic": true
@@ -3464,25 +3470,6 @@
                 "generic": true
             },
             {
-                "nid": "104",
-                "variant": null,
-                "level": 1,
-                "klass": "Mage",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Fire",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": null,
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
@@ -3491,6 +3478,54 @@
                     4
                 ],
                 "generic": false
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 1,
+                "klass": "Bishop",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Rescue",
+                        false
+                    ],
+                    [
+                        "Warp",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 1,
+                "klass": "Myrmidon",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Super Sword",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    6,
+                    10
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
             }
         ],
         "regions": [

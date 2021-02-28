@@ -777,7 +777,7 @@
         "nid": "Colm",
         "name": "Colm",
         "desc": "A childhood friend of Neimi who hails from Renais. He can be snide.",
-        "variant": null,
+        "variant": "",
         "level": 2,
         "klass": "Thief",
         "tags": [],
@@ -1399,7 +1399,7 @@
         },
         "starting_items": [
             [
-                "Iron Sword",
+                "Trifire",
                 false
             ],
             [

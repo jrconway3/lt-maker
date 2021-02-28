@@ -195,6 +195,20 @@ def get_valid_targets(unit, item=None) -> set:
         item = unit.get_weapon()
     if not item:
         return set()
+
+    # Check sequence item targeting
+    if item.sequence_item:
+        all_targets = set()
+        for subitem in item.subitems:
+            valid_targets = get_valid_targets(unit, subitem)
+            if not valid_targets:
+                return set()
+            all_targets |= valid_targets
+        # If not enough legal targets, also no legal targets
+        if not item_system.allow_same_target(unit, item) and len(all_targets) < len(item.subitems):
+            return set()
+
+    # Handle regular item targeting
     all_targets = item_system.valid_targets(unit, item)
     valid_targets = set()
     for position in all_targets:

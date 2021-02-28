@@ -29,13 +29,13 @@ class MapCombat():
         for splash in splash_positions:
             s = []
             for splash_pos in splash:
-                unit = game.board.get_unit(s)
+                unit = game.board.get_unit(splash_pos)
                 if unit:
                     s.append(unit)
             self.splashes.append(s)
 
         all_splash = [a for sublist in self.splashes for a in sublist]  # Flatten list
-        self.all_splash = set([s for s in all_splash if s])
+        self.all_splash = list(set([s for s in all_splash if s]))
 
         self.items = items
         self.def_items = [defender.get_weapon() if defender else None for defender in self.defenders]

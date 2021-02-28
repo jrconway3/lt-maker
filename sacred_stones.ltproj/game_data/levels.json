@@ -3526,6 +3526,28 @@
                 "name": "Cutthroat",
                 "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 20,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Arcfire",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

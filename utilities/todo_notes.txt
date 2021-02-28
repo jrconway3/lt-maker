@@ -7,6 +7,8 @@ using the item twice for warp and rescue
 warp / swoosh animations
 SelectionHelper for mouse
 
+Game needs to be able to tell whether it can use the item and its targeting before even the first targeting (for things like rescue having a legal traversable spot in adjacent spaces)
+
 Combat Animations
     Combat Anims / Palettes as a separate tab?
     Combat Effects

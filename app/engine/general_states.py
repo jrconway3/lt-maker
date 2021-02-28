@@ -1126,6 +1126,14 @@ class CombatTargetingState(MapState):
         self.prev_targets = game.memory.get('prev_targets', [])
 
         positions = target_system.get_valid_targets(self.cur_unit, self.item)
+
+        # Remove previous targets if not allow_same_target
+        if self.parent_item:
+            allow_same_target = item_system.allow_same_target(self.cur_unit, self.parent_item)
+            if not allow_same_target:
+                for pos in self.prev_targets:
+                    positions.discard(pos)
+
         self.selection = SelectionHelper(positions)
         self.previous_mouse_pos = None
         closest_pos = self.selection.get_closest(game.cursor.position)
@@ -1167,9 +1175,8 @@ class CombatTargetingState(MapState):
             game.highlight.display_possible_attacks({game.cursor.position})
 
     def _engage_combat(self):
-        game.memory['full_playback'] = []
         if self.parent_item:  # For sequence item
-            item = self.parent_item
+            main_item = self.parent_item
             targets = []
             target_counter = 0
             for item in self.parent_item.subitems:
@@ -1180,10 +1187,14 @@ class CombatTargetingState(MapState):
                 else:
                     targets.append(t[0])
                 target_counter += num_targets
-        else:
-            item = self.item
-            targets = self.prev_targets
-        combat = interaction.engage(self.cur_unit, targets, item)
+        else: # Guaranteed to be len(1) since it's not a sequence item
+            main_item = self.item
+            if len(self.prev_targets) > 1:
+                targets = [self.prev_targets]
+            else:
+                targets = self.prev_targets
+
+        combat = interaction.engage(self.cur_unit, targets, main_item)
         game.combat_instance.append(combat)
         game.state.change('combat')
 

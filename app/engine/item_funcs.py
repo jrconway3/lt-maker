@@ -51,6 +51,9 @@ def sell_price(unit, item):
 
 def create_item(unit, item_nid, droppable=False):
     item_prefab = DB.items.get(item_nid)
+    if not item_prefab:
+        logging.error("Couldn't find %s" % item_nid)
+        return
     item = ItemObject.from_prefab(item_prefab)
     if unit:
         item.owner_nid = unit.nid

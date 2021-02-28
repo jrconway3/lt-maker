@@ -2,15 +2,16 @@ sequence items need a paradigm shift
 
 Game needs to be able to tell whether it can use the item and its targeting before even the first targeting (for things like rescue having a legal traversable spot in adjacent spaces)
 
-Basic Weapon
-Basic Spell
+Basic Weapon X
+Basic Spell X
 Wyrmsblast
 Searing Daggers
+Searing Daggers that does not allow the same target
+MultiAttack Searing Daggers that can hit the same enemy multiple times
 
 Warp
 Rescue
-SplashRescue
-MultiAttack Searing Daggers that can hit the same enemy multiple times
+SplashWarp
 AOE attack that also refreshes the user
 
 For warp and rescue, could switch sequence item to multi-target item

@@ -27,7 +27,7 @@ class Heal(ItemComponent):
             return True
         for s_pos in splash:
             s = game.board.get_unit(s_pos)
-            if s.get_hp() < equations.parser.hitpoints(s):
+            if s and s.get_hp() < equations.parser.hitpoints(s):
                 return True
         return False
 
@@ -74,6 +74,17 @@ class Damage(ItemComponent):
 
     def damage(self, unit, item):
         return self.value
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        # Restricts target based on whether any unit is an enemy
+        defender = game.board.get_unit(def_pos)
+        if defender and skill_system.check_enemy(unit, defender):
+            return True
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
+            if s and skill_system.check_enemy(unit, s):
+                return True
+        return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)

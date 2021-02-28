@@ -29,7 +29,7 @@ def engage(attacker, positions, main_item, skip=False, script=None):
             main_target, splash = item_system.splash(attacker, item, position)
             target_positions.append(position)
         main_targets.append(main_target)
-        splashes.append(splashes)
+        splashes.append(splash)
 
     if skip:
         combat = SimpleCombat(attacker, item, main_target, splash, script)

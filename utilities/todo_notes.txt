@@ -1,6 +1,5 @@
 TODO List:
 
-using the item twice for warp and rescue
 unit sprite for warp and rescue
 warp / swoosh animations
 
@@ -31,7 +30,6 @@ Test Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
 Dialogue Log on R press
 
 Skill System -- Auras, Modify AOE, Modify Forced Movement
-Item System -- Multiple Target Items (test), Multiple Item Items (test)
 
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
@@ -54,18 +52,14 @@ Supports:
 
 # Remaining Priorities
 ```
-Auras
+Auras & Terrain Statuses
     - Auras have a instantiated child aura they keep a reference to. Works like child items in the item system
     - Aura board keeps track of where the aura_child belongs
     - Aura board is updated on arrive and leave
-    - Within the skill system, the skill system calls up the aura children
+    - Within the skill system, the skill system calls up the aura children (NO!)
     - Needs to be able to handle ally auras and enemy auras
-    ```
-        for aura_uid in game.board.get_auras(unit.team, unit.position):
-            aura = game.get_skill(aura_uid)
-            if aura.defines('??'):
-                # Do the thing
-    ```
+    - Gives the only the correct team auras to each unit
+    
 Sequence Items (Warp, Rescue, Ember, Crazier stuff)
 test Multi Items for the AI
 turnwheel mouse support / info menu mouse support better / records?

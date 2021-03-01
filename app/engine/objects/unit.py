@@ -489,6 +489,6 @@ class UnitObject(Prefab):
         # Maybe move to movement manager?
 
         for skill in self.skills:
-            skill_system.on_add(self, skill)
+            skill_system.re_add(self, skill)
 
         return self

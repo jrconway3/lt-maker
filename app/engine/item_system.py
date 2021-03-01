@@ -344,11 +344,11 @@ def after_hit(actions, playback, unit, item, target, mode):
             if component.defines('after_hit'):
                 component.after_hit(actions, playback, unit, item.parent_item, target, mode)
 
-def on_hit(actions, playback, unit, item, target, target_pos, mode):
+def on_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
     for component in item.components:
         if component.defines('on_hit'):
             component.on_hit(actions, playback, unit, item, target, target_pos, mode)
-    if item.parent_item:
+    if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_hit'):
                 component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
@@ -365,13 +365,13 @@ def on_hit(actions, playback, unit, item, target, target_pos, mode):
     if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
         playback.append(('unit_tint_add', target, (255, 255, 255)))
 
-def on_crit(actions, playback, unit, item, target, target_pos, mode):
+def on_crit(actions, playback, unit, item, target, target_pos, mode, first_item):
     for component in item.components:
         if component.defines('on_crit'):
             component.on_crit(actions, playback, unit, item, target, target_pos, mode)
         elif component.defines('on_hit'):
             component.on_hit(actions, playback, unit, item, target, target_pos, mode)
-    if item.parent_item:
+    if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_crit'):
                 component.on_crit(actions, playback, unit, item.parent_item, target, target_pos, mode)
@@ -390,11 +390,11 @@ def on_crit(actions, playback, unit, item, target, target_pos, mode):
         if not any(brush for brush in playback if brush[0] == 'crit_tint'):
             playback.append(('crit_tint', target, (255, 255, 255)))
 
-def on_miss(actions, playback, unit, item, target, target_pos, mode):
+def on_miss(actions, playback, unit, item, target, target_pos, mode, first_item):
     for component in item.components:
         if component.defines('on_miss'):
             component.on_miss(actions, playback, unit, item, target, target_pos, mode)
-    if item.parent_item:
+    if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_miss'):
                 component.on_miss(actions, playback, unit, item.parent_item, target, target_pos, mode)

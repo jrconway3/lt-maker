@@ -191,6 +191,9 @@ class CombatPhaseSolver():
         return static_random.get_combat()
 
     def process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
+        # Is the item I am processing the first one?
+        first_item = item is self.main_item or item is self.items[0]
+
         to_hit = combat_calcs.compute_hit(attacker, defender, item, def_item, mode)
 
         if self.current_command in ('hit1', 'hit2', 'crit1', 'crit2'):
@@ -213,22 +216,25 @@ class CombatPhaseSolver():
                     if crit_roll < to_crit:
                         crit = True
             if crit:
-                item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode)
+                item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_crit', attacker, defender, self.attacker))
             else:
-                item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode)
+                item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_hit', attacker, defender, self.attacker))
             item_system.after_hit(actions, playback, attacker, item, defender, mode)
             skill_system.after_hit(actions, playback, attacker, item, defender, mode)
         else:
-            item_system.on_miss(actions, playback, attacker, item, defender, def_pos, mode)
+            item_system.on_miss(actions, playback, attacker, item, defender, def_pos, mode, first_item)
             if defender:
                 playback.append(('mark_miss', attacker, defender, self.attacker))
 
     def simple_process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
-        item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode)
+        # Is the item I am processing the first one?
+        first_item = item is self.main_item or item is self.items[0]
+        
+        item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
         if defender:
             playback.append(('mark_hit', attacker, defender, self.attacker))
 

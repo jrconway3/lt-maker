@@ -14,6 +14,9 @@ class UnitAnim(SkillComponent):
     def on_add(self, unit, skill):
         unit.sprite.add_animation(self.value)
 
+    def re_add(self, unit, skill):
+        unit.sprite.add_animation(self.value)
+
     def on_remove(self, unit, skill):
         unit.sprite.remove_animation(self.value)
 
@@ -25,6 +28,9 @@ class UnitFlickeringTint(SkillComponent):
     expose = Type.Color3
 
     def on_add(self, unit, skill):
+        unit.sprite.add_flicker_tint(self.value, 900, 300)
+
+    def re_add(self, unit, skill):
         unit.sprite.add_flicker_tint(self.value, 900, 300)
 
     def on_remove(self, unit, skill):

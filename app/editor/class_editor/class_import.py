@@ -6,8 +6,6 @@ from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.data.klass import Klass
 
-from app.data import stats, weapons
-
 def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     class_xml = ET.parse(xml_fn)
     class_list = []

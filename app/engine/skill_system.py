@@ -286,6 +286,11 @@ def on_remove(unit, skill):
         if component.defines('on_remove'):
             component.on_remove(unit, skill)
 
+def re_add(unit, skill):
+    for component in skill.components:
+        if component.defines('re_add'):
+            component.re_add(unit, skill)
+
 def get_text(skill) -> str:
     for component in skill.components:
         if component.defines('text'):

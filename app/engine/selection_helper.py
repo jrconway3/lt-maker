@@ -2,6 +2,8 @@ from app.utilities import utils
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.engine.input_manager import INPUT
 
+from app.engine.game_state import game
+
 class SelectionHelper():
     def __init__(self, pos_list):
         self.pos_list = list(pos_list)
@@ -16,7 +18,9 @@ class SelectionHelper():
     def handle_mouse(self):
         mouse_position = INPUT.get_mouse_position()
         if mouse_position:
-            new_pos = mouse_position[0] // TILEWIDTH, mouse_position[1] // TILEHEIGHT
+            new_pos_x = mouse_position[0] // TILEWIDTH + game.camera.get_x()
+            new_pos_y = mouse_position[1] // TILEHEIGHT + game.camera.get_y()
+            new_pos = new_pos_x, new_pos_y
             if new_pos in self.pos_list:
                 return new_pos
         return None

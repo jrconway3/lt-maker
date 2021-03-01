@@ -122,7 +122,7 @@ class MovementManager():
             SOUNDTHREAD.play_sfx('Surprise')
             unit.sprite.change_state('normal')
             unit.sprite.reset()
-            action.do(action.Wait(unit))
+            unit.wait()
         
     def update(self):
         current_time = engine.get_time()

@@ -2,7 +2,7 @@ from app.utilities import utils
 from app.utilities.data import Prefab
 from app.data.database import DB
 
-from app.engine import equations, item_system, item_funcs, skill_system, unit_funcs
+from app.engine import equations, item_system, item_funcs, skill_system, unit_funcs, action
 from app.engine.game_state import game
 
 # Main unit object used by engine
@@ -385,6 +385,10 @@ class UnitObject(Prefab):
         self.has_dropped = False
         self.has_taken = False
         self.has_given = False
+
+    def wait(self):
+        game.events.trigger('unit_wait', self, position=self.position)
+        action.do(action.Wait(self))
 
     def __repr__(self):
         return "Unit %s: %s" % (self.nid, self.position)

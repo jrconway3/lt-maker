@@ -75,8 +75,8 @@ class AIController():
     def move(self):
         if self.goal_position and self.goal_position != self.unit.position:
             path = target_system.get_path(self.unit, self.goal_position)
-            if self.unit.has_attacked:
-                action.do(action.Wait(self.unit))
+            # if self.unit.has_attacked:
+            #     self.unit.wait()
             game.state.change('movement')
             action.do(action.Move(self.unit, self.goal_position, path))
             return True

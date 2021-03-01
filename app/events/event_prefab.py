@@ -19,6 +19,7 @@ all_triggers = Data([
     Trigger('other_turn_change'),
     Trigger('unit_death', True, False, False, True),
     Trigger('unit_wait', True, False, False, True),
+    Trigger('unit_select', True, False, False, True),
     Trigger('unit_level_up', True, False, False, False),
     Trigger('combat_start', True, True, True, True),
     Trigger('combat_end', True, True, True, True),
@@ -35,6 +36,7 @@ class EventPrefab(Prefab):
         self.condition: str = "True"
         self.commands = []
         self.only_once = False
+        self.priority: int = 20
 
     @property
     def nid(self):
@@ -53,7 +55,12 @@ class EventPrefab(Prefab):
         return value
 
     def restore_attr(self, name, value):
-        if name == 'commands':
+        if name == 'priority':
+            if value is None:
+                value = 20
+            else:
+                value = super().restore_attr(name, value)
+        elif name == 'commands':
             value = [event_commands.restore_command(c) for c in value]
             value = [v for v in value if v]
         else:

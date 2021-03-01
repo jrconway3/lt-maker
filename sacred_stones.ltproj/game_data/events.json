@@ -382,7 +382,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathEirika",
@@ -428,7 +429,8 @@
                 []
             ]
         ],
-        "only_once": null
+        "only_once": null,
+        "priority": 20
     },
     {
         "name": "DeathSeth",
@@ -464,7 +466,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathJoshua",
@@ -500,7 +503,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathColm",
@@ -536,7 +540,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathNeimi",
@@ -572,7 +577,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathArtur",
@@ -608,7 +614,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathNatasha",
@@ -665,7 +672,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathLute",
@@ -701,7 +709,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathVanessa",
@@ -737,7 +746,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathMoulder",
@@ -773,7 +783,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathRoss",
@@ -809,7 +820,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathGarcia",
@@ -845,7 +857,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathFranz",
@@ -881,7 +894,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathGilliam",
@@ -917,7 +931,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathONeill",
@@ -953,7 +968,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathSaar",
@@ -989,7 +1005,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathBreguet",
@@ -1025,7 +1042,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Outro",
@@ -1115,7 +1133,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 22
     },
     {
         "name": "OnlyBoss",
@@ -1144,7 +1163,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "Defeat Boss",
@@ -1157,7 +1177,8 @@
                 []
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Defeat Boss",
@@ -1170,7 +1191,8 @@
                 []
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "EnemyTurn2",
@@ -1206,7 +1228,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "FightONeill",
@@ -1242,7 +1265,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "FightSaar",
@@ -1271,7 +1295,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "FightBreguet",
@@ -1300,7 +1325,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "GilliamFranzArrive",
@@ -1429,7 +1455,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "House1",
@@ -1500,7 +1527,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "House2",
@@ -1571,7 +1599,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Seize",
@@ -1584,7 +1613,8 @@
                 []
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Seize",
@@ -1597,7 +1627,8 @@
                 []
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Intro",
@@ -2345,7 +2376,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Outro",
@@ -2510,7 +2542,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "EnemyRein",
@@ -2571,7 +2604,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "SethFranzTalk",
@@ -2643,7 +2677,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "EirikaFranzTalk",
@@ -2722,7 +2757,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "EnemyTurn1",
@@ -2751,7 +2787,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Intro",
@@ -3623,7 +3660,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Armory",
@@ -3651,7 +3689,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Armory",
@@ -3679,7 +3718,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Vendor",
@@ -3708,7 +3748,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village1Eirika",
@@ -3909,7 +3950,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village1",
@@ -3993,7 +4035,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village1",
@@ -4077,7 +4120,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village2",
@@ -4161,7 +4205,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village3",
@@ -4245,7 +4290,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village4",
@@ -4341,7 +4387,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village1",
@@ -4425,7 +4472,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village2",
@@ -4667,7 +4715,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "EirikaRossTalk",
@@ -4759,7 +4808,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village2",
@@ -4843,7 +4893,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Village3",
@@ -4927,7 +4978,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "RossGarciaTalk",
@@ -5005,7 +5057,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "NatashaJoshuaTalk",
@@ -5175,7 +5228,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn3",
@@ -5198,7 +5252,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn2",
@@ -5241,7 +5296,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "FightBone",
@@ -5270,7 +5326,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathBone",
@@ -5299,7 +5356,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DeathBazba",
@@ -5328,7 +5386,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Outro",
@@ -6156,7 +6215,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Test",
@@ -6195,7 +6255,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "DestroyVillage1",
@@ -6222,7 +6283,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "DestroyVillage1",
@@ -6249,7 +6311,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "DestroyVillage2",
@@ -6276,7 +6339,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "DestroyVillage3",
@@ -6303,7 +6367,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "DestroyVillage4",
@@ -6330,7 +6395,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "DestroyVillage2",
@@ -6357,7 +6423,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "DestroyVillage3",
@@ -6384,7 +6451,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "Turn2",
@@ -6400,7 +6468,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Armory",
@@ -6429,7 +6498,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Rout",
@@ -6442,7 +6512,8 @@
                 []
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Rout",
@@ -6455,7 +6526,8 @@
                 []
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Rout (1)",
@@ -6468,7 +6540,8 @@
                 []
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Door1",
@@ -6490,7 +6563,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "Chest1",
@@ -6518,7 +6592,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Chest4",
@@ -6546,7 +6621,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Chest3",
@@ -6574,7 +6650,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Chest2",
@@ -6602,7 +6679,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Door1",
@@ -6623,7 +6701,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Door2",
@@ -6644,7 +6723,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Door3",
@@ -6665,7 +6745,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Breakable1",
@@ -6687,7 +6768,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Snag",
@@ -6709,7 +6791,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Breakable2",
@@ -6731,7 +6814,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Breakable3",
@@ -6753,7 +6837,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Start",
@@ -6776,7 +6861,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Intro",
@@ -7253,7 +7339,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn2",
@@ -7309,7 +7396,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "NeimiColmTalk",
@@ -7422,7 +7510,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Outro",
@@ -8726,7 +8815,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "FightBazba",
@@ -8755,7 +8845,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Intro",
@@ -9416,7 +9507,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn2",
@@ -9439,7 +9531,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn2",
@@ -9487,7 +9580,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn4",
@@ -9509,7 +9603,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn8",
@@ -9531,7 +9626,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Turn3",
@@ -9728,7 +9824,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Trigger",
@@ -9759,7 +9856,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Outro",
@@ -10314,7 +10412,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Intro",
@@ -11582,7 +11681,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Outro",
@@ -11590,7 +11690,8 @@
         "level_nid": "5",
         "condition": "True",
         "commands": [],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "AddPlaceholder",
@@ -11607,7 +11708,8 @@
                 ]
             ]
         ],
-        "only_once": true
+        "only_once": true,
+        "priority": 20
     },
     {
         "name": "Debug Setup",
@@ -11635,7 +11737,8 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
     },
     {
         "name": "Dreams of Home",
@@ -11667,6 +11770,41 @@
                 ]
             ]
         ],
-        "only_once": false
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Wait",
+        "trigger": "unit_wait",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Wow, such wait."
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Select",
+        "trigger": "unit_select",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "Wow such select."
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
     }
 ]

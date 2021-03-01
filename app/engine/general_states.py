@@ -133,6 +133,7 @@ class FreeState(MapState):
                     game.cursor.cur_unit = cur_unit
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
+                    game.events.trigger('unit_select', cur_unit, position=cur_unit.position)
                 else:
                     if cur_unit.team == 'enemy' or cur_unit.team == 'enemy2':
                         SOUNDTHREAD.play_sfx('Select 3')
@@ -378,7 +379,8 @@ class MoveState(MapState):
             game.state.clear()
             game.state.change('free')
             if cur_unit.has_attacked or cur_unit.has_traded:
-                action.do(action.Wait(cur_unit))
+                if not cur_unit.finished:
+                    cur_unit.wait()
             else:
                 cur_unit.sprite.change_state('normal')
 
@@ -388,7 +390,8 @@ class MoveState(MapState):
                 if cur_unit.has_attacked or cur_unit.has_traded:
                     game.state.clear()
                     game.state.change('free')
-                    action.do(action.Wait(cur_unit))
+                    if not cur_unit.finished:
+                        cur_unit.wait()
                 else:
                     # Just move in place
                     cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
@@ -445,7 +448,7 @@ class WaitState(MapState):
         game.state.back()
         for unit in game.units:
             if unit.has_attacked and not unit.finished:
-                action.do(action.Wait(unit))
+                unit.wait()
         return 'repeat'
 
 class CantoWaitState(MapState):
@@ -465,7 +468,7 @@ class CantoWaitState(MapState):
         elif event == 'SELECT':
             game.state.clear()
             game.state.change('free')
-            action.do(action.Wait(self.cur_unit))
+            self.cur_unit.wait()
 
         elif event == 'BACK':
             if self.cur_unit.current_move:
@@ -598,7 +601,7 @@ class MenuState(MapState):
                 else:
                     game.state.clear()
                     game.state.change('free')
-                    action.do(action.Wait(self.cur_unit))
+                    self.cur_unit.wait()
             else:
                 if self.cur_unit.current_move:
                     action.reverse(self.cur_unit.current_move)
@@ -632,7 +635,7 @@ class MenuState(MapState):
             elif selection == 'Wait':
                 game.state.clear()
                 game.state.change('free')
-                action.do(action.Wait(self.cur_unit))
+                self.cur_unit.wait()
             # A region event
             elif selection in [region.sub_nid for region in self.valid_regions]:
                 for region in self.valid_regions:
@@ -1163,13 +1166,12 @@ class CombatTargetingState(MapState):
     def display_single_attack(self):
         game.highlight.remove_highlights()
         splash_positions = item_system.splash_positions(self.cur_unit, self.item, game.cursor.position)
+        valid_attacks = target_system.get_attacks(self.cur_unit, self.item)
         if item_system.is_spell(self.cur_unit, self.item):
-            valid_attacks = target_system.get_attacks(self.cur_unit, self.item)
             game.highlight.display_possible_spell_attacks(valid_attacks, light=True)
             game.highlight.display_possible_spell_attacks(splash_positions)
             game.highlight.display_possible_spell_attacks({game.cursor.position})
         else:
-            valid_attacks = target_system.get_attacks(self.cur_unit, self.item)
             game.highlight.display_possible_attacks(valid_attacks, light=True)
             game.highlight.display_possible_attacks(splash_positions)
             game.highlight.display_possible_attacks({game.cursor.position})
@@ -1502,7 +1504,7 @@ class AIState(MapState):
 
             if game.ai.is_done():
                 logger.info("Current AI %s is done with turn.", self.cur_unit.nid)
-                action.do(action.Wait(self.cur_unit))
+                self.cur_unit.wait()
                 game.ai.reset()
                 self.cur_unit = None
         else:

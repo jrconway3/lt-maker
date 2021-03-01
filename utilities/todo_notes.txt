@@ -1,13 +1,8 @@
 TODO List:
 
-on_unit_select
-event_priority
-unit sprite for warp and rescue
 using the item twice for warp and rescue
+unit sprite for warp and rescue
 warp / swoosh animations
-SelectionHelper for mouse
-
-Game needs to be able to tell whether it can use the item and its targeting before even the first targeting (for things like rescue having a legal traversable spot in adjacent spaces)
 
 Combat Animations
     Combat Anims / Palettes as a separate tab?

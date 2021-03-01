@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
-    QGridLayout, QSizePolicy, QAction, QToolBar
+    QGridLayout, QSizePolicy, QAction, QToolBar, QSpinBox
 from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics, QIcon
 from PyQt5.QtCore import QRegularExpression, Qt, QSize, QRect
 
@@ -552,11 +552,21 @@ class EventProperties(QWidget):
 
         self.only_once_box = PropertyCheckBox("Trigger only once?", QCheckBox, self)
         self.only_once_box.edit.stateChanged.connect(self.only_once_changed)
+
+        self.priority_box = PropertyBox("Priority", QSpinBox, self)
+        self.priority_box.edit.setRange(0, 99)
+        self.priority_box.edit.setAlignment(Qt.AlignRight)
+        self.priority_box.setToolTip("Higher Priority happens first")
+        self.priority_box.edit.valueChanged.connect(self.priority_changed)
         
         grid.addWidget(QHLine(), 3, 0, 1, 2)
         grid.addWidget(self.name_box, 4, 0, 1, 2)
         grid.addWidget(self.level_nid_box, 5, 0, 1, 2)
-        grid.addWidget(self.trigger_box, 6, 0, 1, 2)
+        trigger_layout = QHBoxLayout()
+        self.trigger_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        trigger_layout.addWidget(self.trigger_box)
+        trigger_layout.addWidget(self.priority_box, alignment=Qt.AlignRight)
+        grid.addLayout(trigger_layout, 6, 0, 1, 2)
         grid.addWidget(self.condition_box, 7, 0, 1, 2)
         grid.addWidget(self.only_once_box, 8, 0, 1, 2, Qt.AlignLeft)
 
@@ -692,6 +702,9 @@ class EventProperties(QWidget):
     def only_once_changed(self, state):
         self.current.only_once = bool(state)
 
+    def priority_changed(self, value):
+        self.current.priority = value
+
     def text_changed(self):
         self.current.commands.clear()
         text = self.text_box.toPlainText()
@@ -717,6 +730,7 @@ class EventProperties(QWidget):
             self.trigger_box.edit.setValue("None")
         self.condition_box.edit.setText(current.condition)
         self.only_once_box.edit.setChecked(bool(current.only_once))
+        self.priority_box.edit.setValue(current.priority)
 
         # Convert text
         text = ''

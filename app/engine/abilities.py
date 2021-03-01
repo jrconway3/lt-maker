@@ -85,8 +85,8 @@ class DropAbility(Ability):
             game.state.change('menu')
         else:
             game.state.change('free')
-            action.do(action.Wait(unit))
             game.cursor.set_pos(unit.position)
+            unit.wait()
 
 class RescueAbility(Ability):
     name = "Rescue"
@@ -107,8 +107,8 @@ class RescueAbility(Ability):
             game.state.change('menu')
         else:
             game.state.change('free')
-            action.do(action.Wait(unit))
             game.cursor.set_pos(unit.position)
+            unit.wait()
 
 class TakeAbility(Ability):
     name = 'Take'

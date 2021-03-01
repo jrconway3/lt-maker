@@ -25,7 +25,8 @@ class EventManager():
                 logger.error("Condition {%s} could not be evaluated" % event_prefab.condition)
 
         new_event = False
-        for event_prefab in triggered_events:
+        sorted_events = sorted(triggered_events, key=lambda x: x.priority)
+        for event_prefab in sorted_events:
             self.add_event(event_prefab.nid, event_prefab.commands, unit, unit2, item, position, region)
             new_event = True
             if event_prefab.only_once:

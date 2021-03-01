@@ -59,7 +59,7 @@ class ItemModel(DragDropCollectionModel):
                 msg = "Deleting Item <b>%s</b> would affect these objects." % nid
                 swap, ok = DeletionDialog.get_swap(affected, model, msg, ItemBox(self.window, exclude=item), self.window)
                 if ok:
-                    self.on_nid_changed(swap.nid, nid)
+                    self.on_nid_changed(nid, swap.nid)
                 else:
                     return
         # Delete watchers

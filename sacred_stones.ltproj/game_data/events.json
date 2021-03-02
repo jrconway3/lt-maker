@@ -6253,12 +6253,6 @@
                 [
                     "Dreams of Home"
                 ]
-            ],
-            [
-                "base",
-                [
-                    "Clearing"
-                ]
             ]
         ],
         "only_once": false,
@@ -11832,20 +11826,26 @@
     {
         "name": "Select",
         "trigger": "unit_select",
-        "level_nid": "DEBUG",
+        "level_nid": null,
         "condition": "True",
         "commands": [
             [
                 "if",
                 [
-                    "unit.name == 'Eirika' and game.level_vars['LynVoice'] == 0"
+                    "unit.name == 'Eirika' and not game.level_vars.get('LynVoice')"
                 ]
             ],
             [
                 "level_var",
                 [
                     "LynVoice",
-                    "2"
+                    "random.randint(1,2)"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
                 ]
             ],
             [
@@ -11875,6 +11875,19 @@
                 ]
             ],
             [
+                "else",
+                [
+                    ""
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "What"
+                ]
+            ],
+            [
                 "end",
                 []
             ],
@@ -11883,7 +11896,7 @@
                 []
             ]
         ],
-        "only_once": true,
+        "only_once": false,
         "priority": 20
     }
 ]

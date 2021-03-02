@@ -214,19 +214,22 @@ class Event():
         Returns true if the processor should be processing this command
         """
         if command.nid == 'if':
+            logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack or self.if_stack[-1]:
                 try:
                     truth = bool(evaluate.evaluate(command.values[0], self.unit, self.unit2, self.item, self.position, self.region))
                 except Exception as e:
                     logging.error("Could not evaluate {%s}" % command.values[0])
                     truth = False
+                logging.info("Result: %s" % truth)
                 self.if_stack.append(truth)
                 self.parse_stack.append(truth)
             else:
                 self.if_stack.append(False)
-                self.parse_stack.append(False)
+                self.parse_stack.append(True)
             return False
         elif command.nid == 'elif':
+            logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack:
                 logging.error("Syntax Error somewhere in script. 'elif' needs to be after if statement.")
                 return False
@@ -239,10 +242,12 @@ class Event():
                     truth = False
                 self.if_stack[-1] = truth
                 self.parse_stack[-1] = truth
+                logging.info("Result: %s" % truth)
             else:
                 self.if_stack[-1] = False
             return False
         elif command.nid == 'else':
+            logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack:
                 logging.error("Syntax Error somewhere in script. 'else' needs to be after if statement.")
                 return False
@@ -254,6 +259,7 @@ class Event():
                 self.if_stack[-1] = False
             return False
         elif command.nid == 'end':
+            logging.info('%s: %s', command.nid, command.values)
             self.if_stack.pop()
             self.parse_stack.pop()
             return False

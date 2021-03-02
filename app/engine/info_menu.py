@@ -221,6 +221,7 @@ class InfoMenuState(State):
             self.bg = None
 
     def start(self):
+        self.mouse_indicator = gui.MouseIndicator()
         self.create_background()
 
         # Unit to be displayed
@@ -341,13 +342,13 @@ class InfoMenuState(State):
                 mouse_position = INPUT.get_mouse_position()
                 if mouse_position:
                     mouse_x, mouse_y = mouse_position
-                    if mouse_x < 16:
+                    if mouse_x <= 16:
                         self.move_left()
-                    elif mouse_x > WINWIDTH - 16:
+                    elif mouse_x >= WINWIDTH - 16:
                         self.move_right()
-                    elif mouse_y < 16:
+                    elif mouse_y <= 16:
                         self.move_up()
-                    elif mouse_y > WINHEIGHT - 16:
+                    elif mouse_y >= WINHEIGHT - 16:
                         self.move_down()
 
             if 'RIGHT' in directions:
@@ -501,6 +502,9 @@ class InfoMenuState(State):
 
         if self.info_graph.current_bb:
             self.info_graph.draw(surf)
+
+        if not self.transition:
+            self.mouse_indicator.draw(surf)
 
         return surf
 

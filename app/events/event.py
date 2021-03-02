@@ -215,7 +215,11 @@ class Event():
         """
         if command.nid == 'if':
             if not self.if_stack or self.if_stack[-1]:
-                truth = evaluate.evaluate(command.values[0], self.unit, self.unit2, self.region, self.position)
+                try:
+                    truth = bool(evaluate.evaluate(command.values[0], self.unit, self.unit2, self.item, self.position, self.region))
+                except Exception as e:
+                    logging.error("Could not evaluate {%s}" % command.values[0])
+                    truth = False
                 self.if_stack.append(truth)
                 self.parse_stack.append(truth)
             else:
@@ -228,7 +232,11 @@ class Event():
                 return False
             # If we haven't encountered a truth yet
             if not self.parse_stack[-1]:
-                truth = evaluate.evaluate(command.values[0], self.unit, self.unit2, self.region, self.position)
+                try:
+                    truth = bool(evaluate.evaluate(command.values[0], self.unit, self.unit2, self.item, self.position, self.region))
+                except Exception as e:
+                    logging.error("Could not evaluate {%s}" % command.values[0])
+                    truth = False
                 self.if_stack[-1] = truth
                 self.parse_stack[-1] = truth
             else:
@@ -465,7 +473,7 @@ class Event():
             nid = values[0]
             to_eval = values[1]
             try:
-                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.region, self.position)
+                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
                 action.do(action.SetGameVar(nid, val))
             except:
                 logging.error("Could not evaluate {%s}" % to_eval)
@@ -475,7 +483,7 @@ class Event():
             nid = values[0]
             to_eval = values[1]
             try:
-                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.region, self.position)
+                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
                 action.do(action.SetLevelVar(nid, val))
             except:
                 logging.error("Could not evaluate {%s}" % to_eval)
@@ -931,7 +939,7 @@ class Event():
         evaluated = []
         for to_eval in to_evaluate:
             try:
-                val = evaluate.evaluate(to_eval[6:-1], self.unit, self.unit2, self.region, self.position)
+                val = evaluate.evaluate(to_eval[6:-1], self.unit, self.unit2, self.item, self.position, self.region)
                 evaluated.append(str(val))
             except Exception as e:
                 logging.error("Could not evaluate %s (%s)" % (to_eval[6:-1], e))

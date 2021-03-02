@@ -66,7 +66,7 @@ class InputManager():
         mouse_pos = engine.get_mouse_pos()
         mouse_pos = (mouse_pos[0] // int(cf.SETTINGS['screen_size']),
                      mouse_pos[1] // int(cf.SETTINGS['screen_size']))
-        if mouse_pos[0] >= 0 and mouse_pos[1] >= 0 and mouse_pos[0] < WINWIDTH and mouse_pos[1] < WINHEIGHT:
+        if engine.get_mouse_focus():
             return mouse_pos
         else:  # Returns None if mouse is not in screen
             return None

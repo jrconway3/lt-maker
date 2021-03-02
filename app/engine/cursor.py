@@ -248,12 +248,13 @@ class Cursor():
         if self.mouse_mode:
             # Get the actual mouse position, irrespective if actually used recently
             mouse_pos = INPUT.get_real_mouse_position()
-            new_pos = mouse_pos[0] // TILEWIDTH, mouse_pos[1] // TILEHEIGHT
-            new_pos = int(new_pos[0] + game.camera.get_x()), int(new_pos[1] + game.camera.get_y())
-            dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
-            self.move(dpos[0], dpos[1], mouse=True, sound=bool(mouse_position))
-            game.camera.cursor_x(self.position[0])
-            game.camera.cursor_y(self.position[1])
+            if mouse_pos:
+                new_pos = mouse_pos[0] // TILEWIDTH, mouse_pos[1] // TILEHEIGHT
+                new_pos = int(new_pos[0] + game.camera.get_x()), int(new_pos[1] + game.camera.get_y())
+                dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
+                self.move(dpos[0], dpos[1], mouse=True, sound=bool(mouse_position))
+                game.camera.cursor_x(self.position[0])
+                game.camera.cursor_y(self.position[1])
 
     def update(self):
         self.cursor_counter.update(engine.get_time())

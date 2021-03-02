@@ -6253,6 +6253,12 @@
                 [
                     "Dreams of Home"
                 ]
+            ],
+            [
+                "base",
+                [
+                    "Clearing"
+                ]
             ]
         ],
         "only_once": false,
@@ -11780,11 +11786,44 @@
         "condition": "True",
         "commands": [
             [
+                "if",
+                [
+                    "False"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "True"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Joshua",
                     "Wow, such wait."
                 ]
+            ],
+            [
+                "elif",
+                [
+                    "False"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "No"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": true,
@@ -11797,11 +11836,51 @@
         "condition": "True",
         "commands": [
             [
+                "if",
+                [
+                    "unit.name == 'Eirika' and game.level_vars['LynVoice'] == 0"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "LynVoice",
+                    "2"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.level_vars.get('LynVoice') == 1"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Joshua",
-                    "Wow such select."
+                    "1"
                 ]
+            ],
+            [
+                "elif",
+                [
+                    "game.level_vars.get('LynVoice') == 2"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joshua",
+                    "2"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": true,

@@ -4,12 +4,13 @@ from app.constants import WINWIDTH, WINHEIGHT
 from app.engine.sound import SOUNDTHREAD
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
+from app.engine.input_manager import INPUT
 
 from app.engine.game_state import game
 import app.engine.action as Action
 from app.engine.background import SpriteBackground
 from app.engine.state import MapState
-from app.engine import engine, base_surf, image_mods
+from app.engine import engine, base_surf, image_mods, gui
 
 import logging
 
@@ -406,6 +407,7 @@ class TurnwheelDisplay():
 
 class TurnwheelState(MapState):
     def begin(self):
+        self.mouse_indicator = gui.MouseIndicator()
         # Kill off any units who are currently dying
         for unit in game.units:
             if unit.is_dying:
@@ -429,6 +431,32 @@ class TurnwheelState(MapState):
 
         self.last_direction = 'FORWARD'
 
+    def move_forward(self):
+        SOUNDTHREAD.play_sfx('Select 1')
+        old_message = None
+        if self.last_direction == 'BACKWARD':
+            game.action_log.current_unit = None
+            old_message = game.action_log.forward()
+        new_message = game.action_log.forward()
+        if new_message is None:
+            new_message = old_message
+        if new_message is not None:
+            self.display.change_text(new_message, game.turncount)
+        self.last_direction = 'FORWARD'
+
+    def move_back(self):
+        SOUNDTHREAD.play_sfx('Select 2')
+        old_message = None
+        if self.last_direction == 'FORWARD':
+            game.action_log.current_unit = None
+            old_message = game.action_log.backward()
+        new_message = game.action_log.backward()
+        if new_message is None:
+            new_message = old_message
+        if new_message is not None:
+            self.display.change_text(new_message, game.turncount)
+        self.last_direction = 'BACKWARD'
+
     def take_input(self, event):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
@@ -437,32 +465,14 @@ class TurnwheelState(MapState):
             return  # Don't take input after a choice has been made
 
         if 'DOWN' in directions or 'RIGHT' in directions:
-            SOUNDTHREAD.play_sfx('Select 1')
-            old_message = None
-            if self.last_direction == 'BACKWARD':
-                game.action_log.current_unit = None
-                old_message = game.action_log.forward()
-            new_message = game.action_log.forward()
-            if new_message is None:
-                new_message = old_message
-            if new_message is not None:
-                self.display.change_text(new_message, game.turncount)
-            self.last_direction = 'FORWARD'
+            self.move_forward()
         elif 'UP' in directions or 'LEFT' in directions:
-            SOUNDTHREAD.play_sfx('Select 2')
-            old_message = None
-            if self.last_direction == 'FORWARD':
-                game.action_log.current_unit = None
-                old_message = game.action_log.backward()
-            new_message = game.action_log.backward()
-            if new_message is None:
-                new_message = old_message
-            if new_message is not None:
-                self.display.change_text(new_message, game.turncount)
-            self.last_direction = 'BACKWARD'
+            self.move_back()
 
         if event == 'SELECT':
-            if game.action_log.can_use():
+            if self.check_mouse_position():
+                pass
+            elif game.action_log.can_use():
                 game.action_log.finalize()
                 self.transition_out = 60
                 self.display.fade_out()
@@ -481,6 +491,24 @@ class TurnwheelState(MapState):
             else:
                 # Error SOUND
                 pass
+
+    def check_mouse_position(self) -> bool:
+        mouse_position = INPUT.get_mouse_position()
+        if mouse_position:
+            mouse_x, mouse_y = mouse_position
+            if mouse_x <= 16:
+                self.move_back()
+                return True
+            elif mouse_x >= WINWIDTH - 16:
+                self.move_forward()
+                return True
+            elif mouse_y <= 16:
+                self.move_back()
+                return True
+            elif mouse_y >= WINHEIGHT - 16:
+                self.move_forward()
+                return True
+        return False
 
     def back_out(self):
         game.action_log.reset()
@@ -527,6 +555,8 @@ class TurnwheelState(MapState):
                 self.darken_background += 1
             elif self.target_dark < self.darken_background:
                 self.darken_background -= 1
+
+        self.mouse_indicator.draw(surf)
 
         # Draw animation
         return surf

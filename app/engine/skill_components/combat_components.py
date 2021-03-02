@@ -135,7 +135,7 @@ class DynamicDamage(SkillComponent):
     def dynamic_damage(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -150,7 +150,7 @@ class DynamicResist(SkillComponent):
     def dynamic_resist(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -165,7 +165,7 @@ class DynamicAccuracy(SkillComponent):
     def dynamic_accuracy(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -180,7 +180,7 @@ class DynamicAvoid(SkillComponent):
     def dynamic_avoid(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -195,7 +195,7 @@ class DynamicCritAccuracy(SkillComponent):
     def dynamic_crit_accuracy(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -210,7 +210,7 @@ class DynamicCritAvoid(SkillComponent):
     def dynamic_crit_avoid(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -225,7 +225,7 @@ class DynamicAttackSpeed(SkillComponent):
     def dynamic_attack_speed(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -240,7 +240,7 @@ class DynamicDefenseSpeed(SkillComponent):
     def dynamic_defense_speed(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -255,7 +255,7 @@ class DynamicMultiattacks(SkillComponent):
     def dynamic_multiattacks(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0

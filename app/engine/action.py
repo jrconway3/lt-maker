@@ -335,7 +335,7 @@ class SetGameVar(Action):
     def __init__(self, nid, val):
         self.nid = nid
         self.val = val
-        self.old_val = game.game_vars.get(self.nid)
+        self.old_val = game.game_vars[self.nid]
 
     def do(self):
         game.game_vars[self.nid] = self.val
@@ -347,7 +347,7 @@ class SetLevelVar(Action):
     def __init__(self, nid, val):
         self.nid = nid
         self.val = val
-        self.old_val = game.level_vars.get(self.nid)
+        self.old_val = game.level_vars[self.nid]
 
     def do(self):
         game.level_vars[self.nid] = self.val

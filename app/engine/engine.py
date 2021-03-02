@@ -199,6 +199,9 @@ def get_joystick():
 def get_mouse_pos():
     return pygame.mouse.get_pos()
 
+def get_mouse_focus():
+    return pygame.mouse.get_focused()
+
 # === loop functions ===
 DISPLAYSURF = None
 SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])

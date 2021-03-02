@@ -1,7 +1,11 @@
 import math
 from app import counters
+
+from app.constants import WINWIDTH, WINHEIGHT
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
+from app.engine.input_manager import INPUT
+
 from app.engine import engine, image_mods
 
 class DamageNumber():
@@ -251,3 +255,22 @@ class PopUpDisplay():
                 else:
                     my_surf = self.surf
                 surf.blit(my_surf, (self.topright[0] - self.width + 8, self.topright[1]))
+
+class MouseIndicator():
+    mouse_indicator_right = SPRITES.get('mouse_indicator_right')
+    mouse_indicator_left = engine.flip_horiz(SPRITES.get('mouse_indicator_right'))
+    mouse_indicator_top = SPRITES.get('mouse_indicator_top')
+    mouse_indicator_bottom = engine.flip_vert(SPRITES.get('mouse_indicator_top'))
+    
+    def draw(self, surf):
+        mouse_position = INPUT.get_real_mouse_position()
+        if mouse_position:
+            mouse_x, mouse_y = mouse_position
+            if mouse_x <= 16:
+                surf.blit(self.mouse_indicator_left, (0, 0), None, engine.BLEND_RGB_ADD)
+            elif mouse_x >= WINWIDTH - 16:
+                surf.blit(self.mouse_indicator_right, (WINWIDTH - self.mouse_indicator_right.get_width(), 0), None, engine.BLEND_RGB_ADD)
+            elif mouse_y <= 16:
+                surf.blit(self.mouse_indicator_top, (0, 0), None, engine.BLEND_RGB_ADD)
+            elif mouse_y >= WINHEIGHT - 16:
+                surf.blit(self.mouse_indicator_bottom, (0, WINHEIGHT - self.mouse_indicator_bottom.get_height()), None, engine.BLEND_RGB_ADD)

@@ -6,6 +6,7 @@ from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
+from app.engine.input_manager import INPUT
 from app.engine.state import State
 
 from app.engine.game_state import game
@@ -442,6 +443,7 @@ class BaseRecordsState(State):
         self.fluid = FluidScroll()
 
     def start(self):
+        self.mouse_indicator = gui.MouseIndicator()
         self.bg = game.memory['base_bg']
 
         levels = game.records.get_levels()
@@ -469,6 +471,7 @@ class BaseRecordsState(State):
         directions = self.fluid.get_directions()
 
         self.current_menu.handle_mouse()
+
         if 'DOWN' in directions:
             if self.current_menu.move_down(first_push):
                 SOUNDTHREAD.play_sfx('Select 6')
@@ -477,40 +480,10 @@ class BaseRecordsState(State):
                 SOUNDTHREAD.play_sfx('Select 6')
 
         if event == 'LEFT':
-            SOUNDTHREAD.play_sfx('Status_Page_Change')
-            self.prev_menu = self.current_menu
-            self.current_offset_x = -WINWIDTH
-            self.prev_offset_x = 1
-            if self.state == 'records':
-                self.state = 'mvp'
-                self.current_menu = self.mvp
-            elif self.state == 'mvp':
-                self.state = 'records'
-                self.current_menu = self.record_menu
-            elif self.state == 'chapter':
-                self.record_menu.move_up(True)
-                self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
-            elif self.state == 'unit':
-                self.mvp.move_up(True)
-                self.current_menu = self.unit_menus[self.mvp.get_current_index()]
+            self.move_left()
                 
         elif event == 'RIGHT':
-            SOUNDTHREAD.play_sfx('Status_Page_Change')
-            self.prev_menu = self.current_menu
-            self.current_offset_x = WINWIDTH
-            self.prev_offset_x = -1
-            if self.state == 'records':
-                self.state = 'mvp'
-                self.current_menu = self.mvp
-            elif self.state == 'mvp':
-                self.state = 'records'
-                self.current_menu = self.record_menu
-            elif self.state == 'chapter':
-                self.record_menu.move_down(True)
-                self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
-            elif self.state == 'unit':
-                self.mvp.move_down(True)
-                self.current_menu = self.unit_menus[self.mvp.get_current_index()]
+            self.move_right()
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
@@ -529,18 +502,77 @@ class BaseRecordsState(State):
                 self.current_menu = self.record_menu
 
         elif event == 'SELECT':
-            SOUNDTHREAD.play_sfx('Select 1')
-            if self.state in ('records', 'mvp'):
-                self.prev_menu = self.current_menu
-                self.current_offset_y = WINHEIGHT
-                self.prev_offset_y = -1
+            if self.check_mouse_position():
+                pass
+            else:
+                SOUNDTHREAD.play_sfx('Select 1')
+                if self.state in ('records', 'mvp'):
+                    self.prev_menu = self.current_menu
+                    self.current_offset_y = WINHEIGHT
+                    self.prev_offset_y = -1
 
-            if self.state == 'records':
-                self.state = 'chapter'
-                self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
-            elif self.state == 'mvp':
-                self.state = 'unit'
-                self.current_menu = self.unit_menus[self.record_menu.get_current_index()]
+                if self.state == 'records':
+                    self.state = 'chapter'
+                    self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
+                elif self.state == 'mvp':
+                    self.state = 'unit'
+                    self.current_menu = self.unit_menus[self.record_menu.get_current_index()]
+
+    def check_mouse_position(self):
+        mouse_position = INPUT.get_mouse_position()
+        if mouse_position:
+            mouse_x, mouse_y = mouse_position
+            if mouse_x <= 16:
+                self.move_left()
+                return True
+            elif mouse_x >= WINWIDTH - 16:
+                self.move_right()
+                return True
+            elif mouse_y <= 16:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.current_menu.move_up()
+                return True
+            elif mouse_y >= WINHEIGHT - 16:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.current_menu.move_down()
+                return True
+        return False
+
+    def move_left(self):
+        SOUNDTHREAD.play_sfx('Status_Page_Change')
+        self.prev_menu = self.current_menu
+        self.current_offset_x = -WINWIDTH
+        self.prev_offset_x = 1
+        if self.state == 'records':
+            self.state = 'mvp'
+            self.current_menu = self.mvp
+        elif self.state == 'mvp':
+            self.state = 'records'
+            self.current_menu = self.record_menu
+        elif self.state == 'chapter':
+            self.record_menu.move_up(True)
+            self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
+        elif self.state == 'unit':
+            self.mvp.move_up(True)
+            self.current_menu = self.unit_menus[self.mvp.get_current_index()]
+
+    def move_right(self):
+        SOUNDTHREAD.play_sfx('Status_Page_Change')
+        self.prev_menu = self.current_menu
+        self.current_offset_x = WINWIDTH
+        self.prev_offset_x = -1
+        if self.state == 'records':
+            self.state = 'mvp'
+            self.current_menu = self.mvp
+        elif self.state == 'mvp':
+            self.state = 'records'
+            self.current_menu = self.record_menu
+        elif self.state == 'chapter':
+            self.record_menu.move_down(True)
+            self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
+        elif self.state == 'unit':
+            self.mvp.move_down(True)
+            self.current_menu = self.unit_menus[self.mvp.get_current_index()]
 
     def update(self):
         if self.current_menu:
@@ -581,4 +613,6 @@ class BaseRecordsState(State):
             self.current_menu.draw(surf, offset=(self.current_offset_x, self.current_offset_y))
         if self.prev_menu:
             self.prev_menu.draw(surf, offset=(self.prev_offset_x, self.prev_offset_y))
+        if self.mouse_indicator:
+            self.mouse_indicator.draw(surf)
         return surf

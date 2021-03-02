@@ -83,7 +83,7 @@ class CombatArtAllowedWeapons(SkillComponent):
         good_weapons = []
         for item in item_funcs.get_all_items(unit):
             try:
-                if bool(evaluate.evaluate(self.value)):
+                if bool(evaluate.evaluate(self.value, unit, item=item)):
                     good_weapons.append(item)
             except:
                 print("Couldn't evaluate conditional: %s" % self.value)

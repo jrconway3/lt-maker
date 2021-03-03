@@ -408,16 +408,22 @@ class GameState():
         return self.parties.get(party_nid)
 
     def get_player_units(self):
-        return [unit for unit in self.level.units if unit.team == 'player' and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
+        return [unit for unit in self.unit_registry.values() if unit.team == 'player' and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
 
     def get_enemy_units(self):
-        return [unit for unit in self.level.units if unit.team.startswith('enemy') and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
+        return [unit for unit in self.unit_registry.values() if unit.team.startswith('enemy') and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
 
     def check_dead(self, nid):
-        return any(unit.nid == nid and (unit.dead or unit.is_dying) for unit in self.level.units)
+        unit = self.get_unit(nid)
+        if unit and (unit.dead or unit.is_dying):
+            return True
+        return False
 
     def check_alive(self, nid):
-        return any(unit.nid == nid and not (unit.dead or unit.is_dying) for unit in self.level.units)
+        unit = self.get_unit(nid)
+        if unit and not (unit.dead or unit.is_dying):
+            return True
+        return False
 
     # For placing units on map and removing them from map
     def leave(self, unit, test=False):

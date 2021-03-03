@@ -33,7 +33,7 @@ def get_next_level_up(unit) -> dict:
         elif method == 'Dynamic':
             _dynamic_levelup(r, stat_changes, unit.growth_points, nid, growth)
             
-        stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid).value - unit.stats[nid])
+        stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
 
     return stat_changes
 

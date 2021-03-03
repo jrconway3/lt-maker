@@ -24,7 +24,7 @@ class DeathManager():
     def update(self) -> bool:
         for unit_nid in list(self.dying_units.keys()):
             death_counter = self.dying_units[unit_nid]
-            unit = game.level.units.get(unit_nid)
+            unit = game.get_unit(unit_nid)
             if death_counter == 0:
                 SOUNDTHREAD.play_sfx('Death')
             elif death_counter == 1:

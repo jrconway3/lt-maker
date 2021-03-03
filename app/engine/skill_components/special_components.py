@@ -147,7 +147,7 @@ class ProcRate(SkillComponent):
 
 class DeathTether(SkillComponent):
     nid = 'death_tether'
-    desc = "remove all skills in the game that I initiated on my death"
+    desc = "Remove all skills in the game that I initiated on my death"
     tag = 'advanced'
 
     def on_death(self, unit):
@@ -155,3 +155,29 @@ class DeathTether(SkillComponent):
             for skill in other_unit.skills:
                 if skill.initiator_nid == unit.nid:
                     action.do(action.RemoveSkill(other_unit, skill))
+
+class Aura(SkillComponent):
+    nid = 'aura'
+    desc = "Skill has an aura that gives off child skill"
+    tag = 'advanced'
+    paired_with = ('aura_range', 'aura_target')
+
+    expose = Type.Skill
+
+class AuraRange(SkillComponent):
+    nid = 'aura_range'
+    desc = "Set range of skill's aura"
+    tag = 'advanced'
+    paired_with = ('aura', 'aura_target')
+
+    expose = Type.Int
+    value = 3
+
+class AuraTarget(SkillComponent):
+    nid = 'aura_target'
+    desc = "Set target of skill's aura (set to 'ally', 'enemy', or 'unit')"
+    tag = 'advanced'
+    paired_with = ('aura', 'aura_range')
+
+    expose = Type.String
+    value = 'unit'

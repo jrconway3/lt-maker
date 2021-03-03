@@ -1428,7 +1428,7 @@ class Event():
         level_unit_prefab = UniqueUnit(unit_nid, team, ai_nid, None)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party
-        game.register_unit(new_unit)
+        game.full_register(new_unit)
 
     def make_generic(self, command):
         values, flags = event_commands.parse(command)
@@ -1459,7 +1459,7 @@ class Event():
         level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, [], team, ai_nid)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party
-        game.register_unit(new_unit)
+        game.full_register(new_unit)
 
     def give_item(self, command):
         values, flags = event_commands.parse(command)

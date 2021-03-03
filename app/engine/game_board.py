@@ -57,7 +57,7 @@ class GameBoard(object):
 
         # For Auras
         self.aura_grid = self.init_aura_grid()
-        # Key: Aura, Value: Set of positions
+        # Key: Aura Skill Uid, Value: Set of positions
         self.known_auras = {}  
 
         # For opacity
@@ -70,6 +70,7 @@ class GameBoard(object):
         # For each movement type
         for idx, mode in enumerate(DB.mcost.unit_types):
             self.mcost_grids[mode] = self.init_grid(mode, tilemap)
+        self.opacity_grid = self.init_opacity_grid(tilemap)
 
     # For movement
     def init_grid(self, movement_group, tilemap):
@@ -109,6 +110,23 @@ class GameBoard(object):
             self.unit_grid[idx].remove(unit)
             self.team_grid[idx].remove(unit.team)
 
+    def get_unit(self, pos):
+        if not pos:
+            return None
+        idx = pos[0] * self.height + pos[1]
+        if self.unit_grid[idx]:
+            return self.unit_grid[idx][0]
+        return None
+
+    def get_team(self, pos):
+        if not pos:
+            return None
+        idx = pos[0] * self.height + pos[1]
+        if self.team_grid[idx]:
+            return self.team_grid[idx][0]
+        return None
+
+    # Fog of war
     def update_fow(self, pos, unit, sight_range: int):
         grid = self.fog_of_war_grids[unit.team]
         # Remove the old vision
@@ -151,29 +169,7 @@ class GameBoard(object):
                 return True
         return False
 
-    def get_unit(self, pos):
-        if not pos:
-            return None
-        idx = pos[0] * self.height + pos[1]
-        if self.unit_grid[idx]:
-            return self.unit_grid[idx][0]
-        return None
-
-    def get_team(self, pos):
-        if not pos:
-            return None
-        idx = pos[0] * self.height + pos[1]
-        if self.team_grid[idx]:
-            return self.team_grid[idx][0]
-        return None
-
-    def init_aura_grid(self):
-        cells = []
-        for x in range(self.width):
-            for y in range(self.height):
-                cells.append(set())
-        return cells
-
+    # Line of sight
     def init_opacity_grid(self, tilemap):
         cells = []
         for x in range(self.width):
@@ -191,3 +187,37 @@ class GameBoard(object):
             return False
         idx = pos[0] * self.height + pos[1]
         return self.opacity_grid[idx]
+
+    # Auras
+    def init_aura_grid(self):
+        cells = []
+        for x in range(self.width):
+            for y in range(self.height):
+                cells.append(set())
+        return cells
+
+    def reset_aura(self, child_skill):
+        if child_skill.uid in self.known_auras:
+            self.known_auras[child_skill.uid].clear()
+
+    def add_aura(self, pos, unit, child_skill, target):
+        idx = pos[0] * self.height + pos[1]
+        self.aura_grid[idx].add((child_skill.uid, target))
+        if child_skill.uid not in self.known_auras:
+            self.known_auras[child_skill.uid] = set()
+        self.known_auras[child_skill.uid].add(pos)
+
+    def remove_aura(self, pos, child_skill):
+        idx = pos[0] * self.height + pos[1]
+        for aura_data in list(self.aura_grid[idx]):
+            if aura_data[0] == child_skill.uid:
+                self.aura_grid[idx].discard(aura_data)
+        if child_skill.uid in self.known_auras:
+            self.known_auras[child_skill.uid].discard(pos)
+
+    def get_auras(self, pos):
+        idx = pos[0] * self.height + pos[1]
+        return self.aura_grid[idx]
+
+    def get_aura_positions(self, child_skill) -> set:
+        return self.known_auras.get(child_skill.uid, set())

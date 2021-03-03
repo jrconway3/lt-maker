@@ -361,6 +361,7 @@ class MoveState(MapState):
             game.highlight.display_moves(self.valid_moves, light=False)
         else:
             self.valid_moves = game.highlight.display_highlights(cur_unit)
+        game.highlight.display_aura_highlights(cur_unit)
 
         game.cursor.place_arrows()
 
@@ -575,6 +576,7 @@ class MenuState(MapState):
             # Shows the canto moves in the menu
             moves = target_system.get_valid_moves(self.cur_unit)
             game.highlight.display_moves(moves)
+        game.highlight.display_aura_highlights(self.cur_unit)
 
         self.menu = menus.Choice(self.cur_unit, options)
         self.menu.set_limit(8)

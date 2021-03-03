@@ -27,6 +27,11 @@ class SkillObject():
         self.data = {}
         self.initiator_nid = None
 
+        # For subskill
+        self.subskill = None
+        self.subskill_uid = None
+        self.parent_skill = None
+
     @classmethod
     def from_prefab(cls, prefab):
         return cls(prefab.nid, prefab.name, prefab.desc, prefab.icon_nid, prefab.icon_index, prefab.components)
@@ -38,7 +43,7 @@ class SkillObject():
         return None
 
     def __str__(self):
-        return self.name
+        return "Skill: %s %s" % (self.nid, self.uid)
 
     def __repr__(self):
         return "Skill: %s %s" % (self.nid, self.uid)
@@ -50,6 +55,7 @@ class SkillObject():
         serial_dict['owner_nid'] = self.owner_nid
         serial_dict['data'] = self.data
         serial_dict['initiator_nid'] = self.initiator_nid
+        serial_dict['subskill'] = self.subskill_uid
         return serial_dict
 
     @classmethod
@@ -59,4 +65,5 @@ class SkillObject():
         self.owner_nid = dat['owner_nid']
         self.data = dat['data']
         self.initiator_uid = dat.get('initiator_nid', None)
+        self.subskill_uid = dat.get('subskill', None)
         return self

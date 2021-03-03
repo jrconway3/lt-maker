@@ -154,15 +154,31 @@ def get_range_string(unit, item):
 
 def create_skill(unit, skill_nid):
     skill_prefab = DB.skills.get(skill_nid)
-    if skill_prefab:
-        skill = SkillObject.from_prefab(skill_prefab)
-        if unit:
-            skill.owner_nid = unit.nid
-        skill_system.init(skill)
-        return skill
-    else:
-        logging.warning("Couldn't find skill %s" % skill_nid)
+    if not skill_prefab:
+        logging.error("Couldn't find skill %s" % skill_nid)
         return None
+    skill = SkillObject.from_prefab(skill_prefab)
+    if unit:
+        skill.owner_nid = unit.nid
+    skill_system.init(skill)
+
+    def create_subskill(subskill_nid):
+        subskill_prefab = DB.skills.get(subskill_nid)
+        subskill = SkillObject.from_prefab(subskill_prefab)
+        # Child skills are not owned by their parent skill unit
+        # Since they are given to others
+        # if unit:  
+        #     subskill.owner_nid = unit.nid
+        skill_system.init(subskill)
+        skill.subskill_uid = subskill.uid
+        skill.subskill = subskill
+        subskill.parent_skill = skill
+
+    if skill.aura:
+        child_skill_nid = skill.aura.value
+        create_subskill(child_skill_nid)
+
+    return skill
 
 def create_skills(unit, skill_nid_list: list) -> list:
     skills = []

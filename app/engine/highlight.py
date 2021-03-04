@@ -1,6 +1,8 @@
 from app.constants import TILEWIDTH, TILEHEIGHT
+from app.data.database import DB
+
 from app.engine.sprites import SPRITES
-from app.engine import engine, target_system
+from app.engine import engine, target_system, line_of_sight
 from app.engine.game_state import game
 
 import logging
@@ -64,7 +66,7 @@ class HighlightController():
             self.remove_highlights()
         if hover_unit and hover_unit != self.current_hover:
             self.display_highlights(hover_unit, light=True)
-            # Aura.add_aura_highlights(hover_unit)
+            self.display_aura_highlights(hover_unit)
         self.current_hover = hover_unit
 
     def display_moves(self, valid_moves, light=False):
@@ -87,6 +89,15 @@ class HighlightController():
         self.display_possible_attacks(valid_attacks, light=light)
         self.display_moves(valid_moves, light=light)
         return valid_moves
+
+    def display_aura_highlights(self, unit):
+        for skill in unit.skills:
+            if skill.aura:
+                positions = game.board.get_aura_positions(skill.subskill)
+                aura_range = skill.aura_range.value
+                if DB.constants.value('aura_los'):
+                    positions = line_of_sight.line_of_sight({unit.position}, positions, aura_range)
+                self.add_highlights(positions, 'aura', allow_overlap=True)
 
     def show_formation(self, positions: list):
         self.formation_highlights += positions

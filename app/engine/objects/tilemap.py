@@ -125,6 +125,12 @@ class TileMapObject(Prefab):
                 return layer.terrain[pos]
         return '0'
 
+    def get_layer(self, pos):
+        for layer in reversed(self.layers):
+            if layer.visible and pos in layer.terrain:
+                return layer.nid
+        return None
+
     def get_full_image(self):
         if not self.full_image:
             image = engine.create_surface((self.width * TILEWIDTH, self.height * TILEHEIGHT), transparent=True)

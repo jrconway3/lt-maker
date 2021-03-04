@@ -350,9 +350,9 @@ class EventCollection(QWidget):
     def create_actions(self):
         theme = self.settings.get_theme()
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
 
         self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "New Event", triggered=self.new)
         self.new_action.setShortcut("Ctrl+N")

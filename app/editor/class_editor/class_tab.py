@@ -54,6 +54,6 @@ if __name__ == '__main__':
     DB.load('default.ltproj')
     window = SingleDatabaseEditor(ClassDatabase)
     # MEME
-    window.setStyleSheet("QDialog {background-image:url(bg.png)};")
+    window.setStyleSheet("QDialog {background-image:url(icons/bg.png)};")
     window.show()
     app.exec_()

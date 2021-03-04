@@ -2,5 +2,5 @@ Lex Talionis Engine and LT-Maker Editor created by rainlash
 
 With additional programming from TheeBill, Lord Tweed, ZessDynamite, Nemid, mag, and Greentwip.
 
-Lex Talionis is a non-profit engine, released for free, and developed using Python, Pygame, and PyQt. Some default assets are copyrighted or trademarked by their respective owners.
+Lex Talionis is a non-profit engine, released for free, and developed using Python, Pygame, and PyQt5. Some default assets are copyrighted or trademarked by their respective owners.
 

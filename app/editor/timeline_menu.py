@@ -196,7 +196,7 @@ class TimelineMenu(QWidget):
                 new_menu = QMenu(self)
                 self.menus[command.tag] = new_menu
                 toolbutton = QToolButton(self)
-                toolbutton.setIcon(QIcon("icons/command_%s.png" % command.tag))
+                toolbutton.setIcon(QIcon("icons/icons/command_%s.png" % command.tag))
                 toolbutton.setMenu(new_menu)
                 toolbutton.setPopupMode(QToolButton.InstantPopup)
                 toolbutton_action = QWidgetAction(self)

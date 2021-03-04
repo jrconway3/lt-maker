@@ -52,7 +52,7 @@ class BoolItemComponent(QWidget):
         self.create_editor(hbox)
 
         x_button = QToolButton(self)
-        x_button.setIcon(QIcon("icons/x.png"))
+        x_button.setIcon(QIcon("icons/icons/x.png"))
         x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
         x_button.clicked.connect(partial(self.window.remove_component, self))
         hbox.addWidget(x_button, Qt.AlignRight)

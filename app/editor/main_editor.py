@@ -159,9 +159,9 @@ class MainEditor(QMainWindow):
         else:
             theme = force_theme
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
 
         self.new_act.setIcon(QIcon(f'{icon_folder}/file-plus.png'))
         self.open_act.setIcon(QIcon(f'{icon_folder}/folder.png'))
@@ -176,6 +176,8 @@ class MainEditor(QMainWindow):
         self.database_button.setIcon(QIcon(f'{icon_folder}/database.png'))
         self.resource_button.setIcon(QIcon(f'{icon_folder}/resource.png'))
         self.test_button.setIcon(QIcon(f'{icon_folder}/play.png'))
+
+        self.global_editor.set_icons(force_theme)
 
     # === Create Menu ===
     def create_actions(self):

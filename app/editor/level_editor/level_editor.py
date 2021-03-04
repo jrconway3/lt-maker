@@ -135,9 +135,9 @@ class LevelEditor(QMainWindow):
     def set_icons(self):
         theme = self.settings.get_theme(0)
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
         self.back_to_main_act.setIcon(QIcon(f'{icon_folder}/left_arrow.png'))
         
     def create_toolbar(self, toolbar):

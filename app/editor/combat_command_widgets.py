@@ -22,7 +22,7 @@ class CombatCommand(QWidget):
         self.setLayout(hbox)
 
         icon_label = QLabel()
-        pixmap = QPixmap("icons/command_%s.png" % self._data.tag)
+        pixmap = QPixmap("icons/icons/command_%s.png" % self._data.tag)
         pixmap = pixmap.scaled(32, 32)
         icon_label.setPixmap(pixmap)
         hbox.addWidget(icon_label)
@@ -33,7 +33,7 @@ class CombatCommand(QWidget):
         self.create_editor(hbox)
 
         # x_button = QToolButton(self)
-        # x_button.setIcon(QIcon("icons/x.png"))
+        # x_button.setIcon(QIcon("icons/icons/x.png"))
         # x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
         # x_button.clicked.connect(functools.partial(self.window.remove_command, self._data))
         # hbox.addWidget(x_button, Qt.AlignRight)

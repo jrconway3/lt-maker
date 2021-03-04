@@ -92,12 +92,15 @@ class GlobalEditor(QMainWindow):
         self.modify_level_act = QAction(
             "Edit Level", self, shortcut="E", triggered=self.edit_level)
 
-    def set_icons(self):
-        theme = self.settings.get_theme(0)
-        if theme == 0:
-            icon_folder = 'icons'
+    def set_icons(self, force_theme=None):
+        if force_theme is None:
+            theme = self.settings.get_theme(0)
         else:
-            icon_folder = 'dark_icons'
+            theme = force_theme
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
         self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
         self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))

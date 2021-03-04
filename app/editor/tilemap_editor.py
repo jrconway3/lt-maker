@@ -511,9 +511,9 @@ class MapEditor(QDialog):
     def create_actions(self):
         theme = self.settings.get_theme()
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
 
         paint_group = QActionGroup(self)
         self.brush_action = QAction(QIcon(f"{icon_folder}/brush.png"), "&Brush", self, shortcut="B", triggered=self.set_brush)
@@ -851,9 +851,9 @@ class LayerMenu(QWidget):
     def create_actions(self):
         theme = self.settings.get_theme()
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
 
         self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "New Layer", triggered=self.new)
         self.duplicate_action = QAction(QIcon(f"{icon_folder}/duplicate.png"), "Duplicate Layer", triggered=self.duplicate)
@@ -949,9 +949,9 @@ class TileSetMenu(QWidget):
     def create_actions(self):
         theme = self.settings.get_theme()
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
 
         self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "Load Tileset", triggered=self.new)
         self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Unload Tileset", triggered=self.delete)

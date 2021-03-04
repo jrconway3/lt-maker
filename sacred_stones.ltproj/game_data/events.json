@@ -6253,6 +6253,30 @@
                 [
                     "Dreams of Home"
                 ]
+            ],
+            [
+                "music",
+                [
+                    "Attack"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "3000"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Armory"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "3000"
+                ]
             ]
         ],
         "only_once": false,
@@ -11894,6 +11918,40 @@
             [
                 "end",
                 []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Death",
+        "trigger": "unit_death",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "music",
+                [
+                    "Attack"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "3000"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Armory"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "3000"
+                ]
             ]
         ],
         "only_once": false,

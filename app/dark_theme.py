@@ -225,9 +225,9 @@ def set(app, theme_idx):
         d.set_app(app)
 
     if theme_idx == 3:
-        app.custom_style_sheet += "QDialog {background-image: url(bg.png)};"
+        app.custom_style_sheet += "QDialog {background-image: url(icons/bg.png)};"
     elif theme_idx == 4:
-        app.custom_style_sheet += "QDialog {background-image: url(bg2.png)};"
+        app.custom_style_sheet += "QDialog {background-image: url(icons/bg2.png)};"
     else:
         app.custom_style_sheet += "QDialog {background-image: none;"
 

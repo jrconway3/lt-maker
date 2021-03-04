@@ -76,9 +76,9 @@ class ComponentProperties(QWidget):
         self.settings = MainSettingsController()
         theme = self.settings.get_theme(0)
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
 
         for component in self.get_components():
             if component.tag not in self.menus:

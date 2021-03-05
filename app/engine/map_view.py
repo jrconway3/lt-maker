@@ -41,8 +41,8 @@ class MapView():
                     surf = unit.sprite.draw_hp(surf)
 
     def draw(self):
-        game.level.tilemap.update()
-        map_image = game.level.tilemap.get_full_image()
+        game.tilemap.update()
+        map_image = game.tilemap.get_full_image()
         surf = engine.copy_surface(map_image)
         surf = surf.convert_alpha()
         surf = game.boundary.draw(surf, (surf.get_width(), surf.get_height()))
@@ -51,6 +51,10 @@ class MapView():
         surf = game.cursor.draw_arrows(surf)
         self.draw_units(surf)
         surf = game.cursor.draw(surf)
+        for weather in game.tilemap.weather:
+            weather.update()
+            pos_x, pos_y = game.camera.get_x() * TILEWIDTH, game.camera.get_y() * TILEHEIGHT
+            weather.draw(surf, pos_x, pos_y)
 
         # Camera Cull
         rect = game.camera.get_x() * TILEWIDTH, game.camera.get_y() * TILEHEIGHT, WINWIDTH, WINHEIGHT

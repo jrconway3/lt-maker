@@ -5,7 +5,8 @@ from app.utilities import utils
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
-from app.engine import banner, static_random, unit_funcs, equations, skill_system, item_system, item_funcs
+from app.engine import banner, static_random, unit_funcs, equations, \
+    skill_system, item_system, item_funcs, particles
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 from app.engine.game_state import game
@@ -1385,6 +1386,35 @@ class HideLayer(Action):
         game.level.tilemap.reset()
         game.board.reset_grid(game.level.tilemap)
         game.boundary.reset()
+
+class AddWeather(Action):
+    def __init__(self, weather_nid):
+        self.weather_nid = weather_nid
+
+    def do(self):
+        new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height)
+        game.tilemap.weather.append(new_ps)
+
+    def reverse(self):
+        if any(ps.nid == self.weather_nid for ps in game.tilemap.weather):
+            bad_weather = [ps for ps in game.tilemap.weather if ps.nid == self.weather_nid]
+            game.tilemap.weather.remove(bad_weather[0])
+
+class RemoveWeather(Action):
+    def __init__(self, weather_nid):
+        self.weather_nid = weather_nid
+        self.did_remove = False
+
+    def do(self):
+        if any(ps.nid == self.weather_nid for ps in game.tilemap.weather):
+            bad_weather = [ps for ps in game.tilemap.weather if ps.nid == self.weather_nid]
+            game.tilemap.weather.remove(bad_weather[0])
+            self.did_remove = True
+
+    def reverse(self):
+        if self.did_remove:
+            new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height)
+            game.tilemap.weather.append(new_ps)
 
 class OnlyOnceEvent(Action):
     def __init__(self, event_nid):

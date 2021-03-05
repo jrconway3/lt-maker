@@ -3,7 +3,7 @@ from app.utilities.data import Data, Prefab
 
 from app.resources.resources import RESOURCES
 
-from app.engine import engine, image_mods
+from app.engine import engine, image_mods, particles
 
 class LayerObject():
     transition_speed = 333
@@ -111,6 +111,8 @@ class TileMapObject(Prefab):
             layer.visible = False
         self.layers.get('base').visible = True
 
+        self.weather = []
+
         return self
 
     def check_bounds(self, pos):
@@ -153,6 +155,7 @@ class TileMapObject(Prefab):
         s_dict = {}
         s_dict['nid'] = self.nid
         s_dict['layers'] = [layer.save() for layer in self.layers]
+        s_dict['weather'] = [weather.save() for weather in self.weather]
         return s_dict
 
     @classmethod
@@ -160,6 +163,8 @@ class TileMapObject(Prefab):
         prefab = RESOURCES.tilemaps.get(s_dict['nid'])
         self = cls.from_prefab(prefab)
         self.restore_layers(s_dict['layers'])
+        weather = s_dict.get('weather', [])
+        self.weather = [particles.create_system(nid, self.width, self.height) for nid in weather]
         return self
 
     def restore_layers(self, layer_list):

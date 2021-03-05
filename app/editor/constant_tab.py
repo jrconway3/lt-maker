@@ -1,8 +1,9 @@
 import math
+from functools import partial
 
 from PyQt5.QtWidgets import QGridLayout, QLineEdit, QSpinBox, QHBoxLayout, \
     QVBoxLayout, QGroupBox, QTreeView, QWidget, QDoubleSpinBox, QLabel, QSizePolicy, \
-    QSplitter, QFrame
+    QSplitter, QFrame, QPushButton
 from PyQt5.QtCore import Qt, QAbstractItemModel
 
 from app.utilities.data import Data
@@ -12,6 +13,7 @@ from app.extensions.custom_gui import PropertyBox, ComboBox
 
 from app.editor.base_database_gui import DatabaseTab
 from app.editor.data_editor import SingleDatabaseEditor
+from app.editor.sound_editor import sound_tab
 from app.extensions.checkable_list_dialog import ComponentModel
 from app.extensions.frame_layout import FrameLayout
 
@@ -382,6 +384,9 @@ class ConstantDatabase(DatabaseTab):
         misc_constants = ('game_nid', 'title', 'num_save_slots')
         misc_section = self.create_section(misc_constants)
         misc_section.setTitle("Miscellaneous Constants")
+        music_constants = ('music_main', 'music_promotion', 'music_class_change')
+        music_section = self.create_section(music_constants)
+        music_section.setTitle("Music Constants")
 
         # exp_section = QGroupBox(self)
         # exp_layout = QVBoxLayout()
@@ -405,10 +410,11 @@ class ConstantDatabase(DatabaseTab):
         heal_widget = MiscExperienceWidget(self._data, self)
         heal_section.addWidget(heal_widget)
 
-        self.layout.addWidget(battle_section, 0, 0)
+        self.layout.addWidget(battle_section, 0, 0, 2, 1)
         self.layout.addWidget(misc_section, 0, 1)
-        self.layout.addWidget(exp_section, 1, 0, 1, 2)
-        self.layout.addWidget(heal_section, 2, 0, 1, 2)
+        self.layout.addWidget(music_section, 1, 1)
+        self.layout.addWidget(exp_section, 2, 0, 1, 2)
+        self.layout.addWidget(heal_section, 3, 0, 1, 2)
         # self.layout.addWidget(bool_section, 0, 2, 3, 1)
 
         self.splitter = QSplitter(self)
@@ -441,6 +447,14 @@ class ConstantDatabase(DatabaseTab):
                 box = PropertyBox(constant.name, QLineEdit, self)
                 box.edit.setText(constant.value)
                 box.edit.textChanged.connect(constant.set_value)
+            elif constant.attr == 'music':
+                box = PropertyBox(constant.name, QLineEdit, self)
+                box.edit.setReadOnly(True)
+                box.add_button(QPushButton('...'))
+                box.button.setMaximumWidth(40)
+                if constant.value:
+                    box.edit.setText(constant.value)
+                box.button.clicked.connect(partial(self.access_music_resources, constant, box))
             else: # Choice tuple
                 box = PropertyBox(constant.name, ComboBox, self)
                 box.edit.addItems(constant.attr)
@@ -457,6 +471,13 @@ class ConstantDatabase(DatabaseTab):
                 self.bool_model.setData(index, Qt.Unchecked, Qt.CheckStateRole)
             else:
                 self.bool_model.setData(index, Qt.Checked, Qt.CheckStateRole)
+
+    def access_music_resources(self, constant, box):
+        res, ok = sound_tab.get_music()
+        if ok and res:
+            nid = res[0].nid
+            constant.set_value(nid)
+            box.edit.setText(nid)
 
 # Testing
 # Run "python -m app.editor.constant_tab" from main directory

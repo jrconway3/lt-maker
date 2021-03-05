@@ -6255,27 +6255,9 @@
                 ]
             ],
             [
-                "music",
+                "add_weather",
                 [
-                    "Attack"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "3000"
-                ]
-            ],
-            [
-                "music",
-                [
-                    "Armory"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "3000"
+                    "rain"
                 ]
             ]
         ],

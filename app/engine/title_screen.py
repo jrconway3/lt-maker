@@ -1,6 +1,6 @@
 import sys, os
 
-from app.constants import WINWIDTH, WINHEIGHT
+from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
@@ -8,7 +8,7 @@ from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
-from app.engine import engine, save, image_mods, banner, menus
+from app.engine import engine, save, image_mods, banner, menus, particles
 from app.engine import config as cf
 from app import autoupdate
 from app.engine.fluid_scroll import FluidScroll
@@ -28,11 +28,21 @@ class TitleStartState(State):
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
+        
+        self.particles = None
+        if DB.constants.value('title_particles'):
+            bounds = (-WINHEIGHT, WINWIDTH, WINHEIGHT, WINHEIGHT + 16)
+            self.particles = particles.ParticleSystem('title', particles.Smoke, .075, bounds, (TILEX, TILEY))
+            self.particles.prefill()
+        game.memory['title_particles'] = self.particles
         game.memory['transition_speed'] = 0.5
 
         # Wait until saving thread has finished
         if save.SAVE_THREAD:
             save.SAVE_THREAD.join()
+
+        if DB.constants.value('music_main'):
+            SOUNDTHREAD.fade_in(DB.constants.value('music_main'), fade_in=50)
         
         game.state.refresh()
         game.state.change('transition_in')
@@ -40,12 +50,16 @@ class TitleStartState(State):
 
     def take_input(self, event):
         if event:
+            SOUNDTHREAD.play_sfx('Start')
             game.memory['next_state'] = 'title_main'
             game.state.change('transition_to')
 
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        if self.particles:
+            self.particles.update()
+            self.particles.draw(surf)
         if self.logo:
             engine.blit_center(surf, self.logo)
         return surf
@@ -71,6 +85,7 @@ class TitleMainState(State):
             options.append('Update')
 
         self.bg = game.memory['title_bg']
+        self.particles = game.memory['title_particles']
 
         self.state = 'transition_in'
         self.position_x = -WINWIDTH//2
@@ -92,15 +107,19 @@ class TitleMainState(State):
         if self.state == 'normal':
             self.menu.handle_mouse()
             if event == 'DOWN':
+                SOUNDTHREAD.play_sfx('Select 6')
                 self.menu.move_down()
             elif event == 'UP':
+                SOUNDTHREAD.play_sfx('Select 6')
                 self.menu.move_up()
 
             elif event == 'BACK':
+                SOUNDTHREAD.play_sfx('Select 4')
                 game.memory['next_state'] = 'title_start'
                 game.state.change('transition_to')
 
             elif event == 'SELECT':
+                SOUNDTHREAD.play_sfx('Select 1')
                 self.selection = self.menu.get_current()
                 if self.selection == 'Continue':
                     self.state = 'wait'
@@ -166,6 +185,9 @@ class TitleMainState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        if self.particles:
+            self.particles.update()
+            self.particles.draw(surf)
         if self.menu:
             self.menu.draw(surf, center=(self.position_x, WINHEIGHT//2), show_cursor=(self.state == 'normal'))
 
@@ -187,6 +209,7 @@ class TitleLoadState(State):
         self.position_x = int(WINWIDTH * 1.5)
 
         self.bg = game.memory['title_bg']
+        self.particles = game.memory['title_particles']
 
         save.check_save_slots()
         self.save_slots = save.SAVE_SLOTS
@@ -202,17 +225,21 @@ class TitleLoadState(State):
 
         self.menu.handle_mouse()
         if event == 'DOWN':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
         elif event == 'UP':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
         elif event == 'SELECT':
             selection = self.menu.current_index
             save_slot = self.save_slots[selection]
             if save_slot.kind:
+                SOUNDTHREAD.play_sfx('Save')
                 logger.info("Loading save of kind %s...", save_slot.kind)
                 game.state.clear()
                 game.state.process_temp_state()
@@ -228,8 +255,7 @@ class TitleLoadState(State):
                 game.state.process_temp_state()
                 save.remove_suspend()
             else:
-                # TODO Error sound
-                pass
+                SOUNDTHREAD.play_sfx('Error')
 
     def update(self):
         if self.menu:
@@ -252,6 +278,9 @@ class TitleLoadState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        if self.particles:
+            self.particles.update()
+            self.particles.draw(surf)
         if self.menu:
             self.menu.draw(surf, center=(self.position_x, WINHEIGHT//2))
         return surf
@@ -266,17 +295,21 @@ class TitleRestartState(TitleLoadState):
 
         self.menu.handle_mouse()
         if event == 'DOWN':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
         elif event == 'UP':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
         elif event == 'SELECT':
             selection = self.menu.current_index
             save_slot = save.RESTART_SLOTS[selection]
             if save_slot.kind:
+                SOUNDTHREAD.play_sfx('Save')
                 logger.info("Loading game...")
                 game.build_new()
                 save.load_game(game, save_slot)
@@ -289,8 +322,7 @@ class TitleRestartState(TitleLoadState):
                 game.state.process_temp_state()
                 save.remove_suspend()
             else:
-                # TODO Error sound
-                pass
+                SOUNDTHREAD.play_sfx('Error')
 
 def build_new_game(slot):
     game.build_new()
@@ -315,21 +347,26 @@ class TitleNewState(TitleLoadState):
 
         self.menu.handle_mouse()
         if event == 'DOWN':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
         elif event == 'UP':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
         elif event == 'SELECT':
             selection = self.menu.current_index
             save_slot = self.save_slots[selection]
             if save_slot.kind:
+                SOUNDTHREAD.play_sfx('Select 1')
                 game.memory['option_owner'] = selection
                 game.memory['option_menu'] = self.menu
                 game.state.change('title_new_child')
             else:
+                SOUNDTHREAD.play_sfx('Save')
                 # TODO Save Sound
                 build_new_game(selection)
                 options, color = save.get_save_title(self.save_slots)
@@ -352,18 +389,23 @@ class TitleNewChildState(State):
     def take_input(self, event):
         self.menu.handle_mouse()
         if event == 'RIGHT':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
         elif event == 'LEFT':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
             selection = self.menu.get_current()
             if selection == 'Overwrite':
+                SOUNDTHREAD.play_sfx('Save')
                 build_new_game(self.menu.owner)  # game.memory['option_owner']
             elif selection == 'Back':
+                SOUNDTHREAD.play_sfx('Select 4')
                 game.state.back()
 
     def update(self):
@@ -383,6 +425,7 @@ class TitleExtrasState(TitleLoadState):
         self.state = 'transition_in'
 
         self.bg = game.memory['title_bg']
+        self.particles = game.memory['title_particles']
 
         # options = ['Options', 'Credits']
         options = ['Options']  # TODO Credits not implemented yet
@@ -397,14 +440,18 @@ class TitleExtrasState(TitleLoadState):
 
         self.menu.handle_mouse()
         if event == 'DOWN':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
         elif event == 'UP':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
 
         elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'Credits':
                 game.memory['next_state'] = 'credits'
@@ -427,9 +474,9 @@ class TitleAllSavesState(TitleLoadState):
         self.position_x = int(WINWIDTH * 1.5)
 
         self.bg = game.memory['title_bg']
+        self.particles = game.memory['title_particles']
     
         self.save_slots = save.get_all_saves()
-        print(self.save_slots)
         options, colors = save.get_save_title(self.save_slots)
         self.menu = menus.ChapterSelect(options, colors)
 
@@ -468,6 +515,14 @@ class TitleSaveState(State):
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
+
+        self.particles = None
+        if DB.constants.value('title_particles'):
+            bounds = (-WINHEIGHT, WINWIDTH, WINHEIGHT, WINHEIGHT + 16)
+            self.particles = particles.ParticleSystem('title', particles.Smoke, .075, bounds, (TILEX, TILEY))
+            self.particles.prefill()
+        game.memory['title_particles'] = self.particles
+
         game.memory['transition_speed'] = 0.5
 
         self.leave_flag = False
@@ -488,15 +543,19 @@ class TitleSaveState(State):
 
         self.menu.handle_mouse()
         if event == 'DOWN':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
         elif event == 'UP':
+            SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
 
         elif event == 'BACK':
             # Proceed to next level anyway
+            SOUNDTHREAD.play_sfx('Select 4')
             game.state.change('transition_pop')
 
         elif event == 'SELECT':
+            SOUNDTHREAD.play_sfx('Save')
             # Rename selection
             self.wait_time = engine.get_time()
             if self.name == 'in_chapter_save':
@@ -527,22 +586,22 @@ class TitleSaveState(State):
                 game.state.change('transition_pop')
             else:
                 current_state = game.state.state[-1]
-                print(game.state.state, flush=True)
                 next_level_nid = game.game_vars['_next_level_nid']
 
                 game.load_states(['turn_change'])
                 save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
 
                 game.start_level(next_level_nid)
-                print(game.state.state, flush=True)
 
                 game.state.state.append(current_state)
                 game.state.change('transition_pop')
-                print(game.state.state, flush=True)
 
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        if self.particles:
+            self.particles.update()
+            self.particles.draw(surf)
         if self.menu:
             if 100 < engine.get_time() - self.wait_time < 200:
                 self.menu.draw(surf, flicker=True)

@@ -201,7 +201,9 @@ class PromotionState(State):
         else:
             self.bg = background.create_background('default_background')
 
-        self.promotion_music = SOUNDTHREAD.fade_in('Promotion')
+        music = 'music_%s' % self.name 
+        if DB.constants.value(music):
+            SOUNDTHREAD.fade_in(DB.constants.value(music), fade_in=50)
 
         self.unit = game.memory['current_unit']
         color = utils.get_team_color(self.unit.team)

@@ -744,6 +744,16 @@ class Event():
 
             action.do(action.HideLayer(nid, transition))
 
+        elif command.nid == 'add_weather':
+            values, flags = event_commands.parse(command)
+            nid = values[0].lower()
+            action.do(action.AddWeather(nid))
+
+        elif command.nid == 'remove_weather':
+            values, flags = event_commands.parse(command)
+            nid = values[0].lower()
+            action.do(action.RemoveWeather(nid))
+
         elif command.nid == 'map_anim':
             values, flags = event_commands.parse(command)
             nid = values[0]

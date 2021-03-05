@@ -508,6 +508,18 @@ class HideLayer(EventCommand):
     keywords = ["Layer"]
     optional_keywords = ["LayerTransition"]
 
+class AddWeather(EventCommand):
+    nid = 'add_weather'
+    tag = 'map'
+
+    keywords = ["Weather"]
+
+class RemoveWeather(EventCommand):
+    nid = 'remove_weather'
+    tag = 'map'
+
+    keywords = ["Weather"]
+
 class MapAnim(EventCommand):
     nid = 'map_anim'
     tag = 'map'

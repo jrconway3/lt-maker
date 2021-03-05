@@ -28,6 +28,8 @@ class GameState():
         self.cursor = None
         self.camera = None
 
+        self.current_level = None
+
     def load_states(self, starting_states):
         self.state.load_states(starting_states)
 
@@ -266,7 +268,7 @@ class GameState():
         if s_dict['level']:
             logger.info("Loading Level...")
             self.current_level = LevelObject.restore(s_dict['level'], self)
-            self.set_up_game_board(self.current_level.tilemap)            
+            self.set_up_game_board(self.current_level.tilemap)           
 
             self.generic()
 
@@ -353,7 +355,8 @@ class GameState():
 
     @property
     def tilemap(self):
-        return self.current_level.tilemap
+        if self.current_level:
+            return self.current_level.tilemap
 
     @property
     def party(self):

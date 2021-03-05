@@ -1,24 +1,24 @@
 GBA Accuracy Notes:
 (***NOTE: "Accurate" does not necessarily indicate "better")
 
-* Movement-Arrows are drawn behind other Units instead of in front.
-* Moving Units are drawn behind other Units instead of in front.
+X Movement-Arrows are drawn behind other Units instead of in front.
+X Moving Units are drawn behind other Units instead of in front.
 * Player Phase music continues from where it was last playing on new Player-Phase rather than restarting.
 * Phase Music should fade out before Turn-Switch animation / sound effect plays.  Currently each Phase's music will continue playing slightly into the next Phase.
-* Tile-Contextual Commands (Visit, Armory, Shop, etc.) should not appear above the 'Attack' or 'Talk' actions. 
-* "Got Item" pop-up should auto-disappear after about 2 seconds.
+X Tile-Contextual Commands (Visit, Armory, Shop, etc.) should not appear above the 'Attack' or 'Talk' actions. 
+X "Got Item" pop-up should auto-disappear after about 2 seconds.
 * The Cursor pans the camera on GBA when the cursor is at an offset of 2 tiles from the edge of the camera's viewport.  Lex Talionis does this at 4 tiles. This would probably be well-suited as an option.
 * Slight issue with footstep sounds: (*this may be covered under the "Better method for frame speed for Map Animations" note on the todo list)
     * For Player-Controlled Units, movement sounds correctly play shorter or longer based on the Unit Speed setting, but if the Unit Speed is set very high, no footstep sound is played at all if the Unit moves leses than 4 spaces.  Some logic should be put in place to at least play the "half sound" for any amount of movement even if it doesn't reach the threshold to play or loop the "full" footstep sound.
     * For AI-Controlled Units, the movement sounds play for too long / loop too many times relative to the unit speed.  E.g., it will play three footstep sounds for an enemy unit moving just 3 or 4 spaces, while a Player-Controlled Unit sound plays correctly.
 
-* The red Cursor displayed for combat animated on the map should only be displayed on the initial targeting.  It currently displays each time a unit attacks.
+? The red Cursor displayed for combat animated on the map should only be displayed on the initial targeting.  It currently displays each time a unit attacks.
 
 _____________
 Nice to Haves:
 
-* Option to display numeric weapon level
-* Set "show enemy ranges" command to its own key so it can be done while the cursor is hovering over a unit.
+X Option to display numeric weapon level
+X Set "show enemy ranges" command to its own key so it can be done while the cursor is hovering over a unit.
 * Movement keys are restricted. Trying to set the movement keys to something else gave me an in-game error.
 * Hitting "Cancel" key could reset currently-shown Enemy ranges.
 

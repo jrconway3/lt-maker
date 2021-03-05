@@ -26,9 +26,10 @@ class MapView():
         self.x2_counter.update(current_time)
 
     def draw_units(self, surf):
-        culled_units = [unit for unit in game.units if unit.position or unit.sprite.fake_position]
+        # Draw all units except the cur unit
+        culled_units = [unit for unit in game.units if unit is not game.cursor.cur_unit and (unit.position or unit.sprite.fake_position)]
         if game.level_vars.get('_fog_of_war'):
-            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position) or unit is game.cursor.cur_unit]
+            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
         for unit in draw_units:
             unit.sprite.update()
@@ -39,6 +40,17 @@ class MapView():
             for unit in draw_units:
                 if unit.position or unit.sprite.fake_position:
                     surf = unit.sprite.draw_hp(surf)
+        # Draw the movement arrows
+        surf = game.cursor.draw_arrows(surf)
+        # Draw the main unit
+        cur_unit = game.cursor.cur_unit
+        if cur_unit:
+            cur_unit.sprite.update()
+            cur_unit.sound.update()
+            if cur_unit.position or cur_unit.sprite.fake_position:
+                surf = cur_unit.sprite.draw(surf)
+                if 'event' not in game.state.state_names():
+                    surf = cur_unit.sprite.draw_hp(surf)
 
     def draw(self):
         game.tilemap.update()
@@ -48,7 +60,6 @@ class MapView():
         surf = game.boundary.draw(surf, (surf.get_width(), surf.get_height()))
         surf = game.boundary.draw_fog_of_war(surf, (surf.get_width(), surf.get_height()))
         surf = game.highlight.draw(surf)
-        surf = game.cursor.draw_arrows(surf)
         self.draw_units(surf)
         surf = game.cursor.draw(surf)
         for weather in game.tilemap.weather:

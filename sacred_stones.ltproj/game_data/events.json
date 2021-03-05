@@ -6259,6 +6259,13 @@
                 [
                     "rain"
                 ]
+            ],
+            [
+                "give_item",
+                [
+                    "Eirika",
+                    "Vulnerary"
+                ]
             ]
         ],
         "only_once": false,

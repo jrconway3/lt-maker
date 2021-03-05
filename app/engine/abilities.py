@@ -155,6 +155,19 @@ class ItemAbility(Ability):
             return {unit.position}
         return set()
 
+class SupplyAbility(Ability):
+    name = 'Supply'
+
+    @staticmethod
+    def targets(unit) -> set:
+        if game.game_vars.get('_convoy'):
+            adj_allies = target_system.get_adj_allies(unit)
+            if 'Convoy' in unit.tags:
+                return {unit.position}
+            elif any(['AdjConvoy' in ally.tags and ally.team == unit.team for ally in adj_allies]):
+                return {unit.position}
+        return set()
+
 class TradeAbility(Ability):
     name = 'Trade'
 
@@ -168,3 +181,5 @@ class TradeAbility(Ability):
         game.state.change('trade')
 
 ABILITIES = Ability.__subclasses__()
+PRIMARY_ABILITIES = ABILITIES[:3]
+OTHER_ABILITIES = ABILITIES[3:]

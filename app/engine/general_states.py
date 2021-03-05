@@ -14,7 +14,7 @@ from app.engine import engine, action, menus, interaction, image_mods, \
     item_funcs, ui_view, info_menu, base_surf, gui, background, dialog, \
     text_funcs, equations, evaluate
 from app.engine.selection_helper import SelectionHelper
-from app.engine.abilities import ABILITIES
+from app.engine.abilities import ABILITIES, PRIMARY_ABILITIES, OTHER_ABILITIES
 from app.engine.input_manager import INPUT
 from app.engine.fluid_scroll import FluidScroll
 
@@ -517,6 +517,14 @@ class MenuState(MapState):
 
         options = []
 
+        # Handle primary ability options (attack, spell, talk)
+        self.target_dict = OrderedDict()
+        for ability in PRIMARY_ABILITIES:
+            t = ability.targets(self.cur_unit)
+            self.target_dict[ability.name] = ability
+            if t:
+                options.append(ability.name)
+
         # Handle region event options
         self.valid_regions = []
         for region in game.level.regions:
@@ -531,19 +539,12 @@ class MenuState(MapState):
                 except:
                     logger.error("Region condition {%s} could not be evaluated" % region.condition)
 
-        # Handle regular ability options
-        self.target_dict = OrderedDict()
-        for ability in ABILITIES:
+        # Handle regular ability options (give, drop, rescue, take, item, supply, trade, etc...)
+        for ability in OTHER_ABILITIES:
             t = ability.targets(self.cur_unit)
             self.target_dict[ability.name] = ability
             if t:
                 options.append(ability.name)
-        if game.game_vars.get('_convoy'):
-            adj_allies = target_system.get_adj_allies(self.cur_unit)
-            if 'Convoy' in self.cur_unit.tags:
-                options.append('Supply')
-            elif any(['AdjConvoy' in unit.tags and unit.team == self.cur_unit.team for unit in adj_allies]):
-                options.append('Supply')
 
         options.append("Wait")
 
@@ -1438,20 +1439,25 @@ class AlertState(State):
         if game.cursor:
             game.cursor.hide()
 
+    def back(self):
+        game.alerts.pop()
+        game.state.back()
+        return 'repeat'
+
     def take_input(self, event):
         if game.alerts:
             alert = game.alerts[-1]
 
         if event and alert and alert.time_to_start and \
-                engine.get_time() - alert.time_to_start > alert.time_to_wait:
-            alert = game.alerts.pop()
-            game.state.back()
-            return 'repeat'
+                engine.get_time() - alert.time_to_start > alert.time_to_pause:
+            self.back()
 
     def update(self):
         if game.alerts:
             alert = game.alerts[-1]
             alert.update()
+            if alert.remove_flag:
+                self.back()
 
     def draw(self, surf):
         if game.alerts:

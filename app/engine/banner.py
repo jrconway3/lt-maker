@@ -5,8 +5,10 @@ from app.engine import engine, base_surf, image_mods, icons, text_funcs
 
 class Banner():
     update_flag = False
-    time_to_wait = 300
+    time_to_pause = 300
+    time_to_wait = 2500
     time_to_start = None
+    remove_flag = False
     surf = None
 
     def __init__(self):
@@ -31,6 +33,8 @@ class Banner():
             if self.sound:
                 from app.engine.sound import SOUNDTHREAD
                 SOUNDTHREAD.play_sfx(self.sound)
+        if engine.get_time() - self.time_to_start > self.time_to_wait:
+            self.remove_flag = True
 
     def draw_icon(self, surf):
         if self.item:

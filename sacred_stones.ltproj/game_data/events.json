@@ -6261,10 +6261,63 @@
                 ]
             ],
             [
-                "give_item",
+                "comment",
                 [
-                    "Eirika",
-                    "Vulnerary"
+                    "#music;Attack;2000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#wait;5000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#music;Armory;2000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#wait;5000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#music;Attack;2000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#wait;5000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#music;None;2000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#wait;5000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#music;Attack;2000"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#wait;5000"
                 ]
             ]
         ],

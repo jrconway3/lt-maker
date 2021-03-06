@@ -61,13 +61,18 @@ class Channel():
         self.state = "stopped"  # stopped, paused, fade_out, fade_in, playing
         self.last_update = 0
 
+        self.last_play = 0  # Keeps track of whether we've already called _play recently
+        # Because if we don't, we'll keep thinking play means we've changed songs and keep doing it
+        # again and again
+
     def update(self, event_list, current_time):
         if self.state == "stopped":
             pass
         if self.state in self.playing_states:
             for event in event_list:
                 if event.type == self._channel.get_endevent():
-                    self._play()
+                    if current_time - self.last_play > 32:
+                        self._play()
         if self.state == "paused":
             pass
         if self.state in ("fade_out", "crossfade_out"):
@@ -95,6 +100,8 @@ class Channel():
         return False
 
     def _play(self):
+        logging.debug('%s _Play: %s %s', self.nid, self.last_state, self.num_plays)
+        self.last_play = engine.get_time()
         if self.num_plays == 0:
             self.last_state = "stopped"
             self.state = "stopped"
@@ -107,9 +114,11 @@ class Channel():
                 self._channel.play(self.current_song.battle, 0)
         else:
             if self.current_song.intro and not self.played_intro:
+                logging.debug("Playing Intro %s", self.current_song.intro)
                 self._channel.play(self.current_song.intro, 0)
                 self.played_intro = True
             else:
+                logging.debug("Playing %s", self.current_song.song)
                 self._channel.play(self.current_song.song, 0)
 
     def set_current_song(self, song, num_plays=-1):
@@ -124,6 +133,8 @@ class Channel():
         self.fade_out_time = max(fade_out, 1)
 
     def clear(self):
+        logging.debug("%s Clear", self.nid)
+        self._channel.stop()
         self.current_song = None
         self.num_plays = 0
         self.played_intro = False
@@ -142,7 +153,7 @@ class Channel():
         self.last_update = engine.get_time()
 
     def fade_out(self):
-        logging.debug("%s Fade Out", self.nid)
+        logging.debug("%s Fade Out: %s", self.nid, self.last_state)
         self.state = "fade_out"
         self.last_update = engine.get_time()
 
@@ -157,17 +168,21 @@ class Channel():
         self.last_update = engine.get_time()
 
     def pause(self):
+        logging.debug("%s Pause: %s", self.nid, self.last_state)
         self._channel.pause()
         self.last_state = "paused"
         self.state = "paused"
 
     def resume(self):
+        logging.debug("%s Resume: %s", self.nid, self.last_state)
         self._channel.unpause()
         self.last_state = "playing"
         self.state = "playing"
 
     def stop(self):
+        logging.debug("%s Stop: %s", self.nid, self.last_state)
         self._channel.stop()
+        self.played_intro = False
         self.last_state = "stopped"
         self.state = "stopped"
 
@@ -338,7 +353,7 @@ class SoundController():
         self.current_channel.set_fade_out_time(fade)
         self.current_channel.crossfade()
 
-    def fade_in(self, next_song, num_plays=-1, fade_in=400):
+    def fade_in(self, next_song, num_plays=-1, fade_in=400, from_start=False):
         logging.info("Fade in %s" % next_song)
         next_song = MUSIC.get(next_song)
         if not next_song:
@@ -356,7 +371,10 @@ class SoundController():
             logging.info("Song already present")
             return None
 
-        # Fade out the current channel
+        # Fade out the current channel -- even if nothing is playing
+        # Just so that the engine will recognize that something changed
+        # So it will no to fade in afterwards
+        self.current_channel.set_fade_out_time(fade_in)
         self.current_channel.fade_out()
         self.fade_out_start = engine.get_time()
 
@@ -371,11 +389,14 @@ class SoundController():
                 if song.channel and song.channel.current_song == song:
                     # Move to top
                     logging.info("Using original channel")
+                    if from_start:
+                        song.channel.stop()  # Stop it now, so when it fades in, it will start from beginning
                     self.channel_stack.remove(song.channel)
                     self.channel_stack.append(song.channel)
                     song.channel.num_plays = num_plays
                     song.channel.set_fade_in_time(fade_in)
                     logging.debug("Is Playing? %s", is_playing)
+                    # is_playing = True
                     if is_playing:
                         pass
                     else:

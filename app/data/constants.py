@@ -67,6 +67,7 @@ constants = ConstantCatalog([
     Constant('music_main', "Music to play on title screen", 'music', None, 'music'),
     Constant('music_promotion', "Music to play on promotion", 'music', None, 'music'),
     Constant('music_class_change', "Music to play on class change", 'music', None, 'music'),
+    Constant('restart_phase_music', "Restart phase music at beginning of new phase", bool, True, 'music'),
     Constant('kill_wexp', "Kills give double weapon exp", bool, True, 'wexp'),
     Constant('double_wexp', "Each hit when doubling grants weapon exp", bool, True, 'wexp'),
     Constant('miss_wexp', "Gain weapon exp even on miss", bool, True, 'wexp'),

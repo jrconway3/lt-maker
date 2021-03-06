@@ -132,6 +132,10 @@
         null
     ],
     [
+        "restart_phase_music",
+        false
+    ],
+    [
         "kill_wexp",
         true
     ],

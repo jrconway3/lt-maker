@@ -73,6 +73,7 @@ class PhaseChangeState(MapState):
         # in between this and turn change
         # And they technically happen before I want the player to have the turnwheel locked
         # units reset, etc.
+        phase.fade_out_phase_music()
         action.do(action.LockTurnwheel(game.phase.get_current() != 'player'))
         action.do(action.ResetAll([unit for unit in game.units if not unit.dead]))
         game.cursor.hide()
@@ -1499,6 +1500,7 @@ class AIState(MapState):
         logger.info("Current AI: %s", self.cur_unit.nid if self.cur_unit else None)
         
         if self.cur_unit:
+            has_already_moved = game.ai.move_ai_complete
             did_something = game.ai.act()
             # Center camera on current unit
             if did_something and self.cur_unit.position:
@@ -1509,7 +1511,9 @@ class AIState(MapState):
                     game.camera.set_center2(self.cur_unit.position, game.ai.goal_position)
                 else:
                     game.camera.set_center(*self.cur_unit.position)  # Actually center the camera
-                game.state.change('move_camera')
+                if has_already_moved:
+                    # Only do this for non-move actions
+                    game.state.change('move_camera')
 
             if game.ai.is_done():
                 logger.info("Current AI %s is done with turn.", self.cur_unit.nid)

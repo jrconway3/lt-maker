@@ -18,9 +18,15 @@ def fade_in_phase_music():
     team = game.phase.get_current()
     music = game.level.music.get(team + '_phase')
     if music:
-        SOUNDTHREAD.fade_in(music)
+        if DB.constants.value('restart_phase_music'):
+            SOUNDTHREAD.fade_in(music, from_start=True)
+        else:
+            SOUNDTHREAD.fade_in(music)
     else:
-        SOUNDTHREAD.fade_to_stop()
+        SOUNDTHREAD.fade_to_pause()
+
+def fade_out_phase_music():
+    SOUNDTHREAD.fade_to_pause()
 
 class PhaseController():
     def __init__(self):

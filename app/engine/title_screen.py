@@ -84,6 +84,7 @@ class TitleMainState(State):
         if hasattr(sys, 'frozen') and autoupdate.check_for_update():
             options.append('Update')
 
+        self.fluid = FluidScroll(128)
         self.bg = game.memory['title_bg']
         self.particles = game.memory['title_particles']
 
@@ -102,18 +103,21 @@ class TitleMainState(State):
         return 'repeat'
 
     def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
         if self.state == 'alert':
             self.state = 'transition_out'
         if self.state == 'normal':
             self.menu.handle_mouse()
-            if event == 'DOWN':
+            if 'DOWN' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
-                self.menu.move_down()
-            elif event == 'UP':
+                self.menu.move_down(first_push)
+            elif 'UP' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
-                self.menu.move_up()
+                self.menu.move_up(first_push)
 
-            elif event == 'BACK':
+            if event == 'BACK':
                 SOUNDTHREAD.play_sfx('Select 4')
                 game.memory['next_state'] = 'title_start'
                 game.state.change('transition_to')
@@ -205,6 +209,7 @@ class TitleLoadState(State):
     bg = None
 
     def start(self):
+        self.fluid = FluidScroll(128)
         self.state = 'transition_in'
         self.position_x = int(WINWIDTH * 1.5)
 
@@ -223,15 +228,18 @@ class TitleLoadState(State):
         if self.state != 'normal':
             return
 
-        self.menu.handle_mouse()
-        if event == 'DOWN':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
 
-        elif event == 'BACK':
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
@@ -293,15 +301,18 @@ class TitleRestartState(TitleLoadState):
         if self.state != 'normal':
             return
 
-        self.menu.handle_mouse()
-        if event == 'DOWN':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
 
-        elif event == 'BACK':
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
@@ -345,15 +356,18 @@ class TitleNewState(TitleLoadState):
         if self.state != 'normal':
             return
 
-        self.menu.handle_mouse()
-        if event == 'DOWN':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
 
-        elif event == 'BACK':
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
@@ -421,6 +435,7 @@ class TitleExtrasState(TitleLoadState):
     show_map = False
 
     def start(self):
+        self.fluid = FluidScroll(128)
         self.position_x = int(WINWIDTH * 1.5)
         self.state = 'transition_in'
 
@@ -438,15 +453,18 @@ class TitleExtrasState(TitleLoadState):
         if self.state != 'normal':
             return
 
-        self.menu.handle_mouse()
-        if event == 'DOWN':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
 
-        elif event == 'BACK':
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             self.state = 'transition_out'
 
@@ -512,6 +530,7 @@ class TitleSaveState(State):
     show_map = False
 
     def start(self):
+        self.fluid = FluidScroll(128)
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
@@ -541,15 +560,18 @@ class TitleSaveState(State):
         if self.wait_time > 0:
             return
 
-        self.menu.handle_mouse()
-        if event == 'DOWN':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
 
-        elif event == 'BACK':
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
             # Proceed to next level anyway
             SOUNDTHREAD.play_sfx('Select 4')
             game.state.change('transition_pop')

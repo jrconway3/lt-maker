@@ -167,6 +167,7 @@ class BaseConvosChildState(State):
     transparent = True
 
     def start(self):
+        self.fluid = FluidScroll()
         self.options = [event_nid for event_nid in game.base_convos.keys()]
         ignore = [game.base_convos[event_nid] for event_nid in self.options]
 
@@ -186,13 +187,16 @@ class BaseConvosChildState(State):
         SOUNDTHREAD.fade_in(game.level.music['base'])
 
     def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
         self.menu.handle_mouse()
-        if event == 'DOWN':
+        if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+            self.menu.move_up(first_push)
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
@@ -220,6 +224,8 @@ class BaseCodexChildState(State):
     transparent = True
     
     def start(self):
+        self.fluid = FluidScroll()
+
         options = []
         unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore]
         if unlocked_lore:
@@ -237,13 +243,16 @@ class BaseCodexChildState(State):
         self.menu = menus.Choice(selection, options, topleft)
 
     def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
         self.menu.handle_mouse()
-        if event == 'DOWN':
+        if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
+            self.menu.move_down(first_push)
+        elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+            self.menu.move_up(first_push)
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')

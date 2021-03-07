@@ -8,6 +8,7 @@ from app.engine.input_manager import INPUT
 from app.engine.state import State
 from app.engine import engine, background, banner, menus, settings_menu, base_surf, text_funcs
 from app.engine.game_state import game
+from app.engine.fluid_scroll import FluidScroll
 
 controls = {'key_SELECT': engine.subsurface(SPRITES.get('buttons'), (0, 66, 14, 13)),
             'key_BACK': engine.subsurface(SPRITES.get('buttons'), (0, 82, 14, 13)),
@@ -25,6 +26,7 @@ config = [('animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 0),
           ('unit_speed', list(reversed(range(15, 180, 15))), 1),
           ('text_speed', cf.text_speed_options, 2),
           ('cursor_speed', list(reversed(range(32, 160, 16))), 8),
+          ('mouse', bool, 19),
           ('show_terrain', bool, 7),
           ('show_objective', bool, 6),
           ('autocursor', bool, 13),
@@ -44,6 +46,7 @@ class SettingsMenuState(State):
     in_level = False
 
     def start(self):
+        self.fluid = FluidScroll(128)
         self.bg = background.create_background('settings_background')
         # top_menu_left, top_menu_right, config, controls, get_input
         self.state = 'top_menu_left'
@@ -100,6 +103,9 @@ class SettingsMenuState(State):
                     return
 
     def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
         if self.state == 'get_input':
             if event == 'BACK':
                 SOUNDTHREAD.play_sfx('Select 4')
@@ -142,10 +148,10 @@ class SettingsMenuState(State):
 
         else:
             self.handle_mouse()
-            if event == 'DOWN':
+            if 'DOWN' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
-                self.current_menu.move_down()
-            elif event == 'UP':
+                self.current_menu.move_down(first_push)
+            elif 'UP' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
                 if self.current_menu.get_current_index() <= 0:
                     self.current_menu.takes_input = False
@@ -154,13 +160,13 @@ class SettingsMenuState(State):
                     else:
                         self.state = 'top_menu_right'
                 else:
-                    self.current_menu.move_up()
-            elif event == 'LEFT':
+                    self.current_menu.move_up(first_push)
+            elif 'LEFT' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.current_menu.move_left()
                 if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):
                     self.update_sound()
-            elif event == 'RIGHT':
+            elif 'RIGHT' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.current_menu.move_right()
                 if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):

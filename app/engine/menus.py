@@ -205,7 +205,8 @@ class Simple():
                 self.current_index += 1
                 if self.current_index > self.scroll + self.limit - 2:
                     self.scroll += 1
-                self.cursor.y_offset -= 1
+                else:
+                    self.cursor.y_offset -= 1
         if self.hard_limit:
             self.scroll = 0
         elif self.limit < len(self.options):
@@ -226,7 +227,8 @@ class Simple():
                 self.current_index -= 1
                 if self.current_index < self.scroll + 1:
                     self.scroll -= 1
-                self.cursor.y_offset += 1
+                else:
+                    self.cursor.y_offset += 1
         if self.hard_limit:
             self.scroll = 0
         else:

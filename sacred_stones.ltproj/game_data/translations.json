@@ -128,6 +128,10 @@
         "text": "Change the size of the screen."
     },
     {
+        "nid": "mouse_desc",
+        "text": "Enable mouse controls."
+    },
+    {
         "nid": "talk_boop_desc",
         "text": "Whether text should make a sound."
     },

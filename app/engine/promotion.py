@@ -8,8 +8,9 @@ from app.engine.fonts import FONT
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
-from app.engine.game_state import game
 from app.engine import background, menus, engine, dialog, text_funcs, icons
+from app.engine.game_state import game
+from app.engine.fluid_scroll import FluidScroll
 
 class PromotionChoiceState(State):
     name = 'promotion_choice'
@@ -26,6 +27,8 @@ class PromotionChoiceState(State):
         game.state.change('transition_out')
 
     def start(self):
+        self.fluid = FluidScroll()
+
         self.bg = background.create_background('settings_background')
 
         self.can_go_back = game.memory.get('can_go_back', False)
@@ -67,21 +70,24 @@ class PromotionChoiceState(State):
         return 'repeat'
 
     def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
         self.menu.handle_mouse()
-        if event == 'DOWN':
+        if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             if self.child_menu:
-                self.child_menu.move_down()
+                self.child_menu.move_down(first_push)
             else:
-                self.menu.move_down()
+                self.menu.move_down(first_push)
                 self.target_anim_offset = True
                 self.current_desc = self._get_desc()
-        elif event == 'UP':
+        elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             if self.child_menu:
-                self.menu.move_up()
+                self.menu.move_up(first_push)
             else:
-                self.menu.move_up()
+                self.menu.move_up(first_push)
                 self.target_anim_offset = True
                 self.current_desc = self._get_desc()
 

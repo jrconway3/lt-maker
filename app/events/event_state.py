@@ -20,11 +20,11 @@ class EventState(MapState):
                 game.cursor.hide()
 
     def take_input(self, event):
-        if event == 'START' or event == 'BACK':
+        if event == 'START':
             SOUNDTHREAD.play_sfx('Select 4')
             self.event.skip()
 
-        elif event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
+        elif event == 'SELECT' or event == 'BACK' or event == 'RIGHT' or event == 'DOWN':
             if self.event.state == 'dialog':
                 if not cf.SETTINGS['talk_boop']:
                     SOUNDTHREAD.play_sfx('Select 1')

@@ -63,6 +63,8 @@ class InputManager():
         """
         # Works whether or not mouse has been moved recently
         """
+        if not cf.SETTINGS['mouse']:
+            return None
         mouse_pos = engine.get_mouse_pos()
         mouse_pos = (mouse_pos[0] // int(cf.SETTINGS['screen_size']),
                      mouse_pos[1] // int(cf.SETTINGS['screen_size']))
@@ -130,7 +132,7 @@ class InputManager():
                     return 'NEW'
 
         # Check mouse
-        if not self.change_keymap_mode:
+        if not self.change_keymap_mode and cf.SETTINGS['mouse']:
             self.current_mouse_position = None
             for event in events:
                 if event.type == engine.MOUSEBUTTONDOWN:

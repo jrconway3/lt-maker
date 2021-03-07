@@ -308,16 +308,16 @@ class InfoMenuState(State):
                 self.info_flag = False
                 return
 
-            if event == 'RIGHT':
+            if 'RIGHT' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.info_graph.move_right()
-            elif event == 'LEFT':
+            elif 'LEFT' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.info_graph.move_left()
-            if event == 'UP':
+            elif 'UP' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.info_graph.move_up()
-            elif event == 'DOWN':
+            elif 'DOWN' in directions:
                 SOUNDTHREAD.play_sfx('Select 6')
                 self.info_graph.move_down()
 

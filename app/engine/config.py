@@ -14,6 +14,7 @@ def read_config_file():
                          ('unit_speed', 120),
                          ('text_speed', 10),
                          ('cursor_speed', 80),
+                         ('mouse', 1),
                          ('show_terrain', 1),
                          ('show_objective', 1),
                          ('autocursor', 1),

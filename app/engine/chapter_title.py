@@ -49,7 +49,7 @@ class ChapterTitleState(State):
         return 'repeat'
 
     def take_input(self, event):
-        if event == 'START':
+        if event in ('START', 'SELECT', 'BACK'):
             if self.music_flag:
                 SOUNDTHREAD.stop()
             game.memory['transition_speed'] = 0.2

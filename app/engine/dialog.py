@@ -75,7 +75,6 @@ class Dialog():
         self.cursor_offset_index = 0
         self.text_index = 0
         self.total_num_updates = 0
-        self.new_line_flag: bool = False
         self.y_offset = 0 # How much to move lines (for when a new line is spawned)
 
         # For state transitions
@@ -183,15 +182,18 @@ class Dialog():
         return lines
 
     def _next_line(self):
+        # Don't do this for the first line
+        if len(self.text_lines) > self.num_lines - 1:
+            self.state = 'new_line'
+            self.y_offset = 16
+        else:
+            self.state = 'process'
         self.text_lines.append([])
-        self.y_offset = 16
-        self.state = 'new_line'
 
     def _add_letter(self, letter):
         self.text_lines[-1].append(letter)
 
     def _next_char(self, sound=True):  # Add the next character to the text_lines list
-        self.new_line_flag = False
         if self.text_index >= len(self.text_commands):
             self.pause()
             return

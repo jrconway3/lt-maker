@@ -14,5 +14,9 @@
     {
         "nid": "SacredStonesBase",
         "terrain_grid": {}
+    },
+    {
+        "nid": "SacredStonesWorldMapBase",
+        "terrain_grid": {}
     }
 ]

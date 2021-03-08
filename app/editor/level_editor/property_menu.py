@@ -167,7 +167,7 @@ class PropertiesMenu(QWidget):
         self.current.party = party.nid
 
     def edit_music(self):
-        dlg = MusicDialog(self, self.current)
+        dlg = MusicDialog(self.current)
         dlg.exec_()
 
     def set_objective(self, key):

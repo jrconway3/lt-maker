@@ -151,3 +151,51 @@ class UnitPortrait(QPushButton):
         res, ok = portrait_tab.get()
         if ok:
             self.change_icon(res.nid)
+
+class MapIconButton(QPushButton):
+    sourceChanged = pyqtSignal(str)
+    width, height = 48, 48
+    database = RESOURCES.map_icons
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.window = parent
+        self._nid = None
+
+        self.setMinimumHeight(self.height)
+        self.setMaximumHeight(self.height)
+        self.setMinimumWidth(self.width)
+        self.setMaximumWidth(self.width)
+        self.resize(self.width, self.height)
+        self.setStyleSheet("QPushButton {qproperty-iconSize: %dpx %dpx;}" % (self.width, self.height))
+        self.pressed.connect(self.onIconSourcePicker)
+
+    def render(self):
+        if self._nid:
+            res = self.database.get(self._nid)
+            if not res:
+                self.setIcon(QIcon())
+                return
+            if not res.pixmap:
+                res.pixmap = QPixmap(res.full_path)
+            pixmap = res.pixmap.copy(0, 0, self.width, self.height)
+            pic = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
+            pic = QIcon(pic)
+            self.setIcon(pic)
+        else:
+            self.setIcon(QIcon())
+
+    def change_icon(self, nid):
+        self._nid = nid
+        self.sourceChanged.emit(self._nid)
+        self.render()
+
+    def set_current(self, nid):
+        self._nid = nid
+        self.render()
+
+    def onIconSourcePicker(self):
+        from app.editor.icon_editor import icon_tab
+        res, ok = icon_tab.get_map_icon_editor()
+        if ok:
+            self.change_icon(res.nid)

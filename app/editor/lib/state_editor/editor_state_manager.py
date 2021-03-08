@@ -8,11 +8,15 @@ class EditorState():
     Class containing application state variables.
     """
     # NID of current level in editor
-    selected_level: str = '0'                                               # NID of current level in editor
+    selected_level: str = '0'
     # NID of current overworld map in editor
     selected_overworld: str = '0'
+    # NID of current node selected on overworld
+    selected_node: str = None
+    
     # Main editor mode, edit enum to add modes
     main_editor_mode: MainEditorScreenStates = MainEditorScreenStates.GLOBAL_EDITOR
+    
 
     """
     This one is a cheeky dummy signal; broadcast this whenever you want to refresh the whole editor

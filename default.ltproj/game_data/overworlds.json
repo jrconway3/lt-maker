@@ -1,0 +1,20 @@
+[
+  {
+    "nid": "0",
+    "name": "overworld_1",
+    "tilemap": "worldmap",
+    "overworld_parties": [],
+    "music": "Distant Roads",
+    "overworld_nodes": [
+      {
+        "nid": "0",
+        "name": "Frelia Castle",
+        "pos": [0, 0],
+        "icon": "0",
+        "level":null,
+        "overworld_party":null
+      }
+    ],
+    "map_paths": {}
+  }
+]

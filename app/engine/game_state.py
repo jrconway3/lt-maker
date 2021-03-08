@@ -119,6 +119,7 @@ class GameState():
         from app.engine.objects.tilemap import TileMapObject
         from app.engine.objects.party import PartyObject
 
+        level_nid = str(level_nid)
         level_prefab = DB.levels.get(level_nid)
         tilemap_nid = level_prefab.tilemap
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)

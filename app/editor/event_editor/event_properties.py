@@ -472,7 +472,8 @@ class EventCollection(QWidget):
         if filt == 'All':
             self.proxy_model.setFilterFixedString("")
         else:
-            self.proxy_model.setFilterFixedString(filt)
+            search = "^" + filt + "$"
+            self.proxy_model.setFilterRegularExpression(search)
         self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
         # Determine if we should reselect something
         if filt != "All" and self.display:

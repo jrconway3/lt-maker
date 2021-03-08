@@ -64,6 +64,7 @@ class Event():
         # Handles keeping the order that unit sprites should be drawn
         self.priority_counter = 1
         self.do_skip = False
+        self.super_skip = False
 
         self.if_stack = [] # Keeps track of how many ifs we've encountered while searching for the bad ifs 'end'.
         self.parse_stack = [] # Keeps track of whether we've encountered a truth this level or not
@@ -268,8 +269,9 @@ class Event():
             return False
         return True
 
-    def skip(self):
+    def skip(self, super_skip=False):
         self.do_skip = True
+        self.super_skip = super_skip
         if self.state != 'paused':
             self.state = 'processing'
         self.transition_state = None
@@ -292,7 +294,8 @@ class Event():
             self.state = 'waiting'
 
         elif command.nid == 'end_skip':
-            self.do_skip = False
+            if not self.super_skip:
+                self.do_skip = False
 
         elif command.nid == 'music':
             music = command.values[0]

@@ -344,6 +344,7 @@ def build_new_game(slot):
 
     first_level_nid = DB.levels[0].nid
     game.start_level(first_level_nid)
+    game.game_vars['_next_level_nid'] = first_level_nid
 
     save.suspend_game(game, 'start', slot)
     save.remove_suspend()

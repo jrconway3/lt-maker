@@ -544,7 +544,14 @@ class Shop(EventCommand):
     tag = 'general'
 
     keywords = ["Unit", "ItemList"]
-    optional_keywords = ["ShopFlavor"]  
+    optional_keywords = ["ShopFlavor"]
+
+class Choice(EventCommand):
+    nid = 'choice'
+    tag = 'general'
+
+    keywords = ['Nid', 'String', 'StringList']  
+    optional_keywords = ['Orientation']
 
 class ChapterTitle(EventCommand):
     nid = 'chapter_title'

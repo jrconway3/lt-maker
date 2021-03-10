@@ -811,6 +811,21 @@ class Event():
             game.state.change('shop')
             self.state = 'paused'
 
+        elif command.nid == 'choice':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            header = values[1]
+            options_list = values[2].split(',')
+
+            orientation = 'vertical'
+            if len(values) > 3 and values[3]:
+                if values[3].lower() in ('h', 'horiz', 'horizontal'):
+                    orientation = 'horizontal'
+
+            game.memory['player_choice'] = (nid, header, options_list, orientation)
+            game.state.change('player_choice')
+            self.state = 'paused'
+
         elif command.nid == 'chapter_title':
             values, flags = event_commands.parse(command)
             if len(values) > 0 and values[0]:

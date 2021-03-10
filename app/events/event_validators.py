@@ -117,17 +117,22 @@ class Slide(OptionValidator):
 class Direction(OptionValidator):
     valid = ["open", "close"]
 
+class Orientation(OptionValidator):
+    valid = ["h", "horiz", "horizontal", "v", "vert", "vertical"]
+
 class ExpressionList(Validator):
     valid_expressions = ["NoSmile", "Smile", "NormalBlink", "CloseEyes", "HalfCloseEyes", "OpenEyes"]
 
     def validate(self, text, level):
-        if ',' in text:
-            text = text.split(',')
-        else:
-            text = [text]
+        text = text.split(',')
         for t in text:
             if t not in self.valid_expressions:
                 return None
+        return text
+
+class StringList(Validator):
+    def validate(self, text, level):
+        text = text.split(',')
         return text
 
 class Speaker(Validator):

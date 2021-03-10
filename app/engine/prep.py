@@ -164,8 +164,10 @@ class PrepPickUnitsState(State):
                 possible_position = game.get_next_formation_spot()
                 is_fatigued = False
                 if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
-                    if unit.current_fatigue >= equations.parser.max_fatigue(unit):
-                        is_fatigued = True  
+                    if unit.get_fatigue() >= equations.parser.max_fatigue(unit):
+                        is_fatigued = True
+                if 'Blacklist' in unit.tags:  # Blacklisted unit can't be added
+                    is_fatigued = True  
                 if possible_position and not is_fatigued:
                     SOUNDTHREAD.play_sfx('Select 1')
                     action.do(action.ArriveOnMap(unit, possible_position))
@@ -203,12 +205,28 @@ class PrepPickUnitsState(State):
             left_justify += FONT[font].width(word)
         surf.blit(bg_surf, (110, 4))
 
+    def draw_fatigue_card(self, surf):
+        # Useful for telling at a glance which units are fatigued
+        bg_surf = base_surf.create_base_surf(132, 24)
+        topleft = (110, 128 + 4)
+        unit = self.menu.get_current()
+        if unit.get_fatigue() >= equations.parser.max_fatigue(unit):
+            text = text_funcs.translate('Fatigued')
+        elif 'Blacklist' in unit.tags:
+            text = text_funcs.translate('Away')
+        else:
+            text = text_funcs.translate('Ready!')
+        FONT['text-white'].blit_center(text, bg_surf, (66, 4))
+        surf.blit(bg_surf, topleft)
+
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
         menus.draw_unit_items(surf, (4, 44), self.menu.get_current(), include_top=True)
 
         self.draw_pick_units_card(surf)
+        if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
+            self.draw_fatigue_card(surf)
 
         self.menu.draw(surf)
         return surf

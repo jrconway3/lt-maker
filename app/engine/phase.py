@@ -17,16 +17,18 @@ logger = logging.getLogger(__name__)
 def fade_in_phase_music():
     team = game.phase.get_current()
     music = game.level.music.get(team + '_phase')
+    fade = game.game_vars.get('_phase_music_fade_ms', 400)
     if music:
         if DB.constants.value('restart_phase_music'):
-            SOUNDTHREAD.fade_in(music, from_start=True)
+            SOUNDTHREAD.fade_in(music, fade_in=fade, from_start=True)
         else:
-            SOUNDTHREAD.fade_in(music)
+            SOUNDTHREAD.fade_in(music, fade_in=fade)
     else:
-        SOUNDTHREAD.fade_to_pause()
+        SOUNDTHREAD.fade_to_pause(fade_in=fade)
 
 def fade_out_phase_music():
-    SOUNDTHREAD.fade_to_pause()
+    fade = game.game_vars.get('_phase_music_fade_ms', 400)
+    SOUNDTHREAD.fade_to_pause(fade_in=fade)
 
 class PhaseController():
     def __init__(self):

@@ -346,7 +346,7 @@ class OptionChildState(State):
         self.menu.update()
 
     def draw(self, surf):
-        surf = self.menu.draw(surf)
+        self.menu.draw(surf)
         return surf
 
 class MoveState(MapState):

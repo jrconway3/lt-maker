@@ -6261,6 +6261,14 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "Hello",
+                    "Hello?",
+                    "Yes,No"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "#music;Attack;2000"

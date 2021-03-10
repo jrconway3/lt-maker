@@ -211,6 +211,11 @@ class RightClickView():
         new_index = self.model().index(min(idx, self.model().rowCount() - 1))
         self.setCurrentIndex(new_index)
 
+    def delete_all(self):
+        self.model().delete_all()
+        new_index = self.model().index(0)
+        self.setCurrentIndex(new_index)
+
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
         if event.key() == Qt.Key_Delete:

@@ -7,7 +7,6 @@ from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 
 from app.utilities.data import Prefab
-from app.data import items, skills
 from app.extensions.custom_gui import RightClickListView
 from app.editor.data_editor import SingleDatabaseEditor
 
@@ -257,6 +256,8 @@ class DragDropCollectionModel(CollectionModel):
     drop_to = None
     most_recent_dragdrop = None
     drag_drop_finished = pyqtSignal()
+
+    
 
     def supportedDropActions(self):
         return Qt.MoveAction

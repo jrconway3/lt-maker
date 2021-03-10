@@ -1,0 +1,13 @@
+[
+    {
+        "nid": "Eirika",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    }
+]

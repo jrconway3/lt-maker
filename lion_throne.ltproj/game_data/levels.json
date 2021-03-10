@@ -1,0 +1,67 @@
+[
+    {
+        "nid": "DEBUG",
+        "name": "DEBUG",
+        "tilemap": "Chapter 2",
+        "party": "Eirika",
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "DEBUG",
+            "win": "Don't Crash",
+            "loss": "Crash"
+        },
+        "units": [
+            {
+                "nid": "Eirika",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    6
+                ],
+                "generic": false
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Armory",
+                "region_type": "event",
+                "position": [
+                    5,
+                    7
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Door1",
+                "region_type": "event",
+                "position": [
+                    4,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            }
+        ],
+        "unit_groups": []
+    }
+]

@@ -2,13 +2,13 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.resources.resources import RESOURCES
+from app.utilities.data import Data
 from app.data.database import DB
-from app.data import units, weapons, stats
+from app.data import units
 from app.data.level_units import UniqueUnit
 
 from app.extensions.custom_gui import DeletionDialog
 
-from app.editor.custom_widgets import UnitBox
 from app.editor.base_database_gui import DragDropCollectionModel
 import app.editor.utilities as editor_utilities
 from app.utilities import str_utils
@@ -45,21 +45,39 @@ class UnitModel(DragDropCollectionModel):
         # check to make sure nothing else is using me!!!
         unit = self._data[idx]
         nid = unit.nid
+        affected = None
         affected_ais = [ai for ai in DB.ai if ai.has_unit_spec("ID", nid)]
         affected_levels = [level for level in DB.levels if any(isinstance(unit, UniqueUnit) and unit.nid == nid for unit in level.units)]
         if affected_ais:
+            affected = Data(affected_ais)
             from app.editor.ai_editor.ai_model import AIModel
             model = AIModel
         elif affected_levels:
+            affected = Data(affected_levels)
             from app.editor.global_editor.level_menu import LevelModel
             model = LevelModel
+        if affected:
             msg = "Deleting Unit <b>%s</b> would affect these objects" % nid
-            swap, ok = DeletionDialog.get_swap(affected_ais, model, msg, UnitBox(self.window, exclude=unit), self.window)
+            ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
-                self.on_nid_changed(nid, swap.nid)
+                self.on_delete(nid)
             else:
                 return
         super().delete(idx)
+
+    def on_delete(self, old_nid):
+        new_nid = None
+        for unit in DB.units:
+            if unit.nid != old_nid:
+                new_nid = unit.nid
+                break
+        for ai in DB.ai:
+            ai.change_unit_spec("ID", old_nid, new_nid)
+        for level in DB.levels:
+            if old_nid in level.units.keys():
+                level.units.remove_key(old_nid)
+            for unit_group in level.unit_groups:
+                unit_group.remove(old_nid)
 
     def on_nid_changed(self, old_nid, new_nid):
         for ai in DB.ai:

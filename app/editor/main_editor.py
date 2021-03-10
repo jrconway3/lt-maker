@@ -135,8 +135,9 @@ class MainEditor(QMainWindow):
         if len(DB.levels) == 0:
             self.level_menu.create_initial_level()
 
-        # initialize to level 0
-        self.app_state_manager.change_and_broadcast('selected_level', '0')
+        # initialize to first level
+        first_level_nid = DB.levels[0].nid
+        self.app_state_manager.change_and_broadcast('selected_level', first_level_nid)
 
     def on_clean_changed(self, clean):
         # Change Title

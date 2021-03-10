@@ -279,6 +279,8 @@ class InventoryDelegate(QStyledItemDelegate):
             item = DB.items.get(item_nid)
             if item:
                 pixmap = item_model.get_pixmap(item)
+                if not pixmap:
+                    continue
                 left = rect.right() - ((idx + 1) * 16)
                 top = rect.center().y() - 8
                 if droppable:

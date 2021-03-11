@@ -20,10 +20,11 @@ class PlayerChoiceState(MapState):
             self.menu.set_horizontal(True)
 
     def create_bg_surf(self):
-        width_of_header = FONT['text-white'].width(self.header)
+        width_of_header = FONT['text-white'].width(self.header) + 16
         menu_width = self.menu.get_menu_width()
         width = max(width_of_header, menu_width)
-        height = self.menu.get_menu_height() + FONT['text-white'].height
+        menu_height = self.menu.get_menu_height() if self.orientation == 'vertical' else FONT['text-white'].height + 8
+        height = menu_height + FONT['text-white'].height
         bg_surf = base_surf.create_base_surf(width, height, 'menu_bg_base')
         topleft = (WINWIDTH//2 - width//2, WINHEIGHT//2 - height//2)
         return bg_surf, topleft

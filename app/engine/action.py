@@ -914,8 +914,8 @@ class Promote(Action):
 
         wexp_gain = DB.classes.get(self.new_klass).wexp_gain
         self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}
-        for weapon in wexp_gain:
-            self.new_wexp[weapon.nid] = weapon.wexp_gain
+        for weapon in DB.weapons:
+            self.new_wexp[weapon.nid] = wexp_gain[weapon.nid].wexp_gain
 
         self.subactions = []
 

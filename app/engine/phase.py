@@ -24,11 +24,11 @@ def fade_in_phase_music():
         else:
             SOUNDTHREAD.fade_in(music, fade_in=fade)
     else:
-        SOUNDTHREAD.fade_to_pause(fade_in=fade)
+        SOUNDTHREAD.fade_to_pause(fade_out=fade)
 
 def fade_out_phase_music():
     fade = game.game_vars.get('_phase_music_fade_ms', 400)
-    SOUNDTHREAD.fade_to_pause(fade_in=fade)
+    SOUNDTHREAD.fade_to_pause(fade_out=fade)
 
 class PhaseController():
     def __init__(self):

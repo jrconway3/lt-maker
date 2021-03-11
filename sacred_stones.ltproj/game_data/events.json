@@ -6263,10 +6263,28 @@
             [
                 "choice",
                 [
-                    "Hello",
-                    "Hello?",
-                    "Yes,No"
+                    "PromoteColm",
+                    "Promote Colm?",
+                    "Yes,No",
+                    "horiz"
                 ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['PromoteColm'] == 'Yes'"
+                ]
+            ],
+            [
+                "promote",
+                [
+                    "Colm",
+                    "Assassin"
+                ]
+            ],
+            [
+                "end",
+                []
             ],
             [
                 "comment",

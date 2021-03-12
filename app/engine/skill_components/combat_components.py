@@ -34,6 +34,17 @@ class StatMultiplier(SkillComponent):
     def stat_change(self, unit):
         return {stat[0]: int((stat[1]-1)*unit.stats[stat[0]]) for stat in self.value}
 
+class GrowthChange(SkillComponent):
+    nid = 'growth_change'
+    desc = "Gives growth rate % bonuses"
+    tag = 'advanced'
+
+    expose = (Type.Dict, Type.Stat)
+    value = []
+
+    def growth_change(self, unit):
+        return {stat[0]: stat[1] for stat in self.value}
+
 class Damage(SkillComponent):
     nid = 'damage'
     desc = "Gives +X damage"
@@ -295,6 +306,19 @@ class GiveStatusAfterCombat(SkillComponent):
             action.do(action.AddSkill(target, self.value, unit))
             action.do(action.TriggerCharge(unit, self.skill))
 
+class GiveStatusAfterAttack(SkillComponent):
+    nid = 'give_status_after_attack'
+    desc = "Gives a status to target after attacking the target"
+    tag = 'combat2'
+
+    expose = Type.Skill
+
+    def end_combat(self, playback, unit, item, target):
+        mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+            action.do(action.AddSkill(target, self.value, unit))
+        action.do(action.TriggerCharge(unit, self.skill))
+
 class GainSkillAfterKill(SkillComponent):
     nid = 'gain_skill_after_kill'
     desc = "Gives a skill after a kill"
@@ -337,8 +361,6 @@ class Miracle(SkillComponent):
     nid = 'miracle'
     desc = "Unit cannot be reduced below 1 HP"
     tag = 'combat2'
-
-    expose = Type.Skill
 
     def end_combat(self, playback, unit, item, target):
         if unit.get_hp() <= 0:

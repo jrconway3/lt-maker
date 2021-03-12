@@ -154,5 +154,6 @@ class ProjectFileBackend():
             pass
 
         # Actually save project
+        print("Autosaving project to %s..." % autosave_dir)
         RESOURCES.save(autosave_dir)
         DB.serialize(autosave_dir)

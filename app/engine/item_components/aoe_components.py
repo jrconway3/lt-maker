@@ -2,7 +2,7 @@ from app.data.item_components import ItemComponent
 from app.data.components import Type
 
 from app.utilities import utils
-from app.engine import target_system
+from app.engine import target_system, skill_system
 from app.engine.game_state import game 
 
 class BlastAOE(ItemComponent):
@@ -13,8 +13,12 @@ class BlastAOE(ItemComponent):
     expose = Type.Int  # Radius
     value = 1
 
+    def _get_power(self, unit) -> int:
+        empowered_splash = skill_system.empower_splash(unit)
+        return self.value + 1 + empowered_splash
+
     def splash(self, unit, item, position) -> tuple:
-        ranges = set(range(self.value + 1))
+        ranges = set(range(self._get_power(unit)))
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
         from app.engine import item_system
         if item_system.is_spell(unit, item):
@@ -29,7 +33,7 @@ class BlastAOE(ItemComponent):
             return position if game.board.get_unit(position) else None, splash
 
     def splash_positions(self, unit, item, position) -> set:
-        ranges = set(range(self.value + 1))
+        ranges = set(range(self._get_power(unit)))
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
         return splash
 
@@ -39,7 +43,7 @@ class EnemyBlastAOE(BlastAOE, ItemComponent):
     tag = 'aoe'
 
     def splash(self, unit, item, position) -> tuple:
-        ranges = set(range(self.value + 1))
+        ranges = set(range(self._get_power(unit)))
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
         from app.engine import item_system, skill_system
         if item_system.is_spell(unit, item):
@@ -55,7 +59,7 @@ class EnemyBlastAOE(BlastAOE, ItemComponent):
 
     def splash_positions(self, unit, item, position) -> set:
         from app.engine import skill_system
-        ranges = set(range(self.value + 1))
+        ranges = set(range(self._get_power(unit)))
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
         # Doesn't highlight allies positions
         splash = {pos for pos in splash if not game.board.get_unit(pos) or skill_system.check_enemy(unit, game.board.get_unit(pos))}
@@ -67,43 +71,25 @@ class AllyBlastAOE(BlastAOE, ItemComponent):
     tag = 'aoe'
 
     def splash(self, unit, item, position) -> tuple:
-        ranges = set(range(self.value + 1))
+        ranges = set(range(self._get_power(unit)))
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
         from app.engine import skill_system
         splash = [game.board.get_unit(s) for s in splash]
         splash = [s.position for s in splash if s and skill_system.check_ally(unit, s)]
         return None, splash
 
-class EquationBlastAOE(ItemComponent):
+class EquationBlastAOE(BlastAOE, ItemComponent):
     nid = 'equation_blast_aoe'
     desc = "Gives Equation-Sized Blast AOE"
     tag = 'aoe'
 
     expose = Type.Equation  # Radius
 
-    def splash(self, unit, item, position) -> tuple:
+    def _get_power(self, unit) -> int:
         from app.engine import equations
         value = equations.parser.get(self.value, unit)
-        ranges = set(range(value + 1))
-        splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
-        from app.engine import item_system
-        if item_system.is_spell(unit, item):
-            # spell blast
-            splash = [game.board.get_unit(s) for s in splash]
-            splash = [s.position for s in splash if s]
-            return None, splash
-        else:
-            # regular blast
-            splash = [game.board.get_unit(s) for s in splash if s != position]
-            splash = [s.position for s in splash if s]
-            return position if game.board.get_unit(position) else None, splash
-
-    def splash_positions(self, unit, item, position) -> set:
-        from app.engine import equations
-        value = equations.parser.get(self.value, unit)
-        ranges = set(range(value + 1))
-        splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
-        return splash
+        empowered_splash = skill_system.empower_splash(unit)
+        return value + 1 + empowered_splash
 
 class EnemyCleaveAOE(ItemComponent):
     nid = 'enemy_cleave_aoe'

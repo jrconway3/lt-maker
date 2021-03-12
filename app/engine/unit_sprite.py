@@ -1,3 +1,5 @@
+import math
+
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
 from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors
 
@@ -9,8 +11,9 @@ from app.utilities import utils
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, image_mods, health_bar, equations
+from app.engine import item_funcs, item_system, skill_system, particles
 import app.engine.config as cf
-from app.engine.animations import MapAnimation
+from app.engine.animations import Animation
 from app.engine.game_state import game
 
 class MapSprite():
@@ -54,6 +57,8 @@ class MapSprite():
         return imgs
 
 class UnitSprite():
+    default_transition_time = 400
+
     def __init__(self, unit):
         self.unit = unit
         self.state = 'normal'  # What state the image sprite is in
@@ -61,7 +66,7 @@ class UnitSprite():
         self.transition_state = 'normal'
 
         self.transition_counter = 0
-        self.transition_time = 450
+        self.transition_time = self.default_transition_time
 
         self.fake_position = None  # For escape and rescue, etc...
         self.net_position = None
@@ -72,6 +77,7 @@ class UnitSprite():
         self.vibrate = []
         self.vibrate_counter = 0
         self.animations = {}
+        self.particles = []
 
         self.load_sprites()
 
@@ -108,7 +114,7 @@ class UnitSprite():
     def add_animation(self, animation_nid):
         anim = RESOURCES.animations.get(animation_nid)
         if anim:
-            anim = MapAnimation(anim, (0, 0), loop=True)
+            anim = Animation(anim, (0, 0), loop=True)
             self.animations[animation_nid] = anim
 
     def remove_animation(self, animation_nid):
@@ -131,9 +137,33 @@ class UnitSprite():
     def start_vibrate(self, start_time, total_time):
         self.vibrate.append((engine.get_time() + start_time, total_time))
 
+    def add_warp_anim(self, nid):
+        anim = RESOURCES.animations.get('Warp')
+        if anim:
+            anim = Animation(anim, (-7, -24))
+        self.animations[nid] = anim
+
+    def add_warp_flowers(self):
+        ps = particles.ParticleSystem('warp_flower', particles.WarpFlower, -1, (-1, -1, -1, -1), (-1, -1))
+        angle_frac = math.pi / 8
+        true_pos_x = self.unit.position[0] * TILEWIDTH + TILEWIDTH//2
+        true_pos_y = self.unit.position[1] * TILEHEIGHT + TILEHEIGHT//2
+        for speed in (2.0, 2.5):
+            for num in range(0, 16):
+                angle = num * angle_frac + angle_frac / 2
+                new_particle = particles.WarpFlower((true_pos_x, true_pos_y), speed, angle)
+                ps.particles.append(new_particle)
+        self.particles.append(ps)
+
+    def add_swoosh_anim(self):
+        anim = RESOURCES.animations.get('Swoosh')
+        if anim:
+            anim = Animation(anim, (-7, -24))
+        self.animations['swoosh'] = anim
+
     def set_transition(self, new_state):
         self.transition_state = new_state
-        self.transition_counter = self.transition_time  # 450
+        self.transition_counter = self.transition_time  # 400
 
         if self.transition_state == 'normal':
             self.offset = [0, 0]
@@ -152,12 +182,23 @@ class UnitSprite():
             self.fake_position = self.unit.position
         elif self.transition_state == 'warp_in':
             SOUNDTHREAD.play_sfx('WarpEnd')
+            self.fake_position = None
+            self.add_warp_anim('warp_in')
+            self.add_warp_flowers()
         elif self.transition_state == 'warp_out':
             SOUNDTHREAD.play_sfx('Warp')
             self.fake_position = self.unit.position
+            self.add_warp_anim('warp_out')     
+            self.add_warp_flowers()
         elif self.transition_state == 'warp_move':
             SOUNDTHREAD.play_sfx('Warp')
             self.fake_position = self.unit.position
+            self.add_warp_anim('warp_move')
+            self.add_warp_flowers()
+        elif self.transition_state == 'swoosh_in':
+            SOUNDTHREAD.play_sfx('Sword Whoosh')
+            self.fake_position = None
+            self.add_swoosh_anim()
 
     def change_state(self, new_state):
         self.state = new_state
@@ -266,7 +307,7 @@ class UnitSprite():
         if self.transition_counter < 0:
             self.transition_counter = 0
             self.fake_position = None
-            if self.transition_state in ('fade_out', 'warp_out', 'fade_in', 'warp_in'):
+            if self.transition_state in ('fade_out', 'warp_out', 'fade_in', 'warp_in', 'swoosh_in'):
                 self.set_transition('normal')
             elif self.transition_state == 'fade_move':
                 self.set_transition('fade_in')
@@ -289,6 +330,8 @@ class UnitSprite():
         if not self.map_sprite:  # This shouldn't happen, but if it does...
             res = RESOURCES.map_sprites[0]
             self.map_sprite = MapSprite(res, self.unit.team)
+        if self.transition_state == 'swoosh_in':
+            state = 'active'
         image = getattr(self.map_sprite, state)
         image = self.select_frame(image, state)
         return image
@@ -316,9 +359,16 @@ class UnitSprite():
         if self.transition_state in ('fade_out', 'warp_out', 'fade_move', 'warp_move'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
             image = image_mods.make_translucent(image.convert_alpha(), progress)
-        elif self.transition_state in ('fade_in', 'warp_in'):
+        elif self.transition_state in ('fade_in', 'warp_in', 'swoosh_in'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
             progress = 1 - progress
+            if self.transition_state == 'swoosh_in':
+                # Distort Vertically
+                cur_width, cur_height = image.get_width(), image.get_height()
+                new_width, new_height = cur_width, int(cur_height * (progress + 1))
+                extra_height = new_height - cur_height
+                image = engine.transform_scale(image, (new_width, new_height))
+                top -= extra_height
             image = image_mods.make_translucent(image.convert_alpha(), progress)
 
         for flicker in self.flicker[:]:
@@ -361,6 +411,7 @@ class UnitSprite():
         surf.blit(image, topleft)
 
         # Draw animations
+        self.animations = {k: v for (k, v) in self.animations.items() if not v.update()}
         for animation in self.animations.values():
             animation.draw(surf, (left, top))
 
@@ -374,13 +425,57 @@ class UnitSprite():
         else:
             cur_unit = None
         if cur_unit:
-            if (cur_unit.nid, self.unit.nid) in game.talk_options:
-                frame = (engine.get_time() // 100) % 8
-                topleft = (left - 2, top - 14)
-                offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
-                surf.blit(SPRITES.get('talk_marker'), (topleft[0], topleft[1] + offset))
-                
+            self.draw_markers(surf, cur_unit, left, top)
+
+        # Draw personal particles
+        self.particles = [ps for ps in self.particles if not ps.remove_me_flag]
+        for particle_system in self.particles:
+            particle_system.update()
+            particle_system.draw(surf, left, top)
+
         return surf
+
+    def draw_markers(self, surf, cur_unit, left, top):
+        map_markers = SPRITES.get('map_markers')
+        topleft = (left - 2, top - 14)
+        if (cur_unit.nid, self.unit.nid) in game.talk_options:
+            frame = (engine.get_time() // 100) % 8
+            offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
+            talk_marker = engine.subsurface(map_markers, (0, 0, 24, 16))
+            surf.blit(talk_marker, (topleft[0], topleft[1] + offset))
+        elif cur_unit.team == 'player' and skill_system.check_enemy(self.unit, cur_unit):
+            warning = False
+            for item in item_funcs.get_all_items(self.unit):
+                if item_system.warning(self.unit, item, cur_unit):
+                    warning = True
+                    break
+            danger = False
+            for item in item_funcs.get_all_items(self.unit):
+                if item_system.danger(self.unit, item, cur_unit):
+                    danger = True
+                    break
+            steal = False
+            if skill_system.steal_icon(cur_unit, self.unit):
+                steal = True
+            if warning or danger or steal:
+                frame = (engine.get_time() // 500) % sum([warning, danger, steal])
+                warning_marker = engine.subsurface(map_markers, (0, 16, 16, 16))
+                danger_marker = engine.subsurface(map_markers, (16, 16, 16, 16))
+                steal_marker = engine.subsurface(map_markers, (32, 16, 16, 16))
+                if frame == 0:
+                    if warning:
+                        surf.blit(warning_marker, (topleft[0], topleft[1] + offset))
+                    elif danger:
+                        surf.blit(danger_marker, (topleft[0], topleft[1] + offset))
+                    else:
+                        surf.blit(steal_marker, (topleft[0], topleft[1] + offset))
+                elif frame == 1:
+                    if warning:
+                        surf.blit(danger_marker, (topleft[0], topleft[1] + offset))
+                    else:
+                        surf.blit(steal_marker, (topleft[0], topleft[1] + offset))
+                elif frame == 2:
+                    surf.blit(steal_marker, (topleft[0], topleft[1] + offset))
 
     def check_draw_hp(self) -> bool:
         if self.unit.is_dying:

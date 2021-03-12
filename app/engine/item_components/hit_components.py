@@ -380,8 +380,8 @@ class Steal(ItemComponent):
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Unit has item that can be stolen
         attack = equations.parser.steal_atk(unit)
-        defense = equations.parser.steal_def(unit)
-        defender = game.board.get_unit(def_pos)        
+        defender = game.board.get_unit(def_pos)  
+        defense = equations.parser.steal_def(defender)
         if attack >= defense:
             for def_item in defender.items:
                 if self.item_restrict(unit, item, defender, def_item):

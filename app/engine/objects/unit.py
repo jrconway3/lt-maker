@@ -153,6 +153,9 @@ class UnitObject(Prefab):
     def stat_bonus(self, stat):
         return skill_system.stat_change(self, stat)
 
+    def growth_bonus(self, stat):
+        return skill_system.growth_change(self, stat)
+
     @property
     def sprite(self):
         if not self._sprite:

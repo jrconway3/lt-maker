@@ -19,7 +19,7 @@ def get_next_level_up(unit) -> dict:
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
     klass = DB.classes.get(unit.klass)
     for nid in DB.stats.keys():
-        growth = unit.growths[nid] + klass.growth_bonus.get(nid, 0)
+        growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0)
         if method == 'Fixed':
             if growth > 0:
                 stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
@@ -99,7 +99,7 @@ def auto_level(unit, num_levels):
 
     if method == 'Fixed':
         for growth_nid, growth_value in unit.growths.items():
-            growth_sum = growth_value * num_levels
+            growth_sum = (growth_value + unit.growth_bonus(growth_nid)) * num_levels
             if growth_value < 0:
                 unit.stats[growth_nid] += (growth_sum - unit.growth_points[growth_nid]) // 100
                 unit.growth_points[growth_nid] = -(growth_sum - unit.growth_points[growth_nid]) % 100
@@ -109,14 +109,15 @@ def auto_level(unit, num_levels):
 
     elif method == 'Random':
         for growth_nid, growth_value in unit.growths.items():
-            for n in range(num_levels):
-                growth_rate = growth_value
+            growth_rate = growth_value + unit.growth_bonus(growth_nid)
+            for n in range(num_levels):    
                 unit.stats[growth_nid] += _random_levelup(r, growth_rate)
 
     elif method == 'Dynamic':
         for growth_nid, growth_value in unit.growths.items():
+            growth_rate = growth_value + unit.growth_bonus(growth_nid)
             for n in range(num_levels):
-                _dynamic_levelup(r, unit.stats, unit.growth_points, growth_nid, growth_value)
+                _dynamic_levelup(r, unit.stats, unit.growth_points, growth_nid, growth_rate)
                 
     # Make sure we don't exceed max
     klass = DB.classes.get(unit.klass)
@@ -152,13 +153,21 @@ def get_starting_skills(unit) -> list:
     all_klasses.reverse()
     
     skills_to_add = []
+    feats = DB.skills.get_feats()
     current_skills = [skill.nid for skill in unit.skills]
     for idx, klass in enumerate(all_klasses):
         for learned_skill in klass.learned_skills:
             if (learned_skill[0] <= unit.level or klass != klass_obj) and \
                     learned_skill[1] not in current_skills and \
                     learned_skill[1] not in skills_to_add:
-                skills_to_add.append(learned_skill[1])
+                if learned_skill[1] == 'Feat':
+                    if DB.constants.value('generic_feats'):
+                        my_feats = [feat for feat in feats if feat.nid not in current_skills and feat.nid not in skills_to_add]
+                        random_number = static_random.get_growth() % len(my_feats)
+                        new_skill = random_number[my_feats]
+                        skills_to_add.append(new_skill.nid)
+                else:
+                    skills_to_add.append(learned_skill[1])
 
     klass_skills = item_funcs.create_skills(unit, skills_to_add)
     return klass_skills
@@ -182,3 +191,13 @@ def can_unlock(unit, region) -> bool:
                 item_system.can_unlock(unit, item, region):
             return True
     return False
+
+def check_focus(unit, limit=3) -> int:
+    from app.engine import skill_system
+    from app.engine.game_state import game
+    counter = 0
+    if unit.position:
+        for other in game.units:
+            if other.position and unit is not other and skill_system.check_ally(unit, other) and utils.calculate_distance(unit.position, other.position) <= limit:
+                counter += 1
+    return counter

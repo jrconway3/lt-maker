@@ -183,6 +183,8 @@ class AllUnitModel(DragDropCollectionModel):
             text = str(unit.nid)
             if isinstance(unit, GenericUnit):
                 text += ' (' + str(unit.ai) + ' Lv ' + str(unit.level) + ')'
+            else:
+                text += ' (' + str(unit.ai) + ')'
             return text
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]

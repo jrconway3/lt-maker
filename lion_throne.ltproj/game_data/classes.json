@@ -10,15 +10,15 @@
         "tags": [],
         "max_level": 10,
         "bases": {
-            "HP": 10,
+            "HP": 7,
             "STR": 0,
             "MAG": 0,
             "SKL": 0,
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
-            "CON": 5,
-            "MOV": 5,
+            "CON": 3,
+            "MOV": 4,
             "RES": 0
         },
         "growths": {
@@ -59,15 +59,15 @@
         },
         "max_stats": {
             "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
             "LCK": 30,
-            "DEF": 20,
+            "DEF": 15,
             "CON": 20,
             "MOV": 15,
-            "RES": 20
+            "RES": 15
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -117,42 +117,40 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Eirika_Lord",
-        "name": "Lord",
-        "desc": "The princess of Renais. A sword fighter on an important mission.",
+        "nid": "Myrmidon",
+        "name": "Myrmidon",
+        "desc": "Swordfighters with superior speed and skill.",
         "tier": 1,
         "movement_group": "Light Foot",
         "promotes_from": null,
         "turns_into": [
-            "Eirika_Great_Lord"
+            "Swordmaster"
         ],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 16,
-            "STR": 4,
-            "MAG": 2,
-            "SKL": 8,
-            "SPD": 9,
+            "HP": 11,
+            "STR": 3,
+            "MAG": 1,
+            "SKL": 6,
+            "SPD": 7,
             "LCK": 0,
-            "DEF": 3,
+            "DEF": 1,
+            "RES": 1,
             "CON": 5,
-            "MOV": 5,
-            "RES": 0
+            "MOV": 5
         },
         "growths": {
-            "HP": 90,
+            "HP": 95,
             "STR": 45,
-            "MAG": 22,
-            "SKL": 40,
-            "SPD": 45,
-            "LCK": 40,
-            "DEF": 15,
+            "MAG": 35,
+            "SKL": 65,
+            "SPD": 60,
+            "LCK": 60,
+            "DEF": 20,
+            "RES": 35,
             "CON": 0,
-            "MOV": 0,
-            "RES": 20
+            "MOV": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -162,9 +160,9 @@
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
+            "RES": 0,
             "CON": 0,
-            "MOV": 0,
-            "RES": 0
+            "MOV": 0
         },
         "promotion": {
             "HP": 0,
@@ -174,23 +172,36 @@
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
+            "RES": 0,
             "CON": 0,
-            "MOV": 0,
-            "RES": 0
+            "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15,
-            "RES": 20
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Riposte"
+            ],
+            [
+                5,
+                "Vantage"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -205,624 +216,6 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Citizen",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "EirikaLord",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Eirika_Great_Lord",
-        "name": "Great Lord",
-        "desc": "??",
-        "tier": 2,
-        "movement_group": "Heavy Cav",
-        "promotes_from": "Eirika_Lord",
-        "turns_into": [],
-        "tags": [
-            "Horse",
-            "Mounted",
-            "Sword"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 18,
-            "STR": 3,
-            "MAG": 2,
-            "SKL": 3,
-            "SPD": 4,
-            "LCK": 0,
-            "DEF": 5,
-            "RES": 0,
-            "CON": 7,
-            "MOV": 7
-        },
-        "growths": {
-            "HP": 90,
-            "STR": 45,
-            "MAG": 22,
-            "SKL": 40,
-            "SPD": 45,
-            "LCK": 40,
-            "DEF": 15,
-            "RES": 20,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 4,
-            "STR": 2,
-            "MAG": 1,
-            "SKL": 2,
-            "SPD": 1,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 5,
-            "CON": 2,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 24,
-            "MAG": 20,
-            "SKL": 29,
-            "SPD": 30,
-            "LCK": 30,
-            "DEF": 22,
-            "RES": 25,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Canto"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                true,
-                70
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Citizen",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Eirika_Great_Lord",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Ephraim_Lord",
-        "name": "Lord",
-        "desc": "??",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [
-            "Ephraim_Great_Lord"
-        ],
-        "tags": [],
-        "max_level": 20,
-        "bases": {
-            "HP": 18,
-            "STR": 6,
-            "MAG": 3,
-            "SKL": 6,
-            "SPD": 7,
-            "LCK": 0,
-            "DEF": 6,
-            "RES": 0,
-            "CON": 8,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 90,
-            "STR": 45,
-            "MAG": 22,
-            "SKL": 40,
-            "SPD": 45,
-            "LCK": 40,
-            "DEF": 15,
-            "RES": 15,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                true,
-                31
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Citizen",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Ephraim_Lord",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Ephraim_Great_Lord",
-        "name": "Great Lord",
-        "desc": "??",
-        "tier": 2,
-        "movement_group": "Heavy Cav",
-        "promotes_from": "Ephraim_Lord",
-        "turns_into": [],
-        "tags": [
-            "Horse",
-            "Mounted"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 18,
-            "STR": 3,
-            "MAG": 2,
-            "SKL": 3,
-            "SPD": 4,
-            "LCK": 0,
-            "DEF": 5,
-            "RES": 0,
-            "CON": 10,
-            "MOV": 7
-        },
-        "growths": {
-            "HP": 90,
-            "STR": 45,
-            "MAG": 22,
-            "SKL": 40,
-            "SPD": 45,
-            "LCK": 40,
-            "DEF": 15,
-            "RES": 15,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 4,
-            "STR": 2,
-            "MAG": 1,
-            "SKL": 3,
-            "SPD": 2,
-            "LCK": 0,
-            "DEF": 2,
-            "RES": 5,
-            "CON": 2,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 27,
-            "MAG": 20,
-            "SKL": 26,
-            "SPD": 27,
-            "LCK": 30,
-            "DEF": 23,
-            "RES": 23,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Canto"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                true,
-                40
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Citizen",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Ephraim_Great_Lord",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Dancer",
-        "name": "Dancer",
-        "desc": "??",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [],
-        "tags": [],
-        "max_level": 20,
-        "bases": {
-            "HP": 14,
-            "STR": 1,
-            "MAG": 1,
-            "SKL": 2,
-            "SPD": 7,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 1,
-            "CON": 4,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 45,
-            "STR": 45,
-            "MAG": 45,
-            "SKL": 30,
-            "SPD": 60,
-            "LCK": 70,
-            "DEF": 0,
-            "RES": 13,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Canto"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Citizen",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Dancer",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Myrmidon",
-        "name": "Myrmidon",
-        "desc": "Swordfighters with superior speed and skill.",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [
-            "Swordmaster",
-            "Assassin"
-        ],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 16,
-            "STR": 4,
-            "MAG": 2,
-            "SKL": 9,
-            "SPD": 10,
-            "LCK": 0,
-            "DEF": 2,
-            "CON": 8,
-            "MOV": 5,
-            "RES": 1
-        },
-        "growths": {
-            "HP": 70,
-            "STR": 35,
-            "MAG": 17,
-            "SKL": 40,
-            "SPD": 40,
-            "LCK": 30,
-            "DEF": 15,
-            "CON": 0,
-            "MOV": 0,
-            "RES": 20
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "CON": 0,
-            "MOV": 0,
-            "RES": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "CON": 0,
-            "MOV": 0,
-            "RES": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "CON": 20,
-            "MOV": 15,
-            "RES": 20
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                true,
-                31
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -854,36 +247,34 @@
     {
         "nid": "Swordmaster",
         "name": "Swordmaster",
-        "desc": "Swordfighters with superior speed and skill.",
+        "desc": "Devotees of the sword. Possess incredible speed and skill.",
         "tier": 2,
         "movement_group": "Light Foot",
         "promotes_from": "Myrmidon",
         "turns_into": [],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 21,
-            "STR": 6,
-            "MAG": 4,
-            "SKL": 11,
-            "SPD": 12,
+            "HP": 16,
+            "STR": 5,
+            "MAG": 2,
+            "SKL": 6,
+            "SPD": 7,
             "LCK": 0,
-            "DEF": 5,
-            "RES": 3,
-            "CON": 9,
+            "DEF": 3,
+            "RES": 2,
+            "CON": 6,
             "MOV": 6
         },
         "growths": {
-            "HP": 65,
-            "STR": 25,
-            "MAG": 15,
-            "SKL": 30,
-            "SPD": 30,
-            "LCK": 25,
-            "DEF": 15,
-            "RES": 22,
+            "HP": 95,
+            "STR": 45,
+            "MAG": 35,
+            "SKL": 65,
+            "SPD": 60,
+            "LCK": 60,
+            "DEF": 20,
+            "RES": 35,
             "CON": 0,
             "MOV": 0
         },
@@ -903,36 +294,44 @@
             "HP": 5,
             "STR": 2,
             "MAG": 1,
-            "SKL": 1,
+            "SKL": 0,
             "SPD": 0,
             "LCK": 0,
             "DEF": 2,
             "RES": 1,
-            "CON": 2,
-            "MOV": -99
+            "CON": 1,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 24,
-            "MAG": 22,
-            "SKL": 29,
-            "SPD": 30,
-            "LCK": 30,
-            "DEF": 22,
-            "RES": 25,
+            "HP": 40,
+            "STR": 16,
+            "MAG": 15,
+            "SKL": 19,
+            "SPD": 20,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 17,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Crit +15"
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Critical"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
             "Sword": [
-                2,
-                40
+                true,
+                10
             ],
             "Lance": [
                 false,
@@ -943,10 +342,6 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -972,7 +367,7 @@
             0,
             0
         ],
-        "map_sprite_nid": "Swordmaster",
+        "map_sprite_nid": "ShamanFemale",
         "combat_anim_nid": null
     },
     {
@@ -980,37 +375,34 @@
         "name": "Mercenary",
         "desc": "Professional soldiers for hire. Well-balanced, with superior abilities all around.",
         "tier": 1,
-        "movement_group": "Light Foot",
+        "movement_group": "Regular",
         "promotes_from": null,
         "turns_into": [
-            "Hero",
-            "Ranger"
+            "Vanguard"
         ],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 18,
-            "STR": 4,
-            "MAG": 2,
-            "SKL": 8,
-            "SPD": 8,
+            "HP": 14,
+            "STR": 3,
+            "MAG": 0,
+            "SKL": 5,
+            "SPD": 5,
             "LCK": 0,
-            "DEF": 4,
+            "DEF": 3,
             "RES": 0,
-            "CON": 9,
+            "CON": 6,
             "MOV": 5
         },
         "growths": {
-            "HP": 80,
-            "STR": 40,
-            "MAG": 20,
-            "SKL": 40,
-            "SPD": 32,
-            "LCK": 30,
-            "DEF": 18,
-            "RES": 30,
+            "HP": 105,
+            "STR": 60,
+            "MAG": 15,
+            "SKL": 55,
+            "SPD": 45,
+            "LCK": 40,
+            "DEF": 25,
+            "RES": 15,
             "CON": 0,
             "MOV": 0
         },
@@ -1039,22 +431,35 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Initiative"
+            ],
+            [
+                5,
+                "Poise"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 true,
-                31
+                1
             ],
             "Lance": [
                 false,
@@ -1065,10 +470,6 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -1098,38 +499,36 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Hero",
-        "name": "Hero",
-        "desc": "",
+        "nid": "Vanguard",
+        "name": "Vanguard",
+        "desc": "Veteran warriors expert in all fields of combat.",
         "tier": 2,
-        "movement_group": "Light Foot",
+        "movement_group": "Regular",
         "promotes_from": "Mercenary",
         "turns_into": [],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 22,
-            "STR": 6,
-            "MAG": 1,
-            "SKL": 10,
-            "SPD": 11,
+            "HP": 18,
+            "STR": 4,
+            "MAG": 0,
+            "SKL": 7,
+            "SPD": 7,
             "LCK": 0,
-            "DEF": 8,
-            "RES": 3,
-            "CON": 11,
+            "DEF": 5,
+            "RES": 2,
+            "CON": 8,
             "MOV": 6
         },
         "growths": {
-            "HP": 75,
-            "STR": 30,
-            "MAG": 5,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 25,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 105,
+            "STR": 60,
+            "MAG": 15,
+            "SKL": 55,
+            "SPD": 45,
+            "LCK": 40,
+            "DEF": 25,
+            "RES": 15,
             "CON": 0,
             "MOV": 0
         },
@@ -1147,7 +546,7 @@
         },
         "promotion": {
             "HP": 4,
-            "STR": 2,
+            "STR": 1,
             "MAG": 0,
             "SKL": 2,
             "SPD": 2,
@@ -1155,39 +554,48 @@
             "DEF": 2,
             "RES": 2,
             "CON": 2,
-            "MOV": -99
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 20,
-            "SKL": 30,
-            "SPD": 26,
-            "LCK": 30,
-            "DEF": 25,
-            "RES": 24,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 17,
+            "MAG": 15,
+            "SKL": 19,
+            "SPD": 17,
+            "LCK": 20,
+            "DEF": 17,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Sol"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
-                2,
-                40
+                true,
+                10
             ],
             "Lance": [
                 false,
                 0
             ],
             "Axe": [
-                2,
-                31
+                true,
+                16
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -1224,34 +632,31 @@
         "movement_group": "Light Foot",
         "promotes_from": null,
         "turns_into": [
-            "Assassin",
-            "Rogue"
+            "Assassin"
         ],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 16,
-            "STR": 3,
-            "MAG": 3,
-            "SKL": 1,
-            "SPD": 9,
+            "HP": 11,
+            "STR": 2,
+            "MAG": 1,
+            "SKL": 2,
+            "SPD": 6,
             "LCK": 0,
-            "DEF": 2,
-            "RES": 0,
-            "CON": 6,
+            "DEF": 1,
+            "RES": 1,
+            "CON": 4,
             "MOV": 6
         },
         "growths": {
-            "HP": 50,
-            "STR": 5,
-            "MAG": 5,
-            "SKL": 45,
-            "SPD": 40,
-            "LCK": 40,
+            "HP": 65,
+            "STR": 40,
+            "MAG": 35,
+            "SKL": 60,
+            "SPD": 65,
+            "LCK": 55,
             "DEF": 5,
-            "RES": 20,
+            "RES": 35,
             "CON": 0,
             "MOV": 0
         },
@@ -1280,21 +685,29 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
         "learned_skills": [
             [
                 1,
+                "Locktouch"
+            ],
+            [
+                5,
                 "Steal"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -1311,10 +724,6 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -1346,36 +755,34 @@
     {
         "nid": "Assassin",
         "name": "Assassin",
-        "desc": "",
+        "desc": "Killers at home in the shadows.",
         "tier": 2,
         "movement_group": "Light Foot",
         "promotes_from": "Thief",
         "turns_into": [],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 16,
-            "STR": 3,
-            "MAG": 1,
-            "SKL": 1,
-            "SPD": 9,
+            "HP": 14,
+            "STR": 4,
+            "MAG": 2,
+            "SKL": 5,
+            "SPD": 8,
             "LCK": 0,
-            "DEF": 2,
-            "RES": 0,
-            "CON": 8,
-            "MOV": 6
+            "DEF": 3,
+            "RES": 3,
+            "CON": 5,
+            "MOV": 7
         },
         "growths": {
-            "HP": 50,
-            "STR": 5,
-            "MAG": 5,
-            "SKL": 45,
-            "SPD": 40,
-            "LCK": 40,
+            "HP": 65,
+            "STR": 40,
+            "MAG": 35,
+            "SKL": 60,
+            "SPD": 65,
+            "LCK": 55,
             "DEF": 5,
-            "RES": 20,
+            "RES": 35,
             "CON": 0,
             "MOV": 0
         },
@@ -1393,33 +800,46 @@
         },
         "promotion": {
             "HP": 3,
-            "STR": 1,
+            "STR": 2,
             "MAG": 1,
-            "SKL": 0,
-            "SPD": 0,
+            "SKL": 3,
+            "SPD": 2,
             "LCK": 0,
             "DEF": 2,
             "RES": 2,
-            "CON": 2,
-            "MOV": -99
+            "CON": 1,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 30,
-            "SPD": 30,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 20,
+            "SPD": 20,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Ghost"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
-                2,
-                30
+                true,
+                1
             ],
             "Lance": [
                 false,
@@ -1430,12 +850,8 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
+                true,
+                16
             ],
             "Light": [
                 false,
@@ -1463,276 +879,38 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Rogue",
-        "name": "Rogue",
-        "desc": "",
-        "tier": 2,
-        "movement_group": "Light Foot",
-        "promotes_from": "Thief",
-        "turns_into": [],
-        "tags": [
-            "Sword"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 16,
-            "STR": 3,
-            "MAG": 1,
-            "SKL": 1,
-            "SPD": 9,
-            "LCK": 0,
-            "DEF": 2,
-            "RES": 0,
-            "CON": 7,
-            "MOV": 6
-        },
-        "growths": {
-            "HP": 50,
-            "STR": 10,
-            "MAG": 5,
-            "SKL": 45,
-            "SPD": 35,
-            "LCK": 40,
-            "DEF": 5,
-            "RES": 20,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 2,
-            "STR": 1,
-            "MAG": 1,
-            "SKL": 1,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 2,
-            "RES": 2,
-            "CON": 1,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 30,
-            "SPD": 30,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                2,
-                1
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Assassin",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Rogue",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Recruit",
-        "name": "Recruit",
-        "desc": "Mounted knights with superior movement.",
+        "nid": "Soldier",
+        "name": "Soldier",
+        "desc": "Well-rounded combatants who rely on their exceptional skill.",
         "tier": 1,
         "movement_group": "Regular",
         "promotes_from": null,
         "turns_into": [
-            "Cavalier",
-            "Pegasus_Knight",
-            "Knight"
+            "Halberdier"
         ],
         "tags": [],
         "max_level": 10,
         "bases": {
             "HP": 13,
-            "STR": 3,
+            "STR": 2,
             "MAG": 0,
-            "SKL": 1,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 1,
-            "CON": 6,
-            "MOV": 4
-        },
-        "growths": {
-            "HP": 75,
-            "STR": 45,
-            "MAG": 0,
-            "SKL": 40,
-            "SPD": 40,
-            "LCK": 40,
-            "DEF": 25,
-            "RES": 35,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
+            "SKL": 4,
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
             "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                true,
-                1
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Citizen",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Recruit",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Soldier",
-        "name": "Soldier",
-        "desc": "Average soldiers possessing\nno special abilities.",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [],
-        "tags": [],
-        "max_level": 20,
-        "bases": {
-            "HP": 20,
-            "STR": 3,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 1,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 6,
+            "CON": 7,
             "MOV": 5
         },
         "growths": {
-            "HP": 80,
-            "STR": 50,
-            "MAG": 0,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 25,
-            "DEF": 12,
-            "RES": 15,
+            "HP": 105,
+            "STR": 65,
+            "MAG": 15,
+            "SKL": 70,
+            "SPD": 60,
+            "LCK": 35,
+            "DEF": 40,
+            "RES": 20,
             "CON": 0,
             "MOV": 0
         },
@@ -1761,18 +939,31 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
             "LCK": 20,
-            "DEF": 20,
-            "RES": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Synergy"
+            ],
+            [
+                5,
+                "Feat"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1787,10 +978,6 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -1820,44 +1007,38 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Cavalier",
-        "name": "Cavalier",
-        "desc": "Mounted knights with superior movement.",
-        "tier": 1,
-        "movement_group": "Heavy Cav",
-        "promotes_from": null,
-        "turns_into": [
-            "Paladin",
-            "Great_Knight"
-        ],
-        "tags": [
-            "Horse",
-            "Mounted"
-        ],
-        "max_level": 20,
+        "nid": "Halberdier",
+        "name": "Halberdier",
+        "desc": "Veteran frontliners with inerring accuracy.",
+        "tier": 2,
+        "movement_group": "Armors",
+        "promotes_from": "Soldier",
+        "turns_into": [],
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 20,
-            "STR": 5,
-            "MAG": 2,
-            "SKL": 3,
-            "SPD": 5,
+            "HP": 17,
+            "STR": 3,
+            "MAG": 1,
+            "SKL": 6,
+            "SPD": 2,
             "LCK": 0,
-            "DEF": 6,
+            "DEF": 5,
+            "RES": 2,
             "CON": 9,
-            "MOV": 7,
-            "RES": 0
+            "MOV": 6
         },
         "growths": {
-            "HP": 75,
-            "STR": 35,
-            "MAG": 17,
-            "SKL": 40,
-            "SPD": 28,
-            "LCK": 30,
-            "DEF": 15,
+            "HP": 105,
+            "STR": 65,
+            "MAG": 15,
+            "SKL": 70,
+            "SPD": 60,
+            "LCK": 35,
+            "DEF": 40,
+            "RES": 20,
             "CON": 0,
-            "MOV": 0,
-            "RES": 15
+            "MOV": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1867,48 +1048,56 @@
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
+            "RES": 0,
             "CON": 0,
-            "MOV": 0,
-            "RES": 0
+            "MOV": 0
         },
         "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
+            "HP": 4,
+            "STR": 1,
+            "MAG": 1,
+            "SKL": 2,
+            "SPD": 3,
             "LCK": 0,
-            "DEF": 0,
-            "CON": 0,
-            "MOV": 0,
-            "RES": 0
+            "DEF": 4,
+            "RES": 2,
+            "CON": 2,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
+            "HP": 40,
+            "STR": 18,
+            "MAG": 15,
             "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "CON": 25,
-            "MOV": 15,
-            "RES": 20
+            "SPD": 17,
+            "LCK": 20,
+            "DEF": 19,
+            "RES": 17,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Canto"
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Luna"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
             "Sword": [
-                true,
-                1
+                false,
+                0
             ],
             "Lance": [
                 true,
-                31
+                10
             ],
             "Axe": [
                 false,
@@ -1918,7 +1107,133 @@
                 false,
                 0
             ],
-            "Staff": [
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "icon_nid": "Generic_Portrait_Halberdier",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Halberdier",
+        "combat_anim_nid": null
+    },
+    {
+        "nid": "Cavalier",
+        "name": "Cavalier",
+        "desc": "Mounted knights with superior movement.",
+        "tier": 1,
+        "movement_group": "Heavy Cav",
+        "promotes_from": null,
+        "turns_into": [
+            "Paladin"
+        ],
+        "tags": [
+            "Mounted"
+        ],
+        "max_level": 10,
+        "bases": {
+            "HP": 12,
+            "STR": 3,
+            "MAG": 0,
+            "SKL": 2,
+            "SPD": 3,
+            "LCK": 0,
+            "DEF": 4,
+            "RES": 0,
+            "CON": 7,
+            "MOV": 7
+        },
+        "growths": {
+            "HP": 100,
+            "STR": 45,
+            "MAG": 5,
+            "SKL": 55,
+            "SPD": 35,
+            "LCK": 40,
+            "DEF": 20,
+            "RES": 30,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "max_stats": {
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
+        },
+        "learned_skills": [
+            [
+                1,
+                "Canto"
+            ],
+            [
+                5,
+                "Savior"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
+        "wexp_gain": {
+            "Sword": [
+                true,
+                1
+            ],
+            "Lance": [
+                true,
+                1
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
                 false,
                 0
             ],
@@ -1950,39 +1265,38 @@
     {
         "nid": "Paladin",
         "name": "Paladin",
-        "desc": "A title earned only by those cavaliers whose lives have been dedicated to justice.",
+        "desc": "Veteran horse knights.",
         "tier": 2,
         "movement_group": "Heavy Cav",
         "promotes_from": "Cavalier",
         "turns_into": [],
         "tags": [
-            "Horse",
             "Mounted"
         ],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 23,
-            "STR": 7,
-            "MAG": 3,
-            "SKL": 6,
-            "SPD": 11,
+            "HP": 14,
+            "STR": 4,
+            "MAG": 0,
+            "SKL": 4,
+            "SPD": 5,
             "LCK": 0,
-            "DEF": 8,
-            "CON": 11,
-            "MOV": 8,
-            "RES": 6
+            "DEF": 6,
+            "RES": 5,
+            "CON": 8,
+            "MOV": 8
         },
         "growths": {
-            "HP": 70,
-            "STR": 25,
-            "MAG": 12,
-            "SKL": 35,
-            "SPD": 25,
-            "LCK": 25,
-            "DEF": 12,
+            "HP": 100,
+            "STR": 45,
+            "MAG": 5,
+            "SKL": 55,
+            "SPD": 35,
+            "LCK": 40,
+            "DEF": 20,
+            "RES": 30,
             "CON": 0,
-            "MOV": 0,
-            "RES": 25
+            "MOV": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1992,58 +1306,62 @@
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
+            "RES": 0,
             "CON": 0,
-            "MOV": 0,
-            "RES": 0
+            "MOV": 0
         },
         "promotion": {
             "HP": 2,
             "STR": 1,
             "MAG": 0,
-            "SKL": 1,
+            "SKL": 2,
             "SPD": 2,
             "LCK": 0,
             "DEF": 2,
-            "CON": 2,
-            "MOV": -99,
-            "RES": 2
+            "RES": 5,
+            "CON": 1,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 20,
-            "SKL": 27,
-            "SPD": 25,
-            "LCK": 30,
-            "DEF": 25,
-            "CON": 25,
-            "MOV": 15,
-            "RES": 26
+            "HP": 40,
+            "STR": 17,
+            "MAG": 15,
+            "SKL": 18,
+            "SPD": 17,
+            "LCK": 20,
+            "DEF": 17,
+            "RES": 18,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Canto"
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Charisma"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
             "Sword": [
                 true,
-                30
+                1
             ],
             "Lance": [
                 true,
-                30
+                1
             ],
             "Axe": [
                 false,
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -2073,167 +1391,37 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Great_Knight",
-        "name": "Great Knight",
-        "desc": "Veteran horse knights.",
+        "nid": "Knight",
+        "name": "Knight",
+        "desc": "Heavily armored knights with superior defense but poor movement.",
         "tier": 1,
         "movement_group": "Armors",
-        "promotes_from": "Cavalier",
-        "turns_into": [],
-        "tags": [
-            "Horse",
-            "Mounted",
-            "Armor"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 21,
-            "STR": 8,
-            "MAG": 4,
-            "SKL": 6,
-            "SPD": 7,
-            "LCK": 0,
-            "DEF": 11,
-            "RES": 3,
-            "CON": 13,
-            "MOV": 6
-        },
-        "growths": {
-            "HP": 70,
-            "STR": 30,
-            "MAG": 15,
-            "SKL": 25,
-            "SPD": 20,
-            "LCK": 20,
-            "DEF": 21,
-            "RES": 22,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 3,
-            "STR": 2,
-            "MAG": 1,
-            "SKL": 1,
-            "SPD": 2,
-            "LCK": 0,
-            "DEF": 2,
-            "RES": 2,
-            "CON": 4,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 28,
-            "MAG": 20,
-            "SKL": 26,
-            "SPD": 25,
-            "LCK": 30,
-            "DEF": 29,
-            "RES": 26,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Canto"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                true,
-                1
-            ],
-            "Lance": [
-                true,
-                1
-            ],
-            "Axe": [
-                true,
-                31
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Great_Knight",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Great_Knight",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Pegasus_Knight",
-        "name": "Peg. Knight",
-        "desc": "Knights who soar through the skies.",
-        "tier": 1,
-        "movement_group": "Fliers",
         "promotes_from": null,
         "turns_into": [
-            "Falcoknight",
-            "Wyvern Knight"
+            "General"
         ],
-        "tags": [
-            "Mounted",
-            "Flying"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 14,
-            "STR": 4,
-            "MAG": 2,
-            "SKL": 5,
-            "SPD": 5,
+            "HP": 11,
+            "STR": 3,
+            "MAG": 0,
+            "SKL": 2,
+            "SPD": 1,
             "LCK": 0,
-            "DEF": 3,
-            "RES": 2,
-            "CON": 5,
-            "MOV": 7
+            "DEF": 6,
+            "RES": 1,
+            "CON": 9,
+            "MOV": 4
         },
         "growths": {
-            "HP": 65,
-            "STR": 35,
-            "MAG": 17,
+            "HP": 105,
+            "STR": 55,
+            "MAG": 15,
             "SKL": 40,
-            "SPD": 40,
+            "SPD": 20,
             "LCK": 35,
-            "DEF": 12,
+            "DEF": 55,
             "RES": 35,
             "CON": 0,
             "MOV": 0
@@ -2263,25 +1451,29 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
                 1,
-                "Flying"
+                "Provoke"
             ],
             [
-                1,
-                "Canto"
+                5,
+                "Shove"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -2290,269 +1482,14 @@
                 0
             ],
             "Lance": [
-                true,
-                31
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Pegasus_Knight",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "PegasusKnight",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Falcoknight",
-        "name": "Falcoknight",
-        "desc": "Veteran pegasus knights.",
-        "tier": 2,
-        "movement_group": "Light Cav",
-        "promotes_from": "Pegasus_Knight",
-        "turns_into": [],
-        "tags": [
-            "Mounted",
-            "Flying"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 20,
-            "STR": 6,
-            "MAG": 3,
-            "SKL": 7,
-            "SPD": 7,
-            "LCK": 0,
-            "DEF": 5,
-            "RES": 4,
-            "CON": 6,
-            "MOV": 8
-        },
-        "growths": {
-            "HP": 60,
-            "STR": 30,
-            "MAG": 15,
-            "SKL": 30,
-            "SPD": 30,
-            "LCK": 30,
-            "DEF": 12,
-            "RES": 30,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 5,
-            "STR": 2,
-            "MAG": 1,
-            "SKL": 0,
-            "SPD": 2,
-            "LCK": 0,
-            "DEF": 2,
-            "RES": 2,
-            "CON": 1,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 23,
-            "MAG": 20,
-            "SKL": 25,
-            "SPD": 28,
-            "LCK": 30,
-            "DEF": 23,
-            "RES": 26,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Flying"
-            ],
-            [
-                1,
-                "Canto"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
                 true,
                 1
             ],
-            "Lance": [
-                true,
-                40
-            ],
             "Axe": [
                 false,
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Falcoknight",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Falcoknight",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Knight",
-        "name": "Knight",
-        "desc": "Heavily armored knights with poor movement.",
-        "tier": 1,
-        "movement_group": "Armors",
-        "promotes_from": null,
-        "turns_into": [
-            "Great_Knight",
-            "General"
-        ],
-        "tags": [
-            "Armor"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 17,
-            "STR": 5,
-            "MAG": 0,
-            "SKL": 3,
-            "SPD": 1,
-            "LCK": 0,
-            "DEF": 9,
-            "CON": 13,
-            "MOV": 4,
-            "RES": 1
-        },
-        "growths": {
-            "HP": 80,
-            "STR": 40,
-            "MAG": 0,
-            "SKL": 30,
-            "SPD": 15,
-            "LCK": 25,
-            "DEF": 28,
-            "CON": 0,
-            "MOV": 0,
-            "RES": 20
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "CON": 0,
-            "MOV": 0,
-            "RES": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "CON": 0,
-            "MOV": 0,
-            "RES": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "CON": 20,
-            "MOV": 15,
-            "RES": 20
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                true,
-                31
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -2584,36 +1521,34 @@
     {
         "nid": "General",
         "name": "General",
-        "desc": "",
+        "desc": "Defensive stalwarts able to take a hit.",
         "tier": 2,
         "movement_group": "Armors",
         "promotes_from": "Knight",
         "turns_into": [],
-        "tags": [
-            "Armor"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 21,
-            "STR": 8,
+            "HP": 17,
+            "STR": 6,
             "MAG": 0,
-            "SKL": 5,
-            "SPD": 5,
+            "SKL": 4,
+            "SPD": 4,
             "LCK": 0,
-            "DEF": 13,
+            "DEF": 8,
             "RES": 4,
-            "CON": 11,
+            "CON": 10,
             "MOV": 5
         },
         "growths": {
-            "HP": 75,
-            "STR": 30,
-            "MAG": 0,
-            "SKL": 25,
-            "SPD": 10,
-            "LCK": 20,
-            "DEF": 23,
-            "RES": 25,
+            "HP": 105,
+            "STR": 55,
+            "MAG": 15,
+            "SKL": 40,
+            "SPD": 20,
+            "LCK": 35,
+            "DEF": 55,
+            "RES": 35,
             "CON": 0,
             "MOV": 0
         },
@@ -2630,48 +1565,57 @@
             "MOV": 0
         },
         "promotion": {
-            "HP": 4,
-            "STR": 2,
+            "HP": 6,
+            "STR": 3,
             "MAG": 0,
-            "SKL": 3,
+            "SKL": 2,
             "SPD": 3,
             "LCK": 0,
-            "DEF": 3,
+            "DEF": 2,
             "RES": 3,
-            "CON": 2,
-            "MOV": -99
+            "CON": 1,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 29,
-            "MAG": 22,
-            "SKL": 28,
-            "SPD": 25,
-            "LCK": 30,
-            "DEF": 30,
-            "RES": 26,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 19,
+            "MAG": 15,
+            "SKL": 18,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 20,
+            "RES": 17,
+            "CON": 20,
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Slow"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
-                2,
-                1
+                true,
+                16
             ],
             "Lance": [
-                2,
-                40
-            ],
-            "Axe": [
-                2,
+                true,
                 1
             ],
-            "Bow": [
-                false,
-                0
+            "Axe": [
+                true,
+                16
             ],
-            "Staff": [
+            "Bow": [
                 false,
                 0
             ],
@@ -2701,39 +1645,38 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Journeyman",
-        "name": "Journeyman",
-        "desc": "Young fighters with high expectations.",
-        "tier": 0,
-        "movement_group": "Regular",
+        "nid": "Skirmisher",
+        "name": "Skirmisher",
+        "desc": "Swift-moving, lightly-armored soldiers of fortune.",
+        "tier": 1,
+        "movement_group": "Light Foot",
         "promotes_from": null,
         "turns_into": [
-            "Fighter",
-            "Pirate"
+            "Dragoon"
         ],
         "tags": [],
         "max_level": 10,
         "bases": {
-            "HP": 14,
-            "STR": 3,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 1,
+            "HP": 9,
+            "STR": 2,
+            "MAG": 2,
+            "SKL": 3,
+            "SPD": 4,
             "LCK": 0,
             "DEF": 1,
-            "RES": 0,
-            "CON": 8,
-            "MOV": 4
+            "RES": 2,
+            "CON": 4,
+            "MOV": 6
         },
         "growths": {
             "HP": 85,
-            "STR": 55,
-            "MAG": 0,
-            "SKL": 40,
-            "SPD": 32,
-            "LCK": 40,
-            "DEF": 18,
-            "RES": 20,
+            "STR": 45,
+            "MAG": 35,
+            "SKL": 55,
+            "SPD": 105,
+            "LCK": 45,
+            "DEF": 20,
+            "RES": 45,
             "CON": 0,
             "MOV": 0
         },
@@ -2762,36 +1705,45 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Fleet_of_Foot"
+            ],
+            [
+                5,
+                "Evasion"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
                 0
             ],
             "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
                 true,
                 1
             ],
-            "Bow": [
+            "Axe": [
                 false,
                 0
             ],
-            "Staff": [
+            "Bow": [
                 false,
                 0
             ],
@@ -2812,50 +1764,47 @@
                 0
             ]
         },
-        "icon_nid": "Generic_Portrait_Citizen",
+        "icon_nid": "Generic_Portrait_Skirmisher",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": "Journeyman",
+        "map_sprite_nid": "Skirmisher",
         "combat_anim_nid": null
     },
     {
-        "nid": "Fighter",
-        "name": "Fighter",
-        "desc": "Ruffians with great strength but\npoor defense.",
-        "tier": 1,
-        "movement_group": "Regular",
-        "promotes_from": null,
-        "turns_into": [
-            "Hero",
-            "Warrior"
-        ],
+        "nid": "Dragoon",
+        "name": "Dragoon",
+        "desc": "Devotees of the lance. Fast-moving vanguards that excel behind enemy lines.",
+        "tier": 2,
+        "movement_group": "Light Foot",
+        "promotes_from": "Skirmisher",
+        "turns_into": [],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 20,
-            "STR": 5,
-            "MAG": 0,
-            "SKL": 2,
+            "HP": 14,
+            "STR": 4,
+            "MAG": 2,
+            "SKL": 3,
             "SPD": 4,
             "LCK": 0,
-            "DEF": 2,
-            "CON": 11,
-            "MOV": 5,
-            "RES": 0
+            "DEF": 4,
+            "RES": 4,
+            "CON": 7,
+            "MOV": 7
         },
         "growths": {
             "HP": 85,
-            "STR": 55,
-            "MAG": 0,
-            "SKL": 35,
-            "SPD": 30,
-            "LCK": 15,
-            "DEF": 15,
+            "STR": 45,
+            "MAG": 35,
+            "SKL": 55,
+            "SPD": 105,
+            "LCK": 45,
+            "DEF": 20,
+            "RES": 45,
             "CON": 0,
-            "MOV": 0,
-            "RES": 15
+            "MOV": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2865,35 +1814,176 @@
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
+            "RES": 0,
             "CON": 0,
-            "MOV": 0,
-            "RES": 0
+            "MOV": 0
         },
         "promotion": {
-            "HP": 2,
+            "HP": 5,
             "STR": 2,
             "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 2,
+            "RES": 2,
+            "CON": 3,
+            "MOV": 1
+        },
+        "max_stats": {
+            "HP": 40,
+            "STR": 17,
+            "MAG": 15,
+            "SKL": 17,
+            "SPD": 20,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
+        },
+        "learned_skills": [
+            [
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Charge"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                true,
+                10
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "icon_nid": "Generic_Portrait_Dragoon",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Dragoon",
+        "combat_anim_nid": null
+    },
+    {
+        "nid": "Fighter",
+        "name": "Fighter",
+        "desc": "Axe-wielding powerhouses.",
+        "tier": 1,
+        "movement_group": "Regular",
+        "promotes_from": null,
+        "turns_into": [
+            "Warrior"
+        ],
+        "tags": [],
+        "max_level": 10,
+        "bases": {
+            "HP": 13,
+            "STR": 3,
+            "MAG": 0,
             "SKL": 1,
+            "SPD": 3,
+            "LCK": 0,
+            "DEF": 1,
+            "RES": 0,
+            "CON": 8,
+            "MOV": 5
+        },
+        "growths": {
+            "HP": 120,
+            "STR": 75,
+            "MAG": 15,
+            "SKL": 45,
+            "SPD": 40,
+            "LCK": 20,
+            "DEF": 25,
+            "RES": 20,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
             "SPD": 0,
             "LCK": 0,
             "DEF": 0,
-            "CON": 3,
-            "MOV": -99,
-            "RES": 1
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15,
-            "RES": 20
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Cleave"
+            ],
+            [
+                5,
+                "Shove"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -2905,13 +1995,9 @@
             ],
             "Axe": [
                 true,
-                31
+                1
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -2949,28 +2035,28 @@
         "promotes_from": "Fighter",
         "turns_into": [],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 28,
-            "STR": 8,
+            "HP": 18,
+            "STR": 4,
             "MAG": 0,
-            "SKL": 5,
-            "SPD": 6,
+            "SKL": 3,
+            "SPD": 3,
             "LCK": 0,
-            "DEF": 5,
-            "RES": 0,
-            "CON": 13,
+            "DEF": 4,
+            "RES": 2,
+            "CON": 10,
             "MOV": 6
         },
         "growths": {
-            "HP": 80,
-            "STR": 45,
-            "MAG": 0,
-            "SKL": 25,
-            "SPD": 20,
-            "LCK": 15,
-            "DEF": 16,
-            "RES": 17,
+            "HP": 120,
+            "STR": 75,
+            "MAG": 15,
+            "SKL": 45,
+            "SPD": 40,
+            "LCK": 20,
+            "DEF": 25,
+            "RES": 20,
             "CON": 0,
             "MOV": 0
         },
@@ -2994,23 +2080,36 @@
             "SPD": 0,
             "LCK": 0,
             "DEF": 3,
-            "RES": 3,
+            "RES": 2,
             "CON": 2,
-            "MOV": -99
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 30,
-            "MAG": 20,
-            "SKL": 28,
-            "SPD": 26,
-            "LCK": 30,
-            "DEF": 26,
-            "RES": 22,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 20,
+            "MAG": 15,
+            "SKL": 19,
+            "SPD": 17,
+            "LCK": 20,
+            "DEF": 17,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Heavy Hitter"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -3022,15 +2121,11 @@
             ],
             "Axe": [
                 true,
-                40
+                1
             ],
             "Bow": [
                 true,
-                1
-            ],
-            "Staff": [
-                false,
-                0
+                16
             ],
             "Light": [
                 false,
@@ -3058,366 +2153,6 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Pirate",
-        "name": "Pirate",
-        "desc": "Untrained but fanatical combatant.",
-        "tier": 1,
-        "movement_group": "Pirates",
-        "promotes_from": null,
-        "turns_into": [
-            "Berserker"
-        ],
-        "tags": [],
-        "max_level": 20,
-        "bases": {
-            "HP": 19,
-            "STR": 4,
-            "MAG": 0,
-            "SKL": 2,
-            "SPD": 6,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 0,
-            "CON": 10,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 75,
-            "STR": 50,
-            "MAG": 0,
-            "SKL": 35,
-            "SPD": 25,
-            "LCK": 15,
-            "DEF": 10,
-            "RES": 13,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 2,
-            "STR": 2,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 1,
-            "LCK": 0,
-            "DEF": 1,
-            "RES": 0,
-            "CON": 2,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                true,
-                31
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Pirate",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Pirate",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Berserker",
-        "name": "Berserker",
-        "desc": "Devotees of the axe. Relentless savages that deliver devastating stikes.",
-        "tier": 2,
-        "movement_group": "Pirates",
-        "promotes_from": "Pirate",
-        "turns_into": [],
-        "tags": [],
-        "max_level": 20,
-        "bases": {
-            "HP": 24,
-            "STR": 7,
-            "MAG": 0,
-            "SKL": 6,
-            "SPD": 7,
-            "LCK": 0,
-            "DEF": 6,
-            "RES": 0,
-            "CON": 13,
-            "MOV": 6
-        },
-        "growths": {
-            "HP": 75,
-            "STR": 50,
-            "MAG": 0,
-            "SKL": 35,
-            "SPD": 25,
-            "LCK": 15,
-            "DEF": 10,
-            "RES": 13,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 4,
-            "STR": 1,
-            "MAG": 0,
-            "SKL": 1,
-            "SPD": 1,
-            "LCK": 0,
-            "DEF": 2,
-            "RES": 2,
-            "CON": 3,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 30,
-            "MAG": 20,
-            "SKL": 29,
-            "SPD": 28,
-            "LCK": 30,
-            "DEF": 23,
-            "RES": 21,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Crit +15"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                true,
-                40
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Berserker",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Berserker",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Brigand",
-        "name": "Brigand",
-        "desc": "Ruffians with a strong offense but poor defense.",
-        "tier": 1,
-        "movement_group": "Bandits",
-        "promotes_from": null,
-        "turns_into": [
-            "Berserker"
-        ],
-        "tags": [],
-        "max_level": 20,
-        "bases": {
-            "HP": 20,
-            "STR": 5,
-            "MAG": 0,
-            "SKL": 1,
-            "SPD": 5,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 0,
-            "CON": 12,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 82,
-            "STR": 50,
-            "MAG": 0,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 15,
-            "DEF": 10,
-            "RES": 13,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                true,
-                31
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Brigand",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Brigand",
-        "combat_anim_nid": null
-    },
-    {
         "nid": "Archer",
         "name": "Archer",
         "desc": "Lightly armored soldiers armed with bows. Can attack from a distance.",
@@ -3425,32 +2160,31 @@
         "movement_group": "Light Foot",
         "promotes_from": null,
         "turns_into": [
-            "Sniper",
-            "Ranger"
+            "Sniper"
         ],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 18,
-            "STR": 4,
+            "HP": 12,
+            "STR": 3,
             "MAG": 0,
-            "SKL": 3,
-            "SPD": 4,
+            "SKL": 2,
+            "SPD": 3,
             "LCK": 0,
-            "DEF": 3,
+            "DEF": 2,
             "RES": 0,
-            "CON": 7,
+            "CON": 5,
             "MOV": 5
         },
         "growths": {
-            "HP": 70,
-            "STR": 35,
-            "MAG": 0,
-            "SKL": 40,
-            "SPD": 32,
-            "LCK": 35,
-            "DEF": 15,
-            "RES": 20,
+            "HP": 95,
+            "STR": 45,
+            "MAG": 40,
+            "SKL": 55,
+            "SPD": 45,
+            "LCK": 45,
+            "DEF": 20,
+            "RES": 25,
             "CON": 0,
             "MOV": 0
         },
@@ -3479,18 +2213,31 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Prescience"
+            ],
+            [
+                5,
+                "Critical"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -3506,11 +2253,7 @@
             ],
             "Bow": [
                 true,
-                31
-            ],
-            "Staff": [
-                false,
-                0
+                1
             ],
             "Light": [
                 false,
@@ -3546,27 +2289,27 @@
         "promotes_from": "Archer",
         "turns_into": [],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 21,
-            "STR": 7,
-            "MAG": 0,
-            "SKL": 6,
-            "SPD": 7,
+            "HP": 16,
+            "STR": 6,
+            "MAG": 1,
+            "SKL": 4,
+            "SPD": 5,
             "LCK": 0,
-            "DEF": 5,
+            "DEF": 4,
             "RES": 3,
-            "CON": 8,
+            "CON": 6,
             "MOV": 6
         },
         "growths": {
-            "HP": 65,
-            "STR": 30,
-            "MAG": 0,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 15,
+            "HP": 95,
+            "STR": 45,
+            "MAG": 40,
+            "SKL": 55,
+            "SPD": 45,
+            "LCK": 45,
+            "DEF": 20,
             "RES": 25,
             "CON": 0,
             "MOV": 0
@@ -3586,31 +2329,39 @@
         "promotion": {
             "HP": 4,
             "STR": 3,
-            "MAG": 0,
+            "MAG": 1,
             "SKL": 2,
             "SPD": 2,
             "LCK": 0,
             "DEF": 2,
             "RES": 3,
             "CON": 1,
-            "MOV": -99
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 20,
-            "SKL": 30,
-            "SPD": 29,
-            "LCK": 30,
-            "DEF": 25,
-            "RES": 24,
+            "HP": 40,
+            "STR": 17,
+            "MAG": 15,
+            "SKL": 20,
+            "SPD": 19,
+            "LCK": 20,
+            "DEF": 17,
+            "RES": 16,
             "CON": 20,
             "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Sure_Strike"
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Longshot"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -3628,11 +2379,7 @@
             ],
             "Bow": [
                 true,
-                40
-            ],
-            "Staff": [
-                false,
-                0
+                10
             ],
             "Light": [
                 false,
@@ -3660,162 +2407,37 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Ranger",
-        "name": "Ranger",
-        "desc": "Devotees of the bow. Possess incredible range.",
-        "tier": 2,
-        "movement_group": "Light Cav",
-        "promotes_from": "Archer",
-        "turns_into": [],
-        "tags": [
-            "Horse",
-            "Mounted"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 21,
-            "STR": 7,
-            "MAG": 0,
-            "SKL": 6,
-            "SPD": 7,
-            "LCK": 0,
-            "DEF": 6,
-            "RES": 4,
-            "CON": 9,
-            "MOV": 7
-        },
-        "growths": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 0,
-            "SKL": 30,
-            "SPD": 35,
-            "LCK": 25,
-            "DEF": 15,
-            "RES": 20,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 3,
-            "STR": 2,
-            "MAG": 0,
-            "SKL": 2,
-            "SPD": 1,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 3,
-            "CON": 3,
-            "MOV": -99
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 20,
-            "SKL": 28,
-            "SPD": 30,
-            "LCK": 30,
-            "DEF": 24,
-            "RES": 25,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Canto"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                true,
-                31
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                true,
-                1
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Ranger",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Ranger",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Monk",
-        "name": "Monk",
-        "desc": "Kind-hearted healers.",
+        "nid": "Tactician",
+        "name": "Tactician",
+        "desc": "Scholars trained to lead.",
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
         "turns_into": [
-            "Bishop"
+            "Strategist"
         ],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 18,
+            "HP": 10,
             "STR": 0,
             "MAG": 1,
-            "SKL": 1,
-            "SPD": 2,
+            "SKL": 2,
+            "SPD": 3,
             "LCK": 0,
             "DEF": 1,
-            "RES": 5,
-            "CON": 6,
+            "RES": 2,
+            "CON": 4,
             "MOV": 5
         },
         "growths": {
-            "HP": 50,
-            "STR": 0,
-            "MAG": 30,
-            "SKL": 35,
-            "SPD": 32,
-            "LCK": 45,
-            "DEF": 8,
+            "HP": 55,
+            "STR": 20,
+            "MAG": 40,
+            "SKL": 60,
+            "SPD": 75,
+            "LCK": 50,
+            "DEF": 15,
             "RES": 40,
             "CON": 0,
             "MOV": 0
@@ -3833,30 +2455,43 @@
             "MOV": 0
         },
         "promotion": {
-            "HP": 1,
+            "HP": 0,
             "STR": 0,
             "MAG": 0,
-            "SKL": 2,
-            "SPD": 2,
+            "SKL": 0,
+            "SPD": 0,
             "LCK": 0,
             "DEF": 0,
-            "RES": 2,
-            "CON": 1,
-            "MOV": -99
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Inspiration"
+            ],
+            [
+                5,
+                "Skill_Aura"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -3871,10 +2506,6 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -3895,7 +2526,7 @@
                 0
             ]
         },
-        "icon_nid": "Generic_Portrait_Monk",
+        "icon_nid": "Generic_Portrait_Tactician",
         "icon_index": [
             0,
             0
@@ -3904,38 +2535,166 @@
         "combat_anim_nid": null
     },
     {
+        "nid": "Strategist",
+        "name": "Strategist",
+        "desc": "Scholars who've dedicated their lives to the study of warfare.",
+        "tier": 2,
+        "movement_group": "Light Cav",
+        "promotes_from": "Tactician",
+        "turns_into": [],
+        "tags": [
+            "Mounted"
+        ],
+        "max_level": 10,
+        "bases": {
+            "HP": 13,
+            "STR": 0,
+            "MAG": 3,
+            "SKL": 3,
+            "SPD": 3,
+            "LCK": 0,
+            "DEF": 3,
+            "RES": 5,
+            "CON": 5,
+            "MOV": 7
+        },
+        "growths": {
+            "HP": 55,
+            "STR": 20,
+            "MAG": 40,
+            "SKL": 60,
+            "SPD": 75,
+            "LCK": 50,
+            "DEF": 15,
+            "RES": 40,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 3,
+            "STR": 0,
+            "MAG": 2,
+            "SKL": 1,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 2,
+            "RES": 3,
+            "CON": 1,
+            "MOV": 2
+        },
+        "max_stats": {
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 17,
+            "SPD": 19,
+            "LCK": 20,
+            "DEF": 16,
+            "RES": 17,
+            "CON": 20,
+            "MOV": 30
+        },
+        "learned_skills": [
+            [
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Rally"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Light": [
+                true,
+                10
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "icon_nid": "Generic_Portrait_Strategist",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Strategist",
+        "combat_anim_nid": null
+    },
+    {
         "nid": "Cleric",
         "name": "Cleric",
-        "desc": "Members of the clergy who wield sacred staves to aid allies.",
+        "desc": "Kind-hearted healers.",
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
         "turns_into": [
-            "Bishop"
+            "Oracle"
         ],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 18,
+            "HP": 11,
             "STR": 0,
             "MAG": 1,
-            "SKL": 2,
-            "SPD": 2,
+            "SKL": 1,
+            "SPD": 1,
             "LCK": 0,
-            "DEF": 1,
-            "RES": 6,
-            "CON": 5,
+            "DEF": 0,
+            "RES": 4,
+            "CON": 4,
             "MOV": 5
         },
         "growths": {
-            "HP": 50,
-            "STR": 0,
-            "MAG": 30,
-            "SKL": 35,
-            "SPD": 32,
-            "LCK": 45,
-            "DEF": 8,
-            "RES": 50,
+            "HP": 65,
+            "STR": 15,
+            "MAG": 40,
+            "SKL": 55,
+            "SPD": 45,
+            "LCK": 70,
+            "DEF": 15,
+            "RES": 65,
             "CON": 0,
             "MOV": 0
         },
@@ -3964,18 +2723,31 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Healtouch"
+            ],
+            [
+                5,
+                "Miracle"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -3993,13 +2765,9 @@
                 false,
                 0
             ],
-            "Staff": [
-                true,
-                31
-            ],
             "Light": [
                 true,
-                31
+                1
             ],
             "Anima": [
                 false,
@@ -4023,36 +2791,36 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Bishop",
-        "name": "Bishop",
+        "nid": "Oracle",
+        "name": "Oracle",
         "desc": "Mages gifted with visions of the future.",
         "tier": 2,
         "movement_group": "Mages",
         "promotes_from": "Cleric",
         "turns_into": [],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 21,
+            "HP": 14,
             "STR": 0,
-            "MAG": 4,
-            "SKL": 5,
-            "SPD": 4,
+            "MAG": 3,
+            "SKL": 3,
+            "SPD": 2,
             "LCK": 0,
             "DEF": 3,
-            "RES": 9,
-            "CON": 7,
+            "RES": 6,
+            "CON": 5,
             "MOV": 6
         },
         "growths": {
-            "HP": 45,
-            "STR": 0,
-            "MAG": 35,
-            "SKL": 25,
-            "SPD": 22,
-            "LCK": 40,
-            "DEF": 8,
-            "RES": 50,
+            "HP": 65,
+            "STR": 15,
+            "MAG": 40,
+            "SKL": 55,
+            "SPD": 45,
+            "LCK": 70,
+            "DEF": 15,
+            "RES": 65,
             "CON": 0,
             "MOV": 0
         },
@@ -4077,25 +2845,33 @@
             "LCK": 0,
             "DEF": 3,
             "RES": 2,
-            "CON": 2,
-            "MOV": -99
+            "CON": 1,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 25,
-            "SKL": 26,
-            "SPD": 26,
-            "LCK": 30,
-            "DEF": 22,
-            "RES": 30,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 17,
+            "SKL": 19,
+            "SPD": 17,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Slayer"
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Futuresight"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -4115,21 +2891,17 @@
                 false,
                 0
             ],
-            "Staff": [
-                true,
-                1
-            ],
             "Light": [
                 true,
-                17
+                1
             ],
             "Anima": [
                 false,
                 0
             ],
             "Dark": [
-                false,
-                0
+                true,
+                16
             ],
             "Default": [
                 false,
@@ -4152,32 +2924,31 @@
         "movement_group": "Mages",
         "promotes_from": null,
         "turns_into": [
-            "Sage",
-            "Mage Knight"
+            "Sage"
         ],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 16,
+            "HP": 11,
             "STR": 0,
             "MAG": 1,
-            "SKL": 3,
-            "SPD": 3,
+            "SKL": 1,
+            "SPD": 2,
             "LCK": 0,
-            "DEF": 3,
-            "RES": 4,
-            "CON": 5,
+            "DEF": 1,
+            "RES": 2,
+            "CON": 4,
             "MOV": 5
         },
         "growths": {
-            "HP": 55,
-            "STR": 0,
-            "MAG": 55,
-            "SKL": 40,
-            "SPD": 35,
-            "LCK": 20,
-            "DEF": 5,
-            "RES": 40,
+            "HP": 75,
+            "STR": 15,
+            "MAG": 75,
+            "SKL": 45,
+            "SPD": 65,
+            "LCK": 40,
+            "DEF": 20,
+            "RES": 45,
             "CON": 0,
             "MOV": 0
         },
@@ -4194,30 +2965,43 @@
             "MOV": 0
         },
         "promotion": {
-            "HP": 1,
+            "HP": 0,
             "STR": 0,
             "MAG": 0,
-            "SKL": 1,
-            "SPD": 2,
+            "SKL": 0,
+            "SPD": 0,
             "LCK": 0,
-            "DEF": 1,
-            "RES": 2,
-            "CON": 1,
-            "MOV": -99
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Focus"
+            ],
+            [
+                5,
+                "Conductance"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -4235,17 +3019,13 @@
                 false,
                 0
             ],
-            "Staff": [
-                false,
-                0
-            ],
             "Light": [
                 false,
                 0
             ],
             "Anima": [
                 true,
-                31
+                1
             ],
             "Dark": [
                 false,
@@ -4273,28 +3053,28 @@
         "promotes_from": "Mage",
         "turns_into": [],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 20,
+            "HP": 15,
             "STR": 0,
-            "MAG": 5,
-            "SKL": 6,
-            "SPD": 5,
+            "MAG": 2,
+            "SKL": 2,
+            "SPD": 2,
             "LCK": 0,
-            "DEF": 5,
-            "RES": 6,
-            "CON": 7,
+            "DEF": 4,
+            "RES": 5,
+            "CON": 5,
             "MOV": 6
         },
         "growths": {
-            "HP": 45,
-            "STR": 0,
-            "MAG": 45,
-            "SKL": 30,
-            "SPD": 25,
-            "LCK": 15,
-            "DEF": 10,
-            "RES": 40,
+            "HP": 75,
+            "STR": 15,
+            "MAG": 75,
+            "SKL": 45,
+            "SPD": 65,
+            "LCK": 40,
+            "DEF": 20,
+            "RES": 45,
             "CON": 0,
             "MOV": 0
         },
@@ -4320,21 +3100,34 @@
             "DEF": 3,
             "RES": 3,
             "CON": 1,
-            "MOV": -99
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 30,
-            "SKL": 30,
-            "SPD": 26,
-            "LCK": 30,
-            "DEF": 21,
-            "RES": 25,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 19,
+            "SKL": 17,
+            "SPD": 18,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 18,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Metamagic"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -4352,17 +3145,13 @@
                 false,
                 0
             ],
-            "Staff": [
-                true,
-                31
-            ],
             "Light": [
-                true,
-                62
+                false,
+                0
             ],
             "Anima": [
                 true,
-                31
+                10
             ],
             "Dark": [
                 false,
@@ -4388,30 +3177,32 @@
         "tier": 1,
         "movement_group": "Mages",
         "promotes_from": null,
-        "turns_into": [],
+        "turns_into": [
+            "Warlock"
+        ],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 16,
-            "STR": 0,
-            "MAG": 3,
+            "HP": 11,
+            "STR": 1,
+            "MAG": 2,
             "SKL": 1,
-            "SPD": 2,
+            "SPD": 1,
             "LCK": 0,
-            "DEF": 2,
-            "RES": 5,
-            "CON": 7,
-            "MOV": 5
+            "DEF": 1,
+            "RES": 3,
+            "CON": 5,
+            "MOV": 4
         },
         "growths": {
-            "HP": 50,
-            "STR": 0,
-            "MAG": 50,
-            "SKL": 32,
-            "SPD": 30,
-            "LCK": 20,
-            "DEF": 10,
-            "RES": 40,
+            "HP": 65,
+            "STR": 20,
+            "MAG": 65,
+            "SKL": 45,
+            "SPD": 40,
+            "LCK": 25,
+            "DEF": 25,
+            "RES": 55,
             "CON": 0,
             "MOV": 0
         },
@@ -4428,30 +3219,43 @@
             "MOV": 0
         },
         "promotion": {
-            "HP": 1,
+            "HP": 0,
             "STR": 0,
-            "MAG": 2,
+            "MAG": 0,
             "SKL": 0,
-            "SPD": 1,
+            "SPD": 0,
             "LCK": 0,
-            "DEF": 1,
-            "RES": 2,
-            "CON": 2,
-            "MOV": -99
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
+            "MOV": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Hex"
+            ],
+            [
+                5,
+                "Empowered"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -4469,10 +3273,6 @@
                 false,
                 0
             ],
-            "Staff": [
-                false,
-                0
-            ],
             "Light": [
                 false,
                 0
@@ -4483,7 +3283,7 @@
             ],
             "Dark": [
                 true,
-                31
+                1
             ],
             "Default": [
                 false,
@@ -4499,38 +3299,36 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Mage Knight",
-        "name": "Mage Knight",
-        "desc": "",
+        "nid": "Warlock",
+        "name": "Warlock",
+        "desc": "War shaman capable of incredible feats of magic.",
         "tier": 2,
-        "movement_group": "Light Cav",
-        "promotes_from": "Mage",
+        "movement_group": "Mages",
+        "promotes_from": "Shaman",
         "turns_into": [],
-        "tags": [
-            "Mounted"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 20,
-            "STR": 0,
+            "HP": 15,
+            "STR": 1,
             "MAG": 4,
-            "SKL": 5,
-            "SPD": 6,
+            "SKL": 3,
+            "SPD": 4,
             "LCK": 0,
-            "DEF": 5,
-            "RES": 6,
-            "CON": 8,
-            "MOV": 7
+            "DEF": 3,
+            "RES": 5,
+            "CON": 6,
+            "MOV": 5
         },
         "growths": {
-            "HP": 45,
-            "STR": 5,
-            "MAG": 45,
-            "SKL": 30,
-            "SPD": 25,
-            "LCK": 15,
-            "DEF": 10,
-            "RES": 40,
+            "HP": 65,
+            "STR": 20,
+            "MAG": 65,
+            "SKL": 45,
+            "SPD": 40,
+            "LCK": 25,
+            "DEF": 25,
+            "RES": 55,
             "CON": 0,
             "MOV": 0
         },
@@ -4550,30 +3348,38 @@
             "HP": 4,
             "STR": 0,
             "MAG": 2,
-            "SKL": 1,
-            "SPD": 0,
+            "SKL": 2,
+            "SPD": 3,
             "LCK": 0,
             "DEF": 2,
             "RES": 2,
-            "CON": 3,
-            "MOV": -99
+            "CON": 1,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 25,
-            "SKL": 26,
-            "SPD": 25,
-            "LCK": 30,
-            "DEF": 24,
-            "RES": 28,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 15,
+            "MAG": 19,
+            "SKL": 17,
+            "SPD": 17,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 19,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Canto"
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Metamagic"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -4590,20 +3396,144 @@
                 0
             ],
             "Bow": [
-                0,
+                false,
                 0
             ],
-            "Staff": [
-                2,
-                31
-            ],
             "Light": [
-                true,
-                31
+                false,
+                0
             ],
             "Anima": [
-                2,
-                71
+                false,
+                0
+            ],
+            "Dark": [
+                true,
+                10
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "icon_nid": "Generic_Portrait_Warlock",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Warlock",
+        "combat_anim_nid": null
+    },
+    {
+        "nid": "Raider",
+        "name": "Raider",
+        "desc": "Untrained but fanatical combatant.",
+        "tier": 1,
+        "movement_group": "Pirates",
+        "promotes_from": null,
+        "turns_into": [
+            "Berserker"
+        ],
+        "tags": [],
+        "max_level": 10,
+        "bases": {
+            "HP": 15,
+            "STR": 3,
+            "MAG": 0,
+            "SKL": 1,
+            "SPD": 4,
+            "LCK": 0,
+            "DEF": 2,
+            "RES": 0,
+            "CON": 7,
+            "MOV": 5
+        },
+        "growths": {
+            "HP": 100,
+            "STR": 65,
+            "MAG": 5,
+            "SKL": 35,
+            "SPD": 45,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "max_stats": {
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
+        },
+        "learned_skills": [
+            [
+                1,
+                "Prescience"
+            ],
+            [
+                5,
+                "Shove"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                true,
+                1
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
             ],
             "Dark": [
                 false,
@@ -4614,93 +3544,96 @@
                 0
             ]
         },
-        "icon_nid": "Generic_Portrait_Mage_Knight",
+        "icon_nid": "Generic_Portrait_Pirate",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": "MageKnight",
+        "map_sprite_nid": "Pirate",
         "combat_anim_nid": null
     },
     {
-        "nid": "Troubadour",
-        "name": "Troubadour",
-        "desc": "Kind-hearted healers.",
-        "tier": 1,
-        "movement_group": "Heavy Cav",
-        "promotes_from": null,
-        "turns_into": [
-            "Valkyrie"
-        ],
-        "tags": [
-            "Horse",
-            "Mounted"
-        ],
-        "max_level": 20,
+        "nid": "Berserker",
+        "name": "Berserker",
+        "desc": "Devotees of the axe. Relentless savages that deliver devastating stikes.",
+        "tier": 2,
+        "movement_group": "Pirates",
+        "promotes_from": "Raider",
+        "turns_into": [],
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 15,
+            "HP": 19,
+            "STR": 4,
+            "MAG": 0,
+            "SKL": 2,
+            "SPD": 7,
+            "LCK": 0,
+            "DEF": 4,
+            "RES": 4,
+            "CON": 10,
+            "MOV": 6
+        },
+        "growths": {
+            "HP": 100,
+            "STR": 65,
+            "MAG": 5,
+            "SKL": 35,
+            "SPD": 45,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
             "STR": 0,
-            "MAG": 1,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 4,
+            "STR": 1,
+            "MAG": 0,
             "SKL": 1,
             "SPD": 3,
             "LCK": 0,
             "DEF": 2,
-            "RES": 5,
-            "CON": 5,
-            "MOV": 6
-        },
-        "growths": {
-            "HP": 50,
-            "STR": 0,
-            "MAG": 25,
-            "SKL": 35,
-            "SPD": 55,
-            "LCK": 45,
-            "DEF": 12,
-            "RES": 40,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
+            "RES": 4,
+            "CON": 3,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
+            "HP": 40,
             "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 25,
-            "MOV": 15
+            "MAG": 15,
+            "SKL": 19,
+            "SPD": 19,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Canto"
+                3,
+                "Feat"
+            ],
+            [
+                5,
+                "Regeneration"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -4713,20 +3646,16 @@
                 0
             ],
             "Axe": [
-                false,
-                0
+                true,
+                10
             ],
             "Bow": [
                 false,
                 0
             ],
-            "Staff": [
-                true,
-                31
-            ],
             "Light": [
-                true,
-                31
+                false,
+                0
             ],
             "Anima": [
                 false,
@@ -4741,177 +3670,50 @@
                 0
             ]
         },
-        "icon_nid": "Generic_Portrait_Troubadour",
+        "icon_nid": "Berserker",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": "Troubadour",
+        "map_sprite_nid": "Berserker",
         "combat_anim_nid": null
     },
     {
-        "nid": "Valkyrie",
-        "name": "Valkyrie",
-        "desc": "Kind-hearted healers.",
-        "tier": 2,
-        "movement_group": "Heavy Cav",
-        "promotes_from": "Troubadour",
-        "turns_into": [],
-        "tags": [
-            "Horse",
-            "Mounted"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 20,
-            "STR": 0,
-            "MAG": 4,
-            "SKL": 3,
-            "SPD": 5,
-            "LCK": 0,
-            "DEF": 4,
-            "RES": 8,
-            "CON": 6,
-            "MOV": 7
-        },
-        "growths": {
-            "HP": 45,
-            "STR": 0,
-            "MAG": 35,
-            "SKL": 25,
-            "SPD": 45,
-            "LCK": 40,
-            "DEF": 10,
-            "RES": 40,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 25,
-            "SKL": 24,
-            "SPD": 25,
-            "LCK": 30,
-            "DEF": 24,
-            "RES": 28,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Canto"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                true,
-                31
-            ],
-            "Light": [
-                true,
-                31
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Valkyrie",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Valkyrie",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Wyvern Rider",
-        "name": "Wyvern Rider",
-        "desc": "",
+        "nid": "Dracoknight",
+        "name": "Dracoknight",
+        "desc": "An elite warrior mounted on the back of a wyvern.",
         "tier": 1,
         "movement_group": "Fliers",
         "promotes_from": null,
         "turns_into": [
-            "Wyvern Lord",
-            "Wyvern Knight"
+            "Dracolord"
         ],
         "tags": [
             "Mounted",
-            "Dragon",
             "Flying"
         ],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 20,
-            "STR": 7,
+            "HP": 14,
+            "STR": 5,
             "MAG": 0,
-            "SKL": 5,
-            "SPD": 5,
+            "SKL": 3,
+            "SPD": 3,
             "LCK": 0,
-            "DEF": 8,
+            "DEF": 5,
             "RES": 0,
-            "CON": 10,
-            "MOV": 7
+            "CON": 7,
+            "MOV": 6
         },
         "growths": {
-            "HP": 80,
-            "STR": 45,
-            "MAG": 5,
-            "SKL": 35,
-            "SPD": 30,
-            "LCK": 25,
-            "DEF": 25,
-            "RES": 17,
+            "HP": 105,
+            "STR": 60,
+            "MAG": 15,
+            "SKL": 45,
+            "SPD": 40,
+            "LCK": 35,
+            "DEF": 35,
+            "RES": 25,
             "CON": 0,
             "MOV": 0
         },
@@ -4940,16 +3742,16 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
@@ -4957,8 +3759,12 @@
                 "Flying"
             ],
             [
-                1,
-                "Canto"
+                5,
+                "Empowered"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -4967,18 +3773,14 @@
                 0
             ],
             "Lance": [
-                2,
-                31
+                true,
+                1
             ],
             "Axe": [
                 false,
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -5008,40 +3810,39 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Wyvern Lord",
-        "name": "Wyvern Lord",
-        "desc": "",
+        "nid": "Dracolord",
+        "name": "Dracolord",
+        "desc": "Lords who command the battlefield on their draconic mounts.",
         "tier": 2,
         "movement_group": "Fliers",
-        "promotes_from": "Wyvern Rider",
+        "promotes_from": "Dracoknight",
         "turns_into": [],
         "tags": [
             "Mounted",
-            "Dragon",
             "Flying"
         ],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 20,
-            "STR": 9,
+            "HP": 19,
+            "STR": 6,
             "MAG": 0,
-            "SKL": 7,
-            "SPD": 7,
+            "SKL": 6,
+            "SPD": 4,
             "LCK": 0,
-            "DEF": 10,
+            "DEF": 6,
             "RES": 2,
-            "CON": 11,
-            "MOV": 8
+            "CON": 9,
+            "MOV": 7
         },
         "growths": {
-            "HP": 75,
-            "STR": 40,
-            "MAG": 10,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 20,
-            "DEF": 20,
-            "RES": 17,
+            "HP": 105,
+            "STR": 60,
+            "MAG": 15,
+            "SKL": 45,
+            "SPD": 40,
+            "LCK": 35,
+            "DEF": 35,
+            "RES": 25,
             "CON": 0,
             "MOV": 0
         },
@@ -5058,57 +3859,57 @@
             "MOV": 0
         },
         "promotion": {
-            "HP": 4,
-            "STR": 2,
+            "HP": 5,
+            "STR": 1,
             "MAG": 0,
-            "SKL": 2,
-            "SPD": 0,
+            "SKL": 3,
+            "SPD": 1,
             "LCK": 0,
-            "DEF": 2,
-            "RES": 0,
-            "CON": 1,
-            "MOV": -99
+            "DEF": 1,
+            "RES": 2,
+            "CON": 2,
+            "MOV": 1
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 27,
-            "MAG": 22,
-            "SKL": 26,
-            "SPD": 24,
-            "LCK": 30,
-            "DEF": 28,
-            "RES": 23,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 18,
+            "MAG": 15,
+            "SKL": 17,
+            "SPD": 16,
+            "LCK": 20,
+            "DEF": 19,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
-                1,
-                "Flying"
+                3,
+                "Feat"
             ],
             [
-                1,
-                "Canto"
+                5,
+                "Defense_Aura"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
             "Sword": [
-                2,
-                31
-            ],
-            "Lance": [
-                2,
-                40
-            ],
-            "Axe": [
-                0,
-                0
-            ],
-            "Bow": [
                 false,
                 0
             ],
-            "Staff": [
+            "Lance": [
+                true,
+                1
+            ],
+            "Axe": [
+                true,
+                1
+            ],
+            "Bow": [
                 false,
                 0
             ],
@@ -5138,40 +3939,36 @@
         "combat_anim_nid": null
     },
     {
-        "nid": "Wyvern Knight",
-        "name": "Wyvern Knight",
-        "desc": "",
-        "tier": 2,
-        "movement_group": "Fliers",
-        "promotes_from": "Wyvern Rider",
+        "nid": "Brigand",
+        "name": "Brigand",
+        "desc": "Ruffians with a strong offense but poor defense.",
+        "tier": 1,
+        "movement_group": "Light Foot",
+        "promotes_from": null,
         "turns_into": [],
-        "tags": [
-            "Mounted",
-            "Dragon",
-            "Flying"
-        ],
-        "max_level": 20,
+        "tags": [],
+        "max_level": 10,
         "bases": {
-            "HP": 20,
-            "STR": 7,
+            "HP": 13,
+            "STR": 3,
             "MAG": 0,
-            "SKL": 8,
-            "SPD": 9,
+            "SKL": 1,
+            "SPD": 3,
             "LCK": 0,
-            "DEF": 7,
-            "RES": 2,
+            "DEF": 2,
+            "RES": 0,
             "CON": 9,
-            "MOV": 8
+            "MOV": 5
         },
         "growths": {
-            "HP": 65,
-            "STR": 35,
-            "MAG": 5,
-            "SKL": 30,
-            "SPD": 30,
-            "LCK": 25,
+            "HP": 110,
+            "STR": 65,
+            "MAG": 0,
+            "SKL": 40,
+            "SPD": 25,
+            "LCK": 20,
             "DEF": 15,
-            "RES": 20,
+            "RES": 15,
             "CON": 0,
             "MOV": 0
         },
@@ -5188,37 +3985,41 @@
             "MOV": 0
         },
         "promotion": {
-            "HP": 3,
-            "STR": 1,
+            "HP": 0,
+            "STR": 0,
             "MAG": 0,
-            "SKL": 2,
-            "SPD": 3,
+            "SKL": 0,
+            "SPD": 0,
             "LCK": 0,
             "DEF": 0,
-            "RES": 1,
+            "RES": 0,
             "CON": 0,
-            "MOV": -99
+            "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 20,
-            "SKL": 27,
-            "SPD": 29,
-            "LCK": 30,
-            "DEF": 24,
-            "RES": 23,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [
             [
                 1,
-                "Flying"
+                "Fleet_of_Foot"
             ],
             [
-                1,
-                "Canto"
+                5,
+                "Shove"
+            ],
+            [
+                8,
+                "Feat"
             ]
         ],
         "wexp_gain": {
@@ -5227,18 +4028,14 @@
                 0
             ],
             "Lance": [
-                2,
-                40
+                false,
+                0
             ],
             "Axe": [
-                false,
-                0
+                true,
+                1
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -5259,44 +4056,172 @@
                 0
             ]
         },
-        "icon_nid": "Generic_Portrait_Wyvern_Rider",
+        "icon_nid": "Generic_Portrait_Brigand",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": "WyvernKnight",
+        "map_sprite_nid": "Brigand",
         "combat_anim_nid": null
     },
     {
-        "nid": "Necromancer",
-        "name": "Necromancer",
-        "desc": "??",
-        "tier": 2,
-        "movement_group": "Light Foot",
-        "promotes_from": "Shaman",
+        "nid": "Sentinel",
+        "name": "Sentinel",
+        "desc": "Armored bruisers who work well on a team.",
+        "tier": 1,
+        "movement_group": "Armors",
+        "promotes_from": null,
         "turns_into": [],
         "tags": [],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 18,
-            "STR": 0,
-            "MAG": 9,
-            "SKL": 4,
-            "SPD": 5,
+            "HP": 13,
+            "STR": 5,
+            "MAG": 0,
+            "SKL": 3,
+            "SPD": 1,
             "LCK": 0,
-            "DEF": 3,
-            "RES": 8,
-            "CON": 7,
-            "MOV": 6
+            "DEF": 5,
+            "RES": 0,
+            "CON": 9,
+            "MOV": 4
         },
         "growths": {
-            "HP": 45,
-            "STR": 5,
-            "MAG": 55,
-            "SKL": 30,
-            "SPD": 25,
+            "HP": 100,
+            "STR": 45,
+            "MAG": 15,
+            "SKL": 25,
+            "SPD": 35,
+            "LCK": 25,
+            "DEF": 40,
+            "RES": 35,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "max_stats": {
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
             "LCK": 20,
-            "DEF": 10,
+            "DEF": 15,
+            "RES": 15,
+            "CON": 20,
+            "MOV": 30
+        },
+        "learned_skills": [
+            [
+                1,
+                "Patience"
+            ],
+            [
+                5,
+                "Defense_Aura"
+            ],
+            [
+                8,
+                "Feat"
+            ]
+        ],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                true,
+                1
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "icon_nid": "Generic_Portrait_Sentinel",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Sentinel",
+        "combat_anim_nid": null
+    },
+    {
+        "nid": "Ballista",
+        "name": "Ballista",
+        "desc": "Long-range immobile siege weapons.",
+        "tier": 1,
+        "movement_group": "Armors",
+        "promotes_from": null,
+        "turns_into": [],
+        "tags": [
+            "ArenaIgnore"
+        ],
+        "max_level": 10,
+        "bases": {
+            "HP": 12,
+            "STR": 6,
+            "MAG": 0,
+            "SKL": 2,
+            "SPD": 3,
+            "LCK": 0,
+            "DEF": 2,
+            "RES": 0,
+            "CON": 2,
+            "MOV": 0
+        },
+        "growths": {
+            "HP": 95,
+            "STR": 45,
+            "MAG": 0,
+            "SKL": 55,
+            "SPD": 0,
+            "LCK": 45,
+            "DEF": 20,
             "RES": 25,
             "CON": 0,
             "MOV": 0
@@ -5326,16 +4251,16 @@
             "MOV": 0
         },
         "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 30,
-            "SKL": 25,
-            "SPD": 25,
-            "LCK": 30,
-            "DEF": 30,
-            "RES": 30,
-            "CON": 25,
-            "MOV": 15
+            "HP": 40,
+            "STR": 17,
+            "MAG": 15,
+            "SKL": 20,
+            "SPD": 15,
+            "LCK": 20,
+            "DEF": 17,
+            "RES": 16,
+            "CON": 20,
+            "MOV": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -5352,24 +4277,144 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                2,
-                251
+                true,
+                1
             ],
             "Light": [
-                true,
-                251
+                false,
+                0
             ],
             "Anima": [
                 false,
                 0
             ],
             "Dark": [
-                2,
-                251
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "icon_nid": "Generic_Portrait_Ballista",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Ballista",
+        "combat_anim_nid": null
+    },
+    {
+        "nid": "Duke",
+        "name": "Duke",
+        "desc": "One of the twelve Imperial Dukes, demons of combat.",
+        "tier": 3,
+        "movement_group": "Armors",
+        "promotes_from": "General",
+        "turns_into": [],
+        "tags": [
+            "ArenaIgnore"
+        ],
+        "max_level": 10,
+        "bases": {
+            "HP": 15,
+            "STR": 5,
+            "MAG": 0,
+            "SKL": 4,
+            "SPD": 4,
+            "LCK": 0,
+            "DEF": 8,
+            "RES": 4,
+            "CON": 11,
+            "MOV": 6
+        },
+        "growths": {
+            "HP": 105,
+            "STR": 55,
+            "MAG": 15,
+            "SKL": 40,
+            "SPD": 20,
+            "LCK": 35,
+            "DEF": 55,
+            "RES": 35,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 1
+        },
+        "max_stats": {
+            "HP": 80,
+            "STR": 20,
+            "MAG": 20,
+            "SKL": 20,
+            "SPD": 20,
+            "LCK": 20,
+            "DEF": 20,
+            "RES": 20,
+            "CON": 20,
+            "MOV": 30
+        },
+        "learned_skills": [
+            [
+                1,
+                "Resist_Status"
+            ],
+            [
+                5,
+                "Reflect"
+            ]
+        ],
+        "wexp_gain": {
+            "Sword": [
+                true,
+                1
+            ],
+            "Lance": [
+                true,
+                1
+            ],
+            "Axe": [
+                true,
+                1
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
             ],
             "Default": [
                 false,
@@ -5381,1056 +4426,85 @@
             0,
             0
         ],
-        "map_sprite_nid": "Necromancer",
+        "map_sprite_nid": "Duke",
         "combat_anim_nid": null
     },
     {
-        "nid": "Revenant",
-        "name": "Revenant",
-        "desc": "Walking corpses that move slowly\nbut attack with sharp claws.",
+        "nid": "Wagon",
+        "name": "Wagon",
+        "desc": "A merchant's wagon.",
         "tier": 1,
-        "movement_group": "Regular",
+        "movement_group": "Heavy Cav",
         "promotes_from": null,
-        "turns_into": [
-            "Entombed"
-        ],
-        "tags": [
-            "Monster"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 25,
-            "STR": 2,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 6,
-            "MOV": 4
-        },
-        "growths": {
-            "HP": 95,
-            "STR": 50,
-            "MAG": 0,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 10,
-            "DEF": 10,
-            "RES": 13,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Revenant",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Revenant",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Entombed",
-        "name": "Entombed",
-        "desc": "Reanimated corpses. They're not fast,\nbut their talons rend flesh with ease.",
-        "tier": 2,
-        "movement_group": "Regular",
-        "promotes_from": "Revenant",
         "turns_into": [],
         "tags": [
-            "Monster"
+            "ArenaIgnore"
         ],
-        "max_level": 20,
+        "max_level": 10,
         "bases": {
-            "HP": 35,
-            "STR": 3,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 1,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 6,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 85,
-            "STR": 40,
-            "MAG": 0,
-            "SKL": 25,
-            "SPD": 17,
-            "LCK": 50,
-            "DEF": 10,
-            "RES": 13,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
+            "HP": 10,
             "STR": 0,
             "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 20,
-            "SKL": 22,
-            "SPD": 21,
-            "LCK": 30,
-            "DEF": 24,
-            "RES": 22,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Entombed",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Entombed",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Sword_Bonewalker",
-        "name": "Bonewalker",
-        "desc": "A summoned phantom.",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [
-            "Sword_Wight"
-        ],
-        "tags": [
-            "Monster"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 20,
-            "STR": 4,
-            "MAG": 2,
             "SKL": 2,
-            "SPD": 3,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 0,
-            "CON": 7,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 80,
-            "STR": 50,
-            "MAG": 25,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 10,
-            "DEF": 12,
-            "RES": 15,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                true,
-                71
-            ],
-            "Lance": [
-                true,
-                71
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Sword_Bonewalker",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Sword_Bonewalker",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Sword_Wight",
-        "name": "Wight",
-        "desc": "A summoned phantom.",
-        "tier": 2,
-        "movement_group": "Light Foot",
-        "promotes_from": "Sword_Bonewalker",
-        "turns_into": [],
-        "tags": [
-            "Monster"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 21,
-            "STR": 7,
-            "MAG": 3,
-            "SKL": 5,
-            "SPD": 6,
-            "LCK": 0,
-            "DEF": 5,
-            "RES": 2,
-            "CON": 9,
-            "MOV": 6
-        },
-        "growths": {
-            "HP": 85,
-            "STR": 40,
-            "MAG": 20,
-            "SKL": 25,
-            "SPD": 17,
-            "LCK": 50,
-            "DEF": 10,
-            "RES": 13,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 24,
-            "MAG": 20,
-            "SKL": 28,
-            "SPD": 26,
-            "LCK": 30,
-            "DEF": 22,
-            "RES": 23,
-            "CON": 25,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                true,
-                181
-            ],
-            "Lance": [
-                true,
-                181
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Sword_Wight",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Sword_Wight",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Bow_Bonewalker",
-        "name": "Bonewalker",
-        "desc": "A summoned phantom.",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [
-            "Bow_Wight"
-        ],
-        "tags": [
-            "Monster"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 18,
-            "STR": 4,
-            "MAG": 2,
-            "SKL": 3,
-            "SPD": 2,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 0,
-            "CON": 6,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 70,
-            "STR": 30,
-            "MAG": 15,
-            "SKL": 40,
-            "SPD": 32,
-            "LCK": 10,
-            "DEF": 15,
-            "RES": 15,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                true,
-                71
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Sword_Bonewalker",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Bow_Bonewalker",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Bow_Wight",
-        "name": "Wight",
-        "desc": "A summoned phantom.",
-        "tier": 2,
-        "movement_group": "Light Foot",
-        "promotes_from": "Bow_Bonewalker",
-        "turns_into": [],
-        "tags": [
-            "Monster"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 21,
-            "STR": 6,
-            "MAG": 3,
-            "SKL": 6,
-            "SPD": 5,
-            "LCK": 0,
-            "DEF": 5,
-            "RES": 2,
-            "CON": 8,
-            "MOV": 6
-        },
-        "growths": {
-            "HP": 65,
-            "STR": 30,
-            "MAG": 15,
-            "SKL": 30,
-            "SPD": 20,
-            "LCK": 10,
-            "DEF": 15,
-            "RES": 20,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 25,
-            "MAG": 20,
-            "SKL": 30,
-            "SPD": 28,
-            "LCK": 30,
-            "DEF": 25,
-            "RES": 23,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                true,
-                181
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Sword_Wight",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Bow_Wight",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Mogall",
-        "name": "Mogall",
-        "desc": "Perilous floating orbs filled with\nblighting dark magic.",
-        "tier": 1,
-        "movement_group": "Fliers",
-        "promotes_from": null,
-        "turns_into": [
-            "Arch_Mogall"
-        ],
-        "tags": [
-            "Flying",
-            "Monster"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 15,
-            "STR": 0,
-            "MAG": 2,
-            "SKL": 1,
             "SPD": 2,
             "LCK": 0,
             "DEF": 2,
-            "RES": 4,
-            "CON": 4,
-            "MOV": 5
-        },
-        "growths": {
-            "HP": 50,
-            "STR": 0,
-            "MAG": 45,
-            "SKL": 32,
-            "SPD": 30,
-            "LCK": 30,
-            "DEF": 10,
-            "RES": 28,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
             "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 20,
-            "SKL": 20,
-            "SPD": 20,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 20,
-            "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [
-            [
-                1,
-                "Flying"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                true,
-                71
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Mogall",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Mogall",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Arch_Mogall",
-        "name": "Arch Mogall",
-        "desc": "A summoned phantom.",
-        "tier": 2,
-        "movement_group": "Fliers",
-        "promotes_from": "Mogall",
-        "turns_into": [],
-        "tags": [
-            "Flying",
-            "Monster"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 17,
-            "STR": 0,
-            "MAG": 6,
-            "SKL": 3,
-            "SPD": 3,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 47,
             "CON": 5,
             "MOV": 6
         },
         "growths": {
-            "HP": 45,
+            "HP": 15,
             "STR": 0,
-            "MAG": 55,
-            "SKL": 30,
-            "SPD": 25,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "max_stats": {
+            "HP": 40,
+            "STR": 15,
+            "MAG": 15,
+            "SKL": 15,
+            "SPD": 15,
             "LCK": 20,
-            "DEF": 10,
-            "RES": 28,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 60,
-            "STR": 20,
-            "MAG": 29,
-            "SKL": 26,
-            "SPD": 26,
-            "LCK": 30,
-            "DEF": 20,
-            "RES": 29,
+            "DEF": 15,
+            "RES": 15,
             "CON": 20,
-            "MOV": 15
-        },
-        "learned_skills": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                true,
-                181
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Arch_Mogall",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Arch_Mogall",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Wall25",
-        "name": "Wall",
-        "desc": "",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [],
-        "tags": [
-            "Tile"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 25,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 40,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growths": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 30,
-            "STR": 30,
-            "MAG": 30,
-            "SKL": 30,
-            "SPD": 40,
-            "LCK": 30,
-            "DEF": 30,
-            "RES": 30,
-            "CON": 30,
             "MOV": 30
         },
         "learned_skills": [
             [
                 1,
-                "NoAvoid"
-            ],
-            [
-                1,
-                "Void Curse"
+                "Ghost"
             ]
         ],
         "wexp_gain": {
@@ -6447,10 +4521,6 @@
                 0
             ],
             "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
                 false,
                 0
             ],
@@ -6471,140 +4541,12 @@
                 0
             ]
         },
-        "icon_nid": "Generic_Portrait_Citizen",
+        "icon_nid": "Generic_Portrait_Wagon",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": "Invisible",
-        "combat_anim_nid": null
-    },
-    {
-        "nid": "Snag20",
-        "name": "Snag",
-        "desc": "",
-        "tier": 1,
-        "movement_group": "Light Foot",
-        "promotes_from": null,
-        "turns_into": [],
-        "tags": [
-            "Tile"
-        ],
-        "max_level": 20,
-        "bases": {
-            "HP": 20,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 40,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growths": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "growth_bonus": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "promotion": {
-            "HP": 0,
-            "STR": 0,
-            "MAG": 0,
-            "SKL": 0,
-            "SPD": 0,
-            "LCK": 0,
-            "DEF": 0,
-            "RES": 0,
-            "CON": 0,
-            "MOV": 0
-        },
-        "max_stats": {
-            "HP": 30,
-            "STR": 30,
-            "MAG": 30,
-            "SKL": 30,
-            "SPD": 40,
-            "LCK": 30,
-            "DEF": 30,
-            "RES": 30,
-            "CON": 30,
-            "MOV": 30
-        },
-        "learned_skills": [
-            [
-                1,
-                "NoAvoid"
-            ],
-            [
-                1,
-                "Void Curse"
-            ]
-        ],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                0
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                false,
-                0
-            ],
-            "Light": [
-                false,
-                0
-            ],
-            "Anima": [
-                false,
-                0
-            ],
-            "Dark": [
-                false,
-                0
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "icon_nid": "Generic_Portrait_Citizen",
-        "icon_index": [
-            0,
-            0
-        ],
-        "map_sprite_nid": "Invisible",
+        "map_sprite_nid": "Wagon",
         "combat_anim_nid": null
     }
 ]

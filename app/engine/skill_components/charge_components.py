@@ -69,6 +69,7 @@ class CombatChargeIncreaseByStat(SkillComponent):
     tag = "advanced"
 
     expose = Type.Stat
+    value = 'SKL'
 
     def end_combat(self, playback, unit, item, target):
         new_value = self.skill.data['charge'] + unit.stats[self.value] + unit.stat_bonus(self.value)

@@ -267,6 +267,36 @@ class AIItemComponent(BoolItemComponent):
         val = self.editor.currentText()
         self._data.value = val
 
+class MovementTypeItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        self.editor.addItems(DB.mcost.unit_types)
+        if not self._data.value and DB.mcost.unit_types:
+            self._data.value = DB.mcost.unit_types[0]
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+    def on_value_changed(self):
+        val = self.editor.currentText()
+        self._data.value = val
+
+class StatItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        self.editor.addItems(DB.stats.keys())
+        if not self._data.value and DB.stats:
+            self._data.value = DB.stats[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+    def on_value_changed(self):
+        val = self.editor.currentText()
+        self._data.value = val
+
 class EventItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
@@ -395,8 +425,12 @@ def get_display_widget(component, parent):
         c = SoundItemComponent(component, parent)
     elif component.expose == Type.AI:
         c = AIItemComponent(component, parent)
+    elif component.expose == Type.Stat:
+        c = StatItemComponent(component, parent)
     elif component.expose == Type.Event:
         c = EventItemComponent(component, parent)
+    elif component.expose == Type.MovementType:
+        c = MovementTypeItemComponent(component, parent)
     elif isinstance(component.expose, tuple):
         delegate = None
         if component.expose[1] == Type.Unit:

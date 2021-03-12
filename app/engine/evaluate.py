@@ -4,7 +4,7 @@ from app.utilities import utils
 from app.data.database import DB
 
 import app.engine.config as cf
-from app.engine import engine, item_funcs, item_system, skill_system, combat_calcs, item_funcs
+from app.engine import engine, item_funcs, item_system, skill_system, combat_calcs, unit_funcs
 from app.engine.game_state import game
 
 """

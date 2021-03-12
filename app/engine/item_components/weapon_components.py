@@ -120,6 +120,9 @@ class EffectiveTag(ItemComponent):
             sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
         return sprite
 
+    def danger(self, unit, item, target) -> bool:
+        return any(tag in target.tags for tag in self.value)
+
 class Brave(ItemComponent):
     nid = 'brave'
     desc = "Item multi-attacks"

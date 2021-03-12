@@ -156,6 +156,30 @@ class DeathTether(SkillComponent):
                 if skill.initiator_nid == unit.nid:
                     action.do(action.RemoveSkill(other_unit, skill))
 
+class Oversplash(SkillComponent):
+    nid = 'oversplash'
+    desc = "Grants unit +X area of effect for regular and blast items"
+    tag = 'advanced'
+
+    expose = Type.Int
+    value = 1
+
+    def empower_splash(self, unit):
+        return self.value
+
+    def alternate_splash(self, unit):
+        from app.engine.item_components.aoe_components import BlastAOE
+        return BlastAOE(self.value)
+
+class Cleave(SkillComponent):
+    nid = 'Cleave'
+    desc = "Grants unit the ability to cleave with all their non-splash attacks"
+    tag = 'advanced'
+
+    def alternate_splash(self, unit):
+        from app.engine.item_components.aoe_components import EnemyCleaveAOE
+        return EnemyCleaveAOE()
+
 class Aura(SkillComponent):
     nid = 'aura'
     desc = "Skill has an aura that gives off child skill"

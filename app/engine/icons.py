@@ -169,3 +169,21 @@ def draw_stat(surf, stat_nid, unit, topright, compact=False):
             FONT['small-green'].blit("+%d" % bonus, surf, topright)
         elif bonus < 0:
             FONT['text-red'].blit(str(bonus), surf, topright)
+
+def draw_growth(surf, stat_nid, unit, topright, compact=False):
+    if stat_nid not in DB.stats.keys():
+        FONT['text-yellow'].blit_right('--', surf, topright)
+        return
+    class_obj = DB.classes.get(unit.klass)
+    value = unit.growths.get(stat_nid, 0)
+    bonus = unit.growth_bonus(stat_nid)
+    klass_bonus = class_obj.growth_bonus.get(stat_nid, 0)
+    bonus += klass_bonus
+    if compact:
+        pass
+    else:
+        FONT['text-blue'].blit_right(str(value), surf, topright)
+        if bonus > 0:
+            FONT['small-green'].blit("+%d" % bonus, surf, topright)
+        elif bonus < 0:
+            FONT['text-red'].blit(str(bonus), surf, topright)

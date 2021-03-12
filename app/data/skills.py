@@ -50,3 +50,12 @@ class SkillPrefab(Prefab):
 
 class SkillCatalog(Data):
     datatype = SkillPrefab
+
+    def get_feats(self) -> list:
+        feats = []
+        for skill in self:
+            for component in skill.components:
+                if component.nid == 'feat':
+                    feats.append(skill)
+                    break
+        return feats

@@ -66,6 +66,17 @@ class Warning(ItemComponent):
     desc = "Yellow warning sign appears above wielder's head"
     tag = 'aesthetic'
 
-    # TODO: Doesn't actually hook into anything yet!
-    def warning(self, unit, item):
+    def warning(self, unit, item, target) -> bool:
         return True
+
+class EvalWarning(ItemComponent):
+    nid = 'eval_warning'
+    desc = "Yellow warning sign appears above wielder's head if current unit meets eval"
+    tag = 'aesthetic'
+
+    expose = Type.String
+    value = 'True'
+
+    def warning(self, unit, item, target) -> bool:
+        from app.engine import evaluate
+        return evaluate.evaluate(self.value, unit, item=item)

@@ -34,8 +34,8 @@ class Defaults():
         return 1.0
 
     @staticmethod
-    def sight_range(unit) -> int:
-        return 0
+    def steal_icon(unit1, unit2) -> bool:
+        return False
 
     @staticmethod
     def limit_maximum_range(unit, item) -> int:
@@ -57,22 +57,58 @@ class Defaults():
     def modify_sell_price(unit, item) -> float:
         return 1.0
 
+    @staticmethod
+    def damage_formula(unit) -> str:
+        return 'DAMAGE'
+
+    @staticmethod
+    def resist_formula(unit) -> str:
+        return 'DEFENSE'
+
+    @staticmethod
+    def accuracy_formula(unit) -> str:
+        return 'HIT'
+
+    @staticmethod
+    def avoid_formula(unit) -> str:
+        return 'AVOID'
+
+    @staticmethod
+    def crit_accuracy_formula(unit) -> str:
+        return 'CRIT_HIT'
+
+    @staticmethod
+    def crit_avoid_formula(unit) -> str:
+        return 'CRIT_AVOID'
+
+    @staticmethod
+    def attack_speed_formula(unit) -> str:
+        return 'ATTACK_SPEED'
+
+    @staticmethod
+    def defense_speed_formula(unit) -> str:
+        return 'DEFENSE_SPEED'
+
 # Takes in unit, returns False if not present
+# All default hooks are exclusive
+formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula', 
+           'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_behaviours = (
     'has_canto', 'pass_through', 'vantage', 'ignore_terrain', 
     'ignore_region_status', 'no_double', 'def_double', 
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
+default_behaviours += formula
 # Takes in unit, returns default value
-exclusive_behaviours = ('can_select', 'sight_range', 'movement_type')
+exclusive_behaviours = ('can_select', 'movement_type')
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'steal_icon')
 # Takes in unit, item returns bonus
 modify_hooks = (
     'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
     'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
-    'modify_defense_speed')
+    'modify_defense_speed', 'sight_range', 'empower_splash')
 # Takes in unit, item, target, mode, returns bonus
 dynamic_hooks = ('dynamic_damage', 'dynamic_resist', 'dynamic_accuracy', 'dynamic_avoid', 
                  'dynamic_crit_accuracy', 'dynamic_crit_avoid', 'dynamic_attack_speed', 'dynamic_defense_speed',
@@ -233,6 +269,16 @@ def stat_change(unit, stat) -> int:
             if component.defines('stat_change'):
                 if condition(skill, unit):
                     d = component.stat_change(unit)
+                    bonus += d.get(stat, 0)
+    return bonus
+
+def growth_change(unit, stat) -> int:
+    bonus = 0
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('growth_change'):
+                if condition(skill, unit):
+                    d = component.growth_change(unit)
                     bonus += d.get(stat, 0)
     return bonus
 

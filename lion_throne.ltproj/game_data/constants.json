@@ -25,7 +25,7 @@
     ],
     [
         "crit",
-        true
+        false
     ],
     [
         "permadeath",
@@ -41,11 +41,11 @@
     ],
     [
         "line_of_sight",
-        false
+        true
     ],
     [
         "aura_los",
-        false
+        true
     ],
     [
         "fog_los",
@@ -57,7 +57,7 @@
     ],
     [
         "def_double",
-        true
+        false
     ],
     [
         "player_leveling",
@@ -65,15 +65,19 @@
     ],
     [
         "enemy_leveling",
-        "Dynamic"
+        "Fixed"
+    ],
+    [
+        "auto_promote",
+        true
+    ],
+    [
+        "generic_feats",
+        false
     ],
     [
         "rng",
         "True Hit"
-    ],
-    [
-        "auto_promote",
-        false
     ],
     [
         "min_damage",
@@ -85,11 +89,11 @@
     ],
     [
         "convoy_on_death",
-        false
+        true
     ],
     [
         "give_and_take",
-        false
+        true
     ],
     [
         "num_save_slots",
@@ -97,11 +101,11 @@
     ],
     [
         "attack_zero_hit",
-        true
+        false
     ],
     [
         "attack_zero_dam",
-        true
+        false
     ],
     [
         "zero_move",
@@ -137,11 +141,11 @@
     ],
     [
         "kill_wexp",
-        true
+        false
     ],
     [
         "double_wexp",
-        true
+        false
     ],
     [
         "miss_wexp",
@@ -149,11 +153,11 @@
     ],
     [
         "exp_curve",
-        0.035
+        0.22
     ],
     [
         "exp_magnitude",
-        10.0
+        11.7
     ],
     [
         "exp_offset",
@@ -161,7 +165,7 @@
     ],
     [
         "kill_multiplier",
-        3.0
+        2.5
     ],
     [
         "boss_bonus",
@@ -173,7 +177,7 @@
     ],
     [
         "default_exp",
-        11
+        15
     ],
     [
         "heal_curve",

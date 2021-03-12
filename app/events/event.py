@@ -1060,6 +1060,8 @@ class Event():
             action.do(action.ArriveOnMap(unit, position))
         elif entry_type == 'warp':
             action.do(action.WarpIn(unit, position))
+        elif entry_type == 'swoosh':
+            action.do(action.SwooshIn(unit, position))
         elif entry_type == 'fade':
             action.do(action.FadeIn(unit, position))
         else:  # immediate
@@ -1102,6 +1104,8 @@ class Event():
             action.do(action.Teleport(unit, position))
         elif movement_type == 'warp':
             action.do(action.Warp(unit, position))
+        elif movement_type == 'swoosh':
+            action.do(action.Swoosh(unit, position))
         elif movement_type == 'fade':
             action.do(action.FadeMove(unit, position))
         elif movement_type == 'normal':
@@ -1132,6 +1136,8 @@ class Event():
             action.do(action.LeaveMap(unit))
         elif remove_type == 'warp':
             action.do(action.WarpOut(unit))
+        elif remove_type == 'swoosh':
+            action.do(action.SwooshOut(unit))
         elif remove_type == 'fade':
             action.do(action.FadeOut(unit))
         else:  # immediate

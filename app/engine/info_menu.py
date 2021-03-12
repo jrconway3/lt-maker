@@ -672,13 +672,12 @@ class InfoMenuState(State):
         self.blit_stat_titles(surf, growths=True)
 
         for idx, stat_nid in enumerate(stat_list):
-            growth = self.unit.growths.get(stat_nid)
-            FONT['text-blue'].blit_right(str(growth), surf, (47, 16 * idx + 24))
+            icons.draw_growth(surf, stat_nid, self.unit, (47, 16 * idx + 24))
 
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('LCK')), surf, (111, 24))
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('MOV')), surf, (111, 40))
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('CON')), surf, (111, 56))
-        FONT['text-blue'].blit_right(str(self.unit.growths.get('HP')), surf, (111, 72))
+        icons.draw_growth(surf, 'LCK', self.unit, (111, 24))
+        icons.draw_growth(surf, 'MOV', self.unit, (111, 40))
+        icons.draw_growth(surf, 'CON', self.unit, (111, 56))
+        icons.draw_growth(surf, 'HP', self.unit, (111, 72))
 
         if self.unit.traveler:
             trav = game.get_unit(self.unit.traveler)

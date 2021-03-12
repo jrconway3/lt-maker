@@ -273,7 +273,7 @@ class CardinalDirection(OptionValidator):
     valid = ['north', 'east', 'west', 'south']
     
 class EntryType(OptionValidator):
-    valid = ['fade', 'immediate', 'warp']
+    valid = ['fade', 'immediate', 'warp', 'swoosh']
 
 class Placement(OptionValidator):
     valid = ['giveup', 'stack', 'closest', 'push']

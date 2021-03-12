@@ -190,6 +190,14 @@ class Warp(SimpleMove):
         self.unit.position = self.new_pos
         game.arrive(self.unit)
 
+class Swoosh(SimpleMove):
+    def do(self):
+        self.unit.sprite.set_transition('swoosh_move')
+
+        game.leave(self.unit)
+        self.unit.position = self.new_pos
+        game.arrive(self.unit)
+
 class FadeMove(SimpleMove):
     def do(self):
         self.unit.sprite.set_transition('fade_move')
@@ -215,6 +223,12 @@ class WarpIn(ArriveOnMap):
     def do(self):
         self.place_on_map.do()
         self.unit.sprite.set_transition('warp_in')
+        game.arrive(self.unit)
+
+class SwooshIn(ArriveOnMap):
+    def do(self):
+        self.place_on_map.do()
+        self.unit.sprite.set_transition('swoosh_in')
         game.arrive(self.unit)
 
 class FadeIn(ArriveOnMap):
@@ -268,6 +282,12 @@ class WarpOut(LeaveMap):
     def do(self):
         game.leave(self.unit)
         self.unit.sprite.set_transition('warp_out')
+        self.remove_from_map.do()
+
+class SwooshOut(LeaveMap):
+    def do(self):
+        game.leave(self.unit)
+        self.unit.sprite.set_transition('swoosh_out')
         self.remove_from_map.do()
 
 class FadeOut(LeaveMap):

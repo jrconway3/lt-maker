@@ -104,6 +104,7 @@ default_hooks = ('buy_price', 'sell_price', 'special_sort', 'num_targets', 'mini
 default_hooks += formula
 
 target_hooks = ('wexp', 'exp')
+simple_target_hooks = ('warning', 'danger')
 
 dynamic_hooks = ('dynamic_damage', 'dynamic_accuracy', 'dynamic_crit_accuracy', 
                  'dynamic_attack_speed', 'dynamic_multiattacks')
@@ -137,6 +138,16 @@ for hook in default_hooks:
                           return component.%s(unit, item)
                   return Defaults.%s(unit, item)""" \
         % (hook, hook, hook, hook)
+    exec(func)
+
+for hook in simple_target_hooks:
+    func = """def %s(unit, item, target):
+                  val = 0
+                  for component in item.components:
+                      if component.defines('%s'):
+                          val += component.%s(unit, item, target)
+                  return val""" \
+        % (hook, hook, hook)
     exec(func)
 
 for hook in target_hooks:
@@ -315,16 +326,28 @@ def splash(unit, item, position) -> tuple:
     # If not default
     if main_target or splash:
         return main_target, splash
-    else:
-        return position, []
+    else: # DEFAULT
+        from app.engine import skill_system
+        alternate_splash_component = skill_system.alternate_splash(unit)
+        if alternate_splash_component:
+            main_target, splash = alternate_splash_component.splash(unit, item, position)
+        else:
+            return position, []
 
 def splash_positions(unit, item, position) -> set:
     positions = set()
     for component in item.components:
         if component.defines('splash_positions'):
             positions |= component.splash_positions(unit, item, position)
+    # DEFAULT
     if not positions:
-        return {position}
+        from app.engine import skill_system
+        alternate_splash_component = skill_system.alternate_splash(unit)
+        if alternate_splash_component:
+            positions = alternate_splash_component.splash_positions(unit, item, position)
+            return positions
+        else:
+            return {position}
     return positions
 
 def find_hp(actions, target):

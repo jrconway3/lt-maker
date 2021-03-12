@@ -31,7 +31,7 @@
                 "defense_speed": "0"
             }
         ],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
             0
@@ -69,7 +69,7 @@
                 "defense_speed": "0"
             }
         ],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
             1
@@ -107,7 +107,7 @@
                 "defense_speed": "0"
             }
         ],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
             2
@@ -119,7 +119,7 @@
         "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
             3
@@ -157,10 +157,10 @@
                 "defense_speed": "0"
             }
         ],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
-            5
+            4
         ]
     },
     {
@@ -195,10 +195,10 @@
                 "defense_speed": "0"
             }
         ],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
-            6
+            5
         ]
     },
     {
@@ -233,10 +233,10 @@
                 "defense_speed": "0"
             }
         ],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
-            7
+            6
         ]
     },
     {
@@ -245,10 +245,10 @@
         "rank_bonus": [],
         "advantage": [],
         "disadvantage": [],
-        "icon_nid": "wexp_icons",
+        "icon_nid": "Wexp_Icons",
         "icon_index": [
             0,
-            8
+            7
         ]
     }
 ]

@@ -196,11 +196,15 @@ class ExpState(MapState):
                 if self.starting_state != "stat_booster":
                     for level_needed, class_skill in self.unit_klass.learned_skills:
                         if self.unit.level == level_needed:
-                            act = action.AddSkill(self.unit, class_skill)
-                            action.do(act)
-                            if act.skill_obj:
-                                game.alerts.append(banner.GiveSkill(self.unit, act.skill_obj))
-                                game.state.change('alert')
+                            if class_skill == 'Feat':
+                                game.memory['current_unit'] = self.unit
+                                game.state.change('feat_choice')
+                            else:
+                                act = action.AddSkill(self.unit, class_skill)
+                                action.do(act)
+                                if act.skill_obj:
+                                    game.alerts.append(banner.GiveSkill(self.unit, act.skill_obj))
+                                    game.state.change('alert')
 
         # Wait 100 ms before transferring to the promotion state
         elif self.state.get_state() == 'prepare_promote':

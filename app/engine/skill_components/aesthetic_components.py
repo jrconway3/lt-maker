@@ -1,7 +1,7 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action
+from app.engine import equations, action, item_system, item_funcs
 from app.engine.game_state import game
 
 class UnitAnim(SkillComponent):
@@ -43,6 +43,43 @@ class DisplaySkillIconInCombat(SkillComponent):
     tag = 'aesthetic'
 
     def display_skill_icon(self, unit) -> bool:
+        return True
+
+# Show steal icon
+class StealIcon(SkillComponent):
+    nid = 'steal_icon'
+    desc = "Displays icon above units with stealable items"
+    tag = 'aesthetic'
+
+    def steal_icon(self, unit, target) -> bool:
+        # Unit has item that can be stolen
+        attack = equations.parser.steal_atk(unit)
+        defense = equations.parser.steal_def(target)   
+        if attack >= defense:
+            for def_item in target.items:
+                if self._item_restrict(unit, target, def_item):
+                    return True
+        return False
+
+    def _item_restrict(self, unit, defender, def_item) -> bool:
+        if item_system.locked(defender, def_item):
+            return False
+        if item_funcs.inventory_full(unit, def_item):
+            return False
+        if def_item is defender.get_weapon():
+            return False
+        return True
+
+class GBAStealIcon(StealIcon, SkillComponent):
+    nid = 'gba_steal_icon'
+
+    def _item_restrict(self, unit, defender, def_item) -> bool:
+        if item_system.locked(defender, def_item):
+            return False
+        if item_funcs.inventory_full(unit, def_item):
+            return False
+        if item_system.is_weapon(defender, def_item) or item_system.is_spell(defender, def_item):
+            return False
         return True
 
 """  # Need to wait for Combat Animations implementation

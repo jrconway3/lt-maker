@@ -882,10 +882,6 @@
                 "Swordbreaker"
             ],
             [
-                "warning",
-                "cur_unit.getMainWeapon() and cur_unit.getMainWeapon().TYPE == 'Sword'"
-            ],
-            [
                 "value",
                 2000
             ],
@@ -896,6 +892,10 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "eval_warning",
+                "target.get_weapon() and item_system.weapon_type(target, target.get_weapon()) == 'Sword'"
             ]
         ]
     },
@@ -1632,13 +1632,17 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "eval_warning",
+                "target.get_weapon() and item_system.weapon_type(target, target.get_weapon()) == 'Lance'"
             ]
         ]
     },
     {
         "nid": "Iron Axe",
         "name": "Iron Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -1698,7 +1702,7 @@
     {
         "nid": "Rusted Axe",
         "name": "Rusted Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -1758,7 +1762,7 @@
     {
         "nid": "Steel Axe",
         "name": "Steel Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -1818,7 +1822,7 @@
     {
         "nid": "Mithril Axe",
         "name": "Mithril Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -1878,7 +1882,7 @@
     {
         "nid": "Hatchet",
         "name": "Hatchet",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -1938,7 +1942,7 @@
     {
         "nid": "Great Axe",
         "name": "Great Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -2126,7 +2130,7 @@
     {
         "nid": "Adamant Axe",
         "name": "Adamant Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -2186,7 +2190,7 @@
     {
         "nid": "Hand Axe",
         "name": "Hand Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -2246,7 +2250,7 @@
     {
         "nid": "Short Axe",
         "name": "Short Axe",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -2306,7 +2310,7 @@
     {
         "nid": "Tomahawk",
         "name": "Tomahawk",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -2331,7 +2335,7 @@
             ],
             [
                 "hit",
-                40
+                45
             ],
             [
                 "weapon_type",
@@ -2414,10 +2418,6 @@
                 "Axebreaker"
             ],
             [
-                "warning",
-                "cur_unit.getMainWeapon() and cur_unit.getMainWeapon().TYPE == 'Axe'"
-            ],
-            [
                 "value",
                 1600
             ],
@@ -2428,13 +2428,17 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "eval_warning",
+                "target.get_weapon() and item_system.weapon_type(target, target.get_weapon()) == 'Sword'"
             ]
         ]
     },
     {
         "nid": "Willow Bow",
         "name": "Willow Bow",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Bow",
         "icon_index": [
             0,
@@ -2494,7 +2498,7 @@
     {
         "nid": "Oak Bow",
         "name": "Oak Bow",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Bow",
         "icon_index": [
             0,
@@ -2554,7 +2558,7 @@
     {
         "nid": "Yew Bow",
         "name": "Yew Bow",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Bow",
         "icon_index": [
             0,
@@ -2742,7 +2746,7 @@
     {
         "nid": "Longbow",
         "name": "Longbow",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Bow",
         "icon_index": [
             0,
@@ -2802,7 +2806,7 @@
     {
         "nid": "Great Bow",
         "name": "Great Bow",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Bow",
         "icon_index": [
             0,
@@ -2930,7 +2934,7 @@
     {
         "nid": "Ballista",
         "name": "Ballista",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Bow",
         "icon_index": [
             0,
@@ -3048,13 +3052,21 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    248,
+                    248,
+                    128
+                ]
             ]
         ]
     },
     {
         "nid": "Shine",
         "name": "Shine Ward",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Light",
         "icon_index": [
             0,
@@ -3108,13 +3120,21 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    248,
+                    248,
+                    128
+                ]
             ]
         ]
     },
     {
-        "nid": "Corona",
-        "name": "Corona Ward",
-        "desc": null,
+        "nid": "Blind",
+        "name": "Blind Ward",
+        "desc": "Blinds target on hit.",
         "icon_nid": "Light",
         "icon_index": [
             0,
@@ -3168,6 +3188,26 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "status_on_hit",
+                "Blinded"
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    0,
+                    0,
+                    248
+                ]
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    255,
+                    255,
+                    0
+                ]
             ]
         ]
     },
@@ -3202,10 +3242,6 @@
                 null
             ],
             [
-                "heal",
-                5
-            ],
-            [
                 "uses",
                 30
             ],
@@ -3220,6 +3256,22 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "magic_heal",
+                5
+            ],
+            [
+                "heal_exp",
+                null
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -3272,6 +3324,10 @@
             [
                 "max_range",
                 5
+            ],
+            [
+                "exp",
+                15
             ]
         ]
     },
@@ -3306,10 +3362,6 @@
                 null
             ],
             [
-                "heal",
-                10
-            ],
-            [
                 "uses",
                 15
             ],
@@ -3319,11 +3371,27 @@
             ],
             [
                 "map_cast_anim",
-                null
+                "AOE_Mend"
             ],
             [
                 "value",
                 1125
+            ],
+            [
+                "magic_heal",
+                10
+            ],
+            [
+                "heal_exp",
+                null
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -3359,15 +3427,11 @@
             ],
             [
                 "uses",
-                10
-            ],
-            [
-                "status_on_hit",
-                "Clear"
+                5
             ],
             [
                 "value",
-                2000
+                1000
             ],
             [
                 "min_range",
@@ -3376,178 +3440,18 @@
             [
                 "max_range",
                 1
-            ]
-        ]
-    },
-    {
-        "nid": "Reswap",
-        "name": "Reswap",
-        "desc": "Swaps user.",
-        "icon_nid": "Light",
-        "icon_index": [
-            0,
-            10
-        ],
-        "components": [
+            ],
             [
-                "spell",
+                "restore",
                 null
             ],
             [
-                "target_unit",
-                null
-            ],
-            [
-                "weapon_type",
-                "Light"
-            ],
-            [
-                "weapon_rank",
-                "B"
-            ],
-            [
-                "magic",
-                null
-            ],
-            [
-                "uses",
-                3
-            ],
-            [
-                "swap",
-                null
-            ],
-            [
-                "no_ai",
-                null
-            ],
-            [
-                "value",
-                1800
-            ],
-            [
-                "min_range",
-                2
-            ],
-            [
-                "max_range",
-                10
-            ]
-        ]
-    },
-    {
-        "nid": "Unlock",
-        "name": "Unlock",
-        "desc": "Unlocks distant targets.",
-        "icon_nid": "Light",
-        "icon_index": [
-            0,
-            10
-        ],
-        "components": [
-            [
-                "spell",
-                null
-            ],
-            [
-                "weapon_type",
-                "Light"
-            ],
-            [
-                "weapon_rank",
-                "C"
-            ],
-            [
-                "magic",
-                null
-            ],
-            [
-                "uses",
-                5
-            ],
-            [
-                "no_ai",
-                null
-            ],
-            [
-                "value",
-                3000
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                7
-            ]
-        ]
-    },
-    {
-        "nid": "Hammerne",
-        "name": "Hammerne",
-        "desc": "Repairs a weapon or staff to full uses.",
-        "icon_nid": "Light",
-        "icon_index": [
-            0,
-            10
-        ],
-        "components": [
-            [
-                "spell",
-                null
-            ],
-            [
-                "target_ally",
-                null
-            ],
-            [
-                "weapon_type",
-                "Light"
-            ],
-            [
-                "weapon_rank",
-                "C"
-            ],
-            [
-                "magic",
-                null
-            ],
-            [
-                "uses",
-                3
-            ],
-            [
-                "wexp",
-                8
-            ],
-            [
-                "no_ai",
-                null
-            ],
-            [
-                "exp",
-                40
-            ],
-            [
-                "repair",
-                null
-            ],
-            [
-                "unrepairable",
-                null
-            ],
-            [
-                "value",
-                1800
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                7
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -3586,10 +3490,6 @@
                 10
             ],
             [
-                "status_on_hit",
-                "Refresh_Status"
-            ],
-            [
                 "no_ai",
                 null
             ],
@@ -3604,82 +3504,22 @@
             [
                 "max_range",
                 1
-            ]
-        ]
-    },
-    {
-        "nid": "Purge",
-        "name": "Purge",
-        "desc": null,
-        "icon_nid": "Light",
-        "icon_index": [
-            0,
-            3
-        ],
-        "components": [
+            ],
             [
-                "weapon",
+                "refresh",
                 null
             ],
             [
-                "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
-                null
-            ],
-            [
-                "damage",
-                10
-            ],
-            [
-                "hit",
-                75
-            ],
-            [
-                "weapon_type",
-                "Light"
-            ],
-            [
-                "weapon_rank",
-                "B"
-            ],
-            [
-                "magic",
-                null
-            ],
-            [
-                "uses",
-                5
-            ],
-            [
-                "weight",
+                "exp",
                 20
             ],
             [
-                "crit",
-                5
-            ],
-            [
-                "wexp",
-                3
-            ],
-            [
-                "cannot_be_countered",
-                null
-            ],
-            [
-                "value",
-                3000
-            ],
-            [
-                "min_range",
-                3
-            ],
-            [
-                "max_range",
-                10
+                "map_hit_add_blend",
+                [
+                    248,
+                    248,
+                    0
+                ]
             ]
         ]
     },
@@ -3714,10 +3554,6 @@
                 null
             ],
             [
-                "heal",
-                10
-            ],
-            [
                 "uses",
                 15
             ],
@@ -3732,6 +3568,22 @@
             [
                 "max_range",
                 7
+            ],
+            [
+                "magic_heal",
+                10
+            ],
+            [
+                "heal_exp",
+                null
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -3751,10 +3603,6 @@
             ],
             [
                 "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
                 null
             ],
             [
@@ -3792,6 +3640,153 @@
             [
                 "max_range",
                 7
+            ],
+            [
+                "exp",
+                30
+            ]
+        ]
+    },
+    {
+        "nid": "Rescue",
+        "name": "Rescue",
+        "desc": "Bring an ally to a space adjacent to the user",
+        "icon_nid": "Light",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "weapon_type",
+                "Light"
+            ],
+            [
+                "weapon_rank",
+                "B"
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "uses",
+                3
+            ],
+            [
+                "value",
+                1800
+            ],
+            [
+                "exp",
+                40
+            ],
+            [
+                "sequence_item",
+                [
+                    "Rescue1",
+                    "Rescue2"
+                ]
+            ],
+            [
+                "no_ai",
+                null
+            ],
+            [
+                "min_range",
+                2
+            ],
+            [
+                "max_range",
+                10
+            ],
+            [
+                "target_ally",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Rescue1",
+        "name": "Rescue",
+        "desc": "Rescues an ally.",
+        "icon_nid": "Light",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "min_range",
+                2
+            ],
+            [
+                "store_unit",
+                null
+            ],
+            [
+                "max_range",
+                10
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    0,
+                    248,
+                    248
+                ]
+            ]
+        ]
+    },
+    {
+        "nid": "Rescue2",
+        "name": "Rescue",
+        "desc": "Rescues an ally.",
+        "icon_nid": "Light",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "magic",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "target_tile",
+                null
+            ],
+            [
+                "unload_unit",
+                null
             ]
         ]
     },
@@ -3823,7 +3818,7 @@
             ],
             [
                 "hit",
-                100
+                95
             ],
             [
                 "weapon_type",
@@ -3847,7 +3842,7 @@
             ],
             [
                 "value",
-                480
+                720
             ],
             [
                 "min_range",
@@ -3887,7 +3882,7 @@
             ],
             [
                 "hit",
-                60
+                65
             ],
             [
                 "weapon_type",
@@ -3911,7 +3906,7 @@
             ],
             [
                 "value",
-                960
+                720
             ],
             [
                 "min_range",
@@ -3984,6 +3979,14 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    248,
+                    128,
+                    0
+                ]
             ]
         ]
     },
@@ -4095,7 +4098,7 @@
             ],
             [
                 "map_cast_anim",
-                null
+                "AOE_Wyrmsfire"
             ],
             [
                 "value",
@@ -4108,6 +4111,22 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "target_tile",
+                null
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    224,
+                    96,
+                    0
+                ]
             ]
         ]
     },
@@ -4159,7 +4178,7 @@
             ],
             [
                 "map_cast_anim",
-                null
+                "AOE_Sandblast"
             ],
             [
                 "value",
@@ -4172,6 +4191,14 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "target_tile",
+                null
+            ],
+            [
+                "level_exp",
+                null
             ]
         ]
     },
@@ -4223,7 +4250,7 @@
             ],
             [
                 "map_cast_anim",
-                null
+                "AOE_Blizzard"
             ],
             [
                 "value",
@@ -4236,6 +4263,14 @@
             [
                 "max_range",
                 4
+            ],
+            [
+                "target_tile",
+                null
+            ],
+            [
+                "level_exp",
+                null
             ]
         ]
     },
@@ -4292,6 +4327,10 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "exp",
+                15
             ]
         ]
     },
@@ -4339,7 +4378,7 @@
             ],
             [
                 "map_cast_anim",
-                null
+                "AOE_Meteor"
             ],
             [
                 "value",
@@ -4352,62 +4391,22 @@
             [
                 "max_range",
                 3
-            ]
-        ]
-    },
-    {
-        "nid": "Lightning_Bolt",
-        "name": "Lightning",
-        "desc": "Shoots a line of lightning.",
-        "icon_nid": "Anima",
-        "icon_index": [
-            0,
-            8
-        ],
-        "components": [
+            ],
             [
-                "spell",
+                "target_tile",
                 null
             ],
             [
-                "weapon_type",
-                "Anima"
-            ],
-            [
-                "weapon_rank",
-                "B"
-            ],
-            [
-                "magic",
+                "level_exp",
                 null
             ],
             [
-                "uses",
-                5
-            ],
-            [
-                "line_aoe",
-                null
-            ],
-            [
-                "hit",
-                85
-            ],
-            [
-                "damage",
-                11
-            ],
-            [
-                "value",
-                3000
-            ],
-            [
-                "min_range",
-                5
-            ],
-            [
-                "max_range",
-                5
+                "map_hit_add_blend",
+                [
+                    248,
+                    128,
+                    0
+                ]
             ]
         ]
     },
@@ -4455,7 +4454,7 @@
             ],
             [
                 "map_cast_anim",
-                null
+                "AOE_Meteor"
             ],
             [
                 "map_cast_sfx",
@@ -4472,6 +4471,22 @@
             [
                 "max_range",
                 10
+            ],
+            [
+                "target_tile",
+                null
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    248,
+                    128,
+                    0
+                ]
             ]
         ]
     },
@@ -4536,6 +4551,14 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    248,
+                    248,
+                    248
+                ]
             ]
         ]
     },
@@ -4596,6 +4619,18 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "lifelink",
+                0.5
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    248,
+                    248,
+                    248
+                ]
             ]
         ]
     },
@@ -4656,13 +4691,25 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "damage_on_miss",
+                0.5
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    248,
+                    248,
+                    248
+                ]
             ]
         ]
     },
     {
         "nid": "Howl",
         "name": "Howl Ward",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Dark",
         "icon_index": [
             0,
@@ -4716,6 +4763,14 @@
             [
                 "max_range",
                 2
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    248,
+                    248,
+                    248
+                ]
             ]
         ]
     },
@@ -4759,7 +4814,7 @@
             ],
             [
                 "hit",
-                60
+                55
             ],
             [
                 "damage",
@@ -4767,7 +4822,7 @@
             ],
             [
                 "value",
-                1500
+                2000
             ],
             [
                 "min_range",
@@ -4776,6 +4831,14 @@
             [
                 "max_range",
                 7
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    248,
+                    248,
+                    248
+                ]
             ]
         ]
     },
@@ -4795,10 +4858,6 @@
             ],
             [
                 "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
                 null
             ],
             [
@@ -4836,6 +4895,18 @@
             [
                 "max_range",
                 7
+            ],
+            [
+                "exp",
+                20
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    248,
+                    0,
+                    248
+                ]
             ]
         ]
     },
@@ -4858,10 +4929,6 @@
                 null
             ],
             [
-                "level_exp",
-                null
-            ],
-            [
                 "weapon_type",
                 "Dark"
             ],
@@ -4879,7 +4946,7 @@
             ],
             [
                 "status_on_hit",
-                "Stun"
+                "Stunned"
             ],
             [
                 "hit",
@@ -4896,6 +4963,18 @@
             [
                 "max_range",
                 7
+            ],
+            [
+                "exp",
+                20
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    248,
+                    0,
+                    248
+                ]
             ]
         ]
     },
@@ -4943,7 +5022,7 @@
             ],
             [
                 "damage",
-                11
+                15
             ],
             [
                 "value",
@@ -4956,29 +5035,33 @@
             [
                 "max_range",
                 7
+            ],
+            [
+                "damage_on_miss",
+                0.5
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    248,
+                    248,
+                    248
+                ]
             ]
         ]
     },
     {
-        "nid": "Geas",
-        "name": "Geas",
-        "desc": "Mind controls enemy.",
+        "nid": "Warp",
+        "name": "Warp",
+        "desc": "Move an ally to another square.",
         "icon_nid": "Dark",
         "icon_index": [
             0,
-            8
+            10
         ],
         "components": [
             [
                 "spell",
-                null
-            ],
-            [
-                "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
                 null
             ],
             [
@@ -4995,70 +5078,6 @@
             ],
             [
                 "uses",
-                3
-            ],
-            [
-                "status_on_hit",
-                "Geas_Status"
-            ],
-            [
-                "value",
-                3000
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                7
-            ]
-        ]
-    },
-    {
-        "nid": "Searing Blades",
-        "name": "Searing Blades",
-        "desc": "Shoot 3 fire blades at targets of your choice.",
-        "icon_nid": "Anima",
-        "icon_index": [
-            0,
-            8
-        ],
-        "components": [
-            [
-                "spell",
-                null
-            ],
-            [
-                "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
-                null
-            ],
-            [
-                "weapon_type",
-                "Anima"
-            ],
-            [
-                "weapon_rank",
-                "B"
-            ],
-            [
-                "magic",
-                null
-            ],
-            [
-                "uses",
-                5
-            ],
-            [
-                "hit",
-                70
-            ],
-            [
-                "damage",
                 5
             ],
             [
@@ -5066,60 +5085,119 @@
                 7500
             ],
             [
+                "exp",
+                40
+            ],
+            [
+                "sequence_item",
+                [
+                    "Warp1",
+                    "Warp2"
+                ]
+            ],
+            [
+                "no_ai",
+                null
+            ],
+            [
                 "min_range",
-                1
+                0
+            ],
+            [
+                "target_ally",
+                null
             ],
             [
                 "max_range",
-                7
+                1
             ]
         ]
     },
     {
-        "nid": "Fang",
-        "name": "Fang",
-        "desc": null,
-        "icon_nid": "Neutral",
+        "nid": "Warp1",
+        "name": "Warp",
+        "desc": "Warps an ally.",
+        "icon_nid": "Dark",
         "icon_index": [
             0,
-            0
+            10
         ],
         "components": [
             [
-                "weapon",
+                "spell",
                 null
             ],
             [
-                "target_enemy",
+                "target_ally",
                 null
             ],
             [
-                "level_exp",
+                "magic",
                 null
             ],
             [
-                "damage",
-                3
+                "min_range",
+                0
             ],
             [
-                "hit",
-                90
-            ],
-            [
-                "locked",
+                "store_unit",
                 null
             ],
             [
-                "value",
+                "max_range",
                 1
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    128,
+                    0,
+                    248
+                ]
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    0,
+                    248,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        "nid": "Warp2",
+        "name": "Warp",
+        "desc": "Warps an ally.",
+        "icon_nid": "Dark",
+        "icon_index": [
+            0,
+            10
+        ],
+        "components": [
+            [
+                "spell",
+                null
+            ],
+            [
+                "magic",
+                null
             ],
             [
                 "min_range",
                 1
             ],
             [
+                "target_tile",
+                null
+            ],
+            [
+                "unload_unit",
+                null
+            ],
+            [
                 "max_range",
-                1
+                10
             ]
         ]
     },
@@ -5152,6 +5230,14 @@
             [
                 "value",
                 300
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -5184,6 +5270,14 @@
             [
                 "value",
                 750
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -5216,6 +5310,14 @@
             [
                 "value",
                 3000
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -5248,6 +5350,18 @@
             [
                 "value",
                 900
+            ],
+            [
+                "map_cast_anim",
+                "MapSpiritbane"
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    144,
+                    232
+                ]
             ]
         ]
     },
@@ -5280,83 +5394,16 @@
             [
                 "value",
                 900
+            ],
+            [
+                "map_hit_add_blend",
+                [
+                    96,
+                    232,
+                    144
+                ]
             ]
         ]
-    },
-    {
-        "nid": "Energy Drink",
-        "name": "Energy Drink",
-        "desc": "A draught that recharges all skills.",
-        "icon_nid": "Consumable",
-        "icon_index": [
-            0,
-            8
-        ],
-        "components": [
-            [
-                "usable",
-                null
-            ],
-            [
-                "target_ally",
-                null
-            ],
-            [
-                "status_on_hit",
-                "Skill_Restore"
-            ],
-            [
-                "c_uses",
-                2
-            ],
-            [
-                "value",
-                300
-            ]
-        ]
-    },
-    {
-        "nid": "Exp Drink",
-        "name": "Exp Drink",
-        "desc": "A draught that gives 50 exp.",
-        "icon_nid": "Consumable",
-        "icon_index": [
-            0,
-            8
-        ],
-        "components": [
-            [
-                "usable",
-                null
-            ],
-            [
-                "target_ally",
-                null
-            ],
-            [
-                "uses",
-                2
-            ],
-            [
-                "usable_in_base",
-                null
-            ],
-            [
-                "value",
-                600
-            ]
-        ]
-    },
-    {
-        "nid": "so_Dismount",
-        "name": "Dismount",
-        "desc": "A draught that gives 50 exp.",
-        "icon_nid": "Consumable",
-        "icon_index": [
-            0,
-            8
-        ],
-        "components": []
     },
     {
         "nid": "Skeleton Key",
@@ -5383,6 +5430,10 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "can_unlock",
+                "True"
             ]
         ]
     },
@@ -5410,7 +5461,12 @@
             ],
             [
                 "permanent_stat_change",
-                []
+                [
+                    [
+                        "HP",
+                        5
+                    ]
+                ]
             ],
             [
                 "usable_in_base",
@@ -5446,39 +5502,12 @@
             ],
             [
                 "permanent_stat_change",
-                []
-            ],
-            [
-                "usable_in_base",
-                null
-            ],
-            [
-                "value",
-                8000
-            ]
-        ]
-    },
-    {
-        "nid": "Guiding Ring",
-        "name": "Guiding Ring",
-        "desc": "Promotes magic-using classes.",
-        "icon_nid": "Boosters",
-        "icon_index": [
-            0,
-            1
-        ],
-        "components": [
-            [
-                "usable",
-                null
-            ],
-            [
-                "target_ally",
-                null
-            ],
-            [
-                "uses",
-                1
+                [
+                    [
+                        "STR",
+                        2
+                    ]
+                ]
             ],
             [
                 "usable_in_base",
@@ -5514,7 +5543,12 @@
             ],
             [
                 "permanent_stat_change",
-                []
+                [
+                    [
+                        "MAG",
+                        2
+                    ]
+                ]
             ],
             [
                 "usable_in_base",
@@ -5550,7 +5584,12 @@
             ],
             [
                 "permanent_stat_change",
-                []
+                [
+                    [
+                        "SKL",
+                        3
+                    ]
+                ]
             ],
             [
                 "usable_in_base",
@@ -5586,7 +5625,12 @@
             ],
             [
                 "permanent_stat_change",
-                []
+                [
+                    [
+                        "SPD",
+                        2
+                    ]
+                ]
             ],
             [
                 "usable_in_base",
@@ -5622,7 +5666,12 @@
             ],
             [
                 "permanent_stat_change",
-                []
+                [
+                    [
+                        "DEF",
+                        2
+                    ]
+                ]
             ],
             [
                 "usable_in_base",
@@ -5658,43 +5707,12 @@
             ],
             [
                 "permanent_stat_change",
-                []
-            ],
-            [
-                "usable_in_base",
-                null
-            ],
-            [
-                "value",
-                8000
-            ]
-        ]
-    },
-    {
-        "nid": "Goddess Icon",
-        "name": "Goddess Icon",
-        "desc": "Permanently raises Luck by 2 points.",
-        "icon_nid": "Boosters",
-        "icon_index": [
-            0,
-            4
-        ],
-        "components": [
-            [
-                "usable",
-                null
-            ],
-            [
-                "target_ally",
-                null
-            ],
-            [
-                "uses",
-                1
-            ],
-            [
-                "permanent_stat_change",
-                []
+                [
+                    [
+                        "RES",
+                        2
+                    ]
+                ]
             ],
             [
                 "usable_in_base",
@@ -5743,22 +5761,6 @@
             [
                 "value",
                 4000
-            ]
-        ]
-    },
-    {
-        "nid": "Silver Card",
-        "name": "Silver Card",
-        "desc": "Can buy items for reduced cost.",
-        "icon_nid": "Boosters",
-        "icon_index": [
-            0,
-            5
-        ],
-        "components": [
-            [
-                "status_on_hold",
-                "Merchant"
             ]
         ]
     },
@@ -5861,52 +5863,20 @@
                 null
             ],
             [
-                "value",
-                100000
-            ],
-            [
                 "min_range",
                 1
             ],
             [
                 "max_range",
                 2
-            ]
-        ]
-    },
-    {
-        "nid": "so_Fade",
-        "name": "Fade",
-        "desc": "I done broked something.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            1
-        ],
-        "components": [
-            [
-                "status_on_hit",
-                "Fade_Status"
             ],
             [
-                "value",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "so_Overdrive",
-        "name": "Overdrive",
-        "desc": "I done broked something.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            9
-        ],
-        "components": [
-            [
-                "status_on_hit",
-                "overdrive_status,infinite_status"
+                "map_hit_sub_blend",
+                [
+                    248,
+                    0,
+                    248
+                ]
             ]
         ]
     },
@@ -5922,62 +5892,6 @@
         "components": [
             [
                 "shove",
-                1
-            ],
-            [
-                "value",
-                1
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "so_Swap",
-        "name": "Swap",
-        "desc": "I done broked something.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            4
-        ],
-        "components": [
-            [
-                "swap",
-                null
-            ],
-            [
-                "value",
-                1
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "so_Push",
-        "name": "Push",
-        "desc": "I done broked something.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            4
-        ],
-        "components": [
-            [
-                "value",
                 1
             ],
             [
@@ -6001,80 +5915,32 @@
         ],
         "components": [
             [
-                "status_on_hit",
-                "Refresh_Status"
-            ],
-            [
                 "map_cast_sfx",
                 "RefreshDanceMap"
             ],
             [
-                "value",
-                1
-            ],
-            [
                 "min_range",
                 1
             ],
             [
                 "max_range",
                 1
-            ]
-        ]
-    },
-    {
-        "nid": "so_Aegis",
-        "name": "Aegis",
-        "desc": "I done broked something.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            3
-        ],
-        "components": [
-            [
-                "status_on_hit",
-                "Aegis_Status"
             ],
             [
-                "value",
-                1
+                "refresh",
+                null
             ],
             [
-                "min_range",
-                1
+                "map_hit_sfx",
+                "RefreshDanceMap"
             ],
             [
-                "max_range",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "so_Revelation",
-        "name": "Revelation",
-        "desc": "I done broked something.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            8,
-            3
-        ],
-        "components": [
-            [
-                "status_on_hit",
-                "Revelation_Status"
-            ],
-            [
-                "value",
-                1
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                1
+                "map_hit_add_blend",
+                [
+                    248,
+                    248,
+                    0
+                ]
             ]
         ]
     },
@@ -6097,10 +5963,6 @@
                 null
             ],
             [
-                "weapon_rank",
-                "D"
-            ],
-            [
                 "status_on_hit",
                 "Rally_Child"
             ],
@@ -6109,64 +5971,44 @@
                 3
             ],
             [
-                "exp",
-                -1
-            ],
-            [
                 "map_cast_anim",
-                null
+                "AOE_Rally"
             ],
             [
                 "map_hit_sfx",
                 "Rally"
             ],
             [
-                "value",
-                1
+                "map_hit_add_blend",
+                [
+                    0,
+                    0,
+                    248
+                ]
+            ],
+            [
+                "map_hit_sub_blend",
+                [
+                    128,
+                    0,
+                    0
+                ]
             ]
         ]
     },
     {
-        "nid": "so_Reinforce",
-        "name": "Reinforce",
-        "desc": "Summons reinforcements",
+        "nid": "so_Steal",
+        "name": "so_Steal",
+        "desc": "Steal items from enemies.",
         "icon_nid": "Skills",
         "icon_index": [
-            9,
-            0
+            7,
+            10
         ],
         "components": [
             [
-                "usable",
+                "spell",
                 null
-            ],
-            [
-                "target_ally",
-                null
-            ],
-            [
-                "usable_in_base",
-                null
-            ],
-            [
-                "exp",
-                13
-            ]
-        ]
-    },
-    {
-        "nid": "so_Summon_1",
-        "name": "Summon_1",
-        "desc": "Summons a phantom.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            0
-        ],
-        "components": [
-            [
-                "value",
-                1
             ],
             [
                 "min_range",
@@ -6175,6 +6017,18 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "exp",
+                11
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "steal",
+                null
             ]
         ]
     }

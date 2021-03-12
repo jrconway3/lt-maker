@@ -1,5 +1,21 @@
 [
     {
+        "nid": "Feat",
+        "name": "Feat",
+        "desc": "Placeholder for all Feats",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ]
+        ]
+    },
+    {
         "nid": "Canto",
         "name": "Canto",
         "desc": "Can move again after certain actions.",
@@ -449,6 +465,10 @@
             [
                 "gba_poison",
                 5
+            ],
+            [
+                "unit_anim",
+                "MapPoison"
             ]
         ]
     },
@@ -524,96 +544,6 @@
         ]
     },
     {
-        "nid": "Sleep",
-        "name": "Sleep",
-        "desc": "Unit is asleep.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            8
-        ],
-        "components": [
-            [
-                "time",
-                5
-            ],
-            [
-                "unselectable",
-                null
-            ],
-            [
-                "stat_change",
-                [
-                    [
-                        "MOV",
-                        -99
-                    ]
-                ]
-            ],
-            [
-                "negative",
-                null
-            ],
-            [
-                "cannot_use_items",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Petrify",
-        "name": "Petrify",
-        "desc": "Unit is petrified. Cannot avoid enemy attacks and suffers -30 dodge.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            2,
-            10
-        ],
-        "components": [
-            [
-                "time",
-                5
-            ],
-            [
-                "unselectable",
-                null
-            ],
-            [
-                "stat_change",
-                [
-                    [
-                        "MOV",
-                        -99
-                    ]
-                ]
-            ],
-            [
-                "cannot_use_items",
-                null
-            ],
-            [
-                "negative",
-                null
-            ],
-            [
-                "avoid",
-                -1000
-            ],
-            [
-                "crit_avoid",
-                -30
-            ],
-            [
-                "unit_flickering_tint",
-                [
-                    65,
-                    65,
-                    65
-                ]
-            ]
-        ]
-    },
-    {
         "nid": "Rescue",
         "name": "Rescue",
         "desc": "Unit is weighed down with a traveler.",
@@ -658,11 +588,11 @@
             ],
             [
                 "ability",
-                "Steal"
+                "so_Steal"
             ],
             [
-                "sight_range_bonus",
-                3
+                "steal_icon",
+                null
             ]
         ]
     },
@@ -687,62 +617,6 @@
         ]
     },
     {
-        "nid": "Crit +30",
-        "name": "Crit +30",
-        "desc": "Grants +30 Critical change",
-        "icon_nid": "Skills",
-        "icon_index": [
-            2,
-            3
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ],
-            [
-                "crit",
-                30
-            ]
-        ]
-    },
-    {
-        "nid": "Crit +15",
-        "name": "Crit +15",
-        "desc": "Grants +15 Critical change",
-        "icon_nid": "Skills",
-        "icon_index": [
-            2,
-            3
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ],
-            [
-                "crit",
-                15
-            ]
-        ]
-    },
-    {
-        "nid": "Anticrit",
-        "name": "Anticrit",
-        "desc": "Grants immunity to critical hits.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            3
-        ],
-        "components": [
-            [
-                "crit_avoid",
-                1000
-            ]
-        ]
-    },
-    {
         "nid": "Silence",
         "name": "Silence",
         "desc": "Unit cannot use magic.",
@@ -763,38 +637,6 @@
             [
                 "time",
                 5
-            ]
-        ]
-    },
-    {
-        "nid": "Berserk",
-        "name": "Berserk",
-        "desc": "Unit is confused and can no longer tell friend from foe.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            8
-        ],
-        "components": [
-            [
-                "negative",
-                null
-            ],
-            [
-                "time",
-                5
-            ],
-            [
-                "ignore_alliances",
-                null
-            ],
-            [
-                "unselectable",
-                null
-            ],
-            [
-                "change_ai",
-                "Pursue"
             ]
         ]
     },
@@ -1070,16 +912,16 @@
     {
         "nid": "Blinded",
         "name": "Blinded",
-        "desc": "Inflicts Hit -100.",
+        "desc": "Inflicts Hit -50.",
         "icon_nid": "Skills",
         "icon_index": [
-            9,
-            6
+            4,
+            0
         ],
         "components": [
             [
                 "hit",
-                -100
+                -50
             ],
             [
                 "time",
@@ -1739,11 +1581,11 @@
         ],
         "components": [
             [
-                "movement_type",
+                "class_skill",
                 null
             ],
             [
-                "class_skill",
+                "ignore_terrain",
                 null
             ]
         ]
@@ -1985,42 +1827,6 @@
         ]
     },
     {
-        "nid": "Rex_Divinus",
-        "name": "Rex Divinus",
-        "desc": "Immunity to statuses and forced movement.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            9
-        ],
-        "components": [
-            [
-                "immune_status",
-                null
-            ],
-            [
-                "grounded",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Rex_Aurus",
-        "name": "Rex Aurus",
-        "desc": "Able to counterattack at any range.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            9
-        ],
-        "components": [
-            [
-                "distant_counter",
-                null
-            ]
-        ]
-    },
-    {
         "nid": "Heavy Hitter",
         "name": "Heavy Hitter",
         "desc": "Adds half weapon weight to damage.",
@@ -2072,11 +1878,11 @@
         "components": [
             [
                 "dynamic_accuracy",
-                "20 if self.check_focus(gameStateObj) else 0"
+                "20 if unit_funcs.check_focus(unit, 3) == 0 else 0"
             ],
             [
                 "dynamic_avoid",
-                "20 if self.check_focus(gameStateObj) else 0"
+                "20 if unit_funcs.check_focus(unit, 3) == 0 else 0"
             ],
             [
                 "class_skill",
@@ -2096,11 +1902,11 @@
         "components": [
             [
                 "dynamic_accuracy",
-                "10 if not self.check_focus(gameStateObj) else 0"
+                "10 if unit_funcs.check_focus(unit, 3) > 0 else 0"
             ],
             [
                 "dynamic_avoid",
-                "10 if not self.check_focus(gameStateObj) else 0"
+                "10 if unit_funcs.check_focus(unit, 3) > 0 else 0"
             ],
             [
                 "class_skill",
@@ -2173,13 +1979,17 @@
             [
                 "class_skill",
                 null
+            ],
+            [
+                "drain_charge",
+                1
             ]
         ]
     },
     {
         "nid": "Healtouch",
         "name": "Healtouch",
-        "desc": "Heal +5 HP when healing another.",
+        "desc": "Heal +5 HP when healing an ally.",
         "icon_nid": "Skills",
         "icon_index": [
             2,
@@ -2189,6 +1999,19 @@
             [
                 "class_skill",
                 null
+            ],
+            [
+                "stat_change",
+                [
+                    [
+                        "MAG",
+                        5
+                    ]
+                ]
+            ],
+            [
+                "combat_condition",
+                "unit is not target and skill_system.check_ally(unit, target)"
             ]
         ]
     },
@@ -2232,24 +2055,37 @@
             ],
             [
                 "combat_art_allowed_weapons",
-                ""
+                "item_system.weapon_type(unit, item) == 'Sword' and not item_funcs.is_magic(unit, item)"
             ],
             [
                 "combat_charge_increase_by_stat",
-                null
+                "SKL"
+            ],
+            [
+                "build_charge",
+                30
             ]
         ]
     },
     {
         "nid": "Critical_item_mod",
         "name": "Critical",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Skills",
         "icon_index": [
             3,
             5
         ],
-        "components": []
+        "components": [
+            [
+                "crit",
+                1000
+            ],
+            [
+                "hidden",
+                null
+            ]
+        ]
     },
     {
         "nid": "Cleave",
@@ -2263,141 +2099,50 @@
         "components": [
             [
                 "combat_art",
-                null
+                "Cleave_item_mod"
             ],
             [
                 "class_skill",
                 null
+            ],
+            [
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
+                "combat_art_allowed_weapons",
+                "item_system.weapon_type(unit, item) in ('Sword', 'Axe') and 1 in item_funcs.get_range(unit, item)"
+            ],
+            [
+                "build_charge",
+                15
             ]
         ]
     },
     {
         "nid": "Cleave_item_mod",
         "name": "Cleave",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Skills",
         "icon_index": [
             2,
             7
         ],
-        "components": []
-    },
-    {
-        "nid": "Trueshot",
-        "name": "Trueshot",
-        "desc": "Combat Art. +100 hit on next attack.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            9
-        ],
         "components": [
-            [
-                "combat_art",
-                null
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "trueshot_status",
-        "name": "Trueshot",
-        "desc": null,
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            9
-        ],
-        "components": [
-            [
-                "hit",
-                100
-            ]
-        ]
-    },
-    {
-        "nid": "Overdrive",
-        "name": "Overdrive",
-        "desc": "Combat Art. INFINITE POWER!!!",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            9
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Overdrive"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Dismount",
-        "name": "Dismount",
-        "desc": "Horse.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            9
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Dismount"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "overdrive_status",
-        "name": "INFINITE POWER!!!",
-        "desc": "Grants +4 STR, +4 MAG, +2 SPD",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            9
-        ],
-        "components": [
-            [
-                "stat_change",
-                []
-            ],
-            [
-                "time",
-                4
-            ]
-        ]
-    },
-    {
-        "nid": "infinite_status",
-        "name": "Death Lotus",
-        "desc": "Permanently lowers HP by 3",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            9
-        ],
-        "components": [
-            [
-                "stat_change",
-                []
-            ],
             [
                 "hidden",
                 null
             ],
             [
-                "stack",
+                "limit_maximum_range",
+                1
+            ],
+            [
+                "cannot_double",
+                null
+            ],
+            [
+                "Cleave",
                 null
             ]
         ]
@@ -2414,11 +2159,19 @@
         "components": [
             [
                 "automatic_combat_art",
-                null
+                "Metamagic_Status"
             ],
             [
                 "class_skill",
                 null
+            ],
+            [
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
+                "build_charge",
+                40
             ]
         ]
     },
@@ -2451,6 +2204,10 @@
                     0,
                     248
                 ]
+            ],
+            [
+                "oversplash",
+                1
             ]
         ]
     },
@@ -2467,46 +2224,6 @@
             [
                 "ability",
                 "so_Shove"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Swap",
-        "name": "Swap",
-        "desc": "Activated. Swap position with an adjacent unit.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            4
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Swap"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Push",
-        "name": "Push",
-        "desc": "Activated. Pushes unit 3 spaces away.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            4
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Push"
             ],
             [
                 "class_skill",
@@ -2535,66 +2252,6 @@
         ]
     },
     {
-        "nid": "Fade",
-        "name": "Fade",
-        "desc": "Activated. Grants Avoid +100 for 5 turns or until you next attack.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            1
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Fade"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Aegis",
-        "name": "Aegis",
-        "desc": "Activated. RNG: 1. Grant ally DEF/RES +15 until next turn.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            3
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Aegis"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Revelation",
-        "name": "Revelation",
-        "desc": "Activated. RNG: 1. Grants ally Hit/Avoid +100 until next turn.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            8,
-            3
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Revelation"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
         "nid": "Rally",
         "name": "Rally",
         "desc": "Activated. Grant all allies within a 3 tile radius +4 to all stats for one turn.",
@@ -2611,62 +2268,14 @@
             [
                 "class_skill",
                 null
-            ]
-        ]
-    },
-    {
-        "nid": "Reinforce",
-        "name": "Reinforce",
-        "desc": "Activated. Summons four new friends.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            0
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Reinforce"
             ],
             [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Ballista",
-        "name": "Ballista",
-        "desc": "Use a ballista.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            0
-        ],
-        "components": [
-            [
-                "ability",
-                "Ballista"
-            ]
-        ]
-    },
-    {
-        "nid": "Summon",
-        "name": "Summon",
-        "desc": "Activated. Summons a dark phantom to aid you.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            0
-        ],
-        "components": [
-            [
-                "ability",
-                "so_Summon_1"
+                "build_charge",
+                60
             ],
             [
-                "class_skill",
-                null
+                "combat_charge_increase_by_stat",
+                "SKL"
             ]
         ]
     },
@@ -2682,38 +2291,26 @@
         "components": [
             [
                 "combat_art",
-                null
+                "Luna_proc"
             ],
             [
                 "class_skill",
                 null
-            ]
-        ]
-    },
-    {
-        "nid": "Luna2",
-        "name": "Luna",
-        "desc": "Proc. SKL%. Ignore enemy's Defense or Resistance.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            3
-        ],
-        "components": [
-            [
-                "attack_proc",
-                null
             ],
             [
-                "class_skill",
-                null
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
+                "build_charge",
+                40
             ]
         ]
     },
     {
         "nid": "Luna_proc",
         "name": "Luna",
-        "desc": null,
+        "desc": "Adds target's resist to damage",
         "icon_nid": "Skills",
         "icon_index": [
             4,
@@ -2723,6 +2320,10 @@
             [
                 "hidden",
                 null
+            ],
+            [
+                "dynamic_damage",
+                "combat_calcs.defense(target, None, None)"
             ]
         ]
     },
@@ -2738,38 +2339,26 @@
         "components": [
             [
                 "combat_art",
-                null
+                "Sol_proc"
             ],
             [
                 "class_skill",
                 null
-            ]
-        ]
-    },
-    {
-        "nid": "Sol2",
-        "name": "Sol",
-        "desc": "Proc. SKL%. Recover HP equal to damage dealt to enemy.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            2
-        ],
-        "components": [
-            [
-                "attack_proc",
-                null
             ],
             [
-                "class_skill",
-                null
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
+                "build_charge",
+                40
             ]
         ]
     },
     {
         "nid": "Sol_proc",
         "name": "Sol",
-        "desc": null,
+        "desc": "",
         "icon_nid": "Skills",
         "icon_index": [
             4,
@@ -2779,237 +2368,10 @@
             [
                 "hidden",
                 null
-            ]
-        ]
-    },
-    {
-        "nid": "Devil_Luck",
-        "name": "Devil's Luck",
-        "desc": "Chance to kill self -- horribly",
-        "icon_nid": "Skills",
-        "icon_index": [
-            6,
-            8
-        ],
-        "components": [
-            [
-                "attack_proc",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Devil_proc",
-        "name": "Devil's Luck",
-        "desc": null,
-        "icon_nid": "Skills",
-        "icon_index": [
-            6,
-            8
-        ],
-        "components": [
-            [
-                "hidden",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Vantage2",
-        "name": "Vantage",
-        "desc": "Proc. Attack first even on defense.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            3
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Vantage_proc",
-        "name": "Vantage",
-        "desc": null,
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            3
-        ],
-        "components": [
-            [
-                "vantage",
-                null
             ],
             [
-                "hidden",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Pavise",
-        "name": "Pavise",
-        "desc": "Proc. Ignore attacker's damage.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            3
-        ],
-        "components": [
-            [
-                "defense_proc",
-                null
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Pavise_proc",
-        "name": "Pavise",
-        "desc": null,
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            3
-        ],
-        "components": [
-            [
-                "resist",
-                500
-            ],
-            [
-                "hidden",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Adept",
-        "name": "Adept",
-        "desc": "Proc. SPD% Attack again.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            11,
-            10
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Adept_proc",
-        "name": "Adept",
-        "desc": null,
-        "icon_nid": "Skills",
-        "icon_index": [
-            11,
-            10
-        ],
-        "components": []
-    },
-    {
-        "nid": "Thracia_Charge",
-        "name": "Charge",
-        "desc": null,
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            3
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Genealogy_Charge",
-        "name": "Charge",
-        "desc": null,
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            3
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Nihil",
-        "name": "Nihil",
-        "desc": "Ignore proc skills",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            3
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Swordfaire",
-        "name": "Swordfaire",
-        "desc": "While wielding a sword, it gains the brave property.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            6
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Lancefaire",
-        "name": "Lancefaire",
-        "desc": "While wielding a lance, cannot be counterattacked.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            7
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Axefaire",
-        "name": "Axefaire",
-        "desc": "While wielding an axe, ignore half enemy's Defense or Resistance.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            8
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
+                "lifelink",
+                1.0
             ]
         ]
     },
@@ -3026,38 +2388,10 @@
             [
                 "class_skill",
                 null
-            ]
-        ]
-    },
-    {
-        "nid": "Slayer",
-        "name": "Slayer",
-        "desc": "Effective against monsters",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            6
-        ],
-        "components": [
+            ],
             [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Celeste",
-        "name": "Celeste",
-        "desc": "Weaken enemies struck by your weapons.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            10
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
+                "modify_maximum_range",
+                1
             ]
         ]
     },
@@ -3074,22 +2408,10 @@
             [
                 "class_skill",
                 null
-            ]
-        ]
-    },
-    {
-        "nid": "Nosferatu",
-        "name": "Nosferatu",
-        "desc": "Damage dealt restores health.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            4,
-            8
-        ],
-        "components": [
+            ],
             [
-                "class_skill",
-                null
+                "give_status_after_attack",
+                "Slowed"
             ]
         ]
     },
@@ -3105,11 +2427,19 @@
         "components": [
             [
                 "aura",
-                null
+                "Aura_Skill_Child"
             ],
             [
                 "class_skill",
                 null
+            ],
+            [
+                "aura_range",
+                3
+            ],
+            [
+                "aura_target",
+                "ally"
             ]
         ]
     },
@@ -3125,31 +2455,19 @@
         "components": [
             [
                 "aura",
-                null
+                "Aura_Defense_Child"
             ],
             [
                 "class_skill",
                 null
-            ]
-        ]
-    },
-    {
-        "nid": "Resistance_Aura",
-        "name": "Resistance Aura",
-        "desc": "Aura. Grants allies RES +2.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            7,
-            5
-        ],
-        "components": [
-            [
-                "aura",
-                null
             ],
             [
-                "class_skill",
-                null
+                "aura_range",
+                3
+            ],
+            [
+                "aura_target",
+                "ally"
             ]
         ]
     },
@@ -3165,11 +2483,19 @@
         "components": [
             [
                 "aura",
-                null
+                "Aura_Inspiration_Child"
             ],
             [
                 "class_skill",
                 null
+            ],
+            [
+                "aura_range",
+                3
+            ],
+            [
+                "aura_target",
+                "ally"
             ]
         ]
     },
@@ -3185,11 +2511,19 @@
         "components": [
             [
                 "aura",
-                null
+                "Aura_Charisma_Child"
             ],
             [
                 "class_skill",
                 null
+            ],
+            [
+                "aura_range",
+                3
+            ],
+            [
+                "aura_target",
+                "ally"
             ]
         ]
     },
@@ -3205,11 +2539,19 @@
         "components": [
             [
                 "aura",
-                null
+                "Aura_Hex_Child"
             ],
             [
                 "class_skill",
                 null
+            ],
+            [
+                "aura_range",
+                3
+            ],
+            [
+                "aura_target",
+                "enemy"
             ]
         ]
     },
@@ -3238,157 +2580,6 @@
         ]
     },
     {
-        "nid": "Command",
-        "name": "Command",
-        "desc": "Your spells strengthen affected allies.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            1,
-            8
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Refresh_Status",
-        "name": "Refreshed",
-        "desc": "Refreshed.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            3,
-            9
-        ],
-        "components": []
-    },
-    {
-        "nid": "Rage_Status",
-        "name": "Raging",
-        "desc": "Raging. Grants STR/SKL/SPD/RES +4",
-        "icon_nid": "Skills",
-        "icon_index": [
-            8,
-            10
-        ],
-        "components": [
-            [
-                "time",
-                3
-            ],
-            [
-                "stat_change",
-                []
-            ]
-        ]
-    },
-    {
-        "nid": "Fade_Status",
-        "name": "Faded",
-        "desc": "Faded. Grants Avoid +100. Lost on attack.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            1
-        ],
-        "components": [
-            [
-                "time",
-                5
-            ],
-            [
-                "avoid",
-                100
-            ],
-            [
-                "lost_on_end_combat",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "Geas_Status",
-        "name": "Controlled",
-        "desc": "Mind Controlled",
-        "icon_nid": "Skills",
-        "icon_index": [
-            9,
-            1
-        ],
-        "components": [
-            [
-                "time",
-                5
-            ]
-        ]
-    },
-    {
-        "nid": "Aegis_Status",
-        "name": "Aegis",
-        "desc": "Grants DEF/RES +15.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            10,
-            3
-        ],
-        "components": [
-            [
-                "stat_change",
-                []
-            ],
-            [
-                "time",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "Revelation_Status",
-        "name": "Revelation",
-        "desc": "Grants Hit/Avoid +100.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            8,
-            3
-        ],
-        "components": [
-            [
-                "hit",
-                100
-            ],
-            [
-                "avoid",
-                100
-            ],
-            [
-                "time",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "Flying (1)",
-        "name": "Flying",
-        "desc": "Grants flying.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            3,
-            10
-        ],
-        "components": [
-            [
-                "movement_type",
-                null
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
         "nid": "TempFlying",
         "name": "Flying",
         "desc": "Grants flying.",
@@ -3404,15 +2595,15 @@
             ],
             [
                 "movement_type",
-                null
-            ],
-            [
-                "pass",
-                null
+                "Fliers"
             ],
             [
                 "unit_anim",
                 "MapFlying"
+            ],
+            [
+                "ignore_terrain",
+                null
             ]
         ]
     },
@@ -3428,7 +2619,12 @@
         "components": [
             [
                 "stat_change",
-                []
+                [
+                    [
+                        "SKL",
+                        3
+                    ]
+                ]
             ]
         ]
     },
@@ -3444,23 +2640,12 @@
         "components": [
             [
                 "stat_change",
-                []
-            ]
-        ]
-    },
-    {
-        "nid": "Aura_Resistance_Child",
-        "name": "Resistance +2",
-        "desc": "Grants RES +2.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            0,
-            6
-        ],
-        "components": [
-            [
-                "stat_change",
-                []
+                [
+                    [
+                        "DEF",
+                        2
+                    ]
+                ]
             ]
         ]
     },
@@ -3479,8 +2664,8 @@
                 1
             ],
             [
-                "dynamic_resist",
-                "1 if (True) else 0"
+                "resist",
+                1
             ]
         ]
     },
@@ -3536,11 +2721,11 @@
         "components": [
             [
                 "dynamic_damage",
-                "-2 if (target.id != status.giver_id and mode == 'Attack') else 0"
+                "-2 if (target.id != status.giver_id and mode == 'attack') else 0"
             ],
             [
                 "dynamic_accuracy",
-                "-30 if (target.id != status.giver_id and mode == 'Attack') else 0"
+                "-30 if (target.id != status.giver_id and mode == 'attack') else 0"
             ],
             [
                 "negative",
@@ -3549,26 +2734,6 @@
             [
                 "unit_anim",
                 "MapProvoke"
-            ]
-        ]
-    },
-    {
-        "nid": "Command_Child",
-        "name": "Commanded",
-        "desc": "Grants Damage +5.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            1,
-            8
-        ],
-        "components": [
-            [
-                "damage",
-                5
-            ],
-            [
-                "time",
-                1
             ]
         ]
     },
@@ -3584,7 +2749,12 @@
         "components": [
             [
                 "stat_change",
-                []
+                [
+                    [
+                        "MOV",
+                        -3
+                    ]
+                ]
             ],
             [
                 "unit_anim",
@@ -3612,43 +2782,40 @@
         "components": [
             [
                 "stat_change",
-                []
+                [
+                    [
+                        "STR",
+                        4
+                    ],
+                    [
+                        "MAG",
+                        4
+                    ],
+                    [
+                        "SKL",
+                        4
+                    ],
+                    [
+                        "SPD",
+                        4
+                    ],
+                    [
+                        "LCK",
+                        4
+                    ],
+                    [
+                        "DEF",
+                        4
+                    ],
+                    [
+                        "RES",
+                        4
+                    ]
+                ]
             ],
             [
                 "time",
                 1
-            ]
-        ]
-    },
-    {
-        "nid": "Weakened",
-        "name": "Weakened",
-        "desc": "All stats lowered.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            8,
-            9
-        ],
-        "components": [
-            [
-                "stat_change",
-                []
-            ],
-            [
-                "upkeep_stat_change",
-                []
-            ],
-            [
-                "unit_anim",
-                "MapPoison"
-            ],
-            [
-                "negative",
-                null
-            ],
-            [
-                "time",
-                3
             ]
         ]
     },
@@ -3664,11 +2831,61 @@
         "components": [
             [
                 "stat_change",
-                []
+                [
+                    [
+                        "STR",
+                        -6
+                    ],
+                    [
+                        "MAG",
+                        -6
+                    ],
+                    [
+                        "SKL",
+                        -6
+                    ],
+                    [
+                        "SPD",
+                        -6
+                    ],
+                    [
+                        "DEF",
+                        -6
+                    ],
+                    [
+                        "RES",
+                        -6
+                    ]
+                ]
             ],
             [
                 "upkeep_stat_change",
-                []
+                [
+                    [
+                        "STR",
+                        2
+                    ],
+                    [
+                        "MAG",
+                        2
+                    ],
+                    [
+                        "SKL",
+                        2
+                    ],
+                    [
+                        "SPD",
+                        2
+                    ],
+                    [
+                        "DEF",
+                        2
+                    ],
+                    [
+                        "RES",
+                        2
+                    ]
+                ]
             ],
             [
                 "unit_anim",
@@ -3701,22 +2918,6 @@
         ]
     },
     {
-        "nid": "Cooling_Pulse",
-        "name": "Cooling Pulse",
-        "desc": "Cooldown recharge speed +1.",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            6
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
         "nid": "Maximum HP -5",
         "name": "Maximum HP -5",
         "desc": "Inflicts HP -5.",
@@ -3739,7 +2940,7 @@
                 [
                     [
                         "HP",
-                        0.0
+                        -5
                     ]
                 ]
             ]

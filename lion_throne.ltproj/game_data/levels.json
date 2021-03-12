@@ -20,13 +20,20 @@
         },
         "units": [
             {
-                "nid": "Eirika",
+                "nid": "Ophie",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
                     2,
-                    6
+                    4
                 ],
+                "generic": false
+            },
+            {
+                "nid": "Prim",
+                "team": "player",
+                "ai": "None",
+                "starting_position": null,
                 "generic": false
             }
         ],

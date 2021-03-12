@@ -58,7 +58,7 @@ class UnlockStaff(ItemComponent):
 
 class StoreUnit(ItemComponent):
     nid = 'store_unit'
-    desc = "Item removes unit from map on hit, and stores the unit in memory"
+    desc = "Item registers a unit on the map on hit"
     tag = 'special'
 
     def init(self, item):
@@ -67,12 +67,12 @@ class StoreUnit(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         if not skill_system.ignore_forced_movement(target):
             self.item.data['stored_unit'] = target.nid
-            actions.append(action.LeaveMap(target))
+            # actions.append(action.WarpOut(target))
             playback.append(('rescue_hit', unit, item, target))
 
 class UnloadUnit(ItemComponent):
     nid = 'unload_unit'
-    desc = "Item takes stored unit and puts them back on the map"
+    desc = "Item takes stored unit and warps them to the new location on the map"
     tag = 'special'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
@@ -85,4 +85,4 @@ class UnloadUnit(ItemComponent):
         if self.item.data.get('stored_unit'):
             rescuee = game.get_unit(self.item.data['stored_unit'])
             if rescuee:
-                actions.append(action.ArriveOnMap(rescuee, target_pos))
+                actions.append(action.Warp(rescuee, target_pos))

@@ -158,7 +158,7 @@ class UnitSprite():
     def add_swoosh_anim(self):
         anim = RESOURCES.animations.get('Swoosh')
         if anim:
-            anim = Animation(anim, (-7, -24))
+            anim = Animation(anim, (-12, -40))
         self.animations['swoosh'] = anim
 
     def set_transition(self, new_state):
@@ -331,7 +331,7 @@ class UnitSprite():
             res = RESOURCES.map_sprites[0]
             self.map_sprite = MapSprite(res, self.unit.team)
         if self.transition_state == 'swoosh_in':
-            state = 'active'
+            state = 'down'
         image = getattr(self.map_sprite, state)
         image = self.select_frame(image, state)
         return image
@@ -345,6 +345,7 @@ class UnitSprite():
             x, y = self.unit.position
         left = x * TILEWIDTH + self.offset[0]
         top = y * TILEHEIGHT + self.offset[1]
+        anim_top = top
 
         self.vibrate_counter += 1
         for vibrate in self.vibrate[:]:
@@ -365,7 +366,7 @@ class UnitSprite():
             if self.transition_state == 'swoosh_in':
                 # Distort Vertically
                 cur_width, cur_height = image.get_width(), image.get_height()
-                new_width, new_height = cur_width, int(cur_height * (progress + 1))
+                new_width, new_height = cur_width, int(cur_height * (max(0, progress - 0.4) * 3 + 1))
                 extra_height = new_height - cur_height
                 image = engine.transform_scale(image, (new_width, new_height))
                 top -= extra_height
@@ -413,7 +414,7 @@ class UnitSprite():
         # Draw animations
         self.animations = {k: v for (k, v) in self.animations.items() if not v.update()}
         for animation in self.animations.values():
-            animation.draw(surf, (left, top))
+            animation.draw(surf, (left, anim_top))
 
         # Talk Options
         if game.state.current() == 'free':
@@ -425,13 +426,13 @@ class UnitSprite():
         else:
             cur_unit = None
         if cur_unit:
-            self.draw_markers(surf, cur_unit, left, top)
+            self.draw_markers(surf, cur_unit, left, anim_top)
 
         # Draw personal particles
         self.particles = [ps for ps in self.particles if not ps.remove_me_flag]
         for particle_system in self.particles:
             particle_system.update()
-            particle_system.draw(surf, left, top)
+            particle_system.draw(surf, left, anim_top)
 
         return surf
 

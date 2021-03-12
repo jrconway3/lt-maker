@@ -187,5 +187,152 @@
         "frame_y": 13,
         "num_frames": 64,
         "speed": "16"
+    },
+    {
+        "nid": "MapStun",
+        "frame_x": 5,
+        "frame_y": 2,
+        "num_frames": 7,
+        "speed": "150"
+    },
+    {
+        "nid": "MapStatDecrease",
+        "frame_x": 11,
+        "frame_y": 1,
+        "num_frames": 11,
+        "speed": "150"
+    },
+    {
+        "nid": "OverchargeAura",
+        "frame_x": 1,
+        "frame_y": 3,
+        "num_frames": 3,
+        "speed": "150"
+    },
+    {
+        "nid": "Warp",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "33"
+    },
+    {
+        "nid": "Swoosh",
+        "frame_x": 6,
+        "frame_y": 1,
+        "num_frames": 6,
+        "speed": "50"
+    },
+    {
+        "nid": "MapSpiritbane",
+        "frame_x": 5,
+        "frame_y": 4,
+        "num_frames": 20,
+        "speed": "24"
+    },
+    {
+        "nid": "MapSilence",
+        "frame_x": 4,
+        "frame_y": 1,
+        "num_frames": 4,
+        "speed": "150"
+    },
+    {
+        "nid": "MapProvoke",
+        "frame_x": 3,
+        "frame_y": 1,
+        "num_frames": 3,
+        "speed": "150"
+    },
+    {
+        "nid": "MapPoison",
+        "frame_x": 5,
+        "frame_y": 2,
+        "num_frames": 8,
+        "speed": "150"
+    },
+    {
+        "nid": "MapPoisonShock",
+        "frame_x": 5,
+        "frame_y": 2,
+        "num_frames": 9,
+        "speed": "48"
+    },
+    {
+        "nid": "MapFrostbite",
+        "frame_x": 11,
+        "frame_y": 1,
+        "num_frames": 11,
+        "speed": "150"
+    },
+    {
+        "nid": "MapFlying",
+        "frame_x": 3,
+        "frame_y": 3,
+        "num_frames": 9,
+        "speed": "150"
+    },
+    {
+        "nid": "MapBerserk",
+        "frame_x": 5,
+        "frame_y": 2,
+        "num_frames": 9,
+        "speed": "150"
+    },
+    {
+        "nid": "AOE_Blizzard",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
+    },
+    {
+        "nid": "AOE_Fireball",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
+    },
+    {
+        "nid": "AOE_Mend",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
+    },
+    {
+        "nid": "AOE_Meteor",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
+    },
+    {
+        "nid": "AOE_Sandblast",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
+    },
+    {
+        "nid": "AOE_Rally",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
+    },
+    {
+        "nid": "AOE_Reinforce",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
+    },
+    {
+        "nid": "AOE_Wyrmsfire",
+        "frame_x": 12,
+        "frame_y": 1,
+        "num_frames": 12,
+        "speed": "32"
     }
 ]

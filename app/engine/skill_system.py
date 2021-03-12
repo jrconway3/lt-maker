@@ -95,7 +95,7 @@ formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formul
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_behaviours = (
     'has_canto', 'pass_through', 'vantage', 'ignore_terrain', 
-    'ignore_region_status', 'no_double', 'def_double', 
+    'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
 default_behaviours += formula
 # Takes in unit, returns default value

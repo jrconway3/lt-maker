@@ -97,9 +97,9 @@ default_behaviours = (
     'has_canto', 'pass_through', 'vantage', 'ignore_terrain', 
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
-default_behaviours += formula
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'movement_type')
+exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')
 # Takes in unit and target, returns default value

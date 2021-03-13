@@ -1,10 +1,9 @@
 TODO List:
 
-unit sprite for warp and rescue
-warp / swoosh animations
-
 Feats (test)
 Victory Screen
+
+Clean up New Game
 
 Combat Animations
     Combat Anims / Palettes as a separate tab?

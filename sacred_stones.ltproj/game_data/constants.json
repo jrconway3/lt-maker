@@ -68,12 +68,16 @@
         "Dynamic"
     ],
     [
-        "rng",
-        "True Hit"
-    ],
-    [
         "auto_promote",
         false
+    ],
+    [
+        "generic_feats",
+        false
+    ],
+    [
+        "rng",
+        "True Hit"
     ],
     [
         "min_damage",

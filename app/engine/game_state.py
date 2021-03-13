@@ -190,6 +190,7 @@ class GameState():
                   'already_triggered_events': self.already_triggered_events,
                   'talk_options': self.talk_options,
                   'base_convos': self.base_convos,
+                  'current_random_state': static_random.get_combat_random_state()
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
@@ -228,7 +229,6 @@ class GameState():
 
         logger.info("Loading Game...")
         self.game_vars = Counter(s_dict.get('game_vars', {}))
-        print(self.game_vars['_random_seed'])
         static_random.set_seed(self.game_vars.get('_random_seed', 0))
         self.level_vars = Counter(s_dict.get('level_vars', {}))
         self.playtime = float(s_dict['playtime'])
@@ -266,6 +266,9 @@ class GameState():
             self.records = records.Recordkeeper.restore(s_dict['records'])
         else:
             self.records = records.Recordkeeper()
+
+        if 'current_random_state' in s_dict:
+            static_random.set_combat_random_state(s_dict['current_random_state'])
 
         if s_dict['level']:
             logger.info("Loading Level...")

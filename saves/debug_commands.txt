@@ -1,8 +1,3 @@
-set_stats;Seth;MOV;15
-reset;Seth
-set_stats;Seth;MOV;15
-set_stats;Seth;Mov,15
-reset;Seth
 set_stats;Seth;MOV,15
 reset;Seth
 reset;Seth
@@ -18,3 +13,8 @@ reset;Vanessa
 damage;Eirika;4
 set_current_hp;Eirika;4
 win_game
+give_exp;Eirika;100
+give_exp;Eirika;100
+give_exp;Eirika;100
+give_exp;Eirika;100
+give_exp;Eirika;100

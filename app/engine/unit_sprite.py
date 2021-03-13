@@ -57,7 +57,7 @@ class MapSprite():
         return imgs
 
 class UnitSprite():
-    default_transition_time = 400
+    default_transition_time = 450
 
     def __init__(self, unit):
         self.unit = unit

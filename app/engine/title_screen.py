@@ -259,6 +259,7 @@ class TitleLoadState(State):
                     game.load_states(['turn_change'])
                     game.start_level(next_level_nid)
                 game.memory['transition_from'] = 'Load Game'
+                game.memory['title_menu'] = self.menu
                 game.state.change('title_wait')
                 game.state.process_temp_state()
                 save.remove_suspend()
@@ -379,14 +380,17 @@ class TitleNewState(TitleLoadState):
                 SOUNDTHREAD.play_sfx('Select 1')
                 game.memory['option_owner'] = selection
                 game.memory['option_menu'] = self.menu
+                game.memory['transition_from'] = 'New Game'
+                game.memory['title_menu'] = self.menu
                 game.state.change('title_new_child')
             else:
                 SOUNDTHREAD.play_sfx('Save')
-                # TODO Save Sound
                 build_new_game(selection)
                 options, color = save.get_save_title(self.save_slots)
                 self.menu.set_colors(color)
                 self.menu.update_options(options)
+                game.memory['transition_from'] = 'New Game'
+                game.memory['title_menu'] = self.menu
                 game.state.change('title_wait')
 
 class TitleNewChildState(State):
@@ -419,6 +423,8 @@ class TitleNewChildState(State):
             if selection == 'Overwrite':
                 SOUNDTHREAD.play_sfx('Save')
                 build_new_game(self.menu.owner)  # game.memory['option_owner']
+                game.state.change('title_wait')
+                game.state.process_temp_state()
             elif selection == 'Back':
                 SOUNDTHREAD.play_sfx('Select 4')
                 game.state.back()
@@ -506,6 +512,9 @@ class TitleWaitState(State):
     # NOT TRANSPARENT!!!
 
     def start(self):
+        self.bg = game.memory['title_bg']
+        self.particles = game.memory['title_particles']
+        
         self.wait_flag = False
         self.wait_time = engine.get_time()
         self.menu = game.memory.get('title_menu')
@@ -518,6 +527,11 @@ class TitleWaitState(State):
             game.state.change('transition_pop')
 
     def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        if self.particles:
+            self.particles.update()
+            self.particles.draw(surf)
         if self.menu:
             if 100 < engine.get_time() - self.wait_time > 200:
                 self.menu.draw(surf, flicker=True)

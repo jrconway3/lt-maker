@@ -137,28 +137,35 @@ class UnitSprite():
     def start_vibrate(self, start_time, total_time):
         self.vibrate.append((engine.get_time() + start_time, total_time))
 
-    def add_warp_anim(self, nid):
+    def add_warp_anim(self, nid, reverse=False):
         anim = RESOURCES.animations.get('Warp')
         if anim:
-            anim = Animation(anim, (-7, -24))
-        self.animations[nid] = anim
+            anim_trans = Animation(anim, (-7, -24), reverse=reverse)
+            anim_trans.sprite = image_mods.make_translucent(anim_trans.sprite, .33)
+            self.animations[nid] = anim_trans
+            anim_blend = Animation(anim, (-7, -24), reverse=reverse)
+            anim_blend.set_tint(True)
+            self.animations[nid] = anim_blend
 
-    def add_warp_flowers(self):
+    def add_warp_flowers(self, reverse=False):
         ps = particles.ParticleSystem('warp_flower', particles.WarpFlower, -1, (-1, -1, -1, -1), (-1, -1))
         angle_frac = math.pi / 8
         true_pos_x = self.unit.position[0] * TILEWIDTH + TILEWIDTH//2
         true_pos_y = self.unit.position[1] * TILEHEIGHT + TILEHEIGHT//2
-        for speed in (2.0, 2.5):
+        for idx, speed in enumerate((4.5, )):
             for num in range(0, 16):
-                angle = num * angle_frac + angle_frac / 2
-                new_particle = particles.WarpFlower((true_pos_x, true_pos_y), speed, angle)
+                angle = num * angle_frac + (angle_frac / 2 if idx == 0 else 0)
+                if reverse:
+                    new_particle = particles.ReverseWarpFlower((true_pos_x, true_pos_y), speed, angle)
+                else:
+                    new_particle = particles.WarpFlower((true_pos_x, true_pos_y), speed, angle)
                 ps.particles.append(new_particle)
         self.particles.append(ps)
 
-    def add_swoosh_anim(self):
+    def add_swoosh_anim(self, reverse=False):
         anim = RESOURCES.animations.get('Swoosh')
         if anim:
-            anim = Animation(anim, (-12, -40))
+            anim = Animation(anim, (-12, -40), reverse=reverse)
         self.animations['swoosh'] = anim
 
     def set_transition(self, new_state):
@@ -184,21 +191,31 @@ class UnitSprite():
             SOUNDTHREAD.play_sfx('WarpEnd')
             self.fake_position = None
             self.add_warp_anim('warp_in')
-            self.add_warp_flowers()
+            self.add_warp_flowers(reverse=True)
         elif self.transition_state == 'warp_out':
             SOUNDTHREAD.play_sfx('Warp')
             self.fake_position = self.unit.position
             self.add_warp_anim('warp_out')     
+            self.begin_flicker(self.transition_time, (255, 255, 255))
             self.add_warp_flowers()
         elif self.transition_state == 'warp_move':
             SOUNDTHREAD.play_sfx('Warp')
             self.fake_position = self.unit.position
             self.add_warp_anim('warp_move')
+            self.begin_flicker(self.transition_time, (255, 255, 255))
             self.add_warp_flowers()
         elif self.transition_state == 'swoosh_in':
             SOUNDTHREAD.play_sfx('Sword Whoosh')
             self.fake_position = None
             self.add_swoosh_anim()
+        elif self.transition_state == 'swoosh_out':
+            SOUNDTHREAD.play_sfx('Sword Whoosh')
+            self.fake_position = self.unit.position
+            self.add_swoosh_anim(reverse=True)
+        elif self.transition_state == 'swoosh_move':
+            SOUNDTHREAD.play_sfx('Sword Whoosh')
+            self.fake_position = self.unit.position
+            self.add_swoosh_anim(reverse=True)
 
     def change_state(self, new_state):
         self.state = new_state
@@ -307,12 +324,14 @@ class UnitSprite():
         if self.transition_counter < 0:
             self.transition_counter = 0
             self.fake_position = None
-            if self.transition_state in ('fade_out', 'warp_out', 'fade_in', 'warp_in', 'swoosh_in'):
+            if self.transition_state in ('fade_out', 'warp_out', 'swoosh_out', 'fade_in', 'warp_in', 'swoosh_in'):
                 self.set_transition('normal')
             elif self.transition_state == 'fade_move':
                 self.set_transition('fade_in')
             elif self.transition_state == 'warp_move':
                 self.set_transition('warp_in')
+            elif self.transition_state == 'swoosh_move':
+                self.set_transition('swoosh_in')
 
     def select_frame(self, image, state):
         if self.unit.is_dying:
@@ -357,9 +376,17 @@ class UnitSprite():
                 left += (1 if self.vibrate_counter % 2 else -1)
 
         # Handle transitions
-        if self.transition_state in ('fade_out', 'warp_out', 'fade_move', 'warp_move'):
+        if self.transition_state in ('fade_out', 'warp_out', 'swoosh_out', 'fade_move', 'warp_move', 'swoosh_move'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
+            # Distort Vertically
+            if self.transition_state in ('swoosh_out', 'swoosh_move'):
+                cur_width, cur_height = image.get_width(), image.get_height()
+                new_width, new_height = cur_width, int(cur_height * (max(0, progress - 0.4) * 3 + 1))
+                extra_height = new_height - cur_height
+                image = engine.transform_scale(image, (new_width, new_height))
+                top -= extra_height
             image = image_mods.make_translucent(image.convert_alpha(), progress)
+
         elif self.transition_state in ('fade_in', 'warp_in', 'swoosh_in'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
             progress = 1 - progress

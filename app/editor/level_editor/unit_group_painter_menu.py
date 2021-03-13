@@ -265,6 +265,8 @@ class SelectUnitDialog(Dialog):
 
 
 class GroupUnitModel(DragDropCollectionModel):
+    allow_delete_last_obj = True
+    
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -312,3 +314,11 @@ class GroupUnitModel(DragDropCollectionModel):
         else:
             self._data.insert(self.drop_to, self._data.pop(index))
             return index, self.drop_to
+
+    def create_new(self):
+        unit_nid, ok = SelectUnitDialog.get_unit_nid(self.window)
+        if ok:
+            if unit_nid in self._data:
+                QMessageBox.critical(self, "Error!", "%s already present in group!" % unit_nid)
+            else:
+                self._data.append(unit_nid)

@@ -7,7 +7,7 @@ from app.engine import engine, image_mods
 # Used, for instance, for miss and no damage animations
 
 class Animation():
-    def __init__(self, anim, position, delay=0, loop=False, hold=False):
+    def __init__(self, anim, position, delay=0, loop=False, hold=False, reverse=False):
         if not anim.image:
             anim.image = engine.image_load(anim.full_path)
             anim.image = anim.image.convert_alpha()
@@ -19,6 +19,7 @@ class Animation():
         self.delay = delay
         self.loop = loop
         self.hold = hold
+        self.reverse = reverse
         self.enabled = True
         self.tint = False
         self.tint_after_delay = None
@@ -95,8 +96,12 @@ class Animation():
             self.tint = True
             
         # Now actually create image
-        left = (self.counter % self.frame_x) * self.width
-        top = (self.counter // self.frame_x) * self.height
+        if self.reverse:
+            frame_counter = self.num_frames - 1 - self.counter
+        else:
+            frame_counter = self.counter
+        left = (frame_counter % self.frame_x) * self.width
+        top = (frame_counter // self.frame_x) * self.height
         self.image = engine.subsurface(self.sprite, (left, top, self.width, self.height))
 
         return done

@@ -176,6 +176,8 @@ class DatabaseTab(QWidget):
             QMessageBox.critical(None, "Import Error", "Could not read valid json from clipboard!")
 
 class CollectionModel(QAbstractListModel):
+    allow_delete_last_obj = False
+    
     def __init__(self, data, window):
         super().__init__(window)
         self._data = data
@@ -189,7 +191,7 @@ class CollectionModel(QAbstractListModel):
 
     def delete(self, idx):
         # special case for 1-length data
-        if len(self._data) == 1:
+        if not self.allow_delete_last_obj and len(self._data) == 1:
             QMessageBox.critical(None, "Deletion Error", "Can not delete last object of a kind!")
             return
             

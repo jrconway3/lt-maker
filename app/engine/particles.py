@@ -159,11 +159,34 @@ class WarpFlower(Particle):
         super().__init__(pos)
         self.speed = speed
         self.angle = angle
+        self.counter = 0
 
     def update(self):
+        self.counter += 1
+        self.angle -= math.pi / 64.
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
-        if game.tilemap and (self.x < 0 or self.y < 0 or self.x > game.tilemap.width * TILEWIDTH or self.y > game.tilemap.height * TILEHEIGHT):
+        if self.counter >= 40:
+            self.remove_me_flag = True
+
+class ReverseWarpFlower(WarpFlower):
+    def __init__(self, pos, speed, angle):
+        super().__init__(pos, speed, angle)
+        self.init_x, self.init_y = pos
+        for _ in range(40):
+            self.pre_update()
+
+    def pre_update(self):
+        self.angle -= math.pi / 64.
+        self.x += self.speed * math.cos(self.angle)
+        self.y += self.speed * math.sin(self.angle)
+
+    def update(self):
+        self.counter += 1
+        self.angle += math.pi / 64.
+        self.x -= self.speed * math.cos(self.angle)
+        self.y -= self.speed * math.sin(self.angle)
+        if self.counter >= 40:
             self.remove_me_flag = True
 
 class LightMote(Particle):

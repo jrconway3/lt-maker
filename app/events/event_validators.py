@@ -279,10 +279,10 @@ class Placement(OptionValidator):
     valid = ['giveup', 'stack', 'closest', 'push']
 
 class MovementType(OptionValidator):
-    valid = ['normal', 'fade', 'immediate', 'warp']
+    valid = ['normal', 'fade', 'immediate', 'warp', 'swoosh']
 
 class RemoveType(OptionValidator):
-    valid = ['fade', 'immediate', 'warp']
+    valid = ['fade', 'immediate', 'warp', 'swoosh']
 
 class RegionType(OptionValidator):
     valid = ['normal', 'event', 'status', 'formation']

@@ -22,26 +22,6 @@
                 [
                     "# speak;Joshua;Say, how are doing {red}head?|The fog of war is{/red}not red."
                 ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "add_unit",
-                [
-                    "Prim",
-                    "6,6",
-                    "swoosh"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "2000"
-                ]
             ]
         ],
         "only_once": false,

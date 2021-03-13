@@ -1881,7 +1881,7 @@ class Event():
         actions, playback = [], []
         # In order to proc uses, c_uses etc.
         item_system.start_combat(playback, unit, chosen_item, None)
-        item_system.on_hit(actions, playback, unit, chosen_item, None, self.position, None)
+        item_system.on_hit(actions, playback, unit, chosen_item, None, self.position, None, True)
         for act in actions:
             action.do(act)
         item_system.end_combat(playback, unit, chosen_item, None)

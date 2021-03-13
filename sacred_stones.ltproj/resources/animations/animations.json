@@ -211,10 +211,10 @@
     },
     {
         "nid": "Warp",
-        "frame_x": 12,
+        "frame_x": 18,
         "frame_y": 1,
-        "num_frames": 12,
-        "speed": "33"
+        "num_frames": 18,
+        "speed": "25"
     },
     {
         "nid": "Swoosh",

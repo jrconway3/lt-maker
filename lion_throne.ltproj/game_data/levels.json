@@ -35,6 +35,38 @@
                 "ai": "None",
                 "starting_position": null,
                 "generic": false
+            },
+            {
+                "nid": "Drake",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Cavalier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

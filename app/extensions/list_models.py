@@ -140,7 +140,11 @@ class DoubleListModel(VirtualListModel):
 
     def new(self, idx):
         self.create_new()
-        self._data.move_index(len(self._data) - 1, idx + 1)
+        old_index = len(self._data) - 1
+        new_index = idx + 1
+        if old_index != new_index:
+            obj = self._data.pop(old_index)
+            self._data.insert(new_index, obj)
         self.layoutChanged.emit()
 
     def append(self):

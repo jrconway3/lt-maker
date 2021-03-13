@@ -22,6 +22,12 @@
                 [
                     "# speak;Joshua;Say, how are doing {red}head?|The fog of war is{/red}not red."
                 ]
+            ],
+            [
+                "add_weather",
+                [
+                    "Snow"
+                ]
             ]
         ],
         "only_once": false,

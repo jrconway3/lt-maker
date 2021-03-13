@@ -12,23 +12,23 @@ class CombatCondition(SkillComponent):
     def init(self, skill):
         self._condition = False
 
-    def pre_combat(self, playback, unit, item, target):
+    def pre_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate
         try:
-            return bool(evaluate.evaluate(self.value, unit, target, item))
+            return bool(evaluate.evaluate(self.value, unit, target, item, mode=mode))
         except Exception as e:
             print("%s: Could not evaluate %s" % (e, self.value))
 
-    def post_combat(self, playback, unit, item, target):
+    def post_combat(self, playback, unit, item, target, mode):
         self._condition = False
 
     def condition(self, unit):
         return self._condition
 
-    def test_on(self, playback, unit, item, target):
-        self.pre_combat(playback, unit, item, target)
+    def test_on(self, playback, unit, item, target, mode):
+        self.pre_combat(playback, unit, item, target, mode)
 
-    def test_off(self, playback, unit, item, target):
+    def test_off(self, playback, unit, item, target, mode):
         self._condition = False
 
 class Condition(SkillComponent):

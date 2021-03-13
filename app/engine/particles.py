@@ -142,11 +142,14 @@ class Snow(Particle):
     def __init__(self, pos):
         super().__init__(pos)
         self.sprite = engine.subsurface(self.sprite, (0, random.randint(0, 2) * 8, 8, 8))
-        self.speed = random.choice([1.0, 1.5, 2.0, 2.5, 3.0])
+        speeds = [1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5]
+        self.y_speed = random.choice(speeds)
+        x_speeds = speeds[:speeds.index(self.y_speed) + 1]
+        self.x_speed = random.choice(x_speeds)
 
     def update(self):
-        self.x += self.speed
-        self.y += self.speed
+        self.x += self.x_speed
+        self.y += self.y_speed
         if game.tilemap and (self.x > game.tilemap.width * TILEWIDTH or self.y > game.tilemap.height * TILEHEIGHT):
             self.remove_me_flag = True
 
@@ -228,7 +231,7 @@ def create_system(nid, width, height):
         ps = ParticleSystem(nid, Raindrop, .1, creation_bounds, (width, height))
     elif nid == 'snow':
         creation_bounds = -theight, twidth, -16, -8
-        ps = ParticleSystem(nid, Snow, .125, creation_bounds, (width, height))
+        ps = ParticleSystem(nid, Snow, .2, creation_bounds, (width, height))
     elif nid == 'sand':
         creation_bounds = -2 * theight, twidth, theight + 16, theight + 32
         ps = ParticleSystem(nid, Sand, .075, creation_bounds, (width, height))

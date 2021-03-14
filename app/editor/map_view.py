@@ -165,6 +165,11 @@ class SimpleMapView(QGraphicsView):
 class GlobalModeLevelMapView(SimpleMapView):
     def __init__(self, window=None):
         super().__init__(window)
+        self.overworld_flag: bool = False
+
+    def set_current_level(self, nid, overworld=False):
+        self.overworld_flag = overworld  
+        super().set_current_level(nid)
 
     def paint_units(self):
         if self.working_image:
@@ -186,7 +191,8 @@ class GlobalModeLevelMapView(SimpleMapView):
         else:
             self.clear_scene()
             return
-        self.paint_units()
+        if not self.overworld_flag:
+            self.paint_units()
         self.show_map()
 
     def mouseMoveEvent(self, event):
@@ -194,7 +200,7 @@ class GlobalModeLevelMapView(SimpleMapView):
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if self.current_map and self.current_map.check_bounds(pos):
+        if not self.overworld_flag and self.current_map and self.current_map.check_bounds(pos):
             self.current_mouse_pos = pos
             self.main_editor.set_position_bar(pos)
             terrain_nid = self.current_map.get_base_terrain(pos)

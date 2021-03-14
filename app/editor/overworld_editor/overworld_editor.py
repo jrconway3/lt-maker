@@ -230,7 +230,7 @@ class OverworldEditor(QMainWindow):
             self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.UNFINISHED_ROAD, obj=current_road)
 
     def find_node(self, x, y):
-        if(self.current_overworld):
+        if self.current_overworld:
             for node in self.current_overworld.overworld_nodes:
                 if node.pos == (x, y):
                     return node
@@ -313,9 +313,9 @@ class OverworldEditor(QMainWindow):
     def set_icons(self):
         theme = self.settings.get_theme(0)
         if theme == 0:
-            icon_folder = 'icons'
+            icon_folder = 'icons/icons'
         else:
-            icon_folder = 'dark_icons'
+            icon_folder = 'icons/dark_icons'
         self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
         self.back_to_main_act.setIcon(QIcon(f'{icon_folder}/left_arrow.png'))

@@ -24,6 +24,8 @@ class GlobalEditor(QMainWindow):
         self.settings = MainSettingsController()
         self.app_state_manager.subscribe_to_key(
             GlobalEditor.__name__, 'selected_level', self.set_current_level)
+        self.app_state_manager.subscribe_to_key(
+            GlobalEditor.__name__, 'selected_overworld', self.set_current_overworld)
         
         self._render()
         
@@ -81,6 +83,11 @@ class GlobalEditor(QMainWindow):
         self.current_level = level
         self.map_view.set_current_level(level)
 
+    def set_current_overworld(self, overworld_nid):
+        overworld = DB.overworlds.get(overworld_nid)
+        self.current_level = overworld
+        self.map_view.set_current_level(overworld, overworld=True)
+
     def create_actions(self):
         # menu actions
         self.zoom_in_act = QAction(
@@ -91,6 +98,8 @@ class GlobalEditor(QMainWindow):
         # toolbar actions
         self.modify_level_act = QAction(
             "Edit Level", self, shortcut="E", triggered=self.edit_level)
+        self.modify_overworld_act = QAction(
+            "Edit Overworld", self, shortcut="E", triggered=self.edit_overworld)
 
     def set_icons(self, force_theme=None):
         if force_theme is None:
@@ -104,9 +113,13 @@ class GlobalEditor(QMainWindow):
         self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
         self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))
+        self.modify_overworld_act.setIcon(QIcon(f'{icon_folder}/map.png'))
 
     def create_toolbar(self, toolbar):
-        toolbar.addAction(self.modify_level_act, 0)
+        if self.app_state_manager.mode == MainEditorScreenStates.OVERWORLD_EDITOR:
+            toolbar.addAction(self.modify_overworld_act, 0)
+        else:
+            toolbar.addAction(self.modify_level_act, 0)
 
     def create_menus(self, app_menu_bar):
         edit_menu = app_menu_bar.getMenu('Edit')
@@ -116,6 +129,9 @@ class GlobalEditor(QMainWindow):
 
     def edit_level(self):
         self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.LEVEL_EDITOR)
+
+    def edit_overworld(self):
+        self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.OVERWORLD_EDITOR)
 
     def _render(self):
         self.map_view = GlobalModeLevelMapView(self)

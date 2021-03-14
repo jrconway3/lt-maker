@@ -156,3 +156,9 @@ class ProjectFileBackend():
         # Actually save project
         RESOURCES.save(autosave_dir)
         DB.serialize(autosave_dir)
+
+        try:
+            self.parent.status_bar.showMessage(
+                'Autosave to %s complete!' % autosave_dir)
+        except Exception:
+            pass

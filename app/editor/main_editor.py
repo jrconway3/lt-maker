@@ -32,6 +32,7 @@ from app.editor.file_manager.project_file_backend import ProjectFileBackend
 # Editors
 from app.editor.global_editor.global_editor import GlobalEditor
 from app.editor.level_editor.level_editor import LevelEditor
+from app.editor.overworld_editor.overworld_editor import OverworldEditor
 
 # Game interface
 import app.editor.game_actions.game_actions as GAME_ACTIONS
@@ -65,6 +66,9 @@ from app.editor.map_sprite_editor.map_sprite_tab import MapSpriteDatabase
 from app.editor.combat_animation_editor.combat_animation_display import CombatAnimDisplay
 
 __version__ = VERSION
+
+
+from app.resources.resources import RESOURCES
 
 
 class MainEditor(QMainWindow):
@@ -103,10 +107,12 @@ class MainEditor(QMainWindow):
         # initialize possible editors and put them in the stack
         self.global_editor = GlobalEditor(self.app_state_manager)
         self.level_editor = LevelEditor(self.app_state_manager)
+        self.overworld_editor = OverworldEditor(self.app_state_manager)
         # order is *very* important here. The first widget added will be index 0, the second is index 1, etc.
         self.editor_stack = QStackedWidget(self)
         self.editor_stack.addWidget(self.global_editor)
         self.editor_stack.addWidget(self.level_editor)
+        self.editor_stack.addWidget(self.overworld_editor)
         # initialize to global editor
         self.setCentralWidget(self.editor_stack)
         self.mode = MainEditorScreenStates.GLOBAL_EDITOR
@@ -263,6 +269,10 @@ class MainEditor(QMainWindow):
         self.app_state_manager.change_and_broadcast(
             'main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
 
+    def edit_overworld(self):
+        self.app_state_manager.change_and_broadcast(
+            'main_editor_mode', MainEditorScreenStates.OVERWORLD_EDITOR)
+
     def recreate_menus(self):
         self.menuBar().clear()
         file_menu = QMenu("File", self)
@@ -323,7 +333,7 @@ class MainEditor(QMainWindow):
         self.resource_button.setMenu(resource_menu)
         self.resource_button_action = QWidgetAction(self)
         self.resource_button_action.setDefaultWidget(self.resource_button)
-        
+
         self.test_button = QToolButton(self)
         self.test_button.setPopupMode(QToolButton.InstantPopup)
         test_menu = QMenu("Test", self)
@@ -438,7 +448,8 @@ class MainEditor(QMainWindow):
         if self.project_save_load_handler.open():
             title = os.path.split(self.settings.get_current_project())[-1]
             self.set_window_title(title)
-            print("Loaded project from %s" % self.settings.get_current_project())
+            print("Loaded project from %s" %
+                  self.settings.get_current_project())
             self.status_bar.showMessage(
                 "Loaded project from %s" % self.settings.get_current_project())
             # Return to global
@@ -533,6 +544,13 @@ class MainEditor(QMainWindow):
             self.editor_stack.setCurrentIndex(1)
             self.test_current_act.setEnabled(True)
             self.test_load_act.setEnabled(True)
+            self.recreate_menus()
+            self.recreate_toolbar()
+        elif(self.mode == MainEditorScreenStates.OVERWORLD_EDITOR):
+            self.current_editor = self.overworld_editor
+            self.editor_stack.setCurrentIndex(2)
+            self.test_current_act.setEnabled(False)
+            self.test_load_act.setEnabled(False)
             self.recreate_menus()
             self.recreate_toolbar()
 

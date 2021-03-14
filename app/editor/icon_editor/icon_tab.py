@@ -101,6 +101,37 @@ class Icon80Database(Icon16Database):
         dialog = cls(data, title, collection_model, parent)
         return dialog
 
+class MapIconDatabase(IconTab):
+    @classmethod
+    def create(cls, parent=None):
+        data = RESOURCES.map_icons
+        title = 'Map Icons'
+        collection_model = icon_model.MapIconModel
+        deletion_criteria = None
+        
+        dialog = cls(data, title, collection_model, parent)
+        return dialog
+    
+    @property
+    def current(self):
+        indices = self.view.selectionModel().selectedIndexes()
+        if indices:
+            index = indices[0]
+            icon = self.model.sub_data[index.row()]
+            return icon
+        return None
+    
+def get_map_icon_editor():
+    database = MapIconDatabase
+    window = SingleResourceEditor(database, ['map_icons'])
+    result = window.exec_()
+    if result == QDialog.Accepted:
+        selected_icon = window.tab.current
+        print(selected_icon.nid)
+        return selected_icon, True
+    else:
+        return None, False
+
 def get(width):
     if width == 16:
         resource_type = 'icons16'
@@ -122,8 +153,8 @@ def get(width):
         return None, False
 
 def get_full_editor():
-    return MultiResourceEditor((Icon16Database, Icon32Database, Icon80Database),
-                               ('icons16', 'icons32', 'icons80'))
+    return MultiResourceEditor((Icon16Database, Icon32Database, Icon80Database, MapIconDatabase),
+                               ('icons16', 'icons32', 'icons80', 'map_icons'))
 
 # Testing
 # Run "python -m app.editor.icon_editor.icon_tab" from main directory

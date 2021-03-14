@@ -7,6 +7,7 @@ from app.resources.icons import IconCatalog
 from app.resources.portraits import PortraitCatalog
 from app.resources.animations import AnimationCatalog
 from app.resources.panoramas import PanoramaCatalog
+from app.resources.map_icons import MapIconCatalog
 from app.resources.map_sprites import MapSpriteCatalog
 from app.resources.tiles import TileSetCatalog, TileMapCatalog
 from app.resources.sounds import SFXCatalog, MusicCatalog
@@ -16,7 +17,7 @@ import logging
 
 class Resources():
     save_data_types = ("icons16", "icons32", "icons80", "portraits", "animations", "panoramas",
-                       "map_sprites", "combat_anims", "combat_effects", "music", "sfx", 
+                       "map_icons", "map_sprites", "combat_anims", "combat_effects", "music", "sfx", 
                        "tilesets", "tilemaps")
 
     def __init__(self):
@@ -57,6 +58,7 @@ class Resources():
         self.animations = AnimationCatalog()
 
         self.panoramas = PanoramaCatalog()
+        self.map_icons = MapIconCatalog()
         self.map_sprites = MapSpriteCatalog()
         self.combat_anims = CombatCatalog()
         self.combat_effects = CombatEffectCatalog()

@@ -13,7 +13,7 @@ from app.editor import timer
 from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
 
 from .level_menu import LevelDatabase
-# from .overworld_menu import OverworldDatabase
+from .overworld_menu import OverworldDatabase
 
 
 class GlobalEditor(QMainWindow):
@@ -35,18 +35,18 @@ class GlobalEditor(QMainWindow):
 
     def create_left_dock(self):
         self.create_level_dock()
-        # self.create_overworld_dock()
+        self.create_overworld_dock()
         self.addDockWidget(Qt.LeftDockWidgetArea, self.level_dock)
-        # self.addDockWidget(Qt.LeftDockWidgetArea, self.overworld_dock)
-        # self.tabifyDockWidget(self.level_dock, self.overworld_dock)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.overworld_dock)
+        self.tabifyDockWidget(self.level_dock, self.overworld_dock)
         self.level_dock.raise_()
 
     def create_overworld_dock(self):
         print("Create Overworld Dock")
         self.overworld_dock = QDockWidget("Overworlds", self)
-        # self.overworld_menu = OverworldDatabase(self, self.app_state_manager)
+        self.overworld_menu = OverworldDatabase(self.app_state_manager)
         self.overworld_dock.setAllowedAreas(Qt.LeftDockWidgetArea)
-        # self.overworld_dock.setWidget(self.overworld_menu)
+        self.overworld_dock.setWidget(self.overworld_menu)
         self.overworld_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
 
     def create_level_dock(self):

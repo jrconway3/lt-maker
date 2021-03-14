@@ -2,7 +2,7 @@ import os
 import json
 
 from app.data import constants, stats, equations, tags, weapons, factions, terrain, mcost, \
-    minimap, items, klass, units, parties, ai, translations, skills, levels, lore
+    minimap, items, klass, units, parties, ai, translations, skills, levels, lore, overworld, overworld_node
 from app.events import event_prefab
 
 import logging
@@ -10,7 +10,7 @@ import logging
 class Database(object):
     save_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                        "weapons", "factions", "items", "skills", "tags", "classes", 
-                       "units", "ai", "parties", "translations", "lore", "levels", "events")
+                       "units", "ai", "parties", "translations", "lore", "levels", "events", "overworlds")
 
     def __init__(self):
         self.constants = constants.constants
@@ -30,6 +30,8 @@ class Database(object):
         self.units = units.UnitCatalog()
         self.parties = parties.PartyCatalog()
         self.ai = ai.AICatalog()
+        
+        self.overworlds = overworld.OverworldCatalog()
 
         self.levels = levels.LevelCatalog()
         self.events = event_prefab.EventCatalog()

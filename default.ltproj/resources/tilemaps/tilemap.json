@@ -23390,5 +23390,4224 @@
             "Chpt5",
             "SacredStonesVillage"
         ]
+    },
+    {
+        "nid": "worldmap",
+        "size": [
+            30,
+            20
+        ],
+        "layers": [
+            {
+                "nid": "base",
+                "visible": true,
+                "terrain_grid": {},
+                "sprite_grid": {
+                    "5,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            1
+                        ]
+                    ],
+                    "3,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            1
+                        ]
+                    ],
+                    "1,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            1
+                        ]
+                    ],
+                    "5,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            18
+                        ]
+                    ],
+                    "3,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            18
+                        ]
+                    ],
+                    "1,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            18
+                        ]
+                    ],
+                    "29,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            16
+                        ]
+                    ],
+                    "0,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            2
+                        ]
+                    ],
+                    "27,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            16
+                        ]
+                    ],
+                    "0,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            19
+                        ]
+                    ],
+                    "17,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            0
+                        ]
+                    ],
+                    "26,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            3
+                        ]
+                    ],
+                    "15,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            0
+                        ]
+                    ],
+                    "24,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            3
+                        ]
+                    ],
+                    "17,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            17
+                        ]
+                    ],
+                    "22,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            3
+                        ]
+                    ],
+                    "15,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            17
+                        ]
+                    ],
+                    "13,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            17
+                        ]
+                    ],
+                    "23,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            4
+                        ]
+                    ],
+                    "21,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            4
+                        ]
+                    ],
+                    "19,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            4
+                        ]
+                    ],
+                    "18,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            8
+                        ]
+                    ],
+                    "16,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            8
+                        ]
+                    ],
+                    "14,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            8
+                        ]
+                    ],
+                    "11,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            12
+                        ]
+                    ],
+                    "10,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            13
+                        ]
+                    ],
+                    "8,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            13
+                        ]
+                    ],
+                    "7,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            0
+                        ]
+                    ],
+                    "5,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            0
+                        ]
+                    ],
+                    "3,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            0
+                        ]
+                    ],
+                    "7,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            17
+                        ]
+                    ],
+                    "5,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            17
+                        ]
+                    ],
+                    "3,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            17
+                        ]
+                    ],
+                    "4,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            1
+                        ]
+                    ],
+                    "2,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            1
+                        ]
+                    ],
+                    "29,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            15
+                        ]
+                    ],
+                    "0,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            1
+                        ]
+                    ],
+                    "4,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            18
+                        ]
+                    ],
+                    "2,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            18
+                        ]
+                    ],
+                    "0,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            18
+                        ]
+                    ],
+                    "28,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            2
+                        ]
+                    ],
+                    "26,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            2
+                        ]
+                    ],
+                    "24,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            2
+                        ]
+                    ],
+                    "28,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            19
+                        ]
+                    ],
+                    "17,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            16
+                        ]
+                    ],
+                    "26,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            19
+                        ]
+                    ],
+                    "24,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            19
+                        ]
+                    ],
+                    "25,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            3
+                        ]
+                    ],
+                    "23,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            3
+                        ]
+                    ],
+                    "21,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            3
+                        ]
+                    ],
+                    "13,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            4
+                        ]
+                    ],
+                    "20,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            7
+                        ]
+                    ],
+                    "18,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            7
+                        ]
+                    ],
+                    "14,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            12
+                        ]
+                    ],
+                    "12,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            12
+                        ]
+                    ],
+                    "10,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            12
+                        ]
+                    ],
+                    "9,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            16
+                        ]
+                    ],
+                    "7,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            16
+                        ]
+                    ],
+                    "5,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            16
+                        ]
+                    ],
+                    "6,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            0
+                        ]
+                    ],
+                    "4,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            0
+                        ]
+                    ],
+                    "2,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            0
+                        ]
+                    ],
+                    "6,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            17
+                        ]
+                    ],
+                    "4,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            17
+                        ]
+                    ],
+                    "2,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            17
+                        ]
+                    ],
+                    "28,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            1
+                        ]
+                    ],
+                    "3,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            4
+                        ]
+                    ],
+                    "1,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            4
+                        ]
+                    ],
+                    "28,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            18
+                        ]
+                    ],
+                    "27,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            2
+                        ]
+                    ],
+                    "25,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            2
+                        ]
+                    ],
+                    "27,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            19
+                        ]
+                    ],
+                    "25,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            19
+                        ]
+                    ],
+                    "23,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            19
+                        ]
+                    ],
+                    "15,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            3
+                        ]
+                    ],
+                    "24,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            6
+                        ]
+                    ],
+                    "13,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            3
+                        ]
+                    ],
+                    "22,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            6
+                        ]
+                    ],
+                    "20,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            6
+                        ]
+                    ],
+                    "21,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            7
+                        ]
+                    ],
+                    "19,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            7
+                        ]
+                    ],
+                    "16,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            11
+                        ]
+                    ],
+                    "14,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            11
+                        ]
+                    ],
+                    "12,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            11
+                        ]
+                    ],
+                    "11,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            15
+                        ]
+                    ],
+                    "9,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            15
+                        ]
+                    ],
+                    "8,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            16
+                        ]
+                    ],
+                    "6,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            16
+                        ]
+                    ],
+                    "4,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            16
+                        ]
+                    ],
+                    "5,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            3
+                        ]
+                    ],
+                    "3,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "1,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            3
+                        ]
+                    ],
+                    "29,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            1
+                        ]
+                    ],
+                    "27,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            1
+                        ]
+                    ],
+                    "2,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            4
+                        ]
+                    ],
+                    "29,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            18
+                        ]
+                    ],
+                    "0,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            4
+                        ]
+                    ],
+                    "27,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            18
+                        ]
+                    ],
+                    "17,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            2
+                        ]
+                    ],
+                    "26,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            5
+                        ]
+                    ],
+                    "15,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            2
+                        ]
+                    ],
+                    "24,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            5
+                        ]
+                    ],
+                    "17,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            19
+                        ]
+                    ],
+                    "22,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            5
+                        ]
+                    ],
+                    "15,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            19
+                        ]
+                    ],
+                    "23,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            6
+                        ]
+                    ],
+                    "21,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            6
+                        ]
+                    ],
+                    "19,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            6
+                        ]
+                    ],
+                    "18,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            10
+                        ]
+                    ],
+                    "16,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            10
+                        ]
+                    ],
+                    "11,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            14
+                        ]
+                    ],
+                    "12,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            15
+                        ]
+                    ],
+                    "10,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            15
+                        ]
+                    ],
+                    "8,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            15
+                        ]
+                    ],
+                    "7,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            2
+                        ]
+                    ],
+                    "5,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            2
+                        ]
+                    ],
+                    "3,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            2
+                        ]
+                    ],
+                    "7,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            19
+                        ]
+                    ],
+                    "29,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            0
+                        ]
+                    ],
+                    "5,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            19
+                        ]
+                    ],
+                    "3,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            19
+                        ]
+                    ],
+                    "4,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            3
+                        ]
+                    ],
+                    "2,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            3
+                        ]
+                    ],
+                    "29,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            17
+                        ]
+                    ],
+                    "0,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            3
+                        ]
+                    ],
+                    "28,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            4
+                        ]
+                    ],
+                    "17,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            1
+                        ]
+                    ],
+                    "26,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            4
+                        ]
+                    ],
+                    "17,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            18
+                        ]
+                    ],
+                    "25,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            5
+                        ]
+                    ],
+                    "23,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            5
+                        ]
+                    ],
+                    "21,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            5
+                        ]
+                    ],
+                    "13,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            6
+                        ]
+                    ],
+                    "22,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            9
+                        ]
+                    ],
+                    "20,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            9
+                        ]
+                    ],
+                    "18,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            9
+                        ]
+                    ],
+                    "14,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            14
+                        ]
+                    ],
+                    "12,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            14
+                        ]
+                    ],
+                    "10,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            14
+                        ]
+                    ],
+                    "9,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            1
+                        ]
+                    ],
+                    "7,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            1
+                        ]
+                    ],
+                    "9,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            18
+                        ]
+                    ],
+                    "7,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            18
+                        ]
+                    ],
+                    "6,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            2
+                        ]
+                    ],
+                    "4,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            2
+                        ]
+                    ],
+                    "2,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "6,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            19
+                        ]
+                    ],
+                    "4,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            19
+                        ]
+                    ],
+                    "2,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            19
+                        ]
+                    ],
+                    "28,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            3
+                        ]
+                    ],
+                    "3,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            6
+                        ]
+                    ],
+                    "1,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            6
+                        ]
+                    ],
+                    "27,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            4
+                        ]
+                    ],
+                    "25,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            4
+                        ]
+                    ],
+                    "15,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            5
+                        ]
+                    ],
+                    "24,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            8
+                        ]
+                    ],
+                    "13,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            5
+                        ]
+                    ],
+                    "22,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            8
+                        ]
+                    ],
+                    "20,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            8
+                        ]
+                    ],
+                    "21,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            9
+                        ]
+                    ],
+                    "19,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            9
+                        ]
+                    ],
+                    "16,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            13
+                        ]
+                    ],
+                    "14,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            13
+                        ]
+                    ],
+                    "12,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            13
+                        ]
+                    ],
+                    "11,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            0
+                        ]
+                    ],
+                    "9,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            0
+                        ]
+                    ],
+                    "11,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            17
+                        ]
+                    ],
+                    "9,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            17
+                        ]
+                    ],
+                    "10,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            1
+                        ]
+                    ],
+                    "8,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            1
+                        ]
+                    ],
+                    "6,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            1
+                        ]
+                    ],
+                    "8,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            18
+                        ]
+                    ],
+                    "6,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            18
+                        ]
+                    ],
+                    "5,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            5
+                        ]
+                    ],
+                    "3,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            5
+                        ]
+                    ],
+                    "1,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            5
+                        ]
+                    ],
+                    "29,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            3
+                        ]
+                    ],
+                    "27,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            3
+                        ]
+                    ],
+                    "2,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            6
+                        ]
+                    ],
+                    "0,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            6
+                        ]
+                    ],
+                    "17,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            4
+                        ]
+                    ],
+                    "26,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            7
+                        ]
+                    ],
+                    "15,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            4
+                        ]
+                    ],
+                    "24,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            7
+                        ]
+                    ],
+                    "22,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            7
+                        ]
+                    ],
+                    "23,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            8
+                        ]
+                    ],
+                    "21,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            8
+                        ]
+                    ],
+                    "19,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            8
+                        ]
+                    ],
+                    "18,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            12
+                        ]
+                    ],
+                    "16,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            12
+                        ]
+                    ],
+                    "11,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            16
+                        ]
+                    ],
+                    "12,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            0
+                        ]
+                    ],
+                    "10,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            0
+                        ]
+                    ],
+                    "8,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            0
+                        ]
+                    ],
+                    "12,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            17
+                        ]
+                    ],
+                    "10,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            17
+                        ]
+                    ],
+                    "8,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            17
+                        ]
+                    ],
+                    "7,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            4
+                        ]
+                    ],
+                    "5,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            4
+                        ]
+                    ],
+                    "29,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            2
+                        ]
+                    ],
+                    "4,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            5
+                        ]
+                    ],
+                    "2,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            5
+                        ]
+                    ],
+                    "29,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            19
+                        ]
+                    ],
+                    "0,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            5
+                        ]
+                    ],
+                    "28,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            6
+                        ]
+                    ],
+                    "17,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            3
+                        ]
+                    ],
+                    "26,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            6
+                        ]
+                    ],
+                    "1,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            9
+                        ]
+                    ],
+                    "25,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            7
+                        ]
+                    ],
+                    "23,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            7
+                        ]
+                    ],
+                    "13,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            8
+                        ]
+                    ],
+                    "22,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            11
+                        ]
+                    ],
+                    "20,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            11
+                        ]
+                    ],
+                    "18,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            11
+                        ]
+                    ],
+                    "19,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            12
+                        ]
+                    ],
+                    "14,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            16
+                        ]
+                    ],
+                    "12,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            16
+                        ]
+                    ],
+                    "10,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            16
+                        ]
+                    ],
+                    "11,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            3
+                        ]
+                    ],
+                    "9,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            3
+                        ]
+                    ],
+                    "7,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            3
+                        ]
+                    ],
+                    "6,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            4
+                        ]
+                    ],
+                    "4,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            4
+                        ]
+                    ],
+                    "28,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            5
+                        ]
+                    ],
+                    "3,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            8
+                        ]
+                    ],
+                    "1,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            8
+                        ]
+                    ],
+                    "29,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            6
+                        ]
+                    ],
+                    "27,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            6
+                        ]
+                    ],
+                    "25,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            6
+                        ]
+                    ],
+                    "0,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            9
+                        ]
+                    ],
+                    "15,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            7
+                        ]
+                    ],
+                    "24,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            10
+                        ]
+                    ],
+                    "13,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            7
+                        ]
+                    ],
+                    "22,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            10
+                        ]
+                    ],
+                    "20,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            10
+                        ]
+                    ],
+                    "21,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            11
+                        ]
+                    ],
+                    "19,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            11
+                        ]
+                    ],
+                    "16,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            15
+                        ]
+                    ],
+                    "14,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            15
+                        ]
+                    ],
+                    "11,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            2
+                        ]
+                    ],
+                    "9,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            2
+                        ]
+                    ],
+                    "11,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            19
+                        ]
+                    ],
+                    "9,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            19
+                        ]
+                    ],
+                    "10,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            3
+                        ]
+                    ],
+                    "8,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            3
+                        ]
+                    ],
+                    "6,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            3
+                        ]
+                    ],
+                    "5,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            7
+                        ]
+                    ],
+                    "3,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            7
+                        ]
+                    ],
+                    "1,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            7
+                        ]
+                    ],
+                    "29,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            5
+                        ]
+                    ],
+                    "27,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            5
+                        ]
+                    ],
+                    "2,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            8
+                        ]
+                    ],
+                    "0,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            8
+                        ]
+                    ],
+                    "17,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            6
+                        ]
+                    ],
+                    "26,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            9
+                        ]
+                    ],
+                    "15,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            6
+                        ]
+                    ],
+                    "24,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            9
+                        ]
+                    ],
+                    "23,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            10
+                        ]
+                    ],
+                    "21,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            10
+                        ]
+                    ],
+                    "19,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            10
+                        ]
+                    ],
+                    "20,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            14
+                        ]
+                    ],
+                    "18,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            14
+                        ]
+                    ],
+                    "16,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            14
+                        ]
+                    ],
+                    "11,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            1
+                        ]
+                    ],
+                    "12,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            2
+                        ]
+                    ],
+                    "11,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            18
+                        ]
+                    ],
+                    "10,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            2
+                        ]
+                    ],
+                    "8,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            2
+                        ]
+                    ],
+                    "12,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            19
+                        ]
+                    ],
+                    "10,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            19
+                        ]
+                    ],
+                    "8,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            19
+                        ]
+                    ],
+                    "7,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            6
+                        ]
+                    ],
+                    "5,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            6
+                        ]
+                    ],
+                    "29,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            4
+                        ]
+                    ],
+                    "4,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            7
+                        ]
+                    ],
+                    "2,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            7
+                        ]
+                    ],
+                    "0,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            7
+                        ]
+                    ],
+                    "28,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            8
+                        ]
+                    ],
+                    "17,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            5
+                        ]
+                    ],
+                    "26,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            8
+                        ]
+                    ],
+                    "1,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            11
+                        ]
+                    ],
+                    "25,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            9
+                        ]
+                    ],
+                    "23,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            9
+                        ]
+                    ],
+                    "13,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            10
+                        ]
+                    ],
+                    "22,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            13
+                        ]
+                    ],
+                    "20,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            13
+                        ]
+                    ],
+                    "18,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            13
+                        ]
+                    ],
+                    "19,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            14
+                        ]
+                    ],
+                    "14,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            1
+                        ]
+                    ],
+                    "12,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            1
+                        ]
+                    ],
+                    "14,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            18
+                        ]
+                    ],
+                    "12,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            18
+                        ]
+                    ],
+                    "10,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            18
+                        ]
+                    ],
+                    "11,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            5
+                        ]
+                    ],
+                    "9,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            5
+                        ]
+                    ],
+                    "7,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            5
+                        ]
+                    ],
+                    "8,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            6
+                        ]
+                    ],
+                    "6,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            6
+                        ]
+                    ],
+                    "4,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            6
+                        ]
+                    ],
+                    "28,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            7
+                        ]
+                    ],
+                    "3,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            10
+                        ]
+                    ],
+                    "1,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            10
+                        ]
+                    ],
+                    "29,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            8
+                        ]
+                    ],
+                    "27,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            8
+                        ]
+                    ],
+                    "25,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            8
+                        ]
+                    ],
+                    "0,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            11
+                        ]
+                    ],
+                    "17,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            9
+                        ]
+                    ],
+                    "15,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            9
+                        ]
+                    ],
+                    "24,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            12
+                        ]
+                    ],
+                    "13,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            9
+                        ]
+                    ],
+                    "22,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            12
+                        ]
+                    ],
+                    "20,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            12
+                        ]
+                    ],
+                    "21,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            13
+                        ]
+                    ],
+                    "19,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            13
+                        ]
+                    ],
+                    "18,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            0
+                        ]
+                    ],
+                    "16,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            0
+                        ]
+                    ],
+                    "14,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            0
+                        ]
+                    ],
+                    "16,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            17
+                        ]
+                    ],
+                    "14,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            17
+                        ]
+                    ],
+                    "11,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            4
+                        ]
+                    ],
+                    "9,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            4
+                        ]
+                    ],
+                    "10,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            5
+                        ]
+                    ],
+                    "8,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            5
+                        ]
+                    ],
+                    "6,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            5
+                        ]
+                    ],
+                    "5,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            9
+                        ]
+                    ],
+                    "3,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            9
+                        ]
+                    ],
+                    "29,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            7
+                        ]
+                    ],
+                    "27,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            7
+                        ]
+                    ],
+                    "2,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            10
+                        ]
+                    ],
+                    "0,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            10
+                        ]
+                    ],
+                    "28,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            11
+                        ]
+                    ],
+                    "17,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            8
+                        ]
+                    ],
+                    "26,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            11
+                        ]
+                    ],
+                    "15,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            8
+                        ]
+                    ],
+                    "24,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            11
+                        ]
+                    ],
+                    "23,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            12
+                        ]
+                    ],
+                    "21,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            12
+                        ]
+                    ],
+                    "20,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            16
+                        ]
+                    ],
+                    "18,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            16
+                        ]
+                    ],
+                    "16,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            16
+                        ]
+                    ],
+                    "12,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            4
+                        ]
+                    ],
+                    "10,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            4
+                        ]
+                    ],
+                    "8,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            4
+                        ]
+                    ],
+                    "9,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            8
+                        ]
+                    ],
+                    "7,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            8
+                        ]
+                    ],
+                    "5,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            8
+                        ]
+                    ],
+                    "4,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            9
+                        ]
+                    ],
+                    "2,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            9
+                        ]
+                    ],
+                    "28,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            10
+                        ]
+                    ],
+                    "17,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            7
+                        ]
+                    ],
+                    "26,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            10
+                        ]
+                    ],
+                    "1,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            13
+                        ]
+                    ],
+                    "27,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            11
+                        ]
+                    ],
+                    "25,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            11
+                        ]
+                    ],
+                    "23,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            11
+                        ]
+                    ],
+                    "13,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            12
+                        ]
+                    ],
+                    "22,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            15
+                        ]
+                    ],
+                    "20,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            15
+                        ]
+                    ],
+                    "18,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            15
+                        ]
+                    ],
+                    "19,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            16
+                        ]
+                    ],
+                    "14,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            3
+                        ]
+                    ],
+                    "12,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            3
+                        ]
+                    ],
+                    "11,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            7
+                        ]
+                    ],
+                    "9,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            7
+                        ]
+                    ],
+                    "7,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            7
+                        ]
+                    ],
+                    "8,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            8
+                        ]
+                    ],
+                    "6,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            8
+                        ]
+                    ],
+                    "4,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            8
+                        ]
+                    ],
+                    "28,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            9
+                        ]
+                    ],
+                    "3,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            12
+                        ]
+                    ],
+                    "1,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            12
+                        ]
+                    ],
+                    "29,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            10
+                        ]
+                    ],
+                    "27,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            10
+                        ]
+                    ],
+                    "25,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            10
+                        ]
+                    ],
+                    "0,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            13
+                        ]
+                    ],
+                    "17,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            11
+                        ]
+                    ],
+                    "15,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            11
+                        ]
+                    ],
+                    "24,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            14
+                        ]
+                    ],
+                    "13,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            11
+                        ]
+                    ],
+                    "22,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            14
+                        ]
+                    ],
+                    "21,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            15
+                        ]
+                    ],
+                    "19,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            15
+                        ]
+                    ],
+                    "18,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            2
+                        ]
+                    ],
+                    "16,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            2
+                        ]
+                    ],
+                    "14,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            2
+                        ]
+                    ],
+                    "18,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            19
+                        ]
+                    ],
+                    "16,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            19
+                        ]
+                    ],
+                    "14,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            19
+                        ]
+                    ],
+                    "11,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            6
+                        ]
+                    ],
+                    "9,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            6
+                        ]
+                    ],
+                    "10,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            7
+                        ]
+                    ],
+                    "8,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            7
+                        ]
+                    ],
+                    "6,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            7
+                        ]
+                    ],
+                    "5,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            11
+                        ]
+                    ],
+                    "3,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            11
+                        ]
+                    ],
+                    "29,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            9
+                        ]
+                    ],
+                    "27,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            9
+                        ]
+                    ],
+                    "2,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            12
+                        ]
+                    ],
+                    "0,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            12
+                        ]
+                    ],
+                    "28,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            13
+                        ]
+                    ],
+                    "17,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            10
+                        ]
+                    ],
+                    "26,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            13
+                        ]
+                    ],
+                    "15,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            10
+                        ]
+                    ],
+                    "24,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            13
+                        ]
+                    ],
+                    "23,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            14
+                        ]
+                    ],
+                    "21,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            14
+                        ]
+                    ],
+                    "20,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            1
+                        ]
+                    ],
+                    "18,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            1
+                        ]
+                    ],
+                    "16,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            1
+                        ]
+                    ],
+                    "20,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            18
+                        ]
+                    ],
+                    "18,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            18
+                        ]
+                    ],
+                    "16,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            18
+                        ]
+                    ],
+                    "12,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            6
+                        ]
+                    ],
+                    "10,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            6
+                        ]
+                    ],
+                    "9,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            10
+                        ]
+                    ],
+                    "7,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            10
+                        ]
+                    ],
+                    "5,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            10
+                        ]
+                    ],
+                    "6,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            11
+                        ]
+                    ],
+                    "4,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            11
+                        ]
+                    ],
+                    "2,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            11
+                        ]
+                    ],
+                    "28,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            12
+                        ]
+                    ],
+                    "26,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            12
+                        ]
+                    ],
+                    "1,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            15
+                        ]
+                    ],
+                    "27,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            13
+                        ]
+                    ],
+                    "25,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            13
+                        ]
+                    ],
+                    "23,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            13
+                        ]
+                    ],
+                    "22,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            0
+                        ]
+                    ],
+                    "15,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            14
+                        ]
+                    ],
+                    "20,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            0
+                        ]
+                    ],
+                    "13,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            14
+                        ]
+                    ],
+                    "22,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            17
+                        ]
+                    ],
+                    "20,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            17
+                        ]
+                    ],
+                    "18,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            17
+                        ]
+                    ],
+                    "19,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            1
+                        ]
+                    ],
+                    "19,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            18
+                        ]
+                    ],
+                    "16,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            5
+                        ]
+                    ],
+                    "14,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            5
+                        ]
+                    ],
+                    "12,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            5
+                        ]
+                    ],
+                    "11,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            9
+                        ]
+                    ],
+                    "9,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            9
+                        ]
+                    ],
+                    "7,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            9
+                        ]
+                    ],
+                    "8,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            10
+                        ]
+                    ],
+                    "6,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            10
+                        ]
+                    ],
+                    "4,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            10
+                        ]
+                    ],
+                    "3,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            14
+                        ]
+                    ],
+                    "1,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            14
+                        ]
+                    ],
+                    "29,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            12
+                        ]
+                    ],
+                    "27,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            12
+                        ]
+                    ],
+                    "25,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            12
+                        ]
+                    ],
+                    "0,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            15
+                        ]
+                    ],
+                    "17,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            13
+                        ]
+                    ],
+                    "15,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            13
+                        ]
+                    ],
+                    "24,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            16
+                        ]
+                    ],
+                    "13,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            13
+                        ]
+                    ],
+                    "22,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            16
+                        ]
+                    ],
+                    "21,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            0
+                        ]
+                    ],
+                    "19,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            0
+                        ]
+                    ],
+                    "21,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            17
+                        ]
+                    ],
+                    "19,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            17
+                        ]
+                    ],
+                    "18,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            4
+                        ]
+                    ],
+                    "16,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            4
+                        ]
+                    ],
+                    "14,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            4
+                        ]
+                    ],
+                    "11,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            8
+                        ]
+                    ],
+                    "10,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            9
+                        ]
+                    ],
+                    "8,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            9
+                        ]
+                    ],
+                    "6,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            9
+                        ]
+                    ],
+                    "7,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            13
+                        ]
+                    ],
+                    "5,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            13
+                        ]
+                    ],
+                    "3,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            13
+                        ]
+                    ],
+                    "29,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            11
+                        ]
+                    ],
+                    "2,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            14
+                        ]
+                    ],
+                    "0,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            14
+                        ]
+                    ],
+                    "28,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            15
+                        ]
+                    ],
+                    "17,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            12
+                        ]
+                    ],
+                    "26,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            15
+                        ]
+                    ],
+                    "15,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            12
+                        ]
+                    ],
+                    "24,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            15
+                        ]
+                    ],
+                    "25,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            16
+                        ]
+                    ],
+                    "23,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            16
+                        ]
+                    ],
+                    "21,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            16
+                        ]
+                    ],
+                    "13,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            0
+                        ]
+                    ],
+                    "20,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            3
+                        ]
+                    ],
+                    "18,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            3
+                        ]
+                    ],
+                    "16,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            3
+                        ]
+                    ],
+                    "12,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            8
+                        ]
+                    ],
+                    "10,8": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            8
+                        ]
+                    ],
+                    "9,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            12
+                        ]
+                    ],
+                    "7,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            12
+                        ]
+                    ],
+                    "5,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            12
+                        ]
+                    ],
+                    "6,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            13
+                        ]
+                    ],
+                    "4,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            13
+                        ]
+                    ],
+                    "2,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            13
+                        ]
+                    ],
+                    "1,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            0
+                        ]
+                    ],
+                    "28,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            14
+                        ]
+                    ],
+                    "26,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            14
+                        ]
+                    ],
+                    "1,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            17
+                        ]
+                    ],
+                    "27,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            15
+                        ]
+                    ],
+                    "25,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            15
+                        ]
+                    ],
+                    "23,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            15
+                        ]
+                    ],
+                    "22,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            2
+                        ]
+                    ],
+                    "15,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            16
+                        ]
+                    ],
+                    "20,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            2
+                        ]
+                    ],
+                    "13,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            16
+                        ]
+                    ],
+                    "22,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            19
+                        ]
+                    ],
+                    "20,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            19
+                        ]
+                    ],
+                    "19,3": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            3
+                        ]
+                    ],
+                    "16,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            7
+                        ]
+                    ],
+                    "14,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            7
+                        ]
+                    ],
+                    "12,7": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            7
+                        ]
+                    ],
+                    "11,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            11
+                        ]
+                    ],
+                    "9,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            11
+                        ]
+                    ],
+                    "7,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            11
+                        ]
+                    ],
+                    "8,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            12
+                        ]
+                    ],
+                    "6,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            12
+                        ]
+                    ],
+                    "4,12": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            12
+                        ]
+                    ],
+                    "3,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            16
+                        ]
+                    ],
+                    "1,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            16
+                        ]
+                    ],
+                    "29,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            14
+                        ]
+                    ],
+                    "0,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            0
+                        ]
+                    ],
+                    "27,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            14
+                        ]
+                    ],
+                    "25,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            14
+                        ]
+                    ],
+                    "0,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            17
+                        ]
+                    ],
+                    "26,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            1
+                        ]
+                    ],
+                    "24,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            1
+                        ]
+                    ],
+                    "17,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            15
+                        ]
+                    ],
+                    "22,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            1
+                        ]
+                    ],
+                    "15,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            15
+                        ]
+                    ],
+                    "24,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            18
+                        ]
+                    ],
+                    "13,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            15
+                        ]
+                    ],
+                    "22,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            18
+                        ]
+                    ],
+                    "23,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            2
+                        ]
+                    ],
+                    "21,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            2
+                        ]
+                    ],
+                    "26,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            18
+                        ]
+                    ],
+                    "19,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            2
+                        ]
+                    ],
+                    "21,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            19
+                        ]
+                    ],
+                    "19,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            19
+                        ]
+                    ],
+                    "18,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            6
+                        ]
+                    ],
+                    "16,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            6
+                        ]
+                    ],
+                    "14,6": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            6
+                        ]
+                    ],
+                    "11,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            10
+                        ]
+                    ],
+                    "10,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            11
+                        ]
+                    ],
+                    "8,11": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            11
+                        ]
+                    ],
+                    "7,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            15
+                        ]
+                    ],
+                    "5,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            15
+                        ]
+                    ],
+                    "3,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            3,
+                            15
+                        ]
+                    ],
+                    "29,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            29,
+                            13
+                        ]
+                    ],
+                    "2,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            16
+                        ]
+                    ],
+                    "0,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            0,
+                            16
+                        ]
+                    ],
+                    "28,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            0
+                        ]
+                    ],
+                    "26,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            0
+                        ]
+                    ],
+                    "24,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            0
+                        ]
+                    ],
+                    "28,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            17
+                        ]
+                    ],
+                    "17,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            17,
+                            14
+                        ]
+                    ],
+                    "26,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            17
+                        ]
+                    ],
+                    "24,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            17
+                        ]
+                    ],
+                    "25,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            1
+                        ]
+                    ],
+                    "23,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            1
+                        ]
+                    ],
+                    "21,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            1
+                        ]
+                    ],
+                    "25,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            18
+                        ]
+                    ],
+                    "23,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            18
+                        ]
+                    ],
+                    "21,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            21,
+                            18
+                        ]
+                    ],
+                    "13,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            2
+                        ]
+                    ],
+                    "20,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            5
+                        ]
+                    ],
+                    "13,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            19
+                        ]
+                    ],
+                    "18,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            18,
+                            5
+                        ]
+                    ],
+                    "14,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            10
+                        ]
+                    ],
+                    "12,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            10
+                        ]
+                    ],
+                    "10,10": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            10,
+                            10
+                        ]
+                    ],
+                    "9,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            14
+                        ]
+                    ],
+                    "7,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            7,
+                            14
+                        ]
+                    ],
+                    "5,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            5,
+                            14
+                        ]
+                    ],
+                    "6,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            15
+                        ]
+                    ],
+                    "4,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            15
+                        ]
+                    ],
+                    "2,15": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            2,
+                            15
+                        ]
+                    ],
+                    "1,2": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            2
+                        ]
+                    ],
+                    "28,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            28,
+                            16
+                        ]
+                    ],
+                    "26,16": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            26,
+                            16
+                        ]
+                    ],
+                    "27,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            0
+                        ]
+                    ],
+                    "25,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            0
+                        ]
+                    ],
+                    "1,19": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            1,
+                            19
+                        ]
+                    ],
+                    "23,0": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            0
+                        ]
+                    ],
+                    "27,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            27,
+                            17
+                        ]
+                    ],
+                    "25,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            25,
+                            17
+                        ]
+                    ],
+                    "23,17": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            23,
+                            17
+                        ]
+                    ],
+                    "15,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            1
+                        ]
+                    ],
+                    "24,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            24,
+                            4
+                        ]
+                    ],
+                    "13,1": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            1
+                        ]
+                    ],
+                    "22,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            22,
+                            4
+                        ]
+                    ],
+                    "15,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            15,
+                            18
+                        ]
+                    ],
+                    "20,4": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            20,
+                            4
+                        ]
+                    ],
+                    "13,18": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            13,
+                            18
+                        ]
+                    ],
+                    "19,5": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            19,
+                            5
+                        ]
+                    ],
+                    "16,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            16,
+                            9
+                        ]
+                    ],
+                    "14,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            14,
+                            9
+                        ]
+                    ],
+                    "12,9": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            12,
+                            9
+                        ]
+                    ],
+                    "11,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            11,
+                            13
+                        ]
+                    ],
+                    "9,13": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            9,
+                            13
+                        ]
+                    ],
+                    "8,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            8,
+                            14
+                        ]
+                    ],
+                    "6,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            6,
+                            14
+                        ]
+                    ],
+                    "4,14": [
+                        "SacredStonesWorldMapBase",
+                        [
+                            4,
+                            14
+                        ]
+                    ]
+                }
+            }
+        ],
+        "tilesets": [
+            "SacredStonesWorldMapBase"
+        ]
     }
 ]

@@ -8,4 +8,5 @@ class Dock(QDockWidget):
         self.visibility_changed_callback = visibility_changed_callback
 
     def on_visible(self, visible):
-        self.visibility_changed_callback(visible)
+        if(self.visibility_changed_callback):
+            self.visibility_changed_callback(visible)

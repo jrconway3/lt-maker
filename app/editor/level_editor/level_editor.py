@@ -143,6 +143,12 @@ class LevelEditor(QMainWindow):
     def create_toolbar(self, toolbar):
         toolbar.addAction(self.back_to_main_act, 0)
 
+    def create_menus(self, app_menu_bar):
+        edit_menu = app_menu_bar.getMenu('Edit')
+        edit_menu.addSeparator()
+        edit_menu.addAction(self.zoom_in_act)
+        edit_menu.addAction(self.zoom_out_act)
+
     def edit_global(self):
         self.state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
 

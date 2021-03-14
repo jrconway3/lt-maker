@@ -26,7 +26,7 @@ from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
 
 # utils
 from app.editor.lib.math.math_utils import distance_from_line
-from app.utilities import str_utils
+from app.utilities import str_utils, utils
 
 class OverworldEditorEditMode(Enum):
     NONE = 0
@@ -164,7 +164,7 @@ class OverworldEditor(QMainWindow):
         
         # search through the nodes
         for node in self.current_overworld.overworld_nodes.values():
-            distance = math.dist((x, y), node.pos) - node_priority
+            distance = utils.distance((x, y), node.pos) - node_priority
             if distance < closest_dist:
                 closest_dist = distance
                 closest_obj = node

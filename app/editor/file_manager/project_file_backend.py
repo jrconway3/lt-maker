@@ -42,9 +42,8 @@ class ProjectFileBackend():
         return True
 
     def save(self, new=False):
-        print("Save", self.current_proj, os.path.basename(self.current_proj))
         # check if we're editing default, if so, prompt to save as
-        if os.path.basename(self.current_proj) == 'default.ltproj':
+        if self.current_proj and os.path.basename(self.current_proj) == 'default.ltproj':
             self.current_proj = None
         if new or not self.current_proj:
             starting_path = self.current_proj or QDir.currentPath()

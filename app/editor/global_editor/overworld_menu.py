@@ -9,7 +9,7 @@ from app.data.database import DB
 from app.data.overworld import OverworldPrefab
 
 from app.extensions.custom_gui import RightClickListView
-from app.editor.base_database_gui import CollectionModel
+from app.editor.base_database_gui import DragDropCollectionModel
 import app.editor.tilemap_editor as tilemap_editor
 from app.utilities import str_utils
 
@@ -34,6 +34,8 @@ class OverworldDatabase(QWidget):
         self.model = OverworldModel(DB.overworlds, self)
         self.view.setModel(self.model)
 
+        self.model.drag_drop_finished.connect(self.catch_drag)
+
         self.button = QPushButton("Create New Overworld...")
         self.button.clicked.connect(self.model.append)
 
@@ -46,6 +48,13 @@ class OverworldDatabase(QWidget):
     def on_map_changed(self, curr, prev):
         if DB.overworlds:
             new_overworld = DB.overworlds[curr.row()]
+            self.state_manager.change_and_broadcast(
+                'selected_overworld', new_overworld.nid)
+
+    def catch_drag(self):
+        if DB.overworlds:
+            index = self.view.currentIndex()
+            new_overworld = DB.overworlds[index.row()]
             self.state_manager.change_and_broadcast(
                 'selected_overworld', new_overworld.nid)
 
@@ -69,7 +78,7 @@ class OverworldDatabase(QWidget):
     def update_view(self, _=None):
         self.model.layoutChanged.emit()
 
-class OverworldModel(CollectionModel):
+class OverworldModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None

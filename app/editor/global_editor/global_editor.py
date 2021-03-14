@@ -97,9 +97,7 @@ class GlobalEditor(QMainWindow):
         
         # toolbar actions
         self.modify_level_act = QAction(
-            "Edit Level", self, shortcut="E", triggered=self.edit_level)
-        self.modify_overworld_act = QAction(
-            "Edit Overworld", self, shortcut="E", triggered=self.edit_overworld)
+            "Edit Level", self, triggered=self.edit_level)
 
     def set_icons(self, force_theme=None):
         if force_theme is None:
@@ -113,13 +111,12 @@ class GlobalEditor(QMainWindow):
         self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
         self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))
-        self.modify_overworld_act.setIcon(QIcon(f'{icon_folder}/map.png'))
+
+    def overworld_mode(self) -> bool:
+        return not self.overworld_dock.visibleRegion().isEmpty()
 
     def create_toolbar(self, toolbar):
-        if self.app_state_manager.mode == MainEditorScreenStates.OVERWORLD_EDITOR:
-            toolbar.addAction(self.modify_overworld_act, 0)
-        else:
-            toolbar.addAction(self.modify_level_act, 0)
+        toolbar.addAction(self.modify_level_act, 0)
 
     def create_menus(self, app_menu_bar):
         edit_menu = app_menu_bar.getMenu('Edit')
@@ -128,10 +125,10 @@ class GlobalEditor(QMainWindow):
         edit_menu.addAction(self.zoom_out_act)
 
     def edit_level(self):
-        self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.LEVEL_EDITOR)
-
-    def edit_overworld(self):
-        self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.OVERWORLD_EDITOR)
+        if self.overworld_mode():
+            self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.OVERWORLD_EDITOR)
+        else:
+            self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.LEVEL_EDITOR)
 
     def _render(self):
         self.map_view = GlobalModeLevelMapView(self)

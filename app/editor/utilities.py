@@ -1,5 +1,4 @@
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
 
 from app.constants import COLORKEY
 from app.data.palettes import enemy_colors, other_colors, enemy2_colors

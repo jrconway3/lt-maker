@@ -1,19 +1,16 @@
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush, QPen
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QPainter, QPen
 
 from app.editor.map_view import SimpleMapView
 from app.data.overworld import OverworldPrefab
-from app.data.overworld_node import OverworldNodePrefab
 
-from app.utilities import utils
 from app.sprites import SPRITES
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.editor import timer
-from app.editor.class_editor import class_model
+import app.editor.utilities as editor_utilities
 from app.editor.tile_editor import tile_model
 
 
@@ -54,8 +51,9 @@ class WorldMapView(SimpleMapView):
         icon = RESOURCES.map_icons.get(icon_nid)
         coord = position
         pixmap = icon.get_pixmap()
+        pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
         # to support 16x16, 32x32, and 48x48 map icons, we offset them differently
-        offset = ( pixmap.height() / 16 - 1 ) * 8
+        offset = (pixmap.height() / 16 - 1) * 8
         if pixmap:
             if opacity:
                 painter.setOpacity(0.33)

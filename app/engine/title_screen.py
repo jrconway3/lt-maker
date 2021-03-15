@@ -557,6 +557,19 @@ class TitleSaveState(State):
         game.state.change('transition_in')
         return 'repeat'
 
+    def go_to_next_level(self, make_save=True):
+        current_state = game.state.state[-1]
+        next_level_nid = game.game_vars['_next_level_nid']
+
+        game.load_states(['turn_change'])
+        if make_save:
+            save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
+
+        game.start_level(next_level_nid)
+
+        game.state.state.append(current_state)
+        game.state.change('transition_pop')
+
     def take_input(self, event):
         if self.wait_time > 0:
             return
@@ -575,7 +588,12 @@ class TitleSaveState(State):
         if event == 'BACK':
             # Proceed to next level anyway
             SOUNDTHREAD.play_sfx('Select 4')
-            game.state.change('transition_pop')
+            if self.name == 'in_chapter_save':
+                game.state.change('transition_pop')
+            elif DB.constants.value('overworld'):
+                pass  # TODO: Go to overworld
+            else:
+                self.go_to_next_level(make_save=False)
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Save')
@@ -607,17 +625,10 @@ class TitleSaveState(State):
                 # Put states back
                 game.state.state = saved_state
                 game.state.change('transition_pop')
+            elif DB.constants.value('overworld'):
+                pass  # TODO: Go to overworld
             else:
-                current_state = game.state.state[-1]
-                next_level_nid = game.game_vars['_next_level_nid']
-
-                game.load_states(['turn_change'])
-                save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
-
-                game.start_level(next_level_nid)
-
-                game.state.state.append(current_state)
-                game.state.change('transition_pop')
+                self.go_to_next_level(make_save=True)
 
     def draw(self, surf):
         if self.bg:

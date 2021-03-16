@@ -95,7 +95,8 @@
             [
                 "transition",
                 [
-                    "Open"
+                    "Open",
+                    "2000"
                 ]
             ],
             [
@@ -639,6 +640,12 @@
             ],
             [
                 "move_cursor",
+                [
+                    "Yohn"
+                ]
+            ],
+            [
+                "flicker_cursor",
                 [
                     "Yohn"
                 ]

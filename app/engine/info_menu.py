@@ -237,7 +237,7 @@ class InfoMenuState(State):
         self.state = game.memory.get('info_menu_state', info_states[0])
         self.growth_flag = False
 
-        self.fluid = FluidScroll(200, 0)
+        self.fluid = FluidScroll(200, 1)
 
         self.left_arrow = gui.ScrollArrow('left', (103, 3))
         self.right_arrow = gui.ScrollArrow('right', (217, 3), 0.5)
@@ -823,8 +823,12 @@ class InfoMenuState(State):
         self.info_graph.register((96 + 14, top + 16, 64, 16), 'Atk_desc', 'equipment')
         FONT['text-yellow'].blit('Hit', surf, (22, top + 32))
         self.info_graph.register((96 + 14, top + 32, 64, 16), 'Hit_desc', 'equipment')
-        FONT['text-yellow'].blit('Crit', surf, (78, top + 16))
-        self.info_graph.register((96 + 78, top + 16, 56, 16), 'Crit_desc', 'equipment')
+        if DB.constants.value('crit'):
+            FONT['text-yellow'].blit('Crit', surf, (78, top + 16))
+            self.info_graph.register((96 + 78, top + 16, 56, 16), 'Crit_desc', 'equipment')
+        else:
+            FONT['text-yellow'].blit('AS', surf, (78, top + 16))
+            self.info_graph.register((96 + 78, top + 16, 56, 16), 'AS_desc', 'equipment')
         FONT['text-yellow'].blit('Avoid', surf, (78, top + 32))
         self.info_graph.register((96 + 78, top + 32, 56, 16), 'Avoid_desc', 'equipment')
 
@@ -832,15 +836,23 @@ class InfoMenuState(State):
             rng = item_funcs.get_range_string(self.unit, weapon)
             dam = str(combat_calcs.damage(self.unit, weapon))
             acc = str(combat_calcs.accuracy(self.unit, weapon))
-            crt = str(combat_calcs.crit_accuracy(self.unit, weapon))
+            crt = combat_calcs.crit_accuracy(self.unit, weapon)
+            if crt is None:
+                crt = '--'
+            else:
+                crt = str(crt)
         else:
-            rng, dam, acc, crt = '--', '--', '--', '--'
+            rng, dam, acc, crt = '--', '--', '--', '--', '--'
 
         avo = str(combat_calcs.avoid(self.unit, weapon))
+        attack_speed = str(combat_calcs.attack_speed(self.unit, weapon))
         FONT['text-blue'].blit_right(rng, surf, (127, top))
         FONT['text-blue'].blit_right(dam, surf, (71, top + 16))
         FONT['text-blue'].blit_right(acc, surf, (71, top + 32))
-        FONT['text-blue'].blit_right(crt, surf, (127, top + 16))
+        if DB.constants.value('crit'):
+            FONT['text-blue'].blit_right(crt, surf, (127, top + 16))
+        else:
+            FONT['text-blue'].blit_right(attack_speed, surf, (127, top + 16))
         FONT['text-blue'].blit_right(avo, surf, (127, top + 32))
 
         return surf

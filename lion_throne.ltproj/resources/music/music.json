@@ -1,92 +1,122 @@
 [
     [
+        "Airship Thunderchild",
+        false,
+        false,
+        115.19999694824219
+    ],
+    [
+        "Brave Story 61",
+        false,
+        false,
+        28.541996002197266
+    ],
+    [
         "Chapter Sound",
         false,
         false,
         10.543991088867188
     ],
     [
-        "Distant Roads",
+        "Combat Theme 4",
         false,
         false,
-        108.78333282470703
+        194.49697875976562
     ],
     [
-        "Quiet Burn",
+        "Durchriss",
         false,
+        false,
+        123.8461685180664
+    ],
+    [
+        "Gate of Steiner",
+        false,
+        false,
+        26.850000381469727
+    ],
+    [
+        "Helms Deep",
         true,
-        146.2334747314453
+        false,
+        61.59238052368164
     ],
     [
-        "Shadow of the Enemy",
+        "Ambient Forest",
         false,
         false,
-        48.018798828125
+        108.18124389648438
     ],
     [
-        "Main Theme",
+        "Lady Eboshi",
         false,
         false,
-        182.0353546142578
+        168.30694580078125
     ],
     [
-        "Grasp at Victory",
+        "Meet the Sage",
         false,
         false,
-        86.00923156738281
+        218.0121612548828
     ],
     [
-        "Attack",
+        "Mount Briggs",
         false,
         false,
-        54.00922775268555
+        91.4649887084961
     ],
     [
-        "Defense",
+        "Stalwarts Unite",
         false,
         false,
-        61.01004409790039
+        113.10421752929688
     ],
     [
-        "The Battle Must Be Won",
+        "Brave Story 12",
         false,
         false,
-        56.02065658569336
+        48.830997467041016
     ],
     [
-        "Healing",
+        "Flight over Venice",
         false,
         false,
-        33.006778717041016
+        291.5648193359375
     ],
     [
-        "Combat Preparation",
+        "All Aboard to Rogueport",
         false,
         false,
-        137.0263671875
+        156.7096405029297
     ],
     [
-        "Shops",
+        "Brave Story 27",
         false,
         false,
-        39.01494216918945
+        55.23398971557617
     ],
     [
-        "Armory",
+        "Hum of the Streets",
         false,
         false,
-        39.01494216918945
+        68.85698699951172
     ],
     [
-        "Game Over",
+        "Preparing for Battle",
         false,
         false,
-        35.01820755004883
+        306.2015380859375
     ],
     [
-        "In Sorrows Shroud",
+        "To A New Journey",
         false,
         false,
-        60.017391204833984
+        185.57388305664062
+    ],
+    [
+        "Wild Arms Town",
+        false,
+        false,
+        112.10594177246094
     ]
 ]

@@ -330,6 +330,17 @@
         ]
     },
     {
+        "nid": "Man4",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    },
+    {
         "nid": "OldMan1",
         "blinking_offset": [
             16,
@@ -338,6 +349,17 @@
         "smiling_offset": [
             16,
             56
+        ]
+    },
+    {
+        "nid": "OldLady1",
+        "blinking_offset": [
+            16,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
         ]
     },
     {

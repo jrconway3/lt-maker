@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, \
-    QDialog, QAbstractItemView
+    QDialog, QAbstractItemView, QHBoxLayout
 
 from app.resources.resources import RESOURCES
 from app.extensions.custom_gui import ResourceTableView, MultiselectTableView
@@ -45,9 +45,17 @@ class SoundTab(QWidget):
         self.layout.addWidget(self.audio_widget)
         self.layout.addWidget(self.view)
 
+        hbox = QHBoxLayout()
+
         self.button = QPushButton("Add New %s..." % self.title)
         self.button.clicked.connect(self.append)
-        self.layout.addWidget(self.button)
+        hbox.addWidget(self.button)
+
+        self.modify_button = QPushButton("Modify Current %s..." % self.title)
+        self.modify_button.clicked.connect(self.modify)
+        hbox.addWidget(self.modify_button)
+
+        self.layout.addLayout(hbox)
 
     def append(self):
         last_index = self.model.append()
@@ -77,6 +85,13 @@ class SoundTab(QWidget):
             sfx = selections[-1]
             self.audio_widget.set_current(sfx)
             self.audio_widget.play()
+
+    def modify(self, index):
+        proxy_indices = self.display.selectionModel().selectedRows()
+        print(proxy_indices)
+        if proxy_indices:
+            real_indices = [self.proxy_model.mapToSource(index) for index in proxy_indices]
+            self.model.modify(real_indices)
 
     def closeEvent(self, event):
         self.audio_widget.stop()

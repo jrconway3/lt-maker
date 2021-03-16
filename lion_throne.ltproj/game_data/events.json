@@ -74,9 +74,9 @@
                 ]
             ],
             [
-                "comment",
+                "music",
                 [
-                    "# m;Mount Briggs"
+                    "Mount Briggs"
                 ]
             ],
             [
@@ -429,9 +429,9 @@
                 ]
             ],
             [
-                "comment",
+                "music",
                 [
-                    "# m;Meet the Sage"
+                    "Meet the Sage"
                 ]
             ],
             [
@@ -568,9 +568,9 @@
                 ]
             ],
             [
-                "comment",
+                "music",
                 [
-                    "# m;Flight over Venice"
+                    "Flight over Venice"
                 ]
             ],
             [
@@ -905,9 +905,9 @@
         "condition": "game.turncount == 2",
         "commands": [
             [
-                "comment",
+                "music",
                 [
-                    "# m;Meet the Sage"
+                    "Meet the Sage"
                 ]
             ],
             [
@@ -951,7 +951,7 @@
             [
                 "add_portrait",
                 [
-                    "Soldier2",
+                    "SoldierBlue",
                     "Right"
                 ]
             ],
@@ -965,7 +965,7 @@
             [
                 "speak",
                 [
-                    "Soldier2",
+                    "SoldierBlue",
                     "Hah! You think you're tough enough to take us on, old man?"
                 ]
             ],
@@ -979,7 +979,7 @@
             [
                 "multi_remove_portrait",
                 [
-                    "Soldier2",
+                    "SoldierBlue",
                     "Yohn"
                 ]
             ],
@@ -1100,9 +1100,9 @@
         "condition": "game.turncount == 3",
         "commands": [
             [
-                "comment",
+                "music",
                 [
-                    "# m;Meet the Sage"
+                    "Meet the Sage"
                 ]
             ],
             [
@@ -1325,9 +1325,9 @@
         "condition": "game.turncount == 4",
         "commands": [
             [
-                "comment",
+                "music",
                 [
-                    "# m;Mount Briggs"
+                    "Mount Briggs"
                 ]
             ],
             [
@@ -1560,12 +1560,12 @@
         "name": "FightPrimVagnius",
         "trigger": "combat_start",
         "level_nid": "0",
-        "condition": "unit1.nid == 'Prim' and unit2.nid == 'Vagnius'",
+        "condition": "check_pair('Prim', 'Vagnius')",
         "commands": [
             [
-                "comment",
+                "music",
                 [
-                    "# m;Durchriss"
+                    "Durchriss"
                 ]
             ],
             [
@@ -1606,12 +1606,12 @@
         "name": "FightOphieVagnius",
         "trigger": "combat_start",
         "level_nid": "0",
-        "condition": "unit1.nid == 'Prim' and unit2.nid == 'Vagnius'",
+        "condition": "check_pair('Ophie', 'Vagnius')",
         "commands": [
             [
-                "comment",
+                "music",
                 [
-                    "# m;Durchriss"
+                    "Durchriss"
                 ]
             ],
             [
@@ -1672,6 +1672,4344 @@
             [
                 "end",
                 []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathOphie",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Ophie'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "FarRight"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.level.nid in ('1', '3', '5', '7', '9')"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "No! I must... k-keep going..."
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Urgh... M-master Yohn, I-I've failed..."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathPrim",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Prim'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Prim",
+                    "FarRight"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.level.nid == '0'"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Is this... blood?|Hang on... I'm sure I can...|I can..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Is this... blood?|Hang on..."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Ophie')"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Prim!"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "I'm sure I can fix this...|I-I c-can...|T-this is too m-much...|I-I have to retreat..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Prim",
+                    "Ophie"
+                ]
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathAlthea",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Althea'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "FarRight"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.level.nid == '2'"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "It seems... I couldn't run... forever..."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Drake')"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "No! Althea!|Hang on... p-please..."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Althea",
+                    "Drake"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Althea"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.level.nid in ('8', '9', '10')"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "It seems... my best... was not good enough."
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "It seems... I couldn't run... forever..."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Drake')"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Althea! Fall back!|You never should have been on this battlefield!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Right... I'm always a burden"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Althea"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Hmmph."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Drake"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Althea"
+                ]
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathMusicPlayer",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.team == 'player'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Brave Story 61"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 30
+    },
+    {
+        "name": "DeathJoel",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Joel'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Argh...|Sorry captain...|But I have to fall back..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathNia",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Nia'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Nia",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Nia"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathEliza",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Eliza'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Eliza",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "I-I shouldn't have tried...|I-I am too weak..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eliza"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathCoyote",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Coyote'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Coyote",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Urgh! No wonder they were always afraid..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Coyote"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathKayla",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Kayla'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Kayla",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Hmph, I know when I've been beat."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Kayla"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathSidney",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Sidney'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Sidney",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Huh?! This was supposed to be... easy..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sidney"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathBrigham",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Brigham'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Brigham",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Brigham",
+                    "What... No! I was so close..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Brigham"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathAnders",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Anders'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Anders",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Anders",
+                    "What? Blood? This blood?|It's nothing... I will not disappoint..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Anders"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathJules",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Jules'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Jules",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jules",
+                    "...'Tis only a scratch, nothing more...|Urgh..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Jules"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathVincent",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Vincent'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Vincent",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Oh damn...|I'm in big fucking trouble here..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vincent"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathRazia",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Razia'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Razia",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Razia",
+                    "Hmmph! You've fought well, Keralan...|Not many have... tested my blade and lived..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Razia"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathMarduk",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Marduk'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Marduk",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Marduk",
+                    "But my plan... was perfect..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Marduk"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathVagnius",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Vagnius'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Vagnius",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "Is this... truly the extent of my ambition...?|Urgh..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vagnius"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathJakin",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Jakin'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Jakin",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jakin",
+                    "Proceed, my child, to your ultimate destiny!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Jakin"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Jakin",
+                    "warp"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathBoaz",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Boaz'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Boaz",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "Hah! The hunter becomes the hunted!|You were a worthy opponent! Well done!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Boaz"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Boaz",
+                    "warp"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathAdjutant",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Adjutant'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Adjutant",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Adjutant",
+                    "Oh... A pity..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Adjutant"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathUlver",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Ulver'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ulver",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ulver",
+                    "No! I am strong! ...The strongest!|I will not go out like a common--|Urgh..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ulver"
+                ]
+            ],
+            [
+                "remove_all_enemies",
+                []
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathMidas",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Midas'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Midas",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Midas",
+                    "Please... I'll give you everything... all the gold I..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Midas"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathHarold",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Harold'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Harold",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Harold",
+                    "...Is this my..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Harold",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Harold",
+                    "...glorious end? Hmmph!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Harold"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathTheo",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Theo'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Theo",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Urgh! There's been a mistake|This wasn't... supposed to happen"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Theo"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathSam",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Sam'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "What! No!|...{w}{clear}I'm not done...|Urgh..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathRenae",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Renae'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "But how...?|I'm the fastest..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.level.nid == '3'"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses')"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "DeathDrake",
+        "trigger": "unit_death",
+        "level_nid": null,
+        "condition": "unit.nid == 'Drake'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "FarRight"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Althea')"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Drake, you're wounded... You should fall back..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Urgh... No! I can't leave you here..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "I can take care of myself!|I order you to retreat!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Then I am no use to anyone...|I must depart..."
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "I am of no use to anyone in this condition...|I must... fall back..."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Drake",
+                    "Althea"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "0",
+        "condition": "True",
+        "commands": [
+            [
+                "music",
+                [
+                    "Flight over Venice"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Ophie",
+                    "Left",
+                    "Prim",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Prim, we can't stop now."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "...*sniff* O-okay..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Prim"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Mount Briggs"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Monastery"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Vagnius and Page"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "SoldierRed",
+                    "Left",
+                    "Vagnius",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "Kill the traitors. Burn it all.|They will know the Empire does not tolerate dissent!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "Right away, sir."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierRed"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sidney",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Uh, Boss?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "What is it?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Sir, um, two of the... uh... monks, well they...|They escaped, sir."
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Vagnius"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "What!! After them, you fool!|One of them could be the fugitive!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Right away, sir!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sidney"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "What incompetents...|The Duke will not pleased."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vagnius"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "1",
+        "condition": "True",
+        "commands": [
+            [
+                "add_weather",
+                [
+                    "Light"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "Enemy",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "EnemyRein",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_tag",
+                [
+                    "Sidney",
+                    "Boss"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Ophie and Prim in Forest"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Ambient Forest"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "max_turnwheel_uses",
+                    "1"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "current_turnwheel_uses",
+                    "1"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Prim",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "...Ophie... slow down."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hey, are you okay?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "...I just need to... c-catch my breath..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I guess we've made it far enough.|We can rest here for a little."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Prim"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "DeepForest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Nia and Joel"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Nia",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "What do ya spy, lass?|Hmmm...|Wait, those ain't Imperials! Nia, hold your fire!"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Nia"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Narrator",
+                    "Twang!",
+                    "160,28"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Heh heh. Oops..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Nia"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Wild Arms Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Prim",
+                    "MidRight",
+                    "Ophie",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Narrator",
+                    "Thud!",
+                    "160",
+                    "28"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "What the--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Quick, get down! Someone's shooting at us!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hmm... A stray shot?"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "OffscreenLeft",
+                    "immediate"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Hey! You two!|Sorry about that...|My partner here's got a bit of an itchy trigger finger."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Stay down. It could be a trap."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "How can we trust you? Who are you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Prim!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "We're uh.... rangers.|Yeah, rangers... y'know... protectin' the forest..."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Joel appears"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Joel",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Boy, ya'll look roughed up."
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Don't come any closer!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Hey, no need for the blade, lad.|We mean you no harm."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Well, you don't look Imperial..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Is that who ya'll runnin' from?|Them scum."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Yes--"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#Nia appears"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Combat Theme 4"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Nia",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "J-Joel..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Hmm?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "I-Imp'rials... to the east..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Well, I reckon' ya'll could use some help..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I can take them.|I don't need your--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Ophie! Now's not the time for pride!|What would Master Yohn say?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hmmph."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Thank you, um... kind sir."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Ah, don't mention it, little lady.|The only good Imperial in my reckonin' is a dead one.|It's no trouble at all."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Prim",
+                    "Nia",
+                    "Joel"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Enemies appear"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "17,7"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Sidney"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Sidney"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sidney",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Hah! Found you little mice!|Now I'm gonna crush you!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sidney"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Actually move in the enemies"
+                ]
+            ],
+            [
+                "spawn_group",
+                [
+                    "Enemy",
+                    "East",
+                    "Starting"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "FarLeft",
+                    "Sidney",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Not without goin' through me first!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Boys, looks like we found ourselves another traitor!|Well, bud, we'll show you what happens when you cross the Empire!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Sidney"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "FightSidneyOphie",
+        "trigger": "combat_start",
+        "level_nid": "1",
+        "condition": "check_pair('Ophie', 'Sidney')",
+        "commands": [
+            [
+                "multi_add_portrait",
+                [
+                    "Sidney",
+                    "Left",
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Heh! Finally worked up the nerve to fight?|You shoulda kept running, boy!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "...You scum..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Oh I'm scared... Heh heh heh!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sidney",
+                    "Ophie"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "FightSidneyPrim",
+        "trigger": "combat_start",
+        "level_nid": "1",
+        "condition": "check_pair('Prim', 'Sidney')",
+        "commands": [
+            [
+                "multi_add_portrait",
+                [
+                    "Sidney",
+                    "Left",
+                    "Prim",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Caught you! You're not getting away this time, little mouse."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "How could you be so cruel?|Our home..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "Hah! You've got no home anymore, girly!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "...Y-You'll pay for what you've done!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sidney",
+                    "Prim"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "FightSidney",
+        "trigger": "combat_start",
+        "level_nid": "1",
+        "condition": "check_default('Sidney', ('Ophie', 'Prim'))",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Sidney",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sidney",
+                    "What! How'd you manage to get past me men?"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sidney"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "FightBrigham",
+        "trigger": "combat_start",
+        "level_nid": "2",
+        "condition": "check_default('Brigham', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Brigham",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Brigham",
+                    "Hmmph. Fools one and all.|Don't you understand, Kerala is dead!|This is the Empire's realm now."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Brigham"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "WinGame",
+        "trigger": "combat_end",
+        "level_nid": "1",
+        "condition": "game.check_dead('Sidney')",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Win game on Sidney's death"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "WinGame",
+        "trigger": "combat_end",
+        "level_nid": "2",
+        "condition": "game.check_dead('')",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Win game on Sidney's death"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "PartyLose",
+        "trigger": "combat_end",
+        "level_nid": "1",
+        "condition": "len(game.get_units_in_party()) < 3",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Lose game when party size falls below three"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "You have lost too many members of your party."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 15
+    },
+    {
+        "name": "PartyLose",
+        "trigger": "combat_end",
+        "level_nid": "2",
+        "condition": "len(game.get_units_in_party()) < 3",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Lose game when party size falls below three"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "You have lost too many members of your party."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 15
+    },
+    {
+        "name": "House",
+        "trigger": "Visit",
+        "level_nid": "1",
+        "condition": "unit.team == 'player'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "House"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Man4",
+                    "Left",
+                    "{unit}",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man4",
+                    "Hmmm... You're fighting the Empire?|Hmmph. Brave fools.|Take this. You're gonna need it."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Man4",
+                    "{unit}"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Hand Axe"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "House1",
+        "trigger": "Visit",
+        "level_nid": "2",
+        "condition": "region.nid == 'House1'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "House"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Man1",
+                    "Left",
+                    "{unit}",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "Hmmm... you're not the one the boss usually sends...|... Ah,don't want to talk?|I understand.|In this business, it pays to keep your mouth shut, eh?|Speaking of payment, I've got the money, just as promised.|You tell the boss not to worry, ol' Saint's taken care of the job."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Man1",
+                    "{unit}"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "House1"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Ruby"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "House2",
+        "trigger": "Visit",
+        "level_nid": "2",
+        "condition": "region.nid == 'House3'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "House"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "OldLady1",
+                    "Left",
+                    "{unit}",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "OldLady1",
+                    "Oh is that you, Billy?|Its been ages since I last saw you. How are ya doing, Billy?{w}{clear}You know me, I've been doing well -- keeping to myself.|Trying to keep the house clean, y'know.|Have you heard about the weather recently? I've heard it might rain soon...{w}{clear}Oh but do you hear me go on! How are you and the missus?{w}{clear}Are you taking good care of Sally? She's such a darling grandniece.{w}{clear}Well don't let me keep ya. Here take this for the road."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "OldLady1",
+                    "{unit}"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "House2"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Potion"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "House3",
+        "trigger": "Visit",
+        "level_nid": "2",
+        "condition": "region.nid == 'House3'",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "House"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Mage1",
+                    "Left",
+                    "{unit}",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Mage1",
+                    "How'd you manage to get past those Imperial forces?|Well, anyone brave or foolish enough to fight the Empire deserves a reward.|Here, take this.|This should help if you're going to fight that shaman."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Mage1",
+                    "{unit}"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "House3"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Spiritbane"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Turn3",
+        "trigger": "turn_change",
+        "level_nid": "1",
+        "condition": "game.turncount == 3",
+        "commands": [
+            [
+                "move_cursor",
+                [
+                    "0,8"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "EnemyRein",
+                    "Starting"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "110"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierBlue",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "We've managed to outflank them! Hurry and we'll see victory!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierBlue"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "1",
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Outro 1"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# victory_screen"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "To A New Journey"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Prim",
+                    "MidRight",
+                    "Ophie",
+                    "FarRight",
+                    "Joel",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I reckon now would be the proper time for introductions.|The name's Joel, and the sour face is my partner Nia."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "I'm Prim and this is Ophie.|T-Thank you for helping us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "No problem, lass. Though, if you don't mind my pryin'...|I've been wonderin'...|What in the hell did ya'll do to rouse Ulver's thugs after you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hmmph! What did we do?!|They're the ones that attacked us!|They stormed the monastery, claiming we had some fugitive or something."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "M-master Yohn, Ophie, and I tried to escape...|Bu-But Master Yohn went back... t-to hold them off...|H-He died for us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Lass... you're safe now.|Your master's sacrifice had a purpose, right?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "*sniff* Y-yeah..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I'll let ya'll in on a little secret.|I reckon ya'll already figured that Nia and I ain't rangers.|We're actually with the Resistance."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "The Resistance?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "We're... daggumit, how does Sam phrase it...|freedom fighters!|The Empire's had its way with our country for too long.|We're aimin' to take it back!{w}{clear}Anyways, since ya'll don't have anywhere to go, why don't ya'll head back with me?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "You fight against the Empire?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "You bet!|And we could always use new members.|You're a competant swordsman."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Ophie",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "And, lassie, we could certainly use a healer.|Sam has his hands full as it is."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Count me in!|Prim, what do you say?|This could be our chance to avenge Master Yohn!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "W-we don't have anywhere else to go, and if we'll be helping Kerala..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Prim",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Then, how can I say no?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Sounds like a plan!|I'll get Nia, and we'll be off!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Prim",
+                    "Ophie",
+                    "Joel"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "add_weather",
+                [
+                    "Light"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_max_turnwheel_uses",
+                    "2"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_current_turnwheel_uses",
+                    "2"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "EnemyRein",
+                    "immediate"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Hum of the Streets"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "MidLeft",
+                    "Ophie",
+                    "MidRight",
+                    "Prim",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "The Resistance base is a little yonder.{w}{clear}Normally I'd stop at the village here for supplies,|but I think gettin' ya'll to the base takes precedence."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Don't burden yourself on our account."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "It's no burden, lass!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "How come we've never heard of your Resistance before?|The monks never spoke of an organized resistance."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Well, lad, it's complicated."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "We got time."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Ophie! Don't be so rude."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Prim, if we're joining this Resistance, I want to know everything about it.|We're goin' to be putting our lives on the line!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "The lad's right, Prim. Ya'll deserve to know.|Honestly, we ain't been so successful lately.|We don't have the manpower to fight the Empire openly,|and our latest missions have been turning up blanks."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hmmph."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "But there's no cause for concern!|Between ya'll and Sam's new allies, I reckon things are lookin' up!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Nia",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "J-Joel!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Aah!|Nia! You startled me.|What did I tell ya 'bout creepin' up on people?"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Nia"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "...N-no manners!|B-but... big fight! Err... south..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "A ruckus in Podoma?|We'd better skirt around the village, then."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Hey, Ophie! Lad!|Where you goin'? Don't run off!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Don't you want to see what's up?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "That sounds... dangerous.|I reckon we should do the smart thing and walk around the fighting."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hmmph. I thought you were freedom fighters, not cowards."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Lad, don't test me."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Someone could be in trouble..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Come on, Prim.|Let's go see what's up."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Prim"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Damn. 'Reckon somebody's gotta watch them...|Let's follow, Nia. This ain't goin' to end well."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Nia"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Brave Story 12"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Pan to village. Pan over to Althea and Drake fighting Imperial Soldiers"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Drake"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Drake"
+                ]
+            ],
+            [
+                "interact_unit",
+                [
+                    "S1",
+                    "Drake",
+                    "hit1,hit2,end"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Drake",
+                    "MidLeft",
+                    "Althea",
+                    "FarLeft",
+                    "SoldierBlue",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "Urgh..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierBlue"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "There's too many of them."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Milady, I'm sorry.|In the end, my strength was not enough to protect you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Drake, you've done so much for me.|Run.... it's me they're after... you can save yourself."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Never!|Death is no punishment compared to the shame of failure.|Stay back, and allow me this last shred of dignity."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Drake",
+                    "Althea"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Another fight!"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "S2",
+                    "7,4"
+                ]
+            ],
+            [
+                "interact_unit",
+                [
+                    "S2",
+                    "Drake",
+                    "hit1,hit2,end"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "MidLeft",
+                    "",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Drake!"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Drake",
+                    "NormalBlink"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Do not worry, Althea.|I still have some fight left."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Drake",
+                    "Althea"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Pan to top of map"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# OPJN show up"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "0,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Prim",
+                    "0,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "1,0"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Prim",
+                    "0,1",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Ophie",
+                    "1,1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Nia",
+                    "0,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Joel",
+                    "1,0"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Prim",
+                    "MidLeft",
+                    "Joel",
+                    "FarLeft",
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "He is taking on all those Imperials alone."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "It looks like he's protecting that girl."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Does he have a death wish?|He's got no chance against that horde."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "He won't be alone for long!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Prim",
+                    "Joel"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Pan to Boss"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Brave Story 27"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Brigham"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Brigham",
+                    "Right",
+                    "SoldierRed",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Brigham",
+                    "What! More traitors come out of the woodwork!|Who would've thought that Keralan loyalty to the old crown would've held this long...|Bah, kill them all! And take no prisoners!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "Even the girl, sir?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Brigham",
+                    "Yes, you idiot!|Do you think the Duke wants to keep her as a reminder of his failings?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "Of course not, sir!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierRed"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Brigham",
+                    "When this day is done, the Empire's hold in Kerala will finally be secured!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Brigham"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Go to prep screen"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Preparing for Battle"
+                ]
+            ],
+            [
+                "prep",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn2",
+        "trigger": "turn_change",
+        "level_nid": "2",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "music",
+                [
+                    "Stalwarts Unite"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Althea"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Althea",
+                    "Left",
+                    "Drake",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Drake! Look!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Oh... it's so... beautiful..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Drake, are you alright?|You're crying..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Do not worry yourself, milady.|The sight of your loyal subjects, defending Kerala's pride with their lives...|It would bring any man to tears."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Well, while you do that, I'm going to help!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Wait! Milady, please!{br}You shouldn't fight!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "I can defend myself, Drake. You can help if you wish."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Drake",
+                    "Althea"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Althea",
+                    "player"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Drake",
+                    "player"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Ophie",
+                    "Althea"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn4",
+        "trigger": "turn_change",
+        "level_nid": "2",
+        "condition": "game.turncount == 4",
+        "commands": [
+            [
+                "move_cursor",
+                [
+                    "19,13"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "EnemyRein",
+                    "Starting"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Armory",
+        "trigger": "Armory",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "All Aboard to Rogueport"
+                ]
+            ],
+            [
+                "shop",
+                [
+                    "{unit}",
+                    "Iron Sword,Iron Lance,Slim Lance,Iron Axe,Hatchet,Willow Bow"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Vendor",
+        "trigger": "Vendor",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "All Aboard to Rogueport"
+                ]
+            ],
+            [
+                "shop",
+                [
+                    "{unit}",
+                    "Glimmer,Heal,Fire,Vulnerary",
+                    "vendor"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Talk",
+        "trigger": "on_talk",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "music",
+                [
+                    "Stalwarts Unite"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Althea",
+                    "MidRight",
+                    "Ophie",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hey, miss! What's going on?|Why are these goons after you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "It's a long story..."
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Drake",
+                    "FarRight",
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "We don't have time for pleasantries, Althea."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Shush Drake.|Thank you for your timely help. I am truly grateful."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "It's not a problem..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "We can handle ourselves now.|You had best run, and quick.|I don't want to see anyone else harmed on my account."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "What!|Lass, you think we're just going to turn tail and run while ya'll are in danger?|Just leave these thugs to us, alright?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "We can handle these damned imperials."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "...Thank you..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Wait! One moment.|Watch out for their leader, Brigham.|He might look weak, but he's skilled in sorcery."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I'll keep an eye out, lass."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Also, you should have this."
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Steel Sword"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Where'd you pick that up?"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Althea",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Uh... One of the Imperials dropped it?"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Ophie",
+                    "Smile"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Lad, quit your lollygagging.|We've got Imperial skulls to crack."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Right!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Ophie"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Althea",
+                    "NoSmile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "We'll follow, Drake.|I won't have them defend me alone."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "If you think it is best, milady."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Althea",
+                    "Drake"
+                ]
+            ],
+            [
+                "remove_talk",
+                [
+                    "Ophie",
+                    "Althea"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Just in case"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Althea",
+                    "player"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Drake",
+                    "player"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# victory_screen"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Lady Eboshi"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Podoma"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Drake",
+                    "FarRight",
+                    "Althea",
+                    "MidRight",
+                    "Prim",
+                    "MidLeft",
+                    "Ophie",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "We can't thank you enough.|If you hadn't arrived when you did..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "My sincerest apologies.|I am ever in your debt."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Oh, don't mention it!|We Keralans should help each other in these troubled times."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "That's a pleasant philosophy."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "I mean it. Honest!|If everyone lived that way, the world would be a much better place."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Oh, I didn't mean to question your honesty...|I-it's just, I feel like I've seen you before.|But I could swear I've never met you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Hmm. It's probably nothing to fret over."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Now I remember!|Your picture... it was carved on the Lion's Wall at the monastery!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "It must be someone else, Prim.|That carving has to be decades old..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "But--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "And anyway, Master Yohn said everyone on that wall died in the Empire's purge."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "...Your master was correct.|They are all dead."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "I think you've said enough.|Thank you for the help, but you're upsetting my lady."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Oh, I'm sorry--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "No, Drake. I can handle myself.|...That's my mother you recognize."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "The queen?|Then... you're the queen's daughter?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "But all of the royalty were executed after the invasion."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "They were, except me.|With Drake's aid, I managed to escape.|...I, alone among my family, survived the purge, for all the good that's done.|Drake and I have been on the run ever since."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "So you're the one the Duke's been looking for!|You're the fugitive!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Yes. Capturing her is the Empire's last step in securing Kerala."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Then, we can't let them capture you!|You have to come with us.|We'll get you to the Resistance base."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "The Resistance base?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "It's gotta be the safest place in all of Kerala for you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Hmmm...."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "If they're telling the truth, milady,|it would mean an end to all this running."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Hmmm... I'll trust your word, um..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Oh, sorry, your highness.|I'm Ophie and this is Prim."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "I-it's an honor to meet you, princess Althea."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Please, don't be so formal.|I can't convince Drake to call me Althea,|but I couldn't bear to have anyone else be so stiff."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Will do, Althea!|Then let's scram, before any more Imperial thugs show up."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Drake",
+                    "Althea",
+                    "Prim",
+                    "Ophie"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
             ]
         ],
         "only_once": false,

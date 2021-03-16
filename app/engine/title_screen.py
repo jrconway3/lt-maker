@@ -41,6 +41,7 @@ class TitleStartState(State):
         if save.SAVE_THREAD:
             save.SAVE_THREAD.join()
 
+        SOUNDTHREAD.clear()
         if DB.constants.value('music_main'):
             SOUNDTHREAD.fade_in(DB.constants.value('music_main'), fade_in=50)
         

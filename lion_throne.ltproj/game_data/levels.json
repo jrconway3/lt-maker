@@ -109,9 +109,9 @@
         "tilemap": "Prologue",
         "party": "Resistance",
         "music": {
-            "player_phase": null,
-            "enemy_phase": null,
-            "other_phase": null,
+            "player_phase": "Flight over Venice",
+            "enemy_phase": "Brave Story 12",
+            "other_phase": "Brave Story 12",
             "enemy2_phase": null,
             "player_battle": null,
             "enemy_battle": null,
@@ -459,6 +459,810 @@
                     "104",
                     "106",
                     "107"
+                ],
+                "positions": {}
+            }
+        ]
+    },
+    {
+        "nid": "1",
+        "name": "Chapter 1",
+        "tilemap": "Chapter 1",
+        "party": null,
+        "music": {
+            "player_phase": "Airship Thunderchild",
+            "enemy_phase": "Brave Story 12",
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "Defeat Boss",
+            "win": "Defeat Sidney",
+            "loss": "Ophies dies,OR, Any two of your units are defeated"
+        },
+        "units": [
+            {
+                "nid": "Ophie",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    7
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Prim",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    2,
+                    7
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Joel",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    6
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Nia",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    1,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Sidney",
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    17,
+                    7
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    16,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    11,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    7,
+                    8
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 2,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    12,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    16,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    15,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 5,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    7,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": [
+                    0,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": [
+                    0,
+                    8
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": [
+                    0,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "House1",
+                "region_type": "event",
+                "position": [
+                    12,
+                    3
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "unit.team == 'player'",
+                "only_once": true
+            }
+        ],
+        "unit_groups": [
+            {
+                "nid": "EnemyRein",
+                "units": [
+                    "108",
+                    "109",
+                    "110"
+                ],
+                "positions": {}
+            },
+            {
+                "nid": "Enemy",
+                "units": [
+                    "Sidney",
+                    "101",
+                    "102",
+                    "103",
+                    "104",
+                    "105",
+                    "106",
+                    "107"
+                ],
+                "positions": {}
+            }
+        ]
+    },
+    {
+        "nid": "2",
+        "name": "Chapter 2",
+        "tilemap": "Chapter 2 (1)",
+        "party": null,
+        "music": {
+            "player_phase": "Airship Thunderchild",
+            "enemy_phase": "Brave Story 12",
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "Defeat Boss",
+            "win": "Defeat Brigham",
+            "loss": "Ophie dies,OR,Althea dies,OR,Party size falls below three"
+        },
+        "units": [
+            {
+                "nid": "Althea",
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    8,
+                    2
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Drake",
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    7,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "S1",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "S2",
+                "variant": null,
+                "level": 3,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    7,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Brigham",
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    19,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 3,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    3,
+                    12
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 3,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    5,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    7,
+                    11
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 1,
+                "klass": "Shaman",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    18,
+                    11
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 3,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    11,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 3,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    12,
+                    10
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 4,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Vulnerary",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    17,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 1,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    9,
+                    10
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 3,
+                "klass": "Mercenary",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    14,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 3,
+                "klass": "Mercenary",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "starting_position": [
+                    15,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "111",
+                "variant": null,
+                "level": 4,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": [
+                    19,
+                    11
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "112",
+                "variant": null,
+                "level": 4,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": [
+                    19,
+                    12
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "House1",
+                "region_type": "event",
+                "position": [
+                    4,
+                    1
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "unit.team == 'player'",
+                "only_once": true
+            },
+            {
+                "nid": "House2",
+                "region_type": "event",
+                "position": [
+                    7,
+                    7
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "unit.team == 'player'",
+                "only_once": true
+            },
+            {
+                "nid": "House3",
+                "region_type": "event",
+                "position": [
+                    15,
+                    1
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "unit.team == 'player'",
+                "only_once": true
+            },
+            {
+                "nid": "Armory",
+                "region_type": "event",
+                "position": [
+                    1,
+                    5
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Vendor",
+                "region_type": "event",
+                "position": [
+                    2,
+                    11
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Vendor",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation",
+                "region_type": "formation",
+                "position": [
+                    0,
+                    0
+                ],
+                "size": [
+                    3,
+                    2
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            }
+        ],
+        "unit_groups": [
+            {
+                "nid": "EnemyRein",
+                "units": [
+                    "111",
+                    "112"
                 ],
                 "positions": {}
             }

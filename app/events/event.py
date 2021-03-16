@@ -36,6 +36,8 @@ class Event():
     _transition_speed = 250
     _transition_color = (0, 0, 0)
 
+    true_vals = ('t', 'true', '1', 'y', 'yes')
+
     skippable = {"speak", "transition", "wait", "bop_portrait",
                  "sound", "location_card"}
 
@@ -58,6 +60,8 @@ class Event():
 
         self.prev_state = None
         self.state = 'processing'
+
+        self.turnwheel_flag = 0  # Whether to enter the turnwheel state after this event is finished
 
         self.wait_time = 0
 
@@ -435,7 +439,7 @@ class Event():
 
         elif command.nid == 'disp_cursor':
             b = command.values[0]
-            if b.lower() in ('1', 't', 'true', 'y', 'yes'):
+            if b.lower() in self.true_vals:
                 game.cursor.show()
             else:
                 game.cursor.hide()
@@ -509,6 +513,13 @@ class Event():
         elif command.nid == 'lose_game':
             game.level_vars['_lose_game'] = True
 
+        elif command.nid == 'activate_turnwheel':
+            values, flags = event_commands.parse(command)
+            if len(values) > 0 and values[0] and values[0].lower() not in self.true_vals:
+                self.turnwheel_flag = 1
+            else:
+                self.turnwheel_flag = 2
+
         elif command.nid == 'change_tilemap':
             self.change_tilemap(command)
 
@@ -525,10 +536,14 @@ class Event():
             self.remove_unit(command)
 
         elif command.nid == 'remove_all_units':
-            values, flags = event_commands.parse(command)
             for unit in game.units:
                 if unit.position:
                     action.do(action.LeaveMap(unit))
+
+        elif command.nid == 'remove_all_enemies':
+            for unit in game.units:
+                if unit.position and unit.team.startswith('enemy'):
+                    action.do(action.FadeOut(unit))
 
         elif command.nid == 'move_unit':
             self.move_unit(command)
@@ -776,7 +791,7 @@ class Event():
 
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
-            if values and values[0].lower() in ('1', 't', 'true', 'y', 'yes'):
+            if values and values[0].lower() in self.true_vals:
                 b = True
             else:
                 b = False

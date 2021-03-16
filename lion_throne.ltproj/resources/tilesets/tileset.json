@@ -10,5 +10,17 @@
     {
         "nid": "Prologue",
         "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter1",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter2",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "closed",
+        "terrain_grid": {}
     }
 ]

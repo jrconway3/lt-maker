@@ -407,6 +407,10 @@ class TurnwheelDisplay():
 
 class TurnwheelState(MapState):
     def begin(self):
+        # Whether the player MUST move the turnwheel back
+        self.force = game.memory.get('force_turnwheel', False)
+        game.memory['force_turnwheel'] = False
+
         self.mouse_indicator = gui.MouseIndicator()
         # Kill off any units who are currently dying
         for unit in game.units:
@@ -479,18 +483,16 @@ class TurnwheelState(MapState):
                 self.turnwheel_effect()
                 self.bg.fade_out()
                 game.game_vars['_current_turnwheel_uses'] -= 1
-            elif self.name != 'force_turnwheel' and not game.action_log.locked:
+            elif not self.force and not game.action_log.locked:
                 self.back_out()
             else:
-                # ERROR SOUND
-                pass
+                SOUNDTHREAD.play_sfx('Error')
 
         elif event == 'BACK':
-            if self.name != 'force_turnwheel':
+            if not self.force:
                 self.back_out()
             else:
-                # Error SOUND
-                pass
+                SOUNDTHREAD.play_sfx('Error')
 
     def check_mouse_position(self) -> bool:
         mouse_position = INPUT.get_mouse_position()

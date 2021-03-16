@@ -401,10 +401,11 @@ class EventCollection(QWidget):
         current_index = self.view.currentIndex()
         model_index = self.proxy_model.mapToSource(current_index)
         new_index = self.model.duplicate(model_index)
-        new_proxy_index = self.proxy_model.mapFromSource(new_index)
+        if new_index:
+            new_proxy_index = self.proxy_model.mapFromSource(new_index)
 
-        self.view.setCurrentIndex(new_proxy_index)
-        self.set_current_index(new_proxy_index)
+            self.view.setCurrentIndex(new_proxy_index)
+            self.set_current_index(new_proxy_index)
 
     def _get_level_nid(self) -> str:
         if self.level_filter_box.edit.currentText() == 'All':

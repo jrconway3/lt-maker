@@ -220,6 +220,14 @@ class LoseGame(EventCommand):
     nid = 'lose_game'
     tag = "general"
 
+class ActivateTurnwheel(EventCommand):
+    nid = 'activate_turnwheel'
+    tag = 'general'
+
+    # Whether to force the player to move the turnwheel back
+    # defaults to true
+    optional_keywords = ['Bool']  
+
 class ChangeTilemap(EventCommand):
     nid = 'change_tilemap'
     tag = 'general'
@@ -269,6 +277,10 @@ class RemoveUnit(EventCommand):
 
 class RemoveAllUnits(EventCommand):
     nid = 'remove_all_units'
+    tag = 'unit'
+
+class RemoveAllEnemies(EventCommand):
+    nid = 'remove_all_enemies'
     tag = 'unit'
 
 class InteractUnit(EventCommand):

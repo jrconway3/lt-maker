@@ -1383,7 +1383,7 @@
         ],
         "bases": {
             "HP": 23,
-            "STR": 7,
+            "STR": 8,
             "MAG": 0,
             "SKL": 6,
             "SPD": 5,
@@ -1407,7 +1407,7 @@
         },
         "starting_items": [
             [
-                "Great Axe",
+                "Steel Axe",
                 false
             ],
             [
@@ -1649,7 +1649,7 @@
         },
         "starting_items": [
             [
-                "Great Axe",
+                "Adamant Axe",
                 false
             ],
             [

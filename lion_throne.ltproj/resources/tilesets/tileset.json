@@ -1,13 +1,5 @@
 [
     {
-        "nid": "Chpt1",
-        "terrain_grid": {}
-    },
-    {
-        "nid": "Prologue",
-        "terrain_grid": {}
-    },
-    {
         "nid": "Chpt2",
         "terrain_grid": {}
     },
@@ -16,27 +8,7 @@
         "terrain_grid": {}
     },
     {
-        "nid": "Chpt3",
-        "terrain_grid": {}
-    },
-    {
-        "nid": "SacredStonesVillage",
-        "terrain_grid": {}
-    },
-    {
-        "nid": "GradoKeep",
-        "terrain_grid": {}
-    },
-    {
-        "nid": "Chpt14B",
-        "terrain_grid": {}
-    },
-    {
-        "nid": "Chpt4",
-        "terrain_grid": {}
-    },
-    {
-        "nid": "Chpt5",
+        "nid": "Prologue",
         "terrain_grid": {}
     }
 ]

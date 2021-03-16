@@ -29,6 +29,7 @@ class HighlightController():
         self.current_hover = None
 
         self.formation_highlights = []
+        self.escape_highlights = []
 
     def check_in_move(self, position):
         return position in self.highlights['move']
@@ -115,6 +116,15 @@ class HighlightController():
         formation_image = engine.subsurface(formation_image, rect)
         for position in self.formation_highlights:
             surf.blit(formation_image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT))
+
+        # Handle escape Highlight
+        escape_image = SPRITES.get('highlight_yellow')
+        rect = (self.update_idx//4 * TILEWIDTH, 0, TILEWIDTH, TILEHEIGHT)
+        escape_image = engine.subsurface(escape_image, rect)
+        for region in game.level.regions:
+            if region.region_type == 'event' and region.sub_nid in ('Escape', 'Arrive'):
+                for position in region.get_all_positions():
+                    surf.blit(escape_image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT))
 
         # Regular highlights
         for name, highlight_set in self.highlights.items():

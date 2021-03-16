@@ -2,7 +2,7 @@
     {
         "nid": "Soldier",
         "name": "Soldier",
-        "desc": "The army of Grado, the largest nation on the entire continent",
+        "desc": "Soldier in the imperial army, conquerors of Kerala.",
         "icon_nid": "KnightEmblem",
         "icon_index": [
             0,
@@ -33,6 +33,16 @@
         "nid": "Wall",
         "name": "Wall",
         "desc": "",
+        "icon_nid": "BlankEmblem",
+        "icon_index": [
+            0,
+            0
+        ]
+    },
+    {
+        "nid": "Monk",
+        "name": "Monk",
+        "desc": "A monk at this monastery.",
         "icon_nid": "BlankEmblem",
         "icon_index": [
             0,

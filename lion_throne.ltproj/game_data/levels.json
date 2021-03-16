@@ -3,7 +3,7 @@
         "nid": "DEBUG",
         "name": "DEBUG",
         "tilemap": "Chapter 2",
-        "party": "Eirika",
+        "party": "Resistance",
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -102,5 +102,366 @@
             }
         ],
         "unit_groups": []
+    },
+    {
+        "nid": "0",
+        "name": "Prologue",
+        "tilemap": "Prologue",
+        "party": "Resistance",
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "Escape!",
+            "win": "Escape the monastery",
+            "loss": "Ophie dies,OR,Prim dies"
+        },
+        "units": [
+            {
+                "nid": "Ophie",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    9,
+                    9
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Prim",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    10,
+                    9
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Yohn",
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    8,
+                    9
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Vagnius",
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    19,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Sidney",
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    18,
+                    4
+                ],
+                "generic": false
+            },
+            {
+                "nid": "S1",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    18,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "S2",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    19,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "S3",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    19,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "F1",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Hatchet",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    19,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "F2",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Hatchet",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "starting_position": [
+                    18,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "E1",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "E2",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Slim Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 1,
+                "klass": "Citizen",
+                "faction": "Monk",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    13,
+                    4
+                ],
+                "name": "Monk",
+                "desc": "A monk at this monastery.",
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 1,
+                "klass": "Citizen",
+                "faction": "Monk",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    15,
+                    5
+                ],
+                "name": "Monk",
+                "desc": "A monk at this monastery.",
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 1,
+                "klass": "Citizen",
+                "faction": "Monk",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    15,
+                    3
+                ],
+                "name": "Monk",
+                "desc": "A monk at this monastery.",
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": "Female",
+                "level": 1,
+                "klass": "Citizen",
+                "faction": "Monk",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    12,
+                    5
+                ],
+                "name": "Monk",
+                "desc": "A monk at this monastery.",
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": "Female",
+                "level": 1,
+                "klass": "Citizen",
+                "faction": "Monk",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    13,
+                    3
+                ],
+                "name": "Monk",
+                "desc": "A monk at this monastery.",
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": "Female",
+                "level": 1,
+                "klass": "Citizen",
+                "faction": "Monk",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "starting_position": [
+                    14,
+                    4
+                ],
+                "name": "Monk",
+                "desc": "A monk at this monastery.",
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Escape",
+                "region_type": "event",
+                "position": [
+                    0,
+                    0
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Escape",
+                "condition": "unit.team == 'player'",
+                "only_once": false
+            }
+        ],
+        "unit_groups": [
+            {
+                "nid": "Citizen1",
+                "units": [
+                    "105",
+                    "108",
+                    "109"
+                ],
+                "positions": {}
+            },
+            {
+                "nid": "Citizen2",
+                "units": [
+                    "104",
+                    "106",
+                    "107"
+                ],
+                "positions": {}
+            }
+        ]
     }
 ]

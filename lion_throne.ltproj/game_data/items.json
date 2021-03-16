@@ -203,7 +203,7 @@
             ],
             [
                 "damage",
-                8
+                7
             ],
             [
                 "hit",
@@ -218,12 +218,12 @@
                 "B"
             ],
             [
-                "uses",
-                20
-            ],
-            [
                 "weight",
                 5
+            ],
+            [
+                "uses",
+                20
             ],
             [
                 "value",
@@ -240,13 +240,13 @@
         ]
     },
     {
-        "nid": "Great Sword",
-        "name": "Great Sword",
+        "nid": "Adamant Sword",
+        "name": "Adamant Swd",
         "desc": "",
         "icon_nid": "Sword",
         "icon_index": [
             0,
-            6
+            12
         ],
         "components": [
             [
@@ -263,7 +263,7 @@
             ],
             [
                 "damage",
-                7
+                9
             ],
             [
                 "hit",
@@ -278,16 +278,16 @@
                 "B"
             ],
             [
-                "uses",
-                25
-            ],
-            [
                 "weight",
                 8
             ],
             [
+                "uses",
+                15
+            ],
+            [
                 "value",
-                1000
+                2025
             ],
             [
                 "min_range",
@@ -416,66 +416,6 @@
             [
                 "value",
                 4500
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "Adamant Sword",
-        "name": "Adamant Swd",
-        "desc": "",
-        "icon_nid": "Sword",
-        "icon_index": [
-            0,
-            12
-        ],
-        "components": [
-            [
-                "weapon",
-                null
-            ],
-            [
-                "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
-                null
-            ],
-            [
-                "damage",
-                9
-            ],
-            [
-                "hit",
-                75
-            ],
-            [
-                "weapon_type",
-                "Sword"
-            ],
-            [
-                "weapon_rank",
-                "A"
-            ],
-            [
-                "weight",
-                7
-            ],
-            [
-                "uses",
-                15
-            ],
-            [
-                "value",
-                2250
             ],
             [
                 "min_range",
@@ -1140,13 +1080,13 @@
         ]
     },
     {
-        "nid": "Great Lance",
-        "name": "Great Lance",
+        "nid": "Adamant Lance",
+        "name": "Adamant Lnc.",
         "desc": "",
         "icon_nid": "Lance",
         "icon_index": [
             0,
-            6
+            12
         ],
         "components": [
             [
@@ -1163,11 +1103,11 @@
             ],
             [
                 "damage",
-                9
+                11
             ],
             [
                 "hit",
-                60
+                65
             ],
             [
                 "weapon_type",
@@ -1178,16 +1118,16 @@
                 "B"
             ],
             [
-                "uses",
-                25
+                "weight",
+                8
             ],
             [
-                "weight",
-                9
+                "uses",
+                15
             ],
             [
                 "value",
-                875
+                1500
             ],
             [
                 "min_range",
@@ -1316,66 +1256,6 @@
             [
                 "value",
                 4500
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "Adamant Lance",
-        "name": "Adamant Lnc.",
-        "desc": "",
-        "icon_nid": "Lance",
-        "icon_index": [
-            0,
-            12
-        ],
-        "components": [
-            [
-                "weapon",
-                null
-            ],
-            [
-                "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
-                null
-            ],
-            [
-                "damage",
-                11
-            ],
-            [
-                "hit",
-                65
-            ],
-            [
-                "weapon_type",
-                "Lance"
-            ],
-            [
-                "weapon_rank",
-                "A"
-            ],
-            [
-                "weight",
-                8
-            ],
-            [
-                "uses",
-                15
-            ],
-            [
-                "value",
-                1800
             ],
             [
                 "min_range",
@@ -1940,13 +1820,13 @@
         ]
     },
     {
-        "nid": "Great Axe",
-        "name": "Great Axe",
+        "nid": "Adamant Axe",
+        "name": "Adamant Axe",
         "desc": "",
         "icon_nid": "Axe",
         "icon_index": [
             0,
-            6
+            12
         ],
         "components": [
             [
@@ -1963,11 +1843,11 @@
             ],
             [
                 "damage",
-                11
+                12
             ],
             [
                 "hit",
-                50
+                55
             ],
             [
                 "weapon_type",
@@ -1978,16 +1858,16 @@
                 "B"
             ],
             [
-                "uses",
-                25
+                "weight",
+                10
             ],
             [
-                "weight",
-                11
+                "uses",
+                15
             ],
             [
                 "value",
-                1000
+                1500
             ],
             [
                 "min_range",
@@ -2116,66 +1996,6 @@
             [
                 "value",
                 4500
-            ],
-            [
-                "min_range",
-                1
-            ],
-            [
-                "max_range",
-                1
-            ]
-        ]
-    },
-    {
-        "nid": "Adamant Axe",
-        "name": "Adamant Axe",
-        "desc": "",
-        "icon_nid": "Axe",
-        "icon_index": [
-            0,
-            12
-        ],
-        "components": [
-            [
-                "weapon",
-                null
-            ],
-            [
-                "target_enemy",
-                null
-            ],
-            [
-                "level_exp",
-                null
-            ],
-            [
-                "damage",
-                12
-            ],
-            [
-                "hit",
-                55
-            ],
-            [
-                "weapon_type",
-                "Axe"
-            ],
-            [
-                "weapon_rank",
-                "A"
-            ],
-            [
-                "weight",
-                10
-            ],
-            [
-                "uses",
-                15
-            ],
-            [
-                "value",
-                1500
             ],
             [
                 "min_range",

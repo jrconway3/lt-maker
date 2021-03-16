@@ -62,40 +62,7 @@
                 [
                     [
                         "DEF",
-                        3
-                    ]
-                ]
-            ]
-        ]
-    },
-    {
-        "nid": "Throne",
-        "name": "Throne",
-        "desc": "",
-        "icon_nid": "Skills",
-        "icon_index": [
-            1,
-            2
-        ],
-        "components": [
-            [
-                "regeneration",
-                0.10000000000000002
-            ],
-            [
-                "avoid",
-                30
-            ],
-            [
-                "hidden",
-                null
-            ],
-            [
-                "stat_change",
-                [
-                    [
-                        "DEF",
-                        3
+                        2
                     ]
                 ]
             ]
@@ -209,6 +176,46 @@
         ]
     },
     {
+        "nid": "Avoid5",
+        "name": "Avoid5",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "avoid",
+                5
+            ]
+        ]
+    },
+    {
+        "nid": "Avoid-5",
+        "name": "Avoid-5",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "avoid",
+                -5
+            ]
+        ]
+    },
+    {
         "nid": "NoAvoid",
         "name": "NoAvoid",
         "desc": "",
@@ -229,26 +236,6 @@
             [
                 "crit_avoid",
                 1000
-            ]
-        ]
-    },
-    {
-        "nid": "Avoid5",
-        "name": "Avoid5",
-        "desc": "",
-        "icon_nid": "Skills",
-        "icon_index": [
-            0,
-            0
-        ],
-        "components": [
-            [
-                "hidden",
-                null
-            ],
-            [
-                "avoid",
-                5
             ]
         ]
     },

@@ -320,6 +320,14 @@ class SoundController():
     def mute(self):
         self.current_channel.set_volume(0)
 
+    def lower(self):
+        for channel in self.channel_stack:
+            channel.set_volume(0.25 * self.global_music_volume)
+
+    def unmute(self):
+        for channel in self.channel_stack:
+            channel.set_volume(self.global_music_volume)
+
     def get_music_volume(self):
         return self.global_music_volume
 

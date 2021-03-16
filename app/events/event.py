@@ -863,6 +863,10 @@ class Event():
             game.state.change('alert')
             self.state = 'paused'
 
+        elif command.nid == 'victory_screen':
+            game.state.change('victory')
+            self.state = 'paused'
+
         elif command.nid == 'location_card':
             values, flags = event_commands.parse(command)
             custom_string = values[0]

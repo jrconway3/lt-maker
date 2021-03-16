@@ -577,6 +577,10 @@ class Alert(EventCommand):
 
     keywords = ["String"]
 
+class VictoryScreen(EventCommand):
+    nid = 'victory_screen'
+    tag = 'general'
+
 class LocationCard(EventCommand):
     nid = 'location_card'
     tag = 'general'

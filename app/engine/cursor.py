@@ -127,15 +127,21 @@ class Cursor():
         self.offset_x = min(self.offset_x, 12)
         self.offset_y = min(self.offset_y, 12)
 
-    def autocursor(self):
+    def autocursor(self, immediate=False):
         player_units = [unit for unit in game.units if unit.team == 'player' and unit.position]
         lord_units = [unit for unit in player_units if 'Lord' in unit.tags]
         if lord_units:
             self.set_pos(lord_units[0].position)
-            game.camera.set_center(*self.position)
+            if immediate:
+                game.camera.force_center(*self.position)
+            else:
+                game.camera.set_center(*self.position)
         elif player_units:
             self.set_pos(player_units[0].position)
-            game.camera.set_center(*self.position)
+            if immediate:
+                game.camera.force_center(*self.position)
+            else:
+                game.camera.set_center(*self.position)
 
     def place_arrows(self):
         self.path.clear()

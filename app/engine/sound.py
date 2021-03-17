@@ -19,8 +19,20 @@ class Song():
         return self.battle
 
 class MusicDict(dict):
+    def preload(self, nids):
+        for nid in nids:
+            self.get(nid)
+
+    def full_preload(self):
+        for prefab in RESOURCES.music:
+            self[prefab.nid] = Song(prefab)
+
+    def clear(self):
+        pass
+
     def get(self, val):
         if val not in self:
+            logging.debug("%s was not preloaded in MusicDict", val)
             prefab = RESOURCES.music.get(val)
             if prefab:
                 self[val] = Song(prefab)
@@ -81,10 +93,13 @@ class Channel():
             self._channel.set_volume(self.local_volume * self.global_volume)
             if progress >= 1:
                 if self.state == 'fade_out':
-                    self.state = "paused"
-                    self.last_state = "paused"
-                    logging.debug('%s Paused', self.nid)
-                    self._channel.pause()
+                    logging.debug('%s Paused from %s', self.nid, self.last_state)
+                    if self.last_state == 'playing':
+                        self.state = "paused"
+                        self.last_state = "paused"
+                        self._channel.pause()
+                    # Could also have been told to fade out without ever starting to play
+                    # In which case we don't need to do anything
                     return True
                 elif self.state == 'crossfade_out':
                     self.state = "playing"
@@ -381,7 +396,7 @@ class SoundController():
 
         # Fade out the current channel -- even if nothing is playing
         # Just so that the engine will recognize that something changed
-        # So it will no to fade in afterwards
+        # So it will know to fade in afterwards
         self.current_channel.set_fade_out_time(fade_in)
         self.current_channel.fade_out()
         self.fade_out_start = engine.get_time()
@@ -481,10 +496,21 @@ class SoundController():
         so if the main editor runs the engine again
         we can reload everything like new
         """
-        MUSIC.clear()
-        SFX.clear()
+        # MUSIC.clear()
+        # SFX.clear()
         self.__init__()
 
 MUSIC = MusicDict()
+# Threading is required because loading in the sound objects takes
+# so damn long. If you do it at start, your staring at a black screen
+# for >20 seconds. If you do it on the fly, you get 500 ms hiccups everytime
+# you load a new sound.
+# Threading solves these issues
+# WARNING: I have no thread locks at all on the music dictionary
+# It *might* be possible for both threads to try to touch the music dictionary
+# at the same time and break everything
+import threading
+PRELOADTHREAD = threading.Thread(target=MUSIC.full_preload)
+PRELOADTHREAD.start()
 SFX = SoundDict()
 SOUNDTHREAD = SoundController()

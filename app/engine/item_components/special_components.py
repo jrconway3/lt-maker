@@ -11,6 +11,8 @@ class UnlockStaff(ItemComponent):
     desc = "Item allows user to unlock locked regions. Doesn't work with other splash/aoe components"
     tag = 'special'
 
+    _did_hit = False
+
     def init(self, item):
         self._did_hit = False
 

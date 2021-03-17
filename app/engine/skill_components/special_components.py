@@ -32,6 +32,7 @@ class CombatArt(SkillComponent):
     tag = 'advanced'
 
     expose = Type.Skill
+    _action = None
 
     def init(self, skill):
         self.skill.data['active'] = False
@@ -103,6 +104,7 @@ class AttackProc(SkillComponent):
     tag = 'advanced'
 
     expose = Type.Skill
+    _did_action = False
 
     def init(self, skill):
         self._did_action = False
@@ -123,6 +125,7 @@ class DefenseProc(SkillComponent):
     tag = 'advanced'
 
     expose = Type.Skill
+    _did_action = False
 
     def init(self, skill):
         self._did_action = False

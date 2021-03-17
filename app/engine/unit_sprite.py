@@ -114,7 +114,7 @@ class UnitSprite():
     def add_animation(self, animation_nid):
         anim = RESOURCES.animations.get(animation_nid)
         if anim:
-            anim = Animation(anim, (0, 0), loop=True)
+            anim = Animation(anim, (-16, -16), loop=True)
             self.animations[animation_nid] = anim
 
     def remove_animation(self, animation_nid):
@@ -429,7 +429,7 @@ class UnitSprite():
         for flicker_tint in self.flicker_tint:
             color, period, width = flicker_tint
             diff = utils.model_wave(current_time, period, width)
-            diff = utils.clamp(255. * diff, 0, 255)
+            diff = utils.clamp(diff, 0, 1)
             color = tuple([int(c * diff) for c in color])
             image = image_mods.add_tint(image.convert_alpha(), color)
 

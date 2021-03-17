@@ -19,7 +19,7 @@ class BuildCharge(SkillComponent):
         self.skill.data['total_charge'] = self.value
 
     def condition(self, unit):
-        return self.skill.data['charge'] >= self.skill.data['charge']
+        return self.skill.data['charge'] >= self.skill.data['total_charge']
 
     def on_end_chapter(self, unit, skill):
         self.skill.data['charge'] = 0

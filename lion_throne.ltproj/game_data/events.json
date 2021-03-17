@@ -903,10 +903,15 @@
                 ]
             ],
             [
+                "flicker_cursor",
+                [
+                    "0,0"
+                ]
+            ],
+            [
                 "move_cursor",
                 [
-                    "Ophie",
-                    "immediate"
+                    "Ophie"
                 ]
             ]
         ],

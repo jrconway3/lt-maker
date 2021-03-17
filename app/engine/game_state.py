@@ -282,7 +282,7 @@ class GameState():
                 if unit.position:
                     self.arrive(unit)
 
-            self.cursor.autocursor()
+            self.cursor.autocursor(True)
 
         self.events = event_manager.EventManager.restore(s_dict.get('events'))
 

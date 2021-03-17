@@ -507,6 +507,11 @@ class MenuState(MapState):
         SOUNDTHREAD.play_sfx('Select 2')
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
+        if not self.cur_unit or not self.cur_unit.position:
+            # Could happen if unit escaped
+            game.state.clear()
+            game.state.change('free')
+            return 'repeat'
         
         skill_system.deactivate_all_combat_arts(self.cur_unit)
 
@@ -1481,7 +1486,7 @@ class AIState(MapState):
         # Sort ai groups together
         self.unit_list = sorted(self.unit_list, key=lambda unit: unit.get_group() or '')
         # Sort by ai priority
-        self.unit_list = sorted(self.unit_list, key=lambda unit: DB.ai.get(unit.ai).priority)
+        self.unit_list = sorted(self.unit_list, key=lambda unit: DB.ai.get(unit.ai).priority, reverse=True)
         # Reverse, because we will be popping them off at the end
         self.unit_list.reverse()
 
@@ -1519,7 +1524,8 @@ class AIState(MapState):
 
             if game.ai.is_done():
                 logger.info("Current AI %s is done with turn.", self.cur_unit.nid)
-                self.cur_unit.wait()
+                if did_something:  # Don't turn grey if didn't actually do anything
+                    self.cur_unit.wait()
                 game.ai.reset()
                 self.cur_unit = None
         else:

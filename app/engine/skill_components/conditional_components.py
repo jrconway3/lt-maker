@@ -10,6 +10,7 @@ class CombatCondition(SkillComponent):
     value = 'False'
 
     ignore_conditional = True
+    _condition = False
 
     def init(self, skill):
         self._condition = False

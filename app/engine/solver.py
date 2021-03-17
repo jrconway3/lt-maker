@@ -35,18 +35,18 @@ class InitState(SolverState):
 class AttackerState(SolverState):
     def get_next_state(self, solver):
         command = solver.get_script()
-        if command == '--':
-            if solver.defender:
-                if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
-                    defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
+        if solver.attacker_alive() and solver.defender_alive():
+            if command == '--':
+                if solver.defender:
+                    if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
+                        defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
+                    else:
+                        defender_outspeed = 1
+                    attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
                 else:
-                    defender_outspeed = 1
-                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
-            else:
-                attacker_outspeed = defender_outspeed = 1
-            multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
-
-            if solver.attacker_alive() and solver.defender_alive():
+                    attacker_outspeed = defender_outspeed = 1
+                multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
+            
                 if solver.item_has_uses() and \
                         solver.num_subattacks < multiattacks:
                     return 'attacker'
@@ -58,9 +58,11 @@ class AttackerState(SolverState):
                         solver.num_attacks < attacker_outspeed:
                     solver.num_subattacks = 0
                     return 'attacker'
-            return None
+                return None
+            else:
+                return self.process_command(command)
         else:
-            return self.process_command(command)
+            return None
 
     def process(self, solver, actions, playback):
         playback.append(('attacker_phase',))
@@ -84,8 +86,8 @@ class AttackerState(SolverState):
 class DefenderState(SolverState):
     def get_next_state(self, solver):
         command = solver.get_script()
-        if command == '--':
-            if solver.attacker_alive() and solver.defender_alive():
+        if solver.attacker_alive() and solver.defender_alive():
+            if command == '--':
                 if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
                     defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
                 else:
@@ -104,8 +106,11 @@ class DefenderState(SolverState):
                         solver.num_defends < defender_outspeed:
                     solver.num_subdefends = 0
                     return 'defender'
+                return None
+            else:
+                return self.process_command(command)
         else:
-            return self.process_command(command)
+            return None
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))

@@ -98,7 +98,7 @@ class HighlightController():
                 aura_range = skill.aura_range.value
                 if DB.constants.value('aura_los'):
                     positions = line_of_sight.line_of_sight({unit.position}, positions, aura_range)
-                self.add_highlights(positions, 'aura', allow_overlap=True)
+                self.add_highlights(set(positions), 'aura', allow_overlap=True)
 
     def show_formation(self, positions: list):
         self.formation_highlights += positions

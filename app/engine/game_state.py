@@ -548,7 +548,7 @@ class GameState():
             act = None
             terrain_nid = self.tilemap.get_terrain(unit.position)
             terrain = DB.terrain.get(terrain_nid)
-            if terrain.status:
+            if terrain and terrain.status:
                 act = action.AddSkill(unit, terrain.status)
                 self.register_terrain_status(key, act.skill_obj.uid)
         if act:

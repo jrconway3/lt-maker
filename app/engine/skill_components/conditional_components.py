@@ -9,13 +9,17 @@ class CombatCondition(SkillComponent):
     expose = Type.String
     value = 'False'
 
+    ignore_conditional = True
+
     def init(self, skill):
         self._condition = False
 
     def pre_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate
         try:
-            return bool(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            x = bool(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            self._condition = x
+            return x
         except Exception as e:
             print("%s: Could not evaluate %s" % (e, self.value))
 
@@ -38,6 +42,8 @@ class Condition(SkillComponent):
 
     expose = Type.String
     value = 'False'
+
+    ignore_conditional = True
 
     def condition(self, unit):
         from app.engine import evaluate

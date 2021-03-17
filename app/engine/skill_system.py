@@ -137,7 +137,7 @@ for behaviour in default_behaviours:
                   for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
+                              if component.ignore_conditional or condition(skill, unit):
                                   return component.%s(unit)
                   return False""" \
         % (behaviour, behaviour, behaviour)
@@ -148,7 +148,7 @@ for behaviour in exclusive_behaviours:
                   for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
+                              if component.ignore_conditional or condition(skill, unit):
                                   return component.%s(unit)
                   return Defaults.%s(unit)""" \
         % (behaviour, behaviour, behaviour, behaviour)
@@ -159,7 +159,7 @@ for behaviour in targeted_behaviours:
                   for skill in unit1.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit1):
+                              if component.ignore_conditional or condition(skill, unit1):
                                   return component.%s(unit1, unit2)
                   return Defaults.%s(unit1, unit2)""" \
         % (behaviour, behaviour, behaviour, behaviour)
@@ -170,7 +170,7 @@ for behaviour in item_behaviours:
                   for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
+                              if component.ignore_conditional or condition(skill, unit):
                                   return component.%s(unit, item)
                   return Defaults.%s(unit, item)""" \
         % (behaviour, behaviour, behaviour, behaviour)
@@ -182,7 +182,7 @@ for hook in modify_hooks:
                   for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
+                              if component.ignore_conditional or condition(skill, unit):
                                   val += component.%s(unit, item)
                   return val""" \
         % (hook, hook, hook)
@@ -194,7 +194,7 @@ for hook in dynamic_hooks:
                   for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
+                              if component.ignore_conditional or condition(skill, unit):
                                   val += component.%s(unit, item, target, mode)
                   return val""" \
         % (hook, hook, hook)
@@ -206,7 +206,7 @@ for hook in multiply_hooks:
                   for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
+                              if component.ignore_conditional or condition(skill, unit):
                                   val *= component.%s(unit, item, target, mode)
                   return val""" \
         % (hook, hook, hook)
@@ -217,18 +217,18 @@ for hook in simple_event_hooks:
                   for skill in unit.skills: 
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
+                              if component.ignore_conditional or condition(skill, unit):
                                   component.%s(unit)""" \
         % (hook, hook, hook)
     exec(func)
 
 for hook in combat_event_hooks:
-    func = """def %s(playback, unit, item, target):
+    func = """def %s(playback, unit, item, target, mode):
                   for skill in unit.skills:
                       for component in skill.components:
                           if component.defines('%s'):
-                              if condition(skill, unit):
-                                  component.%s(playback, unit, item, target)""" \
+                              if component.ignore_conditional or condition(skill, unit):
+                                  component.%s(playback, unit, item, target, mode)""" \
         % (hook, hook, hook)
     exec(func)
 
@@ -257,7 +257,7 @@ def available(unit, item) -> bool:
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('available'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     if not component.available(unit, item):
                         return False
     return True
@@ -267,7 +267,7 @@ def stat_change(unit, stat) -> int:
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('stat_change'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     d = component.stat_change(unit)
                     bonus += d.get(stat, 0)
     return bonus
@@ -277,7 +277,7 @@ def growth_change(unit, stat) -> int:
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('growth_change'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     d = component.growth_change(unit)
                     bonus += d.get(stat, 0)
     return bonus
@@ -286,7 +286,7 @@ def can_unlock(unit, region) -> bool:
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('can_unlock'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     if component.can_unlock(unit, region):
                         return True
     return False
@@ -295,7 +295,7 @@ def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('on_upkeep'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     component.on_upkeep(actions, playback, unit)
     return actions, playback
 
@@ -303,14 +303,14 @@ def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
         for component in skill.component:
             if component.defines('on_endstep'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     component.on_endstep(actions, playback, unit)
     return actions, playback
 
 def on_end_chapter(unit, skill):
     for component in skill.components:
         if component.defines('on_end_chapter'):
-            if condition(skill, unit):
+            if component.ignore_conditional or condition(skill, unit):
                 component.on_end_chapter(unit, skill)
 
 def init(skill):
@@ -360,7 +360,7 @@ def get_extra_abilities(unit):
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('extra_ability'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     new_item = component.extra_ability(unit)
                     ability_name = new_item.name
                     abilities[ability_name] = new_item
@@ -372,10 +372,10 @@ def get_combat_arts(unit):
         combat_art, combat_art_weapons = None, []
         for component in skill.components:
             if component.defines('combat_art'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     combat_art = component.combat_art(unit)
             if component.defines('combat_art_weapon_filter'):
-                if condition(skill, unit):
+                if component.ignore_conditional or condition(skill, unit):
                     combat_art_weapons = component.combat_art_weapon_filter(unit)
         if combat_art and combat_art_weapons:
             combat_arts[skill.name] = (skill, combat_art_weapons)

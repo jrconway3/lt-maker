@@ -141,10 +141,12 @@ class MapEditorView(QGraphicsView):
                         if coord in explored_coords:
                             continue
                         explored_coords.add(coord)
-                        color = DB.terrain.get(terrain_nid).color
-                        write_color = QColor(color[0], color[1], color[2])
-                        write_color.setAlpha(alpha)
-                        painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
+                        terrain = DB.terrain.get(terrain_nid)
+                        if terrain:
+                            color = terrain.color
+                            write_color = QColor(color[0], color[1], color[2])
+                            write_color.setAlpha(alpha)
+                            painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
             painter.end()
 
     def show_map(self):

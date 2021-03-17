@@ -7,7 +7,7 @@ from app.engine.fonts import FONT
 from app.engine.state import MapState
 
 from app.engine import base_surf, image_mods, text_funcs, engine
-from app.engine.backgrounds import SpriteBackground
+from app.engine.background import SpriteBackground
 from app.engine.game_state import game
 
 class VictoryState(MapState):

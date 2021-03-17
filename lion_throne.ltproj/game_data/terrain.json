@@ -177,7 +177,7 @@
         "platform": "Road",
         "mtype": "Bank",
         "opaque": false,
-        "status": "Chill"
+        "status": "Avoid-5"
     },
     {
         "nid": "River",
@@ -192,7 +192,7 @@
         "platform": "River",
         "mtype": "River",
         "opaque": false,
-        "status": "Chill"
+        "status": "Avoid-5"
     },
     {
         "nid": "Rapids",
@@ -207,7 +207,7 @@
         "platform": "River",
         "mtype": "Rapids",
         "opaque": false,
-        "status": "Chill"
+        "status": "Avoid-5"
     },
     {
         "nid": "Lake",
@@ -672,7 +672,7 @@
         "platform": "Snow",
         "mtype": "Snow",
         "opaque": false,
-        "status": "Chill"
+        "status": "Avoid-5"
     },
     {
         "nid": "Snow_Dark",

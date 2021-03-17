@@ -33,11 +33,14 @@
                 "nid": "Prim",
                 "team": "player",
                 "ai": "None",
-                "starting_position": null,
+                "starting_position": [
+                    4,
+                    3
+                ],
                 "generic": false
             },
             {
-                "nid": "Drake",
+                "nid": "Yohn",
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
@@ -47,10 +50,20 @@
                 "generic": false
             },
             {
+                "nid": "Vagnius",
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    3,
+                    7
+                ],
+                "generic": false
+            },
+            {
                 "nid": "101",
                 "variant": null,
-                "level": 1,
-                "klass": "Cavalier",
+                "level": 10,
+                "klass": "Myrmidon",
                 "faction": "Soldier",
                 "starting_items": [
                     [
@@ -58,11 +71,55 @@
                         false
                     ]
                 ],
+                "team": "enemy",
+                "ai": "None",
+                "starting_position": [
+                    1,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
-                    3,
-                    6
+                    6,
+                    10
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    7,
+                    10
                 ],
                 "name": null,
                 "desc": null,

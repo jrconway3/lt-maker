@@ -300,7 +300,7 @@ class GiveStatusAfterCombat(SkillComponent):
 
     expose = Type.Skill
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         from app.engine import skill_system
         if skill_system.check_enemy(unit, target):
             action.do(action.AddSkill(target, self.value, unit))
@@ -313,7 +313,7 @@ class GiveStatusAfterAttack(SkillComponent):
 
     expose = Type.Skill
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(target, self.value, unit))
@@ -326,7 +326,7 @@ class GainSkillAfterKill(SkillComponent):
 
     expose = Type.Skill
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if target.get_hp() <= 0:
             action.do(action.AddSkill(unit, self.value))
         action.do(action.TriggerCharge(unit, self.skill))
@@ -338,7 +338,7 @@ class GainSkillAfterAttacking(SkillComponent):
 
     expose = Type.Skill
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(unit, self.value))
@@ -351,7 +351,7 @@ class GainSkillAfterActiveKill(SkillComponent):
 
     expose = Type.Skill
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(unit, self.value))
@@ -362,7 +362,7 @@ class Miracle(SkillComponent):
     desc = "Unit cannot be reduced below 1 HP"
     tag = 'combat2'
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if unit.get_hp() <= 0:
             action.do(action.SetHP(unit, 1))
             game.death.miracle(unit)

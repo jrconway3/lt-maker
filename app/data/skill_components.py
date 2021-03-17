@@ -4,3 +4,4 @@ tags = ['attribute', 'base', 'movement', 'combat', 'combat2', 'formula', 'time',
 
 class SkillComponent(Component):
     skill = None
+    ignore_conditional = False

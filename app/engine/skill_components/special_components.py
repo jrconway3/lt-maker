@@ -22,7 +22,7 @@ class Ability(SkillComponent):
             game.register_item(new_item)
         return new_item
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if item and item.nid == self.value:
             action.do(action.TriggerCharge(unit, self.skill))
 
@@ -54,7 +54,7 @@ class CombatArt(SkillComponent):
             action.reverse(self._action)
         self._action = None
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         self.on_deactivation(unit)
         action.do(action.TriggerCharge(unit, self.skill))
 

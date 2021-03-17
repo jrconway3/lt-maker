@@ -867,7 +867,11 @@ class InfoMenuState(State):
         for idx, skill in enumerate(skills):
             left_pos = idx * 24
             icons.draw_skill(surf, skill, (left_pos + 8, 4), compact=False)
-            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 20, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name), 'support_skills')
+            if skill.data.get('total_charge'):
+                charge = ' %d / %d' % (skill.data['charge'], skill.data['total_charge'])
+            else:
+                charge = ''
+            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 20, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name + charge), 'support_skills')
 
         return surf
 
@@ -881,8 +885,12 @@ class InfoMenuState(State):
         for idx, skill in enumerate(class_skills):
             left_pos = idx * 24
             icons.draw_skill(surf, skill, (left_pos + 8, 4))
-            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 32, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name), 'personal_data')
-            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 32, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name), 'growths')
+            if skill.data.get('total_charge'):
+                charge = ' (%d/%d)' % (skill.data['charge'], skill.data['total_charge'])
+            else:
+                charge = ''
+            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 32, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name + charge), 'personal_data')
+            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 32, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name + charge), 'growths')
 
         return surf
 

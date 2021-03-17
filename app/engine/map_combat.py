@@ -75,24 +75,24 @@ class MapCombat():
 
     def start_combat(self):
         game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position)
-        skill_system.pre_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        skill_system.pre_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         for idx, defender in enumerate(self.defenders):
             if defender:
                 def_item = self.def_items[idx]
-                skill_system.pre_combat(self.full_playback, defender, def_item, self.attacker)
+                skill_system.pre_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
         for unit in self.all_splash:
-            skill_system.pre_combat(self.full_playback, unit, None, None)
+            skill_system.pre_combat(self.full_playback, unit, None, None, 'defense')
 
-        skill_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        skill_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         item_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender)
         for idx, defender in enumerate(self.defenders):
             if defender:
                 def_item = self.def_items[idx]
-                skill_system.start_combat(self.full_playback, defender, def_item, self.attacker)
+                skill_system.start_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
                 if def_item:
                     item_system.start_combat(self.full_playback, defender, def_item, self.attacker)
         for unit in self.all_splash:
-            skill_system.start_combat(self.full_playback, unit, None, None)
+            skill_system.start_combat(self.full_playback, unit, None, None, 'defense')
 
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
@@ -409,24 +409,24 @@ class MapCombat():
         self.handle_records(self.full_playback, all_units)
 
         # Skill system end combat clean up
-        skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender)
         for idx, defender in enumerate(self.defenders):
             if defender:
                 def_item = self.def_items[idx]
-                skill_system.end_combat(self.full_playback, defender, def_item, self.attacker)
+                skill_system.end_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
                 if def_item:
                     item_system.end_combat(self.full_playback, defender, def_item, self.attacker)
         for unit in self.all_splash:
-            skill_system.end_combat(self.full_playback, unit, None, None)
+            skill_system.end_combat(self.full_playback, unit, None, None, 'defense')
 
-        skill_system.post_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        skill_system.post_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         for idx, defender in enumerate(self.defenders):
             if defender:
                 def_item = self.def_items[idx]
-                skill_system.post_combat(self.full_playback, defender, def_item, self.attacker)
+                skill_system.post_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
         for unit in self.all_splash:
-            skill_system.post_combat(self.full_playback, unit, None, None)
+            skill_system.post_combat(self.full_playback, unit, None, None, 'defense')
 
         self.handle_death(all_units)
 

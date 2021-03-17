@@ -8,8 +8,8 @@ class Ability():
         return set()
 
     @staticmethod        
-    def highlights(unit):
-        pass
+    def highlights(unit) -> bool:
+        return False
     
     @staticmethod
     def do(unit):
@@ -25,9 +25,10 @@ class AttackAbility(Ability):
         return target_system.get_all_weapon_targets(unit)
     
     @staticmethod
-    def highlights(unit):
+    def highlights(unit) -> bool:
         valid_attacks = target_system.get_possible_attacks(unit, {unit.position})
         game.highlight.display_possible_attacks(valid_attacks)
+        return bool(valid_attacks)
 
 class SpellAbility(Ability):
     name = 'Spells'
@@ -39,9 +40,10 @@ class SpellAbility(Ability):
         return target_system.get_all_spell_targets(unit)
 
     @staticmethod
-    def highlights(unit):
+    def highlights(unit) -> bool:
         valid_attacks = target_system.get_possible_spell_attacks(unit, {unit.position})
         game.highlight.display_possible_spell_attacks(valid_attacks)
+        return bool(valid_attacks)
 
 class TalkAbility(Ability):
     name = 'Talk'

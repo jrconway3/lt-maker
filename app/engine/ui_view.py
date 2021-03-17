@@ -272,7 +272,7 @@ class UIView():
         color = utils.get_team_color(defender.team)
         if color not in ('red', 'purple'):
             color = 'red'
-        final = prefix + infix + '_' + color
+        final = prefix + infix + ('_' if infix else '') + color
         surf = SPRITES.get(final).copy()
 
         # Name
@@ -342,7 +342,7 @@ class UIView():
 
     def draw_attack_info(self, surf, attacker, weapon, defender):
         # Turns on appropriate combat conditionals to get an accurate read
-        skill_system.test_on([], attacker, weapon, defender)
+        skill_system.test_on([], attacker, weapon, defender, 'attack')
 
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, weapon, defender)
@@ -449,7 +449,7 @@ class UIView():
                 surf.blit(SPRITES.get('x4'), x2_pos_enemy)
 
         # Turns off combat conditionals
-        skill_system.test_off([], attacker, weapon, defender)
+        skill_system.test_off([], attacker, weapon, defender, 'attack')
 
         return surf
 
@@ -558,7 +558,7 @@ class UIView():
 
     def draw_spell_info(self, surf, attacker, spell, defender):
         # Turns on appropriate combat conditionals to get accurate stats
-        skill_system.test_on([], attacker, spell, defender)
+        skill_system.test_on([], attacker, spell, defender, 'attack')
 
         if not self.spell_info_disp:
             self.spell_info_disp = self.create_spell_info(attacker, spell, defender)
@@ -583,7 +583,7 @@ class UIView():
             surf.blit(unit_surf, u_topleft)
 
         # Turns off combat conditionals
-        skill_system.test_off([], attacker, spell, defender)
+        skill_system.test_off([], attacker, spell, defender, 'attack')
 
         return surf
 

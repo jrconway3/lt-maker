@@ -573,7 +573,9 @@ class MenuState(MapState):
         # Draw highlights
         for ability in ABILITIES:
             if ability.name in options:
-                ability.highlights(self.cur_unit)
+                # Only draw one set of highlights
+                if ability.highlights(self.cur_unit):
+                    break
         if skill_system.has_canto(self.cur_unit):
             # Shows the canto moves in the menu
             moves = target_system.get_valid_moves(self.cur_unit)

@@ -224,7 +224,7 @@ class Event():
                 try:
                     truth = bool(evaluate.evaluate(command.values[0], self.unit, self.unit2, self.item, self.position, self.region))
                 except Exception as e:
-                    logging.error("Could not evaluate {%s}" % command.values[0])
+                    logging.error("%s: Could not evaluate {%s}" % (e, command.values[0]))
                     truth = False
                 logging.info("Result: %s" % truth)
                 self.if_stack.append(truth)
@@ -861,10 +861,6 @@ class Event():
             custom_string = values[0]
             game.alerts.append(banner.Custom(custom_string))
             game.state.change('alert')
-            self.state = 'paused'
-
-        elif command.nid == 'victory_screen':
-            game.state.change('victory')
             self.state = 'paused'
 
         elif command.nid == 'location_card':

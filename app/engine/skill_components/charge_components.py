@@ -12,6 +12,8 @@ class BuildCharge(SkillComponent):
     expose = Type.Int
     value = 10
 
+    ignore_conditional = True
+
     def init(self, skill):
         self.skill.data['charge'] = 0
         self.skill.data['total_charge'] = self.value
@@ -28,6 +30,9 @@ class BuildCharge(SkillComponent):
     def text(self) -> str:
         return str(self.skill.data['charge'])
 
+    def cooldown(self):
+        return self.skill.data['charge'] / self.skill.data['total_charge']
+
 class DrainCharge(SkillComponent):
     nid = 'drain_charge'
     desc = "Skill will have a number of charges that are drained by 1 when activated"
@@ -35,6 +40,8 @@ class DrainCharge(SkillComponent):
 
     expose = Type.Int
     value = 1
+
+    ignore_conditional = True
 
     def init(self, skill):
         self.skill.data['charge'] = self.value
@@ -52,6 +59,9 @@ class DrainCharge(SkillComponent):
     def text(self) -> str:
         return str(self.skill.data['charge'])
 
+    def cooldown(self):
+        return self.skill.data['charge'] / self.skill.data['total_charge']
+
 class CombatChargeIncrease(SkillComponent):
     nid = 'combat_charge_increase'
     desc = "Increases charge of skill each combat"
@@ -60,8 +70,10 @@ class CombatChargeIncrease(SkillComponent):
     expose = Type.Int
     value = 5
 
-    def end_combat(self, playback, unit, item, target):
-        action.SetObjData(self.skill, 'charge', self.skill.data['charge'] + self.value)
+    ignore_conditional = True
+
+    def end_combat(self, playback, unit, item, target, mode):
+        action.do(action.SetObjData(self.skill, 'charge', self.skill.data['charge'] + self.value))
 
 class CombatChargeIncreaseByStat(SkillComponent):
     nid = 'combat_charge_increase_by_stat'
@@ -71,6 +83,8 @@ class CombatChargeIncreaseByStat(SkillComponent):
     expose = Type.Stat
     value = 'SKL'
 
-    def end_combat(self, playback, unit, item, target):
+    ignore_conditional = True
+
+    def end_combat(self, playback, unit, item, target, mode):
         new_value = self.skill.data['charge'] + unit.stats[self.value] + unit.stat_bonus(self.value)
-        action.SetObjData(self.skill, 'charge', new_value)
+        action.do(action.SetObjData(self.skill, 'charge', new_value))

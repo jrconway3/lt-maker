@@ -1888,16 +1888,20 @@
         ],
         "components": [
             [
-                "dynamic_accuracy",
-                "10 if unit_funcs.check_focus(unit, 3) > 0 else 0"
-            ],
-            [
-                "dynamic_avoid",
-                "10 if unit_funcs.check_focus(unit, 3) > 0 else 0"
-            ],
-            [
                 "class_skill",
                 null
+            ],
+            [
+                "hit",
+                10
+            ],
+            [
+                "avoid",
+                10
+            ],
+            [
+                "condition",
+                "unit_funcs.check_focus(unit, 3) > 0"
             ]
         ]
     },

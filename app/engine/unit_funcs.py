@@ -198,6 +198,9 @@ def check_focus(unit, limit=3) -> int:
     counter = 0
     if unit.position:
         for other in game.units:
-            if other.position and unit is not other and skill_system.check_ally(unit, other) and utils.calculate_distance(unit.position, other.position) <= limit:
+            if other.position and \
+                    unit is not other and \
+                    skill_system.check_ally(unit, other) and \
+                    utils.calculate_distance(unit.position, other.position) <= limit:
                 counter += 1
     return counter

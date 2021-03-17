@@ -188,6 +188,9 @@ class ItemOption(BasicOption):
             uses_font = self.color
             if main_font == 'text-white':
                 uses_font = 'text-blue'
+        elif self.item.droppable:
+            main_font = 'text-green'
+            uses_font = 'text-green'
         elif not owner or item_funcs.available(owner, self.item):
             main_font = 'text-white'
             uses_font = 'text-blue'

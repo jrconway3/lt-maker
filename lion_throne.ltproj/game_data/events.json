@@ -74,6 +74,14 @@
                 ]
             ],
             [
+                "give_skill",
+                [
+                    "E1",
+                    "Maximum HP -5",
+                    "no_banner"
+                ]
+            ],
+            [
                 "music",
                 [
                     "Mount Briggs"
@@ -1746,7 +1754,7 @@
             [
                 "if",
                 [
-                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
                 ]
             ],
             [
@@ -1940,7 +1948,7 @@
             [
                 "if",
                 [
-                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
                 ]
             ],
             [
@@ -2750,7 +2758,7 @@
             [
                 "if",
                 [
-                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
                 ]
             ],
             [
@@ -3958,7 +3966,7 @@
             [
                 "if",
                 [
-                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
                 ]
             ],
             [
@@ -4002,7 +4010,7 @@
             [
                 "if",
                 [
-                    "game.game_vars.get('_current_turnwheel_uses') > 0"
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
                 ]
             ],
             [
@@ -4401,10 +4409,8 @@
                 ]
             ],
             [
-                "comment",
-                [
-                    "# victory_screen"
-                ]
+                "victory_screen",
+                []
             ],
             [
                 "music",
@@ -5750,10 +5756,8 @@
                 ]
             ],
             [
-                "comment",
-                [
-                    "# victory_screen"
-                ]
+                "victory_screen",
+                []
             ],
             [
                 "music",

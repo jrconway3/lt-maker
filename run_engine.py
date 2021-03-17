@@ -7,16 +7,16 @@ from app.engine import driver
 from app.engine import game_state
 
 def main():
-    RESOURCES.load('./default.ltproj')
-    DB.load('./default.ltproj')
+    RESOURCES.load('./lion_throne.ltproj')
+    DB.load('./lion_throne.ltproj')
     title = DB.constants.value('title')
     driver.start(title)
     game = game_state.start_game()
     driver.run(game)
 
 def test_play():
-    RESOURCES.load('./sacred_stones.ltproj')
-    DB.load('./sacred_stones.ltproj')
+    RESOURCES.load('./lion_throne.ltproj')
+    DB.load('./lion_throne.ltproj')
     title = DB.constants.value('title')
     driver.start(title, from_editor=True)
     game = game_state.start_level('DEBUG')

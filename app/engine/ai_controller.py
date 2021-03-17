@@ -447,8 +447,16 @@ class PrimaryAI():
         # Do I add a new status to the target
         status = 1 if item.status_on_hit else 0
         # Accuracy
-        accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, main_target, item, main_target.get_weapon(), "attack")/100., 0, 1)
-        crit_accuracy = utils.clamp(combat_calcs.compute_crit(self.unit, main_target, item, main_target.get_weapon(), "attack")/100., 0, 1)
+        hit_comp = combat_calcs.compute_hit(self.unit, main_target, item, main_target.get_weapon(), "attack")
+        if hit_comp:
+            accuracy = utils.clamp(hit_comp/100., 0, 1)
+        else:
+            accuracy = 0
+        crit_comp = combat_calcs.compute_crit(self.unit, main_target, item, main_target.get_weapon(), "attack")
+        if crit_comp:
+            crit_accuracy = utils.clamp(crit_comp/100., 0, 1)
+        else:
+            crit_accuracy = 0
 
         target_damage = 0
         target_accuracy = 0

@@ -1308,7 +1308,7 @@
             [
                 "speak",
                 [
-                    "Soldier4",
+                    "SoldierGreen",
                     "There's nowhere to run.|Give up now and I'll go easy on you."
                 ]
             ],
@@ -3149,6 +3149,13 @@
                 ]
             ],
             [
+                "change_ai",
+                [
+                    "Sidney",
+                    "Defend"
+                ]
+            ],
+            [
                 "remove_group",
                 [
                     "Enemy",
@@ -3318,7 +3325,8 @@
                 [
                     "Narrator",
                     "Twang!",
-                    "160,28"
+                    "160,28",
+                    "72"
                 ]
             ],
             [
@@ -3373,8 +3381,8 @@
                 [
                     "Narrator",
                     "Thud!",
-                    "160",
-                    "28"
+                    "160,28",
+                    "72"
                 ]
             ],
             [
@@ -3414,7 +3422,8 @@
                 "speak",
                 [
                     "Prim",
-                    "..."
+                    "...",
+                    "low_priority"
                 ]
             ],
             [
@@ -3450,7 +3459,8 @@
                 "speak",
                 [
                     "Prim",
-                    "How can we trust you? Who are you?"
+                    "How can we trust you? Who are you?",
+                    "low_priority"
                 ]
             ],
             [
@@ -3525,7 +3535,8 @@
                 "speak",
                 [
                     "Prim",
-                    "Yes--"
+                    "Yes--",
+                    "low_priority"
                 ]
             ],
             [
@@ -3586,7 +3597,8 @@
                 "speak",
                 [
                     "Prim",
-                    "Ophie! Now's not the time for pride!|What would Master Yohn say?"
+                    "Ophie! Now's not the time for pride!|What would Master Yohn say?",
+                    "low_priority"
                 ]
             ],
             [
@@ -3600,7 +3612,8 @@
                 "speak",
                 [
                     "Prim",
-                    "Thank you, um... kind sir."
+                    "Thank you, um... kind sir.",
+                    "low_priority"
                 ]
             ],
             [
@@ -3694,7 +3707,9 @@
                 [
                     "Enemy",
                     "East",
-                    "Starting"
+                    "Starting",
+                    "",
+                    "stack"
                 ]
             ],
             [
@@ -4432,7 +4447,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -4645,7 +4660,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [

@@ -25,7 +25,8 @@ class MusicDict(dict):
 
     def full_preload(self):
         for prefab in RESOURCES.music:
-            self[prefab.nid] = Song(prefab)
+            if prefab.nid not in self:
+                self[prefab.nid] = Song(prefab)
 
     def clear(self):
         pass
@@ -98,8 +99,11 @@ class Channel():
                         self.state = "paused"
                         self.last_state = "paused"
                         self._channel.pause()
-                    # Could also have been told to fade out without ever starting to play
-                    # In which case we don't need to do anything
+                    else:
+                        # Could also have been told to fade out without ever starting to play
+                        # In which case we don't need to do anything
+                        self.state = 'stopped'
+                        self.last_state = 'stopped'
                     return True
                 elif self.state == 'crossfade_out':
                     self.state = "playing"

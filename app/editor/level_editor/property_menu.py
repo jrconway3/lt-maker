@@ -129,8 +129,10 @@ class PropertiesMenu(QWidget):
         if current.party in DB.parties.keys():
             idx = DB.parties.index(current.party)
             self.party_box.edit.setCurrentIndex(idx)
+            self.party_changed()
         else:
             self.party_box.edit.setCurrentIndex(0)
+            self.party_changed()
 
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
@@ -164,8 +166,9 @@ class PropertiesMenu(QWidget):
 
     def party_changed(self):
         idx = self.party_box.edit.currentIndex()
-        party = DB.parties[idx]
-        self.current.party = party.nid
+        if idx >= 0:
+            party = DB.parties[idx]
+            self.current.party = party.nid
 
     def edit_music(self):
         dlg = MusicDialog(self.current)

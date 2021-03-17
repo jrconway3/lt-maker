@@ -319,9 +319,15 @@ class GameState():
         # Remove all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if not v.generic}
 
-        # Remove any skill that's not on a unit
+        # Remove any skill that's not on a unit and does not have a parent_skill
         for k, v in list(self.skill_registry.items()):
-            if v.owner_nid:  # Remove skills from units that no longer exist
+            if v.parent_skill:
+                if v.parent_skill.owner_nid:
+                    if v.parent_skill.owner_nid not in self.unit_registry:
+                        del self.skill_registry[k]
+                else:
+                    del self.skill_registry[k]                        
+            elif v.owner_nid:  # Remove skills from units that no longer exist
                 if v.owner_nid not in self.unit_registry:
                     del self.skill_registry[k]
             else:

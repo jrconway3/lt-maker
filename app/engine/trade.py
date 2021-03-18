@@ -7,6 +7,9 @@ from app.engine.objects.item import ItemObject
 class TradeState(MapState):
     name = 'trade'
 
+    def has_traded(self):
+        action.do(action.HasTraded(self.initiator))
+
     def start(self):
         game.cursor.hide()
         self.initiator = game.cursor.cur_unit
@@ -45,7 +48,7 @@ class TradeState(MapState):
                 action.do(action.TradeItem(self.partner, self.initiator, item1, item2))
             else:
                 action.do(action.TradeItem(self.partner, self.partner, item1, item2))
-        action.do(action.HasTraded(self.initiator))
+        self.has_traded()
 
         self.menu.unset_selected_option()
         self.menu.update_options(self.initiator.items, self.partner.items)
@@ -107,6 +110,10 @@ class CombatTradeState(TradeState):
 
 class PrepTradeState(TradeState):
     name = 'prep_trade'
+
+    def has_traded(self):
+        # Prep Trade doesn't use up your turn
+        pass
 
     def start(self):
         self.bg = game.memory['prep_bg']

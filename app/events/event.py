@@ -1840,7 +1840,7 @@ class Event():
         """
         player_units = game.get_units_in_party()
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
-        unstuck_units = [unit for unit in player_units if unit not in stuck_units]
+        unstuck_units = [unit for unit in player_units if unit not in stuck_units and not game.check_for_region(unit.position, 'formation')]
         num_slots = game.level_vars.get('_prep_slots')
         all_formation_spots = game.get_open_formation_spots()
         if num_slots is None:

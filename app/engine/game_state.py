@@ -27,6 +27,7 @@ class GameState():
         self.alerts = []
         self.cursor = None
         self.camera = None
+        self.boundary = None
 
         self.current_level = None
 

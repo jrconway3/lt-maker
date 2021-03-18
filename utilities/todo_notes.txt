@@ -1,9 +1,9 @@
 TODO List:
 
 Feats (test)
-Victory Screen
-
-Clean up New Game
+Victory Screen (test)
+Fix Combat Arts
+Add Prep Music instead of the current method
 
 Combat Animations
     Combat Anims / Palettes as a separate tab?

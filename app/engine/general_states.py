@@ -19,7 +19,6 @@ from app.engine.input_manager import INPUT
 from app.engine.fluid_scroll import FluidScroll
 
 import logging
-logger = logging.getLogger(__name__)
 
 class TurnChangeState(MapState):
     name = 'turn_change'
@@ -67,7 +66,7 @@ class PhaseChangeState(MapState):
 
     def begin(self):
         self.save_state()
-        logger.info("Phase Change Start")
+        logging.info("Phase Change Start")
         # These are done here instead of in turnchange because
         # introScript and other event scripts will have to go on the stack
         # in between this and turn change
@@ -91,17 +90,17 @@ class PhaseChangeState(MapState):
         return surf
 
     def end(self):
-        logger.info("Phase Change End")
+        logging.info("Phase Change End")
         phase.fade_in_phase_music()
 
     def save_state(self):
         GAME_NID = str(DB.constants.value('game_nid'))
         if game.phase.get_current() == 'player':
-            logger.info("Saving as we enter player phase!")
+            logging.info("Saving as we enter player phase!")
             name = GAME_NID + '-turn_change-' + game.level.nid + '-' + str(game.turncount)
             save.suspend_game(game, 'turn_change', name=name)
         elif game.phase.get_current() == 'enemy':
-            logger.info("Saving as we enter enemy phase!")
+            logging.info("Saving as we enter enemy phase!")
             name = GAME_NID + '-enemy_turn_change-' + game.level.nid + '-' + str(game.turncount)
             save.suspend_game(game, 'enemy_turn_change', name=name)
 
@@ -160,7 +159,7 @@ class FreeState(MapState):
         if cf.SETTINGS['autoend_turn'] and any(unit.position for unit in game.units) and \
                 all(unit.finished for unit in game.units if unit.position and unit.team == 'player'):
             # End the turn
-            logger.info('Autoending turn.')
+            logging.info('Autoending turn.')
             game.state.change('turn_change')
             return 'repeat'
 
@@ -172,7 +171,7 @@ def suspend():
     game.state.back()
     game.state.back()
     game.state.process_temp_state()
-    logger.info('Suspending game...')
+    logging.info('Suspending game...')
     save.suspend_game(game, 'suspend')
     logging.debug("Suspend state: %s", game.state.state_names())
     logging.debug("Suspend temp state: %s", game.state.temp_state)
@@ -182,7 +181,7 @@ def suspend():
 def battle_save():
     game.state.back()
     game.state.back()
-    logger.info('Creating battle save...')
+    logging.info('Creating battle save...')
     game.memory['save_kind'] = 'battle'
     game.state.change('title_save')
     game.state.change('transition_out')
@@ -537,13 +536,13 @@ class MenuState(MapState):
             if region.region_type == 'event' and region.contains(self.cur_unit.position):
                 try:
                     truth = evaluate.evaluate(region.condition, self.cur_unit, region=region)
-                    logger.debug("Testing region: %s %s", region.condition, truth)
+                    logging.debug("Testing region: %s %s", region.condition, truth)
                     # No duplicates
                     if truth and region.sub_nid not in options:
                         options.append(region.sub_nid)
                         self.valid_regions.append(region)
                 except:
-                    logger.error("Region condition {%s} could not be evaluated" % region.condition)
+                    logging.error("Region condition {%s} could not be evaluated" % region.condition)
 
         # Handle regular ability options (give, drop, rescue, take, item, supply, trade, etc...)
         for ability in OTHER_ABILITIES:
@@ -627,7 +626,7 @@ class MenuState(MapState):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
-            logger.info("Player selected %s", selection)
+            logging.info("Player selected %s", selection)
             game.highlight.remove_highlights()
 
             if selection == 'Item':
@@ -1477,7 +1476,7 @@ class AIState(MapState):
     name = 'ai'
 
     def start(self):
-        logger.info("Starting AI State")
+        logging.info("Starting AI State")
         game.cursor.hide()
         self.unit_list = [unit for unit in game.units if unit.position and 
                           not unit.finished and unit.team == game.phase.get_current()]
@@ -1504,13 +1503,13 @@ class AIState(MapState):
             # also resets AI
             game.ai.load_unit(self.cur_unit)
 
-        logger.info("Current AI: %s", self.cur_unit.nid if self.cur_unit else None)
+        logging.info("Current AI: %s", self.cur_unit.nid if self.cur_unit else None)
         
         if self.cur_unit:
             has_already_moved = game.ai.move_ai_complete
-            did_something = game.ai.act()
+            did_something, change = game.ai.act()
             # Center camera on current unit
-            if did_something and self.cur_unit.position:
+            if change and self.cur_unit.position:
                 game.cursor.set_pos(self.cur_unit.position)
                 if game.ai.goal_target:
                     game.camera.set_center2(self.cur_unit.position, game.ai.goal_target)
@@ -1523,13 +1522,13 @@ class AIState(MapState):
                     game.state.change('move_camera')
 
             if game.ai.is_done():
-                logger.info("Current AI %s is done with turn.", self.cur_unit.nid)
+                logging.info("Current AI %s is done with turn.", self.cur_unit.nid)
                 if did_something:  # Don't turn grey if didn't actually do anything
                     self.cur_unit.wait()
                 game.ai.reset()
                 self.cur_unit = None
         else:
-            logger.info("AI Phase complete")
+            logging.info("AI Phase complete")
             game.ai.reset()
             self.unit_list.clear()
             self.cur_unit = None

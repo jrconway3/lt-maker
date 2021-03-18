@@ -23,6 +23,7 @@ class StateMachine():
     def __init__(self):
         self.state = []
         self.temp_state = []
+        self.prev_state = None
 
     def load_states(self, starting_states=None, temp_state=None):
         from app.engine import title_screen, transitions, general_states, level_up, \
@@ -142,6 +143,9 @@ class StateMachine():
             state.end()
         state.finish()
 
+    def from_transition(self):
+        return self.prev_state in ('transition_out', 'transition_to', 'transition_pop', 'transition_double_pop')
+
     def process_temp_state(self):
         if self.temp_state:
             logging.debug("Temp State: %s", self.temp_state)
@@ -173,6 +177,7 @@ class StateMachine():
             start_output = state.start()
             if start_output == 'repeat':
                 repeat_flag = True
+            self.prev_state = state.name
         # Begin
         if not repeat_flag and not state.processed:
             state.processed = True

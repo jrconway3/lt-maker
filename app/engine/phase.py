@@ -12,9 +12,9 @@ from app.engine import engine, image_mods
 from app.engine.game_state import game
 
 import logging
-logger = logging.getLogger(__name__)
 
 def fade_in_phase_music():
+    logging.info('Fade in Phase Music')
     team = game.phase.get_current()
     music = game.level.music.get(team + '_phase')
     fade = game.game_vars.get('_phase_music_fade_ms', 400)
@@ -27,6 +27,7 @@ def fade_in_phase_music():
         SOUNDTHREAD.fade_to_pause(fade_out=fade)
 
 def fade_out_phase_music():
+    logging.info('Fade out Phase Music')
     fade = game.game_vars.get('_phase_music_fade_ms', 400)
     SOUNDTHREAD.fade_to_pause(fade_out=fade)
 

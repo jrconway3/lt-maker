@@ -4122,6 +4122,12 @@
                     "{unit}",
                     "Hand Axe"
                 ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -4201,6 +4207,12 @@
                 [
                     "{unit}",
                     "Ruby"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -4282,6 +4294,12 @@
                     "{unit}",
                     "Potion"
                 ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -4361,6 +4379,12 @@
                 [
                     "{unit}",
                     "Spiritbane"
+                ]
+            ],
+            [
+                "has_traded",
+                [
+                    "{unit}"
                 ]
             ]
         ],

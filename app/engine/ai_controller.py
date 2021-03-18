@@ -57,20 +57,21 @@ class AIController():
     def act(self):
         logger.info("AI Act!")
 
+        change = False
         if not self.move_ai_complete:
             if self.think():
-                self.move()
+                change = self.move()
                 self.move_ai_complete = True
         elif not self.attack_ai_complete:
-            self.attack()
+            change = self.attack()
             self.attack_ai_complete = True
         elif not self.canto_ai_complete:
             if self.unit.has_attacked and skill_system.has_canto(self.unit):
                 self.retreat()
-                self.move()
+                change = self.move()
             self.canto_ai_complete = True
 
-        return self.did_something
+        return self.did_something, change
 
     def move(self):
         if self.goal_position and self.goal_position != self.unit.position:
@@ -101,6 +102,7 @@ class AIController():
                     game.highlight.display_possible_spell_attacks(splash_positions, light=True)
                 # Combat
                 interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True)
+                return True
         # Interacting with regions
         elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':
             # Get region
@@ -119,6 +121,8 @@ class AIController():
                     action.do(action.RemoveRegion(region))
                 if did_trigger:
                     action.do(action.HasAttacked(self.unit))
+                    return True
+        return False
 
     def canto_retreat(self):
         valid_positions = self.get_true_valid_moves()

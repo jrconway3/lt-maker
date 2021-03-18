@@ -64,7 +64,7 @@ def dict_print(d):
         else:
             print("{0} : {1}".format(k, v))
 
-def save_io(s_dict, meta_dict, slot=None, force_loc=None, name=None):
+def save_io(s_dict, meta_dict, old_slot, slot, force_loc=None, name=None):
     if name:
         save_loc = 'saves/' + name + '.p'
     elif force_loc:
@@ -87,20 +87,30 @@ def save_io(s_dict, meta_dict, slot=None, force_loc=None, name=None):
         pickle.dump(meta_dict, fp)
 
     # For restart
-    if meta_dict['kind'] == 'start':
+    if not force_loc:
         r_save = 'saves/' + GAME_NID + '-restart' + str(slot) + '.p'
-        r_save_meta = 'saves/' + GAME_NID + '-restart' + str(slot) + '.pmeta'
-        # Handle preload saves
+        r_save_meta = r_save + 'meta'
+        # If the slot I'm overwriting is a start of map
+        # Then rename it to restart file
+        if meta_dict['kind'] == 'start':
+            if save_loc != r_save:
+                shutil.copy(save_loc, r_save)
+                shutil.copy(meta_loc, r_save_meta)
+        elif old_slot is not None:
+            old_name = 'saves/' + GAME_NID + '-restart' + str(old_slot) + '.p'
+            old_name_meta = old_name + 'meta'
+            if old_name != r_save:
+                shutil.copy(old_name, r_save)
+                shutil.copy(old_name_meta, r_save_meta)
+
+    # For preload
+    if meta_dict['kind'] == 'start':
         preload_saves = glob.glob('saves/' + GAME_NID + '-preload-' + str(meta_dict['level_nid']) + '-*.p')
         nids = [p.split('-')[-1][:-2] for p in preload_saves]
         unique_nid = str(str_utils.get_next_int('0', nids))
         preload_save = 'saves/' + GAME_NID + '-preload-' + str(meta_dict['level_nid']) + '-' + unique_nid + '.p'
         preload_save_meta = 'saves/' + GAME_NID + '-preload-' + str(meta_dict['level_nid']) + '-' + unique_nid + '.pmeta'
-        # If the slot I'm overwriting is a start of map
-        # Then rename it to restart file
-        if save_loc != r_save:
-            shutil.copy(save_loc, r_save)
-            shutil.copy(meta_loc, r_save_meta)
+
         shutil.copy(save_loc, preload_save)
         shutil.copy(meta_loc, preload_save_meta)
 
@@ -114,13 +124,17 @@ def suspend_game(game_state, kind, slot=None, name=None):
     logging.debug("Suspend temp state: %s", game_state.state.temp_state)
     meta_dict['kind'] = kind
     meta_dict['time'] = datetime.now()
+    if game_state.current_save_slot:
+        current_save_slot = game_state.current_save_slot.idx
+    else:
+        current_save_slot = None
 
     if kind == 'suspend':
         force_loc = 'suspend'
     else:
         force_loc = None
 
-    SAVE_THREAD = threading.Thread(target=save_io, args=(s_dict, meta_dict, slot, force_loc, name))
+    SAVE_THREAD = threading.Thread(target=save_io, args=(s_dict, meta_dict, current_save_slot, slot, force_loc, name))
     SAVE_THREAD.start()
 
 def load_game(game_state, save_slot):

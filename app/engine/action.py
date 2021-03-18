@@ -1509,10 +1509,11 @@ class AddSkill(Action):
 
         # Handle affects movement
         self.reset_action.execute()
-        if self.unit.team in game.boundary.enemy_teams:
-            game.boundary._remove_unit(self.unit)
-            if self.unit.position:
-                game.boundary._add_unit(self.unit)
+        if game.boundary:
+            if self.unit.team in game.boundary.enemy_teams:
+                game.boundary._remove_unit(self.unit)
+                if self.unit.position:
+                    game.boundary._add_unit(self.unit)
 
     def reverse(self):
         self.reset_action.reverse()
@@ -1552,10 +1553,11 @@ class RemoveSkill(Action):
 
         # Handle affects movement
         self.reset_action.execute()
-        if self.unit.team in game.boundary.enemy_teams:
-            game.boundary._remove_unit(self.unit)
-            if self.unit.position:
-                game.boundary._add_unit(self.unit)
+        if game.boundary:
+            if self.unit.team in game.boundary.enemy_teams:
+                game.boundary._remove_unit(self.unit)
+                if self.unit.position:
+                    game.boundary._add_unit(self.unit)
 
     def reverse(self):
         self.reset_action.reverse()

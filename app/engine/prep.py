@@ -312,6 +312,7 @@ class PrepFormationSelectState(MapState):
                     game.arrive(self.unit)
                 game.state.back()
                 game.ui_view.remove_unit_display()
+                game.highlight.remove_highlights()
             else:
                 SOUNDTHREAD.play_sfx('Error')
 
@@ -536,8 +537,9 @@ class PrepTradeSelectState(State):
         self.unit = game.memory['current_unit']
         self.menu.set_fake_cursor(self.menu.current_index)
 
-        game.state.change('transition_in')
-        return 'repeat'
+        if game.state.from_transition():
+            game.state.change('transition_in')
+            return 'repeat'
 
     def take_input(self, event):
         first_push = self.fluid.update()

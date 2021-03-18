@@ -300,6 +300,9 @@ class SoundController():
         self.channel_stack = [self.channel1, self.channel2, self.channel3, self.channel4]
         self.song_stack = []
 
+        self.reset_timers()
+
+    def reset_timers(self):
         self.fade_out_start = 0
         self.fade_out_stop = 0
         self.fade_out_pause = 0
@@ -315,22 +318,26 @@ class SoundController():
         self.song_stack.clear()
 
     def fade_clear(self, fade_out=400):
+        logging.debug('Fade to Clear')
         self.current_channel.set_fade_out_time(fade_out)
         self.current_channel.fade_out()
         self.fade_out_stop = engine.get_time()
         self.song_stack.clear()
 
     def fade_to_stop(self, fade_out=400):
+        logging.debug('Fade to Stop')
         self.current_channel.set_fade_out_time(fade_out)
         self.current_channel.fade_out()
         self.fade_out_stop = engine.get_time()
 
     def fade_to_pause(self, fade_out=400):
+        logging.debug('Fade to Pause')
         self.current_channel.set_fade_out_time(fade_out)
         self.current_channel.fade_out()
         self.fade_out_pause = engine.get_time()
 
     def pause(self):
+        logging.debug('Pause')
         self.current_channel.pause()
 
     def resume(self):
@@ -464,16 +471,20 @@ class SoundController():
         for channel in self.channel_stack:
             if channel.update(event_list, current_time):
                 any_changes = True
+                break
 
         if self.fade_out_start and any_changes:
-            self.fade_out_start = 0
+            logging.debug('Update Fade In')
+            self.reset_timers()
             self.current_channel.set_volume(self.global_music_volume)
             self.current_channel.fade_in()
         elif self.fade_out_stop and any_changes:
-            self.fade_out_stop = 0
+            logging.debug('Update Fade to Stop')
+            self.reset_timers()
             self.stop()
         elif self.fade_out_pause and any_changes:
-            self.fade_out_pause = 0
+            logging.debug('Update Fade to Pause')
+            self.reset_timers()
             self.pause()
 
     def play_sfx(self, sound, loop=False):

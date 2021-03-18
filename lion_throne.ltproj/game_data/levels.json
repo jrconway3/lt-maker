@@ -93,7 +93,7 @@
                         false
                     ]
                 ],
-                "team": "player",
+                "team": "enemy",
                 "ai": "None",
                 "starting_position": [
                     6,
@@ -115,11 +115,33 @@
                         false
                     ]
                 ],
-                "team": "player",
+                "team": "enemy",
                 "ai": "None",
                 "starting_position": [
                     7,
                     10
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 10,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    9
                 ],
                 "name": null,
                 "desc": null,

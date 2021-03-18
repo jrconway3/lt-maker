@@ -446,3 +446,11 @@ class ModifyMaximumRange(SkillComponent):
 
     def modify_maximum_range(self, unit, skill):
         return self.value
+
+class GuaranteedCrit(SkillComponent):
+    nid = 'guaranteed_crit'
+    desc = "Unit will have chance to crit even if crit constant is turned off"
+    tag = 'combat2'
+
+    def crit_anyway(self, unit):
+        return True

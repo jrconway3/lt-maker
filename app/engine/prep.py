@@ -22,6 +22,9 @@ class PrepMainState(MapState):
     menu = None
 
     def start(self):
+        prep_music = game.game_vars.get('_prep_music')
+        if prep_music:
+            SOUNDTHREAD.fade_in(prep_music)
         game.cursor.hide()
         game.cursor.autocursor()
         game.boundary.hide()

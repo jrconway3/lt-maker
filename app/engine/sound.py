@@ -24,9 +24,12 @@ class MusicDict(dict):
             self.get(nid)
 
     def full_preload(self):
-        for prefab in RESOURCES.music:
-            if prefab.nid not in self:
-                self[prefab.nid] = Song(prefab)
+        try:
+            for prefab in RESOURCES.music:
+                if prefab.nid not in self:
+                    self[prefab.nid] = Song(prefab)
+        except pygame.error as e:
+            logging.warning(e)
 
     def clear(self):
         pass
@@ -302,6 +305,8 @@ class SoundController():
 
         self.reset_timers()
 
+        self.PRELOADTHREAD = None
+
     def reset_timers(self):
         self.fade_out_start = 0
         self.fade_out_stop = 0
@@ -512,20 +517,21 @@ class SoundController():
         we can reload everything like new
         """
         # MUSIC.clear()
-        # SFX.clear()
+        # Threading is required because loading in the sound objects takes
+        # so damn long. If you do it at start, your staring at a black screen
+        # for >20 seconds. If you do it on the fly, you get 500 ms hiccups everytime
+        # you load a new sound.
+        # Threading solves these issues
+        # WARNING: I have no thread locks at all on the music dictionary
+        # It *might* be possible for both threads to try to touch the music dictionary
+        # at the same time and break everything
+        import threading
+        logging.debug('Starting up preload thread')
+        self.PRELOADTHREAD = threading.Thread(target=MUSIC.full_preload)
+        self.PRELOADTHREAD.start()
+        SFX.clear()
         self.__init__()
 
 MUSIC = MusicDict()
-# Threading is required because loading in the sound objects takes
-# so damn long. If you do it at start, your staring at a black screen
-# for >20 seconds. If you do it on the fly, you get 500 ms hiccups everytime
-# you load a new sound.
-# Threading solves these issues
-# WARNING: I have no thread locks at all on the music dictionary
-# It *might* be possible for both threads to try to touch the music dictionary
-# at the same time and break everything
-import threading
-PRELOADTHREAD = threading.Thread(target=MUSIC.full_preload)
-PRELOADTHREAD.start()
 SFX = SoundDict()
 SOUNDTHREAD = SoundController()

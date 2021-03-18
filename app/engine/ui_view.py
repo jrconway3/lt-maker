@@ -660,17 +660,26 @@ class ItemDescriptionPanel():
             FONT['text-white'].blit('Affin', bg_surf, (left + width//2 - 16//2 - affin_width//2, top + 4))
             FONT['text-white'].blit('Atk', bg_surf, (5 + left, top + 20))
             FONT['text-white'].blit('Hit', bg_surf, (5 + left, top + 36))
-            FONT['text-white'].blit('Crit', bg_surf, (width//2 + 5 + left, top + 20))
+            if DB.constants.value('crit'):
+                FONT['text-white'].blit('Crit', bg_surf, (width//2 + 5 + left, top + 20))
+            else:
+                FONT['text-white'].blit('AS', bg_surf, (width//2 + 5 + left, top + 20))
             FONT['text-white'].blit('Avo', bg_surf, (width//2 + 5 + left, top + 36))
 
             damage = combat_calcs.damage(self.unit, self.item)
             accuracy = combat_calcs.accuracy(self.unit, self.item)
             crit = combat_calcs.crit_accuracy(self.unit, self.item)
+            if crit is None:
+                crit = '--'
             avoid = combat_calcs.avoid(self.unit, self.item)
+            attack_speed = combat_calcs.attack_speed(self.unit, self.item)
 
             FONT['text-blue'].blit_right(str(damage), bg_surf, (left + width//2 - 3, top + 20))
             FONT['text-blue'].blit_right(str(accuracy), bg_surf, (left + width//2 - 3, top + 36))
-            FONT['text-blue'].blit_right(str(crit), bg_surf, (left + width - 10, top + 20))
+            if DB.constants.value('crit'):
+                FONT['text-blue'].blit_right(str(crit), bg_surf, (left + width - 10, top + 20))
+            else:
+                FONT['text-blue'].blit_right(str(attack_speed), bg_surf, (left + width - 10, top + 20))
             FONT['text-blue'].blit_right(str(avoid), bg_surf, (left + width - 10, top + 36))
 
             weapon_type = item_system.weapon_type(self.unit, self.item)

@@ -49,11 +49,11 @@
     },
     {
         "nid": "CRIT_ADD",
-        "expression": "0"
+        "expression": "1"
     },
     {
         "nid": "CRIT_MULT",
-        "expression": "3"
+        "expression": "1"
     },
     {
         "nid": "SPEED_TO_DOUBLE",

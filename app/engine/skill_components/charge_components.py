@@ -6,7 +6,7 @@ from app.engine.game_state import game
 
 class BuildCharge(SkillComponent):
     nid = 'build_charge'
-    desc = "Skill will gain charges after each combat until full"
+    desc = "Skill gains charges until full"
     tag = "advanced"
 
     expose = Type.Int
@@ -25,7 +25,7 @@ class BuildCharge(SkillComponent):
         self.skill.data['charge'] = 0
 
     def trigger_charge(self, unit, skill):
-        self.skill.data['charge'] = 0
+        action.do(action.SetObjData(self.skill, 'charge', 0))
 
     def text(self) -> str:
         return str(self.skill.data['charge'])
@@ -54,7 +54,8 @@ class DrainCharge(SkillComponent):
         self.skill.data['charge'] = self.skill.data['total_charge']
 
     def trigger_charge(self, unit, skill):
-        self.skill.data['charge'] -= 1
+        new_value = self.skill.data['charge'] - 1
+        action.do(action.SetObjData(self.skill, 'charge', new_value))
 
     def text(self) -> str:
         return str(self.skill.data['charge'])
@@ -73,7 +74,10 @@ class CombatChargeIncrease(SkillComponent):
     ignore_conditional = True
 
     def end_combat(self, playback, unit, item, target, mode):
-        action.do(action.SetObjData(self.skill, 'charge', self.skill.data['charge'] + self.value))
+        if not self.skill.data.get('active'):
+            new_value = self.skill.data['charge'] + self.value
+            new_value = min(new_value, self.skill.data['total_charge'])
+            action.do(action.SetObjData(self.skill, 'charge', new_value))
 
 class CombatChargeIncreaseByStat(SkillComponent):
     nid = 'combat_charge_increase_by_stat'
@@ -86,5 +90,7 @@ class CombatChargeIncreaseByStat(SkillComponent):
     ignore_conditional = True
 
     def end_combat(self, playback, unit, item, target, mode):
-        new_value = self.skill.data['charge'] + unit.stats[self.value] + unit.stat_bonus(self.value)
-        action.do(action.SetObjData(self.skill, 'charge', new_value))
+        if not self.skill.data.get('active'):
+            new_value = self.skill.data['charge'] + unit.stats[self.value] + unit.stat_bonus(self.value)
+            new_value = min(new_value, self.skill.data['total_charge'])
+            action.do(action.SetObjData(self.skill, 'charge', new_value))

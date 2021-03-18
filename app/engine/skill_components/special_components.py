@@ -56,8 +56,9 @@ class CombatArt(SkillComponent):
         self._action = None
 
     def end_combat(self, playback, unit, item, target, mode):
+        if self.skill.data.get('active'):
+            action.do(action.TriggerCharge(unit, self.skill))
         self.on_deactivation(unit)
-        action.do(action.TriggerCharge(unit, self.skill))
 
 class AutomaticCombatArt(SkillComponent):
     nid = 'automatic_combat_art'

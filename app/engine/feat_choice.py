@@ -1,4 +1,4 @@
-from app.constants import WINWIDTH
+from app.constants import WINWIDTH, WINHEIGHT
 from app.data.database import DB
 
 from app.engine.sound import SOUNDTHREAD
@@ -30,7 +30,7 @@ class SkillOption(menu_options.BasicOption):
         self.skill = skill
 
     def width(self):
-        return 104
+        return FONT[self.color].width(self.skill.name) + 24
 
     def height(self):
         return 16
@@ -58,7 +58,7 @@ class FeatChoice(menus.Table):
         self.options.clear()
         for idx, option in enumerate(options):
             option = SkillOption(idx, option)
-        self.options.append(option)
+            self.options.append(option)
 
 class FeatChoiceState(MapState):
     name = 'feat_choice'
@@ -70,7 +70,9 @@ class FeatChoiceState(MapState):
 
         current_skills = [skill.nid for skill in self.unit.skills]
         ignore = [True if feat.nid in current_skills else False for feat in feats]
-        self.menu = FeatChoice(self.unit, feats, 'center')
+        self.menu = FeatChoice(self.unit, feats, (5, 2), 'center')
+        self.menu.shimmer = 2
+        self.menu.topleft = (self.menu.get_topleft()[0], WINHEIGHT - self.menu.get_menu_height() - 4) 
         self.menu.set_ignore(ignore)
 
     def take_input(self, event):
@@ -128,13 +130,13 @@ class FeatChoiceState(MapState):
 
     def draw_label(self, surf):
         label = text_funcs.translate('Feat Choice')
-        menu_width = self.menu.get_menu_width()
-        bg_surf = base_surf.create_base_surf(menu_width, 24)
-        FONT['text-white'].blit_center(label, bg_surf, (menu_width//2, 4))
+        label_width = FONT['text-white'].width(label) + 16
+        bg_surf = base_surf.create_base_surf(label_width, 24)
+        FONT['text-white'].blit_center(label, bg_surf, (bg_surf.get_width()//2, 4))
         surf.blit(bg_surf, (0, 0))
 
     def draw(self, surf):
-        self.draw_label(surf)
         self.draw_face(surf)
+        self.draw_label(surf)
         self.menu.draw(surf)
         return surf

@@ -2037,6 +2037,10 @@
         ],
         "components": [
             [
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
                 "combat_art",
                 "Critical_item_mod"
             ],
@@ -2046,15 +2050,11 @@
             ],
             [
                 "combat_art_allowed_weapons",
-                "item_system.weapon_type(unit, item) == 'Sword' and not item_funcs.is_magic(unit, item)"
-            ],
-            [
-                "combat_charge_increase_by_stat",
-                "SKL"
+                "not item_funcs.is_magic(unit, item)"
             ],
             [
                 "build_charge",
-                30
+                10
             ]
         ]
     },
@@ -2075,6 +2075,18 @@
             [
                 "hidden",
                 null
+            ],
+            [
+                "guaranteed_crit",
+                null
+            ],
+            [
+                "unit_flickering_tint",
+                [
+                    232,
+                    253,
+                    0
+                ]
             ]
         ]
     },
@@ -2089,16 +2101,16 @@
         ],
         "components": [
             [
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
                 "combat_art",
                 "Cleave_item_mod"
             ],
             [
                 "class_skill",
                 null
-            ],
-            [
-                "combat_charge_increase_by_stat",
-                "SKL"
             ],
             [
                 "combat_art_allowed_weapons",
@@ -2149,16 +2161,16 @@
         ],
         "components": [
             [
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
                 "automatic_combat_art",
                 "Metamagic_Status"
             ],
             [
                 "class_skill",
                 null
-            ],
-            [
-                "combat_charge_increase_by_stat",
-                "SKL"
             ],
             [
                 "build_charge",
@@ -2281,16 +2293,16 @@
         ],
         "components": [
             [
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
                 "combat_art",
                 "Luna_proc"
             ],
             [
                 "class_skill",
                 null
-            ],
-            [
-                "combat_charge_increase_by_stat",
-                "SKL"
             ],
             [
                 "build_charge",
@@ -2329,16 +2341,16 @@
         ],
         "components": [
             [
+                "combat_charge_increase_by_stat",
+                "SKL"
+            ],
+            [
                 "combat_art",
                 "Sol_proc"
             ],
             [
                 "class_skill",
                 null
-            ],
-            [
-                "combat_charge_increase_by_stat",
-                "SKL"
             ],
             [
                 "build_charge",

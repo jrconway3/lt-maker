@@ -41,16 +41,17 @@ class VictoryState(MapState):
 
         menu_width = 96
         bg = base_surf.create_base_surf(menu_width, 40, 'menu_bg_base')
-        shimmer = SPRITES.get('shimmer2')
-        bg.blit(shimmer, (menu_width - 1 - shimmer.get_width(), 40 - 5 - bg.get_height()))
+        shimmer = SPRITES.get('menu_shimmer2')
+        if shimmer:
+            bg.blit(shimmer, (menu_width - 1 - shimmer.get_width(), 40 - 5 - shimmer.get_height()))
         bg = image_mods.make_translucent(bg, .1)
 
         turns_str = text_funcs.translate('Turns')
         mvp_str = text_funcs.translate('MVP')
         FONT['text-yellow'].blit(turns_str, bg, (4, 4))
         FONT['text-yellow'].blit(mvp_str, bg, (4, 20))
-        FONT['text-yellow'].blit_center(turns, bg, (menu_width - 40, 4))
-        FONT['text-yellow'].blit_center(mvp, bg, (menu_width - 40, 20))
+        FONT['text-blue'].blit_center(turns, bg, (menu_width - 40, 4))
+        FONT['text-blue'].blit_center(mvp, bg, (menu_width - 40, 20))
 
         return bg
 
@@ -81,7 +82,7 @@ class VictoryState(MapState):
         surf.blit(self.stat_surf, pos)
 
         # Victory draw
-        vic_surf = image_mods.make_translucent(self.vic_surf, 1 - offset)
+        vic_surf = image_mods.make_translucent(self.victory_surf, 1 - offset)
         height = int(self.vic_height * offset)
         vic_surf = engine.transform_scale(vic_surf, (WINWIDTH, height))
         surf.blit(vic_surf, (0, self.vic_height//2 - height//2))

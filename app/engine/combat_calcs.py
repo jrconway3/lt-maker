@@ -304,7 +304,7 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
 
     might -= defense(target, def_item, item)
 
-    if crit:
+    if crit or skill_system.crit_anyway(unit):
         might *= equations.parser.crit_mult(unit)
         for _ in range(equations.parser.crit_add(unit)):
             might += total_might

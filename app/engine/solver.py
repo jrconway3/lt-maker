@@ -210,7 +210,7 @@ class CombatPhaseSolver():
 
         if roll < to_hit:
             crit = False
-            if DB.constants.get('crit').value or self.current_command in ('crit1', 'crit2'):
+            if DB.constants.value('crit') or skill_system.crit_anyway(attacker) or self.current_command in ('crit1', 'crit2'):
                 to_crit = combat_calcs.compute_crit(attacker, defender, item, def_item, mode)
                 if self.current_command in ('crit1', 'crit2'):
                     crit = True

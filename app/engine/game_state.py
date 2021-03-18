@@ -29,6 +29,7 @@ class GameState():
         self.camera = None
         self.boundary = None
 
+        self.current_save_slot = None
         self.current_level = None
 
     def load_states(self, starting_states):

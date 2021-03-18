@@ -56,7 +56,7 @@ class LostOnEndCombat(SkillComponent):
     desc = "Remove after combat"
     tag = "time"
 
-    def post_combat(self, playback, unit, item, target):
+    def post_combat(self, playback, unit, item, target, mode):
         action.do(action.RemoveSkill(unit, self.skill))
 
 class LostOnEndChapter(SkillComponent):

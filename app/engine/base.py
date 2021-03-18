@@ -22,7 +22,9 @@ class BaseMainState(State):
         self.fluid = FluidScroll()
 
     def start(self):
-        SOUNDTHREAD.fade_in(game.level.music['base'])
+        base_music = game.game_vars.get('_base_music')
+        if base_music:
+            SOUNDTHREAD.fade_in(base_music)
         game.cursor.hide()
         game.cursor.autocursor()
         game.boundary.hide()

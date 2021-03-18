@@ -54,9 +54,9 @@ def draw_skill(surf, skill, topleft, compact=True, simple=False):
     if simple:
         return surf
     frac = skill_system.get_cooldown(skill)
-    if frac is not None:
+    if frac is not None and frac < 1:
         cooldown_surf = SPRITES.get('icon_cooldown')
-        index = utils.clamp(int(8 * frac), 0, 8)
+        index = utils.clamp(int(8 * frac), 0, 7)
         c = engine.subsurface(cooldown_surf, (16 * index, 0, 16, 16))
         surf.blit(c, topleft)
 

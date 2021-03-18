@@ -1,9 +1,7 @@
 TODO List:
 
-Feats (test)
-Victory Screen (test)
-Fix Combat Arts
-Add Prep Music instead of the current method
+Fix Combat Arts (Cleave, Critical) -- Active even when not in range of targets
+Generic units are gaining skills from prev class on promotion
 
 Combat Animations
     Combat Anims / Palettes as a separate tab?

@@ -9,6 +9,8 @@ _fatigue int ()
 _prep_market bool 
 _base_market bool
 _base_bg_name Panorama nid
+_prep_music Music nid
+_base_music Music nid
 _world_map_in_base bool
 _phase_music_fade_ms int
 _last_choice str (Always holds the most recent choice made by the player)

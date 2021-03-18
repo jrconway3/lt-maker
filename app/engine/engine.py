@@ -6,7 +6,6 @@ from app.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
 
 import logging
-logger = logging.getLogger(__name__)
 
 constants = {'current_time': 0,
              'last_time': 0,
@@ -19,6 +18,7 @@ def init():
     pygame.mixer.pre_init(44100, -16, 2, 128 * 2**cf.SETTINGS['sound_buffer_size'])
     pygame.init()
     pygame.mixer.init()
+    logging.info("Engine Init Completed")
 
 def simple_init():
     pygame.init()

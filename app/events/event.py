@@ -796,6 +796,8 @@ class Event():
             else:
                 b = False
             action.do(action.SetLevelVar('_prep_pick', b))
+            if len(values) > 1 and values[1]:
+                action.do(action.SetGameVar('_prep_music', values[1]))
             # Arrange formation
             self.arrange_formation()
             game.state.change('prep_main')
@@ -805,6 +807,8 @@ class Event():
             values, flags = event_commands.parse(command)
             panorama_nid = values[0]
             action.do(action.SetGameVar('_base_bg_name', panorama_nid))
+            if len(values) > 1 and values[1]:
+                action.do(action.SetGameVar('_base_music', values[1]))
             game.state.change('base_main')
             self.state = 'paused'
 
@@ -861,6 +865,10 @@ class Event():
             custom_string = values[0]
             game.alerts.append(banner.Custom(custom_string))
             game.state.change('alert')
+            self.state = 'paused'
+
+        elif command.nid == 'victory_screen':
+            game.state.change('victory')
             self.state = 'paused'
 
         elif command.nid == 'location_card':

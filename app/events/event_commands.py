@@ -543,13 +543,14 @@ class Prep(EventCommand):
     nid = 'prep'
     tag = 'general'
 
-    optional_keywords = ["Bool"]  # Pick units
+    optional_keywords = ["Bool", "Music"]  # Pick units
 
 class Base(EventCommand):
     nid = 'base'
     tag = 'general'
 
     keywords = ["Panorama"]
+    optional_keywords = ["Music"]
 
 class Shop(EventCommand):
     nid = 'shop'

@@ -5290,14 +5290,11 @@
                 ]
             ],
             [
-                "music",
+                "prep",
                 [
+                    "F",
                     "Preparing for Battle"
                 ]
-            ],
-            [
-                "prep",
-                []
             ]
         ],
         "only_once": false,

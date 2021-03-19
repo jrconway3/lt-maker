@@ -331,6 +331,7 @@ def splash(unit, item, position) -> tuple:
         alternate_splash_component = skill_system.alternate_splash(unit)
         if alternate_splash_component:
             main_target, splash = alternate_splash_component.splash(unit, item, position)
+            return main_target, splash
         else:
             return position, []
 

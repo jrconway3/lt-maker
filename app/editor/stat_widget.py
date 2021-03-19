@@ -328,7 +328,9 @@ class ClassStatAveragesModel(VirtualListModel):
 
         average = int(stat_base + 0.5 + (stat_growth/100) * level_ups)
 
-        # average = quantile(.5, level_ups, stat_growth/100) + stat_base
+        while stat_growth > 100:
+            stat_growth -= 100
+            stat_base += level_ups
         quantile10 = Binomial.quantile(.1, level_ups, stat_growth/100) + stat_base
         quantile90 = Binomial.quantile(.9, level_ups, stat_growth/100) + stat_base
         return stat_max, average, quantile10, quantile90
@@ -390,6 +392,12 @@ class GenericStatAveragesModel(ClassStatAveragesModel):
 
     def determine_average(self, obj, stat_nid, level_ups):
         klass = DB.classes.get(obj.klass)
+        if klass.tier > 1:
+            if klass.promotes_from:
+                prev_klass = DB.classes.get(klass.promotes_from)
+                level_ups += prev_klass.max_level
+            else:
+                level_ups += 0
         stat_base = klass.bases.get(stat_nid, 0)
         stat_growth = klass.growths.get(stat_nid, 0)
         stat_max = klass.max_stats.get(stat_nid, 0)
@@ -397,6 +405,9 @@ class GenericStatAveragesModel(ClassStatAveragesModel):
         average = int(stat_base + 0.5 + (stat_growth/100) * level_ups)
 
         # average = quantile(.5, level_ups, stat_growth/100) + stat_base
+        while stat_growth > 100:
+            stat_growth -= 100
+            stat_base += level_ups
         quantile10 = Binomial.quantile(.1, level_ups, stat_growth/100) + stat_base
         quantile90 = Binomial.quantile(.9, level_ups, stat_growth/100) + stat_base
         return stat_max, average, quantile10, quantile90
@@ -460,29 +471,31 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
             turns_into = new_klass.promotion_options(DB)
 
         for idx, klass in enumerate(classes):
+            if idx != 0:
+                level_ups -= 1  # Costs one level to move up a class
             klass = DB.classes.get(klass)
             stat_max = klass.max_stats.get(stat_nid, 0)
             if idx == 0:
                 ticks = utils.clamp(level_ups, 0, klass.max_level - obj.level)
             else:
                 ticks = utils.clamp(level_ups, 0, klass.max_level - 1)
-            level_ups -= klass.max_level
+            level_ups -= ticks
             growth_bonus = klass.growth_bonus.get(stat_nid, 0)
             if idx > 0:
                 promotion_bonus = klass.promotion.get(stat_nid, 0)
                 if promotion_bonus in (-99, -98):
-                    if idx > 0:
-                        prev_klass = classes[idx - 1]
-                        promotion_bonus = klass.bases.get(stat_nid, 0) - DB.classes.get(prev_klass).bases.get(stat_nid, 0)
-                    else:
-                        promotion_bonus = 0
+                    prev_klass = classes[idx - 1]
+                    promotion_bonus = klass.bases.get(stat_nid, 0) - DB.classes.get(prev_klass).bases.get(stat_nid, 0)
             else:
                 promotion_bonus = stat_base
             growth = (stat_growth + growth_bonus)/100
             average += min(stat_max, promotion_bonus + (growth * ticks))
+            while growth > 1:
+                growth -= 1
+                promotion_bonus += ticks
             quantile10 += min(stat_max, Binomial.quantile(.1, ticks, growth) + promotion_bonus)
             quantile90 += min(stat_max, Binomial.quantile(.9, ticks, growth) + promotion_bonus)
-            if level_ups < 0:
+            if level_ups <= 0:
                 break
         return stat_max, int(average), quantile10, quantile90
 

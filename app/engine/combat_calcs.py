@@ -321,6 +321,8 @@ def outspeed(unit, target, item, def_item, mode) -> bool:
         return 1
     if not item_system.can_double(unit, item):
         return 1
+    if skill_system.no_double(unit):
+        return 1
 
     speed = attack_speed(unit, item)
 

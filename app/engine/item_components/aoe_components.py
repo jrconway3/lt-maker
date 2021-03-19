@@ -109,10 +109,12 @@ class EnemyCleaveAOE(ItemComponent):
                          (pos[0] + 1, pos[1] + 1)}
         
         all_positions = {pos for pos in all_positions if game.tilemap.check_bounds(pos)}
-        splash = all_positions - position
+        all_positions.discard(position)
+        splash = all_positions
         splash = [game.board.get_unit(pos) for pos in splash]
-        splash = [s.position for s in splash if s and skill_system.check_enemy(unit)]
-        return position if game.board.get_unit(position) else None, splash
+        splash = [s.position for s in splash if s and skill_system.check_enemy(unit, s)]
+        main_target = position if game.board.get_unit(position) else None
+        return main_target, splash
 
     def splash_positions(self, unit, item, position) -> set:
         from app.engine import skill_system
@@ -127,7 +129,8 @@ class EnemyCleaveAOE(ItemComponent):
                          (pos[0] + 1, pos[1] + 1)}
 
         all_positions = {pos for pos in all_positions if game.tilemap.check_bounds(pos)}
-        splash = all_positions - position
+        all_positions.discard(position)
+        splash = all_positions
         # Doesn't highlight allies positions
         splash = {pos for pos in splash if not game.board.get_unit(pos) or skill_system.check_enemy(unit, game.board.get_unit(pos))}
         return splash

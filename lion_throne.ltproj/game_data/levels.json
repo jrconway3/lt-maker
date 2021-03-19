@@ -84,7 +84,7 @@
             {
                 "nid": "102",
                 "variant": null,
-                "level": 1,
+                "level": 10,
                 "klass": "Soldier",
                 "faction": "Soldier",
                 "starting_items": [
@@ -128,7 +128,41 @@
             {
                 "nid": "104",
                 "variant": null,
-                "level": 10,
+                "level": 5,
+                "klass": "Warrior",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ],
+                    [
+                        "Iron Axe",
+                        false
+                    ],
+                    [
+                        "Brave Axe",
+                        false
+                    ],
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    5,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 1,
                 "klass": "Archer",
                 "faction": "Soldier",
                 "starting_items": [
@@ -140,7 +174,7 @@
                 "team": "player",
                 "ai": "None",
                 "starting_position": [
-                    5,
+                    6,
                     9
                 ],
                 "name": null,

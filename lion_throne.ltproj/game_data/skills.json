@@ -1824,12 +1824,12 @@
         ],
         "components": [
             [
-                "dynamic_damage",
-                "item.weight.value//2 if item.weight else 0"
-            ],
-            [
                 "class_skill",
                 null
+            ],
+            [
+                "eval_damage",
+                "item.weight.value//2 if item.weight else 0"
             ]
         ]
     },
@@ -2084,7 +2084,7 @@
                 "unit_flickering_tint",
                 [
                     232,
-                    253,
+                    248,
                     0
                 ]
             ]
@@ -2117,12 +2117,12 @@
                 "item_system.weapon_type(unit, item) in ('Sword', 'Axe') and 1 in item_funcs.get_range(unit, item)"
             ],
             [
-                "build_charge",
-                15
-            ],
-            [
                 "combat_art_set_max_range",
                 1
+            ],
+            [
+                "build_charge",
+                15
             ]
         ]
     },
@@ -2151,6 +2151,14 @@
             [
                 "Cleave",
                 null
+            ],
+            [
+                "unit_flickering_tint",
+                [
+                    232,
+                    248,
+                    0
+                ]
             ]
         ]
     },
@@ -2331,6 +2339,14 @@
             [
                 "dynamic_damage",
                 "combat_calcs.defense(target, None, None)"
+            ],
+            [
+                "unit_flickering_tint",
+                [
+                    0,
+                    128,
+                    248
+                ]
             ]
         ]
     },
@@ -2379,6 +2395,14 @@
             [
                 "lifelink",
                 1.0
+            ],
+            [
+                "unit_flickering_tint",
+                [
+                    232,
+                    248,
+                    0
+                ]
             ]
         ]
     },

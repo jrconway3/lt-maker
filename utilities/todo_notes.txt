@@ -1,7 +1,6 @@
 TODO List:
 
-Fix Combat Arts (Cleave, Critical) -- Active even when not in range of targets
-Generic units are gaining skills from prev class on promotion
+Get rid of on_add and on_remove
 
 Combat Animations
     Combat Anims / Palettes as a separate tab?

@@ -56,6 +56,21 @@ class Damage(SkillComponent):
     def modify_damage(self, unit, item):
         return self.value
 
+class EvalDamage(SkillComponent):
+    nid = 'eval_damage'
+    desc = "Gives +X damage solved using evaluate"
+    tag = 'combat'
+
+    expose = Type.String
+
+    def modify_damage(self, unit, item):
+        from app.engine import evaluate
+        try:
+            return int(evaluate.evaluate(self.value, unit, item=item))
+        except:
+            print("Couldn't evaluate %s conditional" % self.value)
+        return 0 
+
 class Resist(SkillComponent):
     nid = 'resist'
     desc = "Gives +X damage resist"

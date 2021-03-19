@@ -897,7 +897,6 @@ class WeaponChoiceState(MapState):
     def get_options(self, unit) -> list:
         if game.memory.get('valid_weapons'):
             options = game.memory['valid_weapons']
-            game.memory['valid_weapons'] = None
         else:
             options = target_system.get_all_weapons(unit)
         # Skill straining
@@ -940,6 +939,7 @@ class WeaponChoiceState(MapState):
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
+            game.memory['valid_weapons'] = None
             game.state.back()
 
         elif event == 'SELECT':
@@ -1210,6 +1210,7 @@ class CombatTargetingState(MapState):
         combat = interaction.engage(self.cur_unit, targets, main_item)
         game.combat_instance.append(combat)
         game.state.change('combat')
+        game.memory['valid_weapons'] = None
 
     def _get_next_target(self):
         allow_same_target = item_system.allow_same_target(self.cur_unit, self.item)

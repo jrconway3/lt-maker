@@ -382,9 +382,9 @@ def get_combat_arts(unit):
             if component.defines('combat_art_weapon_filter'):
                 combat_art_weapons = component.combat_art_weapon_filter(unit)
             if component.defines('combat_art_set_max_range'):
-                combat_art_max_range = component.combat_art_set_max_range(unit)
+                combat_art_set_max_range = component.combat_art_set_max_range(unit)
             if component.defines('combat_art_modify_max_range'):
-                combat_art_max_range = component.combat_art_modify_max_range(unit)
+                combat_art_modify_max_range = component.combat_art_modify_max_range(unit)
 
         if combat_art and combat_art_weapons:
             good_weapons = []
@@ -392,7 +392,7 @@ def get_combat_arts(unit):
             for weapon in combat_art_weapons:
                 # Just for testing range
                 if combat_art_set_max_range:
-                    weapon._force_max_range = max(0, combat_art_max_range)
+                    weapon._force_max_range = max(0, combat_art_set_max_range)
                 elif combat_art_modify_max_range:
                     max_range = max(item_funcs.get_range(unit, weapon))
                     weapon._force_max_range = max(0, max_range + combat_art_modify_max_range)

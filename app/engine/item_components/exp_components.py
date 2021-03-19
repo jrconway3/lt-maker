@@ -23,8 +23,19 @@ class LevelExp(ItemComponent):
     desc = "Item gives exp to user based on level difference"
     tag = 'exp'
 
+    def _check_for_no_damage(self, playback, unit, item, target) -> bool:
+        no_damage = False
+        for record in playback:
+            if record[0] == 'damage_hit' and record[1] == unit and record[3] == target:
+                if record[4] != 0:
+                    return False
+                else:
+                    no_damage = True
+        return no_damage
+
     def exp(self, playback, unit, item, target) -> int:
-        if skill_system.check_enemy(unit, target):
+        if skill_system.check_enemy(unit, target) and \
+                not self._check_for_no_damage(playback, unit, item, target):
             level_diff = target.get_internal_level() - unit.get_internal_level()
             level_diff += DB.constants.value('exp_offset')
             exp_gained = math.exp(level_diff * DB.constants.value('exp_curve'))

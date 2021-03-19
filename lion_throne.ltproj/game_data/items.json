@@ -5747,15 +5747,23 @@
         ],
         "components": [
             [
-                "shove",
-                1
-            ],
-            [
                 "min_range",
                 1
             ],
             [
                 "max_range",
+                1
+            ],
+            [
+                "target_unit",
+                null
+            ],
+            [
+                "shove_target_restrict",
+                1
+            ],
+            [
+                "shove",
                 1
             ]
         ]

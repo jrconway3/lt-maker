@@ -29,7 +29,7 @@ class MapView():
         # Draw all units except the cur unit
         culled_units = [unit for unit in game.units if unit is not game.cursor.cur_unit and (unit.position or unit.sprite.fake_position)]
         if game.level_vars.get('_fog_of_war'):
-            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position)]
+            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.fake_position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
         for unit in draw_units:
             unit.sprite.update()

@@ -38,5 +38,9 @@
     {
         "nid": "Chpt5",
         "terrain_grid": {}
+    },
+    {
+        "nid": "SacredStonesWorldMapBase",
+        "terrain_grid": {}
     }
 ]

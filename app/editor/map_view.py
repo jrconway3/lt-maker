@@ -21,7 +21,12 @@ class SimpleMapView(QGraphicsView):
     min_scale = 1
     max_scale = 4
     position_clicked = pyqtSignal(int, int)
+    position_right_clicked = pyqtSignal(int, int)
+    position_double_clicked = pyqtSignal(int, int)
+    position_double_right_clicked = pyqtSignal(int, int)
     position_moved = pyqtSignal(int, int)
+    
+    position_clicked_float = pyqtSignal(float, float)
 
     def __init__(self, window=None):
         super().__init__()
@@ -108,9 +113,26 @@ class SimpleMapView(QGraphicsView):
         super().mousePressEvent(event)
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+        # since all items on a map are centered in their cell, the true float coordinate should be offset to account for that
+        pos_float = float(scene_pos.x() / TILEWIDTH - 0.5), float(scene_pos.y() / TILEHEIGHT - 0.5)
 
         if self.current_map and self.current_map.check_bounds(pos):
-            self.position_clicked.emit(*pos)
+            if(event.buttons() == Qt.RightButton):
+                self.position_right_clicked.emit(*pos)
+            else:
+                self.position_clicked.emit(*pos)
+                self.position_clicked_float.emit(*pos_float)
+                
+    def mouseDoubleClickEvent(self, event):
+        super().mouseDoubleClickEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
+
+        if self.current_map and self.current_map.check_bounds(pos):
+            if(event.buttons() == Qt.RightButton):
+                self.position_double_right_clicked.emit(*pos)
+            else:
+                self.position_double_clicked.emit(*pos)
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
@@ -143,6 +165,11 @@ class SimpleMapView(QGraphicsView):
 class GlobalModeLevelMapView(SimpleMapView):
     def __init__(self, window=None):
         super().__init__(window)
+        self.overworld_flag: bool = False
+
+    def set_current_level(self, nid, overworld=False):
+        self.overworld_flag = overworld  
+        super().set_current_level(nid)
 
     def paint_units(self):
         if self.working_image:
@@ -164,7 +191,8 @@ class GlobalModeLevelMapView(SimpleMapView):
         else:
             self.clear_scene()
             return
-        self.paint_units()
+        if not self.overworld_flag:
+            self.paint_units()
         self.show_map()
 
     def mouseMoveEvent(self, event):
@@ -172,7 +200,7 @@ class GlobalModeLevelMapView(SimpleMapView):
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
-        if self.current_map and self.current_map.check_bounds(pos):
+        if not self.overworld_flag and self.current_map and self.current_map.check_bounds(pos):
             self.current_mouse_pos = pos
             self.main_editor.set_position_bar(pos)
             terrain_nid = self.current_map.get_base_terrain(pos)

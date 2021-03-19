@@ -1,3 +1,4 @@
+import math
 from collections import Counter
 import colorsys, hashlib
 
@@ -14,6 +15,12 @@ def sign(n):
 def lerp(a, b, t):
     t = clamp(t, 0, 1)
     return (b - a) * t + a
+
+def distance(pos1, pos2):
+    """
+    Euclidean distance
+    """
+    return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
 
 def model_wave(time, period, width) -> float:
     """

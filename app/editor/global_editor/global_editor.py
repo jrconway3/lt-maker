@@ -13,7 +13,7 @@ from app.editor import timer
 from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
 
 from .level_menu import LevelDatabase
-# from .overworld_menu import OverworldDatabase
+from .overworld_menu import OverworldDatabase
 
 
 class GlobalEditor(QMainWindow):
@@ -24,6 +24,8 @@ class GlobalEditor(QMainWindow):
         self.settings = MainSettingsController()
         self.app_state_manager.subscribe_to_key(
             GlobalEditor.__name__, 'selected_level', self.set_current_level)
+        self.app_state_manager.subscribe_to_key(
+            GlobalEditor.__name__, 'selected_overworld', self.set_current_overworld)
         
         self._render()
         
@@ -35,18 +37,18 @@ class GlobalEditor(QMainWindow):
 
     def create_left_dock(self):
         self.create_level_dock()
-        # self.create_overworld_dock()
+        self.create_overworld_dock()
         self.addDockWidget(Qt.LeftDockWidgetArea, self.level_dock)
-        # self.addDockWidget(Qt.LeftDockWidgetArea, self.overworld_dock)
-        # self.tabifyDockWidget(self.level_dock, self.overworld_dock)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.overworld_dock)
+        self.tabifyDockWidget(self.level_dock, self.overworld_dock)
         self.level_dock.raise_()
 
     def create_overworld_dock(self):
         print("Create Overworld Dock")
         self.overworld_dock = QDockWidget("Overworlds", self)
-        # self.overworld_menu = OverworldDatabase(self, self.app_state_manager)
+        self.overworld_menu = OverworldDatabase(self.app_state_manager)
         self.overworld_dock.setAllowedAreas(Qt.LeftDockWidgetArea)
-        # self.overworld_dock.setWidget(self.overworld_menu)
+        self.overworld_dock.setWidget(self.overworld_menu)
         self.overworld_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
 
     def create_level_dock(self):
@@ -81,6 +83,11 @@ class GlobalEditor(QMainWindow):
         self.current_level = level
         self.map_view.set_current_level(level)
 
+    def set_current_overworld(self, overworld_nid):
+        overworld = DB.overworlds.get(overworld_nid)
+        self.current_level = overworld
+        self.map_view.set_current_level(overworld, overworld=True)
+
     def create_actions(self):
         # menu actions
         self.zoom_in_act = QAction(
@@ -90,7 +97,7 @@ class GlobalEditor(QMainWindow):
         
         # toolbar actions
         self.modify_level_act = QAction(
-            "Edit Level", self, shortcut="E", triggered=self.edit_level)
+            "Edit Level", self, triggered=self.edit_level)
 
     def set_icons(self, force_theme=None):
         if force_theme is None:
@@ -105,6 +112,9 @@ class GlobalEditor(QMainWindow):
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
         self.modify_level_act.setIcon(QIcon(f'{icon_folder}/map.png'))
 
+    def overworld_mode(self) -> bool:
+        return not self.overworld_dock.visibleRegion().isEmpty()
+
     def create_toolbar(self, toolbar):
         toolbar.addAction(self.modify_level_act, 0)
 
@@ -115,7 +125,10 @@ class GlobalEditor(QMainWindow):
         edit_menu.addAction(self.zoom_out_act)
 
     def edit_level(self):
-        self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.LEVEL_EDITOR)
+        if self.overworld_mode():
+            self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.OVERWORLD_EDITOR)
+        else:
+            self.app_state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.LEVEL_EDITOR)
 
     def _render(self):
         self.map_view = GlobalModeLevelMapView(self)

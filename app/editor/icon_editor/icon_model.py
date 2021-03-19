@@ -6,6 +6,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 
 from app.utilities import str_utils
 from app.resources.icons import Icon
+from app.resources.map_icons import MapIcon, MapIconCatalog
 from app.resources.resources import RESOURCES
 from app.utilities.data import Data
 from app.data.database import DB
@@ -224,3 +225,78 @@ class Icon80Model(Icon16Model):
         for klass in DB.classes:
             if klass.icon_nid == old_nid:
                 klass.icon_nid = new_nid
+
+class MapIconModel(Icon16Model):
+    database = RESOURCES.map_icons
+    width, height = 48, 48
+    
+    def __init__(self, data, window):
+        super().__init__(data, window)
+        self.sub_data = self._data
+    
+    def create_new(self):
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Choose %s", starting_path, "PNG Files (*.png);;All Files(*)")
+        icon = None
+        if ok:
+            for fn in fns:
+                if fn.endswith('.png'):
+                    nid = os.path.split(fn)[-1][:-4]  # Get rid of .png ending
+                    pix = QPixmap(fn)
+                    if pix.width() % 16 == 0 and pix.height() % 16 == 0 and pix.width() == pix.height():
+                        ratio = pix.width() / 16
+                        if ratio > 3:
+                            QMessageBox.critical(self.window, "File Size Error!", "Map icon width and height for file " + fn + " must be either 16x16, 32x32, or 48x48")
+                            continue
+                        nid = str_utils.get_next_name(nid, [d.nid for d in self.database])
+                        icon = MapIcon(nid, os.path.basename(fn))
+                        icon.full_path = fn
+                        icon.pixmap = pix
+                        self._data.append(icon)
+                    else:
+                        QMessageBox.critical(self.window, "File Size Error!", "Icon width and height must be exactly divisible by %dx%d pixels!" % (self.width, self.height))
+                else:
+                    QMessageBox.critical(self.window, "File Type Error!", "Icon must be PNG format!")
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.set_last_open_path(parent_dir)
+            self.window.update_list()
+        return icon
+
+    def delete(self, idx):
+        icon = self.sub_data[idx]
+        nid = icon.nid
+        # What uses map icons
+        # overworld map nodes
+        affected_nodes = []
+        affected_node_names = []
+        for overworld in DB.overworlds:
+            for node in overworld.overworld_nodes:
+                if node.icon == nid:
+                    affected_nodes.append(node)
+                    affected_node_names.append(node.name)
+        if affected_nodes:
+            affected_node_string = ', '.join(affected_node_names)
+            confirmation = QMessageBox.question(self.window, 'Confirmation', 'Deleting this map icon will affect the following nodes: ' + affected_node_string, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if confirmation == QMessageBox.Yes:
+                for node in affected_nodes:
+                    node.icon = MapIconCatalog.DEFAULT()
+                self.do_delete(nid)
+
+    def on_nid_changed(self, old_nid, new_nid):
+        # What uses map icons
+        # overworld map nodes
+        for overworld in DB.overworlds:
+            for node in overworld.overworld_nodes:
+                if node.nid == old_nid:
+                    node.icon = new_nid
+                    
+    def do_delete(self, nid):
+        self.layoutAboutToBeChanged.emit()
+        for i in self._data:
+            if i.nid == nid:
+                self._data.delete(i)
+        for i in self.sub_data._list[:]:
+            if i.nid == nid:
+                self.sub_data.delete(i)
+        self.layoutChanged.emit()

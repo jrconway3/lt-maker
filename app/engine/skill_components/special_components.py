@@ -93,6 +93,28 @@ class CombatArtAllowedWeapons(SkillComponent):
                 print("Couldn't evaluate conditional: %s" % self.value)
         return good_weapons
 
+class CombatArtSetMaxRange(SkillComponent):
+    nid = 'combat_art_set_max_range'
+    desc = "Defines what unit's max range is for testing combat art. Combine with 'Limit Max Range' component on subskill."
+    tag = 'advanced'
+    paired_with = ('combat_art', )
+
+    expose = Type.Int
+
+    def combat_art_set_max_range(self, unit) -> int:
+        return max(0, self.value)
+
+class CombatArtModifyMaxRange(SkillComponent):
+    nid = 'combat_art_modify_max_range'
+    desc = "Modifies unit's max range when testing combat art. Combine with 'Modify Max Range' component on subskill."
+    tag = 'advanced'
+    paired_with = ('combat_art', )
+
+    expose = Type.Int
+
+    def combat_art_modify_max_range(self, unit) -> int:
+        return self.value
+
 def get_proc_rate(unit, skill) -> int:
     for component in skill.components:
         if component.defines('proc_rate'):

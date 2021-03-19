@@ -194,7 +194,8 @@ class ExpState(MapState):
                 # check for skill gain unless the unit is using a booster to
                 # get to this screen
                 if self.starting_state != "stat_booster":
-                    for level_needed, class_skill in self.unit_klass.learned_skills:
+                    unit_klass = DB.classes.get(self.unit.klass)
+                    for level_needed, class_skill in unit_klass.learned_skills:
                         if self.unit.level == level_needed:
                             if class_skill == 'Feat':
                                 game.memory['current_unit'] = self.unit

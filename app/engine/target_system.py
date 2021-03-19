@@ -190,6 +190,7 @@ def travel_algorithm(path, moves, unit, grid):
 def get_valid_targets(unit, item=None) -> set:
     """
     Determines all the valid targets given use of the item
+    item_system.valid_targets takes care of range
     """
     if not item:
         item = unit.get_weapon()

@@ -2054,7 +2054,7 @@
             ],
             [
                 "build_charge",
-                10
+                30
             ]
         ]
     },
@@ -2119,6 +2119,10 @@
             [
                 "build_charge",
                 15
+            ],
+            [
+                "combat_art_set_max_range",
+                1
             ]
         ]
     },

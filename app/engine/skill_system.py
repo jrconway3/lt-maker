@@ -367,18 +367,43 @@ def get_extra_abilities(unit):
     return abilities
 
 def get_combat_arts(unit):
+    from app.engine import item_funcs, target_system
     combat_arts = {}
     for skill in unit.skills:
-        combat_art, combat_art_weapons = None, []
+        if not condition(skill, unit):
+            continue
+        combat_art = None
+        combat_art_weapons = item_funcs.get_all_items(unit)
+        combat_art_set_max_range = None
+        combat_art_modify_max_range = None
         for component in skill.components:
             if component.defines('combat_art'):
-                if component.ignore_conditional or condition(skill, unit):
-                    combat_art = component.combat_art(unit)
+                combat_art = component.combat_art(unit)
             if component.defines('combat_art_weapon_filter'):
-                if component.ignore_conditional or condition(skill, unit):
-                    combat_art_weapons = component.combat_art_weapon_filter(unit)
+                combat_art_weapons = component.combat_art_weapon_filter(unit)
+            if component.defines('combat_art_set_max_range'):
+                combat_art_max_range = component.combat_art_set_max_range(unit)
+            if component.defines('combat_art_modify_max_range'):
+                combat_art_max_range = component.combat_art_modify_max_range(unit)
+
         if combat_art and combat_art_weapons:
-            combat_arts[skill.name] = (skill, combat_art_weapons)
+            good_weapons = []
+            # Check which of the good weapons meet the range requirements
+            for weapon in combat_art_weapons:
+                # Just for testing range
+                if combat_art_set_max_range:
+                    weapon._force_max_range = max(0, combat_art_max_range)
+                elif combat_art_modify_max_range:
+                    max_range = max(item_funcs.get_range(unit, weapon))
+                    weapon._force_max_range = max(0, max_range + combat_art_modify_max_range)
+                targets = target_system.get_valid_targets(unit, weapon)
+                weapon._force_max_range = None
+                if targets:
+                    good_weapons.append(weapon)
+
+            if good_weapons:
+                combat_arts[skill.name] = (skill, good_weapons)
+
     return combat_arts
 
 def activate_combat_art(unit, skill):

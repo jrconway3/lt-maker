@@ -171,11 +171,33 @@
                         false
                     ]
                 ],
-                "team": "player",
+                "team": "enemy",
                 "ai": "None",
                 "starting_position": [
                     6,
                     9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 1,
+                "klass": "Dracoknight",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Slim Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "starting_position": [
+                    4,
+                    6
                 ],
                 "name": null,
                 "desc": null,

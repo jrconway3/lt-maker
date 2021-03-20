@@ -466,9 +466,9 @@ class UnitSprite():
     def draw_markers(self, surf, cur_unit, left, top):
         map_markers = SPRITES.get('map_markers')
         topleft = (left - 2, top - 14)
+        frame = (engine.get_time() // 100) % 8
+        offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
         if (cur_unit.nid, self.unit.nid) in game.talk_options:
-            frame = (engine.get_time() // 100) % 8
-            offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
             talk_marker = engine.subsurface(map_markers, (0, 0, 24, 16))
             surf.blit(talk_marker, (topleft[0], topleft[1] + offset))
         elif cur_unit.team == 'player' and skill_system.check_enemy(self.unit, cur_unit):
@@ -486,24 +486,24 @@ class UnitSprite():
             if skill_system.steal_icon(cur_unit, self.unit):
                 steal = True
             if warning or danger or steal:
-                frame = (engine.get_time() // 500) % sum([warning, danger, steal])
-                warning_marker = engine.subsurface(map_markers, (0, 16, 16, 16))
-                danger_marker = engine.subsurface(map_markers, (16, 16, 16, 16))
+                icon_frame = (engine.get_time() // 500) % sum([warning, danger, steal])
+                danger_marker = engine.subsurface(map_markers, (0, 16, 16, 16))
+                warning_marker = engine.subsurface(map_markers, (16, 16, 16, 16))
                 steal_marker = engine.subsurface(map_markers, (32, 16, 16, 16))
-                if frame == 0:
+                if icon_frame == 0:
                     if warning:
-                        surf.blit(warning_marker, topleft)
+                        surf.blit(warning_marker, (topleft[0] + 2, topleft[1] + offset))
                     elif danger:
-                        surf.blit(danger_marker, topleft)
+                        surf.blit(danger_marker, (topleft[0] + 2, topleft[1] + offset))
                     else:
-                        surf.blit(steal_marker, topleft)
-                elif frame == 1:
+                        surf.blit(steal_marker, (topleft[0] + 2, topleft[1] + offset))
+                elif icon_frame == 1:
                     if warning:
-                        surf.blit(danger_marker, topleft)
+                        surf.blit(danger_marker, (topleft[0] + 2, topleft[1] + offset))
                     else:
-                        surf.blit(steal_marker, topleft)
-                elif frame == 2:
-                    surf.blit(steal_marker, topleft)
+                        surf.blit(steal_marker, (topleft[0] + 2, topleft[1] + offset))
+                elif icon_frame == 2:
+                    surf.blit(steal_marker, (topleft[0] + 2, topleft[1] + offset))
 
     def check_draw_hp(self) -> bool:
         if self.unit.is_dying:

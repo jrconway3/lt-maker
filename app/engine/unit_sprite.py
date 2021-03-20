@@ -492,18 +492,18 @@ class UnitSprite():
                 steal_marker = engine.subsurface(map_markers, (32, 16, 16, 16))
                 if frame == 0:
                     if warning:
-                        surf.blit(warning_marker, (topleft[0], topleft[1] + offset))
+                        surf.blit(warning_marker, topleft)
                     elif danger:
-                        surf.blit(danger_marker, (topleft[0], topleft[1] + offset))
+                        surf.blit(danger_marker, topleft)
                     else:
-                        surf.blit(steal_marker, (topleft[0], topleft[1] + offset))
+                        surf.blit(steal_marker, topleft)
                 elif frame == 1:
                     if warning:
-                        surf.blit(danger_marker, (topleft[0], topleft[1] + offset))
+                        surf.blit(danger_marker, topleft)
                     else:
-                        surf.blit(steal_marker, (topleft[0], topleft[1] + offset))
+                        surf.blit(steal_marker, topleft)
                 elif frame == 2:
-                    surf.blit(steal_marker, (topleft[0], topleft[1] + offset))
+                    surf.blit(steal_marker, topleft)
 
     def check_draw_hp(self) -> bool:
         if self.unit.is_dying:

@@ -436,7 +436,6 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
                     self._rows.append((klass.nid, i, i + true_levels))
             else:
                 return
-        print(self._rows)
 
     def set_current(self, current):
         self.current = current

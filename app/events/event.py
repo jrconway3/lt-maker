@@ -789,6 +789,9 @@ class Event():
                 self.wait_time = engine.get_time() + anim.get_wait()
                 self.state = 'waiting'
 
+        elif command.nid == 'arrange_formation':
+            self.arrange_formation()
+
         elif command.nid == 'prep':
             values, flags = event_commands.parse(command)
             if values and values[0].lower() in self.true_vals:
@@ -798,8 +801,6 @@ class Event():
             action.do(action.SetLevelVar('_prep_pick', b))
             if len(values) > 1 and values[1]:
                 action.do(action.SetGameVar('_prep_music', values[1]))
-            # Arrange formation
-            self.arrange_formation()
             game.state.change('prep_main')
             self.state = 'paused'  # So that the message will leave the update loop
 

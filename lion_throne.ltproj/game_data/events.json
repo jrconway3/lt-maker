@@ -3926,6 +3926,36 @@
         "priority": 20
     },
     {
+        "name": "FightHarold",
+        "trigger": "combat_start",
+        "level_nid": "3",
+        "condition": "check_default('Harold', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Harold",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Harold",
+                    "You cannot escape!|Bear witness to the Empire's might!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Harold"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
         "name": "WinGame",
         "trigger": "combat_end",
         "level_nid": "1",
@@ -3949,12 +3979,89 @@
         "name": "WinGame",
         "trigger": "combat_end",
         "level_nid": "2",
-        "condition": "game.check_dead('')",
+        "condition": "game.check_dead('Brigham')",
         "commands": [
             [
                 "comment",
                 [
-                    "# Win game on Sidney's death"
+                    "# Win game on Brigham's death"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "KillHarold",
+        "trigger": "combat_end",
+        "level_nid": "3",
+        "condition": "game.check_dead('Harold')",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Win game on Harold's death"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierRed",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "Blast!|They've taken the gold and the life of our commanding officer.|Everybody fall back!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierRed"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Ophie",
+                    "MidLeft",
+                    "Renae",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "We've broken their ranks!|Now's our chance to escape."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Score one for the Resistance!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Renae"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "switch",
+                    "3"
                 ]
             ],
             [
@@ -4014,6 +4121,50 @@
         "trigger": "combat_end",
         "level_nid": "2",
         "condition": "len(game.get_units_in_party()) < 3",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Lose game when party size falls below three"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "You have lost too many members of your party."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 15
+    },
+    {
+        "name": "PartyLose",
+        "trigger": "combat_end",
+        "level_nid": "3",
+        "condition": "len(game.get_units_in_party()) < 5",
         "commands": [
             [
                 "comment",
@@ -6055,6 +6206,2404 @@
                     "Althea",
                     "Prim",
                     "Ophie"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "3",
+        "condition": "True",
+        "commands": [
+            [
+                "game_var",
+                [
+                    "_max_turnwheel_uses",
+                    "3"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_current_turnwheel_uses",
+                    "3"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_convoy",
+                    "True"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_base_market",
+                    "True"
+                ]
+            ],
+            [
+                "add_weather",
+                [
+                    "Light"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Pre Base Script"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Prebase Script 3"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Base Entrance background"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Toorimichi"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Ophie meets Renae"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Ophie meets Theo"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Prim meets Eliza"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Set lore"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Althea"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Drake"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Nia"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Theo"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Kerala"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Empire"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Eliza"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Podoma"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Rajas"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Ulver"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Vagnius"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Iron Sword"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Iron Lance"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Iron Axe"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Willow Bow"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Glimmer"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Heal"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Fire"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# add_to_market;Vulnerary"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Cave"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "Left",
+                    "Prim",
+                    "MidRight",
+                    "Ophie",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Well... we're here."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "This is the Resistance base?! But it's so... small."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "It is rather cozy, ain't it?{w}{clear}Anyway, let's talk to Sam.|He'll know what to do with the lot of you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Sam?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Our tactician. The brains behind this whole operation.{w}{clear}Now, I must warn ya'll.|Not every one o' my esteemed colleagues is as friendly,{w} handsome,{w} and good-natured as I."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Uh huh."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "It's a hard life in the Resistance.|Just look at Nia.|Nia?|Damnation. She disappeared again."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Nia doesn't talk much, does she?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Nope. But I talk enough for the both of us.|Besides, the lass has other ways of getting her point across...|as ya'll almost found out."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "That we did."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Alright, follow me."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Ophie",
+                    "Prim"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoomDay"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Sam",
+                    "Right",
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Ah, Joel. Late, as usual."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Good to see you as well, partner."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Prim",
+                    "MidLeft",
+                    "low_priority"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "And you brought... guests?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Sure did. I'll have them explain."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "S-Sir, my name is Prim and this is Ophie.|We'd like to join your, ah, Resistance."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hmmph. You're barely more than children.|What use are you to the Resistance?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I can fight!|You will not find my blade lacking!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Also, I am trained in the healing arts..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Sam, they have nowhere else to turn to."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hmmm..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "I can vouch for them.|They saved me from a group of Imperial soldiers."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "And who might you be, girl--{w}{clear}Wait. I recognize you.|It can't be..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "It is, sir.|You see before you the rightful heir to the Lion Throne."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "...By the light..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "So... can they join your Resistance?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "What?|Oh... of course.|Sorry, your highness. It's just surprising news.|This changes everything. All my plans...|But I'm getting ahead of myself...|Your highness, please take a seat."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Call me Althea."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Althea, then. We have a lot to discuss..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Drake",
+                    "Sam",
+                    "Althea"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "MainBase"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "Left",
+                    "Prim",
+                    "FarRight",
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Well, come along then. I don't think Sam needs us anymore.|I reckon' ya'll could use a tour.|I'll introduce you to the other members o' this fine establishment..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Prim",
+                    "Ophie"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Actually do base"
+                ]
+            ],
+            [
+                "base",
+                [
+                    "MainBase",
+                    "The Journey to the West"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Narration Script"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "The Task at Hand"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Show room"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "TacticsRoom"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "fakeSam",
+                    "7,2"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "12,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Prim",
+                    "10,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Theo",
+                    "10,9"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Renae",
+                    "5,9"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Drake",
+                    "5,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Joel",
+                    "9,7"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Althea",
+                    "3,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Nia",
+                    "13,9"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "fakeSam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoomDay"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Sam",
+                    "Right",
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Good morning everyone."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "As you all can see, we have some new members.|I foresee good fortune in our future.|Now, we'll be able to take the fight to the Imperial interlopers!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Yeah, yeah, Sam.|You give us the same prep talk before every mission.|Just tell it to us straight."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Fine. Theo has informed me that we're running low on funds.|We need money for repairs, new armor, and so on.|So...{w} we're gonna rob the Imperial Bank."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Rob a bank? We'll be regarded as nothing more than common thugs.|What honor can be found in that?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "This is no ordinary bank.|The Empire imposes harsh taxes on the Keralan people.|Their blood money is kept in Fort Kosheen before being sent to the Empire proper.|We'll be... liberating this unearned revenue from the Empire.|Surely you can see the honor in that, Drake?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Hmmm..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Drake"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "But won't this fort be heavily guarded?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Normally, yes.|But my sources assure me that the guard at Fort Kosheen will be light tonight.|They will be having other... troubles.|Leaving the treasure for us."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Ophie",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hah! A heist against the Empire!|This is what being in the Resistance is all about, eh, Prim?"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Sam",
+                    "FarRight"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Prim",
+                    "MidRight",
+                    "",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Uh... Yeah!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Well, then, sounds like a plan.|I'm fixin' to get me some breakfast.|Who's with me?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I sure am!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "And me!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Ophie",
+                    "Prim"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I wish you good luck this evening, everyone."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Chapter Title"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Reload the old tilemap"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "BlackBackground"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 3",
+                    "reload"
+                ]
+            ],
+            [
+                "chapter_title",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# Intro Script"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Awakening - Easy Now"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "ClearingSunset"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Just like Sam said, the guards are leaving..."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I reckon' we'd best make this quick.|Who knows how long they'll be."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Oh, you can count on me to make this quick.|They don't call me the best thief in Kerala for nothing."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Theo",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "I doubt that anybody refers to you as that, Renae."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Sure they do.|Really, Theo, you need to get out more."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Hmmm...|Wouldn't being called the best thief in Kerala falsify that very statement?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "What now?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "The best thief should be sneaky, right?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "I am sneaky!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "So the best thief in Kerala should be someone nobody knows about..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Yet, here I am, living proof!|La-dee-da!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Enough talk. Now's the time to strike."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Alright! Let's go!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Joel",
+                    "Renae",
+                    "Theo"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "music",
+                [
+                    "Preparing for Battle"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "arrange_formation",
+                []
+            ],
+            [
+                "move_cursor",
+                [
+                    "Ophie",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "prep",
+                [
+                    "f",
+                    "Preparing for Battle"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn1",
+        "trigger": "turn_change",
+        "level_nid": "3",
+        "condition": "game.turncount == 1",
+        "commands": [
+            [
+                "music",
+                [
+                    "Best Detectives"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "S3"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Bank"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierGrey",
+                    "Left"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierBlue",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierGrey",
+                    "I wonder what got the Sarge all riled up."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "'Ey, don't worry about him.|We finally get some time to relax without him breathing down our neck."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierGrey",
+                    "I tell ya.|He catches me napping on duty once, and I'm shoveling shit for a week."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "Aye, he's a hardass..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierGrey",
+                    "Man, I could really use a break though...|...Hey... can you cover for me...|I'm going to take a quick nap while he's gone."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "Really, man?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierGrey",
+                    "You're still single!|You don't know what its like with two kids at home.|I can't remember the last time I got a full night's rest."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "Hmm... all right, but you owe me one."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "SoldierBlue",
+                    "SoldierGrey"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "S3",
+                    "18,8"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "S3"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "250"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn2",
+        "trigger": "turn_change",
+        "level_nid": "3",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "music",
+                [
+                    "Brave Story 33"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "S1"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "S1",
+                    "18,6"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "S2"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierRed",
+                    "Right"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierBlue",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "The Resistance! Those traitorous scum...|Men, to arms! We cannot allow them into the vault."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "Aye, aye sir!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "And send a runner to Sergeant Harold.|We need backup! These Resistance scum must be put down!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "Right away, sir!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "SoldierRed",
+                    "SoldierBlue"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "S2",
+                    "18,0"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "S2"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "250"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn4",
+        "trigger": "turn_change",
+        "level_nid": "3",
+        "condition": "game.turncount == 4",
+        "commands": [
+            [
+                "music",
+                [
+                    "Brave Story 33"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "18,8"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "S4",
+                    "18,8",
+                    "fade",
+                    "closest"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "S4"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierGrey",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierGrey",
+                    "Eh, what's going on?"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierRed",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "On your feet, soldier! The Resistance is here!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierRed"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierGrey",
+                    "I finally get a chance to take one nap and all hell breaks loose!|Just my luck..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierGrey"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "S4",
+                    "Attack"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "S1",
+                    "Attack"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn9",
+        "trigger": "turn_change",
+        "level_nid": "3",
+        "condition": "game.turncount == 9",
+        "commands": [
+            [
+                "music",
+                [
+                    "Brave Story 33"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# change_objective_display_name;Escape or Defeat Boss"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# change_objective_win_condition;Escape the Fort or Defeat Boss."
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "6,18"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "G1",
+                    "5,18",
+                    "fade",
+                    "push"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Harold",
+                    "6,18",
+                    "fade",
+                    "push"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "G2",
+                    "7,18",
+                    "fade",
+                    "push"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Harold"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Harold",
+                    "Right"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierBlue",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Harold",
+                    "Men, double time! Fan out and surround the Fort.|Don't let a single robber escape!|We shall not fail the Empire."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierBlue",
+                    "Right away, sir!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "SoldierBlue",
+                    "Harold"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Pan over to Resistance"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Prim')"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Prim",
+                    "Right",
+                    "Renae",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Oh no. Those soldiers were not gone for very long.|We need to run!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "You don't have to tell me twice!|Catch you all later!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Prim",
+                    "Renae"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "not game.level_var.get('escape_tiles')"
+                ]
+            ],
+            [
+                "add_region",
+                [
+                    "Escape",
+                    "17,0",
+                    "2,1",
+                    "event",
+                    "Escape"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "escape_tiles",
+                    "True"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "add_group",
+                [
+                    "Pack1",
+                    "Pack1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "19,0"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "17,0"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# battle_save"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn11",
+        "trigger": "turn_change",
+        "level_nid": "3",
+        "condition": "game.turncount == 11",
+        "commands": [
+            [
+                "add_group",
+                [
+                    "Pack2",
+                    "Pack2"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn13",
+        "trigger": "turn_change",
+        "level_nid": "3",
+        "condition": "game.turncount == 13",
+        "commands": [
+            [
+                "add_group",
+                [
+                    "Pack3",
+                    "Pack3"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "SwitchWest",
+        "trigger": "Switch",
+        "level_nid": "3",
+        "condition": "region.nid == 'SwitchWest'",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "switch",
+                    "game.level_vars.get('switch', 0) + 1"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "2,10"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "SwitchWest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Switch Pulled!"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "SwitchNorth",
+        "trigger": "Switch",
+        "level_nid": "3",
+        "condition": "region.nid == 'SwitchNorth'",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "switch",
+                    "game.level_vars.get('switch', 0) + 1"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "10,3"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "SwitchNorth"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Switch Pulled!"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "SwitchSouth",
+        "trigger": "Switch",
+        "level_nid": "3",
+        "condition": "region.nid == 'SwitchSouth'",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "switch",
+                    "game.level_vars.get('switch', 0) + 1"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "14,16"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "SwitchSouth"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Switch Pulled!"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "SwitchCenter",
+        "trigger": "Switch",
+        "level_nid": "3",
+        "condition": "game.level_vars.get('switch', 0) >= 3",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "10,8"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "SwitchCenter"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "MidRight",
+                    "Renae",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Ok Renae, you're up."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Yeah, yeah! Lockpicking isn't as easy as I make it look."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Hurry, we don't have much time!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Althea",
+                    "Renae"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 15
+    },
+    {
+        "name": "DoorWest",
+        "trigger": "Door",
+        "level_nid": "3",
+        "condition": "region.nid == 'DoorWest'",
+        "commands": [
+            [
+                "show_layer",
+                [
+                    "DoorWest"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "DoorEast",
+        "trigger": "Door",
+        "level_nid": "3",
+        "condition": "region.nid == 'DoorEast'",
+        "commands": [
+            [
+                "show_layer",
+                [
+                    "DoorEast"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "ChestWest",
+        "trigger": "Chest",
+        "level_nid": "3",
+        "condition": "region.nid == 'ChestWest'",
+        "commands": [
+            [
+                "show_layer",
+                [
+                    "ChestWest"
+                ]
+            ],
+            [
+                "give_money",
+                [
+                    "2000"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "ChestNorth",
+        "trigger": "Chest",
+        "level_nid": "3",
+        "condition": "region.nid == 'ChestNorth'",
+        "commands": [
+            [
+                "show_layer",
+                [
+                    "ChestNorth"
+                ]
+            ],
+            [
+                "give_money",
+                [
+                    "2000"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "ChestSouth",
+        "trigger": "Chest",
+        "level_nid": "3",
+        "condition": "region.nid == 'ChestSouth'",
+        "commands": [
+            [
+                "show_layer",
+                [
+                    "ChestSouth"
+                ]
+            ],
+            [
+                "give_money",
+                [
+                    "2000"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "ChestCenter",
+        "trigger": "Chest",
+        "level_nid": "3",
+        "condition": "region.nid == 'ChestCenter'",
+        "commands": [
+            [
+                "show_layer",
+                [
+                    "ChestCenter"
+                ]
+            ],
+            [
+                "give_money",
+                [
+                    "5000"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Okay, we've got the loot!|Let's scram!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# change_objective_display_name;Escape"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.turncount > 8"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# change_objective_display_name;Escape or Defeat Boss"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# change_objective_win_condition;Escape the Fort or Defeat Boss"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "not game.level_vars.get('escape_tiles')"
+                ]
+            ],
+            [
+                "add_region",
+                [
+                    "Escape",
+                    "17,0",
+                    "2,1",
+                    "event",
+                    "Escape"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "escape_tiles",
+                    "True"
+                ]
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "3",
+        "condition": "True",
+        "commands": [
+            [
+                "victory_screen",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Young Man from the East"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "ClearingDark"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Ophie",
+                    "FarLeft",
+                    "Joel",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Phew... I think we lost 'em."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Nia?"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Nia",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "Umm... J-just us..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Nia"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Then we can rest here, but only for a little.|It's a long walk back to base."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hmmph. That was too close!|Sam said we weren't going to have to worry about the guards!"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Althea",
+                    "MidLeft",
+                    "Prim",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "I wonder what went wrong."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "That asshole's plan nearly got us killed.|And he doesn't even show up!|Who does he think he is?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "I-I'm sure he had a good reason.|He just made a mistake.|This is a fluke, right?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Err..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I'll give Sam one more chance.|If our so-called tactician's plan fails again, Prim and I are done."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "... Uh...|N-No use dawdling around here, right?|A long rest will do everyone some good."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Well said, milady."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Althea",
+                    "Drake"
                 ]
             ],
             [

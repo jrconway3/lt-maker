@@ -446,7 +446,7 @@
         "minimap": "Door",
         "platform": "Floor",
         "mtype": "Wall",
-        "opaque": false,
+        "opaque": true,
         "status": null
     },
     {

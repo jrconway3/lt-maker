@@ -23,6 +23,7 @@
                 "nid": "Ophie",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     4
@@ -30,61 +31,9 @@
                 "generic": false
             },
             {
-                "nid": "Prim",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    4,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Yohn",
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    4,
-                    5
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Vagnius",
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": [
-                    3,
-                    7
-                ],
-                "generic": false
-            },
-            {
-                "nid": "101",
-                "variant": null,
-                "level": 10,
-                "klass": "Myrmidon",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Sword",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "starting_position": [
-                    1,
-                    6
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
                 "nid": "102",
                 "variant": null,
-                "level": 10,
+                "level": 2,
                 "klass": "Soldier",
                 "faction": "Soldier",
                 "starting_items": [
@@ -94,10 +43,11 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
+                "ai_group": "1",
                 "starting_position": [
-                    6,
-                    10
+                    5,
+                    6
                 ],
                 "name": null,
                 "desc": null,
@@ -116,7 +66,8 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Defend",
+                "ai_group": "1",
                 "starting_position": [
                     7,
                     10
@@ -126,41 +77,7 @@
                 "generic": true
             },
             {
-                "nid": "104",
-                "variant": null,
-                "level": 5,
-                "klass": "Warrior",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Willow Bow",
-                        false
-                    ],
-                    [
-                        "Iron Axe",
-                        false
-                    ],
-                    [
-                        "Brave Axe",
-                        false
-                    ],
-                    [
-                        "Hand Axe",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "starting_position": [
-                    5,
-                    9
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "105",
+                "nid": "101",
                 "variant": null,
                 "level": 1,
                 "klass": "Archer",
@@ -172,32 +89,34 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     6,
-                    9
+                    10
                 ],
                 "name": null,
                 "desc": null,
                 "generic": true
             },
             {
-                "nid": "106",
+                "nid": "104",
                 "variant": null,
                 "level": 1,
-                "klass": "Dracoknight",
+                "klass": "Fighter",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Slim Lance",
+                        "Iron Axe",
                         false
                     ]
                 ],
-                "team": "player",
-                "ai": "None",
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
-                    4,
-                    6
+                    5,
+                    7
                 ],
                 "name": null,
                 "desc": null,
@@ -264,6 +183,7 @@
                 "nid": "Ophie",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     9
@@ -274,6 +194,7 @@
                 "nid": "Prim",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     9
@@ -284,6 +205,7 @@
                 "nid": "Yohn",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     8,
                     9
@@ -294,6 +216,7 @@
                 "nid": "Vagnius",
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     19,
                     5
@@ -304,6 +227,7 @@
                 "nid": "Sidney",
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     18,
                     4
@@ -324,6 +248,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     18,
                     5
@@ -346,6 +271,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     19,
                     4
@@ -368,6 +294,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     19,
                     6
@@ -390,6 +317,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     19,
                     3
@@ -412,6 +340,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     18,
                     3
@@ -434,6 +363,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -453,6 +383,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -467,6 +398,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     4
@@ -484,6 +416,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     15,
                     5
@@ -501,6 +434,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     15,
                     3
@@ -518,6 +452,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     5
@@ -535,6 +470,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     3
@@ -552,6 +488,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     14,
                     4
@@ -625,6 +562,7 @@
                 "nid": "Ophie",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     7
@@ -635,6 +573,7 @@
                 "nid": "Prim",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     7
@@ -645,6 +584,7 @@
                 "nid": "Joel",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     6
@@ -655,6 +595,7 @@
                 "nid": "Nia",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     5
@@ -665,6 +606,7 @@
                 "nid": "Sidney",
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     17,
                     7
@@ -685,6 +627,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     16,
                     4
@@ -707,6 +650,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     11,
                     5
@@ -729,6 +673,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     8
@@ -751,6 +696,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     6
@@ -773,6 +719,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     16,
                     6
@@ -795,6 +742,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     15,
                     7
@@ -817,6 +765,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     7
@@ -839,6 +788,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     6
@@ -861,6 +811,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     8
@@ -883,6 +834,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     7
@@ -961,6 +913,7 @@
                 "nid": "Althea",
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     8,
                     2
@@ -971,6 +924,7 @@
                 "nid": "Drake",
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     3
@@ -991,6 +945,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     6,
                     3
@@ -1013,6 +968,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     4
@@ -1025,6 +981,7 @@
                 "nid": "Brigham",
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     19,
                     5
@@ -1045,6 +1002,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     12
@@ -1067,6 +1025,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     9
@@ -1089,6 +1048,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     11
@@ -1111,6 +1071,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     18,
                     11
@@ -1133,6 +1094,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     11,
                     9
@@ -1155,6 +1117,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     10
@@ -1181,6 +1144,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     17,
                     3
@@ -1203,6 +1167,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     10
@@ -1225,6 +1190,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     14,
                     7
@@ -1247,6 +1213,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     15,
                     5
@@ -1269,6 +1236,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     19,
                     11
@@ -1291,6 +1259,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     19,
                     12
@@ -1400,6 +1369,1152 @@
                     "112"
                 ],
                 "positions": {}
+            }
+        ]
+    },
+    {
+        "nid": "3",
+        "name": "Chapter 3",
+        "tilemap": "Chapter 3",
+        "party": "Resistance",
+        "music": {
+            "player_phase": "Climbing the Ginso Tree",
+            "enemy_phase": "Brave Story 33",
+            "other_phase": "Brave Story 33",
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null
+        },
+        "objective": {
+            "simple": "Loot vault",
+            "win": "Escape the fort with the money",
+            "loss": "Renae OR Ophie die,OR,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
+        },
+        "units": [
+            {
+                "nid": "Renae",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Theo",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Harold",
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "G1",
+                "variant": null,
+                "level": 6,
+                "klass": "Tactician",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Glimmer",
+                        false
+                    ],
+                    [
+                        "Mend",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "FollowBoss",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "G2",
+                "variant": null,
+                "level": 6,
+                "klass": "Sentinel",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 3,
+                "klass": "Sentinel",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "1",
+                "starting_position": [
+                    7,
+                    10
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 3,
+                "klass": "Sentinel",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "1",
+                "starting_position": [
+                    8,
+                    11
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "S1",
+                "variant": null,
+                "level": 5,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    12
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "S2",
+                "variant": null,
+                "level": 4,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "S3",
+                "variant": null,
+                "level": 4,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "S4",
+                "variant": null,
+                "level": 4,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 3,
+                "klass": "Knight",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Skeleton Key",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    8,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 4,
+                "klass": "Mercenary",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ],
+                    [
+                        "Skeleton Key",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    15,
+                    11
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 5,
+                "klass": "Mercenary",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    15,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "111",
+                "variant": null,
+                "level": 4,
+                "klass": "Mercenary",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ],
+                    [
+                        "Potion",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    13,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "112",
+                "variant": null,
+                "level": 5,
+                "klass": "Mercenary",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    5,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 5,
+                "klass": "Sentinel",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    14
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 4,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Potion",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    15,
+                    16
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 2,
+                "klass": "Shaman",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    15,
+                    13
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 2,
+                "klass": "Shaman",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Mana Ring",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 3,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "120",
+                "variant": null,
+                "level": 3,
+                "klass": "Sentinel",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "121",
+                "variant": null,
+                "level": 3,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "122",
+                "variant": null,
+                "level": 3,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "123",
+                "variant": null,
+                "level": 3,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "124",
+                "variant": null,
+                "level": 3,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "130",
+                "variant": null,
+                "level": 4,
+                "klass": "Sentinel",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "131",
+                "variant": null,
+                "level": 5,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "132",
+                "variant": null,
+                "level": 4,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "133",
+                "variant": null,
+                "level": 4,
+                "klass": "Shaman",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "134",
+                "variant": null,
+                "level": 4,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "140",
+                "variant": null,
+                "level": 6,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "141",
+                "variant": null,
+                "level": 6,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "142",
+                "variant": null,
+                "level": 5,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Oak Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "143",
+                "variant": null,
+                "level": 5,
+                "klass": "Shaman",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Nyx",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "144",
+                "variant": null,
+                "level": 5,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "fakeSam",
+                "variant": null,
+                "level": 1,
+                "klass": "Tactician",
+                "faction": "Monk",
+                "starting_items": [],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Monk",
+                "desc": "A monk at this monastery.",
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "SwitchWest",
+                "region_type": "event",
+                "position": [
+                    2,
+                    9
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Switch",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "SwitchNorth",
+                "region_type": "event",
+                "position": [
+                    14,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Switch",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "SwitchSouth",
+                "region_type": "event",
+                "position": [
+                    14,
+                    16
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Switch",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "ChestWest",
+                "region_type": "event",
+                "position": [
+                    2,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "ChestNorth",
+                "region_type": "event",
+                "position": [
+                    10,
+                    1
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "ChestSouth",
+                "region_type": "event",
+                "position": [
+                    18,
+                    16
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "ChestCenter",
+                "region_type": "event",
+                "position": [
+                    10,
+                    8
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "DoorWest",
+                "region_type": "event",
+                "position": [
+                    6,
+                    5
+                ],
+                "size": [
+                    1,
+                    3
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "DoorEast",
+                "region_type": "event",
+                "position": [
+                    14,
+                    9
+                ],
+                "size": [
+                    1,
+                    3
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "Formation1",
+                "region_type": "formation",
+                "position": [
+                    0,
+                    15
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation2",
+                "region_type": "formation",
+                "position": [
+                    0,
+                    17
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation3",
+                "region_type": "formation",
+                "position": [
+                    1,
+                    16
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation4",
+                "region_type": "formation",
+                "position": [
+                    1,
+                    18
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation5",
+                "region_type": "formation",
+                "position": [
+                    2,
+                    15
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation6",
+                "region_type": "formation",
+                "position": [
+                    2,
+                    17
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation7",
+                "region_type": "formation",
+                "position": [
+                    3,
+                    16
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation8",
+                "region_type": "formation",
+                "position": [
+                    3,
+                    18
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            }
+        ],
+        "unit_groups": [
+            {
+                "nid": "Pack1",
+                "units": [
+                    "120",
+                    "121",
+                    "122",
+                    "123",
+                    "124"
+                ],
+                "positions": {
+                    "120": [
+                        7,
+                        1
+                    ],
+                    "121": [
+                        10,
+                        16
+                    ],
+                    "122": [
+                        18,
+                        12
+                    ],
+                    "123": [
+                        2,
+                        2
+                    ],
+                    "124": [
+                        18,
+                        8
+                    ]
+                }
+            },
+            {
+                "nid": "Pack2",
+                "units": [
+                    "131",
+                    "130",
+                    "132",
+                    "133",
+                    "134"
+                ],
+                "positions": {
+                    "131": [
+                        7,
+                        1
+                    ],
+                    "130": [
+                        18,
+                        12
+                    ],
+                    "132": [
+                        18,
+                        8
+                    ],
+                    "133": [
+                        10,
+                        16
+                    ],
+                    "134": [
+                        2,
+                        2
+                    ]
+                }
+            },
+            {
+                "nid": "Pack3",
+                "units": [
+                    "140",
+                    "141",
+                    "142",
+                    "143",
+                    "144"
+                ],
+                "positions": {
+                    "140": [
+                        18,
+                        8
+                    ],
+                    "141": [
+                        7,
+                        1
+                    ],
+                    "142": [
+                        10,
+                        16
+                    ],
+                    "143": [
+                        18,
+                        12
+                    ],
+                    "144": [
+                        2,
+                        2
+                    ]
+                }
             }
         ]
     }

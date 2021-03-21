@@ -24,6 +24,7 @@ class UnitObject(Prefab):
         self.generic = prefab.generic
 
         self.ai = prefab.ai
+        self.ai_group = prefab.ai_group
 
         self.items = item_funcs.create_items(self, prefab.starting_items)
 
@@ -105,6 +106,9 @@ class UnitObject(Prefab):
         self.has_taken = False
         self.has_given = False
         self.has_dropped = False
+
+        self.has_run_ai = False
+        self.ai_group_active = False
 
         self._sprite = None
         self._sound = None
@@ -317,19 +321,7 @@ class UnitObject(Prefab):
                     return running_total
                 if klass.tier <= 0:
                     return running_total
-            return running_total 
-
-    def get_group(self) -> str:
-        """
-        Used to find the unit's AI group
-        """
-        if not game.level:
-            return None
-        groups = game.level.unit_groups
-        for group in groups:
-            if self.nid in group.units:
-                return group.nid
-        return None
+            return running_total
 
     @property
     def finished(self):
@@ -408,6 +400,7 @@ class UnitObject(Prefab):
                   'exp': self.exp,
                   'generic': self.generic,
                   'ai': self.ai,
+                  'ai_group': self.ai_group,
                   'items': [item.uid for item in self.items],
                   'name': self.name,
                   'desc': self.desc,
@@ -425,6 +418,7 @@ class UnitObject(Prefab):
                   'traveler': self.traveler,
                   'dead': self.dead,
                   'action_state': self.get_action_state(),
+                  'ai_group_active': self.ai_group_active,
                   }
         return s_dict
 
@@ -445,6 +439,7 @@ class UnitObject(Prefab):
         self.generic = s_dict['generic']
 
         self.ai = s_dict['ai']
+        self.ai_group = s_dict['ai_group']
 
         self.items = [game.get_item(item_uid) for item_uid in s_dict['items']]
         self.items = [i for i in self.items if i]
@@ -483,6 +478,8 @@ class UnitObject(Prefab):
             self.set_action_state(action_state)
         else:
             self.reset()
+        self.has_run_ai = False
+        self.ai_group_active = s_dict.get('ai_group_active')
 
         self._sprite = None
         self._sound = None

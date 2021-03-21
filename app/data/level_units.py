@@ -16,6 +16,7 @@ class GenericUnit(Prefab):
 
     team: str = None
     ai: str = None
+    ai_group: str = None
 
     starting_position: list = None  # 2-tuple
 
@@ -48,6 +49,7 @@ class UniqueUnit(Prefab):
     nid: str = None
     team: str = None
     ai: str = None
+    ai_group: str = None
 
     faction: str = None  # Always None
 
@@ -70,6 +72,7 @@ class UniqueUnit(Prefab):
         s_dict['nid'] = self.nid
         s_dict['team'] = self.team
         s_dict['ai'] = self.ai
+        s_dict['ai_group'] = self.ai_group
         s_dict['starting_position'] = self.starting_position
         s_dict['generic'] = self.generic
         return s_dict

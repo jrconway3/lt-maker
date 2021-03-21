@@ -211,6 +211,7 @@ class AIController():
                 done, self.goal_target, self.goal_position, self.goal_item = self.inner_ai.run()
                 if done:
                     if self.goal_target:
+                        self.ai_group_ping()
                         success = True
                         self.state = "Done"
                     else:
@@ -224,6 +225,7 @@ class AIController():
                 if done:
                     if self.goal_position:
                         if self.goal_position != self.unit.position:
+                            self.ai_group_ping()
                             success = True
                         self.state = "Done"
                     else:
@@ -235,6 +237,17 @@ class AIController():
                 return True
 
         return False
+
+    def ai_group_ping(self):
+        ai_group = self.unit.ai_group
+        if not ai_group:
+            return
+        for unit in game.units:
+            if unit.team == self.unit.team and unit.ai_group == ai_group:
+                if not unit._has_moved and not unit._has_attacked:
+                    unit.has_run_ai = False  # So it can be run through the AI state again
+                if not unit.ai_group_active:
+                    action.do(action.AIGroupPing(unit))
 
     def build_primary(self):
         if self.behaviour.view_range == -1:  # Guard AI
@@ -571,7 +584,7 @@ class SecondaryAI():
         self.unit = unit
         self.behaviour = behaviour
         self.view_range = self.behaviour.view_range
-        if self.view_range == -4:
+        if self.view_range == -4 or self.unit.ai_group_active:
             self.view_range = -3  # Try this first
 
         self.available_targets = []
@@ -635,7 +648,7 @@ class SecondaryAI():
             return True, self.best_position
 
         else:
-            if self.behaviour.view_range == -4 and not self.widen_flag:
+            if (self.behaviour.view_range == -4 or self.unit.ai_group_active) and not self.widen_flag:
                 logger.info("Widening search!")
                 self.widen_flag = True
                 self.view_range = -4

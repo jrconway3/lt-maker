@@ -1156,6 +1156,29 @@ class ChangeAI(Action):
     def reverse(self):
         self.unit.ai = self.old_ai
 
+class ChangeAIGroup(Action):
+    def __init__(self, unit, ai_group):
+        self.unit = unit
+        self.ai_group = ai_group
+        self.old_ai = self.unit.ai_group
+
+    def do(self):
+        self.unit.ai_group = self.ai_group
+
+    def reverse(self):
+        self.unit.ai_group = self.old_ai_group
+
+class AIGroupPing(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_ai_group_state = unit.ai_group_active
+
+    def do(self):
+        self.unit.ai_group_active = True
+
+    def reverse(self):
+        self.unit.ai_group_active = self.old_ai_group_state
+
 class ChangeTeam(Action):
     def __init__(self, unit, team):
         self.unit = unit

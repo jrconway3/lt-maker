@@ -164,6 +164,7 @@ class UnitPainterMenu(QWidget):
             old_unit_nid = unit.nid
             old_unit_team = unit.team
             old_unit_ai = unit.ai
+            old_unit_ai_group = unit.ai_group
             edited_unit, ok = LoadUnitDialog.get_unit(self, unit)
             if ok:
                 pass
@@ -172,6 +173,7 @@ class UnitPainterMenu(QWidget):
                 unit.prefab = DB.units.get(unit.nid)
                 unit.team = old_unit_team
                 unit.ai = old_unit_ai
+                unit.ai_group = old_unit_ai_group
 
 
 class AllUnitModel(DragDropCollectionModel):
@@ -181,10 +183,13 @@ class AllUnitModel(DragDropCollectionModel):
         if role == Qt.DisplayRole:
             unit = self._data[index.row()]
             text = str(unit.nid)
+            group = ''
+            if unit.ai_group:
+                group = '-' + str(unit.ai_group)
             if isinstance(unit, GenericUnit):
-                text += ' (' + str(unit.ai) + ' Lv ' + str(unit.level) + ')'
+                text += ' (' + str(unit.ai) + group + ' Lv ' + str(unit.level) + ')'
             else:
-                text += ' (' + str(unit.ai) + ')'
+                text += ' (' + str(unit.ai) + group + ')'
             return text
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
@@ -269,7 +274,10 @@ class InventoryDelegate(QStyledItemDelegate):
         if faction:
             pixmap = faction_model.get_pixmap(faction)
             pixmap = pixmap.scaled(24, 24, Qt.KeepAspectRatio)
-            text = str(unit.nid) + ' (' + str(unit.ai) + ' Lv ' + str(unit.level) + ')'
+            group = ''
+            if unit.ai_group:
+                group = '-' + str(unit.ai_group)
+            text = str(unit.nid) + ' (' + str(unit.ai) + group + ' Lv ' + str(unit.level) + ')'
             font = QApplication.font()
             fm = QFontMetrics(font)
             left = rect.left() + 48 + fm.width(text)
@@ -325,7 +333,19 @@ class LoadUnitDialog(Dialog):
         self.ai_box = AIBox(self)
         self.ai_box.edit.setValue(self.current.ai)
         self.ai_box.edit.activated.connect(self.ai_changed)
-        layout.addWidget(self.ai_box)
+
+        self.ai_group_box = PropertyBox("AI Group", QLineEdit, self)
+        self.ai_group_box.edit.setPlaceholderText("No Group")
+        if self.current.ai_group:
+            self.ai_group_box.edit.setText(self.current.ai_group)
+        else:
+            self.ai_group_box.edit.clear()
+        self.ai_group_box.edit.textChanged.connect(self.ai_group_changed)
+
+        ai_layout = QHBoxLayout()
+        ai_layout.addWidget(self.ai_box)
+        ai_layout.addWidget(self.ai_group_box)
+        layout.addLayout(ai_layout)
 
         layout.addWidget(self.buttonbox)
 
@@ -337,6 +357,9 @@ class LoadUnitDialog(Dialog):
 
     def ai_changed(self, val):
         self.current.ai = self.ai_box.edit.currentText()
+
+    def ai_group_changed(self, text):
+        self.current.ai_group = text
 
     def access_units(self):
         unit, ok = unit_tab.get(self.current.nid)
@@ -431,7 +454,15 @@ class GenericUnitDialog(Dialog):
 
         self.ai_box = AIBox(self)
         self.ai_box.edit.activated.connect(self.ai_changed)
-        layout.addWidget(self.ai_box)
+
+        self.ai_group_box = PropertyBox("AI Group", QLineEdit, self)
+        self.ai_group_box.edit.setPlaceholderText("No Group")
+        self.ai_group_box.edit.textChanged.connect(self.ai_group_changed)
+
+        ai_layout = QHBoxLayout()
+        ai_layout.addWidget(self.ai_box)
+        ai_layout.addWidget(self.ai_group_box)
+        layout.addLayout(ai_layout)
 
         self.item_widget = ItemListWidget("Items", self)
         self.item_widget.items_updated.connect(self.items_changed)
@@ -497,6 +528,9 @@ class GenericUnitDialog(Dialog):
     def ai_changed(self, val):
         self.current.ai = self.ai_box.edit.currentText()
 
+    def ai_group_changed(self, text):
+        self.current.ai_group = text
+
     # def check_color(self):
     #     # See which ones can actually be wielded
     #     color_list = []
@@ -540,6 +574,10 @@ class GenericUnitDialog(Dialog):
             self.variant_box.edit.clear()
         self.faction_box.edit.setValue(current.faction)
         self.ai_box.edit.setValue(current.ai)
+        if current.ai_group:
+            self.ai_group_box.edit.setText(current.ai_group)
+        else:
+            self.ai_group_box.edit.clear()
         self.item_widget.set_current(current.starting_items)
         if self.averages_dialog:
             self.averages_dialog.set_current(current)

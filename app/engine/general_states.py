@@ -1479,18 +1479,39 @@ class AIState(MapState):
     def start(self):
         logging.info("Starting AI State")
         game.cursor.hide()
-        self.unit_list = [unit for unit in game.units if unit.position and 
-                          not unit.finished and unit.team == game.phase.get_current()]
-        # Sort by distance to closest enemy (ascending)
-        self.unit_list = sorted(self.unit_list, key=lambda unit: target_system.distance_to_closest_enemy(unit))
-        # Sort ai groups together
-        self.unit_list = sorted(self.unit_list, key=lambda unit: unit.get_group() or '')
-        # Sort by ai priority
-        self.unit_list = sorted(self.unit_list, key=lambda unit: DB.ai.get(unit.ai).priority, reverse=True)
-        # Reverse, because we will be popping them off at the end
-        self.unit_list.reverse()
 
         self.cur_unit = None
+        self.cur_group = None
+
+    def get_next_unit(self):
+        valid_units = [
+            unit for unit in game.units if
+            unit.position and 
+            not unit.finished and 
+            not unit.has_run_ai and 
+            unit.team == game.phase.get_current()]
+        if not valid_units:
+            return None
+        # Check if any members of group
+        if self.cur_group:
+            group_units = [unit for unit in valid_units if unit.ai_group == self.cur_group]
+            if group_units:
+                # Sort by distance to closest enemy (ascending)
+                group_units = sorted(group_units, key=lambda unit: target_system.distance_to_closest_enemy(unit))
+                # Sort by priority
+                group_units = sorted(group_units, key=lambda unit: DB.ai.get(unit.ai).priority, reverse=True)
+                group_units.reverse()
+                return group_units.pop()
+            else:
+                self.cur_group = None
+        # So default to this
+        # Sort by distance to closest enemy (ascending)
+        valid_units = sorted(valid_units, key=lambda unit: target_system.distance_to_closest_enemy(unit))
+        # Sort by ai priority
+        valid_units = sorted(valid_units, key=lambda unit: DB.ai.get(unit.ai).priority, reverse=True)
+        # Reverse, because we will be popping them off at the end
+        valid_units.reverse()
+        return valid_units.pop()
 
     def update(self):
         super().update()
@@ -1499,8 +1520,12 @@ class AIState(MapState):
         if any(unit.is_dying for unit in game.units):
             return
 
-        if (not self.cur_unit or not self.cur_unit.position) and self.unit_list:
-            self.cur_unit = self.unit_list.pop()
+        if (not self.cur_unit or not self.cur_unit.position):
+            self.cur_unit = self.get_next_unit()
+            if self.cur_unit:
+                self.cur_group = self.cur_unit.ai_group
+            else:
+                self.cur_group = None
             # also resets AI
             game.ai.load_unit(self.cur_unit)
 
@@ -1527,12 +1552,13 @@ class AIState(MapState):
                 if did_something:  # Don't turn grey if didn't actually do anything
                     self.cur_unit.wait()
                 game.ai.reset()
+                self.cur_unit.has_run_ai = True
                 self.cur_unit = None
         else:
             logging.info("AI Phase complete")
             game.ai.reset()
-            self.unit_list.clear()
             self.cur_unit = None
+            self.cur_group = None
             game.state.change('turn_change')
             return 'repeat'
 

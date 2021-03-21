@@ -22,5 +22,17 @@
     {
         "nid": "closed",
         "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter3",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter3ExtraTiles",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "TacticsFloor",
+        "terrain_grid": {}
     }
 ]

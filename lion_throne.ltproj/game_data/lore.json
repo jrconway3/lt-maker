@@ -1,1 +1,149 @@
-[]
+[
+    {
+        "nid": "Sam",
+        "name": "Sam",
+        "title": "Sam",
+        "category": "Character",
+        "text": "The Resistance's leader, tactician, and part-time healer. Driven to root the Empire from Kerala. Cunning and ambitious."
+    },
+    {
+        "nid": "Ophie",
+        "name": "Ophie",
+        "title": "Ophie",
+        "category": "Character",
+        "text": "An orphan raised in a Keralan monastery. Trained by the monks in the sacred Way of the Blade. A competent swordsman who yearns to right injustice."
+    },
+    {
+        "nid": "Prim",
+        "name": "Prim",
+        "title": "Prim",
+        "category": "Character",
+        "text": "An orphan raised in a Keralan monastery. Learned healing magic from the nuns. Energetic and bright."
+    },
+    {
+        "nid": "Joel",
+        "name": "Joel",
+        "title": "Joel",
+        "category": "Character",
+        "text": "A charismatic rogue and former sailor. When Kerala was invaded by the Empire, he joined up with the Resistance, unwilling to see his homeland languish under Imperial rule."
+    },
+    {
+        "nid": "Nia",
+        "name": "Nia",
+        "title": "Nia",
+        "category": "Character",
+        "text": "A skittish archer who grew up alone in the dense Keralan forests. At home there and nowhere else, it's a mystery why she joined up with the Resistance in the first place."
+    },
+    {
+        "nid": "Althea",
+        "name": "Althea",
+        "title": "Althea",
+        "category": "Character",
+        "text": "The last surviving member of the Keralan royal family. Although her tale is steeped in tragedy, she has not let it bring her down. A shy but kind-hearted young woman."
+    },
+    {
+        "nid": "Drake",
+        "name": "Drake",
+        "title": "Drake",
+        "category": "Character",
+        "text": "A disgraced former Imperial soldier. Unable to stomach the Empire's execution of the Keralan royal family, he rescued Althea and fled. Stern and serious."
+    },
+    {
+        "nid": "Theo",
+        "name": "Theo",
+        "title": "Theo",
+        "category": "Character",
+        "text": "A reserved but well-mannered individual who would've preferred a life of quiet contemplation. He is the Resistance's scholar, navigator, and engineer."
+    },
+    {
+        "nid": "Renae",
+        "name": "Renae",
+        "title": "Renae",
+        "category": "Character",
+        "text": "An impulsive thief with a large collection of knives. Has a bad habit of 'borrowing' other's stuff."
+    },
+    {
+        "nid": "Eliza",
+        "name": "Eliza",
+        "title": "Eliza",
+        "category": "Character",
+        "text": "A sarcastic and moody soldier who struggles with an inferiority complex."
+    },
+    {
+        "nid": "Coyote",
+        "name": "Coyote",
+        "title": "Coyote",
+        "category": "Character",
+        "text": "A quiet, brooding man with a mysterious past. Works undercover for the Confederacy."
+    },
+    {
+        "nid": "Kayla",
+        "name": "Kayla",
+        "title": "Kayla",
+        "category": "Character",
+        "text": "A mage in the employ of the Confederacy of Free Cities. Currently serving as the Confederacy's liason to the Resistance. Manipulative but oddly romantic."
+    },
+    {
+        "nid": "Ulver",
+        "name": "Ulver",
+        "title": "Duke Ulver",
+        "category": "Character",
+        "text": "Second only to the Empress herself, Ulver rules the Empire's colony of Kerala with an iron fist. He is strong-willed and stubborn, but extremely loyal to the Empire."
+    },
+    {
+        "nid": "Vagnius",
+        "name": "Vagnius",
+        "title": "Colonel Vagnius",
+        "category": "Character",
+        "text": "Duke Ulver's right-hand man. However, Vagnius harbors aspirations of his own. Conniving and ambitious, he is willing to do anything to achieve his goals."
+    },
+    {
+        "nid": "Kerala",
+        "name": "Kerala",
+        "title": "Kerala",
+        "category": "Nation",
+        "text": "Kerala was once an independant, peaceful nation of poets and philosophers, ruled by the benevolent Lion King. When the Empire attacked, the reigning King, Akilees, surrendered without a fight. Now Kerala is merely another colony of the Empire."
+    },
+    {
+        "nid": "Podoma",
+        "name": "Podoma",
+        "title": "Podoma",
+        "category": "Location",
+        "text": "A middling, pastoral town near the Resistance base. The Resistance rescued Althea from the Empire here."
+    },
+    {
+        "nid": "Rajas",
+        "name": "Rajas",
+        "title": "Rajas",
+        "category": "Location",
+        "text": "The bustling capitol of Kerala. In legends, it is said that the Moon King himself erected the palace out of heavenly stone. Of course, now it is the seat of power for Duke Ulver and the Imperial hold on Kerala."
+    },
+    {
+        "nid": "Tyrana",
+        "name": "Tyrana",
+        "title": "Tyrana",
+        "category": "Character",
+        "text": "Near the foreboding, snowy peaks of the Ghat mountains lies the Tyrana prison. Run by the cruel warden Razia, it houses the political prisoners of the Empire, who are forced to work in the mines."
+    },
+    {
+        "nid": "Empire",
+        "name": "Empire",
+        "title": "The Empire",
+        "category": "Nation",
+        "text": "Once small but fiercely militaristic, the Empire began conquering other nearby nations for resources. Now a large and powerful nation, the Empire's only remaining adversary on the continent is the Confederacy of Free States."
+    },
+    {
+        "nid": "CFS",
+        "name": "CFS",
+        "title": "Confederacy of Free States",
+        "category": "Character",
+        "text": "A league of independent nations which have banded together for their own survival against the encroach of the warmongering Empire. However, they are plagued by internal diplomatic strife, as various factions wrest for control of the league."
+    },
+    {
+        "nid": "Kiley",
+        "name": "Kiley",
+        "title": "Captain Kiley",
+        "category": "Character",
+        "text": "A wandering legend, more myth than man. Although raised in a pirate famility, Kiley wanted nothing to do with the sea. Instead he led his crew inland, raiding mountain towns and valley hamlets alike. His storied accomplishments and odd mannerisms have led him the epithet, the \"Kiley the Land Pirate\"."
+    }
+]

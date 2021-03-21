@@ -539,6 +539,11 @@ class MapAnim(EventCommand):
     keywords = ["MapAnim", "Position"]
     flags = ["no_block"]
 
+class ArrangeFormation(EventCommand):
+    nid = 'arrange_formation'
+    tag = 'general'
+    # Puts units on formation tiles automatically
+
 class Prep(EventCommand):
     nid = 'prep'
     tag = 'general'

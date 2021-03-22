@@ -18,6 +18,9 @@ class PlayerChoiceState(MapState):
         self.menu.topleft = (self.topleft[0], self.topleft[1] + FONT['text-white'].height)
         if self.orientation == 'horizontal':
             self.menu.set_horizontal(True)
+            width = sum(option.width() + 8 for option in self.menu.options)
+            self.menu.topleft = (self.topleft[0] + self.bg_surf.get_width()//2 - width//2,
+                                 self.topleft[1] + FONT['text-white'].height)
 
     def create_bg_surf(self):
         width_of_header = FONT['text-white'].width(self.header) + 16

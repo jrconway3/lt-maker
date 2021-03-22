@@ -6279,12 +6279,6 @@
             [
                 "comment",
                 [
-                    "# Prebase Script 3"
-                ]
-            ],
-            [
-                "comment",
-                [
                     "# Base Entrance background"
                 ]
             ],
@@ -6415,51 +6409,57 @@
                 ]
             ],
             [
-                "comment",
+                "add_market_item",
                 [
-                    "# add_to_market;Iron Sword"
+                    "Iron Sword"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Iron Lance"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Iron Axe"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Willow Bow"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Glimmer"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Heal"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Fire"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Vulnerary"
                 ]
             ],
             [
                 "comment",
                 [
-                    "# add_to_market;Iron Lance"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# add_to_market;Iron Axe"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# add_to_market;Willow Bow"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# add_to_market;Glimmer"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# add_to_market;Heal"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# add_to_market;Fire"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# add_to_market;Vulnerary"
+                    "# Start"
                 ]
             ],
             [
@@ -7977,10 +7977,26 @@
                 ]
             ],
             [
-                "comment",
+                "choice",
                 [
-                    "# battle_save"
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No"
                 ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
+                "battle_save",
+                []
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,
@@ -8617,6 +8633,39 @@
                 [
                     "Close"
                 ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn2",
+        "trigger": "turn_change",
+        "level_nid": "DEBUG",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to make a save?",
+                    "Yes,No",
+                    "horiz"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
+                "battle_save",
+                []
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,

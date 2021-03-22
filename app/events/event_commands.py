@@ -228,6 +228,10 @@ class ActivateTurnwheel(EventCommand):
     # defaults to true
     optional_keywords = ['Bool']  
 
+class BattleSave(EventCommand):
+    nid = 'battle_save'
+    tag = 'general'
+
 class ChangeTilemap(EventCommand):
     nid = 'change_tilemap'
     tag = 'general'

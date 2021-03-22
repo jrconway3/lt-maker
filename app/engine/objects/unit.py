@@ -439,7 +439,7 @@ class UnitObject(Prefab):
         self.generic = s_dict['generic']
 
         self.ai = s_dict['ai']
-        self.ai_group = s_dict['ai_group']
+        self.ai_group = s_dict.get('ai_group', None)
 
         self.items = [game.get_item(item_uid) for item_uid in s_dict['items']]
         self.items = [i for i in self.items if i]

@@ -62,6 +62,7 @@ class Event():
         self.state = 'processing'
 
         self.turnwheel_flag = 0  # Whether to enter the turnwheel state after this event is finished
+        self.battle_save_flag = 0  # Whether to enter the battle save state after this event is finished
 
         self.wait_time = 0
 
@@ -519,6 +520,9 @@ class Event():
                 self.turnwheel_flag = 1
             else:
                 self.turnwheel_flag = 2
+
+        elif command.nid == 'battle_save':
+            self.battle_save_flag = True
 
         elif command.nid == 'change_tilemap':
             self.change_tilemap(command)

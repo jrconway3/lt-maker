@@ -1,7 +1,9 @@
 TODO List:
 
 Get rid of on_add and on_remove
-Battle Save
+Save needs to pull up Progress Bar -- Dialog box should pop up when saving and autosaving
+Speed up serialization
+Figure out whether we should be saving music and sound effects the way we ARE saving them...
 
 Combat Animations
     Combat Anims / Palettes as a separate tab?
@@ -14,22 +16,17 @@ Base
 Minimap
 Turnwheel mouse support
 Autotiles (not just 29 frames)
-Status Screen
 Unit Menu
 Joystick Remapping
 Guide (on Options Menu and in Base -> Codex -> Guide)
 
 Combat Anims > Overworld > Autotiles > Supports
 
-Dialog box should pop up when saving and autosaving
-
 Translations need a better GUI interface
 
 Test Prep Menu (Market, Restock, Using an item in base -- Angelic Robe?)
 
 Dialogue Log on R press
-
-Skill System -- Auras, Modify AOE, Modify Forced Movement
 
 Better method for frame speed for Map Animations
 Book pages frames with a number under them?
@@ -50,75 +47,15 @@ Supports:
 
     Bonuses to Hit, Crit, Damage, Avoid, Resist, Crit Avoid
 
-# Remaining Priorities
-```
-Auras & Terrain Statuses
-    - Auras have a instantiated child aura they keep a reference to. Works like child items in the item system
-    - Aura board keeps track of where the aura_child belongs
-    - Aura board is updated on arrive and leave
-    - Within the skill system, the skill system calls up the aura children (NO!)
-    - Needs to be able to handle ally auras and enemy auras
-    - Gives the only the correct team auras to each unit
-    
-Sequence Items (Warp, Rescue, Ember, Crazier stuff)
-test Multi Items for the AI
-turnwheel mouse support / info menu mouse support better / records?
-AOE modification skills
-Movement modification skills
-
-Records in Base Menu (test)
-Lore in Base Menu (test)
-The Lion Throne full implementation
-Combat Animations
-    - Combat Anims, Combat Effects, Palettes
-Proc Skills
-Weather Effects/Particle System
-Supports (GUI + Engine)
-Overworld (GUI + Engine) (currently mag is working on this)
-Autotiles (GUI + Engine)
-Clean and Rename files/resources button in GUI
-Modifiable stat screen in InfoMenu
-Minimap (port)
-Status/Objective Menu
-Guide Menu (also in Base)
-Unit Menu (port)
 Summoning
-Arena
-Credits
---- 1.0 release
-Fatigue
-Bonus Exp
-Skill Swapping
-Arena in base
-Joystick Remapping
-Map Animation GUI
-Dialogue Log
-Achievements
-```
-Summoning
-Sequence Items (Test using Jewrassic Parks weird Bow)
-Auras
-Multi-items 
-    Work as activated items
-Test Warp, Rescue and all other items from Sacred Stones
 
 Clean and Rename files/resources button in Help
 Auto-check cross-references on editor load
 
-Consider making StatList and WeaponList into a dictionary instead, that just references the actual order in DB.stats and DB.weapons to display order, and then uses the dictionary keys to display contents/values.
-
 Consider giving each object a UID which is used for crossreferences... (This is probably the better way...)
-
-Test First 5 chapters of Sacred Stones
 
 Customizable stat screen within Info Menu
 Customizable item screen (to handle accessories...) within Info Menu
-
-Once StatList and Weapon List are fixed:
-    Weapon Level increment by weapon level ranks
-    Copy rows of stats and paste rows of stats
-
-unload_unit
 
 == Maybe, maybe not: ==
 Klok's Combining items idea

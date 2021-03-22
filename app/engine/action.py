@@ -1459,6 +1459,18 @@ class RemoveWeather(Action):
             new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height)
             game.tilemap.weather.append(new_ps)
 
+class ChangeObjective(Action):
+    def __init__(self, key, string):
+        self.key = key
+        self.string = string
+        self.old_objective = game.level.objective[self.key]
+
+    def do(self):
+        game.level.objective[self.key] = self.string
+
+    def reverse(self):
+        game.level.objective[self.key] = self.old_objective
+
 class OnlyOnceEvent(Action):
     def __init__(self, event_nid):
         self.event_nid = event_nid

@@ -2,8 +2,6 @@ TODO List:
 
 Get rid of on_add and on_remove
 Battle Save
-Change Objective Display Name, etc...
-Add To Market
 
 Combat Animations
     Combat Anims / Palettes as a separate tab?

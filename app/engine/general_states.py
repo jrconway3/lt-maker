@@ -193,7 +193,7 @@ class OptionMenuState(MapState):
         game.cursor.hide()
         options = ['Unit', 'Objective', 'Options']
         info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
-        ignore = [True, True, False]
+        ignore = [True, False, False]
         if DB.constants.get('permadeath').value:
             options.append('Suspend')
             info_desc.append('Suspend_desc')
@@ -253,8 +253,8 @@ class OptionMenuState(MapState):
                     elif self.menu.owner == 'Save':
                         battle_save()
             elif selection == 'Objective':
-                game.state.change('objective')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'objective_menu'
+                game.state.change('transition_to')
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')

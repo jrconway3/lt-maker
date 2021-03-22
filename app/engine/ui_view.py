@@ -1,5 +1,3 @@
-import re
-
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 from app.data.database import DB
@@ -202,24 +200,10 @@ class UIView():
         FONT['text-white'].blit(name, bg_surf, pos)
         return bg_surf
 
-    def eval_string(self, text):
-        to_evaluate = re.findall(r'\{eval:[^{}]*\}', text)
-        evaluated = []
-        for to_eval in to_evaluate:
-            try:
-                val = evaluate.evaluate(to_eval[6:-1])
-                evaluated.append(str(val))
-            except Exception as e:
-                print("Could not evaluate %s (%s)" % (to_eval[1:-1], e))
-                evaluated.append('??')
-        for idx in range(len(to_evaluate)):
-            text = text.replace(to_evaluate[idx], evaluated[idx])
-        return text
-
     def create_obj_info(self):
         font = FONT['text-white']
         obj = game.level.objective['simple']
-        text_lines = self.eval_string(obj).split(',')
+        text_lines = evaluate.eval_string(obj).split(',')
         longest_surf_width = text_funcs.get_max_width(font, text_lines)
         bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8, 'menu_bg_base_opaque')
 

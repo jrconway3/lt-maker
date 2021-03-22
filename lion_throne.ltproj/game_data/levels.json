@@ -176,7 +176,7 @@
         "objective": {
             "simple": "Escape!",
             "win": "Escape the monastery",
-            "loss": "Ophie dies,OR,Prim dies"
+            "loss": "Ophie dies,Prim dies"
         },
         "units": [
             {
@@ -555,7 +555,7 @@
         "objective": {
             "simple": "Defeat Boss",
             "win": "Defeat Sidney",
-            "loss": "Ophies dies,OR, Any two of your units are defeated"
+            "loss": "Ophies dies,Any two of your units are defeated"
         },
         "units": [
             {
@@ -906,7 +906,7 @@
         "objective": {
             "simple": "Defeat Boss",
             "win": "Defeat Brigham",
-            "loss": "Ophie dies,OR,Althea dies,OR,Party size falls below three"
+            "loss": "Ophie dies,Althea dies,Party size falls below three"
         },
         "units": [
             {
@@ -1390,7 +1390,7 @@
         "objective": {
             "simple": "Loot vault",
             "win": "Escape the fort with the money",
-            "loss": "Renae OR Ophie die,OR,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
+            "loss": "Renae OR Ophie die,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
         "units": [
             {

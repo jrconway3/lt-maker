@@ -458,33 +458,45 @@ class RemoveTalk(EventCommand):
 class AddLore(EventCommand):
     nid = 'add_lore'
     nickname = 'unlock_lore'
-    tag = 'general'
+    tag = 'base'
 
     keywords = ["Lore"]
 
 class RemoveLore(EventCommand):
     nid = 'remove_lore'
-    tag = 'general'
+    tag = 'base'
 
     keywords = ["Lore"]
 
 class AddBaseConvo(EventCommand):
     nid = 'add_base_convo'
-    tag = 'general'
+    tag = 'base'
 
     keywords = ["String"]
 
 class IgnoreBaseConvo(EventCommand):
     nid = 'ignore_base_convo'
-    tag = 'general'
+    tag = 'base'
 
     keywords = ["String"]
 
 class RemoveBaseConvo(EventCommand):
     nid = 'remove_base_convo'
-    tag = 'general'
+    tag = 'base'
 
     keywords = ["String"]
+
+class AddMarketItem(EventCommand):
+    nid = 'add_market_item'
+    tag = 'base'
+
+    keywords = ["Item"]
+
+class RemoveMarketItem(EventCommand):
+    nid = 'remove_market_item'
+    tag = 'base'
+
+    keywords = ["Item"]
 
 class AddRegion(EventCommand):
     nid = 'add_region'
@@ -531,6 +543,24 @@ class RemoveWeather(EventCommand):
     tag = 'map'
 
     keywords = ["Weather"]
+
+class ChangeObjectiveSimple(EventCommand):
+    nid = 'change_objective_simple'
+    tag = 'general'
+
+    keywords = ["String"]
+
+class ChangeObjectiveWin(EventCommand):
+    nid = 'change_objective_win'
+    tag = 'general'
+    
+    keywords = ["String"]
+
+class ChangeObjectiveLoss(EventCommand):
+    nid = 'change_objective_loss'
+    tag = 'general'
+    
+    keywords = ["String"]
 
 class MapAnim(EventCommand):
     nid = 'map_anim'

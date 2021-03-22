@@ -67,7 +67,7 @@ class GameState():
             self.overworld = None
 
         self.records = records.Recordkeeper()
-        self.market_items = []
+        self.market_items = set()
         self.unlocked_lore = []
         self.already_triggered_events = []
         self.sweep()
@@ -257,7 +257,7 @@ class GameState():
                 skill.subskill = subskill
                 subskill.parent_skill = skill
 
-        self.market_items = s_dict.get('market_items', [])
+        self.market_items = s_dict.get('market_items', set())
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])

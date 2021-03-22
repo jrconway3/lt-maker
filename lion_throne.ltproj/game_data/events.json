@@ -28,6 +28,18 @@
                 [
                     "Snow"
                 ]
+            ],
+            [
+                "change_objective_simple",
+                [
+                    "Fire"
+                ]
+            ],
+            [
+                "change_objective_win",
+                [
+                    "Ophie,I am awesome"
+                ]
             ]
         ],
         "only_once": false,
@@ -7769,15 +7781,15 @@
                 ]
             ],
             [
-                "comment",
+                "change_objective_simple",
                 [
-                    "# change_objective_display_name;Escape or Defeat Boss"
+                    "Escape or Defeat Boss"
                 ]
             ],
             [
-                "comment",
+                "change_objective_win",
                 [
-                    "# change_objective_win_condition;Escape the Fort or Defeat Boss."
+                    "Escape the Fort or Defeat Boss"
                 ]
             ],
             [
@@ -8365,27 +8377,21 @@
                 ]
             ],
             [
-                "comment",
-                [
-                    "# change_objective_display_name;Escape"
-                ]
-            ],
-            [
                 "if",
                 [
                     "game.turncount > 8"
                 ]
             ],
             [
-                "comment",
+                "change_objective_simple",
                 [
-                    "# change_objective_display_name;Escape or Defeat Boss"
+                    "Escape or Defeat Boss"
                 ]
             ],
             [
-                "comment",
+                "change_objective_win",
                 [
-                    "# change_objective_win_condition;Escape the Fort or Defeat Boss"
+                    "Escape the Fort OR Defeat Boss"
                 ]
             ],
             [

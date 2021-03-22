@@ -715,6 +715,19 @@ class Event():
             if values[0] in game.base_convos:
                 game.base_convos[values[0]] = True
 
+        elif command.nid == 'add_market_item':
+            values, flags = event_commands.parse(command)
+            item = values[0]
+            if item in DB.items:
+                game.market_items.add(item)
+            else:
+                logging.warning("%s is not a legal item nid", item)
+
+        elif command.nid == 'remove_market_item':
+            values, flags = event_commands.parse(command)
+            item = values[0]
+            game.market_items.discard(item)
+
         elif command.nid == 'add_region':
             self.add_region(command)
 
@@ -771,6 +784,18 @@ class Event():
             values, flags = event_commands.parse(command)
             nid = values[0].lower()
             action.do(action.RemoveWeather(nid))
+
+        elif command.nid == 'change_objective_simple':
+            values, flags = event_commands.parse(command)
+            action.do(action.ChangeObjective('simple', values[0]))
+
+        elif command.nid == 'change_objective_win':
+            values, flags = event_commands.parse(command)
+            action.do(action.ChangeObjective('win', values[0]))
+
+        elif command.nid == 'change_objective_loss':
+            values, flags = event_commands.parse(command)
+            action.do(action.ChangeObjective('loss', values[0]))
 
         elif command.nid == 'map_anim':
             values, flags = event_commands.parse(command)

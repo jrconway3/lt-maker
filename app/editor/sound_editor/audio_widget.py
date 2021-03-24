@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 
 from app.editor import timer
 
-from app.pygame_audio import PygameAudioPlayer
+from app import pygame_audio
 
 class AudioWidget(QWidget):
     def __init__(self, parent=None):
@@ -25,7 +25,7 @@ class AudioWidget(QWidget):
         self.start_time = 0
         self.duration = 0
 
-        self.music_player = PygameAudioPlayer()
+        self.music_player = pygame_audio.get_player()
         self.music_player.set_volume(.5)
 
         self.play_button = QToolButton(self)

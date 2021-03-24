@@ -95,6 +95,7 @@ class SoundTab(QWidget):
 
     def closeEvent(self, event):
         self.audio_widget.stop()
+        self.audio_widget.music_player.quit()
         super().closeEvent(event)
 
     def hideEvent(self, event):

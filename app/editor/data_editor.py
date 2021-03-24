@@ -205,3 +205,9 @@ class MultiResourceEditor(SingleResourceEditor):
     def save_geometry(self):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
         print(self._type(), "Save Geometry")
+
+    def closeEvent(self, event):
+        self.save_geometry()
+        for tab in self.tabs:
+            tab.closeEvent(event)
+        super().closeEvent(event)

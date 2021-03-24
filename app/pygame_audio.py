@@ -13,12 +13,13 @@ class PygameAudioPlayer(object):
         self.next_pos = 0  # In seconds
 
     def initiate(self):
-        pygame.mixer.pre_init(44100, -16, 2, 256 * 2**4)
+        pygame.mixer.pre_init(44100, -16, 2, 128 * 2**2)
         pygame.init()
         pygame.mixer.init()
         pygame.mixer.music.set_volume(self.volume)
-        self.display = pygame.display.set_mode((1, 1))
+        self.display = pygame.display.set_mode((1, 1), pygame.NOFRAME)
         self.initiated = True
+        pygame.display.iconify()
 
     def get_length(self):
         if self.current_sfx:
@@ -115,3 +116,10 @@ class PygameAudioPlayer(object):
 
     def get_time(self):
         return pygame.get_time()
+
+PLAYER = None
+def get_player():
+    global PLAYER
+    if not PLAYER:
+        PLAYER = PygameAudioPlayer()
+    return PLAYER

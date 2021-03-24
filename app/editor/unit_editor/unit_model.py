@@ -87,7 +87,7 @@ class UnitModel(DragDropCollectionModel):
                 if isinstance(unit, UniqueUnit) and unit.nid == old_nid:
                     unit.nid = new_nid
             for unit_group in level.unit_groups:
-                unit_group.swap(unit.nid, new_nid)
+                unit_group.swap(old_nid, new_nid)
 
     def create_new(self):
         nids = [d.nid for d in self._data]

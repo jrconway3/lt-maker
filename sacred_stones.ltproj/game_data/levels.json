@@ -25,6 +25,7 @@
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     5
@@ -35,6 +36,7 @@
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     4
@@ -55,6 +57,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     6
@@ -77,6 +80,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     8,
                     6
@@ -89,6 +93,7 @@
                 "nid": "O'Neill",
                 "team": "enemy",
                 "ai": "Guard",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     8
@@ -141,6 +146,7 @@
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     9
@@ -151,6 +157,7 @@
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     8
@@ -161,6 +168,7 @@
                 "nid": "Gilliam",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     6,
                     1
@@ -171,6 +179,7 @@
                 "nid": "Franz",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     1
@@ -181,6 +190,7 @@
                 "nid": "Breguet",
                 "team": "enemy",
                 "ai": "Guard",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     2
@@ -201,6 +211,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     3
@@ -223,6 +234,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     3
@@ -245,6 +257,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     8
@@ -267,6 +280,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     7
@@ -289,6 +303,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     5
@@ -311,6 +326,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Guard",
+                "ai_group": null,
                 "starting_position": [
                     8,
                     3
@@ -333,6 +349,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -352,6 +369,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -371,6 +389,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -385,6 +404,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -404,6 +424,7 @@
                 ],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -579,6 +600,7 @@
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     2
@@ -589,6 +611,7 @@
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     1
@@ -599,6 +622,7 @@
                 "nid": "Franz",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     1
@@ -609,6 +633,7 @@
                 "nid": "Gilliam",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     3
@@ -619,6 +644,7 @@
                 "nid": "Vanessa",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     6,
                     3
@@ -629,6 +655,7 @@
                 "nid": "Moulder",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     3
@@ -639,6 +666,7 @@
                 "nid": "Ross",
                 "team": "other",
                 "ai": "Guard",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     5
@@ -649,6 +677,7 @@
                 "nid": "Garcia",
                 "team": "other",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     4
@@ -659,6 +688,7 @@
                 "nid": "Bone",
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     14
@@ -679,6 +709,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     3
@@ -701,6 +732,7 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     12
@@ -723,6 +755,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     14
@@ -749,6 +782,7 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     6,
                     11
@@ -771,6 +805,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     14,
                     9
@@ -793,6 +828,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     9
@@ -815,6 +851,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     9
@@ -1023,6 +1060,7 @@
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     11
@@ -1033,6 +1071,7 @@
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     12
@@ -1043,6 +1082,7 @@
                 "nid": "Franz",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     11
@@ -1053,6 +1093,7 @@
                 "nid": "Gilliam",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     8
@@ -1063,6 +1104,7 @@
                 "nid": "Vanessa",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     13
@@ -1073,6 +1115,7 @@
                 "nid": "Moulder",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     12
@@ -1083,6 +1126,7 @@
                 "nid": "Ross",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     10
@@ -1093,6 +1137,7 @@
                 "nid": "Garcia",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     9
@@ -1103,6 +1148,7 @@
                 "nid": "Neimi",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     10
@@ -1113,6 +1159,7 @@
                 "nid": "Colm",
                 "team": "other",
                 "ai": "Thief",
+                "ai_group": null,
                 "starting_position": null,
                 "generic": false
             },
@@ -1120,6 +1167,7 @@
                 "nid": "Bazba",
                 "team": "enemy",
                 "ai": "Guard",
+                "ai_group": null,
                 "starting_position": [
                     14,
                     1
@@ -1140,6 +1188,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     2
@@ -1162,6 +1211,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     8
@@ -1184,6 +1234,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     14,
                     11
@@ -1210,6 +1261,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     9
@@ -1236,6 +1288,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     12
@@ -1262,6 +1315,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     14,
                     6
@@ -1288,6 +1342,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     15,
                     2
@@ -1310,6 +1365,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     9
@@ -1332,6 +1388,7 @@
                 ],
                 "team": "enemy",
                 "ai": "SimpleThief",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     11
@@ -1349,6 +1406,7 @@
                 "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     12
@@ -1366,6 +1424,7 @@
                 "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     9
@@ -1383,6 +1442,7 @@
                 "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     8,
                     8
@@ -1400,6 +1460,7 @@
                 "starting_items": [],
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Soldier",
                 "desc": "The army of Grado, the largest nation on the entire continent",
@@ -1572,6 +1633,7 @@
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     2
@@ -1582,6 +1644,7 @@
                 "nid": "Artur",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     3
@@ -1592,6 +1655,7 @@
                 "nid": "Lute",
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "generic": false
             },
@@ -1599,6 +1663,7 @@
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     6,
                     1
@@ -1609,6 +1674,7 @@
                 "nid": "Gilliam",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     3
@@ -1619,6 +1685,7 @@
                 "nid": "Vanessa",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     2
@@ -1629,6 +1696,7 @@
                 "nid": "Moulder",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     1
@@ -1639,6 +1707,7 @@
                 "nid": "Ross",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     2
@@ -1649,6 +1718,7 @@
                 "nid": "Colm",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     0
@@ -1659,6 +1729,7 @@
                 "nid": "Neimi",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     1
@@ -1679,6 +1750,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     4
@@ -1701,6 +1773,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     11,
                     4
@@ -1723,6 +1796,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     8
@@ -1745,6 +1819,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     9
@@ -1767,6 +1842,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     13
@@ -1789,6 +1865,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     12
@@ -1811,6 +1888,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     11,
                     14
@@ -1833,6 +1911,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     8,
                     14
@@ -1859,6 +1938,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Monster",
                 "desc": "A grotesque creature created by magic and born in darkness.",
@@ -1878,6 +1958,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Monster",
                 "desc": "A grotesque creature created by magic and born in darkness.",
@@ -1897,6 +1978,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Monster",
                 "desc": "A grotesque creature created by magic and born in darkness.",
@@ -1916,6 +1998,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Monster",
                 "desc": "A grotesque creature created by magic and born in darkness.",
@@ -1935,6 +2018,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     13
@@ -1957,6 +2041,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     7
@@ -1979,6 +2064,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     10
@@ -2001,6 +2087,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     14
@@ -2023,6 +2110,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Monster",
                 "desc": "A grotesque creature created by magic and born in darkness.",
@@ -2042,6 +2130,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Monster",
                 "desc": "A grotesque creature created by magic and born in darkness.",
@@ -2061,6 +2150,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Monster",
                 "desc": "A grotesque creature created by magic and born in darkness.",
@@ -2080,6 +2170,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     7
@@ -2102,6 +2193,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     8
@@ -2124,6 +2216,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     11
@@ -2146,6 +2239,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     6
@@ -2163,6 +2257,7 @@
                 "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     8
@@ -2175,6 +2270,7 @@
                 "nid": "L'arachel",
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     2
@@ -2185,6 +2281,7 @@
                 "nid": "Dozla",
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     12,
                     1
@@ -2195,6 +2292,7 @@
                 "nid": "Rennac",
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     14,
                     1
@@ -2477,6 +2575,7 @@
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     17
@@ -2487,6 +2586,7 @@
                 "nid": "Natasha",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     18
@@ -2497,6 +2597,7 @@
                 "nid": "Joshua",
                 "team": "enemy",
                 "ai": "JoshuaDefend",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     7
@@ -2507,6 +2608,7 @@
                 "nid": "Saar",
                 "team": "enemy",
                 "ai": "Guard",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     1
@@ -2527,6 +2629,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     10
@@ -2549,6 +2652,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     1,
                     7
@@ -2571,6 +2675,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     0,
                     0
@@ -2593,6 +2698,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     3
@@ -2615,6 +2721,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     7,
                     2
@@ -2637,6 +2744,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     0
@@ -2659,6 +2767,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Pursue",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     4
@@ -2681,6 +2790,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     11,
                     2
@@ -2703,6 +2813,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     13,
                     3
@@ -2725,6 +2836,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     8,
                     8
@@ -2747,6 +2859,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     10,
                     8
@@ -2769,6 +2882,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     9,
                     9
@@ -2791,6 +2905,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     7
@@ -2813,6 +2928,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Defend",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     7
@@ -2835,6 +2951,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     10
@@ -2857,6 +2974,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Bandit",
                 "desc": "One of the bandits who have laid claim to the Carcino territories.",
@@ -2876,6 +2994,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Bandit",
                 "desc": "One of the bandits who have laid claim to the Carcino territories.",
@@ -2895,6 +3014,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Bandit",
                 "desc": "One of the bandits who have laid claim to the Carcino territories.",
@@ -2914,6 +3034,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Bandit",
                 "desc": "One of the bandits who have laid claim to the Carcino territories.",
@@ -2933,6 +3054,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Bandit",
                 "desc": "One of the bandits who have laid claim to the Carcino territories.",
@@ -2952,6 +3074,7 @@
                 ],
                 "team": "enemy",
                 "ai": "PursueVillage",
+                "ai_group": null,
                 "starting_position": null,
                 "name": "Bandit",
                 "desc": "One of the bandits who have laid claim to the Carcino territories.",
@@ -3334,6 +3457,7 @@
                 "nid": "Joshua",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "generic": false
             },
@@ -3341,6 +3465,7 @@
                 "nid": "Bone",
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     5
@@ -3351,6 +3476,7 @@
                 "nid": "Ross",
                 "team": "other",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "generic": false
             },
@@ -3358,6 +3484,7 @@
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     2,
                     6
@@ -3386,6 +3513,7 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     9
@@ -3398,6 +3526,7 @@
                 "nid": "Colm",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     4
@@ -3418,6 +3547,7 @@
                 ],
                 "team": "enemy",
                 "ai": "Attack",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     8
@@ -3440,6 +3570,7 @@
                 ],
                 "team": "enemy",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -3467,6 +3598,7 @@
                 ],
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": null,
                 "name": null,
                 "desc": null,
@@ -3476,6 +3608,7 @@
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     5,
                     4
@@ -3500,6 +3633,7 @@
                 ],
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     4,
                     6
@@ -3522,6 +3656,7 @@
                 ],
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     6,
                     10
@@ -3544,6 +3679,7 @@
                 ],
                 "team": "player",
                 "ai": "None",
+                "ai_group": null,
                 "starting_position": [
                     3,
                     7
@@ -3551,6 +3687,17 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Gerik",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    3
+                ],
+                "generic": false
             }
         ],
         "regions": [

@@ -45,9 +45,9 @@ class PromotionChoiceState(State):
         for option in self.class_options:
             weapons = []
             klass = DB.classes.get(option)
-            for weapon in klass.wexp_gain:
+            for weapon_nid, weapon in klass.wexp_gain.items():
                 if weapon.usable:
-                    weapons.append(weapon.nid)
+                    weapons.append(weapon_nid)
             self.weapon_icons.append(weapons)
 
         # Platforms
@@ -121,9 +121,11 @@ class PromotionChoiceState(State):
         current_klass = self.class_options[self.menu.get_current_index()]
         desc = DB.classes.get(current_klass).desc
         d = dialog.Dialog(text_funcs.translate(desc))
-        d.position = (14, 112)
+        d.position = (6, 112)
         d.text_width = WINWIDTH - 28
         d.width = d.text_width + 16
+        d.font_type = 'convo'
+        d.font_color = 'white'
         d.font = FONT['convo-white']
         d.draw_cursor_flag = False
         return d

@@ -118,5 +118,13 @@
     [
         "TacticsRoomDay",
         1
+    ],
+    [
+        "BaseEntrance",
+        1
+    ],
+    [
+        "Study",
+        1
     ]
 ]

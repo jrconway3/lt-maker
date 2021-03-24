@@ -525,7 +525,7 @@ class MapCombat():
                     action.do(action.GainWexp(unit, item, wexp*2))
                 else:
                     action.do(action.GainWexp(unit, item, wexp))
-        else:
+        elif marks:
             if any(mark[2] and mark[2].is_dying for mark in marks):
                 action.do(action.GainWexp(unit, item, wexp*2))
             else:

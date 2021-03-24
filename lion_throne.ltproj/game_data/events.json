@@ -8670,5 +8670,969 @@
         ],
         "only_once": false,
         "priority": 20
+    },
+    {
+        "name": "Ophie meets Renae",
+        "trigger": "on_base_convo",
+        "level_nid": "3",
+        "condition": "unit == 'Ophie meets Renae'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Brave Story - Hare"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "MainBase"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "Left",
+                    "",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Hey Joel! Come on over!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Sit down!|Try some of this goulash! It's fantastic!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "And you brought a friend!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Renae, I cooked that goulash... for myself."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "I know and it is delicious!|Now stop interrupting me.|Try some!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Huh?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Eat it, its good for you.|...Probably."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Uh okay."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "What's your name, kid?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Mrghghg..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Huh? You shouldn't talk with your mouth full, y'know."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Slow down, Renae.|Give the lad some time to compose himself, eh?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "--Gulp|Ophie."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Ophie! Nice to meet ya. I'm Renae!|I'm this group's, uh, subterfuge specialist!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Our thief."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Joel! I didn't want this kid to get the wrong idea!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "No, I understand.|You guys steal from the Empire, and give back to the common folk, right?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Uh... right!|Well, when we can.|Sam hasn't had us doing too much of that lately though.|Anyway, you're a swordsman, I take it?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I was trained by the Rusonoon Monks, the best in Kerala."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Well then... Hiyaah!"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Ah!|What the hell was that for?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Don't act so grouchy...|Just testing your reflexes."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "With a sword?!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Yeah! Luckily, you passed.|Here take this."
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Rapier",
+                    "no_choice"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "The sword?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Hey! This is no ordinary sword!|This baby'll cut through the toughest armor like its butter!|It'll come in handy."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Thanks, I think?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Well, now, off you go!|Let me finish my goulash in peace!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Uh... right..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Renae",
+                    "Joel",
+                    "Ophie"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Ophie meets Renae"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Prim meets Eliza",
+        "trigger": "on_base_convo",
+        "level_nid": "3",
+        "condition": "unit == 'Prim meets Eliza'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Midna's Theme"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "MidRight",
+                    "Prim",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "She's gotta be hidin' around here somewhere..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "It's not a big deal if I don't meet her now, Joel.|I'm sure I'll get a chance later."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I said I'd introduce you to the crew, and I don't break my promises.|Eliza!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eliza",
+                    "OffscreenLeft",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Eliza",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Joel! Is something wrong?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I've brought someone for you to meet."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Oh...{w}Is that all?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Uh, nice to meet you.|I'm Prim.|...I-I guess I'm the newest member of this group."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Well, I'll let you two get to know one another!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Prim",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Uh... Its a beautiful day, isn't it?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "What do you do?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Hmmm?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "What do you do?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "I'm afraid I don't understand..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "What are your skills?|What do you bring to the group?|We don't need anybody else weighing us down."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Oh.. well... um..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "I guess, well, I'm a cleric, so... I can heal."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "We already have a healer.|We don't need another."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Well, I can fight too."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Really? With light magic?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Y-yes."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Then let's see what you got."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Huh?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Come on.|Hit me with it!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "What... but...|I could hurt you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "I doubt it."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "I won't strike you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "As I thought.|You are deadweight."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "W-why are you so....|I'm leaving..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Hmmph."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eliza"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Prim meets Eliza"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Ophie meets Theo",
+        "trigger": "on_base_convo",
+        "level_nid": "3",
+        "condition": "unit == 'Ophie meets Theo'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Lady Eboshi"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "BaseEntrance"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "MidLeft",
+                    "Ophie",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Open up Theo.|There's someone here for you to meet."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Theo",
+                    "OffscreenRight",
+                    "immediate"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Just one moment."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Theo arrives"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Theo",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Joel, ol' chap, must you always interrupt me while I'm reading?|What is it now?|Oh pardon my manners. You have a guest."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Our newest recruit, Ophie.|Ophie, Theo."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Uh, hello."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "A pleasure. Well, don't just stand in the doorway...|Please come in."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Theo",
+                    "Ophie",
+                    "Joel"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Study"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Theo",
+                    "Right",
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Welcome to my humble abode.|So you're our newest recruit, then?|You look a little young, eh?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I'm old enough to fight!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Hah! I don't doubt such a fiery rebuttal."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "So...|what do you do here, then, Theo?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Many things, Ophie, many things.|The Resistance is not just a combat unit.|Someone needs to handle other mundane matters--|food, weapon repair, logistics, etcetera."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "So you're what--|A bookkeeper?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Hah!|I quite like that...|As you can see, I do enjoy a good read now and again. And you?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "What use are books in a fight?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Why, books have so much to tell us!|They are veritable fonts of knowledge."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Not the kind of knowledge I'm looking for."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Hmmm.... you're a man of the sword, I take it?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Uh huh."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Well, I might just have a book you'd be interested in.|Now where is it..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Ah, here."
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Secret Book",
+                    "no_choice"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "What's this?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "A book on combat.|If you study it, perhaps your skills will improve."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Well, I'll see.|The Rusonoon monks also loved their books."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "You've stayed with the Rusonoon monks?|I've always hoped to visit their library..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "They're dead."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Oh, well...|I'm sorry."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Their books didn't save them."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Hmmm... Theo, ol'chap.|That could have gone better.",
+                    "thought_bubble"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Theo"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Ophie meets Theo"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
     }
 ]

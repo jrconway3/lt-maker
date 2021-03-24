@@ -352,7 +352,7 @@ class GiveItem(EventCommand):
     tag = 'unit'
     
     keywords = ["GlobalUnit", "Item"]
-    flags = ['no_banner']
+    flags = ['no_banner', 'no_choice']
 
 class RemoveItem(EventCommand):
     nid = 'remove_item'

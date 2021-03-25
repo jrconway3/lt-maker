@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
     QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup, \
     QDesktopWidget, QFileDialog
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
@@ -30,6 +30,7 @@ def draw_tilemap(tilemap):
 
     painter = QPainter()
     painter.begin(image)
+    ms = QDateTime.currentMSecsSinceEpoch()
     for layer in tilemap.layers:
         if layer.visible:
             for coord, tile_sprite in layer.sprite_grid.items():
@@ -40,7 +41,8 @@ def draw_tilemap(tilemap):
                     print(RESOURCES.tilesets)
                 if not tileset.pixmap:
                     tileset.set_pixmap(QPixmap(tileset.full_path))
-                pix = tileset.get_pixmap(tile_sprite.tileset_position)
+
+                pix = tileset.get_pixmap(tile_sprite.tileset_position, ms)
                 if pix:
                     painter.drawImage(coord[0] * TILEWIDTH,
                                       coord[1] * TILEHEIGHT,
@@ -958,11 +960,13 @@ class TileSetMenu(QWidget):
         self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "Load Tileset", triggered=self.new)
         self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Unload Tileset", triggered=self.delete)
         self.delete_action.setEnabled(False)
+        self.generate_autotile_action = QAction(QIcon(f"{icon_folder}/map.png"), "Generate Autotiles", triggered=self.generate_autotiles)
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
         self.toolbar.addAction(self.new_action)
         self.toolbar.addAction(self.delete_action)
+        self.toolbar.addAction(self.generate_autotile_action)
 
     def new(self):
         from app.editor.tile_editor import tile_tab
@@ -985,6 +989,12 @@ class TileSetMenu(QWidget):
             self.load_tileset(self.current.tilesets[new_idx])
         else:
             self.empty_tileset()
+
+    def generate_autotiles(self):
+        idx = self.tab_bar.currentIndex()
+        if 0 <= idx < len(self.current.tilesets):
+            current_tileset = self.current.tilesets[idx]
+            
 
 class TileSetView(MapEditorView):
     tilewidth = TILEWIDTH + 1

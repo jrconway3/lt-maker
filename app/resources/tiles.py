@@ -4,6 +4,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 
 from app.utilities.data import Data, Prefab
 from app.resources.base_catalog import ManifestCatalog
+from app.utilities import str_utils
 
 class TileMapPrefab(Prefab):
     def __init__(self, nid):
@@ -89,10 +90,19 @@ class TileSet(Prefab):
         self.pixmap = None
         self.subpixmaps = {}
 
+        # For autotile handling
+        self.autotiles = {}  # Key: Position Tuple, Value: column number
+        self.autotile_full_path = None
+        self.autotile_pixmap = None
+        self.autotile_fps = 483  # every 29 frames
+
         self.image = None
 
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
+
+    def set_autotile_pixmap(self, pixmap):
+        self.autotile_pixmap = pixmap
 
     def set_pixmap(self, pixmap):
         self.pixmap = pixmap
@@ -105,8 +115,13 @@ class TileSet(Prefab):
                 p = self.pixmap.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
                 self.subpixmaps[(x, y)] = p
 
-    def get_pixmap(self, pos):
-        if pos in self.subpixmaps:
+    def get_pixmap(self, pos, ms=0):
+        if pos in self.autotiles and self.autotile_pixmap:
+            column = self.autotiles[pos]
+            num = (ms / self.autotile_fps) % TILEHEIGHT
+            p = self.autotile_pixmap.copy(column * TILEWIDTH, num * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+            return p
+        elif pos in self.subpixmaps:
             return self.subpixmaps[pos]
         return None
 
@@ -116,20 +131,27 @@ class TileSet(Prefab):
     def save(self):
         s_dict = {}
         s_dict['nid'] = self.nid
-        # s_dict['size'] = (self.width, self.height)
         s_dict['terrain_grid'] = {}
         for coord, terrain_nid in self.terrain_grid.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
             s_dict['terrain_grid'][str_coord] = terrain_nid
+        s_dict['autotiles'] = {}
+        for coord, column in self.autotiles.items():
+            str_coord = "%d,%d" % (coord[0], coord[1])
+            s_dict['autotiles'][str_coord] = column
+        s_dict['autotile_full_path'] = self.autotile_full_path
         return s_dict
 
     @classmethod
     def restore(cls, s_dict):
         self = cls(s_dict['nid'])
-        # self.width, self.height = s_dict['size']
         for str_coord, terrain_nid in s_dict['terrain_grid'].items():
-            coord = tuple(int(_) for _ in str_coord.split(','))
+            coord = tuple(str_utils.intify(str_coord))
             self.terrain_grid[coord] = terrain_nid
+        for str_coord, column in s_dict['autotiles'].items():
+            coord = tuple(str_utils.intify(str_coord))
+            self.autotiles[coord] = column
+        self.autotile_full_path = s_dict['autotile_full_path']
         return self
 
 class LayerGrid(Prefab):

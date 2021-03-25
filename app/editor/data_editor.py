@@ -69,10 +69,11 @@ class SingleDatabaseEditor(QDialog):
         DB.restore(self.saved_data)
         # Make sure we use the new restored database as the level 
         # in the level editors
-        state_manager = self.main_editor.app_state_manager
-        current_level_nid = state_manager.state.selected_level
-        state_manager.change_and_broadcast(
-            'selected_level', current_level_nid)
+        if self.main_editor:
+            state_manager = self.main_editor.app_state_manager
+            current_level_nid = state_manager.state.selected_level
+            state_manager.change_and_broadcast(
+                'selected_level', current_level_nid)
         
     def apply(self):
         self.save()

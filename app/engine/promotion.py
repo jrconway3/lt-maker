@@ -107,7 +107,7 @@ class PromotionChoiceState(State):
                 selection = self.child_menu.get_current()
                 if selection == 'Change':
                     SOUNDTHREAD.play_sfx('Select 1')
-                    self._proceed(self.class_options[self.child_menu.get_current_index()])
+                    self._proceed(self.class_options[self.menu.get_current_index()])
                 else:
                     SOUNDTHREAD.play_sfx('Select 4')
                     self.child_menu = None

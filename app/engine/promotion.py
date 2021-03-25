@@ -8,7 +8,7 @@ from app.engine.fonts import FONT
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
-from app.engine import background, menus, engine, dialog, text_funcs, icons
+from app.engine import background, menus, engine, dialog, text_funcs, icons, action, item_system
 from app.engine.game_state import game
 from app.engine.fluid_scroll import FluidScroll
 
@@ -33,6 +33,8 @@ class PromotionChoiceState(State):
 
         self.can_go_back = game.memory.get('can_go_back', False)
         game.memory['can_go_back'] = None
+        self.combat_item = game.memory.get('combat_item')
+        game.memory['combat_item'] = None
 
         self.unit = game.memory['current_unit']
         self.unit_klass = DB.classes.get(self.unit.klass)
@@ -98,6 +100,9 @@ class PromotionChoiceState(State):
             elif self.can_go_back:
                 SOUNDTHREAD.play_sfx('Select 4')
                 game.state.back()
+                if self.combat_item:
+                    action.do(action.Reset(self.unit))
+                    item_system.reverse_use(self.unit, self.combat_item)
             else:
                 # Can't go back...
                 SOUNDTHREAD.play_sfx('Error')

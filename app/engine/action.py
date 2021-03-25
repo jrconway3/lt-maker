@@ -1144,6 +1144,17 @@ class UpdateRecords(Action):
     def reverse(self):
         game.records.pop(self.record_type)
 
+class ReverseRecords(Action):
+    def __init__(self, record_type, data):
+        self.record_type = record_type
+        self.data = data
+
+    def do(self):
+        game.records.pop(self.record_type)
+
+    def reverse(self):
+        game.records.append(self.record_type, self.data)        
+
 class ChangeAI(Action):
     def __init__(self, unit, ai):
         self.unit = unit

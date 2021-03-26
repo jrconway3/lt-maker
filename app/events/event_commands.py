@@ -153,7 +153,7 @@ class Speak(EventCommand):
     tag = "dialogue"
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['ScreenPosition', 'Width']
+    optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
     flags = ['low_priority']
 
 class Transition(EventCommand):
@@ -251,7 +251,7 @@ class MakeGeneric(EventCommand):
     tag = 'general'
 
     # Nid, class, level, team, ai, faction, anim variant
-    keywords = ["String", "Klass", "Integer", "Team"]
+    keywords = ["String", "Klass", "String", "Team"]
     optional_keywords = ["AI", "Faction", "String"]
 
 class AddUnit(EventCommand):

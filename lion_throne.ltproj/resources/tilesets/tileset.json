@@ -34,5 +34,17 @@
     {
         "nid": "TacticsFloor",
         "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter4",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter5",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "OpenRoad",
+        "terrain_grid": {}
     }
 ]

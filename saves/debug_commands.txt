@@ -1,7 +1,5 @@
 win_game
 win_game
-win_game
-win_game
 reset;Vanessa
 damage;Eirika;4
 set_current_hp;Eirika;4
@@ -18,3 +16,5 @@ give_exp;104;100
 give_exp;104;100
 give_exp;104;100
 give_exp;104;100
+remove_unit;Coyote
+remove_unit;Coyote

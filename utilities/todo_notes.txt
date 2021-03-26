@@ -5,6 +5,9 @@ Save needs to pull up Progress Bar -- Dialog box should pop up when saving and a
 Speed up serialization
 Figure out whether we should be saving music and sound effects the way we ARE saving them...
 
+make_generic level change
+make_generic auto-nid
+
 Combat Animations
     Combat Anims / Palettes as a separate tab?
     Combat Effects

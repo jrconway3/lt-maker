@@ -50,6 +50,10 @@ class Defaults():
         return None
 
     @staticmethod
+    def sight_range(unit):
+        return 0
+
+    @staticmethod
     def modify_buy_price(unit, item) -> float:
         return 1.0
 
@@ -98,7 +102,7 @@ default_behaviours = (
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
 # Takes in unit, returns default value
-exclusive_behaviours = ('can_select', 'movement_type')
+exclusive_behaviours = ('can_select', 'movement_type', 'sight_range')
 exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')
@@ -108,7 +112,7 @@ targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier
 modify_hooks = (
     'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
     'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
-    'modify_defense_speed', 'sight_range', 'empower_splash')
+    'modify_defense_speed', 'empower_splash')
 # Takes in unit, item, target, mode, returns bonus
 dynamic_hooks = ('dynamic_damage', 'dynamic_resist', 'dynamic_accuracy', 'dynamic_avoid', 
                  'dynamic_crit_accuracy', 'dynamic_crit_avoid', 'dynamic_attack_speed', 'dynamic_defense_speed',

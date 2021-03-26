@@ -1560,7 +1560,13 @@ class AIState(MapState):
             self.cur_unit = None
             self.cur_group = None
             game.state.change('turn_change')
+            self.finish()
             return 'repeat'
+
+    def finish(self):
+        logging.info("Finishing AI State")
+        for unit in game.units:
+            unit.has_run_ai = False
 
 class ShopState(State):
     name = 'shop'

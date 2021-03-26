@@ -6225,15 +6225,17 @@
         "condition": "True",
         "commands": [
             [
-                "comment",
+                "level_var",
                 [
-                    "#level_var;_fog_of_war;1"
+                    "_fog_of_war",
+                    "1"
                 ]
             ],
             [
-                "comment",
+                "level_var",
                 [
-                    "#level_var;_fog_of_war_radius;3"
+                    "_fog_of_war_radius",
+                    "3"
                 ]
             ],
             [

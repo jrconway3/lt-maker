@@ -148,10 +148,10 @@ class TileSet(Prefab):
         for str_coord, terrain_nid in s_dict['terrain_grid'].items():
             coord = tuple(str_utils.intify(str_coord))
             self.terrain_grid[coord] = terrain_nid
-        for str_coord, column in s_dict['autotiles'].items():
+        for str_coord, column in s_dict.get('autotiles', {}).items():
             coord = tuple(str_utils.intify(str_coord))
             self.autotiles[coord] = column
-        self.autotile_full_path = s_dict['autotile_full_path']
+        self.autotile_full_path = s_dict.get('autotile_full_path', None)
         return self
 
 class LayerGrid(Prefab):

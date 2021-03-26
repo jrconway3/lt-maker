@@ -1,42 +1,62 @@
 [
     {
         "nid": "Chpt1",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "Prologue",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "Chpt2",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "SacredStonesBase",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "Chpt3",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "SacredStonesVillage",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "GradoKeep",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "Chpt14B",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "Chpt4",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     },
     {
         "nid": "Chpt5",
-        "terrain_grid": {}
+        "terrain_grid": {},
+        "autotiles": {},
+        "autotile_full_path": null
     }
 ]

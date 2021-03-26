@@ -153,7 +153,7 @@ class Speak(EventCommand):
     tag = "dialogue"
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['ScreenPosition', 'Width']
+    optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
     flags = ['low_priority']
 
 class Transition(EventCommand):

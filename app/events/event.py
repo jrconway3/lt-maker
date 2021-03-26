@@ -1066,11 +1066,18 @@ class Event():
             width = int(values[3])
         else:
             width = None
+        if len(values) > 4 and values[4]:
+            variant = values[4]
+        else:
+            variant = None
 
         portrait = self.portraits.get(speaker)
         text = self._evaluate_evals(text)
         text = self._evaluate_vars(text)
-        new_dialog = dialog.Dialog(text, portrait, 'message_bg_base', position, width, speaker=speaker)
+        bg = 'message_bg_base'
+        if variant == 'noir':
+            bg = 'menu_bg_dark'
+        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
         # Bring portrait to forefront

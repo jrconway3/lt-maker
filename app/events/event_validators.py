@@ -130,6 +130,9 @@ class ExpressionList(Validator):
                 return None
         return text
 
+class DialogVariant(OptionValidator):
+    valid = ["thought_bubble", "noir"]
+
 class StringList(Validator):
     def validate(self, text, level):
         text = text.split(',')

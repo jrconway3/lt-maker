@@ -40,6 +40,34 @@
                 [
                     "Ophie,I am awesome"
                 ]
+            ],
+            [
+                "level_var",
+                [
+                    "_fog_of_war",
+                    "1"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "_fog_of_war_radius",
+                    "3"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Ophie",
+                    "3,5",
+                    "swoosh"
+                ]
             ]
         ],
         "only_once": false,
@@ -8743,39 +8771,6 @@
         "priority": 20
     },
     {
-        "name": "Turn2",
-        "trigger": "turn_change",
-        "level_nid": "DEBUG",
-        "condition": "game.turncount == 2",
-        "commands": [
-            [
-                "choice",
-                [
-                    "battle_save",
-                    "Would you like to make a save?",
-                    "Yes,No",
-                    "horiz"
-                ]
-            ],
-            [
-                "if",
-                [
-                    "game.game_vars['battle_save'] == 'Yes'"
-                ]
-            ],
-            [
-                "battle_save",
-                []
-            ],
-            [
-                "end",
-                []
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
         "name": "Ophie meets Renae",
         "trigger": "on_base_convo",
         "level_nid": "3",
@@ -12817,7 +12812,7 @@
         "name": "Infinite",
         "trigger": "turn_change",
         "level_nid": "5",
-        "condition": "game.turncount == 16 or game.turncount == 18 or game.turncount >= 20",
+        "condition": "game.turncount == 14 or game.turncount == 16 or game.turncount >= 18",
         "commands": [
             [
                 "move_cursor",
@@ -12836,7 +12831,7 @@
                 [
                     "",
                     "Brigand",
-                    "10",
+                    "game.turncount - 4",
                     "enemy",
                     "Pursue",
                     "Bandit"
@@ -12864,7 +12859,7 @@
                 [
                     "",
                     "Brigand",
-                    "10",
+                    "game.turncount - 4",
                     "enemy",
                     "Pursue",
                     "Bandit"
@@ -12892,7 +12887,7 @@
                 [
                     "",
                     "Brigand",
-                    "10",
+                    "game.turncount - 4",
                     "enemy",
                     "Pursue",
                     "Bandit"
@@ -12944,7 +12939,7 @@
                 [
                     "",
                     "Brigand",
-                    "10",
+                    "game.turncount - 4",
                     "enemy",
                     "Pursue",
                     "Bandit"
@@ -12972,7 +12967,7 @@
                 [
                     "",
                     "Brigand",
-                    "10",
+                    "game.turncount - 4",
                     "enemy",
                     "Pursue",
                     "Bandit"
@@ -13000,7 +12995,7 @@
                 [
                     "",
                     "Brigand",
-                    "10",
+                    "game.turncount - 4",
                     "enemy",
                     "Pursue",
                     "Bandit"
@@ -13027,6 +13022,23 @@
                 "wait",
                 [
                     "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn2",
+        "trigger": "turn_change",
+        "level_nid": "DEBUG",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "add_unit",
+                [
+                    "Prim",
+                    "8,8"
                 ]
             ]
         ],

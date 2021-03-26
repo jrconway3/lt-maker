@@ -309,10 +309,13 @@ class PrepFormationSelectState(MapState):
                     cur_unit.position, self.unit.position = self.unit.position, cur_unit.position
                     game.arrive(cur_unit)
                     game.arrive(self.unit)
+                    action.UpdateFogOfWar(cur_unit).do()
+                    action.UpdateFogOfWar(self.unit).do()
                 else:
                     game.leave(self.unit)
                     self.unit.position = game.cursor.position
                     game.arrive(self.unit)
+                    action.UpdateFogOfWar(self.unit).do()
                 game.state.back()
                 game.ui_view.remove_unit_display()
                 game.highlight.remove_highlights()

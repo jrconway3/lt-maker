@@ -251,7 +251,7 @@ class MakeGeneric(EventCommand):
     tag = 'general'
 
     # Nid, class, level, team, ai, faction, anim variant
-    keywords = ["String", "Klass", "Integer", "Team"]
+    keywords = ["String", "Klass", "String", "Team"]
     optional_keywords = ["AI", "Faction", "String"]
 
 class AddUnit(EventCommand):

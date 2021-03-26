@@ -54,73 +54,23 @@
                 "generic": true
             },
             {
-                "nid": "103",
-                "variant": null,
-                "level": 1,
-                "klass": "Soldier",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Defend",
-                "ai_group": "1",
-                "starting_position": [
-                    7,
-                    10
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "101",
-                "variant": null,
-                "level": 1,
-                "klass": "Archer",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Willow Bow",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Pursue",
-                "ai_group": null,
-                "starting_position": [
-                    6,
-                    10
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "104",
-                "variant": null,
-                "level": 1,
-                "klass": "Fighter",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Axe",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Pursue",
+                "nid": "Coyote",
+                "team": "player",
+                "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     5,
-                    7
+                    11
                 ],
-                "name": null,
-                "desc": null,
-                "generic": true
+                "generic": false
+            },
+            {
+                "nid": "Prim",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
             }
         ],
         "regions": [

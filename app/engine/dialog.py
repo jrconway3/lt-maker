@@ -20,7 +20,7 @@ class Dialog():
 
     aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}')
 
-    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None):
+    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None, variant=None):
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
@@ -69,6 +69,13 @@ class Dialog():
         else:
             self.background = None
             self.tail = None
+            
+        self.variant = variant
+        if variant == 'noir':
+            self.tail = None
+        elif variant == 'thought_bubble':
+            self.tail = SPRITES.get('message_bg_thought_tail')
+
         self.name_tag_surf = create_base_surf(64, 16, 'name_tag')
 
         # For drawing

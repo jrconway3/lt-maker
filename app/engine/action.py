@@ -130,18 +130,22 @@ class SimpleMove(Move):
         self.unit = unit
         self.old_pos = self.unit.position
         self.new_pos = new_pos
+        self.update_fow_action = UpdateFogOfWar(self.unit)
 
     def do(self):
         game.leave(self.unit)
         self.unit.position = self.new_pos
         game.arrive(self.unit)
+        self.update_fow_action.do()
 
     def execute(self):
         game.leave(self.unit)
         self.unit.position = self.new_pos
         game.arrive(self.unit)
+        self.update_fow_action.execute()
 
     def reverse(self):
+        self.update_fow_action.reverse()
         game.leave(self.unit)
         self.unit.position = self.old_pos
         game.arrive(self.unit)
@@ -160,6 +164,7 @@ class ForcedMovement(SimpleMove):
         game.leave(self.unit)
         self.unit.position = self.new_pos
         game.arrive(self.unit)
+        self.update_fow_action.do()
 
 class Swap(Action):
     def __init__(self, unit1, unit2):
@@ -167,6 +172,8 @@ class Swap(Action):
         self.unit2 = unit2
         self.pos1 = unit1.position
         self.pos2 = unit2.position
+        self.update_fow_action1 = UpdateFogOfWar(self.unit)
+        self.update_fow_action2 = UpdateFogOfWar(self.unit)
 
     def do(self):
         game.leave(self.unit1)
@@ -174,8 +181,12 @@ class Swap(Action):
         self.unit1.position, self.unit2.position = self.pos2, self.pos1
         game.arrive(self.unit2)
         game.arrive(self.unit1)
+        self.update_fow_action1.do()
+        self.update_fow_action2.do()
 
     def reverse(self):
+        self.update_fow_action1.reverse()
+        self.update_fow_action2.reverse()
         game.leave(self.unit1)
         game.leave(self.unit2)
         self.unit1.position, self.unit2.position = self.pos1, self.pos2
@@ -189,6 +200,7 @@ class Warp(SimpleMove):
         game.leave(self.unit)
         self.unit.position = self.new_pos
         game.arrive(self.unit)
+        self.update_fow_action.do()
 
 class Swoosh(SimpleMove):
     def do(self):
@@ -197,6 +209,7 @@ class Swoosh(SimpleMove):
         game.leave(self.unit)
         self.unit.position = self.new_pos
         game.arrive(self.unit)
+        self.update_fow_action.do()
 
 class FadeMove(SimpleMove):
     def do(self):
@@ -205,6 +218,7 @@ class FadeMove(SimpleMove):
         game.leave(self.unit)
         self.unit.position = self.new_pos
         game.arrive(self.unit)
+        self.update_fow_action.do()
 
 class ArriveOnMap(Action):
     def __init__(self, unit, pos):
@@ -252,13 +266,16 @@ class PlaceOnMap(Action):
     def __init__(self, unit, pos):
         self.unit = unit
         self.pos = pos
+        self.update_fow_action = UpdateFogOfWar(self.unit)
 
     def do(self):
         self.unit.position = self.pos
         if self.unit.position:
             self.unit.previous_position = self.unit.position
+        self.update_fow_action.do()
 
     def reverse(self):
+        self.update_fow_action.reverse()
         self.unit.position = None
 
 class LeaveMap(Action):
@@ -311,11 +328,14 @@ class RemoveFromMap(Action):
     def __init__(self, unit):
         self.unit = unit
         self.old_pos = self.unit.position
+        self.update_fow_action = UpdateFogOfWar(self.unit)
 
     def do(self):
         self.unit.position = None
+        self.update_fow_action.do()
 
     def reverse(self):
+        self.update_fow_action.reverse()
         self.unit.position = self.old_pos
         if self.unit.position:
             self.unit.previous_position = self.unit.position
@@ -380,7 +400,7 @@ class Wait(Action):
     def __init__(self, unit):
         self.unit = unit
         self.action_state = self.unit.get_action_state()
-        self.update_fow_action = None
+        self.update_fow_action = UpdateFogOfWar(self.unit)
 
     def do(self):
         self.unit.has_moved = True
@@ -389,7 +409,6 @@ class Wait(Action):
         self.unit.finished = True
         self.unit.current_move = None
         self.unit.sprite.change_state('normal')
-        self.update_fow_action = UpdateFogOfWar(self.unit)
         self.update_fow_action.do()
 
     def reverse(self):
@@ -1143,6 +1162,17 @@ class UpdateRecords(Action):
 
     def reverse(self):
         game.records.pop(self.record_type)
+
+class ReverseRecords(Action):
+    def __init__(self, record_type, data):
+        self.record_type = record_type
+        self.data = data
+
+    def do(self):
+        game.records.pop(self.record_type)
+
+    def reverse(self):
+        game.records.append(self.record_type, self.data)        
 
 class ChangeAI(Action):
     def __init__(self, unit, ai):

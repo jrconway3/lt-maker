@@ -399,5 +399,33 @@
         ],
         "priority": 20,
         "offense_bias": 2.0
+    },
+    {
+        "nid": "Escape",
+        "behaviours": [
+            {
+                "action": "Interact",
+                "target": "Event",
+                "target_spec": "Wagon Escape",
+                "view_range": -4,
+                "invert_targeting": false
+            },
+            {
+                "action": "None",
+                "target": "None",
+                "target_spec": null,
+                "view_range": 0,
+                "invert_targeting": false
+            },
+            {
+                "action": "None",
+                "target": "None",
+                "target_spec": null,
+                "view_range": 0,
+                "invert_targeting": false
+            }
+        ],
+        "priority": 20,
+        "offense_bias": 2
     }
 ]

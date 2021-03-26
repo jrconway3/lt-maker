@@ -513,6 +513,7 @@ class Promote(ItemComponent):
             else:
                 new_klass = None
             game.memory['current_unit'] = target
+            game.memory['combat_item'] = item
             game.memory['can_go_back'] = True
             if new_klass:
                 game.memory['next_class'] = new_klass
@@ -555,6 +556,7 @@ class ClassChange(Promote, ItemComponent):
             else:
                 new_klass = None
             game.memory['current_unit'] = target
+            game.memory['combat_item'] = item
             game.memory['can_go_back'] = True
             if new_klass:
                 game.memory['next_class'] = new_klass

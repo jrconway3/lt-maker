@@ -112,6 +112,7 @@ class MovementManager():
             unit.sound.stop()
         if data.event:
             unit.sprite.change_state('normal')
+            action.do(action.UpdateFogOfWar(unit))
         else:
             unit.has_moved = True
         # Handle camera auto-follow

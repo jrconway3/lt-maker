@@ -33,6 +33,12 @@ class Uses(ItemComponent):
         action.do(action.RemoveItem(unit, item))
         return True
 
+    def reverse_use(self, unit, item):
+        if self.is_broken(unit, item):
+            action.do(action.GiveItem(unit, item))
+        action.do(action.SetObjData(item, 'uses', item.data['uses'] + 1))
+        action.do(action.ReverseRecords('item_use', (unit.nid, item.nid)))
+
     def special_sort(self, unit, item):
         return item.data['uses']
 
@@ -71,6 +77,10 @@ class ChapterUses(ItemComponent):
         # Don't need to use action here because it will be end of chapter
         item.data['c_uses'] = item.data['starting_c_uses']
 
+    def reverse_use(self, unit, item):
+        action.do(action.SetObjData(item, 'c_uses', item.data['c_uses'] + 1))
+        action.do(action.ReverseRecords('item_use', (unit.nid, item.nid)))
+
     def special_sort(self, unit, item):
         return item.data['c_uses']
 
@@ -88,6 +98,9 @@ class HPCost(ItemComponent):
     def start_combat(self, playback, unit, item, target):
         action.do(action.ChangeHP(unit, -self.value))
 
+    def reverse_use(self, unit, item):
+        action.do(action.ChangeHP(unit, self.value))
+
 class ManaCost(ItemComponent):
     nid = 'mana_cost'
     desc = "Item costs mana to use"
@@ -101,6 +114,9 @@ class ManaCost(ItemComponent):
 
     def start_combat(self, playback, unit, item, target):
         action.do(action.ChangeMana(unit, -self.value))
+
+    def reverse_use(self, unit, item):
+        action.do(action.ChangeMana(unit, self.value))
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'
@@ -131,6 +147,9 @@ class Cooldown(ItemComponent):
         if self._used_in_combat:
             action.do(action.SetObjData(item, 'cooldown', self.value))
             self._used_in_combat = False
+
+    def reverse_use(self, unit, item):
+        action.do(action.SetObjData(item, 'cooldown', 0))
 
     def on_broken(self, unit, item):
         if unit.equipped_weapon is item:

@@ -1,7 +1,7 @@
 import re
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.utilities import utils
+from app.utilities import utils, str_utils
 
 from app.resources.resources import RESOURCES
 
@@ -1066,11 +1066,18 @@ class Event():
             width = int(values[3])
         else:
             width = None
+        if len(values) > 4 and values[4]:
+            variant = values[4]
+        else:
+            variant = None
 
         portrait = self.portraits.get(speaker)
         text = self._evaluate_evals(text)
         text = self._evaluate_vars(text)
-        new_dialog = dialog.Dialog(text, portrait, 'message_bg_base', position, width, speaker=speaker)
+        bg = 'message_bg_base'
+        if variant == 'noir':
+            bg = 'menu_bg_dark'
+        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
         # Bring portrait to forefront
@@ -1519,16 +1526,23 @@ class Event():
 
     def make_generic(self, command):
         values, flags = event_commands.parse(command)
+        assign_unit = False
         # Get input
         unit_nid = values[0]
-        if game.get_unit(unit_nid):
+        if not unit_nid:
+            unit_nid = str_utils.get_next_int('201', [unit.nid for unit in game.units])
+            assign_unit = True
+        elif game.get_unit(unit_nid):
             logging.error("Unit with NID %s already exists!" % unit_nid)
             return
+
         klass = values[1]
         if klass not in DB.classes.keys():
             logging.error("Class %s doesn't exist in database " % klass)
             return
-        level = int(values[2])
+        # Level
+        level = int(evaluate.evaluate(values[2], self.unit, self.unit2, self.item, self.position, self.region))
+        
         team = values[3]
         if len(values) > 4 and values[4]:
             ai_nid = values[4]
@@ -1547,6 +1561,8 @@ class Event():
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party
         game.full_register(new_unit)
+        if assign_unit:
+            self.unit = new_unit
 
     def give_item(self, command):
         values, flags = event_commands.parse(command)

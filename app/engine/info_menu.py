@@ -842,7 +842,7 @@ class InfoMenuState(State):
             else:
                 crt = str(crt)
         else:
-            rng, dam, acc, crt = '--', '--', '--', '--', '--'
+            rng, dam, acc, crt = '--', '--', '--', '--'
 
         avo = str(combat_calcs.avoid(self.unit, weapon))
         attack_speed = str(combat_calcs.attack_speed(self.unit, weapon))

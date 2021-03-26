@@ -379,7 +379,6 @@ class MapCombat():
         self.handle_state_stack()
         game.events.trigger('combat_end', self.attacker, self.defender, self.main_item, self.attacker.position)
         self.handle_item_gain(all_units)
-        a_broke, d_broke = self.find_broken_items()
 
         # handle wexp & skills
         if not self.attacker.is_dying:
@@ -430,6 +429,7 @@ class MapCombat():
 
         self.handle_death(all_units)
 
+        a_broke, d_broke = self.find_broken_items()
         self.handle_broken_items(a_broke, d_broke)
         # Done
 
@@ -516,7 +516,7 @@ class MapCombat():
         marks += self.get_from_full_playback('mark_crit')
         if DB.constants.value('miss_wexp'):
             marks += self.get_from_full_playback('mark_miss')
-        marks = [mark for mark in marks if mark[1] == unit]
+        marks = [mark for mark in marks if mark[1] == unit and mark[4] == item]
         wexp = item_system.wexp(self.full_playback, unit, item, target)
 
         if DB.constants.value('double_wexp'):

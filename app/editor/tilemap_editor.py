@@ -994,7 +994,15 @@ class TileSetMenu(QWidget):
         idx = self.tab_bar.currentIndex()
         if 0 <= idx < len(self.current.tilesets):
             current_tileset = self.current.tilesets[idx]
-            
+            companion_tileset, column_idxs = autotiles.AutotileMaker(current_tileset)
+            if not column_idxs:
+                QMessage.warning(self, "Autotile Generation Warning", "No autotiles match the tiles in this tileset!")
+                return
+            # Save companion_tileset to file fn in RESOURCES
+            current_tileset.autotiles = column_idxs
+            current_tileset.autotile_full_path = fn
+            pix = QPixmap(companion_tileset)
+            current_tileset.autotile_pixmap = pix
 
 class TileSetView(MapEditorView):
     tilewidth = TILEWIDTH + 1

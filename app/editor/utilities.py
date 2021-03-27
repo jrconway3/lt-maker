@@ -62,6 +62,17 @@ def find_palette(image):
     true_palette = [(c.red(), c.green(), c.blue()) for c in color_palette]
     return true_palette
 
+def get_full_palette(image) -> list:
+    """
+    Returns list of QColors
+    """
+    palette = []
+    for x in range(image.width()):
+        for y in range(image.height()):
+            color = image.pixelColor(x, y)
+            palette.append(color)
+    return palette
+
 def convert_gba(image):
     for i in range(image.colorCount()):
         color = QtGui.QColor(image.color(i))

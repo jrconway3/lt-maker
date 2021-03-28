@@ -223,17 +223,17 @@ class CombatPhaseSolver():
             if crit:
                 item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
-                    playback.append(('mark_crit', attacker, defender, self.attacker))
+                    playback.append(('mark_crit', attacker, defender, self.attacker, item))
             else:
                 item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
-                    playback.append(('mark_hit', attacker, defender, self.attacker))
+                    playback.append(('mark_hit', attacker, defender, self.attacker, item))
             item_system.after_hit(actions, playback, attacker, item, defender, mode)
             skill_system.after_hit(actions, playback, attacker, item, defender, mode)
         else:
             item_system.on_miss(actions, playback, attacker, item, defender, def_pos, mode, first_item)
             if defender:
-                playback.append(('mark_miss', attacker, defender, self.attacker))
+                playback.append(('mark_miss', attacker, defender, self.attacker, item))
 
     def simple_process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
         # Is the item I am processing the first one?
@@ -241,7 +241,7 @@ class CombatPhaseSolver():
         
         item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
         if defender:
-            playback.append(('mark_hit', attacker, defender, self.attacker))
+            playback.append(('mark_hit', attacker, defender, self.attacker, item))
 
     def attacker_alive(self):
         return self.attacker.get_hp() > 0

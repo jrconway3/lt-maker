@@ -352,6 +352,17 @@
         ]
     },
     {
+        "nid": "Woman2",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    },
+    {
         "nid": "OldLady1",
         "blinking_offset": [
             16,

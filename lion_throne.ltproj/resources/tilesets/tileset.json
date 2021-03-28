@@ -46,5 +46,13 @@
     {
         "nid": "OpenRoad",
         "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter6",
+        "terrain_grid": {}
+    },
+    {
+        "nid": "Chapter6ExtraTiles",
+        "terrain_grid": {}
     }
 ]

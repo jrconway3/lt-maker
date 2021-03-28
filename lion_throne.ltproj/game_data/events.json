@@ -1663,6 +1663,46 @@
         "priority": 20
     },
     {
+        "name": "FightOphieJules",
+        "trigger": "combat_start",
+        "level_nid": "5",
+        "condition": "check_pair('Ophie', 'Jules')",
+        "commands": [
+            [
+                "multi_add_portrait",
+                [
+                    "Jules",
+                    "Left",
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jules",
+                    "I hate to shatter your ego,|but this is not the first time I've crossed swords, kid."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "But it's gonna be your last."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Prim",
+                    "Vagnius"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
         "name": "FightOphieVagnius",
         "trigger": "combat_start",
         "level_nid": "0",
@@ -4056,6 +4096,87 @@
         "priority": 20
     },
     {
+        "name": "FightJules",
+        "trigger": "combat_start",
+        "level_nid": "5",
+        "condition": "check_default('Jules', ['Ophie'])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Jules",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jules",
+                    "Man, you best back off.|I'm gettin' a little pissed here!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Jules"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "FightVincent",
+        "trigger": "combat_start",
+        "level_nid": "5",
+        "condition": "check_default('Vincent', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Vincent",
+                    "Left"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_dead('Jules')"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "You dun' killed Jules!|You killed my b-brother! ARGH!!!"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Ah shit, man..."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vincent"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
         "name": "WinGame",
         "trigger": "combat_end",
         "level_nid": "1",
@@ -4308,6 +4429,50 @@
         "name": "PartyLose",
         "trigger": "combat_end",
         "level_nid": "4",
+        "condition": "len(game.get_units_in_party()) < 5",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Lose game when party size falls below three"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "You have lost too many members of your party."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 15
+    },
+    {
+        "name": "PartyLose",
+        "trigger": "combat_end",
+        "level_nid": "5",
         "condition": "len(game.get_units_in_party()) < 5",
         "commands": [
             [
@@ -12603,7 +12768,7 @@
         "name": "Sam Arrive",
         "trigger": "turn_change",
         "level_nid": "5",
-        "condition": "game.turncount == 8",
+        "condition": "game.turncount == 7",
         "commands": [
             [
                 "music",
@@ -13043,6 +13208,2408 @@
             ]
         ],
         "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Armory",
+        "trigger": "Armory",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "All Aboard to Rogueport"
+                ]
+            ],
+            [
+                "shop",
+                [
+                    "{unit}",
+                    "Mithril Sword,Adamant Sword,Mithril Lance,Adamant Lance,Javelin,Mithril Axe,Adamant Axe,Hand Axe,Yew Bow,Longbow,Shine,Mend,Flux"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Village",
+        "trigger": "Visit",
+        "level_nid": "5",
+        "condition": "region.nid == 'Village'",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Give Gustblade"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "House"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "{unit}",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Narrator",
+                    "This house has been long abandoned to the spreading sands...|But what's this?",
+                    "",
+                    "",
+                    "hint"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Gustblade"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Seize",
+        "trigger": "Seize",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Change Sam and Kayla to player controlled"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Sam",
+                    "player"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Kayla",
+                    "player"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "CFS"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Kayla"
+                ]
+            ],
+            [
+                "victory_screen",
+                []
+            ],
+            [
+                "music",
+                [
+                    "Good Theme"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Desert"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Sam",
+                    "FarLeft",
+                    "Man1",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "Sir, I don't know how we can ever repay you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No need.|Besides, it is not me you should be thanking."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidLeft",
+                    "low_priority"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Without my friend's stubborn insistence on doing what is right,|we never would have succeeded.|He led the charge."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "Thank you.|Finding and returning our children...|It's like a miracle from out of the age of the Moon King."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "All in a days' work for the Resistance.|We Keralans have to stick together."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "Indeed.|Thank you again, all of you, for your help."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Man1"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "So, I guess I should thank you.|You arrived in the nick of time."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No, actually I should apologize to you.|You were right.|We can't hide in the shadows and expect to accomplish anything substantial."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Well, I'm glad you came around."
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Hum of the Streets"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Kayla",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "So, who's this?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Who's this...?|Sammy, my dear, you still haven't told them about me?|Trying to keep me all to yourself? Tsk Tsk.|It's a pleasure to meet you, Ophie.|I'm Kayla."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "...My source..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "This woman is your secret source?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "...Kayla is a liason from the Confederacy of Free Cities."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "The Confederacy of what now?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "The Confederacy of Free Cities."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Which is?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "The Confederacy is a group of free city states to the east.|They've banded together to protect themselves against the Empire's ambition."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Indeed. I'm with the Confederacy's... diplomacy bureau."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "She's one of the reasons the Resistance has had such success lately.|There are many Confederacy spies in the ranks of the Empire.|They relay back important information about where the Empire is weak,|and when would be a good time to strike."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "So you're Sam's mysterious source.|This is who you've been trusting, Sam?{w}{clear}Kayla, your 'information' nearly got us killed at Fort Kosheen."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Ah yes, one of our spies fed us false information.|Tsk Tsk.|Don't worry, he was dealt with.|Harshly."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "There's no need to be suspicious.|Any enemy of the Empire is a friend of ours.|The Confederacy's been struggling against the Empire for many solstices.|They're interested in Kerala's freedom just as much as we are."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Lately, the Confederacy's decided to take a more active approach.|I'll be accompanying you all on your missions from now on.|How exciting!|You should know I've never really done anything so hands-on before.|Freedom fighters, nighttime raids, disguised princesses...|Oh, how romantic!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Yeah, we'll see how you like it after the next mission, eh?"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Oh, don't be rude.|I didn't get this far on my looks alone now."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Kayla's one of the Confederacy's top shamans.|She can take care of herself."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Well, no use dilly-dallying.|I want to see what accoutrements you've managed to scrounge up."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "You never brought her to the base, Sam?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "I know right, how rude!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "No, actually, that's smart..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "So what does your base look like?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Err..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Do you all live in a big treehouse?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Or maybe in the sewers, with, like, rat throw-rugs?|Or I know, behind a waterfall!|That's gotta be it..."
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Kayla",
+                    "96,0"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Kayla",
+                    "Ophie",
+                    "Sam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# pre Base"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_max_turnwheel_uses",
+                    "5"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_current_turnwheel_uses",
+                    "5"
+                ]
+            ],
+            [
+                "add_weather",
+                [
+                    "Sand"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Steel Sword"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Steel Lance"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Steel Axe"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Potion"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Thunder"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Eliza')"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Apologies"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Joel') and game.check_alive('Nia')"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Joel and Nia"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Theo') and game.game_vars['noir'] >= 1"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Theo Sphinx, Pt. II"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "base",
+                [
+                    "MainBase",
+                    "The Journey to the West"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Narration"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Woman2 shows up requesting help"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Everyone except Sam heads out in a rush."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Show room"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "The Task at Hand"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Show room"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "TacticsRoom"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Sam",
+                    "7,2"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "12,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Prim",
+                    "10,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Theo",
+                    "10,9"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Renae",
+                    "2,9"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Drake",
+                    "5,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Joel",
+                    "9,7"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Althea",
+                    "3,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Eliza",
+                    "5,9"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoomDay"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "FarRight"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Welcome back, everyone.|The last mission went better than expected, so congratulations.|In thanks for a job well done, I'm giving you all a day off."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "You're kidding?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Don't go expecting this to happen often, now--"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Mount Briggs"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Renae",
+                    "Sam"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Show room"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "7,9"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Nia",
+                    "7,9"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "villager",
+                    "Citizen",
+                    "1",
+                    "other",
+                    "",
+                    "",
+                    "Female"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "villager",
+                    "8,9"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Nia",
+                    "7,8",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "villager",
+                    "8,8"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoomDay"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Nia",
+                    "FarLeft",
+                    "Sam",
+                    "FarRight"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Woman2",
+                    "MidLeft",
+                    "",
+                    "CloseEyes"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "Err... B-bad sneak here!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "A spy?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman2",
+                    "Mrghghgl!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "If the Empire's discovered our location...|We need to leave right away...|I wasn't expecting them to be able to track this--"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Woman2",
+                    "NormalBlink"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman2",
+                    "No! I'm not a spy!"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Nia moves"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Nia",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hold!|Let's hear her out!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Nia",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Nia moves back"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "So you say you're no spy...|Why are you here then?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman2",
+                    "I was just trying to speak to you.|We need your help!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "We?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman2",
+                    "I'm from Podoma.|Your group defended our village."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Nia"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Go on..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman2",
+                    "Because of the drought, our last harvest was poor.|W-we couldn't pay the Empire's absurd taxes.|So they sent one of their warlocks..."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Vagnius!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman2",
+                    "He took the only thing we had left...|our children...|Please, you have to help us!|I can't bear to lose my son!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Even for the Empire, stealing children seems excessive."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "It must be Vagnius's idea!|That bastard!|Where did he take them?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Woman2",
+                    "H-he said he was taking them to the Sun temple's ruins..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "A likely story...|They must be trying to draw us out.|Well, we won't give them the satisfaction.|Sorry, but we're not just going to walk right into their trap."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Ophie",
+                    "Althea"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "How can you be so heartless?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I'm just being rational.|Let's take some time and think this through.|We'll find a plan that doesn't require blindly walking into Vagnius's trap."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "We can't just sit here and do nothing!|We're the Resistance, and we do what's right!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Well said, lad."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Joel!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Sorry, captain, but the lad's right...|If we can't stop Imperials from snatching children out from under our noses,|we don't deserve to be called the Resistance."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Harrumph...|It's your life to throw away..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I reckon' we don't got time to dawdle.|Let's go while the trail's fresh!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Right!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Woman2",
+                    "Ophie",
+                    "Joel"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "chapter_title",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# Intro Script"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 5",
+                    "reload"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Vagnius",
+                    "immediate"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Mount Briggs"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vincent",
+                    "23,3"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vincent"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Vincent",
+                    "Left",
+                    "Vagnius",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "Is everything prepared?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "You don't have to worry, boss.|Those posers won't be getting through the Ghat Mountain Bandits.|You can trust me on that!|They don't call us the toughest bandits this side of the Ghats for no reason!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "Uh-huh.|I hope your boys can live up to such a... glorious... reputation."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Those children are safe with us!|...Well, not really safe, since they've been kidnapped...|Which does not meet the normal criteria for safety.|But I assure you, they will not be leaving this temple.|The Ghat Mountain bandits are in their natural element!"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# This section might be cuttable?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "... Are you quite finished?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Huh?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "Never mind...|Look here!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Hee hee! More gold.|What's this for, boss?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "Your silence."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Our silence?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "Holding children hostage isn't exactly lauded by the international community..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Oh, I get ya, boss.|Not a word of it will pass my lips!"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# End cuttable setion here"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vagnius"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vagnius",
+                    "Right",
+                    "mirror"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Hey! Where you going, boss?|Don't you want to see the fireworks?"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vagnius"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vagnius",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vagnius",
+                    "I have more important things to do than watch a slaughter.|I trust you can handle those nuisances when they show, or it'll be your skin."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "You bet, boss!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Vagnius",
+                    "Vincent"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vagnius",
+                    "20,0"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Vagnius"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "N1"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "N2"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vincent",
+                    "23,2"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vincent",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vincent",
+                    "Gulp!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vincent"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Combat Theme 4"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Desert"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "3,15"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Ophie",
+                    "immediate"
+                ]
+            ],
+            [
+                "arrange_formation",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Add player units"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Ophie",
+                    "MidLeft",
+                    "Prim",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "The trail stops here."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Could we have lost them?|A-are we... too late?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "No, they must be nearby.|There's an old temple over there.|Maybe Vagnius is hiding within, like the snake he is..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eliza",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Look alive, people!|Bandits!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Eliza",
+                    "Ophie"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Jules",
+                    "immediate"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Jules"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Jules",
+                    "5,14"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Desert"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Jules",
+                    "Right",
+                    "Prim",
+                    "FarLeft",
+                    "Ophie",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jules",
+                    "Well, well, well...|Look who decided to show up, boys!|You know, you're late!|And I hate being kept waiting!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "You were expecting us?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jules",
+                    "You bet your ass we were, sweet cheeks!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Where are the children?|We know Vagnius brought them here!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jules",
+                    "Ha ha ha! Don't get ahead of yourself, boy!|If you want those children, you'll have to go through us.|The Ghat Mountain Bandits!|The toughest bandits this side of the Ghat Mountains!|Ha ha ha!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Jules",
+                    "Ophie",
+                    "Prim"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Jules"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Jules",
+                    "9,5"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Come on. There's no time to waste!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# There was movement, so reset that"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Theo Sphinx, Pt. II",
+        "trigger": "on_base_convo",
+        "level_nid": "5",
+        "condition": "unit == 'Theo Sphinx, Pt. II'",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Episode 2"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Jazz Noir"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "MainBase"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Theo",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "It was what folks called the dead of winter.|The dirt mixed with the snow until the alleys were plastered in a gritty brown.|A fine complement to this cold case.|I'd just stopped off at Joel's and ordered a good hot cup o' joe,|when in comes a violet-haired vixen with an eerie smile--|looking for me, as usual.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Rumor is you wanted to talk to me, Theo?|What's up?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "I had little to go on, but this dame was my first lead.|She might have looked enticing, but every rose has its thorns.|Stolen many a bloke's heart--|along with his money.|She'd supposedly reformed, but I had my doubts.|I asked her if she'd been around O'Halley's street anytime lately.|Maybe the temptation of her past had proven too great?",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "What are you going on about, Theo?|O'Halley Street?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "She tried to play dumb with me, but I wasn't buying it.|I'd seen her at Miss Prim's weekend galas,|often through the glass of a strong scotch.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Oh, Prim's room? Yeah, I've been by...|I heard she lost a tome?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Finally a lead.|I pressed her on her story.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Hey, you think I took it?|Sure, I'm a thief, but I don't steal from the Resistance!|You've got to know that by now, Theo.|Trust me, I'm not the culprit.|Maybe Sam knows?|He's always keeping tabs on us."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "She made like a skydiver with a broken parachute and hit the road,|leaving me to my thoughts.|This case was a real stumper.|But I knew who to turn to next,|an old friend on the force who might have some answers...",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Theo"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Theo Sphinx, Pt. II"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "noir",
+                    "2"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Apologies",
+        "trigger": "on_base_convo",
+        "level_nid": "5",
+        "condition": "unit == 'Apologies'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Midna's Theme"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoomDay"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eliza",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Insubordination.|Disobedience.|Refusal to follow my direct orders."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Sam,--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I'm not finished.{w}{clear}Do you know what you've done?|I could expect this from Ophie or Prim, but from you?|One misstep, one false move, and it's over for us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Sam, I can explain--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No need. I understand plenty.|And I'm sorry."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Huh? You're sorry...?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "You should never have been on that mission.|You were too inexperienced, and you suffered for it.{w}{clear}But I've come to realize that you've changed."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "You're much stronger now. I was wrong to keep you caged here.|I hope you can forgive my poor judgement."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "...All this time, I thought you hated me... for my failure."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Of course not!|You were my responsiblity.|But you can handle yourself now, right?"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Eliza",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "R-Right!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Then, welcome back to the team, Eliza."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "I'll do my best!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "But as a member of the Resistance...|no more insubordination, got that?|I must be confident my orders will be followed."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "...O-of course!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I was saving this for your return.|I expected it to be a couple more solstices, but..."
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Eliza",
+                    "Short Spear",
+                    "no_choice"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "You won't regret this, Sam. Thank you."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Eliza"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Apologies"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Joel and Nia",
+        "trigger": "on_base_convo",
+        "level_nid": "5",
+        "condition": "unit == 'Joel and Nia'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Awakening - Easy Now"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "ClearingSunrise"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Nia",
+                    "Left",
+                    "Joel",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Howdy, Nia! You're up early.|The sun's barely peaked o'er the horizon.|Oh! And you already caught something? Rabbit, is it?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "Mmm... 'twas sleeping! Easy!"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Nia",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Looks good. Thank you, Nia."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "..."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Nia",
+                    "NoSmile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "You remember what to say?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "...Y-you are... welcome?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "A few more years and I'll have you gossiping like a real high society gal.|Just you wait."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "Mmm... hmmm."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Aaah.....|Nothing like fresh breakfast at the crack of dawn..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "You know, Nia, the winds are changin' mighty quick round here.|Our little resistance has grown leaps and bounds jus' in the past moon.|I reckon something fierce is brewin' in ol' Sam's mind.|A plan to end this struggle, one way or another..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "So what I mean to say is that these peaceful moments...|they're gonna be few and far between.{w}{clear}Ah, hell, Nia. I just want ya to know that I might not be around as much.|I know you survived alone before, but you ARE human.|You could use a friend.{w}{clear}If I don't make it, Nia... try to at least talk to someone every once in a while, okay?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "...O-kay."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "...Well, I'm glad we could talk.|But I suppose we've got to get ready for the day.|So long."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "...B-bye, Joel."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Nia"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Joel and Nia"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": true,
         "priority": 20
     }
 ]

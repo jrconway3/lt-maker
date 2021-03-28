@@ -4499,6 +4499,96 @@
                 "sub_nid": "Armory",
                 "condition": "True",
                 "only_once": false
+            },
+            {
+                "nid": "House",
+                "region_type": "event",
+                "position": [
+                    1,
+                    0
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Throne",
+                "region_type": "status",
+                "position": [
+                    23,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rex_Aegis",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation1",
+                "region_type": "formation",
+                "position": [
+                    0,
+                    14
+                ],
+                "size": [
+                    3,
+                    2
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation2",
+                "region_type": "formation",
+                "position": [
+                    1,
+                    16
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation3",
+                "region_type": "formation",
+                "position": [
+                    3,
+                    15
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Seize",
+                "region_type": "event",
+                "position": [
+                    23,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Seize",
+                "condition": "unit.team == 'player'",
+                "only_once": true
             }
         ],
         "unit_groups": [
@@ -4530,5 +4620,938 @@
                 }
             }
         ]
+    },
+    {
+        "nid": "6",
+        "name": "Chapter VI",
+        "tilemap": "Chapter 6",
+        "party": "Resistance",
+        "music": {
+            "player_phase": "The Makers Guardian",
+            "enemy_phase": "In the Midst",
+            "other_phase": "In the Midst",
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null
+        },
+        "objective": {
+            "simple": "Defeat Boss",
+            "win": "Defeat the Warden",
+            "loss": "Ophie dies,Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
+        },
+        "units": [
+            {
+                "nid": "Coyote",
+                "team": "other",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    13,
+                    35
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Kiley",
+                "team": "other",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    36
+                ],
+                "generic": false
+            },
+            {
+                "nid": "C11",
+                "variant": null,
+                "level": 6,
+                "klass": "Brigand",
+                "faction": "Prisoner",
+                "starting_items": [
+                    [
+                        "Rusted Axe",
+                        false
+                    ]
+                ],
+                "team": "other",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    0,
+                    33
+                ],
+                "name": "Prisoner",
+                "desc": "Captive of the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "C12",
+                "variant": null,
+                "level": 6,
+                "klass": "Raider",
+                "faction": "Prisoner",
+                "starting_items": [
+                    [
+                        "Rusted Axe",
+                        false
+                    ]
+                ],
+                "team": "other",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    33
+                ],
+                "name": "Prisoner",
+                "desc": "Captive of the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "C21",
+                "variant": null,
+                "level": 5,
+                "klass": "Citizen",
+                "faction": "Prisoner",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    23,
+                    33
+                ],
+                "name": "Prisoner",
+                "desc": "Captive of the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "C22",
+                "variant": null,
+                "level": 5,
+                "klass": "Citizen",
+                "faction": "Prisoner",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    22,
+                    32
+                ],
+                "name": "Prisoner",
+                "desc": "Captive of the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "C23",
+                "variant": null,
+                "level": 5,
+                "klass": "Citizen",
+                "faction": "Prisoner",
+                "starting_items": [],
+                "team": "other",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    24,
+                    31
+                ],
+                "name": "Prisoner",
+                "desc": "Captive of the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "Razia",
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    2
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 10,
+                "klass": "Shaman",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Stun",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 10,
+                "klass": "Shaman",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Stun",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    3
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Sniper",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    5
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 7,
+                "klass": "Shaman",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Hex",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    7,
+                    9
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 7,
+                "klass": "Shaman",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Hex",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    17,
+                    9
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 7,
+                "klass": "Shaman",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Scathe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    9
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 7,
+                "klass": "Shaman",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Scathe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    9
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Short Spear",
+                        true
+                    ],
+                    [
+                        "Potion",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "3",
+                "starting_position": [
+                    6,
+                    10
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ],
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "3",
+                "starting_position": [
+                    18,
+                    10
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 9,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "3",
+                "starting_position": [
+                    17,
+                    10
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "111",
+                "variant": null,
+                "level": 9,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "3",
+                "starting_position": [
+                    7,
+                    10
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "112",
+                "variant": null,
+                "level": 9,
+                "klass": "Myrmidon",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ],
+                    [
+                        "Energy Ring",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    8
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "113",
+                "variant": null,
+                "level": 8,
+                "klass": "Cleric",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Glimmer",
+                        false
+                    ],
+                    [
+                        "Mend",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    8
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "114",
+                "variant": null,
+                "level": 8,
+                "klass": "Cleric",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Glimmer",
+                        false
+                    ],
+                    [
+                        "Fortune",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    22,
+                    8
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "115",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Skeleton Key",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "",
+                "starting_position": [
+                    6,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "116",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Skeleton Key",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "",
+                "starting_position": [
+                    18,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "117",
+                "variant": null,
+                "level": 8,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ],
+                    [
+                        "Potion",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "",
+                "starting_position": [
+                    7,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "118",
+                "variant": null,
+                "level": 8,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ],
+                    [
+                        "Potion",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "",
+                "starting_position": [
+                    17,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "SwitchWest",
+                "region_type": "event",
+                "position": [
+                    1,
+                    21
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Switch",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "SwitchEast",
+                "region_type": "event",
+                "position": [
+                    23,
+                    21
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Switch",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "DoorNW",
+                "region_type": "event",
+                "position": [
+                    2,
+                    6
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "DoorNE",
+                "region_type": "event",
+                "position": [
+                    22,
+                    6
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "DoorSW",
+                "region_type": "event",
+                "position": [
+                    1,
+                    29
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "DoorSE",
+                "region_type": "event",
+                "position": [
+                    23,
+                    29
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "DoorCenter",
+                "region_type": "event",
+                "position": [
+                    12,
+                    25
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "DoorSouth",
+                "region_type": "event",
+                "position": [
+                    12,
+                    34
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "ChestWest",
+                "region_type": "event",
+                "position": [
+                    2,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "ChestEast",
+                "region_type": "event",
+                "position": [
+                    22,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "ChestSouth",
+                "region_type": "event",
+                "position": [
+                    12,
+                    23
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Chest",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            },
+            {
+                "nid": "Formation1",
+                "region_type": "formation",
+                "position": [
+                    5,
+                    36
+                ],
+                "size": [
+                    4,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation2",
+                "region_type": "formation",
+                "position": [
+                    6,
+                    35
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation3",
+                "region_type": "formation",
+                "position": [
+                    16,
+                    36
+                ],
+                "size": [
+                    4,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation4",
+                "region_type": "formation",
+                "position": [
+                    17,
+                    35
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "RexAegis",
+                "region_type": "status",
+                "position": [
+                    12,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rex_Aegis",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "ThiefEscape1",
+                "region_type": "event",
+                "position": [
+                    0,
+                    8
+                ],
+                "size": [
+                    1,
+                    2
+                ],
+                "sub_nid": "Escape",
+                "condition": "unit.team == 'enemy'",
+                "only_once": false
+            },
+            {
+                "nid": "ThiefEscape2",
+                "region_type": "event",
+                "position": [
+                    24,
+                    8
+                ],
+                "size": [
+                    1,
+                    2
+                ],
+                "sub_nid": "Escape",
+                "condition": "unit.team == 'enemy'",
+                "only_once": false
+            },
+            {
+                "nid": "ThiefEscape3",
+                "region_type": "event",
+                "position": [
+                    5,
+                    36
+                ],
+                "size": [
+                    4,
+                    1
+                ],
+                "sub_nid": "Escape",
+                "condition": "unit.team == 'enemy'",
+                "only_once": false
+            },
+            {
+                "nid": "ThiefEscape4",
+                "region_type": "event",
+                "position": [
+                    16,
+                    36
+                ],
+                "size": [
+                    4,
+                    1
+                ],
+                "sub_nid": "Escape",
+                "condition": "unit.team == 'enemy'",
+                "only_once": false
+            }
+        ],
+        "unit_groups": []
     }
 ]

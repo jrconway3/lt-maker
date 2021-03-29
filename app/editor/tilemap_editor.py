@@ -4,7 +4,7 @@ from enum import IntEnum
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
     QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup, \
-    QDesktopWidget, QFileDialog
+    QDesktopWidget, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt, QRect, QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
@@ -14,6 +14,7 @@ from app.resources.tiles import LayerGrid
 from app.data.database import DB
 
 from app.editor import timer
+from app.editor.tile_editor import autotiles
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.base_database_gui import ResourceCollectionModel
@@ -960,7 +961,7 @@ class TileSetMenu(QWidget):
         self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "Load Tileset", triggered=self.new)
         self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Unload Tileset", triggered=self.delete)
         self.delete_action.setEnabled(False)
-        self.generate_autotile_action = QAction(QIcon(f"{icon_folder}/map.png"), "Generate Autotiles", triggered=self.generate_autotiles)
+        self.generate_autotile_action = QAction(QIcon(f"{icon_folder}/wave.png"), "Generate Autotiles", triggered=self.generate_autotiles)
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
@@ -996,13 +997,14 @@ class TileSetMenu(QWidget):
             current_tileset = self.current.tilesets[idx]
             companion_tileset, column_idxs = autotiles.AutotileMaker(current_tileset)
             if not column_idxs:
-                QMessage.warning(self, "Autotile Generation Warning", "No autotiles match the tiles in this tileset!")
+                QMessageBox.warning(self, "Autotile Generation Warning", "No autotiles match the tiles in this tileset!")
                 return
-            # Save companion_tileset to file fn in RESOURCES
             current_tileset.autotiles = column_idxs
-            current_tileset.autotile_full_path = fn
+            current_tileset.autotile_full_path = None
             pix = QPixmap(companion_tileset)
             current_tileset.autotile_pixmap = pix
+            # Will be saved to full path on Save
+            QMessageBox.information(self, "Autotile Generation Complete", "Autotile generation process completed for tileset %s" % current_tileset.nid)
 
 class TileSetView(MapEditorView):
     tilewidth = TILEWIDTH + 1

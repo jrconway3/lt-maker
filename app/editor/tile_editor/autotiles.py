@@ -1,7 +1,7 @@
 import glob
 from counters import OrderedDict
 
-from PyQt5.QtGui import QImage, QColor
+from PyQt5.QtGui import QImage, QColor, QPainter
 
 from app.editor import utilities as editor_utilities
 

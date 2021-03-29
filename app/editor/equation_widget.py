@@ -11,6 +11,8 @@ from app.extensions.list_models import MultiAttrListModel
 
 from app.data import equations, level_units, item_components, components
 
+import logging
+
 class EquationMultiModel(MultiAttrListModel):
     def data(self, index, role):
         if not index.isValid():
@@ -40,7 +42,7 @@ class EquationMultiModel(MultiAttrListModel):
             result = parser.get_expression(equation.expression, test_unit)
             return True
         except Exception as e:
-            print("TestEquation Error: %s" % e)
+            logging.error("TestEquation Error: %s" % e)
             return False
 
     def delete(self, idx):

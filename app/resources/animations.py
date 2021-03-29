@@ -1,5 +1,3 @@
-import os
-
 from app.utilities import str_utils
 from app.resources.base_catalog import ManifestCatalog
 
@@ -43,11 +41,4 @@ class Animation():
 class AnimationCatalog(ManifestCatalog):
     manifest = 'animations.json'
     title = 'animations'
-    filetype = '.png'
-
-    def load(self, loc):
-        anim_dict = self.read_manifest(os.path.join(loc, self.manifest))
-        for s_dict in anim_dict:
-            new_anim = Animation.restore(s_dict)
-            new_anim.set_full_path(os.path.join(loc, new_anim.nid + self.filetype))
-            self.append(new_anim)
+    datatype = Animation

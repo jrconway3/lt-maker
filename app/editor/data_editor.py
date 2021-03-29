@@ -148,7 +148,6 @@ class SingleResourceEditor(QDialog):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
         if hasattr(self.tab, 'splitter'):
             self.settings.component_controller.set_state(self._type(), self.tab.splitter.saveState())
-        print(self._type(), "Save Geometry")
 
 class MultiResourceEditor(SingleResourceEditor):
     def __init__(self, tabs, resource_types, parent=None):
@@ -207,7 +206,6 @@ class MultiResourceEditor(SingleResourceEditor):
 
     def save_geometry(self):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
-        print(self._type(), "Save Geometry")
 
     def closeEvent(self, event):
         self.save_geometry()

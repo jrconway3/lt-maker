@@ -21,6 +21,8 @@ from app.editor import table_model
 from app.editor.map_view import SimpleMapView
 from app.extensions.custom_gui import TableView
 
+import logging
+
 @dataclass
 class Rule():
     pattern: QRegularExpression
@@ -466,7 +468,6 @@ class EventCollection(QWidget):
             self.display.setEnabled(True)
 
     def level_filter_changed(self, idx):
-        # print("level filter changed", idx)
         filt = self.level_filter_box.edit.currentText()
         self.view.selectionModel().selectionChanged.disconnect(self.on_item_changed)
         self.proxy_model.setFilterKeyColumn(1)
@@ -747,7 +748,7 @@ class EventProperties(QWidget):
                 if command.nid in ('if', 'elif', 'else'):
                     num_tabs += 1
             else:
-                print("NoneType in current.commands")
+                logging.warning("NoneType in current.commands")
 
         self.text_box.setPlainText(text)
     

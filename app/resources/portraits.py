@@ -1,5 +1,3 @@
-import os
-
 from app.resources.base_catalog import ManifestCatalog
 
 class Portrait():
@@ -32,10 +30,4 @@ class Portrait():
 class PortraitCatalog(ManifestCatalog):
     manifest = 'portraits.json'
     title = 'portraits'
-
-    def load(self, loc):
-        portrait_dict = self.read_manifest(os.path.join(loc, self.manifest))
-        for s_dict in portrait_dict:
-            new_portrait = Portrait.restore(s_dict)
-            new_portrait.set_full_path(os.path.join(loc, new_portrait.nid + self.filetype))
-            self.append(new_portrait)
+    datatype = Portrait

@@ -9,7 +9,6 @@ from app.engine import engine, action, interaction, combat_calcs, pathfinding, t
 from app.engine.game_state import game
 
 import logging
-logger = logging.getLogger(__name__)
 
 class AIController():
     def __init__(self):
@@ -55,7 +54,7 @@ class AIController():
         return self.behaviour
 
     def act(self):
-        logger.info("AI Act!")
+        logging.info("AI Act!")
 
         change = False
         if not self.move_ai_complete:
@@ -114,7 +113,7 @@ class AIController():
                             region = r
                             break
                     except:
-                        print("Could not evaluate region conditional %s" % r.condition)
+                        logging.warning("Could not evaluate region conditional %s" % r.condition)
             if region:
                 did_trigger = game.events.trigger(region.sub_nid, self.unit, position=self.unit.position, region=region)
                 if did_trigger and region.only_once:
@@ -170,15 +169,15 @@ class AIController():
         self.did_something = False
         orig_pos = self.unit.position
 
-        logger.info("*** AI Thinking... ***")
+        logging.info("*** AI Thinking... ***")
 
         # Can spend up to half a frame thinking
         while engine.get_true_time() - time < FRAMERATE//2:
-            logger.info("Current State: %s", self.state)
+            logging.info("Current State: %s", self.state)
 
             if self.state == 'Init':
                 self.start_time = engine.get_time()
-                logger.info("Starting AI with nid: %s, position: %s, class: %s, AI: %s", self.unit.nid, self.unit.position, self.unit.klass, self.unit.ai)
+                logging.info("Starting AI with nid: %s, position: %s, class: %s, AI: %s", self.unit.nid, self.unit.position, self.unit.klass, self.unit.ai)
                 self.clean_up()
                 # Get next behaviour
                 self.set_next_behaviour()
@@ -290,7 +289,7 @@ class PrimaryAI():
 
         self.behaviour_targets = get_targets(self.unit, self.behaviour)
 
-        logger.info("Testing Items: %s", self.items)
+        logging.info("Testing Items: %s", self.items)
         
         self.item_index = 0
         self.move_index = 0
@@ -307,16 +306,16 @@ class PrimaryAI():
 
     def item_setup(self):
         if self.item_index < len(self.items):
-            logger.info("Testing %s" % self.items[self.item_index])
+            logging.info("Testing %s" % self.items[self.item_index])
             self.unit.equip(self.items[self.item_index])
             self.get_all_valid_targets()
             self.possible_moves = self.get_possible_moves()
-            logger.info(self.possible_moves)
+            logging.info(self.possible_moves)
 
     def get_valid_targets(self, unit, item, valid_moves) -> list:
         item_range = item_funcs.get_range(unit, item)
         ai_targets = item_system.ai_targets(unit, item)
-        logger.info("AI Targets: %s", ai_targets)
+        logging.info("AI Targets: %s", ai_targets)
         # valid_targets = [pos for pos in valid_targets if pos in self.all_targets]
         filtered_targets = set()
 
@@ -332,12 +331,12 @@ class PrimaryAI():
 
     def get_all_valid_targets(self):
         item = self.items[self.item_index]
-        logger.info("Determining targets for item: %s", item)
+        logging.info("Determining targets for item: %s", item)
         self.valid_targets = self.get_valid_targets(self.unit, item, self.valid_moves)
         if 0 in item_funcs.get_range(self.unit, item):
             self.valid_targets += self.valid_moves  # Hack to target self in all valid positions
             self.valid_targets = list(set(self.valid_targets))  # Only uniques
-        logger.info("Valid Targets: %s", self.valid_targets)
+        logging.info("Valid Targets: %s", self.valid_targets)
 
     def get_possible_moves(self) -> list:
         if self.target_index < len(self.valid_targets) and self.item_index < len(self.items):
@@ -406,7 +405,7 @@ class PrimaryAI():
         else:
             name = '--'
 
-        logger.info("Choice %.3f - Weapon: %s, Position: %s, Target: %s, Target Position: %s", tp, item, move, name, target)
+        logging.info("Choice %.3f - Weapon: %s, Position: %s, Target: %s, Target Position: %s", tp, item, move, name, target)
         if tp > self.max_tp:
             self.best_target = target
             self.best_position = move
@@ -500,11 +499,11 @@ class PrimaryAI():
         defense_term -= target_damage * target_accuracy * (1 - first_strike)
         if offense_term <= 0 and status_term <= 0:
             if lethality > 0 and DB.constants.value('attack_zero_hit'):
-                logger.info("Accuracy is bad, but continuing with stupid AI")
+                logging.info("Accuracy is bad, but continuing with stupid AI")
             elif accuracy > 0 and DB.constants.value('attack_zero_dam'):
-                logger.info("Zero Damage, but continuing with stupid AI")
+                logging.info("Zero Damage, but continuing with stupid AI")
             else:    
-                logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f", offense_term, defense_term, status_term)
+                logging.info("Offense: %.2f, Defense: %.2f, Status: %.2f", offense_term, defense_term, status_term)
                 return 0
 
         # Only here to break ties
@@ -515,8 +514,8 @@ class PrimaryAI():
         else:
             distance_term = 1
 
-        logger.info("Damage: %.2f, Accuracy: %.2f, Crit Accuracy: %.2f", lethality, accuracy, crit_accuracy)
-        logger.info("Offense: %.2f, Defense: %.2f, Status: %.2f, Distance: %.2f", offense_term, defense_term, status_term, distance_term)
+        logging.info("Damage: %.2f, Accuracy: %.2f, Crit Accuracy: %.2f", lethality, accuracy, crit_accuracy)
+        logging.info("Offense: %.2f, Defense: %.2f, Status: %.2f, Distance: %.2f", offense_term, defense_term, status_term, distance_term)
         ai_prefab = DB.ai.get(self.unit.ai)
         offense_bias = ai_prefab.offense_bias
         offense_weight = offense_bias * (1 / (offense_bias + 1))
@@ -564,7 +563,7 @@ def get_targets(unit, behaviour):
                 if region.region_type == 'event' and region.sub_nid == target_spec and (not region.condition or evaluate.evaluate(region.condition, unit)):
                     all_targets += region.get_all_positions()
             except:
-                print("Region Condition: Could not parse %s" % region.condition)
+                logging.warning("Region Condition: Could not parse %s" % region.condition)
         all_targets = list(set(all_targets))  # Remove duplicates
     elif behaviour.target == 'Position':
         if behaviour.target_spec == "Starting":
@@ -631,11 +630,11 @@ class SecondaryAI():
             # Find a path to the target
             path = self.get_path(target)
             if not path:
-                logger.info("No valid path to %s.", target)
+                logging.info("No valid path to %s.", target)
                 return False, None
             # We found a path
             tp = self.compute_priority(target, len(path))
-            logger.info("Path to %s. -- %s", target, tp)
+            logging.info("Path to %s. -- %s", target, tp)
             if tp > self.max_tp:
                 self.max_tp = tp
                 self.best_target = target
@@ -643,13 +642,13 @@ class SecondaryAI():
 
         elif self.best_target:
             self.best_position = target_system.travel_algorithm(self.best_path, self.unit.movement_left, self.unit, self.grid)
-            logger.info("Best Target: %s", self.best_target)
-            logger.info("Best Position: %s", self.best_position)
+            logging.info("Best Target: %s", self.best_target)
+            logging.info("Best Position: %s", self.best_position)
             return True, self.best_position
 
         else:
             if (self.behaviour.view_range == -4 or self.unit.ai_group_active) and not self.widen_flag:
-                logger.info("Widening search!")
+                logging.info("Widening search!")
                 self.widen_flag = True
                 self.view_range = -4
                 self.available_targets = [t for t in self.all_targets if t not in self.available_targets]

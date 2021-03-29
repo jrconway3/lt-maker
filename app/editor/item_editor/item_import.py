@@ -10,6 +10,8 @@ from app.data.components import Type
 
 import app.engine.item_component_access as ICA
 
+import logging
+
 def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     item_xml = ET.parse(xml_fn)
     item_list = []
@@ -18,7 +20,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
             new_item = load_item(item, parent_dir)
             item_list.append(new_item)
         except Exception as e:
-            print("Item %s Import Error: %s" % (item.find('id').text, e))
+            logging.error("Item %s Import Error: %s" % (item.find('id').text, e))
     return item_list
 
 def get_wtype(final_components, item):
@@ -116,7 +118,7 @@ def load_item(item, parent_dir):
 
         elif component == 'permanent_stat_increase':
             comp = ICA.get_component('permanent_stat_change')
-            print("%s: Could not determine value for component %s" % (nid, 'permanent_stat_change'))
+            logging.warning("%s: Could not determine value for component %s" % (nid, 'permanent_stat_change'))
             comp.value = []
             final_components.append(comp)
 
@@ -147,7 +149,7 @@ def load_item(item, parent_dir):
             if str_utils.is_int(magnitude):
                 pass
             else:
-                print("%s: Could not determine value for component %s" % (nid, component))
+                logging.warning("%s: Could not determine value for component %s" % (nid, component))
                 continue
             if mode == 'EnemyBlast':
                 comp = ICA.get_component('enemy_blast_aoe')
@@ -164,7 +166,7 @@ def load_item(item, parent_dir):
             elif mode == 'Line':
                 comp = ICA.get_component('line_aoe')
             else:
-                print("%s: Could not determine value for component %s" % (nid, component))
+                logging.warning("%s: Could not determine value for component %s" % (nid, component))
                 continue
             final_components.append(comp)
 
@@ -179,7 +181,7 @@ def load_item(item, parent_dir):
             elif mode == 'Warp':
                 comp = ICA.get_component('warp')
             else:
-                print("%s: Could not determine value for component %s" % (nid, component))
+                logging.warning("%s: Could not determine value for component %s" % (nid, component))
                 continue
             final_components.append(comp)
 
@@ -202,20 +204,20 @@ def load_item(item, parent_dir):
                     elif comp.expose == Type.Color3 or comp.expose == Type.Color4:
                         value = [utils.clamp(int(c), 0, 255) for c in value.split(',')]
                     elif isinstance(comp.expose, tuple):
-                        print("%s: Could not determine value for component %s" % (nid, component))
+                        logging.warning("%s: Could not determine value for component %s" % (nid, component))
                         value = []
                     comp.value = value
                 except Exception as e:
-                    print("%s: Could not determine value for component %s" % (nid, component))
+                    logging.warning("%s: Could not determine value for component %s" % (nid, component))
                 final_components.append(comp)
             else:
-                print("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
+                logging.warning("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
         else:
             comp = ICA.get_component(component)
             if comp:
                 final_components.append(comp)
             else:
-                print("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
+                logging.warning("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
 
     # Handle item value
     value = int(item.find('value').text)

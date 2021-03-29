@@ -9,6 +9,8 @@ from app.data.components import Type
 
 import app.engine.skill_component_access as SCA
 
+import logging
+
 def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     skill_xml = ET.parse(xml_fn)
     skill_list = []
@@ -17,7 +19,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
             new_skill = load_skill(skill)
             skill_list.append(new_skill)
         except Exception as e:
-            print("Skill %s Import Error: %s" % (skill.find('id').text, e))
+            logging.warning("Skill %s Import Error: %s" % (skill.find('id').text, e))
     return skill_list
 
 def load_skill(skill):
@@ -43,7 +45,7 @@ def load_skill(skill):
                 comp.value = perc/100.
                 final_components.append(comp)
             else:
-                print("%s: Could not determine value for component %s" % (nid, 'hp_percentage'))
+                logging.warning("%s: Could not determine value for component %s" % (nid, 'hp_percentage'))
 
         elif component == 'upkeep_animation':
             comp = SCA.get_component('upkeep_animation')
@@ -78,7 +80,7 @@ def load_skill(skill):
         elif component == 'ephemeral':
             comp = SCA.get_component('event_on_remove')
             final_components.append(comp)
-            print("%s: Attach an event that kills {unit} to this component" % nid)
+            logging.warning("%s: Attach an event that kills {unit} to this component" % nid)
 
         elif component == 'reflect':
             comp = SCA.get_component('reflect_status')
@@ -118,7 +120,7 @@ def load_skill(skill):
                     comp.value = int(val)
                     final_components.append(comp)
                 else:
-                    print("%s: Could not determine correct component for %s" % (nid, component))
+                    logging.warning("%s: Could not determine correct component for %s" % (nid, component))
             else:
                 comp = comp.replace('hit', 'accuracy').replace('crit', 'crit_accuracy')
                 comp = SCA.get_component('dynamic_%s' % comp)
@@ -126,7 +128,7 @@ def load_skill(skill):
                     comp.value = val
                     final_components.append(comp)
                 else:
-                    print("%s: Could not determine correct component for %s" % (nid, component))
+                    logging.warning("%s: Could not determine correct component for %s" % (nid, component))
 
         elif component.startswith('conditional'):
             value = skill.find(component).text
@@ -139,12 +141,12 @@ def load_skill(skill):
                 comp.value = '%s if (%s) else 0' % (num, cond)
                 final_components.append(comp)
             else:
-                print("%s: Could not determine correponding component for %s" % component)
-            print("%s: Combat components not guaranteed to work the same!" % nid)
+                logging.warning("%s: Could not determine correponding component for %s" % component)
+            logging.warning("%s: Combat components not guaranteed to work the same!" % nid)
 
         elif component == 'stat_halve':
             comp = SCA.get_component('stat_multiplier')
-            print("%s: Could not determine value for component %s" % (nid, component))
+            logging.warning("%s: Could not determine value for component %s" % (nid, component))
             final_components.append(comp)
 
         elif component == 'savior':
@@ -157,7 +159,7 @@ def load_skill(skill):
 
         elif component in ('fleet_of_foot', 'flying'):
             comp = SCA.get_component('movement_type')
-            print("%s: Could not determine value for component %s" % (nid, component))
+            logging.warning("%s: Could not determine value for component %s" % (nid, component))
             final_components.append(comp)
 
         elif component == 'shrug_off':
@@ -180,7 +182,7 @@ def load_skill(skill):
         elif component == 'upkeep_damage':
             val = skill.find('upkeep_damage').text
             if ',' in val or not str_utils.is_int(val):
-                print("%s: Could not determine value for component %s" % (nid, component))
+                logging.warning("%s: Could not determine value for component %s" % (nid, component))
             else:
                 comp = SCA.get_component('upkeep_damage')
                 comp.value = int(val)
@@ -191,7 +193,7 @@ def load_skill(skill):
             comp = SCA.get_component('ability')
             comp.value = val
             final_components.append(comp)
-            print("%s: Conversion of activated item not perfect" % nid)
+            logging.warning("%s: Conversion of activated item not perfect" % nid)
 
         elif component == 'status_after_battle':
             val = skill.find('status_after_battle').text
@@ -216,20 +218,20 @@ def load_skill(skill):
                     elif comp.expose == Type.Color3 or comp.expose == Type.Color4:
                         value = [utils.clamp(int(c), 0, 255) for c in value.split(',')]
                     elif isinstance(comp.expose, tuple):
-                        print("%s: Could not determine value for component %s" % (nid, component))
+                        logging.warning("%s: Could not determine value for component %s" % (nid, component))
                         value = []
                     comp.value = value
                 except Exception as e:
-                    print("%s: Could not determine value for component %s" % (nid, component))
+                    logging.warning("%s: Could not determine value for component %s" % (nid, component))
                 final_components.append(comp)
             else:
-                print("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
+                logging.warning("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
         else:
             comp = SCA.get_component(component)
             if comp:
                 final_components.append(comp)
             else:
-                print("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
+                logging.warning("%s: Could not determine corresponding LT maker component for %s" % (nid, component))
 
     new_skill = skills.SkillPrefab(nid, name, desc, icon_nid, icon_index, final_components)
     return new_skill

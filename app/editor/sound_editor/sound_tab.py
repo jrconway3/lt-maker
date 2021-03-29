@@ -88,7 +88,6 @@ class SoundTab(QWidget):
 
     def modify(self, index):
         proxy_indices = self.display.selectionModel().selectedRows()
-        print(proxy_indices)
         if proxy_indices:
             real_indices = [self.proxy_model.mapToSource(index) for index in proxy_indices]
             self.model.modify(real_indices)

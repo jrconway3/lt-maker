@@ -1077,6 +1077,10 @@ class Event():
         bg = 'message_bg_base'
         if variant == 'noir':
             bg = 'menu_bg_dark'
+        elif variant == 'hint':
+            bg = 'menu_bg_parchment'
+            position = 'center'
+            width = WINWIDTH//2 + 8
         new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
@@ -1542,7 +1546,7 @@ class Event():
             return
         # Level
         level = int(evaluate.evaluate(values[2], self.unit, self.unit2, self.item, self.position, self.region))
-        
+
         team = values[3]
         if len(values) > 4 and values[4]:
             ai_nid = values[4]

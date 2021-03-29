@@ -3,7 +3,7 @@ import os
 from app import sprites
 
 from app.resources.fonts import FontCatalog
-from app.resources.icons import IconCatalog
+from app.resources.icons import Icon16Catalog, Icon32Catalog, Icon80Catalog
 from app.resources.portraits import PortraitCatalog
 from app.resources.animations import AnimationCatalog
 from app.resources.panoramas import PanoramaCatalog
@@ -50,9 +50,9 @@ class Resources():
         return list(zip(names, sprites))
 
     def clear(self):
-        self.icons16 = IconCatalog()
-        self.icons32 = IconCatalog()
-        self.icons80 = IconCatalog()
+        self.icons16 = Icon16Catalog()
+        self.icons32 = Icon32Catalog()
+        self.icons80 = Icon80Catalog()
 
         self.portraits = PortraitCatalog()
         self.animations = AnimationCatalog()
@@ -86,7 +86,7 @@ class Resources():
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
 
     def save(self, proj_dir, specific=None):
-        logging.info("Starting Resource Serialization...")
+        logging.warning("Starting Resource Serialization...")
         import time
         start = time.time_ns()/1e6
         # Make the directory to save this resource pack in
@@ -104,11 +104,15 @@ class Resources():
             data_dir = os.path.join(resource_dir, data_type)
             if not os.path.exists(data_dir):
                 os.mkdir(data_dir)
+            logging.warning("Saving %s..." % data_type)
+            time1 = time.time_ns()/1e6
             getattr(self, data_type).save(data_dir)
+            time2 = time.time_ns()/1e6 - time1
+            logging.warning("Time Taken: %s ms" % time2)
 
         end = time.time_ns()/1e6
-        logging.info("Total Time Taken for Resources: %s ms" % (end - start))
-        logging.info('Done Resource Serializing!')
+        logging.warning("Total Time Taken for Resources: %s ms" % (end - start))
+        logging.warning('Done Resource Serializing!')
 
 RESOURCES = Resources()
 

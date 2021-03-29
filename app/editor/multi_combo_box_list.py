@@ -40,8 +40,6 @@ class MultiComboBoxList(QListWidget):
         self.combo_box_list.append(combo_box)
         idx = len(self.combo_box_list) - 1
         combo_box.currentIndexChanged.connect(partial(self.on_item_change, idx))
-        # print("ItemList Add Item: Index List")
-        # print(self.index_list, flush=True)
         return corrected_item_nid
 
     def remove_item(self, item_nid):
@@ -65,26 +63,18 @@ class MultiComboBoxList(QListWidget):
         self.combo_box_list.clear()
 
     def set_current(self, items):
-        # print("ItemList Set Current")
-        # print(items, flush=True)
         self.clear()
-        # print("ItemList Set Current")
-        # print(items, flush=True)
         for i in items:
             self.add_item(i)
         self.item_changed.emit()
 
     def on_item_change(self, index):
-        # print("ItemList Item Change")
-        # print(index, flush=True)
         combo_box = self.combo_box_list[index]
         item_nid = combo_box.currentText()
-        # print(item_nid, flush=True)
         self.index_list[index] = item_nid
         self.item_changed.emit()
 
     def set_color(self, color_list):
-        # print(color_list, flush=True)
         for idx, box in enumerate(self.combo_box_list):
             palette = box.palette()
             palette.setColor(QPalette.Text, color_list[idx])
@@ -154,17 +144,13 @@ class MultiComboBoxListWithCheckbox(MultiComboBoxList):
         self.item_changed.emit()
 
     def on_item_change(self, idx):
-        # print("ItemList Item Change")
-        # print(idx, flush=True)
         item_box = self.combo_box_list[idx]
         item_nid = item_box.combo_box.currentText()
         droppable = bool(item_box.check_box.isChecked())
-        # print(item_nid, flush=True)
         self.index_list[idx] = [item_nid, droppable]
         self.item_changed.emit()
 
     def set_color(self, color_list):
-        # print(color_list, flush=True)
         for idx, box in enumerate(self.combo_box_list):
             combo_box = box.combo_box
             palette = combo_box.palette()

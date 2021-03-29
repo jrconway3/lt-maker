@@ -104,7 +104,6 @@ class UnitSpecification(QWidget):
         self.window.current.invert_targeting = bool(checked)
 
     def set_current(self, target_spec):
-        print("Unit Spec:", target_spec)
         self.except_check_box.setChecked(bool(self.window.current.invert_targeting))
         if target_spec:
             self.box1.setValue(target_spec[0])
@@ -248,7 +247,6 @@ class BehaviourBox(QGroupBox):
 
     def action_changed(self, index):
         action = self.action.currentText().replace(' ', '_')
-        print("Action changed", action)
         self.current.action = action
 
         if self.current.action in ('Move_to', 'Move_away_from'):
@@ -277,7 +275,6 @@ class BehaviourBox(QGroupBox):
 
     def target_changed(self, index):
         target = self.target.currentText()
-        print("Target changed", target)
         self.current.target = target
         # Swap the specification
         idx = ai.AI_TargetTypes.index(target)
@@ -294,10 +291,6 @@ class BehaviourBox(QGroupBox):
 
     def set_current(self, behaviour):
         self.current = behaviour
-        print("Behaviour Set Current")
-        print(behaviour.action)
-        print(behaviour.target)
-        print(behaviour.target_spec)
         action = behaviour.action.replace('_', ' ')
         self.action.setValue(action)
         self.action_changed(None)

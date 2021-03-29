@@ -158,8 +158,6 @@ class RegionModel(DragDropCollectionModel):
         obj = self._data[idx]
         new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
         serialized_obj = obj.save()
-        print("Duplication!")
-        print(serialized_obj, flush=True)
         new_obj = regions.Region.restore(serialized_obj)
         new_obj.nid = new_nid
         self._data.insert(idx + 1, new_obj)

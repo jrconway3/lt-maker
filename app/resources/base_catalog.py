@@ -16,6 +16,16 @@ class BaseResourceCatalog(Data):
 
 class ManifestCatalog(Data):
     filetype = '.png'
+    manifest = None  # To be implemented
+    title = ''  # To be implemented
+    datatype = None  # To be implement
+
+    def load(self, loc):
+        resource_dict = self.read_manifest(os.path.join(loc, self.manifest))
+        for s_dict in resource_dict:
+            new_resource = self.datatype.restore(s_dict)
+            new_resource.set_full_path(os.path.join(loc, new_resource.nid + self.filetype))
+            self.append(new_resource)
 
     def read_manifest(self, fn: str) -> dict:
         datum = {}
@@ -27,18 +37,13 @@ class ManifestCatalog(Data):
     def dump(self, loc):
         save = [datum.save() for datum in self]
         save_loc = os.path.join(loc, self.manifest)
-        print("Serializing %s to %s" % (self.title, save_loc))
         with open(save_loc, 'w') as serialize_file:
             json.dump(save, serialize_file, indent=4)
 
     def save(self, loc):
-        import time
-        start = time.time_ns()/1e6
         for datum in self:
             new_full_path = os.path.join(loc, datum.nid + self.filetype)
             if os.path.abspath(datum.full_path) != os.path.abspath(new_full_path):
                 shutil.copy(datum.full_path, new_full_path)
                 datum.set_full_path(new_full_path)
         self.dump(loc)
-        end = time.time_ns()/1e6
-        print("Time Taken: %s ms" % (end - start))

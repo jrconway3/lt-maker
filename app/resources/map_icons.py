@@ -1,21 +1,16 @@
-import os
-import shutil
-import ntpath
-
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QPixmap
 
 from app.resources.base_catalog import ManifestCatalog
 
 class MapIcon():
-    def __init__(self, nid, image_path=None):
+    def __init__(self, nid, full_path=None):
         self.nid = nid
-        self.path = image_path
-        self.full_path = None
+        self.full_path = full_path
         self.image = None
         self.pixmap = None
 
-    def set_path(self, image_path):
-        self.path = image_path
+    def set_full_path(self, full_path):
+        self.full_path = full_path
 
     def get_pixmap(self):
         if not self.pixmap:
@@ -23,30 +18,17 @@ class MapIcon():
         return self.pixmap
 
     def save(self):
-        return {"nid": self.nid, "path": self.path}
+        return self.nid
 
     @classmethod
-    def restore(cls, nid, path):
-        self = cls(nid, path)
+    def restore(cls, nid):
+        self = cls(nid)
         return self
 
 class MapIconCatalog(ManifestCatalog):
     manifest = 'map_icons.json'
     title = 'map icons'
-
-    def load(self, loc):
-        map_icon_dict = self.read_manifest(os.path.join(loc, self.manifest))
-        for s_dict in map_icon_dict:
-            new_map_icon = MapIcon.restore(s_dict['nid'], s_dict['path'])
-            new_map_icon.full_path = os.path.join(loc, s_dict['path'])
-            self.append(new_map_icon)
-
-    def save(self, loc):
-        for map_icon in self:
-            new_full_path = os.path.join(loc, map_icon.path)
-            if not new_full_path == map_icon.full_path:
-                shutil.copy(map_icon.full_path, new_full_path)
-        self.dump(loc)
+    datatype = MapIcon
 
     @classmethod
     def DEFAULT(self):

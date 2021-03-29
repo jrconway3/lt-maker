@@ -1,7 +1,7 @@
 import re
 
 from app.utilities import utils
-from app.constants import WINWIDTH
+from app.constants import WINWIDTH, WINHEIGHT
 from app.engine.fonts import FONT
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
@@ -48,8 +48,12 @@ class Dialog():
 
         # Position
         if position:
-            pos_x = position[0]
-            pos_y = position[1]
+            if position == 'center':
+                pos_x = WINWIDTH//2 - self.width//2
+                pos_y = WINHEIGHT//2 - self.height//2
+            else:
+                pos_x = position[0]
+                pos_y = position[1]
         elif self.portrait:
             desired_center = self.determine_desired_center(self.portrait)
             pos_x = utils.clamp(desired_center - self.width//2, 8, WINWIDTH - 8 - self.width)
@@ -71,7 +75,7 @@ class Dialog():
             self.tail = None
             
         self.variant = variant
-        if variant == 'noir':
+        if variant in ('noir', 'hint'):
             self.tail = None
         elif variant == 'thought_bubble':
             self.tail = SPRITES.get('message_bg_thought_tail')

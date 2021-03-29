@@ -127,7 +127,6 @@ def get_map_icon_editor():
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_icon = window.tab.current
-        print(selected_icon.nid)
         return selected_icon, True
     else:
         return None, False

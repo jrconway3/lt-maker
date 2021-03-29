@@ -3,7 +3,17 @@
         "nid": "Soldier",
         "name": "Soldier",
         "desc": "Soldier in the imperial army, conquerors of Kerala.",
-        "icon_nid": "KnightEmblem",
+        "icon_nid": "EmpireEmblem",
+        "icon_index": [
+            0,
+            0
+        ]
+    },
+    {
+        "nid": "Guard",
+        "name": "Guard",
+        "desc": "Guard at the Tyrana Prison",
+        "icon_nid": "EmpireEmblem",
         "icon_index": [
             0,
             0
@@ -84,6 +94,26 @@
         "name": "Elite",
         "desc": "A member of the Confederacy's special forces",
         "icon_nid": "ConfederacyEmblem",
+        "icon_index": [
+            0,
+            0
+        ]
+    },
+    {
+        "nid": "Prisoner",
+        "name": "Prisoner",
+        "desc": "Captive of the Tyrana Prison",
+        "icon_nid": "NeutralEmblem",
+        "icon_index": [
+            0,
+            0
+        ]
+    },
+    {
+        "nid": "Thief",
+        "name": "Thief",
+        "desc": "Inventory management contractors",
+        "icon_nid": "EmpireEmblem",
         "icon_index": [
             0,
             0

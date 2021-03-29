@@ -23,6 +23,8 @@ from app.extensions.custom_gui import ResourceListView, Dialog
 from app.editor.settings import MainSettingsController
 from app.utilities import str_utils
 
+import logging
+
 def draw_tilemap(tilemap):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
@@ -37,9 +39,7 @@ def draw_tilemap(tilemap):
             for coord, tile_sprite in layer.sprite_grid.items():
                 tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
                 if not tileset:
-                    print(coord, tile_sprite, tile_sprite.tileset_nid)
-                    print(tileset)
-                    print(RESOURCES.tilesets)
+                    logging.warning("Could not find tileset %s" % tile_sprite.tileset_nid)
                 if not tileset.pixmap:
                     tileset.set_pixmap(QPixmap(tileset.full_path))
 
@@ -175,7 +175,6 @@ class MapEditorView(QGraphicsView):
     def draw_right_cursor(self, painter):
         mouse_pos = self.current_mouse_position
         for coord, tile_sprite in self.right_selection.items():
-            # print(coord, tile_sprite)
             if not tile_sprite:
                 continue
             tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
@@ -418,7 +417,6 @@ class MapEditorView(QGraphicsView):
             if event.button() == Qt.LeftButton:
                 self.left_selecting = False
             elif event.button() == Qt.RightButton:
-                print("Right Selecting", self.right_selecting)
                 if self.right_selecting:
                     self.find_coords()
                     self.right_selecting = False

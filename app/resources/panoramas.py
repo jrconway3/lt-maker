@@ -40,13 +40,7 @@ class Panorama():
 class PanoramaCatalog(ManifestCatalog):
     manifest = 'panoramas.json'
     title = 'panoramas'
-
-    def load(self, loc):
-        panorama_dict = self.read_manifest(os.path.join(loc, self.manifest))
-        for s_dict in panorama_dict:
-            new_panorama = Panorama.restore(s_dict)
-            new_panorama.set_full_path(os.path.join(loc, new_panorama.nid + self.filetype))
-            self.append(new_panorama)
+    datatype = Panorama
 
     def save(self, loc):
         for panorama in self:

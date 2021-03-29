@@ -6,6 +6,8 @@ from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.data.klass import Klass
 
+import logging
+
 def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     class_xml = ET.parse(xml_fn)
     class_list = []
@@ -72,7 +74,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
                     if num > 0:
                         gain.usable = True
             except IndexError as e:
-                print("Failed to determine weapon experience")
+                logging.warning("Failed to determine weapon experience")
 
         icon_nid = 'Generic_Portrait_%s' % nid
         if icon_nid not in RESOURCES.icons80.keys():

@@ -38,9 +38,10 @@ class Song():
         return self
 
 class MusicCatalog(ManifestCatalog):
+    filetype = '.ogg'
     manifest = 'music.json'
     title = 'music'
-    filetype = '.ogg'
+    datatype = Song
 
     def load(self, loc):
         music_dict = self.read_manifest(os.path.join(loc, self.manifest))
@@ -54,8 +55,6 @@ class MusicCatalog(ManifestCatalog):
             self.append(new_song)
 
     def save(self, loc):
-        import time
-        start = time.time_ns()/1e6
         for song in self:
             # Full Path
             new_full_path = os.path.join(loc, song.nid + '.ogg')
@@ -73,8 +72,6 @@ class MusicCatalog(ManifestCatalog):
                 shutil.copy(song.intro_full_path, new_full_path)
                 song.set_intro_full_path(new_full_path)
         self.dump(loc)
-        end = time.time_ns()/1e6
-        print("Time Taken: %s ms" % (end - start))
 
 class SFX():
     def __init__(self, nid, full_path=None, tag=None):
@@ -100,15 +97,4 @@ class SFXCatalog(ManifestCatalog):
     manifest = 'sfx.json'
     title = 'sfx'
     filetype = '.ogg'
-
-    def load(self, loc):
-        sfx_dict = self.read_manifest(os.path.join(loc, self.manifest))
-        # temp_list = []
-        for s_tuple in sfx_dict:
-            new_sfx = SFX.restore(s_tuple)
-            new_sfx.set_full_path(os.path.join(loc, new_sfx.nid + self.filetype))
-            self.append(new_sfx)            
-            # temp_list.append(new_sfx)
-        # Need to sort according to tag
-        # temp_list = sorted(temp_list, key=lambda x: x.tag if x.tag else '____')
-        # for sfx in temp_list:
+    datatype = SFX

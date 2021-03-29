@@ -166,22 +166,6 @@ class DisplayExpResults(QWidget):
 
         self.update_parameters()
 
-    # def resizeEvent(self, event):
-    #     print("Wow", flush=True)
-    #     super().resizeEvent(event)
-
-    #     self.label1.move(0, 0)
-    #     self.level1.move(self.label1.width(), 0)
-    #     running_width = self.label1.width() + self.level1.width()
-    #     self.label2.move(running_width, 0)
-    #     running_width += self.label2.width()
-    #     self.level2.move(running_width, 0)
-    #     running_width += self.level2.width()
-    #     self.label3.move(running_width, 0)
-
-    #     self.label4.move(0, self.label1.height() + 4)
-    #     self.edit_box.move(self.label4.width(), self.label1.height() + 4)
-
     def update_parameters(self, val=None):
         level_diff = self.level2.value() - self.level1.value() + self._data.get('exp_offset').value
         exp_gained = self._data.get('exp_magnitude').value * math.exp(level_diff * self._data.get('exp_curve').value)

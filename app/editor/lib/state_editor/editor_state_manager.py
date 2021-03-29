@@ -1,6 +1,8 @@
 from dataclasses import dataclass, fields
 from .state_enums import MainEditorScreenStates
 
+import logging
+
 
 @dataclass
 class EditorState():
@@ -61,8 +63,8 @@ class EditorStateManager():
             key (str): valid field in EditorState
             callback (function): function to be called upon change
         """
-        if not key in self.subscribed_callbacks:
-            print("Key not found in EditorState")
+        if key not in self.subscribed_callbacks:
+            logging.error("Key not found in EditorState")
             raise AttributeError
         self.subscribed_callbacks[key][name] = callback
 
@@ -73,8 +75,8 @@ class EditorStateManager():
             key (str): valid field in EditorState
             value (str): value for key to be set
         """
-        if not key in self.subscribed_callbacks:
-            print("Key not found in EditorState")
+        if key not in self.subscribed_callbacks:
+            logging.error("Key not found in EditorState")
             raise AttributeError
         setattr(self.state, key, value)
         for callback in self.subscribed_callbacks[key].values():

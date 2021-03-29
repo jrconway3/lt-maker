@@ -12,6 +12,7 @@ from app.editor.data_editor import SingleDatabaseEditor
 
 from app.utilities import str_utils
 
+import logging
 
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,
@@ -172,7 +173,7 @@ class DatabaseTab(QWidget):
                 self._data.insert(row, new_obj)
             self.update_list()
         except Exception as e:
-            print("Could not read from clipboard! %s" % e)
+            logging.warning("Could not read from clipboard! %s" % e)
             QMessageBox.critical(None, "Import Error", "Could not read valid json from clipboard!")
 
 class CollectionModel(QAbstractListModel):
@@ -242,8 +243,6 @@ class CollectionModel(QAbstractListModel):
         new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
         if isinstance(obj, Prefab):
             serialized_obj = obj.save()
-            print("Duplication!")
-            print(serialized_obj, flush=True)
             new_obj = self._data.datatype.restore(serialized_obj)
         else:
             new_obj = copy.copy(obj)
@@ -310,7 +309,6 @@ class ResourceCollectionModel(DragDropCollectionModel):
         if not index.isValid():
             return False
         if role == Qt.EditRole and not self.drop_to:
-            print("ResourceCollectionModel setData", value)
             if value:
                 item = self._data[index.row()]
                 old_nid = item.nid

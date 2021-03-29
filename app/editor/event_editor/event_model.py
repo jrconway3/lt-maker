@@ -56,8 +56,6 @@ class EventModel(TableModel):
         other_names = [o.name for o in self._data if o.level_nid == obj.level_nid]
         new_name = str_utils.get_next_name(obj.name, other_names)
         serialized_obj = obj.save()
-        print("Duplication!")
-        print(serialized_obj, flush=True)
         new_obj = self._data.datatype.restore(serialized_obj)
         new_obj.name = new_name
         self.layoutAboutToBeChanged.emit()

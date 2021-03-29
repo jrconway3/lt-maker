@@ -427,5 +427,27 @@
             24,
             48
         ]
+    },
+    {
+        "nid": "Jack",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            24,
+            40
+        ]
+    },
+    {
+        "nid": "Jeb",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            24,
+            40
+        ]
     }
 ]

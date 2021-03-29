@@ -447,10 +447,8 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
             return None
         if orientation == Qt.Vertical:
             nid, level, true_level = self._rows[idx]
-            # print(nid, level, true_level, flush=True)
             long_name = DB.classes.get(nid).name
             row = long_name + " " + str(level)
-            # print(row)
             return row
         elif orientation == Qt.Horizontal:
             return self._columns[idx]

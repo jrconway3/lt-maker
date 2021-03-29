@@ -5248,6 +5248,901 @@
                 "name": "Guard",
                 "desc": "Guard at the Tyrana Prison",
                 "generic": true
+            },
+            {
+                "nid": "119",
+                "variant": null,
+                "level": 8,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    15,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "120",
+                "variant": null,
+                "level": 8,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    17,
+                    24
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "121",
+                "variant": null,
+                "level": 8,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    18,
+                    24
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "122",
+                "variant": null,
+                "level": 8,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    20,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "123",
+                "variant": null,
+                "level": 8,
+                "klass": "Mercenary",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    4,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "124",
+                "variant": null,
+                "level": 8,
+                "klass": "Mercenary",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    6,
+                    24
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "125",
+                "variant": null,
+                "level": 8,
+                "klass": "Mercenary",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    7,
+                    24
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "126",
+                "variant": null,
+                "level": 8,
+                "klass": "Mercenary",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    9,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "127",
+                "variant": null,
+                "level": 8,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    30
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "128",
+                "variant": null,
+                "level": 8,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    30
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "129",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "130",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    23,
+                    23
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "131",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ],
+                    [
+                        "Skeleton Key",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    26
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "132",
+                "variant": null,
+                "level": 7,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    1,
+                    26
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "133",
+                "variant": null,
+                "level": 7,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    1,
+                    27
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "134",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    23,
+                    26
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "135",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    23,
+                    27
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r22",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r21",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l31",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l32",
+                "variant": null,
+                "level": 7,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l21",
+                "variant": null,
+                "level": 7,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l22",
+                "variant": null,
+                "level": 7,
+                "klass": "Fighter",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r31",
+                "variant": null,
+                "level": 7,
+                "klass": "Mercenary",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r32",
+                "variant": null,
+                "level": 7,
+                "klass": "Mercenary",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l41",
+                "variant": null,
+                "level": 7,
+                "klass": "Myrmidon",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l42",
+                "variant": null,
+                "level": 7,
+                "klass": "Myrmidon",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r41",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r42",
+                "variant": null,
+                "level": 7,
+                "klass": "Knight",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l71",
+                "variant": null,
+                "level": 8,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r71",
+                "variant": null,
+                "level": 8,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l72",
+                "variant": null,
+                "level": 8,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r72",
+                "variant": null,
+                "level": 8,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l81",
+                "variant": null,
+                "level": 9,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r81",
+                "variant": null,
+                "level": 9,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l82",
+                "variant": null,
+                "level": 8,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r82",
+                "variant": null,
+                "level": 8,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "l91",
+                "variant": null,
+                "level": 9,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r91",
+                "variant": null,
+                "level": 9,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "r92",
+                "variant": null,
+                "level": 9,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "lt1",
+                "variant": null,
+                "level": 8,
+                "klass": "Thief",
+                "faction": "Thief",
+                "starting_items": [
+                    [
+                        "Rapier",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Thief",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Thief",
+                "desc": "Inventory management contractors",
+                "generic": true
+            },
+            {
+                "nid": "rt1",
+                "variant": null,
+                "level": 8,
+                "klass": "Thief",
+                "faction": "Thief",
+                "starting_items": [
+                    [
+                        "Rapier",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Thief",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Thief",
+                "desc": "Inventory management contractors",
+                "generic": true
             }
         ],
         "regions": [

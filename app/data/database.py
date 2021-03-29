@@ -46,9 +46,14 @@ class Database(object):
             getattr(self, data_type).restore(save_obj[data_type])
 
     def save(self):
+        # import time
         to_save = {}
         for data_type in self.save_data_types:
+            # logging.info("Saving %s..." % data_type)
+            # time1 = time.time_ns()/1e6
             to_save[data_type] = getattr(self, data_type).save()
+            # time2 = time.time_ns()/1e6 - time1
+            # logging.info("Time taken: %s ms" % time2)
         return to_save
 
     def serialize(self, proj_dir):

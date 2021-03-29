@@ -30,6 +30,7 @@ class MapSprite():
 class MapSpriteCatalog(ManifestCatalog):
     manifest = 'map_sprites.json'
     title = 'map sprites'
+    datatype = MapSprite
 
     def load(self, loc):
         map_sprite_dict = self.read_manifest(os.path.join(loc, self.manifest))
@@ -40,8 +41,6 @@ class MapSpriteCatalog(ManifestCatalog):
             self.append(new_map_sprite)
 
     def save(self, loc):
-        import time
-        start = time.time_ns()/1e6
         for map_sprite in self:
             # Stand sprite
             new_full_path = os.path.join(loc, map_sprite.nid + '-stand.png')
@@ -54,5 +53,3 @@ class MapSpriteCatalog(ManifestCatalog):
                 shutil.copy(map_sprite.move_full_path, new_full_path)
                 map_sprite.set_move_full_path(new_full_path)
         self.dump(loc)
-        end = time.time_ns()/1e6
-        print("Time Taken: %s ms" % (end - start))

@@ -1,7 +1,4 @@
-import os
-import shutil
-
-from app.resources.base_catalog import BaseResourceCatalog
+from app.resources.base_catalog import ManifestCatalog
 
 class Icon():
     def __init__(self, nid, full_path=None):
@@ -16,22 +13,25 @@ class Icon():
     def set_full_path(self, full_path):
         self.full_path = full_path
 
-class IconCatalog(BaseResourceCatalog):
-    datatype = Icon
+    def save(self):
+        return self.nid
+
+    @classmethod
+    def restore(cls, nid):
+        self = cls(nid)
+        return self
+
+class IconCatalog(ManifestCatalog):
+    manifest = 'icons.json'
+    title = 'icons'
     filetype = '.png'
+    datatype = Icon
 
-    def move_image(self, icon, loc):
-        new_full_path = os.path.join(loc, icon.nid + self.filetype)
-        if os.path.abspath(icon.full_path) != os.path.abspath(new_full_path):
-            shutil.copy(icon.full_path, new_full_path)
-            icon.set_full_path(new_full_path)
+class Icon16Catalog(IconCatalog):
+    manifest = 'icons16.json'
 
-    def save(self, loc):
-        for icon in self:
-            self.move_image(icon, loc)
-        # Delete unused in loc
-        for fn in os.listdir(loc):
-            if not fn.endswith('.png') or fn[:-4] not in self.keys():
-                full_path = os.path.join(loc, fn)
-                print("Deleting %s" % full_path)
-                os.remove(full_path)
+class Icon32Catalog(IconCatalog):
+    manifest = 'icons32.json'
+
+class Icon80Catalog(IconCatalog):
+    manifest = 'icons80.json'

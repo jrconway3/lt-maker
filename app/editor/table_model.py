@@ -79,8 +79,6 @@ class TableModel(QAbstractTableModel):
         new_nid = str_utils.get_next_name(obj.nid, self._data.keys())
         if isinstance(obj, Prefab):
             serialized_obj = obj.save()
-            print("Duplication!")
-            print(serialized_obj, flush=True)
             new_obj = self._data.datatype.restore(serialized_obj)
         else:
             new_obj = copy.copy(obj)

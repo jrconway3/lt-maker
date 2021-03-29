@@ -8,6 +8,8 @@ from app.data import units
 
 from app.data import stats, weapons
 
+import logging
+
 def get_from_xml(parent_dir: str, xml_fn: str) -> list:
     unit_xml = ET.parse(xml_fn)
     unit_list = []
@@ -55,7 +57,7 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
                     if num > 0:
                         gain.usable = True
             except IndexError as e:
-                print("Failed to determine weapon experience")
+                logging.error("Failed to determine weapon experience")
 
         inventory = unit.find('inventory').text
         items = []

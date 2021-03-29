@@ -329,20 +329,6 @@ class UnitProperties(QWidget):
 
     def items_changed(self):
         self.current.starting_items = self.item_widget.get_items()
-        # See which ones can actually be wielded
-        # color_list = []
-        # for item_nid, droppable in self.current.starting_items:
-        #     item = DB.items.get(item_nid)
-        #     print(item_nid)
-        #     if not item:
-        #         color_list.append(Qt.black)
-        #     elif droppable:
-        #         color_list.append(Qt.darkGreen)
-        #     elif not can_wield(self.current, item):
-        #         color_list.append(Qt.red)
-        #     else:
-        #         color_list.append(Qt.black)
-        # self.item_widget.set_color(color_list)
 
     def access_tags(self):
         dlg = TagDialog.create(self)
@@ -379,9 +365,6 @@ class UnitProperties(QWidget):
 
         self.personal_skill_widget.set_current(current.learned_skills)
         self.wexp_gain_widget.set_current(current.wexp_gain)
-        # print("Unit Set Current")
-        # print(current.nid)
-        # print(current.starting_items, flush=True)
         self.item_widget.set_current(current.starting_items)
 
         if current.variant:

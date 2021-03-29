@@ -22,6 +22,7 @@ from app.editor.class_editor import class_model
 
 from app.data.level_units import UnitGroup
 
+import logging
 
 class UnitGroupMenu(QWidget):
     def __init__(self, state_manager):
@@ -116,7 +117,7 @@ class GroupList(WidgetList):
             self.index_list.remove(group)
             return self.takeItem(idx)
         else:
-            print("Cannot find group in index_list")
+            logging.warning("Cannot find group in index_list")
         return None
 
 

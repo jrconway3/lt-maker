@@ -1,10 +1,4 @@
 [
-    {
-        "nid": "0",
-        "path": "map_node.png"
-    },
-    {
-        "nid": "EmpireEmblem",
-        "path": "EmpireEmblem.png"
-    }
+    "EmpireEmblem",
+    "map_node"
 ]

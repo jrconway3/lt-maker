@@ -64,13 +64,13 @@ def find_palette(image):
 
 def get_full_palette(image) -> list:
     """
-    Returns list of QColors
+    Returns list of 3-tuples
     """
     palette = []
     for x in range(image.width()):
         for y in range(image.height()):
             color = image.pixelColor(x, y)
-            palette.append(color)
+            palette.append((color.red(), color.green(), color.blue()))
     return palette
 
 def convert_gba(image):

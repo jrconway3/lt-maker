@@ -1,6 +1,6 @@
-import os
+import os, shutil
 
-from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY
+from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY, AUTOTILE_FPS, AUTOTILE_FRAMES
 
 from app.utilities.data import Data, Prefab
 from app.resources.base_catalog import ManifestCatalog
@@ -94,9 +94,9 @@ class TileSet(Prefab):
         self.autotiles = {}  # Key: Position Tuple, Value: column number
         self.autotile_full_path = None
         self.autotile_pixmap = None
-        self.autotile_fps = 483  # every 29 frames
 
         self.image = None
+        self.autotile_image = None
 
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
@@ -115,10 +115,10 @@ class TileSet(Prefab):
                 p = self.pixmap.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
                 self.subpixmaps[(x, y)] = p
 
-    def get_pixmap(self, pos, ms=0):
-        if pos in self.autotiles and self.autotile_pixmap:
+    def get_pixmap(self, pos, ms=0, autotiles=True):
+        if autotiles and pos in self.autotiles and self.autotile_pixmap:
             column = self.autotiles[pos]
-            num = (ms / self.autotile_fps) % TILEHEIGHT
+            num = (ms // AUTOTILE_FPS) % AUTOTILE_FRAMES
             p = self.autotile_pixmap.copy(column * TILEWIDTH, num * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
             return p
         elif pos in self.subpixmaps:
@@ -127,6 +127,9 @@ class TileSet(Prefab):
 
     def set_full_path(self, full_path):
         self.full_path = full_path
+
+    def set_autotile_full_path(self, full_path):
+        self.autotile_full_path = full_path
 
     def save(self):
         s_dict = {}
@@ -227,13 +230,30 @@ class TileSprite(Prefab):
 class TileSetCatalog(ManifestCatalog):
     manifest = 'tileset.json'
     title = 'tilesets'
+    datatype = TileSet
 
     def load(self, loc):
         tileset_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in tileset_dict:
             new_tileset = TileSet.restore(s_dict)
             new_tileset.set_full_path(os.path.join(loc, new_tileset.nid + '.png'))
+            new_tileset.set_autotile_full_path(os.path.join(loc, new_tileset.nid + '_autotiles.png'))
             self.append(new_tileset)
+
+    def save(self, loc):
+        for tileset in self:
+            # Regular sprite
+            new_full_path = os.path.join(loc, tileset.nid + '.png')
+            if os.path.abspath(tileset.full_path) != os.path.abspath(new_full_path):
+                shutil.copy(tileset.full_path, new_full_path)
+                tileset.set_full_path(new_full_path)
+            # Autotile sprite
+            if tileset.autotiles and tileset.autotile_full_path:
+                new_full_path = os.path.join(loc, tileset.nid + '_autotiles.png')
+                if os.path.abspath(tileset.autotile_full_path) != os.path.abspath(new_full_path):
+                    shutil.copy(tileset.autotile_full_path, new_full_path)
+                    tileset.set_autotile_full_path(new_full_path)
+        self.dump(loc)
 
 class TileMapCatalog(ManifestCatalog):
     manifest = 'tilemap.json'

@@ -140,6 +140,9 @@ class CombatCatalog(ManifestCatalog):
                 weapon_anim.set_full_path(new_full_path)
         self.dump(loc)
 
+    def clean(self, loc):
+        pass  # TODO implement
+
 class CombatEffectCatalog(ManifestCatalog):
     manifest = 'combat_effects.json'
     title = 'Combat Effects'
@@ -159,5 +162,8 @@ class CombatEffectCatalog(ManifestCatalog):
                 shutil.copy(effect_anim.full_path, full_path)
                 effect_anim.set_full_path(full_path)
         self.dump(loc)
+
+    def clean(self, loc):
+        pass  # TODO implement
 
 base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(31)])

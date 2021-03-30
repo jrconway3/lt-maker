@@ -40,6 +40,7 @@ class PaletteData():
 
 class AutotileMaker():
     def __init__(self):
+        self.map_tiles = OrderedDict()
         self.books = []
         self.autotile_column_idxs = {}
         self.recognized_series = []
@@ -48,7 +49,14 @@ class AutotileMaker():
         self.autotile_templates = self.gather_templates()
         self.load_autotile_templates()
 
+    def clear(self):
+        self.map_tiles.clear()
+        self.autotile_column_idxs.clear()
+        self.recognized_series.clear()
+        self.companion_autotile_im = None
+
     def run(self, tileset):
+        self.clear()
         self.tileset = tileset
         self.tileset_image = QImage(self.tileset.pixmap)
         self.palettize_tileset()
@@ -104,7 +112,7 @@ class AutotileMaker():
         """
         Generates map tiles
         """
-        self.map_tiles = OrderedDict()
+        self.map_tiles.clear()
         print("Palettizing current tileset...")
 
         for x in range(self.tileset.width):
@@ -184,6 +192,7 @@ class AutotileMaker():
         width = len(self.recognized_series) * TILEWIDTH
         height = AUTOTILE_FRAMES * TILEHEIGHT
         new_im = QImage(width, height, QImage.Format_ARGB32)
+        new_im.fill(QColor(255, 255, 255, 0))
 
         painter = QPainter(new_im)
         for i, series in enumerate(self.recognized_series):

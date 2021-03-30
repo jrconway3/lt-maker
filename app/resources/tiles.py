@@ -142,7 +142,6 @@ class TileSet(Prefab):
         for coord, column in self.autotiles.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
             s_dict['autotiles'][str_coord] = column
-        s_dict['autotile_full_path'] = self.autotile_full_path
         return s_dict
 
     @classmethod
@@ -154,7 +153,6 @@ class TileSet(Prefab):
         for str_coord, column in s_dict.get('autotiles', {}).items():
             coord = tuple(str_utils.intify(str_coord))
             self.autotiles[coord] = column
-        self.autotile_full_path = s_dict.get('autotile_full_path', None)
         return self
 
 class LayerGrid(Prefab):
@@ -237,7 +235,8 @@ class TileSetCatalog(ManifestCatalog):
         for s_dict in tileset_dict:
             new_tileset = TileSet.restore(s_dict)
             new_tileset.set_full_path(os.path.join(loc, new_tileset.nid + '.png'))
-            new_tileset.set_autotile_full_path(os.path.join(loc, new_tileset.nid + '_autotiles.png'))
+            if new_tileset.autotiles:
+                new_tileset.set_autotile_full_path(os.path.join(loc, new_tileset.nid + '_autotiles.png'))
             self.append(new_tileset)
 
     def save(self, loc):

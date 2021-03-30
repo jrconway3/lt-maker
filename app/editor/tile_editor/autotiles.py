@@ -1,7 +1,9 @@
 import glob
 from collections import OrderedDict
 
-from PyQt5.QtGui import QImage, QColor, QPainter, qRgb, qRgba
+from PyQt5.QtWidgets import QProgressDialog
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QImage, QColor, QPainter, qRgb
 
 from app.editor import utilities as editor_utilities
 
@@ -39,15 +41,24 @@ class PaletteData():
             # So palette is a unique string of ints
 
 class AutotileMaker():
-    def __init__(self):
+    def __init__(self, parent=None):
+        self.window = parent
+
         self.map_tiles = OrderedDict()
         self.books = []
         self.autotile_column_idxs = {}
         self.recognized_series = []
         self.companion_autotile_im = None
 
+        msg = "Generating Autotiles..."
+        self.progress_dialog = QProgressDialog(msg, "Cancel", 0, 100, self.window)
+        self.progress_dialog.setAutoClose(True)
+        self.progress_dialog.setWindowTitle(msg)
+        self.progress_dialog.setWindowModality(Qt.WindowModal)
+        self.progress_dialog.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+
         self.autotile_templates = self.gather_templates()
-        self.load_autotile_templates()
+        self.should_run = self.load_autotile_templates()
 
     def clear(self):
         self.map_tiles.clear()
@@ -57,17 +68,32 @@ class AutotileMaker():
 
     def run(self, tileset):
         self.clear()
+        self.progress_dialog.setValue(20)
+        if not self.should_run:
+            return None, {}
         self.tileset = tileset
         self.tileset_image = QImage(self.tileset.pixmap)
+        if self.progress_dialog.wasCanceled():
+            return None, {}
         self.palettize_tileset()
+        self.progress_dialog.setValue(25)
+        if self.progress_dialog.wasCanceled():
+            return None, {}
 
-        for pos in self.map_tiles:
+        for idx, pos in enumerate(self.map_tiles):
+            if self.progress_dialog.wasCanceled():
+                return None, {}
             self.create_autotiles_from_image(pos)
+            self.progress_dialog.setValue(25 + int(70 * idx / len(self.map_tiles)))
 
         if self.recognized_series:
             self.create_final_image()
+        self.progress_dialog.setValue(99)
+        if self.progress_dialog.wasCanceled():
+            return None, {}
 
         final_column_idxs = {k: v[0] for k, v in self.autotile_column_idxs.items()}
+        self.progress_dialog.setValue(100)
         return self.companion_autotile_im, final_column_idxs
 
     def gather_templates(self) -> list:
@@ -76,13 +102,15 @@ class AutotileMaker():
             templates.append(fn)
         return templates
 
-    def load_autotile_templates(self):
+    def load_autotile_templates(self) -> bool:
         import time
         # Each autotile template becomes a book
         # A book contains a dictionary
         # Key: position
         # Value: Series
-        for template in self.autotile_templates:
+        for idx, template in enumerate(self.autotile_templates):
+            if self.progress_dialog.wasCanceled():
+                return False
             print(template)
             image = QImage(template)
             width = image.width() // AUTOTILE_FRAMES
@@ -107,6 +135,8 @@ class AutotileMaker():
 
             assert all(len(series) == AUTOTILE_FRAMES for series in minitiles)
             self.books.append(minitiles)
+            self.progress_dialog.setValue(20 * idx / len(self.autotile_templates))
+        return True
 
     def palettize_tileset(self):
         """

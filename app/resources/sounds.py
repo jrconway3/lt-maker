@@ -73,6 +73,12 @@ class MusicCatalog(ManifestCatalog):
                 song.set_intro_full_path(new_full_path)
         self.dump(loc)
 
+    def valid_files(self) -> set:
+        valid_filenames = {song.nid + '.ogg' for song in self}
+        valid_filenames |= {song.nid + '-battle.ogg' for song in self}
+        valid_filenames |= {song.nid + '-intro.ogg' for song in self}
+        return valid_filenames
+
 class SFX():
     def __init__(self, nid, full_path=None, tag=None):
         self.nid = nid

@@ -207,6 +207,8 @@ class MainEditor(QMainWindow):
         self.preferences_act = QAction(
             "&Preferences...", self, triggered=self.edit_preferences)
         self.about_act = QAction("&About", self, triggered=self.about)
+        self.remove_unused_resources_act = QAction(
+            "Remove Unused Resources", self, triggered=self.remove_unused_resources)
         self.check_for_updates_act = QAction(
             "Check for updates...", self, triggered=self.check_for_updates)
 
@@ -286,9 +288,6 @@ class MainEditor(QMainWindow):
         file_menu.addAction(self.quit_act)
 
         edit_menu = QMenu("Edit", self)
-        # Current removing undo and redo capabilities
-        # edit_menu.addAction(self.undo_act)
-        # edit_menu.addAction(self.redo_act)
         for action in self.database_actions.values():
             edit_menu.addAction(action)
         edit_menu.addSeparator()
@@ -300,9 +299,10 @@ class MainEditor(QMainWindow):
         test_menu.addAction(self.test_load_act)
         test_menu.addAction(self.test_full_act)
 
-        help_menu = QMenu("Help", self)
+        help_menu = QMenu("Extra", self)
         help_menu.addAction(self.about_act)
         help_menu.addAction(self.preferences_act)
+        help_menu.addAction(self.clean_resources_act)
         help_menu.addAction(self.check_for_updates_act)
         self.menubar = MenuBar(self.menuBar())
         self.menubar.addMenu(file_menu)
@@ -498,6 +498,15 @@ class MainEditor(QMainWindow):
             if self.window_title.startswith('*'):
                 self.window_title = self.window_title[1:]
             self.status_bar.showMessage('Saved project to %s' % current_proj)
+
+    def remove_unused_resources(self):
+        # Need to save first before cleaning
+        if self.project_save_load_handler.save():
+            self.project_save_load_handler.clean()
+            current_proj = self.settings.get_current_project()
+            self.status_bar.showMessage('All unused resources removed from %s' % current_proj)
+        else:
+            QMessageBox.warning(self, "Save Error", "Must save project before removing unused resources!")
 
     def edit_tags(self, parent=None):
         dialog = TagDialog.create()

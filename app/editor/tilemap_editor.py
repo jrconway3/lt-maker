@@ -1022,7 +1022,6 @@ class TileSetMenu(QWidget):
             full_path = current_tileset.full_path
             new_full_path = full_path[:-4] + '_autotiles.png'
             fn = os.path.abspath(new_full_path)
-            print(fn)
             companion_tileset.save(fn)
 
             current_tileset.autotiles = column_idxs

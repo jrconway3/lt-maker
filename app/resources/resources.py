@@ -85,7 +85,7 @@ class Resources():
             getattr(self, data_type).clear()  # Now always clears first
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
 
-    def save(self, proj_dir, specific=None):
+    def save(self, proj_dir, specific=None, progress=None):
         logging.warning("Starting Resource Serialization...")
         import time
         start = time.time_ns()/1e6
@@ -100,7 +100,7 @@ class Resources():
             save_data_types = specific
         else:
             save_data_types = self.save_data_types
-        for data_type in save_data_types:
+        for idx, data_type in enumerate(save_data_types):
             data_dir = os.path.join(resource_dir, data_type)
             if not os.path.exists(data_dir):
                 os.mkdir(data_dir)
@@ -109,10 +109,37 @@ class Resources():
             getattr(self, data_type).save(data_dir)
             time2 = time.time_ns()/1e6 - time1
             logging.warning("Time Taken: %s ms" % time2)
+            if progress:
+                progress.setValue(int(idx / len(save_data_types) * 75))
 
         end = time.time_ns()/1e6
         logging.warning("Total Time Taken for Resources: %s ms" % (end - start))
         logging.warning('Done Resource Serializing!')
+
+    def clean(self, proj_dir) -> bool:
+        """
+        Returns bool -> whether cleaning was successful
+        """
+        logging.warning("Starting Resource Cleaning...")
+        import time
+        start = time.time_ns()/1e6
+
+        if not os.path.exists(proj_dir):
+            return False
+        resource_dir = os.path.join(proj_dir, 'resources')
+        if not os.path.exists(resource_dir):
+            return False
+
+        for idx, data_type in enumerate(self.save_data_types):
+            data_dir = os.path.join(resource_dir, data_type)
+            if not os.path.exists(data_dir):
+                continue
+            getattr(self, data_type).clean(data_dir)
+
+        end = time.time_ns() / 1e6
+        logging.warning("Total Time Taken for cleaning resource directory: %s ms" % (end - start))
+        logging.warning("Done Resource Cleaning!")
+        return True
 
 RESOURCES = Resources()
 

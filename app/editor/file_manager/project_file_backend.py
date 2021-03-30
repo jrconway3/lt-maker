@@ -1,14 +1,8 @@
 import os
-import sys
-import glob
 from datetime import datetime
 import json
-import functools
 
-from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QMessageBox, \
-    QDockWidget, QFileDialog, QWidget, QLabel, QFrame, QDesktopWidget, \
-    QToolButton, QWidgetAction, QStackedWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QProgressDialog, QMessageBox, QFileDialog
 from PyQt5.QtCore import Qt, QDir
 
 from app.editor.settings import MainSettingsController
@@ -27,6 +21,21 @@ class ProjectFileBackend():
         self.app_state_manager = app_state_manager
         self.settings = MainSettingsController()
         self.current_proj = self.settings.get_current_project()
+
+        self.save_progress = QProgressDialog("Saving project to %s" % self.current_proj, None, 0, 100, self.parent)
+        self.save_progress.setAutoClose(True)
+        self.save_progress.setWindowTitle("Saving Project")
+        self.save_progress.setWindowModality(Qt.WindowModal)
+        self.save_progress.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        self.save_progress.reset()
+
+        self.autosave_progress = QProgressDialog("Autosaving project to %s" % os.path.abspath('autosave.ltproj'), None, 0, 100, self.parent)
+        self.autosave_progress.setAutoClose(True)
+        self.autosave_progress.setWindowTitle("Autosaving Project")
+        self.autosave_progress.setWindowModality(Qt.WindowModal)
+        self.autosave_progress.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        self.autosave_progress.reset()
+
         timer.get_timer().autosave_timer.timeout.connect(self.autosave)
 
     def maybe_save(self):
@@ -71,10 +80,13 @@ class ProjectFileBackend():
         # Make directory for saving if it doesn't already exist
         if not os.path.isdir(self.current_proj):
             os.mkdir(self.current_proj)
+        self.save_progress.setValue(1)
 
         # Actually save project
-        RESOURCES.save(self.current_proj)
+        RESOURCES.save(self.current_proj, progress=self.save_progress)
+        self.save_progress.setValue(75)
         DB.serialize(self.current_proj)
+        self.save_progress.setValue(99)
 
         # Save metadata
         metadata_loc = os.path.join(self.current_proj, 'metadata.json')
@@ -83,6 +95,8 @@ class ProjectFileBackend():
         metadata['version'] = VERSION
         with open(metadata_loc, 'w') as serialize_file:
             json.dump(metadata, serialize_file, indent=4)
+
+        self.save_progress.setValue(100)
 
         # self.undo_stack.setClean()
         return True
@@ -146,6 +160,7 @@ class ProjectFileBackend():
         # Make directory for saving if it doesn't already exist
         if not os.path.isdir(autosave_dir):
             os.mkdir(autosave_dir)
+        self.autosave_progress.setValue(1)
 
         try:
             self.parent.status_bar.showMessage(
@@ -155,11 +170,17 @@ class ProjectFileBackend():
 
         # Actually save project
         print("Autosaving project to %s..." % autosave_dir)
-        RESOURCES.save(autosave_dir)
+        RESOURCES.save(autosave_dir, progress=self.autosave_progress)
+        self.autosave_progress.setValue(75)
         DB.serialize(autosave_dir)
+        self.autosave_progress.setValue(99)
 
         try:
             self.parent.status_bar.showMessage(
                 'Autosave to %s complete!' % autosave_dir)
         except Exception:
             pass
+        self.autosave_progress.setValue(100)
+
+    def clean(self):
+        RESOURCES.clean(self.current_proj)

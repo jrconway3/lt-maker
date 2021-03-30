@@ -4,6 +4,8 @@ import json
 
 from app.utilities.data import Data
 
+import logging
+
 class BaseResourceCatalog(Data):
     def load(self, loc):
         for root, dirs, files in os.walk(loc):
@@ -47,3 +49,19 @@ class ManifestCatalog(Data):
                 shutil.copy(datum.full_path, new_full_path)
                 datum.set_full_path(new_full_path)
         self.dump(loc)
+
+    def valid_files(self) -> set:
+        return {datum.nid + self.filetype for datum in self}
+
+    def clean(self, loc):
+        bad_files = []
+        valid_filenames = self.valid_files()
+        valid_filenames.add(self.manifest)  # also include the manifest file otherwise it would be deleted
+        for fn in os.listdir(loc):
+            if fn not in valid_filenames:
+                full_fn = os.path.join(loc, fn)
+                bad_files.append(full_fn)
+                logging.warning("Unused file: %s" % full_fn)
+        for fn in bad_files:
+            logging.warning("Removing %s..." % fn) 
+            os.remove(fn)

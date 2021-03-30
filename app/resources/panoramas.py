@@ -54,3 +54,13 @@ class PanoramaCatalog(ManifestCatalog):
                     shutil.copy(panorama.full_path, new_full_path)
                 panorama.set_full_path(new_full_path)
         self.dump(loc)
+
+    def valid_files(self) -> set:
+        valid_filenames = set()
+        for panorama in self:
+            if panorama.num_frames > 1:
+                for idx in range(panorama.num_frames):
+                    valid_filenames.add(panorama.nid + str(idx) + '.png')
+            else:
+                valid_filenames.add(panorama.nid + '.png')
+        return valid_filenames

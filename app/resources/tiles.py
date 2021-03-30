@@ -254,6 +254,11 @@ class TileSetCatalog(ManifestCatalog):
                     tileset.set_autotile_full_path(new_full_path)
         self.dump(loc)
 
+    def valid_files(self) -> set:
+        valid_filenames = {datum.nid + '.png' for datum in self}
+        valid_filenames |= {datum.nid + '_autotiles.png' for datum in self}
+        return valid_filenames
+
 class TileMapCatalog(ManifestCatalog):
     manifest = 'tilemap.json'
     title = 'tilemaps'

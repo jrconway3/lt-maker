@@ -53,3 +53,8 @@ class MapSpriteCatalog(ManifestCatalog):
                 shutil.copy(map_sprite.move_full_path, new_full_path)
                 map_sprite.set_move_full_path(new_full_path)
         self.dump(loc)
+
+    def valid_files(self) -> set:
+        valid_filenames = {datum.nid + '-stand.png' for datum in self}
+        valid_filenames |= {datum.nid + '-move.png' for datum in self}
+        return valid_filenames

@@ -302,7 +302,7 @@ class MainEditor(QMainWindow):
         help_menu = QMenu("Extra", self)
         help_menu.addAction(self.about_act)
         help_menu.addAction(self.preferences_act)
-        help_menu.addAction(self.clean_resources_act)
+        help_menu.addAction(self.remove_unused_resources_act)
         help_menu.addAction(self.check_for_updates_act)
         self.menubar = MenuBar(self.menuBar())
         self.menubar.addMenu(file_menu)

@@ -1,4 +1,4 @@
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FPS, AUTOTILE_FRAMES
 from app.utilities.data import Data, Prefab
 
 from app.resources.resources import RESOURCES
@@ -14,11 +14,13 @@ class LayerObject():
         self.visible = True
         self.terrain = {}
         self.image = None
+        self.autotile_images = []
 
         # For fade in
         self.state = None
         self.translucence = 1
         self.start_update = 0
+        self.autotile_frame = 0
 
     def set_image(self, image):
         self.image = image
@@ -27,6 +29,12 @@ class LayerObject():
         if self.state in ('fade_in', 'fade_out'):
             return image_mods.make_translucent(self.image, self.translucence)
         return self.image
+
+    def get_autotile_image(self):
+        im = self.autotile_images[self.autotile_frame]
+        if self.state in ('fade_in', 'fade_out'):
+            return image_mods.make_translucent(im, self.translucence)
+        return im
 
     def quick_show(self):
         self.visible = True
@@ -55,16 +63,22 @@ class LayerObject():
             self.start_update = engine.get_time()
 
     def update(self) -> bool:
+        current_time = engine.get_time()
         in_state = bool(self.state)
 
         if self.state == 'fade_in':
-            self.translucence = 1 - (engine.get_time() - self.start_update)/self.transition_speed
+            self.translucence = 1 - (current_time - self.start_update)/self.transition_speed
             if self.translucence <= 0:
                 self.state = None
         elif self.state == 'fade_out':
-            self.translucence = (engine.get_time() - self.start_update)/self.transition_speed
+            self.translucence = (current_time - self.start_update)/self.transition_speed
             if self.translucence >= 1:
                 self.state = None
+
+        frame = (current_time // AUTOTILE_FPS) % len(self.autotile_images)
+        if frame != self.autotile_frame:
+            self.autotile_frame = frame
+            in_state = True  # Requires update to image when autotiles turn over
 
         return in_state
 
@@ -94,16 +108,31 @@ class TileMapObject(Prefab):
                 new_layer.terrain[coord] = terrain_nid
             # Image
             image = engine.create_surface((self.width * TILEWIDTH, self.height * TILEHEIGHT), transparent=True)
+            # Autotile Images
+            autotile_images = [engine.create_surface((self.width * TILEWIDTH, self.height * TILEHEIGHT), transparent=True) for _ in range(AUTOTILE_FRAMES)]
+
             for coord, tile_sprite in layer.sprite_grid.items():
                 tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
                 if not tileset.image:
                     tileset.image = engine.image_load(tileset.full_path)
-                rect = (tile_sprite.tileset_position[0] * TILEWIDTH, 
-                        tile_sprite.tileset_position[1] * TILEHEIGHT,
-                        TILEWIDTH, TILEHEIGHT)
+                if not tileset.autotile_image and tileset.autotile_full_path:
+                    tileset.autotile_image = engine.image_load(tileset.autotile_full_path)
+                pos = tile_sprite.tileset_position
+    
+                rect = (pos[0] * TILEWIDTH, pos[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
                 sub_image = engine.subsurface(tileset.image, rect)
                 image.blit(sub_image, (coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT))
+
+                # Handle Autotiles
+                if pos in tileset.autotiles and tileset.autotile_image:
+                    column = tileset.autotiles[pos]
+                    for idx, im in enumerate(autotile_images):
+                        rect = (column * TILEWIDTH, idx * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                        sub_image = engine.subsurface(tileset.autotile_image, rect)
+                        im.blit(sub_image, (coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT))
+
             new_layer.image = image
+            new_layer.autotile_images = autotile_images
             self.layers.append(new_layer)
 
         # Base layer should be visible, rest invisible
@@ -139,6 +168,7 @@ class TileMapObject(Prefab):
             for layer in self.layers:
                 if layer.visible or layer.state == 'fade_out':
                     image.blit(layer.get_image(), (0, 0))
+                    image.blit(layer.get_autotile_image(), (0, 0))
             self.full_image = image
         return self.full_image
 

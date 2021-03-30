@@ -25,7 +25,7 @@ from app.utilities import str_utils
 
 import logging
 
-def draw_tilemap(tilemap):
+def draw_tilemap(tilemap, autotiles=True):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
@@ -42,8 +42,10 @@ def draw_tilemap(tilemap):
                     logging.warning("Could not find tileset %s" % tile_sprite.tileset_nid)
                 if not tileset.pixmap:
                     tileset.set_pixmap(QPixmap(tileset.full_path))
+                if not tileset.autotile_pixmap:
+                    tileset.set_autotile_pixmap(QPixmap(tileset.autotile_full_path))
 
-                pix = tileset.get_pixmap(tile_sprite.tileset_position, ms)
+                pix = tileset.get_pixmap(tile_sprite.tileset_position, ms, autotiles)
                 if pix:
                     painter.drawImage(coord[0] * TILEWIDTH,
                                       coord[1] * TILEHEIGHT,
@@ -82,6 +84,8 @@ class MapEditorView(QGraphicsView):
         self.right_selecting = False
         self.right_selection = {}  # Dictionary of tile_sprites
 
+        self.draw_autotiles = True
+
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
@@ -106,7 +110,7 @@ class MapEditorView(QGraphicsView):
         self.show_map()
 
     def get_map_image(self):
-        image = draw_tilemap(self.tilemap)
+        image = draw_tilemap(self.tilemap, autotiles=self.draw_autotiles)
         painter = QPainter()
         painter.begin(image)
         # Draw grid lines
@@ -535,6 +539,10 @@ class MapEditor(QDialog):
 
         self.export_as_png_action = QAction(QIcon(f"{icon_folder}/export_as_png.png"), "E&xport Current Image as PNG", self, shortcut="X", triggered=self.export_as_png)
 
+        self.show_autotiles_action = QAction(QIcon(f"{icon_folder}/wave.png"), "Show Autotiles", self, triggered=self.autotile_toggle)
+        self.show_autotiles_action.setCheckable(True)
+        self.show_autotiles_action.setChecked(True)
+
     def void_right_selection(self):
         self.view.right_selection.clear()
 
@@ -563,6 +571,7 @@ class MapEditor(QDialog):
         self.toolbar.addAction(self.resize_action)
         self.toolbar.addAction(self.terrain_action)
         self.toolbar.addAction(self.export_as_png_action)
+        self.toolbar.addAction(self.show_autotiles_action)
 
     def set_current(self, current):  # Current is a TileMapPrefab
         self.current = current
@@ -581,9 +590,12 @@ class MapEditor(QDialog):
         else:
             self.terrain_painter_menu.hide()
 
+    def autotile_toggle(self, val):
+        self.view.draw_autotiles = val
+
     def export_as_png(self):
         if self.current:
-            image = draw_tilemap(self.current)
+            image = draw_tilemap(self.current, autotiles=False)
             starting_path = self.settings.get_last_open_path()
             fn, ok = QFileDialog.getSaveFileName(
                 self, "Export Current Image", starting_path, 
@@ -992,16 +1004,24 @@ class TileSetMenu(QWidget):
     def generate_autotiles(self):
         idx = self.tab_bar.currentIndex()
         if 0 <= idx < len(self.current.tilesets):
-            current_tileset = self.current.tilesets[idx]
-            companion_tileset, column_idxs = autotiles.AutotileMaker(current_tileset)
+            current_tileset_nid = self.current.tilesets[idx]
+            current_tileset = RESOURCES.tilesets.get(current_tileset_nid)
+            maker = autotiles.get_maker()
+            companion_tileset, column_idxs = maker.run(current_tileset)
             if not column_idxs:
                 QMessageBox.warning(self, "Autotile Generation Warning", "No autotiles match the tiles in this tileset!")
                 return
+            # Save companion tileset to file
+            full_path = current_tileset.full_path
+            new_full_path = full_path[:-4] + '_autotiles.png'
+            fn = os.path.abspath(new_full_path)
+            print(fn)
+            companion_tileset.save(fn)
+
             current_tileset.autotiles = column_idxs
-            current_tileset.autotile_full_path = None
+            current_tileset.autotile_full_path = fn
             pix = QPixmap(companion_tileset)
             current_tileset.autotile_pixmap = pix
-            # Will be saved to full path on Save
             QMessageBox.information(self, "Autotile Generation Complete", "Autotile generation process completed for tileset %s" % current_tileset.nid)
 
 class TileSetView(MapEditorView):

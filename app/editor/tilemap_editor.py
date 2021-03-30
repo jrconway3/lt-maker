@@ -993,6 +993,13 @@ class TileSetMenu(QWidget):
         idx = self.tab_bar.currentIndex()
         if 0 <= idx < len(self.current.tilesets):
             current_tileset = self.current.tilesets[idx]
+            if current_tileset.autotiles:
+                ret = QMessageBox.warning(self, "Overwrite Autotiles", "Autotiles already exist.\nDo you want to overwrite them?",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if ret == QMessageBox.Ok:
+                    pass
+                else:
+                    return
             companion_tileset, column_idxs = autotiles.AutotileMaker(current_tileset)
             if not column_idxs:
                 QMessageBox.warning(self, "Autotile Generation Warning", "No autotiles match the tiles in this tileset!")

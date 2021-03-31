@@ -9,9 +9,15 @@ class StatPrefab(Prefab):
     name: str = None
     maximum: int = 30
     desc: str = ""
+    position: str = "left"
 
     def __repr__(self):
         return self.nid
+
+    def restore_attr(self, name, value):
+        if name == 'position' and not value:
+            return 'left'
+        return value
 
 class StatCatalog(Data):
     datatype = StatPrefab

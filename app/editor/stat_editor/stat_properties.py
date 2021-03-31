@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from app.data.database import DB
 
 from app.utilities import str_utils
-from app.extensions.custom_gui import PropertyBox
+from app.extensions.custom_gui import PropertyBox, ComboBox
 
 class StatTypeProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -36,6 +36,12 @@ class StatTypeProperties(QWidget):
         self.desc_box = PropertyBox("Description", QLineEdit, self)
         self.desc_box.edit.textChanged.connect(self.desc_changed)
         name_section.addWidget(self.desc_box)
+
+        self.position_box = PropertyBox("Position", ComboBox, self)
+        self.position_box.edit.addItems(["hidden", "left", "right"])
+        self.position_box.setToolTip("Column within Info Menu in engine")
+        self.position_box.edit.currentTextChanged.connect(self.position_changed)
+        name_section.addWidget(self.position_box)
 
         self.setLayout(name_section)
         name_section.setAlignment(Qt.AlignTop)
@@ -77,6 +83,9 @@ class StatTypeProperties(QWidget):
     def desc_changed(self, text):
         self.current.desc = text
 
+    def position_changed(self, val):
+        self.current.position = val
+
     def maximum_changed(self, val):
         self.current.maximum = val
 
@@ -86,3 +95,4 @@ class StatTypeProperties(QWidget):
         self.name_box.edit.setText(current.name)
         self.max_box.edit.setValue(current.maximum)
         self.desc_box.edit.setText(current.desc)
+        self.position_box.edit.setValue(current.position)

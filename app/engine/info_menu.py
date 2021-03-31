@@ -576,7 +576,7 @@ class InfoMenuState(State):
         if self.state == 'personal_data':
             if self.growth_flag:
                 if not self.growths_surf:
-                    self.growths_surf = self.create_growths_surf()
+                    self.growths_surf = self.create_personal_data_surf(growths=True)
                 self.draw_growths_surf(main_surf)
             else:
                 if not self.personal_data_surf:
@@ -616,117 +616,95 @@ class InfoMenuState(State):
             top_surf = image_mods.make_translucent(top_surf, self.transparency)
         surf.blit(top_surf, (0, self.scroll_offset_y))
 
-    def create_personal_data_surf(self):
+    def create_personal_data_surf(self, growths=False):
+        if growths:
+            state = 'growths'
+        else:
+            state = 'personal_data'
+
         menu_size = WINWIDTH - 96, WINHEIGHT
         surf = engine.create_surface(menu_size, transparent=True)
 
         class_obj = DB.classes.get(self.unit.klass)
         max_stats = class_obj.max_stats
-        stat_list = ('STR', 'MAG', 'SKL', 'SPD', 'DEF', 'RES')
-        for idx, stat_nid in enumerate(stat_list):
-            highest_stat = DB.stats.get(stat_nid).maximum
-            max_stat = max_stats.get(stat_nid, 30)
-            total_length = int(max_stat / highest_stat * 44)
-            frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)
-            build_groove(surf, (27, 16 * idx + 32), total_length, frac)
-            icons.draw_stat(surf, stat_nid, self.unit, (47, 16 * idx + 24))
 
-        self.blit_stat_titles(surf)
+        left_stats = [stat.nid for stat in DB.stats if stat.position == 'left']
+        right_stats = left_stats[6:]  # Only first six get to be on the left
+        right_stats += [stat.nid for stat in DB.stats if stat.position == 'right']
+        # Make sure we only display up to 6 on each
+        left_stats = left_stats[:6]
+        right_stats = right_stats[:6]
 
-        icons.draw_stat(surf, 'LCK', self.unit, (111, 24))
-        icons.draw_stat(surf, 'MOV', self.unit, (111, 40))
-        icons.draw_stat(surf, 'CON', self.unit, (111, 56))
+        for idx, stat_nid in enumerate(left_stats):
+            # Value
+            if growths:
+                icons.draw_growth(surf, stat_nid, self.unit, (47, 16 * idx + 24))
+            else:
+                highest_stat = DB.stats.get(stat_nid).maximum
+                max_stat = max_stats.get(stat_nid, 30)
+                total_length = int(max_stat / highest_stat * 44)
+                frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)
+                build_groove(surf, (27, 16 * idx + 32), total_length, frac)
+                icons.draw_stat(surf, stat_nid, self.unit, (47, 16 * idx + 24))
+            # Name
+            name = DB.stats.get(stat_nid).name
+            FONT['text-yellow'].blit(name, surf, (8, 16 * idx + 24))
+            self.info_graph.register((96 + 8, 16 * idx + 24, 64, 16), '%s_desc' % stat_nid, state, first=(idx == 0))
 
-        if self.unit.traveler:
-            trav = game.get_unit(self.unit.traveler)
-            FONT['text-blue'].blit(trav.name, surf, (96, 88))
-        else:
-            FONT['text-blue'].blit('--', surf, (96, 88))
+        for idx, stat_nid in enumerate(right_stats):
+            if growths:
+                icons.draw_growth(surf, stat_nid, self.unit, (111, 16 * idx + 24))
+            else:
+                icons.draw_stat(surf, stat_nid, self.unit, (111, 16 * idx + 24))
+            # Name
+            name = DB.stats.get(stat_nid).name
+            FONT['text-yellow'].blit(name, surf, (72, 16 * idx + 24))
+            self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), '%s_desc' % stat_nid, state)
 
-        aid = equations.parser.rescue_aid(self.unit)
-        FONT['text-blue'].blit_right(str(aid), surf, (111, 72))
+        other_stats = ['AID', 'TRV', 'RAT']
+        other_stats = other_stats[:6 - len(right_stats)]
 
-        # Mount Symbols
-        if 'Dragon' in self.unit.tags:
-            aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 48, 16, 16))
-        elif 'Flying' in self.unit.tags:
-            aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 32, 16, 16))
-        elif 'Mounted' in self.unit.tags:
-            aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 16, 16, 16))
-        else:
-            aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 0, 16, 16))
-        surf.blit(aid_surf, (112, 72))
+        for idx, stat in enumerate(other_stats):
+            true_idx = idx + len(right_stats)
 
-        # Affinity
-        if DB.constants.value('support'):
-            FONT['text-blue'].blit('---', surf, (96, 104))
-        else:
-            rat = str(equations.parser.rating(self.unit))
-            FONT['text-blue'].blit_right(rat, surf, (111, 104))
+            if stat == 'TRV':
+                if self.unit.traveler:
+                    trav = game.get_unit(self.unit.traveler)
+                    FONT['text-blue'].blit(trav.name, surf, (96, 16 * true_idx + 24))
+                else:
+                    FONT['text-blue'].blit('--', surf, (96, 16 * true_idx + 24))
+                FONT['text-yellow'].blit('Trv', surf, (72, 16 * true_idx + 24))
+                self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Trv_desc', state)
+
+            elif stat == 'AID':
+                if growths:
+                    icons.draw_growth(surf, 'HP', self.unit, (111, 16 * true_idx + 24))
+                    FONT['text-yellow'].blit('HP', surf, (72, 16 * true_idx + 24))
+                    self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'HP_desc', state)
+                else:
+                    aid = equations.parser.rescue_aid(self.unit)
+                    FONT['text-blue'].blit_right(str(aid), surf, (111, 16 * true_idx + 24))
+
+                    # Mount Symbols
+                    if 'Dragon' in self.unit.tags:
+                        aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 48, 16, 16))
+                    elif 'Flying' in self.unit.tags:
+                        aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 32, 16, 16))
+                    elif 'Mounted' in self.unit.tags:
+                        aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 16, 16, 16))
+                    else:
+                        aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 0, 16, 16))
+                    surf.blit(aid_surf, (112, 16 * true_idx + 24))
+                    FONT['text-yellow'].blit('Aid', surf, (72, 16 * true_idx + 24))
+                    self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Aid_desc', state)
+
+            elif stat == 'RAT':
+                rat = str(equations.parser.rating(self.unit))
+                FONT['text-blue'].blit_right(rat, surf, (111, 16 * true_idx + 24))
+                FONT['text-yellow'].blit('Rat', surf, (72, 16 * true_idx + 24))
+                self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Rating_desc', state)
 
         return surf
-
-    def create_growths_surf(self):
-        surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
-        stat_list = ('STR', 'MAG', 'SKL', 'SPD', 'DEF', 'RES')
-        self.blit_stat_titles(surf, growths=True)
-
-        for idx, stat_nid in enumerate(stat_list):
-            icons.draw_growth(surf, stat_nid, self.unit, (47, 16 * idx + 24))
-
-        icons.draw_growth(surf, 'LCK', self.unit, (111, 24))
-        icons.draw_growth(surf, 'MOV', self.unit, (111, 40))
-        icons.draw_growth(surf, 'CON', self.unit, (111, 56))
-        icons.draw_growth(surf, 'HP', self.unit, (111, 72))
-
-        if self.unit.traveler:
-            trav = game.get_unit(self.unit.traveler)
-            FONT['text-blue'].blit(trav.name, surf, (96, 88))
-        else:
-            FONT['text-blue'].blit('--', surf, (96, 88))
-
-        # Affinity
-        if DB.constants.value('support'):
-            FONT['text-blue'].blit('---', surf, (96, 104))
-        else:
-            rat = str(equations.parser.rating(self.unit))
-            FONT['text-blue'].blit_right(rat, surf, (111, 104))
-
-        return surf
-
-    def blit_stat_titles(self, surf, growths=False):
-        if growths:
-            state = 'growths'
-        else:
-            state = 'personal_data'
-        stat_list = ('STR', 'MAG', 'SKL', 'SPD', 'DEF', 'RES')
-        for idx, stat in enumerate(stat_list):
-            name = DB.stats.get(stat).name
-            FONT['text-yellow'].blit(name, surf, (8, 24 + 16 * idx))
-            self.info_graph.register((96 + 8, 24 + 16 * idx, 64, 16), '%s_desc' % stat, state, first=(idx == 0))
-
-        FONT['text-yellow'].blit(DB.stats.get('LCK').name, surf, (72, 24))
-        self.info_graph.register((96 + 72, 24, 64, 16), 'LCK_desc', state)
-        FONT['text-yellow'].blit(DB.stats.get('MOV').name, surf, (72, 40))
-        self.info_graph.register((96 + 72, 40, 64, 16), 'MOV_desc', state)
-        FONT['text-yellow'].blit(DB.stats.get('CON').name, surf, (72, 56))
-        self.info_graph.register((96 + 72, 56, 64, 16), 'CON_desc', state)
-        FONT['text-yellow'].blit('Trv', surf, (72, 88))
-        self.info_graph.register((96 + 72, 88, 64, 16), 'Trv_desc', state)
-
-        if growths:
-            FONT['text-yellow'].blit('HP', surf, (72, 72))
-            self.info_graph.register((96 + 72, 72, 64, 16), 'HP_desc', state)
-        else:
-            FONT['text-yellow'].blit('Aid', surf, (72, 72))
-            self.info_graph.register((96 + 72, 72, 64, 16), 'Aid_desc', state)
-
-        if DB.constants.value('support'):
-            FONT['text-yellow'].blit('Affin', surf, (72, 104))
-            self.info_graph.register((96 + 72, 104, 64, 16), 'Affinity_desc', state)
-        else:
-            FONT['text-yellow'].blit('Rat', surf, (72, 104))
-            self.info_graph.register((96 + 72, 104, 64, 16), 'Rating_desc', state)
 
     def draw_personal_data_surf(self, surf):
         surf.blit(self.personal_data_surf, (96, 0))

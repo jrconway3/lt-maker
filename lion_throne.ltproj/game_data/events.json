@@ -56,17 +56,81 @@
                 ]
             ],
             [
-                "wait",
+                "add_lore",
                 [
-                    "1000"
+                    "Enemy Phase Doubling"
                 ]
             ],
             [
-                "move_unit",
+                "add_lore",
                 [
-                    "Ophie",
-                    "3,5",
-                    "swoosh"
+                    "Magic"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Magic Wards"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Magic Spells"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Turnwheel"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Bows"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Skills"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Feats"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Combat Arts"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Promotion"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Escape"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Unarmed Combat"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Party Size"
                 ]
             ]
         ],
@@ -90,6 +154,36 @@
                 [
                     "1500",
                     "no_banner"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Enemy Phase Doubling"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Magic"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Magic Wards"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Magic Spells"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Escape"
                 ]
             ],
             [
@@ -3254,6 +3348,60 @@
                 [
                     "Sidney",
                     "Boss"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Turnwheel"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Bows"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Skills"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Feats"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Combat Arts"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Promotion"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Exp Curve"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Unarmed Combat"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Party Size"
                 ]
             ],
             [
@@ -17279,6 +17427,22 @@
                 "wait",
                 [
                     "1000"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn1",
+        "trigger": "turn_change",
+        "level_nid": "1",
+        "condition": "game.turncount == 1",
+        "commands": [
+            [
+                "alert",
+                [
+                    "The Guide has been updated!"
                 ]
             ]
         ],

@@ -237,7 +237,9 @@ class BaseCodexChildState(State):
         options.append('Records')
         # TODO Achievements?
         # TODO Tactics?
-        # TODO Guide
+        unlocked_guide = [lore for lore in unlocked_lore if lore.category == 'Guide']
+        if unlocked_guide:
+            options.append('Guide')
 
         selection = game.memory['option_owner']
         topleft = game.memory['option_menu']
@@ -273,6 +275,9 @@ class BaseCodexChildState(State):
             elif selection == 'Records':
                 game.memory['next_state'] = 'base_records'
                 game.state.change('transition_to')
+            elif selection == 'Guide':
+                game.memory['next_state'] = 'base_guide'
+                game.state.change('transition_to')
 
     def update(self):
         if self.menu:
@@ -286,18 +291,38 @@ class BaseCodexChildState(State):
 class LoreDisplay():
     def __init__(self):
         self.lore = None
-        self.topleft = (76, 4)
-        self.width = WINWIDTH - 80
-        self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8)
+        self.topleft = (84, 4)
+        self.width = WINWIDTH - 84
+        self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8, 'menu_bg_brown')
+        shimmer = SPRITES.get('menu_shimmer3')
+        self.bg_surf.blit(shimmer, (self.bg_surf.get_width() - shimmer.get_width() - 1, self.bg_surf.get_height() - shimmer.get_height() - 5))
+        self.bg_surf = image_mods.make_translucent(self.bg_surf, .1)
 
         self.left_arrow = gui.ScrollArrow('left', (self.topleft[0] + 4, 8))
         self.right_arrow = gui.ScrollArrow('right', (self.topleft[0] + self.width - 11, 8), 0.5)
 
+        self.dialogs = []
+
     def update_entry(self, lore_nid):
+        from app.engine import dialog
+
+        class LoreDialog(dialog.Dialog):
+            num_lines = 8
+            draw_cursor_flag = False
+
         self.lore = DB.lore.get(lore_nid)
+        text = self.lore.text.split('\n')
         self.page_num = 0
-        self.lines = self.lore.text.split('{br}')
-        self.num_pages = len(self.lines)
+        self.dialogs.clear()
+        for idx, line in enumerate(text):
+            dialog = LoreDialog(text[idx])
+            dialog.position = self.topleft[0], self.topleft[1] + 12
+            dialog.text_width = WINWIDTH - 100
+            dialog.font = FONT['text-white']
+            dialog.font_type = 'text'
+            dialog.font_color = 'white'
+            self.dialogs.append(dialog)
+        self.num_pages = len(text)
 
     def page_right(self, first_push=False) -> bool:
         if self.page_num < self.num_pages - 1:
@@ -328,18 +353,17 @@ class LoreDisplay():
                 unit = game.get_unit(self.lore.nid)
                 icons.draw_portrait(image, unit, (self.width - 96, WINHEIGHT - 12 - 80))
 
-            FONT['text-yellow'].blit_center(self.lore.title, image, (self.width//2, 4))
-
-            text = self.lines[self.page_num]
-            lines = text_funcs.line_wrap(FONT['text-white'], text, self.width - 12)
-            for idx, line in enumerate(lines):
-                FONT['text-white'].blit(line, image, (4, FONT['text-white'].height * idx + 20))
+            FONT['text-blue'].blit_center(self.lore.title, image, (self.width//2, 4))
 
             if self.num_pages > 1:
                 text = '%d / %d' % (self.page_num + 1, self.num_pages)
-                FONT['text-white'].blit_right(text, image, (self.width - 4, WINHEIGHT - 12 - 16))
+                FONT['text-yellow'].blit_right(text, image, (self.width - 8, WINHEIGHT - 12 - 16))
 
             surf.blit(image, self.topleft)
+
+            if self.dialogs and self.page_num < len(self.dialogs):
+                self.dialogs[self.page_num].update()
+                self.dialogs[self.page_num].draw(surf)
 
             if self.num_pages > 1:
                 self.left_arrow.draw(surf)
@@ -357,7 +381,7 @@ class BaseLibraryState(State):
     def start(self):
         self.bg = game.memory['base_bg']
 
-        unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore]
+        unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore and lore.category != 'Guide']
         sorted_lore = sorted(unlocked_lore, key=lambda x: x.category)
         self.categories = []
         options = []
@@ -373,6 +397,8 @@ class BaseLibraryState(State):
         topleft = 4, 4
         self.options = options
         self.menu = menus.Choice(None, self.options, topleft=topleft)
+        self.menu.shimmer = 3
+        self.menu.gem = 'brown'
         self.menu.set_limit(9)
         self.menu.set_hard_limit(True)
         self.menu.set_ignore(ignore)
@@ -445,6 +471,33 @@ class BaseLibraryState(State):
         if self.display:
             self.display.draw(surf)
         return surf
+
+class BaseGuideState(BaseLibraryState):
+    name = 'base_guide'
+
+    def start(self):
+        self.bg = game.memory.get('base_bg', None)
+        if not self.bg:
+            panorama = RESOURCES.panoramas.get('default_background')
+            self.bg = background.ScrollingBackground(panorama)
+            self.bg.scroll_speed = 50
+
+        unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore and lore.category == 'Guide']
+        self.categories = ["Guide"]
+
+        topleft = 4, 4
+        self.options = unlocked_lore
+        self.menu = menus.Choice(None, self.options, topleft=topleft, background='menu_bg_brown')
+        self.menu.shimmer = 3
+        self.menu.gem = 'brown'
+        self.menu.set_limit(9)
+        self.menu.set_hard_limit(True)
+
+        self.display = LoreDisplay()
+        self.display.update_entry(self.menu.get_current().nid)
+
+        game.state.change('transition_in')
+        return 'repeat'
 
 class BaseRecordsState(State):
     name = 'base_records'

@@ -205,6 +205,11 @@ class OptionMenuState(MapState):
         options.append('End')
         info_desc.append('End_desc')
         ignore.append(False)
+        unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore and lore.category == 'Guide']
+        if unlocked_lore:
+            options.insert(2, 'Guide')
+            info_desc.insert(2, 'Guide_desc')
+            ignore.insert(2, False)
         if DB.constants.get('turnwheel').value:
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
@@ -254,6 +259,9 @@ class OptionMenuState(MapState):
                         battle_save()
             elif selection == 'Objective':
                 game.memory['next_state'] = 'objective_menu'
+                game.state.change('transition_to')
+            elif selection == 'Guide':
+                game.memory['next_state'] = 'base_guide'
                 game.state.change('transition_to')
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'

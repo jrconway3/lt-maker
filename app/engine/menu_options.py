@@ -406,7 +406,7 @@ class LoreOption(BasicOption):
         self.display_text = text_funcs.translate(self.text)
 
     def width(self):
-        return 68
+        return 84
 
     def height(self):
         return 16

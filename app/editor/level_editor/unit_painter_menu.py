@@ -264,7 +264,8 @@ class InventoryDelegate(QStyledItemDelegate):
         faction = DB.factions.get(unit.faction)
         if faction:
             pixmap = faction_model.get_pixmap(faction)
-            pixmap = pixmap.scaled(24, 24, Qt.KeepAspectRatio)
+            if pixmap:
+                pixmap = pixmap.scaled(24, 24, Qt.KeepAspectRatio)
             group = ''
             if unit.ai_group:
                 group = '-' + str(unit.ai_group)
@@ -272,7 +273,8 @@ class InventoryDelegate(QStyledItemDelegate):
             font = QApplication.font()
             fm = QFontMetrics(font)
             left = rect.left() + 48 + fm.width(text)
-            painter.drawImage(left, rect.center().y() - 24//2 + 2, pixmap.toImage())
+            if pixmap:
+                painter.drawImage(left, rect.center().y() - 24//2 + 2, pixmap.toImage())
 
         items = unit.starting_items
         for idx, item in enumerate(items):

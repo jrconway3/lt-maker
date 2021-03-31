@@ -18,7 +18,7 @@ class Dialog():
     transition_speed = 166  # 10 frames
     pause_time = 150  # 9 frames
 
-    aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}')
+    aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}', '{green}', '{/green}')
 
     def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None, variant=None):
         self.plain_text = text
@@ -219,7 +219,7 @@ class Dialog():
         elif command == ' ':  # Check to see if we should move to next line
             current_line = ''.join(self.text_lines[-1])
             # Remove any commands from line
-            current_line = re.sub(r'\{[^}]*\}', ' ', current_line)
+            current_line = re.sub(r'\{[^}]*\}', '', current_line)
             next_word = self._get_next_word(self.text_index)
             if self.font.width(current_line + ' ' + next_word) > self.text_width:
                 self._next_line()
@@ -238,8 +238,10 @@ class Dialog():
     def _get_next_word(self, text_index):
         word = ''
         for letter in self.text_commands[self.text_index + 1:]:
-            if letter == ' ' or len(letter) > 1:  # Command
+            if letter == ' ':
                 break
+            elif len(letter) > 1:  # Command
+                continue
             else:
                 word += letter
         return word
@@ -316,7 +318,9 @@ class Dialog():
                     current_color = 'black'
                 elif char == '{white}':
                     current_color = 'white'
-                elif char in ('{/red}', '{/black}', '{/white}'):
+                elif char == '{green}':
+                    current_color = 'green'
+                elif char in ('{/red}', '{/black}', '{/white}', '{/green}'):
                     current_color = self.font_color
                 # Create new chunk
                 chunks.append(current_chunk)

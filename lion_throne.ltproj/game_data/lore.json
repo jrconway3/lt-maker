@@ -70,13 +70,6 @@
         "text": "A sarcastic and moody soldier who struggles with an inferiority complex."
     },
     {
-        "nid": "Coyote",
-        "name": "Coyote",
-        "title": "Coyote",
-        "category": "Character",
-        "text": "A quiet, brooding man with a mysterious past. Works undercover for the Confederacy."
-    },
-    {
         "nid": "Kayla",
         "name": "Kayla",
         "title": "Kayla",
@@ -84,11 +77,18 @@
         "text": "A mage in the employ of the Confederacy of Free Cities. Currently serving as the Confederacy's liason to the Resistance. Manipulative but oddly romantic."
     },
     {
-        "nid": "Ulver",
-        "name": "Ulver",
-        "title": "Duke Ulver",
+        "nid": "Coyote",
+        "name": "Coyote",
+        "title": "Coyote",
         "category": "Character",
-        "text": "Second only to the Empress herself, Ulver rules the Empire's colony of Kerala with an iron fist. He is strong-willed and stubborn, but extremely loyal to the Empire."
+        "text": "A quiet, brooding man with a mysterious past. Works undercover for the Confederacy."
+    },
+    {
+        "nid": "Kiley",
+        "name": "Kiley",
+        "title": "Captain Kiley",
+        "category": "Character",
+        "text": "A wandering legend, more myth than man. Although raised in a pirate famility, Kiley wanted nothing to do with the sea. Instead he led his crew inland, raiding mountain towns and valley hamlets alike. His storied accomplishments and odd mannerisms have led him the epithet, the \"Kiley the Land Pirate\"."
     },
     {
         "nid": "Vagnius",
@@ -98,11 +98,32 @@
         "text": "Duke Ulver's right-hand man. However, Vagnius harbors aspirations of his own. Conniving and ambitious, he is willing to do anything to achieve his goals."
     },
     {
+        "nid": "Ulver",
+        "name": "Ulver",
+        "title": "Duke Ulver",
+        "category": "Character",
+        "text": "Second only to the Empress herself, Ulver rules the Empire's colony of Kerala with an iron fist. He is strong-willed and stubborn, but extremely loyal to the Empire."
+    },
+    {
         "nid": "Kerala",
         "name": "Kerala",
         "title": "Kerala",
         "category": "Nation",
-        "text": "Kerala was once an independant, peaceful nation of poets and philosophers, ruled by the benevolent Lion King. When the Empire attacked, the reigning King, Akilees, surrendered without a fight. Now Kerala is merely another colony of the Empire."
+        "text": "Kerala was once an independant, peaceful nation of poets and philosophers, ruled by the benevolent Lion King. When the Empire attacked, the reigning King surrendered without a fight. Now Kerala is merely another colony of the Empire."
+    },
+    {
+        "nid": "Empire",
+        "name": "Empire",
+        "title": "The Empire",
+        "category": "Nation",
+        "text": "Once small but fiercely militaristic, the Empire began conquering other nearby nations for resources. Now a large and powerful nation, the Empire's only remaining adversary on the continent is the Confederacy of Free States."
+    },
+    {
+        "nid": "CFS",
+        "name": "CFS",
+        "title": "Confederacy of Free States",
+        "category": "Nation",
+        "text": "A league of independent nations which have banded together for their own survival against the encroach of the warmongering Empire. However, they are plagued by internal diplomatic strife, as various factions wrest for control of the league."
     },
     {
         "nid": "Podoma",
@@ -122,28 +143,105 @@
         "nid": "Tyrana",
         "name": "Tyrana",
         "title": "Tyrana",
-        "category": "Character",
+        "category": "Location",
         "text": "Near the foreboding, snowy peaks of the Ghat mountains lies the Tyrana prison. Run by the cruel warden Razia, it houses the political prisoners of the Empire, who are forced to work in the mines."
     },
     {
-        "nid": "Empire",
-        "name": "Empire",
-        "title": "The Empire",
-        "category": "Nation",
-        "text": "Once small but fiercely militaristic, the Empire began conquering other nearby nations for resources. Now a large and powerful nation, the Empire's only remaining adversary on the continent is the Confederacy of Free States."
+        "nid": "Enemy Phase Doubling",
+        "name": "Def Doubling",
+        "title": "Enemy Phase Doubling",
+        "category": "Guide",
+        "text": "While attacking, units will {red}double{/red} when they have {green}4{/green} or more attack speed than their opponent.{br}While defending, units are unable to double, no matter their attack speed."
     },
     {
-        "nid": "CFS",
-        "name": "CFS",
-        "title": "Confederacy of Free States",
-        "category": "Character",
-        "text": "A league of independent nations which have banded together for their own survival against the encroach of the warmongering Empire. However, they are plagued by internal diplomatic strife, as various factions wrest for control of the league."
+        "nid": "Magic",
+        "name": "Magic",
+        "title": "Magic",
+        "category": "Guide",
+        "text": "Magic behaves differently in the Lion Throne. There are three types of magic:{br}    Light magic{br}    Anima magic{br}    Dark magic\nLight magic has healing and other buffs. Anima magic has AOE spells. Dark magic has long-range damage and debuffs.{br}Light > Anima > Dark > Light."
     },
     {
-        "nid": "Kiley",
-        "name": "Kiley",
-        "title": "Captain Kiley",
+        "nid": "Magic Wards",
+        "name": "Magic Wards",
+        "title": "Magic Wards",
+        "category": "Guide",
+        "text": "Mages can wield two kinds of tomes, wards and spells.{br}Wards behave like normal weapons, although they do not have any weapon weight.\nThey are good for dealing damage in both player and enemy phase.{br}All wards have \"Ward\" in their name. "
+    },
+    {
+        "nid": "Magic Spells",
+        "name": "Magic Spells",
+        "title": "Magic Spells",
+        "category": "Guide",
+        "text": "Mages can wield two kinds of tomes, wards and spells.{br}Spells can do many different things, but only on player phase.\nIf a unit is attacked on enemy phase, they will switch to the first available ward in their inventory.{br}If they do not have a ward, they will be unable to counterattack."
+    },
+    {
+        "nid": "Turnwheel",
+        "name": "Turnwheel",
+        "title": "Turnwheel",
+        "category": "Guide",
+        "text": "The Lion Throne gives you access to the {red}Turnwheel{/red}. This command allows you to rewind time and retry your strategy if the first time didn't go according to plan.{br}Each chapter you clear grants an additional turnwheel charge."
+    },
+    {
+        "nid": "Bows",
+        "name": "Bows",
+        "title": "Bows",
+        "category": "Guide",
+        "text": "All bows have 2-3 range at base. This allows bow users to outrange all other 1-2 range weapons. "
+    },
+    {
+        "nid": "Skills",
+        "name": "Skills",
+        "title": "Skills",
+        "category": "Guide",
+        "text": "All members of a class share the same set of skills.{br}Skills are gained at level {green}1{/green} and {green}5{/green} for base classes, and level {green}5{/green} for promoted classes. "
+    },
+    {
+        "nid": "Feats",
+        "name": "Feats",
+        "title": "Feats",
+        "category": "Guide",
+        "text": "Your characters will also get the ability to choose a feat upon reaching certain levels.{br}Level {green}8{/green} for base classes and level {green}3{/green} and {green}8{/green} for promoted classes.{br}Feats allow you to choose a permanent bonus to a stat, like STR +2 or SKL +3."
+    },
+    {
+        "nid": "Combat Arts",
+        "name": "Combat Arts",
+        "title": "Combat Arts",
+        "category": "Guide",
+        "text": "Certain skills are combat arts rather than passive bonuses.{br}These can be activated by their user when fully charged, and will modify their next attack.\nCombat arts start uncharged, and gain charge equal to their user's {green}SKL{/green} whenever their user is in combat, whether attacking or not."
+    },
+    {
+        "nid": "Promotion",
+        "name": "Promotion",
+        "title": "Promotion",
+        "category": "Guide",
+        "text": "Your characters will automatically promote when they would reach level {green}11{/green}.{br}No promotion items needed."
+    },
+    {
+        "nid": "Exp Curve",
+        "name": "Exp Curve",
+        "title": "Exp Curve",
+        "category": "Guide",
+        "text": "The Lion Throne features a different experience curve than other games, which makes training underleveled units easier.{br}It is highly recommended to train ALL your units."
+    },
+    {
+        "nid": "Escape",
+        "name": "Escape",
+        "title": "Escape",
+        "category": "Guide",
+        "text": "Some chapters will have the \"Escape\" objective.{br}This requires {red}ALL{/red} your units to reach the escape point - the yellow highlighted tile - though in no particular order."
+    },
+    {
+        "nid": "Unarmed Combat",
+        "name": "Unarmed",
+        "title": "Unarmed Combat",
+        "category": "Guide",
+        "text": "Don't! Units will suffer 2x weapon disadvantage in combat while unarmed."
+    },
+    {
+        "nid": "Party Size",
+        "name": "Party Size",
+        "title": "Party Size",
         "category": "Character",
-        "text": "A wandering legend, more myth than man. Although raised in a pirate famility, Kiley wanted nothing to do with the sea. Instead he led his crew inland, raiding mountain towns and valley hamlets alike. His storied accomplishments and odd mannerisms have led him the epithet, the \"Kiley the Land Pirate\"."
+        "text": "In addition to the required units, you must also make sure that you don't lose too many units in your party.{br}You can check the required minimum number of units in the \"Objective\" menu."
     }
 ]

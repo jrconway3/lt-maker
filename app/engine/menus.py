@@ -207,10 +207,9 @@ class Simple():
                     self.scroll += 1
                 else:
                     self.cursor.y_offset -= 1
-        if self.hard_limit:
-            self.scroll = 0
-        elif self.limit < len(self.options):
+        if self.limit < len(self.options):
             self.scroll = min(len(self.options) - self.limit, self.scroll)
+        return first_push or self.current_index < len(self.options) - 1
 
     def move_up(self, first_push=True):
         if first_push:
@@ -229,10 +228,8 @@ class Simple():
                     self.scroll -= 1
                 else:
                     self.cursor.y_offset += 1
-        if self.hard_limit:
-            self.scroll = 0
-        else:
-            self.scroll = max(0, self.scroll)
+        self.scroll = max(0, self.scroll)
+        return first_push or self.current_index > 0
 
     def update_options(self, options=None):
         if options is not None:
@@ -364,44 +361,48 @@ class Choice(Simple):
 
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):
-            return  # Skip
+            return False  # Skip
 
+        did_move = False
         if first_push:
-            super().move_down(True)
+            did_move = super().move_down(True)
             while self.options[self.current_index].ignore:
                 self.cursor.y_offset = 0  # Reset y offset
-                super().move_down(True)
+                did_move = super().move_down(True)
             if self.get_current_option() == self.get_first_option():
                 self.cursor.y_offset = 0
         else:
             if any(not option.ignore for option in self.options[self.current_index+1:]):
-                super().move_down(False)
+                did_move = super().move_down(False)
                 while self.options[self.current_index].ignore:
-                    super().move_down(False)
+                    did_move = super().move_down(False)
                     
         if self.horizontal:
             self.cursor.y_offset = 0
+        return did_move
 
     def move_up(self, first_push=True):
         if all(option.ignore for option in self.options):
-            return  # Skip
+            return False  # Skip
 
+        did_move = False
         if first_push:
-            super().move_up(True)
+            did_move = super().move_up(True)
             while self.options[self.current_index].ignore:
                 self.cursor.y_offset = 0
-                super().move_up(True)
+                did_move = super().move_up(True)
             if self.get_current_option() == self.get_last_option():
                 self.cursor.y_offset = 0
 
         else:
             if any(not option.ignore for option in self.options[:self.current_index]):
-                super().move_up(False)
+                did_move = super().move_up(False)
                 while self.options[self.current_index].ignore:
-                    super().move_up(False)
+                    did_move = super().move_up(False)
 
         if self.horizontal:
             self.cursor.y_offset = 0
+        return did_move
 
     def create_bg_surf(self):
         if not self.background:
@@ -416,7 +417,10 @@ class Choice(Simple):
             surf = engine.create_surface((bg_surf.get_width() + 2, bg_surf.get_height() + 4), transparent=True)
             surf.blit(bg_surf, (2, 4))
             if self.gem:
-                surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
+                if self.gem == 'brown':
+                    surf.blit(SPRITES.get('menu_gem_brown'), (0, 0))
+                else:
+                    surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
             if self.shimmer != 0:
                 sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
                 surf.blit(sprite, (surf.get_width() - 1 - sprite.get_width(), surf.get_height() - 5 - sprite.get_height()))
@@ -465,7 +469,9 @@ class Choice(Simple):
         bg_surf = self.create_bg_surf()
         surf.blit(bg_surf, (topleft[0] - 2, topleft[1] - 4))
 
+        draw_scroll_bar = False
         if len(self.options) > self.limit:
+            draw_scroll_bar = True
             self.draw_scroll_bar(surf, topleft)
 
         start_index = self.scroll
@@ -479,7 +485,7 @@ class Choice(Simple):
                 left = topleft[0]
 
                 if self.highlight and idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top, menu_width)
+                    choice.draw_highlight(surf, left, top, menu_width - 16 if draw_scroll_bar else menu_width)
                 # elif self.highlight and idx + self.scroll == self.fake_cursor_idx:
                     # choice.draw_highlight(surf, left, top, menu_width)
                 else:
@@ -1052,7 +1058,10 @@ class Table(Simple):
         surf = engine.create_surface((bg_surf.get_width() + 2, bg_surf.get_height() + 4), transparent=True)
         surf.blit(bg_surf, (2, 4))
         if self.gem:
-            surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
+            if self.gem == 'brown':
+                surf.blit(SPRITES.get('menu_gem_brown'), (0, 0))
+            else:
+                surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
         if self.shimmer != 0:
             sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
             surf.blit(sprite, (surf.get_width() - sprite.get_width() - 1, surf.get_height() - sprite.get_height() - 5))
@@ -1064,7 +1073,9 @@ class Table(Simple):
         bg_surf = self.create_bg_surf()
         surf.blit(bg_surf, (topleft[0] - 2, topleft[1] - 4))
 
+        draw_scroll_bar = False
         if len(self.options) > self.rows * self.columns:
+            draw_scroll_bar = True
             self.draw_scroll_bar(surf, topleft)
 
         start_index = self.scroll * self.columns
@@ -1081,9 +1092,9 @@ class Table(Simple):
                     left += 16
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top, width)
+                    choice.draw_highlight(surf, left, top, width - 16 if draw_scroll_bar else width)
                 elif idx + (self.scroll * self.columns) == self.fake_cursor_idx:
-                    choice.draw_highlight(surf, left, top, width)
+                    choice.draw_highlight(surf, left, top, width - 16 if draw_scroll_bar else width)
                 else:
                     choice.draw(surf, left, top)
                 if idx + (self.scroll * self.columns) == self.fake_cursor_idx:

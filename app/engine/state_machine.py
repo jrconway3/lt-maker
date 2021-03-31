@@ -108,6 +108,7 @@ class StateMachine():
              'base_convos_child': base.BaseConvosChildState,
              'base_codex_child': base.BaseCodexChildState,
              'base_library': base.BaseLibraryState,
+             'base_guide': base.BaseGuideState,
              'base_records': base.BaseRecordsState,
              'debug': debug_mode.DebugState,
              }

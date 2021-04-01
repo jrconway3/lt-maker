@@ -79,6 +79,7 @@ class MapEditorView(QGraphicsView):
         self.tilemap = None
 
         self.current_mouse_position = (0, 0)
+        self.old_middle_pos = None
 
         self.left_selecting = False
         self.right_selecting = False
@@ -387,6 +388,8 @@ class MapEditorView(QGraphicsView):
                 self.right_selecting = tile_pos
                 self.right_selection.clear()
                 self.window.void_tileset_selection()
+        elif event.button() == Qt.MiddleButton:
+            self.old_middle_pos = event.pos()
 
     def mouseMoveEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -408,6 +411,12 @@ class MapEditorView(QGraphicsView):
                     self.erase_tile(tile_pos)
         elif self.right_selecting:
             self.find_coords()
+        elif event.buttons() & Qt.MiddleButton:
+            offset = self.old_middle_pos - event.pos()
+            self.old_middle_pos = event.pos()
+
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + offset.y())
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + offset.x())
 
     def mouseReleaseEvent(self, event):
         scene_pos = self.mapToScene(event.pos())

@@ -49,6 +49,8 @@ class SimpleMapView(QGraphicsView):
         self.current_mouse_pos = None
         self.region_select = None
 
+        self.old_middle_pos = None
+
     def center_on_pos(self, pos):
         self.centerOn(pos[0]*TILEWIDTH, pos[1]*TILEHEIGHT)
         self.update_view()
@@ -122,6 +124,9 @@ class SimpleMapView(QGraphicsView):
             else:
                 self.position_clicked.emit(*pos)
                 self.position_clicked_float.emit(*pos_float)
+
+        if event.button() == Qt.MiddleButton:
+            self.old_middle_pos = event.pos()
                 
     def mouseDoubleClickEvent(self, event):
         super().mouseDoubleClickEvent(event)
@@ -144,6 +149,13 @@ class SimpleMapView(QGraphicsView):
             self.current_mouse_pos = pos
         else:
             self.position_moved.emit(-1, -1)
+
+        if event.buttons() & Qt.MiddleButton:
+            offset = self.old_middle_pos - event.pos()
+            self.old_middle_pos = event.pos()
+
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + offset.y())
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + offset.x())
 
     def zoom_in(self):
         if self.screen_scale < self.max_scale:

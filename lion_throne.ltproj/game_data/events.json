@@ -4154,6 +4154,36 @@
         "priority": 20
     },
     {
+        "name": "FightRazia",
+        "trigger": "combat_start",
+        "level_nid": "6",
+        "condition": "check_default('Razia', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Razia",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Razia",
+                    "Hmmph. What incompetents.|To the death then..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Razia"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
         "name": "FightHarold",
         "trigger": "combat_start",
         "level_nid": "3",
@@ -4354,6 +4384,26 @@
                 "comment",
                 [
                     "# Win game on Brigham's death"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "WinGame",
+        "trigger": "combat_end",
+        "level_nid": "6",
+        "condition": "game.check_dead('Razia')",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Win game on Razia's death"
                 ]
             ],
             [
@@ -4621,6 +4671,50 @@
         "name": "PartyLose",
         "trigger": "combat_end",
         "level_nid": "5",
+        "condition": "len(game.get_units_in_party()) < 5",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Lose game when party size falls below three"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "You have lost too many members of your party."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 15
+    },
+    {
+        "name": "PartyLose",
+        "trigger": "combat_end",
+        "level_nid": "6",
         "condition": "len(game.get_units_in_party()) < 5",
         "commands": [
             [
@@ -13635,30 +13729,18 @@
                 ]
             ],
             [
-                "add_unit",
+                "give_item",
                 [
                     "{unit}",
-                    "0,0",
-                    "",
-                    "closest"
+                    "Steel Axe",
+                    "no_banner"
                 ]
             ],
             [
-                "make_generic",
-                [
-                    "",
-                    "Brigand",
-                    "game.turncount - 4",
-                    "enemy",
-                    "Pursue",
-                    "Bandit"
-                ]
-            ],
-            [
-                "give_skill",
+                "give_item",
                 [
                     "{unit}",
-                    "Void_Curse",
+                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -13687,6 +13769,66 @@
                 [
                     "{unit}",
                     "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Steel Axe",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Hand Axe",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "0,0",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Brigand",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Bandit"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Steel Axe",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -13743,6 +13885,22 @@
                 ]
             ],
             [
+                "give_item",
+                [
+                    "{unit}",
+                    "Steel Axe",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Hand Axe",
+                    "no_banner"
+                ]
+            ],
+            [
                 "add_unit",
                 [
                     "{unit}",
@@ -13767,6 +13925,22 @@
                 [
                     "{unit}",
                     "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Steel Axe",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -13799,10 +13973,434 @@
                 ]
             ],
             [
+                "give_item",
+                [
+                    "{unit}",
+                    "Steel Axe",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Hand Axe",
+                    "no_banner"
+                ]
+            ],
+            [
                 "add_unit",
                 [
                     "{unit}",
                     "16,16",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Infinite",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "16 <= game.turncount <= 19",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "0,27"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Summon two knights from the left"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Knight",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Mithril Lance",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Short Spear",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "0,26",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Knight",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Mithril Lance",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Short Spear",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "0,27",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "24,27"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Summon two knights from the right"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Knight",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Mithril Lance",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Short Spear",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "24,26",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Knight",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Mithril Lance",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Short Spear",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "24,27",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "6,36"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Summon two mages from the left"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Mage",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Wind",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "6,36",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Mage",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Wind",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "7,36",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "18,36"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Summon two mages from the right"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Mage",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Wind",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "17,36",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Mage",
+                    "game.turncount - 4",
+                    "enemy",
+                    "Pursue",
+                    "Guard"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Wind",
+                    "no_banner"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "18,36",
                     "",
                     "closest"
                 ]
@@ -16894,11 +17492,40 @@
                 ]
             ],
             [
+                "if",
+                [
+                    "self.unit.team == 'enemy'"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "{unit}",
+                    "Escape"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Diamond",
+                    "droppable"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
                 "give_item",
                 [
                     "{unit}",
                     "Diamond"
                 ]
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,
@@ -16917,11 +17544,40 @@
                 ]
             ],
             [
+                "if",
+                [
+                    "self.unit.team == 'enemy'"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "{unit}",
+                    "Escape"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Restore",
+                    "droppable"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
                 "give_item",
                 [
                     "{unit}",
                     "Restore"
                 ]
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,
@@ -16940,11 +17596,40 @@
                 ]
             ],
             [
+                "if",
+                [
+                    "self.unit.team == 'enemy'"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "{unit}",
+                    "Escape"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Physic",
+                    "droppable"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
                 "give_item",
                 [
                     "{unit}",
                     "Physic"
                 ]
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,
@@ -17443,6 +18128,2409 @@
                 "alert",
                 [
                     "The Guide has been updated!"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn3",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "game.turncount == 3",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "0,26"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l31",
+                    "0,26"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l32",
+                    "0,27"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "24,26"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r31",
+                    "24,26"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r32",
+                    "24,27"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn4",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "game.turncount == 4",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "0,26"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l41",
+                    "0,26"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l42",
+                    "0,27"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "24,26"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r41",
+                    "24,26"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r42",
+                    "24,27"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn10",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "game.turncount == 10",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "6,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "lt1",
+                    "6,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "18,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "rt1",
+                    "18,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 19
+    },
+    {
+        "name": "LineCross1",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "any(unit.position[1] < 10 for unit in game.units if unit.position and unit.team == 'player')",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "line_cross",
+                    "game.turncount"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "6,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l71",
+                    "5,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l72",
+                    "7,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "18,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r71",
+                    "17,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r72",
+                    "19,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "LineCross2",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "game.turncount == game.level_vars['line_cross'] + 1",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "6,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l81",
+                    "5,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l82",
+                    "7,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "18,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r81",
+                    "17,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r82",
+                    "19,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "LineCross3",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "game.turncount == game.level_vars['line_cross'] + 2",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "6,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l91",
+                    "5,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "l92",
+                    "7,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "18,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r91",
+                    "17,0"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "r92",
+                    "19,0"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "6",
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Make sure we set this to something that can't be reached"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "line_cross",
+                    "-100"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_max_turnwheel_uses",
+                    "6"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_current_turnwheel_uses",
+                    "6"
+                ]
+            ],
+            [
+                "add_weather",
+                [
+                    "Snow"
+                ]
+            ],
+            [
+                "add_lore",
+                [
+                    "Tyrana"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Javelin"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Hand Axe"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Flux"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Nyx"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Scathe"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Mend"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Oak Bow"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Longbow"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Shine"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Sam",
+                    "Coyote"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Ophie",
+                    "Coyote"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Kayla",
+                    "Coyote"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Sam",
+                    "Kiley"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Renae') and game.check_alive('Drake')"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Guard Duty"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Kayla')"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Cipher"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Theo') and game.game_vars['noir'] >= 2"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Theo Sphinx, Pt. III"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# Show room"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "TacticsRoom"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Sam",
+                    "7,2"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "12,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Prim",
+                    "10,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Theo",
+                    "10,9"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Renae",
+                    "2,9"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Drake",
+                    "5,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Joel",
+                    "9,7"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Althea",
+                    "3,6"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Nia",
+                    "13,9"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Eliza",
+                    "5,9"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoomDay"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Sam",
+                    "Right",
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Kayla",
+                    "OffscreenLeft",
+                    "immediate"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Good morning...|I trust everyone had a good night's sleep?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Aye, aye, Captain."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Kayla arrives"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Kayla",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Just wandering in Kayla?|Welcome to the land of the living."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Ah, buzz off, Sam.|You all live in a cave!|A dank, smelly, cave!|How's a lady supposed to get her beauty sleep with these...{w}these...|horrid accoutrements!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Alright, we've all heard your gripes.|If everyone would settle down, we could get down to business.|Our next mission is our most important one yet."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Don't you say that everytime, Sam?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hmmm... Do I?|Well, anyway, this time I mean it.|The Resistance has so far achieved success through stealth.|However, we're never going to drive the Empire out with mere subterfuge.|We need to be able to match the Empire's might on the battlefield."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "But how... They have an army..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "That's why we're getting an army of our own."
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Sam",
+                    "MidRight"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I like where this is going."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Kayla, your Confederacy of Free States will help?|They have an army, right?"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Pah... We'd just be trading one empire for another."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "No... the Confederacy wants to remain hands off for now."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Then where do you intend to find an army?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I'm sure everyone here has heard of Tyrana Prison."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Uh-huh..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Althea"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Prim",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Prim",
+                    "Tyrana prison...|What's that?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Monks don't get out much, do they?{w}{clear}Anyway, Tyrana Prison is a brutal work camp.|Political prisoners and other dissidents are forced to labor in the mines."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "We're going to break those prisoners out.|They'll form the backbone of our revolutionary army."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Prim"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "It sure is... ambitious, Captain.|Do ya reckon' we can pull it off?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "We don't have a choice. Subterfuge can only get us so far.|We need to raise an army, and these prisoners are our best bet.|They hate the Empire as much as we do."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Do we have any more info?|I don't want to go in blind."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "The Confederacy has been watching the area.|There's a secret passage that leads straight into the prison's heart.|Once there, we do what we can to foment a prison riot."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hmmm..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "If there are no more questions, then everyone gear up.|We're going straight into the heart of Imperial territory..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Ophie",
+                    "Sam",
+                    "Kayla"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "base",
+                [
+                    "MainBase",
+                    "The Journey to the West"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Intro"
+                ]
+            ],
+            [
+                "chapter_title",
+                []
+            ],
+            [
+                "music",
+                [
+                    "Sootballs"
+                ]
+            ],
+            [
+                "arrange_formation",
+                []
+            ],
+            [
+                "add_lore",
+                [
+                    "Coyote"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Ophie",
+                    "immediate"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Wastes"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "There's the prison."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive(\"Theo\")"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Theo",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Foreboding..."
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "gameStateObj.check_alive(\"Joel\")"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "At least it'll be warmer inside. I'm f-freezing!"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Theo",
+                    "Joel"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Kayla",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Before we make our way in, a heads-up.|The Confederacy has a man on the inside, posing as a prisoner.|He goes by the code name 'Coyote'.|But we lost contact with him.|They must've have tightened up security.|Honestly, he's probably dead."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "But if he's still around, he could be a valuable resource."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "We'll keep that in mind.{w}{clear}Our objective is to incapacitate the warden.|If we can take out their chain of command, the rest of the prison should follow."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Okay, everyone, hush!|We're nearing the passage. I'll take it from here."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Kayla",
+                    "Renae"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Castle"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Ophie",
+                    "FarLeft",
+                    "Renae",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Well, we haven't been caught yet..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Of course we haven't! I'm really good at this kind of thing."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I didn't mean to--"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "MidLeft",
+                    "mirror"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Shhh, shh.|We're almost there!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Gulp."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Ah, perfect.|We made it, everyone.|No need for congratulations, tips are fine--"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "SoldierRed",
+                    "OffscreenLeft",
+                    "immediate"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "SoldierRed",
+                    "Wee-oh, wee-oh, wee-oh!!!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "SoldierRed",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "You were saying?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "No time for questions, Sam!|We've been spotted!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Renae",
+                    "Ophie"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "prep",
+                [
+                    "f",
+                    "Preparing for Battle"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Theo Sphinx, Pt. III",
+        "trigger": "on_base_convo",
+        "level_nid": "6",
+        "condition": "unit == 'Theo Sphinx, Pt. III'",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Episode 3"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Jazz Noir"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoomDay"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Theo",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "It was raining.|Hard, drumming, pounding rain.|The kind of rain you'd hope would clean the filth right off the streets.|Sam \"Snake Eyes\" Alhara was waiting outside the station.|Well, not all our wishes can come true.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "What is it Theo?|I'm kind of busy here...|Our next raid is quite important."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Sam was a cool customer, with a face made for radio.|An old partner of mine, but we'd drifted apart since I left the force.|Too bad he was my only lead on this one.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Prim's missing tome?|Really, Theo?|Don't you think this could wait?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "I could tell he was hiding something.|Sam's the kind of guy who'd jump at the chance to prove himself to the force.|Kissing the commissioner's ass was half his job description these days.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Well, maybe the Empire's managed to infiltrate us after all?|This isn't good..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Please. Don't make me laugh."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "You'd have figured Sam would've had some smarts,|since he surely hadn't graduated the academy on his looks.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "This is not the way the Empire would've done it.|It was somebody on the inside, Sam!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "But, who would've taken Prim's tome...|Did you talk to Renae?|Or you could try Nia, she's perceptive, if you can get her to talk.|Anyway, I've got work to do..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Clearly, Sam was not going to be any more help.|He didn't know a thing--|no surprise.|After I roughed him up a bit, he made like a rat on a sinking ship and bailed.|But I had one more lead, and I was going to make it count.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Theo"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Theo Sphinx, Pt. III"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "noir",
+                    "3"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Guard Duty",
+        "trigger": "on_base_convo",
+        "level_nid": "6",
+        "condition": "unit == 'Guard Duty",
+        "commands": [
+            [
+                "music",
+                [
+                    "Brave Story - Hare"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Cave"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Renae",
+                    "Left"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Drake",
+                    "OffscreenRight",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Drake",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Hey!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Drake",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Ah!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Not so fast there, stranger!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Huh? Miss, are you addressing me?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "You bet! Mister red-haired stranger man--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "The name's Drake."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Right. Blake--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Drake."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "You can't come in unless you know the password."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Password?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "This is the Resistance base, y'know, and we can't have just anybody walk in!|That's why Sam entrusted me with guarding the entrance!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "But... I don't know the password."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Then, Hank, you're out of luck!|Come back another day!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "I swear on my knightly honor that I am a full-fledged member of the Resistance."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "You sure about that, Nate?|'Cause I think I would recognize a member of the Resistance."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "It's Drake, and also I'm quite sure.|Don't you remember when we attacked Fort Kosheen?|I held off those guards."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Hmm... Nothing's coming to me."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "I was also present when we disrupted that Imperial weapon shipment."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "You're wasting my time, Frank.|I think I would remember some tough looking red-haired dude, don't you?|You're not exactly easy to miss."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Urgh! I don't have the patience for this.|Just... go retrieve Sam or Althea!|They'll vouch for me."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Woah, now.|Don't get all bent out of shape, Drew.|I finally figured it all out!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Really?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Yep! You're Althea's boyfriend!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "What! No!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Now you're just confusing me, Mike.|Are you Althea's boyfriend or not?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "No. I mean... Urgh!|I am Althea's pledged guardian!|But we're not in a romantic relationship!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "So, its more of a friends with benefits thing? I like it!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "Urgh!!!|Please. No more, Renae.|I can't handle it. Just let me in."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Heehee! I'm just pulling your leg, Pate."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "What? This was all a practical joke?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Yep!|Like Sam would ever assign ME guard duty!|He'd have to be out of his mind!|Hahaha!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Renae"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Drake",
+                    "..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Drake"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Guard Duty"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Cipher",
+        "trigger": "on_base_convo",
+        "level_nid": "6",
+        "condition": "unit == 'Cipher'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Hum of the Streets"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "GenericRoom"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Kayla",
+                    "Left",
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Kayla? You done packing?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Done packing?|Dear, I haven't even started."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "What! But we're leaving in less than an hour!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Tsk Tsk. Don't you worry, Sam.|I'll be ready.|Here, sit down with me.|Maybe you can help me decipher this tome?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "...|Hmmm... You sure this is even magical?|I don't recognize any of these words..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "I'm certain. Can't you sense the aura?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "You know I've no talent for that.|Anyway, I think I do recognize some of this script.|Here. Move over."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Kayla",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "This section is total gibberish, but this right here.|It almost looks like a legend or guide."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "You're thinking it's encoded?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Exactly."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Take a look at this pattern.|This symbol shows up all over the place."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hmmm... Maybe its the key?|It shows up on page two, three, five, seven, eleven...|...|Primes!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Primes? You sure?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Try it.|Read only the prime characters on the page."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Gebo...{w}Naudiz...{w}Fehu...{w}Ehwaz..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "It is a spell! And powerful too!{w}{clear}Oh, thank you, Sam! I knew I could count on you!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eliza",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Get a room, nerds!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eliza"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Mind your own business, girl!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eliza",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Also, hurry up!|We don't have all day!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eliza"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Ah... Seems I let the time get ahead of me."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Tsk Tsk. Time enjoyed is never time wasted.|Thanks for your help, dearest."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No problem.|It's not everyday someone shares my fascination with the magical arts..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "And it's not everyday a spell's cipher is solved that quickly, handsome.|Now be on your way.|A lady needs time to prepare."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Kayla"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Kayla",
+                    "Disintegrate",
+                    "no_choice"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Cipher"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "6",
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# OutroScript"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Main Prison Leader is Kiley. Speaks like a pirate"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Coyote is recruited if not already"
+                ]
+            ],
+            [
+                "victory_screen",
+                []
+            ],
+            [
+                "music",
+                [
+                    "Wild Arms Town"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Coyote')"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Coyote",
+                    "player"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "change_background",
+                [
+                    "Wastes"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Sam",
+                    "FarLeft",
+                    "Kayla",
+                    "MidLeft",
+                    "Kiley",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Thanks for agreeing to meet with us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "Heh! Your crew certainly got the warden good.|Least I could do is show my proper 'preciation."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Could've stuck around for the fight..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Kayla..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "But now that you've me and my boys, what would you have us do?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "How many do you number?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "I ain't normally one for 'rithmetic, but if I had to take a gander...|Maybe four or five hundred."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "So, I would guess you don't harbor any love for the Empire?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "You pulling my leg?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Uh... Well we can't induct all of your...{w}crew into the Resistance.|You're too many."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "But with this many at our back,|the Resistance could finally fight toe to toe with Duke Ulver's army."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "Hmmph! Me and my boys ain't exactly subtle, y'know."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Well, the Confederacy has prepared a hiding place for such an eventuality.|We can keep your crew hidden.|You'll be a reserve for when the Resistance needs the firepower."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Kiley, if you agree,|you'll be in charge of the Revolutionary Army of Kerala.|A force to fight the Empire when and where it is needed most."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "Aye...|Commander of an army....|Sounds like a lot of responsibilities...{w}{clear}But, if me country needs me, what can I say?|Plus me boys wouldn't know what to do without me.|Joinin' the military might do 'em some good."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Great!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Kiley",
+                    "FarRight"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Coyote",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Coyote, you'll be coming with us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "Eh?|Coyote's me first mate!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Awww. I didn't know you two were so close!|But seriously, Coyote is a special agent for the Confederacy."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "Coyote, you never told me yer were a spook."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Orders are orders."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Don't worry, you'll see him soon.|He'll be our liason."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kiley",
+                    "Aye. Well, if everythings all figured out, it's as cold as a witch's tit up here.|Where's this hiding spot of yours, girly?"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Kiley",
+                    "Kayla",
+                    "Coyote",
+                    "Sam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ]
         ],

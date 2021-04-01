@@ -3139,7 +3139,7 @@
                     1,
                     3
                 ],
-                "sub_nid": "Wagon Escape",
+                "sub_nid": "Thief Escape",
                 "condition": "unit.team == 'enemy'",
                 "only_once": false
             },
@@ -3154,7 +3154,7 @@
                     1,
                     3
                 ],
-                "sub_nid": "Wagon Escape",
+                "sub_nid": "Thief Escape",
                 "condition": "unit.team == 'enemy'",
                 "only_once": false
             },
@@ -6065,6 +6065,26 @@
                 "generic": true
             },
             {
+                "nid": "l92",
+                "variant": null,
+                "level": 9,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
                 "nid": "r91",
                 "variant": null,
                 "level": 9,
@@ -6397,7 +6417,7 @@
                     1,
                     2
                 ],
-                "sub_nid": "Escape",
+                "sub_nid": "Thief Escape",
                 "condition": "unit.team == 'enemy'",
                 "only_once": false
             },
@@ -6412,7 +6432,7 @@
                     1,
                     2
                 ],
-                "sub_nid": "Escape",
+                "sub_nid": "Thief Escape",
                 "condition": "unit.team == 'enemy'",
                 "only_once": false
             },
@@ -6427,7 +6447,7 @@
                     4,
                     1
                 ],
-                "sub_nid": "Escape",
+                "sub_nid": "Thief Escape",
                 "condition": "unit.team == 'enemy'",
                 "only_once": false
             },
@@ -6442,7 +6462,7 @@
                     4,
                     1
                 ],
-                "sub_nid": "Escape",
+                "sub_nid": "Thief Escape",
                 "condition": "unit.team == 'enemy'",
                 "only_once": false
             }

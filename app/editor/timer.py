@@ -35,9 +35,15 @@ class Timer(QWidget):
         self.main_timer.start()
         self.autosave_timer.start()
 
+    def start_for_editor(self):
+        self.main_timer.start()
+
     def stop(self):
         self.main_timer.stop()
         self.autosave_timer.stop()
+
+    def stop_for_editor(self):
+        self.main_timer.stop()
 
 TIMER = None
 def get_timer():

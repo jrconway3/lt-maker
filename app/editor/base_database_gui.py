@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 
+from app.editor import timer
+
 from app.utilities.data import Prefab
 from app.extensions.custom_gui import RightClickListView
 from app.editor.data_editor import SingleDatabaseEditor
@@ -139,8 +141,10 @@ class DatabaseTab(QWidget):
 
     @classmethod
     def edit(cls, parent=None):
+        timer.get_timer().stop_for_editor()  # Don't need these while running game
         window = SingleDatabaseEditor(cls, parent)
         window.exec_()
+        timer.get_timer().start_for_editor()
 
     def copy_data(self):
         clipboard = QApplication.clipboard()

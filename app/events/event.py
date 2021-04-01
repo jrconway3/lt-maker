@@ -1590,6 +1590,8 @@ class Event():
             banner_flag = False
         else:
             banner_flag = True
+        if 'droppable' in flags:
+            item.droppable = True
 
         if unit:
             accessory = item_system.is_accessory(unit, item)

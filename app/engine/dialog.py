@@ -249,6 +249,9 @@ class Dialog():
     def is_done(self):
         return self.state == 'done'
 
+    def is_done_or_wait(self):
+        return self.state in ('done', 'wait')
+
     def pause(self):
         if self.portrait:
             self.portrait.stop_talking()

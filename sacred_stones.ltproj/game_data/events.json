@@ -6263,30 +6263,10 @@
                 ]
             ],
             [
-                "choice",
+                "give_money",
                 [
-                    "PromoteColm",
-                    "Promote Colm?",
-                    "Yes,No",
-                    "horiz"
+                    "5000"
                 ]
-            ],
-            [
-                "if",
-                [
-                    "game.game_vars['PromoteColm'] == 'Yes'"
-                ]
-            ],
-            [
-                "promote",
-                [
-                    "Colm",
-                    "Assassin"
-                ]
-            ],
-            [
-                "end",
-                []
             ],
             [
                 "comment",

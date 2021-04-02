@@ -203,7 +203,7 @@ class Simple():
         else:
             if self.current_index < len(self.options) - 1:
                 self.current_index += 1
-                if self.current_index > self.scroll + self.limit - 2:
+                if self.current_index > self.scroll + self.limit - 2 and self.scroll + self.limit < len(self.options):
                     self.scroll += 1
                 else:
                     self.cursor.y_offset -= 1

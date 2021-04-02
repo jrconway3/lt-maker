@@ -651,12 +651,15 @@ class Take(Action):
 class PutItemInConvoy(Action):
     def __init__(self, item):
         self.item = item
+        self.owner_nid = self.item.owner_nid
 
     def do(self):
+        self.item.owner_nid = None
         game.party.convoy.append(self.item)
 
     def reverse(self, gameStateObj):
         game.party.convoy.remove(self.item)
+        self.item.owner_nid = self.owner_nid
 
 class TakeItemFromConvoy(Action):
     def __init__(self, unit, item):

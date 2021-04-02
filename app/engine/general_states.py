@@ -149,6 +149,7 @@ class FreeState(MapState):
 
         elif event == 'START':
             SOUNDTHREAD.play_sfx('Select 5')
+            game.state.change('minimap')
 
     def update(self):
         super().update()
@@ -1659,7 +1660,7 @@ class ShopState(State):
             if self.state == 'open':
                 SOUNDTHREAD.play_sfx('Select 1')
                 self.current_msg.hurry_up()
-                if self.current_msg.is_done():
+                if self.current_msg.is_done_or_wait():
                     self.state = 'choice'
                     self.menu = self.choice_menu
 
@@ -1683,16 +1684,15 @@ class ShopState(State):
                     if game.get_money() - value >= 0:
                         action.do(action.HasTraded(self.unit))
                         SOUNDTHREAD.play_sfx('GoldExchange')
-                        game.set_money(game.get_money() - value)
+                        action.do(action.GainMoney(game.current_party, -value))
                         self.money_counter_disp.start(-value)
-                        new_item = item_funcs.create_items(self.unit, [item.nid])[0]
+                        new_item = item_funcs.create_item(self.unit, item.nid)
                         game.register_item(new_item)
                         if not item_funcs.inventory_full(self.unit, new_item):
-                            self.unit.add_item(new_item)
+                            action.do(action.GiveItem(self.unit, new_item))
                             self.current_msg = self.get_dialog('shop_buy_again')
                         elif game.game_vars.get('_convoy'):
-                            new_item.owner_nid = None
-                            game.party.convoy.append(new_item)
+                            action.do(action.PutItemInConvoy(new_item))
                             self.current_msg = self.get_dialog('shop_convoy')
                         else:
                             self.current_msg = self.get_dialog('shop_max')
@@ -1713,9 +1713,9 @@ class ShopState(State):
                     if value:
                         action.do(action.HasTraded(self.unit))
                         SOUNDTHREAD.play_sfx('GoldExchange')
-                        game.set_money(game.get_money() + value)
+                        action.do(action.GainMoney(game.current_party, value))
                         self.money_counter_disp.start(value)
-                        self.unit.remove_item(item)
+                        action.do(action.RemoveItem(self.unit, item))
                         self.current_msg = self.get_dialog('shop_sell_again')
                         self.update_options()
                     else:
@@ -1728,7 +1728,7 @@ class ShopState(State):
 
             elif self.state == 'close':
                 SOUNDTHREAD.play_sfx('Select 1')
-                if self.current_msg.is_done():
+                if self.current_msg.is_done_or_wait():
                     game.state.change('transition_pop')
                 else:
                     self.current_msg.hurry_up()
@@ -1774,11 +1774,11 @@ class ShopState(State):
             self.current_msg.draw(surf)
         if self.state == 'sell':
             self.sell_menu.draw(surf)
-        elif self.state == 'choice' and self.current_msg.is_done() and self.choice_menu.get_current() == 'Sell':
+        elif self.state == 'choice' and self.choice_menu.get_current() == 'Sell':
             self.sell_menu.draw(surf)
         else:
             self.buy_menu.draw(surf)
-        if self.state == 'choice' and self.current_msg.is_done():
+        if self.state == 'choice' and self.current_msg.is_done_or_wait():
             self.choice_menu.draw(surf)
         surf.blit(self.portrait, (3, 0))
         

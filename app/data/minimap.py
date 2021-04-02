@@ -1,4 +1,4 @@
-class MinimapCatalog(object):
+class MinimapCatalog():
     single_map = {'Grass': (1, 0),
                   'House': (2, 0),
                   'Shop': (3, 0),

@@ -11,7 +11,8 @@ from app.events.event_portrait import EventPortrait
 from app.data.level_units import UniqueUnit, GenericUnit
 
 from app.engine import dialog, engine, background, target_system, action, \
-    interaction, item_funcs, item_system, banner, skill_system, unit_funcs, evaluate
+    interaction, item_funcs, item_system, banner, skill_system, unit_funcs, \
+    evaluate, static_random
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
@@ -827,6 +828,11 @@ class Event():
             values, flags = event_commands.parse(command)
             action.do(action.ChangeObjective('loss', values[0]))
 
+        elif command.nid == 'set_position':
+            values, flags = event_commands.parse(command)
+            pos = self.parse_pos(values[0])
+            self.position = pos
+
         elif command.nid == 'map_anim':
             values, flags = event_commands.parse(command)
             nid = values[0]
@@ -1115,6 +1121,18 @@ class Event():
             portrait.priority = self.priority_counter
             self.priority_counter += 1
 
+    def _place_unit(self, unit, position, entry_type):
+        if self.do_skip:
+            action.do(action.ArriveOnMap(unit, position))
+        elif entry_type == 'warp':
+            action.do(action.WarpIn(unit, position))
+        elif entry_type == 'swoosh':
+            action.do(action.SwooshIn(unit, position))
+        elif entry_type == 'fade':
+            action.do(action.FadeIn(unit, position))
+        else:  # immediate
+            action.do(action.ArriveOnMap(unit, position))
+
     def add_unit(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
@@ -1146,16 +1164,7 @@ class Event():
         if not position:
             return None
 
-        if self.do_skip:
-            action.do(action.ArriveOnMap(unit, position))
-        elif entry_type == 'warp':
-            action.do(action.WarpIn(unit, position))
-        elif entry_type == 'swoosh':
-            action.do(action.SwooshIn(unit, position))
-        elif entry_type == 'fade':
-            action.do(action.FadeIn(unit, position))
-        else:  # immediate
-            action.do(action.ArriveOnMap(unit, position))
+        self._place_unit(unit, position, entry_type)
 
     def move_unit(self, command):
         values, flags = event_commands.parse(command)
@@ -1297,14 +1306,7 @@ class Event():
                 continue
             position = tuple(position)
             position = self.check_placement(position, placement)
-            if self.do_skip:
-                action.do(action.ArriveOnMap(unit, position))
-            elif entry_type == 'warp':
-                action.do(action.WarpIn(unit, position))
-            elif entry_type == 'fade':
-                action.do(action.FadeIn(unit, position))
-            else:  # immediate
-                action.do(action.ArriveOnMap(unit, position))
+            self._place_unit(unit, position, entry_type)
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
         position = tuple(position)
@@ -1594,6 +1596,55 @@ class Event():
         if assign_unit:
             self.unit = new_unit
 
+    def create_unit(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit %s" % values[0])
+            return 
+        # Get input
+        assign_unit = False
+        unit_nid = values[1]
+        if not unit_nid:
+            unit_nid = str_utils.get_next_int('201', [unit.nid for unit in game.units])
+            assign_unit = True
+        elif game.get_unit(unit_nid):
+            logging.error("Unit with NID %s already exists!" % unit_nid)
+            return
+
+        if len(values) > 2 and values[2]:
+            level = int(evaluate.evaluate(values[2], self.unit, self.unit2, self.item, self.position, self.region))
+        else:
+            level = unit.level
+        if len(values) > 3 and values[3]:
+            position = self.parse_pos(values[1])
+        else:
+            position = unit.starting_position
+        if not position:
+            logging.error("No position found!")
+            return
+        if len(values) > 4 and values[4]:
+            entry_type = values[4]
+        else:
+            entry_type = 'fade'
+        if len(values) > 5 and values[5]:
+            placement = values[5]
+        else:
+            placement = 'giveup'
+        position = self.check_placement(position, placement)
+        if not position:
+            return None
+
+        level_unit_prefab = GenericUnit(
+            unit_nid, unit.variant, level, unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
+        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit.party = game.current_party
+        game.full_register(new_unit)
+        if assign_unit:
+            self.unit = new_unit
+
+        self._place_unit(new_unit, position, entry_type)
+
     def give_item(self, command):
         values, flags = event_commands.parse(command)
         if values[0].lower() == 'convoy':
@@ -1818,6 +1869,11 @@ class Event():
         if diff <= 0:
             return
 
+        if 'hidden' in flags:
+            pass
+        else:
+            unit.level = final_level
+
         unit_funcs.auto_level(unit, diff)
         if not unit.generic and DB.units.get(unit.nid):
             unit_prefab = DB.units.get(unit.nid)
@@ -2030,6 +2086,13 @@ class Event():
             position = self.position
         elif self.get_unit(text):
             position = self.get_unit(text).position
+        else:
+            valid_regions = \
+                [region.position for region in game.level.regions 
+                 if text == region.sub_nid and region.position and 
+                 not game.board.get_unit(region.position)]
+            if valid_regions:
+                position = static_random.shuffle(valid_regions)[0]
         return position
 
     def get_unit(self, text):

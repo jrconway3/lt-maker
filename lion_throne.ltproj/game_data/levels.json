@@ -8750,8 +8750,8 @@
                 "faction": "Claw",
                 "starting_items": [
                     [
-                        "Yew Bow",
-                        false
+                        "Great Bow",
+                        true
                     ]
                 ],
                 "team": "enemy",
@@ -9955,5 +9955,1569 @@
                 }
             }
         ]
+    },
+    {
+        "nid": "9",
+        "name": "Chapter IX",
+        "tilemap": "Chapter 9",
+        "party": "Resistance",
+        "music": {
+            "player_phase": "Meet the Sage",
+            "enemy_phase": "Corruption Melody",
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null
+        },
+        "objective": {
+            "simple": "Escape",
+            "win": "Escape the sewers",
+            "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
+        },
+        "units": [
+            {
+                "nid": "Jakin",
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    4
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Boaz",
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    26,
+                    27
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 5,
+                "klass": "Sniper",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    27,
+                    26
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 5,
+                "klass": "Sniper",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    25,
+                    28
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 10,
+                "klass": "Thief",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Boltblade",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    5
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 10,
+                "klass": "Thief",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Boltblade",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    5,
+                    3
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 5,
+                "klass": "Warrior",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    27
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "112",
+                "variant": null,
+                "level": 5,
+                "klass": "Warrior",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    4
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Ruin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    19
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Howl",
+                        false
+                    ],
+                    [
+                        "Warp",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    27
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Lance",
+                        false
+                    ],
+                    [
+                        "Mana Ring",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    19
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "115",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Lance",
+                        false
+                    ],
+                    [
+                        "Superior Lance",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    4
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 5,
+                "klass": "Oracle",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Blind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    12
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 5,
+                "klass": "Oracle",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Blind",
+                        false
+                    ],
+                    [
+                        "Silence",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    19
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "111",
+                "variant": null,
+                "level": 5,
+                "klass": "Sage",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Aether",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    12
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "113",
+                "variant": null,
+                "level": 5,
+                "klass": "Swordmaster",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ],
+                    [
+                        "Flareblade",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    18,
+                    12
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "116",
+                "variant": null,
+                "level": 5,
+                "klass": "Swordmaster",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ],
+                    [
+                        "Boltblade",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    26,
+                    12
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "114",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Ruin",
+                        false
+                    ],
+                    [
+                        "Stun",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    26,
+                    19
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "117",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Ruin",
+                        false
+                    ],
+                    [
+                        "Stun",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    26,
+                    5
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "118",
+                "variant": null,
+                "level": 5,
+                "klass": "Sage",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ],
+                    [
+                        "Meteor",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    25,
+                    4
+                ],
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p11",
+                "variant": null,
+                "level": 5,
+                "klass": "Sage",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Aether",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p12",
+                "variant": null,
+                "level": 5,
+                "klass": "Swordmaster",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p13",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p14",
+                "variant": null,
+                "level": 5,
+                "klass": "Oracle",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Blind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p21",
+                "variant": null,
+                "level": 5,
+                "klass": "Sage",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Aether",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p22",
+                "variant": null,
+                "level": 5,
+                "klass": "Swordmaster",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p23",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p24",
+                "variant": null,
+                "level": 5,
+                "klass": "Oracle",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Blind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p31",
+                "variant": null,
+                "level": 5,
+                "klass": "Warrior",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p32",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Howl",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p33",
+                "variant": null,
+                "level": 5,
+                "klass": "Berserker",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p34",
+                "variant": null,
+                "level": 5,
+                "klass": "Sniper",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p41",
+                "variant": null,
+                "level": 5,
+                "klass": "Warrior",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p42",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Howl",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p43",
+                "variant": null,
+                "level": 5,
+                "klass": "Berserker",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p44",
+                "variant": null,
+                "level": 5,
+                "klass": "Sniper",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p51",
+                "variant": null,
+                "level": 5,
+                "klass": "Sage",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Aether",
+                        false
+                    ],
+                    [
+                        "Meteor",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p52",
+                "variant": null,
+                "level": 5,
+                "klass": "Swordmaster",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p53",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Lance",
+                        false
+                    ],
+                    [
+                        "Long Spear",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p54",
+                "variant": null,
+                "level": 5,
+                "klass": "Oracle",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Blind",
+                        false
+                    ],
+                    [
+                        "Silence",
+                        false
+                    ],
+                    [
+                        "Physic",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p55",
+                "variant": null,
+                "level": 5,
+                "klass": "Warrior",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Axe",
+                        false
+                    ],
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p56",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Howl",
+                        false
+                    ],
+                    [
+                        "Disintegrate",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p57",
+                "variant": null,
+                "level": 5,
+                "klass": "Berserker",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Axe",
+                        false
+                    ],
+                    [
+                        "Tomahawk",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "p58",
+                "variant": null,
+                "level": 5,
+                "klass": "Sniper",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Great Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i1",
+                "variant": null,
+                "level": 5,
+                "klass": "Sage",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Aether",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i2",
+                "variant": null,
+                "level": 5,
+                "klass": "Swordmaster",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i3",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i4",
+                "variant": null,
+                "level": 5,
+                "klass": "Oracle",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Blind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i5",
+                "variant": null,
+                "level": 5,
+                "klass": "Warrior",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i6",
+                "variant": null,
+                "level": 5,
+                "klass": "Warlock",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Howl",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i7",
+                "variant": null,
+                "level": 5,
+                "klass": "Berserker",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Adamant Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            },
+            {
+                "nid": "i8",
+                "variant": null,
+                "level": 5,
+                "klass": "Sniper",
+                "faction": "Templar",
+                "starting_items": [
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Templar",
+                "desc": "Guardians of the Keralan underworld",
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Switch",
+                "region_type": "event",
+                "position": [
+                    26,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Switch",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Escape",
+                "region_type": "event",
+                "position": [
+                    30,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Escape",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation1",
+                "region_type": "formation",
+                "position": [
+                    3,
+                    26
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation2",
+                "region_type": "formation",
+                "position": [
+                    3,
+                    28
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation3",
+                "region_type": "formation",
+                "position": [
+                    4,
+                    29
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation4",
+                "region_type": "formation",
+                "position": [
+                    4,
+                    25
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation5",
+                "region_type": "formation",
+                "position": [
+                    6,
+                    27
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation6",
+                "region_type": "formation",
+                "position": [
+                    2,
+                    27
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation7",
+                "region_type": "formation",
+                "position": [
+                    5,
+                    26
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation8",
+                "region_type": "formation",
+                "position": [
+                    5,
+                    28
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation9",
+                "region_type": "formation",
+                "position": [
+                    2,
+                    25
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation10",
+                "region_type": "formation",
+                "position": [
+                    6,
+                    25
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation11",
+                "region_type": "formation",
+                "position": [
+                    2,
+                    29
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation12",
+                "region_type": "formation",
+                "position": [
+                    6,
+                    29
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Rein1",
+                "region_type": "event",
+                "position": [
+                    12,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein2",
+                "region_type": "event",
+                "position": [
+                    4,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein3",
+                "region_type": "event",
+                "position": [
+                    18,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein4",
+                "region_type": "event",
+                "position": [
+                    12,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein5",
+                "region_type": "event",
+                "position": [
+                    18,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein6",
+                "region_type": "event",
+                "position": [
+                    26,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein7",
+                "region_type": "event",
+                "position": [
+                    4,
+                    19
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein8",
+                "region_type": "event",
+                "position": [
+                    12,
+                    19
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein9",
+                "region_type": "event",
+                "position": [
+                    18,
+                    19
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein10",
+                "region_type": "event",
+                "position": [
+                    26,
+                    19
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein11",
+                "region_type": "event",
+                "position": [
+                    12,
+                    27
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            },
+            {
+                "nid": "Rein12",
+                "region_type": "event",
+                "position": [
+                    18,
+                    27
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rein",
+                "condition": "False",
+                "only_once": false
+            }
+        ],
+        "unit_groups": []
     }
 ]

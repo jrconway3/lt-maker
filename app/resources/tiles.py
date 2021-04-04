@@ -13,6 +13,8 @@ class TileMapPrefab(Prefab):
         self.layers = Data()
         self.layers.append(LayerGrid('base', self))
 
+        self.pixmap = None
+
         self.tilesets = []  # Opened tilesets associated with this tilemap, nothing more
         self.image = None  # Icon used for drawing in resource editor
 

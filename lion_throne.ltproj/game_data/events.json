@@ -4369,6 +4369,68 @@
         "priority": 20
     },
     {
+        "name": "FightJakin",
+        "trigger": "combat_start",
+        "level_nid": "9",
+        "condition": "check_default('Jakin', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Jakin",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jakin",
+                    "A deadly dance then, spider and fly."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Jakin"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "FightBoaz",
+        "trigger": "combat_start",
+        "level_nid": "9",
+        "condition": "check_default('Boaz', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Boaz",
+                    "Left",
+                    "",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "I've slain many, beast and men alike.|You shall not pose any greater challenge."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Boaz"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
         "name": "FightVagnius",
         "trigger": "combat_start",
         "level_nid": "8",
@@ -4994,6 +5056,50 @@
         "name": "PartyLose",
         "trigger": "combat_end",
         "level_nid": "7",
+        "condition": "len(game.get_units_in_party()) < 5",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Lose game when party size falls below three"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "You have lost too many members of your party."
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 15
+    },
+    {
+        "name": "PartyLose",
+        "trigger": "combat_end",
+        "level_nid": "9",
         "condition": "len(game.get_units_in_party()) < 5",
         "commands": [
             [
@@ -11547,10 +11653,9 @@
         "condition": "unit.klass == 'Wagon'",
         "commands": [
             [
-                "game_var",
+                "inc_game_var",
                 [
-                    "dead_wagons",
-                    "game.game_var['dead_wagons'] + 1"
+                    "dead_wagons"
                 ]
             ]
         ],
@@ -21961,7 +22066,7 @@
                 "give_item",
                 [
                     "{unit}",
-                    "Great Bow"
+                    "Warp"
                 ]
             ]
         ],
@@ -26730,6 +26835,1581 @@
                 "transition",
                 [
                     "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "BridgeSwap",
+        "trigger": "unit_death",
+        "level_nid": "9",
+        "condition": "'master_switch' not in game.level_vars",
+        "commands": [
+            [
+                "inc_level_var",
+                [
+                    "switch"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.level_var.get('switch', 0) > 2"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "switch",
+                    "1"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.level_var.get('switch') == 1"
+                ]
+            ],
+            [
+                "hide_layer",
+                [
+                    "Bridge2"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Bridge1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "hide_layer",
+                [
+                    "Bridge1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Bridge2"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "BridgeSwapConvo",
+        "trigger": "unit_death",
+        "level_nid": "9",
+        "condition": "'master_switch' not in game.level_vars and unit.generic",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Well, that did something alright.|Is this what they meant by a game?"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 19
+    },
+    {
+        "name": "Promises",
+        "trigger": "on_base_convo",
+        "level_nid": "9",
+        "condition": "unit == 'Promises'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Awakening - SSupport"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "GenericRoom"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Kayla",
+                    "Left",
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Are you almost ready, Kayla?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Tsk Tsk. A lady is ready precisely when she means to be, and no sooner."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I see..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Is something wrong, dearest?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No... Well, its nothing you said."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "So?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "This is our last mission..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "You worry we won't succeed?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "To be honest, I am a bit worried. Even you have your limits, Kayla."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Haven't found them yet!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Anyways, thats not really my chief concern.|It's our last mission together.|When this is over we'll split ways.|The Resistance will be disbanded.|So, there won't be much of a reason... for the two of us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Sam, say no more. You know my feelings toward you.|Do you think I'll just leave?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No, but we each have jobs, responsibilities, ambitions.|Those too can strand us apart.|I don't want to look back on today with any regrets."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Nor do I."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Well, then,|after this is over... if we're both still...|around.|I'd like to make this fling official."
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Kayla",
+                    "Energy Ring",
+                    "no_choice"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Ah! A ring?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I'd been meaning to give it to you for a while...|but I could never find the right time.|So..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Of course!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Phew!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "You thought I'd turn you down?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Never hurts to consider the possibilities."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "...You know we're not going to die out there."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hmmm...?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Between the two of us, Sam, nothing can stand in our way."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Kayla"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Promises"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Theo and Eliza",
+        "trigger": "on_base_convo",
+        "level_nid": "9",
+        "condition": "unit == 'Theo and Eliza'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Midna's Theme"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Study"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Theo",
+                    "Left",
+                    "Eliza",
+                    "Right"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Eliza"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Would you HURRY up already, Theo?|You've been at this for hours!|What more could you need to bring?!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "One moment, please. I need some time to consider..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Urgh!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Eliza",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "We're not gonna need all this!|This is just a day trip, Theo!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "What could you possibly need all these potions for?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Someone could fall ill."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "And this much flint?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Always important to keep your weapons in tip-top shape."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "A tent?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Rain."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Matches?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Light."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Compass? Sextant?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Uh... We could get lost?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "We're not traveling by sea, Theo!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "One can never be too prepared."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "And all these books!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Gentle! You'll bend the spine."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Hmmph!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "I never leave home bereft of a good read."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Pah! You and your books.|If Ophie's right about one thing, it's that they're no substitute for reality!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Hmm... Ironic, coming from you, Eliza."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "How so?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "I've seen you engrossed in one."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "You have?|I mean... no you haven't!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Hmmm... Let's take a look then, shall we.|Ahem.{w}{clear}''The crow has flown away--|Swaying in the evening sun,|A leafless tree.''"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "It's quite good.|I had no idea you were a poet, Eliza."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "My... uh... where'd you find that."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "I picked it up by accident.|But really, Eliza, you write poetry?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Hmmph! Not well."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "I think it's quite good, quite good indeed."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Don't you dare tell anyone else, you got that Theo!|Or it'll be your head!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Gulp. I would never."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eliza",
+                    "Hmmph!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Eliza",
+                    "Theo"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Eliza",
+                    "Secret Book",
+                    "no_choice"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Theo and Eliza"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Theo Sphinx, Pt. IV",
+        "trigger": "on_base_convo",
+        "level_nid": "7",
+        "condition": "unit == 'Theo Sphinx, Pt. IV'",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Episode 4"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Jazz Noir"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Snow_Forest_Clearing"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Theo",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Snow.|Since when did it snow around here?|And it was coming down in buckets.{w}{clear}So this was it, my last lead in this godforsaken case.|The hour crawled by like a sick cockroach.|I'd almost given up hope when out of the dark strutted a raven-haired dame.|She had a wild glint in her eyes.|Before she could scamper off, I cornered her.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Nia",
+                    "Right"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Theo",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "She looked tenser than a minister in a brothel.|I asked her if she'd heard anything about Miss Prim's problem.|She shook her head, but I wasn't having it.|I grabbed her by the collar and demanded the truth about the missing tome--|I've still got the scratches to prove it.|To my surprise, her expression softened.|She beckoned me down 79th street and I followed.|After what seemed like a dozen twists and turns through this concrete jungle,|we arrived at a run-down shack on the outskirts of the East Side.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Nia",
+                    "Theo"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Supply_Fort"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Theo",
+                    "Left",
+                    "Nia",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Nia"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Nia didn't mince words.|But I could tell something was going to be finished once I walked in that door--|either this case, or me.|The dame made like a banana and split,|while I holstered my gun and made my way inside.{w}{clear}I was ready for answers.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Kayla",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Tsk Tsk. So you've finally arrived, Theo.|I was wondering if you'd ever manage to track me down.|How'd you find the place?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "The silver-haired dame was all business.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "No, don't tell me.|That damned girl!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Your game is up, Kayla.|Hand over the tome."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Sad to see such a pretty girl turning herself to a life of crime.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "The tome, what?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "She wasn't making this any easier on herself.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "Don't play dumb with me, Kayla. Prim's tome!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Hah. You're a bit late on the uptake, Theo.|I've already transformed Prim's tome into something much grander!|Behold!"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Give Theo Howl"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Theo",
+                    "Howl",
+                    "no_choice"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "With something like that in her possession,|the dame was obviously connected to someone up high.|But I had a job to finish.|Though she tried to fight back, I cuffed her and brought her to the station.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Kayla"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Theo",
+                    "This was on Sam's plate now.|Too bad about Miss Prim's tome...|but my job here was done.|Another case closed by Private Eye Theo Sphinx.",
+                    "",
+                    "",
+                    "noir"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Theo"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Theo Sphinx, Pt. IV"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Training",
+        "trigger": "on_base_convo",
+        "level_nid": "7",
+        "condition": "unit == 'Training'",
+        "commands": [
+            [
+                "music",
+                [
+                    "Wild Arms Town"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidLeft",
+                    "mirror"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Ha-aah!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "I've got you now, Ulver!|Your evil will be vanquished from this earth!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Coyote",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "*cough*"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Oh! Hey Coyote...|What's up?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "I'm not here to chit-chat, kid."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Okay..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "You are too aggressive."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Huh?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "You attack without plan... leaving yourself wide open."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "What! I can protect myself."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Prove it."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hah... If you're ready..."
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Ophie",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Ha-aah!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Coyote",
+                    "Right"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Coyote",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Oof!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Still so sure?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Damn! Where did that come from."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "You are too focused on your own movement.|That is not the Rusonoon monks' style."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "What would you know of the Way of the Blade?|It's a sacred art that only expresses itself clearly in self-defense!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "So you remember Yohn's words."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "You knew Master Yohn?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Many solstices ago...{w}{clear}As he would say, read your opponent's movements, and yours will follow.|Combat is a dance.|Turn your opponents energy against them..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "...And then strike!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Here. Pay attention to me, not your sword."
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Coyote",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Hah Ah!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Coyote",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Huff."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Ah! I did it."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Catch."
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Rapier",
+                    "no_choice"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Attacking trees will not improve your swordsmanship.|Meet me here tomorrow when the sun is halfway down the western sky."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Coyote"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Uh... Yeah.|Sure, I guess!|I'll be ready!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "ignore_base_convo",
+                [
+                    "Training"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Switch",
+        "trigger": "Switch",
+        "level_nid": "9",
+        "condition": "True",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "master_switch",
+                    "True"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Bridge1"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Bridge2"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Switch pulled!"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Turn1",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount == 1",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "switch",
+                    "1"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "Bridge1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Ophie",
+                    "Left",
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Woah... What is this place..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "I'm sure there's a rational explanation."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "There's not really any time for rational explanatations, Sam.|We need to move."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hmm..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn4",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount == 4",
+        "commands": [
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p11",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p12",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p13",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p14",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "9",
+        "condition": "True",
+        "commands": [
+            [
+                "add_weather",
+                [
+                    "Rain"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_max_turnwheel_uses",
+                    "9"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_current_turnwheel_uses",
+                    "9"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# free level Thief +5"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# free level Thief +5"
                 ]
             ]
         ],

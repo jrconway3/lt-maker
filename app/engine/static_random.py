@@ -68,7 +68,7 @@ def set_combat_random_state(state):
     r.combat_random.state = state
 
 def shuffle(lst):
-    r.other_random.shuffle(lst)
+    r.combat_random.shuffle(lst)
     return lst
 
 # def get_other(a, b):

@@ -118,5 +118,15 @@
             0,
             0
         ]
+    },
+    {
+        "nid": "Templar",
+        "name": "Templar",
+        "desc": "Guardians of the Keralan underworld",
+        "icon_nid": "TemplarEmblem",
+        "icon_index": [
+            0,
+            0
+        ]
     }
 ]

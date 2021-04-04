@@ -255,18 +255,26 @@ class ChangeTilemap(EventCommand):
 
 class LoadUnit(EventCommand):
     nid = 'load_unit'
-    tag = 'general'
+    tag = 'unit'
 
     keywords = ["UniqueUnit"]
     optional_keywords = ["Team", "AI"]
 
 class MakeGeneric(EventCommand):
     nid = 'make_generic'
-    tag = 'general'
+    tag = 'unit'
 
     # Nid, class, level, team, ai, faction, anim variant
     keywords = ["String", "Klass", "String", "Team"]
     optional_keywords = ["AI", "Faction", "String"]
+
+class CreateUnit(EventCommand):
+    nid = 'create_unit'
+    tag = 'unit'
+    # Unit template and new unit nid (can be '')
+    keywords = ["Unit", "String"]
+    # Unit level, position, entrytype, placement
+    optional_keywords = ["String", "Position", "EntryType", "Placement"]
 
 class AddUnit(EventCommand):
     nid = 'add_unit'
@@ -436,6 +444,8 @@ class AutolevelTo(EventCommand):
     nid = 'autolevel_to'
     tag = 'unit'
     keywords = ["GlobalUnit", "Integer"]
+    # Whether to actually change the unit's level
+    flags = ["hidden"]
 
 class Promote(EventCommand):
     nid = 'promote'
@@ -578,6 +588,12 @@ class ChangeObjectiveLoss(EventCommand):
     nid = 'change_objective_loss'
     tag = 'general'
     
+    keywords = ["String"]
+
+class SetPosition(EventCommand):
+    nid = 'set_position'
+    tag = 'general'
+
     keywords = ["String"]
 
 class MapAnim(EventCommand):

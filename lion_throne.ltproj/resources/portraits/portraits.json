@@ -341,6 +341,17 @@
         ]
     },
     {
+        "nid": "Man5",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
+    },
+    {
         "nid": "OldMan1",
         "blinking_offset": [
             16,
@@ -349,6 +360,17 @@
         "smiling_offset": [
             16,
             56
+        ]
+    },
+    {
+        "nid": "Woman1",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            24,
+            48
         ]
     },
     {
@@ -371,6 +393,17 @@
         "smiling_offset": [
             16,
             48
+        ]
+    },
+    {
+        "nid": "Boy2",
+        "blinking_offset": [
+            24,
+            40
+        ],
+        "smiling_offset": [
+            16,
+            56
         ]
     },
     {

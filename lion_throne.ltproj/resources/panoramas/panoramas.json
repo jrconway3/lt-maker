@@ -150,5 +150,29 @@
     [
         "Wastes",
         1
+    ],
+    [
+        "OutsideFort",
+        1
+    ],
+    [
+        "Palace",
+        1
+    ],
+    [
+        "Palace_Door",
+        1
+    ],
+    [
+        "Inn",
+        1
+    ],
+    [
+        "TacticsRoom",
+        1
+    ],
+    [
+        "TownDark",
+        1
     ]
 ]

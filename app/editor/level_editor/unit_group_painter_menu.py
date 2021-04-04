@@ -129,6 +129,8 @@ class GroupWidget(QWidget):
         self.display = None
         self._data = self.window._data
 
+        self.saved_unit_nid = None  # Save the most recent selection
+
         self.layout = QGridLayout(self)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -224,7 +226,8 @@ class GroupWidget(QWidget):
         self.view.clearSelection()
 
     def add_new_unit(self):
-        unit_nid, ok = SelectUnitDialog.get_unit_nid(self)
+        unit_nid, ok = SelectUnitDialog.get_unit_nid(self, self.saved_unit_nid)
+        self.saved_unit_nid = unit_nid
         if ok:
             if unit_nid in self.current.units:
                 QMessageBox.critical(self, "Error!", "%s already present in group!" % unit_nid)
@@ -233,11 +236,12 @@ class GroupWidget(QWidget):
 
 
 class SelectUnitDialog(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, saved_unit_nid=None):
         super().__init__(parent)
         self.setWindowTitle("Load Unit")
         self.window = parent
         self.view = None
+        print(saved_unit_nid)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -246,6 +250,9 @@ class SelectUnitDialog(Dialog):
                                self.window.current_level.units, self)
         self.unit_box.edit.setIconSize(QSize(32, 32))
         self.unit_box.edit.view().setUniformItemSizes(True)
+        if saved_unit_nid and saved_unit_nid in self.window.current_level.units.keys():
+            idx = self.window.current_level.units.index(saved_unit_nid)
+            self.unit_box.edit.setCurrentIndex(idx)
         self.unit_box.edit.activated.connect(self.accept)
         self.view = self.unit_box.edit.view()
 
@@ -254,8 +261,8 @@ class SelectUnitDialog(Dialog):
         # layout.addWidget(self.buttonbox)
 
     @classmethod
-    def get_unit_nid(cls, parent):
-        dialog = cls(parent)
+    def get_unit_nid(cls, parent, saved_unit_nid=None):
+        dialog = cls(parent, saved_unit_nid)
         result = dialog.exec_()
         if result == QDialog.Accepted:
             idx = dialog.unit_box.edit.currentIndex()

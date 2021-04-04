@@ -72,8 +72,12 @@ class Data(object):
     def pop(self, idx=None):
         if idx is None:
             idx = len(self._list) - 1
-        r = self._list.pop(idx)
-        del self._dict[r.nid]
+        r = self._list[idx]
+        if r.nid in self._dict:
+            r = self._list.pop(idx)
+            del self._dict[r.nid]
+        else:
+            logging.error("Tried to delete %s which wasn't present in data" % r.nid)
 
     def insert(self, idx, val):
         self._list.insert(idx, val)

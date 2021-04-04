@@ -206,11 +206,25 @@ class GameVar(EventCommand):
 
     keywords = ["Nid", "Condition"]
 
+class IncGameVar(EventCommand):
+    nid = 'inc_game_var'
+    tag = 'general'
+
+    keywords = ["Nid"]
+    optional_keywords = ["Condition"]
+
 class LevelVar(EventCommand):
     nid = 'level_var'
     tag = 'general'
 
     keywords = ["Nid", "Condition"]
+
+class IncLevelVar(EventCommand):
+    nid = 'inc_level_var'
+    tag = 'general'
+
+    keywords = ["Nid"]
+    optional_keywords = ["Condition"]
 
 class WinGame(EventCommand):
     nid = 'win_game'

@@ -4783,20 +4783,16 @@
                 "faction": "Guard",
                 "starting_items": [
                     [
-                        "Flux",
-                        false
-                    ],
-                    [
                         "Stun",
                         false
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Defend",
+                "ai": "Guard",
                 "ai_group": null,
                 "starting_position": [
                     6,
-                    3
+                    4
                 ],
                 "name": "Guard",
                 "desc": "Guard at the Tyrana Prison",
@@ -4810,20 +4806,16 @@
                 "faction": "Guard",
                 "starting_items": [
                     [
-                        "Flux",
-                        false
-                    ],
-                    [
                         "Stun",
                         false
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Defend",
+                "ai": "Guard",
                 "ai_group": null,
                 "starting_position": [
                     18,
-                    3
+                    4
                 ],
                 "name": "Guard",
                 "desc": "Guard at the Tyrana Prison",
@@ -6468,5 +6460,3500 @@
             }
         ],
         "unit_groups": []
+    },
+    {
+        "nid": "7",
+        "name": "Chapter VII",
+        "tilemap": "Chapter 7",
+        "party": "Resistance",
+        "music": {
+            "player_phase": "Airship Thunderchild",
+            "enemy_phase": "The High Seas",
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null
+        },
+        "objective": {
+            "simple": "Seize Fort",
+            "win": "Seize the fort",
+            "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
+        },
+        "units": [
+            {
+                "nid": "Marduk",
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    21
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Vagnius",
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Warlock",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Stun",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    7,
+                    22
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Warlock",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Stun",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    17
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    13,
+                    4
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    7
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    17,
+                    4
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    16,
+                    3
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    14,
+                    1
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "8",
+                "starting_position": [
+                    8,
+                    5
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "8",
+                "starting_position": [
+                    9,
+                    7
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    15,
+                    6
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "111",
+                "variant": null,
+                "level": 2,
+                "klass": "Vanguard",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    12,
+                    5
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "112",
+                "variant": null,
+                "level": 10,
+                "klass": "Skirmisher",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    23,
+                    10
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "113",
+                "variant": null,
+                "level": 10,
+                "klass": "Skirmisher",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    25,
+                    11
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "114",
+                "variant": null,
+                "level": 10,
+                "klass": "Skirmisher",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    19,
+                    12
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "115",
+                "variant": null,
+                "level": 10,
+                "klass": "Skirmisher",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    25,
+                    13
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "116",
+                "variant": null,
+                "level": 2,
+                "klass": "Dragoon",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Adamant Lance",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    24,
+                    11
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "117",
+                "variant": null,
+                "level": 10,
+                "klass": "Archer",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ],
+                    [
+                        "Ruby",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "",
+                "starting_position": [
+                    4,
+                    13
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "118",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "7",
+                "starting_position": [
+                    8,
+                    12
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "120",
+                "variant": null,
+                "level": 10,
+                "klass": "Skirmisher",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "8",
+                "starting_position": [
+                    9,
+                    9
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "121",
+                "variant": null,
+                "level": 10,
+                "klass": "Skirmisher",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "8",
+                "starting_position": [
+                    7,
+                    8
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "122",
+                "variant": null,
+                "level": 2,
+                "klass": "Dragoon",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "6",
+                "starting_position": [
+                    3,
+                    16
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "123",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    16,
+                    18
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "124",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    18,
+                    18
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "125",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    17,
+                    17
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "126",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    17,
+                    19
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "127",
+                "variant": null,
+                "level": 2,
+                "klass": "Vanguard",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ],
+                    [
+                        "Elixir",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    17,
+                    18
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "128",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    18,
+                    15
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "129",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Adamant Axe",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "5",
+                "starting_position": [
+                    11,
+                    19
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "130",
+                "variant": null,
+                "level": 10,
+                "klass": "Raider",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    21,
+                    18
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "131",
+                "variant": null,
+                "level": 10,
+                "klass": "Archer",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Willow Bow",
+                        false
+                    ],
+                    [
+                        "Ruby",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "",
+                "starting_position": [
+                    15,
+                    22
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "132",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "6",
+                "starting_position": [
+                    2,
+                    16
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "133",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "6",
+                "starting_position": [
+                    4,
+                    17
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "134",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "5",
+                "starting_position": [
+                    8,
+                    21
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "135",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "5",
+                "starting_position": [
+                    8,
+                    23
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "136",
+                "variant": null,
+                "level": 2,
+                "klass": "Vanguard",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ],
+                    [
+                        "Hand Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "6",
+                "starting_position": [
+                    1,
+                    22
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "137",
+                "variant": null,
+                "level": 2,
+                "klass": "Dragoon",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ],
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "5",
+                "starting_position": [
+                    3,
+                    22
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "138",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "139",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "140",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "141",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Short Axe",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "142",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "143",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "144",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "145",
+                "variant": null,
+                "level": 10,
+                "klass": "Brigand",
+                "faction": "Bandit",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Bandit",
+                "desc": "A Bandit hailing from the Ghat mountains",
+                "generic": true
+            },
+            {
+                "nid": "146",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "147",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "148",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "149",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "150",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "151",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "152",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "153",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "154",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "155",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "156",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "157",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "158",
+                "variant": null,
+                "level": 1,
+                "klass": "Sage",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "5",
+                "starting_position": [
+                    8,
+                    22
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Seize",
+                "region_type": "event",
+                "position": [
+                    2,
+                    21
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Seize",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Armory",
+                "region_type": "event",
+                "position": [
+                    21,
+                    1
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Vendor",
+                "region_type": "event",
+                "position": [
+                    23,
+                    6
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Vendor",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "RuinWest",
+                "region_type": "event",
+                "position": [
+                    3,
+                    6
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Search",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "RuinEast",
+                "region_type": "event",
+                "position": [
+                    27,
+                    14
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Search",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "RuinSouth",
+                "region_type": "event",
+                "position": [
+                    23,
+                    21
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Search",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Formation1",
+                "region_type": "formation",
+                "position": [
+                    26,
+                    0
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation2",
+                "region_type": "formation",
+                "position": [
+                    24,
+                    1
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation3",
+                "region_type": "formation",
+                "position": [
+                    25,
+                    2
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation4",
+                "region_type": "formation",
+                "position": [
+                    27,
+                    3
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation5",
+                "region_type": "formation",
+                "position": [
+                    27,
+                    1
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation6",
+                "region_type": "formation",
+                "position": [
+                    23,
+                    0
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation7",
+                "region_type": "formation",
+                "position": [
+                    23,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation8",
+                "region_type": "formation",
+                "position": [
+                    25,
+                    3
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation9",
+                "region_type": "formation",
+                "position": [
+                    26,
+                    4
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "RexAegis",
+                "region_type": "status",
+                "position": [
+                    2,
+                    21
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Rex_Aegis",
+                "condition": "True",
+                "only_once": false
+            }
+        ],
+        "unit_groups": [
+            {
+                "nid": "BanditWest",
+                "units": [
+                    "138",
+                    "139",
+                    "140",
+                    "141"
+                ],
+                "positions": {
+                    "138": [
+                        1,
+                        0
+                    ],
+                    "139": [
+                        2,
+                        0
+                    ],
+                    "140": [
+                        0,
+                        1
+                    ],
+                    "141": [
+                        0,
+                        2
+                    ]
+                }
+            },
+            {
+                "nid": "BanditEast",
+                "units": [
+                    "142",
+                    "143",
+                    "144",
+                    "145"
+                ],
+                "positions": {
+                    "142": [
+                        27,
+                        22
+                    ],
+                    "143": [
+                        27,
+                        21
+                    ],
+                    "144": [
+                        26,
+                        23
+                    ],
+                    "145": [
+                        25,
+                        23
+                    ]
+                }
+            },
+            {
+                "nid": "WyvernWest",
+                "units": [
+                    "146",
+                    "147",
+                    "148",
+                    "149"
+                ],
+                "positions": {
+                    "146": [
+                        1,
+                        0
+                    ],
+                    "147": [
+                        2,
+                        0
+                    ],
+                    "148": [
+                        0,
+                        1
+                    ],
+                    "149": [
+                        0,
+                        2
+                    ]
+                }
+            },
+            {
+                "nid": "WyvernNorth",
+                "units": [
+                    "150",
+                    "151",
+                    "152",
+                    "153"
+                ],
+                "positions": {
+                    "150": [
+                        26,
+                        0
+                    ],
+                    "151": [
+                        25,
+                        0
+                    ],
+                    "152": [
+                        27,
+                        1
+                    ],
+                    "153": [
+                        27,
+                        2
+                    ]
+                }
+            },
+            {
+                "nid": "WyvernEast",
+                "units": [
+                    "154",
+                    "155",
+                    "156",
+                    "157"
+                ],
+                "positions": {
+                    "157": [
+                        25,
+                        23
+                    ],
+                    "156": [
+                        26,
+                        23
+                    ],
+                    "155": [
+                        27,
+                        22
+                    ],
+                    "154": [
+                        27,
+                        21
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "nid": "8",
+        "name": "Chapter VIII",
+        "tilemap": "Chapter 8",
+        "party": "Resistance",
+        "music": {
+            "player_phase": "Land Below Flow",
+            "enemy_phase": "Durchriss",
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "enemy2_battle": null
+        },
+        "objective": {
+            "simple": "Defeat Boss",
+            "win": "Defeat Vagnius",
+            "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
+        },
+        "units": [
+            {
+                "nid": "Vagnius",
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    30,
+                    19
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 7,
+                "klass": "Warlock",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Stun",
+                        false
+                    ],
+                    [
+                        "Talisman",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    22,
+                    24
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "126",
+                "variant": null,
+                "level": 7,
+                "klass": "Warlock",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Stun",
+                        false
+                    ],
+                    [
+                        "Mithril Mail",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    15,
+                    8
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Slim Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    28,
+                    25
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Slim Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    30,
+                    27
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    30,
+                    25
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    28,
+                    27
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 4,
+                "klass": "Dracolord",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    29,
+                    26
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 2,
+                "klass": "Vanguard",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    5,
+                    19
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "108",
+                "variant": null,
+                "level": 2,
+                "klass": "Vanguard",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    9,
+                    21
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "109",
+                "variant": null,
+                "level": 2,
+                "klass": "Vanguard",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    10,
+                    19
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 2,
+                "klass": "Vanguard",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "4",
+                "starting_position": [
+                    3,
+                    23
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "111",
+                "variant": null,
+                "level": 10,
+                "klass": "Mage",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    15,
+                    15
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "112",
+                "variant": null,
+                "level": 10,
+                "klass": "Mage",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Thunder",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    17,
+                    17
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "113",
+                "variant": null,
+                "level": 10,
+                "klass": "Mage",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    17,
+                    15
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "114",
+                "variant": null,
+                "level": 2,
+                "klass": "Sage",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Blizzard",
+                        false
+                    ],
+                    [
+                        "Elixir",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "2",
+                "starting_position": [
+                    16,
+                    16
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "115",
+                "variant": null,
+                "level": 1,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Oak Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "3",
+                "starting_position": [
+                    4,
+                    3
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "116",
+                "variant": null,
+                "level": 1,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Oak Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "3",
+                "starting_position": [
+                    6,
+                    6
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "117",
+                "variant": null,
+                "level": 10,
+                "klass": "Tactician",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Glimmer",
+                        false
+                    ],
+                    [
+                        "Fortune",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "3",
+                "starting_position": [
+                    7,
+                    3
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "118",
+                "variant": null,
+                "level": 10,
+                "klass": "Shaman",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ],
+                    [
+                        "Scathe",
+                        true
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": "3",
+                "starting_position": [
+                    3,
+                    1
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "119",
+                "variant": null,
+                "level": 10,
+                "klass": "Cavalier",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    14,
+                    7
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "120",
+                "variant": null,
+                "level": 10,
+                "klass": "Cavalier",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "1",
+                "starting_position": [
+                    16,
+                    9
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "121",
+                "variant": null,
+                "level": 10,
+                "klass": "Cavalier",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "5",
+                "starting_position": [
+                    18,
+                    22
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "122",
+                "variant": null,
+                "level": 10,
+                "klass": "Cavalier",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "5",
+                "starting_position": [
+                    19,
+                    21
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "123",
+                "variant": null,
+                "level": 2,
+                "klass": "Sniper",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    22,
+                    4
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "124",
+                "variant": null,
+                "level": 2,
+                "klass": "Oracle",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Shine",
+                        false
+                    ],
+                    [
+                        "Physic",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    23,
+                    6
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "125",
+                "variant": null,
+                "level": 3,
+                "klass": "Berserker",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    24,
+                    21
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "127",
+                "variant": null,
+                "level": 3,
+                "klass": "Berserker",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    13,
+                    8
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "128",
+                "variant": null,
+                "level": 10,
+                "klass": "Myrmidon",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "6",
+                "starting_position": [
+                    26,
+                    11
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "129",
+                "variant": null,
+                "level": 10,
+                "klass": "Myrmidon",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Steel Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "6",
+                "starting_position": [
+                    26,
+                    13
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "130",
+                "variant": null,
+                "level": 3,
+                "klass": "Swordmaster",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Superior Edge",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "6",
+                "starting_position": [
+                    27,
+                    12
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "131",
+                "variant": null,
+                "level": 1,
+                "klass": "Halberdier",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Short Spear",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": "6",
+                "starting_position": [
+                    27,
+                    9
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "132",
+                "variant": null,
+                "level": 2,
+                "klass": "Oracle",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Shine",
+                        false
+                    ],
+                    [
+                        "Hex",
+                        false
+                    ],
+                    [
+                        "Heal",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    28,
+                    19
+                ],
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "133",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "134",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "135",
+                "variant": null,
+                "level": 1,
+                "klass": "Dracolord",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "136",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "137",
+                "variant": null,
+                "level": 10,
+                "klass": "Dracoknight",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "138",
+                "variant": null,
+                "level": 2,
+                "klass": "Dracolord",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "148",
+                "variant": null,
+                "level": 10,
+                "klass": "Shaman",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "149",
+                "variant": null,
+                "level": 10,
+                "klass": "Shaman",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Flux",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "150",
+                "variant": null,
+                "level": 10,
+                "klass": "Shaman",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Nyx",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "151",
+                "variant": null,
+                "level": 10,
+                "klass": "Shaman",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Nyx",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "154",
+                "variant": null,
+                "level": 2,
+                "klass": "Paladin",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "155",
+                "variant": null,
+                "level": 2,
+                "klass": "Paladin",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "156",
+                "variant": null,
+                "level": 3,
+                "klass": "Paladin",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "157",
+                "variant": null,
+                "level": 3,
+                "klass": "Paladin",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "158",
+                "variant": null,
+                "level": 4,
+                "klass": "Paladin",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "161",
+                "variant": null,
+                "level": 4,
+                "klass": "Paladin",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "164",
+                "variant": null,
+                "level": 2,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Oak Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "165",
+                "variant": null,
+                "level": 2,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Oak Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "166",
+                "variant": null,
+                "level": 2,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "167",
+                "variant": null,
+                "level": 2,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Mithril Axe",
+                        false
+                    ],
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "168",
+                "variant": null,
+                "level": 2,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Adamant Axe",
+                        false
+                    ],
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            },
+            {
+                "nid": "169",
+                "variant": null,
+                "level": 2,
+                "klass": "Warrior",
+                "faction": "Claw",
+                "starting_items": [
+                    [
+                        "Adamant Axe",
+                        false
+                    ],
+                    [
+                        "Yew Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": "Claw",
+                "desc": "The Empire's elite guard.",
+                "generic": true
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Village1",
+                "region_type": "event",
+                "position": [
+                    4,
+                    11
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Village2",
+                "region_type": "event",
+                "position": [
+                    7,
+                    17
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Village3",
+                "region_type": "event",
+                "position": [
+                    15,
+                    11
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Village4",
+                "region_type": "event",
+                "position": [
+                    16,
+                    6
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Village5",
+                "region_type": "event",
+                "position": [
+                    21,
+                    20
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Village6",
+                "region_type": "event",
+                "position": [
+                    29,
+                    5
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Armory1",
+                "region_type": "event",
+                "position": [
+                    2,
+                    21
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Armory2",
+                "region_type": "event",
+                "position": [
+                    7,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Vendor1",
+                "region_type": "event",
+                "position": [
+                    1,
+                    15
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Vendor",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Vendor2",
+                "region_type": "event",
+                "position": [
+                    20,
+                    1
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Vendor",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Secret",
+                "region_type": "event",
+                "position": [
+                    27,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Secret",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation1",
+                "region_type": "formation",
+                "position": [
+                    4,
+                    13
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation2",
+                "region_type": "formation",
+                "position": [
+                    6,
+                    13
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation3",
+                "region_type": "formation",
+                "position": [
+                    5,
+                    14
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation4",
+                "region_type": "formation",
+                "position": [
+                    3,
+                    14
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation5",
+                "region_type": "formation",
+                "position": [
+                    7,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation6",
+                "region_type": "formation",
+                "position": [
+                    7,
+                    14
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation7",
+                "region_type": "formation",
+                "position": [
+                    4,
+                    15
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation8",
+                "region_type": "formation",
+                "position": [
+                    5,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation9",
+                "region_type": "formation",
+                "position": [
+                    6,
+                    15
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation10",
+                "region_type": "formation",
+                "position": [
+                    8,
+                    13
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation11",
+                "region_type": "formation",
+                "position": [
+                    8,
+                    15
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Formation12",
+                "region_type": "formation",
+                "position": [
+                    3,
+                    12
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": null,
+                "condition": "True",
+                "only_once": false
+            }
+        ],
+        "unit_groups": [
+            {
+                "nid": "Wyvern1",
+                "units": [
+                    "133",
+                    "134",
+                    "135"
+                ],
+                "positions": {
+                    "133": [
+                        30,
+                        25
+                    ],
+                    "134": [
+                        28,
+                        27
+                    ],
+                    "135": [
+                        30,
+                        27
+                    ]
+                }
+            },
+            {
+                "nid": "Wyvern2",
+                "units": [
+                    "136",
+                    "137",
+                    "138"
+                ],
+                "positions": {
+                    "136": [
+                        30,
+                        25
+                    ],
+                    "137": [
+                        28,
+                        27
+                    ],
+                    "138": [
+                        30,
+                        27
+                    ]
+                }
+            },
+            {
+                "nid": "Shaman1",
+                "units": [
+                    "148",
+                    "149"
+                ],
+                "positions": {
+                    "148": [
+                        30,
+                        18
+                    ],
+                    "149": [
+                        30,
+                        20
+                    ]
+                }
+            },
+            {
+                "nid": "Shaman2",
+                "units": [
+                    "150",
+                    "151"
+                ],
+                "positions": {
+                    "150": [
+                        30,
+                        18
+                    ],
+                    "151": [
+                        30,
+                        20
+                    ]
+                }
+            },
+            {
+                "nid": "Paladin1",
+                "units": [
+                    "154",
+                    "155"
+                ],
+                "positions": {
+                    "154": [
+                        14,
+                        0
+                    ],
+                    "155": [
+                        15,
+                        0
+                    ]
+                }
+            },
+            {
+                "nid": "Paladin2",
+                "units": [
+                    "156",
+                    "157"
+                ],
+                "positions": {
+                    "156": [
+                        14,
+                        0
+                    ],
+                    "157": [
+                        15,
+                        0
+                    ]
+                }
+            },
+            {
+                "nid": "Paladin3",
+                "units": [
+                    "158",
+                    "161"
+                ],
+                "positions": {
+                    "158": [
+                        14,
+                        0
+                    ],
+                    "161": [
+                        15,
+                        0
+                    ]
+                }
+            },
+            {
+                "nid": "Warrior1",
+                "units": [
+                    "164",
+                    "165"
+                ],
+                "positions": {
+                    "164": [
+                        0,
+                        10
+                    ],
+                    "165": [
+                        0,
+                        12
+                    ]
+                }
+            },
+            {
+                "nid": "Warrior2",
+                "units": [
+                    "166",
+                    "167"
+                ],
+                "positions": {
+                    "166": [
+                        0,
+                        10
+                    ],
+                    "167": [
+                        0,
+                        12
+                    ]
+                }
+            },
+            {
+                "nid": "Warrior3",
+                "units": [
+                    "168",
+                    "169"
+                ],
+                "positions": {
+                    "168": [
+                        0,
+                        10
+                    ],
+                    "169": [
+                        0,
+                        12
+                    ]
+                }
+            }
+        ]
     }
 ]

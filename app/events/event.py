@@ -492,6 +492,19 @@ class Event():
             except:
                 logging.error("Could not evaluate {%s}" % to_eval)
 
+        elif command.nid == 'inc_game_var':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            if len(values) > 1 and values[1]:
+                to_eval = values[1]
+                try:
+                    val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
+                    action.do(action.SetGameVar(nid, game.game_var.get(nid, 0) + val))
+                except:
+                    logging.error("Could not evaluate {%s}" % to_eval)
+            else:
+                action.do(action.SetGameVar(nid, game.game_var.get(nid, 0) + 1))
+
         elif command.nid == 'level_var':
             values, flags = event_commands.parse(command)
             nid = values[0]
@@ -507,6 +520,19 @@ class Event():
                 for unit in game.units:
                     if unit.position:
                         action.do(action.UpdateFogOfWar(unit))
+
+        elif command.nid == 'inc_level_var':
+            values, flags = event_commands.parse(command)
+            nid = values[0]
+            if len(values) > 1 and values[1]:
+                to_eval = values[1]
+                try:
+                    val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
+                    action.do(action.SetLevelVar(nid, game.level_var.get(nid, 0) + val))
+                except:
+                    logging.error("Could not evaluate {%s}" % to_eval)
+            else:
+                action.do(action.SetLevelVar(nid, game.level_var.get(nid, 0) + 1))
 
         elif command.nid == 'win_game':
             game.level_vars['_win_game'] = True

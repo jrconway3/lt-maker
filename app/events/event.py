@@ -1111,8 +1111,22 @@ class Event():
             bg = 'menu_bg_dark'
         elif variant == 'hint':
             bg = 'menu_bg_parchment'
-            position = 'center'
-            width = WINWIDTH//2 + 8
+            if not position:
+                position = 'center'
+            if not width:
+                width = WINWIDTH//2 + 8
+        elif variant == 'narration':
+            bg = 'menu_bg_base'
+            if not position:
+                position = (4, 110)
+            if not width:
+                width = WINWIDTH - 8
+        elif variant == 'narration_top':
+            bg = 'menu_bg_base'
+            if not position:
+                position = (4, 2)
+            if not width:
+                width = WINWIDTH - 8
         new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'

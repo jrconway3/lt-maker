@@ -24,8 +24,12 @@ class Dialog():
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
+        self.variant = variant
         self.font_type = 'convo'
-        self.font_color = 'black'
+        if self.variant in ('noir', 'narration', 'narration_top'):
+            self.font_color = 'white'
+        else:
+            self.font_color = 'black'
         self.font = FONT[self.font_type + '-' + self.font_color]
 
         # States: process, transition, pause, wait, done, new_line
@@ -74,10 +78,9 @@ class Dialog():
             self.background = None
             self.tail = None
             
-        self.variant = variant
-        if variant in ('noir', 'hint'):
+        if self.variant in ('noir', 'hint'):
             self.tail = None
-        elif variant == 'thought_bubble':
+        elif self.variant == 'thought_bubble':
             self.tail = SPRITES.get('message_bg_thought_tail')
 
         self.name_tag_surf = create_base_surf(64, 16, 'name_tag')

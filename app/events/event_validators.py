@@ -131,7 +131,7 @@ class ExpressionList(Validator):
         return text
 
 class DialogVariant(OptionValidator):
-    valid = ["thought_bubble", "noir", "hint"]
+    valid = ["thought_bubble", "noir", "hint", "narration", "narration_top"]
 
 class StringList(Validator):
     def validate(self, text, level):

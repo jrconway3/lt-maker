@@ -4399,6 +4399,66 @@
         "priority": 20
     },
     {
+        "name": "FightAdjutant",
+        "trigger": "combat_start",
+        "level_nid": "10",
+        "condition": "check_default('Adjutant', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Adjutant",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Adjutant",
+                    "Insolent pests!|You should be grateful the Empire ever graced your backwoods province."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Adjutant"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "FightUlver",
+        "trigger": "combat_start",
+        "level_nid": "10",
+        "condition": "check_default('Ulver', [])",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ulver",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ulver",
+                    "Come then. Test yourself against my strength!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ulver"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
         "name": "FightBoaz",
         "trigger": "combat_start",
         "level_nid": "9",
@@ -7378,12 +7438,6 @@
         "condition": "True",
         "commands": [
             [
-                "transition",
-                [
-                    "Close"
-                ]
-            ],
-            [
                 "comment",
                 [
                     "# Just in case"
@@ -7406,6 +7460,12 @@
             [
                 "victory_screen",
                 []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
             ],
             [
                 "music",
@@ -12623,6 +12683,12 @@
             [
                 "victory_screen",
                 []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
             ],
             [
                 "music",
@@ -21803,6 +21869,12 @@
                 []
             ],
             [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
                 "music",
                 [
                     "Wild Arms Town"
@@ -23870,6 +23942,12 @@
             [
                 "victory_screen",
                 []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
             ],
             [
                 "music",
@@ -26539,6 +26617,12 @@
                 []
             ],
             [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
                 "music",
                 [
                     "One Summer's Day"
@@ -26553,7 +26637,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -28308,6 +28392,12 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
                 "set_position",
                 [
                     "Rein"
@@ -28326,6 +28416,12 @@
                     "{position}",
                     "warp",
                     "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ],
             [
@@ -28350,6 +28446,12 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
                 "set_position",
                 [
                     "Rein"
@@ -28369,6 +28471,592 @@
                     "warp",
                     "closest"
                 ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn7",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount == 7",
+        "commands": [
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p31",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p32",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p33",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p34",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn9",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount == 9",
+        "commands": [
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p21",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p22",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p23",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p24",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn11",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount == 11",
+        "commands": [
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p41",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p42",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p43",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p44",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turn14",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount == 14",
+        "commands": [
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p51",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p52",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p53",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p54",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p55",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p56",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p57",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "{position}"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "p58",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
             ]
         ],
         "only_once": false,
@@ -28383,7 +29071,7 @@
             [
                 "add_weather",
                 [
-                    "Rain"
+                    "Dark"
                 ]
             ],
             [
@@ -28401,15 +29089,1270 @@
                 ]
             ],
             [
-                "comment",
+                "autolevel_to",
                 [
-                    "# free level Thief +5"
+                    "Thief1",
+                    "15"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Thief2",
+                    "15"
                 ]
             ],
             [
                 "comment",
                 [
-                    "# free level Thief +5"
+                    "# Remove the one unit that's in the screenspace"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "105",
+                    "immediate"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Comfort's Call"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Mithril Sword"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Mithril Lance"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Mithril Axe"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Adamant Sword"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Adamant Lance"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Adamant Axe"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Yew Bow"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Blind"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Physic"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Elixir"
+                ]
+            ],
+            [
+                "add_market_item",
+                [
+                    "Hex"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Kayla')"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Promises"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "if",
+                [
+                    "game.check_alive('Eliza') and game.check_alive('Theo')"
+                ]
+            ],
+            [
+                "add_base_convo",
+                [
+                    "Theo and Eliza"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# Show room"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "TacticsRoom"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Sam",
+                    "7,2",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "12,6",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Prim",
+                    "10,6",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Theo",
+                    "10,9",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Renae",
+                    "2,9",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Drake",
+                    "5,6",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Joel",
+                    "9,7",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Althea",
+                    "3,6",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Nia",
+                    "13,9",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Eliza",
+                    "5,9",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Kayla",
+                    "2,4",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Coyote",
+                    "1,8",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TacticsRoom"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Sam",
+                    "FarRight",
+                    "Renae",
+                    "FarLeft",
+                    "Ophie",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "So what's the plan, Sam?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "If all goes well today, this'll be my last premission spiel."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "Thank the light!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Renae",
+                    "...No offense."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Anyways, with Vagnius dead, there's only one obstacle left in our way.|Duke Ulver himself."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Kayla",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "Once he's been captured, and Althea takes the throne,|Kerala will be independent once more."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Everything we've dreamed of.|Everything we've fought for.|It all comes down to today.|Kiley's army assaults the gates of Rajas at dawn.|While the main Imperial garrison is occupied,|we will sneak into the Palace and eliminate the Duke."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Kayla",
+                    "With their leader incapacitated, and Kerala rising up in rebellion around them,|the remaining Imperials will be forced to surrender."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Okay... But how are we going to sneak in?|Ulver has Rajas locked down tight."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Luckily, Coyote knows of a secret passage below Rajas,|built during the time of the Sun King.|According to him, the passage leads directly to the Lion Throne.|It's been so long since anyone's used it, I'm sure it'll be abandoned."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Well then, we don't have long."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Quite right.|Everyone, this is your last chance to prepare. Make it count."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Ophie",
+                    "Kayla",
+                    "Renae"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "base",
+                [
+                    "MainBase",
+                    "The Journey to the West"
+                ]
+            ],
+            [
+                "chapter_title",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# Intro Script"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Sootballs"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Sewers"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Joel",
+                    "Left",
+                    "Coyote",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "Are you sure we're going the right way, Coyote?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Yes."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "I mean, I don't want to cast doubt on your judgement, partner...|But I reckon' I've seen that exact rat before."
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Joel, quit your whining and stay alert.|Our exit should be nearby.|Once we're there, I'll--"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Coyote",
+                    "FarRight"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Nia",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Hmm, Nia?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "S-Someone else...|Someone else here..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nia",
+                    "Many someone."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Coyote, you said this passage was abandoned."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "Old, not abandoned."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Ugh...|Everyone, be on your guard.|We don't want any surprises."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Joel",
+                    "Nia",
+                    "Sam",
+                    "Coyote"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "0,30",
+                    "immediate"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "0,27",
+                    "",
+                    "stack"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Joel",
+                    "0,27",
+                    "",
+                    "stack"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Althea",
+                    "0,27",
+                    "",
+                    "stack"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Sam",
+                    "0,27",
+                    "",
+                    "stack"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Ophie",
+                    "2,27",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Althea",
+                    "3,27",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Joel",
+                    "1,27",
+                    "no_block"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Sam",
+                    "3,28"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Woah!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Joel",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Joel",
+                    "By the light..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Althea",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "This is no sewer..."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Joel"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "What could be the purpose of all this?"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Althea"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Combat Theme 4"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Jakin",
+                    "6,26",
+                    "warp"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Boaz",
+                    "6,28",
+                    "warp"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Jakin"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Althea",
+                    "MidLeft",
+                    "Sam",
+                    "FarLeft",
+                    "Jakin",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Eek!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jakin",
+                    "Purpose...|A bird does not wonder if its purpose is to fly."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Boaz",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "No time for philosophy, my friend. Prey is afoot!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "Who are you...|What is this..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "Hmm? Did you hear something, Jakin?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Jakin",
+                    "..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Boaz",
+                    "Jakin"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Boaz",
+                    "MidRight",
+                    "Jakin",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "What's a nice girl like you doing in the undercity?"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Althea"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "O-Out of our way!|We need to get to the palace!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "Hahaha! Such vigor!|I'll take pity on you, little girl.|You want to cross these waters, you have to play our game.|There's only one rule.|If you can make it by us alive, then you're free.|Otherwise, well... Hahaha!."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Althea",
+                    "What sort of sick game is this..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "The greatest of games!|You just have to bet your life to play!|Hahaha!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "You're insane..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Boaz",
+                    "Come on Jakin. Let's scram.|We've got to give them a fighting chance, after all."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Jakin",
+                    "Boaz",
+                    "Althea",
+                    "Sam"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Jakin",
+                    "4,4",
+                    "warp"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Boaz",
+                    "26,27",
+                    "warp"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Althea",
+                    "MidLeft",
+                    "Sam",
+                    "FarLeft",
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Who the hell were those jokers..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Never mind that.|We must be right under the palace.|There should be an exit nearby.|Stay together, and we might make it out of this 'game' alive."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Althea",
+                    "Ophie",
+                    "Sam"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "arrange_formation",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# Put that unit back"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "105",
+                    "",
+                    "immediate"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "prep",
+                [
+                    "f",
+                    "Preparing for Battle"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Infinite1",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount >= 16 and game.turncount%2",
+        "commands": [
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i1",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i4",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i6",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i8",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Infinite2",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.turncount >= 16 and not game.turncount%2",
+        "commands": [
+            [
+                "set_position",
+                [
+                    "Rein"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i2",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i3",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i5",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "create_unit",
+                [
+                    "i7",
+                    "",
+                    "game.turncount - 10",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "{unit}",
+                    "Void_Curse"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "9",
+        "condition": "True",
+        "commands": [
+            [
+                "victory_screen",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Young Man from the East"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Palace_Door"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Sam",
+                    "Right",
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Phew... Those jokers would not let up.|Who were they anyway, Sam?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Now is not the time for conjecture.|Duke Ulver himself is beyond these doors."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Ulver will rue the day he reckoned with us."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "Let's go then. Our final battle awaits."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Sam",
+                    "Ophie"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ]
         ],

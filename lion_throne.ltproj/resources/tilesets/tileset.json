@@ -223,5 +223,15 @@
         "nid": "Chapter9",
         "terrain_grid": {},
         "autotiles": {}
+    },
+    {
+        "nid": "Chapter10",
+        "terrain_grid": {},
+        "autotiles": {}
+    },
+    {
+        "nid": "Chapter10Tiles",
+        "terrain_grid": {},
+        "autotiles": {}
     }
 ]

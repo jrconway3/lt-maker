@@ -21,7 +21,7 @@ class Timer(QWidget):
         self.autosave_timer.setInterval(5 * 60 * 1000)
         self.autosave_timer.start()
 
-        framerate = constants.FRAMERATE
+        framerate = 16
         self.passive_counter = counters.generic3counter(int(32*framerate), int(4*framerate))
         self.active_counter = counters.generic3counter(int(13*framerate), int(6*framerate))
 
@@ -49,5 +49,5 @@ TIMER = None
 def get_timer():
     global TIMER
     if not TIMER:
-        TIMER = Timer(constants.FPS)
+        TIMER = Timer(constants.FPS//2)
     return TIMER

@@ -253,7 +253,10 @@ class Dialog():
             if letter == ' ':
                 break
             elif len(letter) > 1:  # Command
-                continue
+                if letter in self.aesthetic_commands:
+                    continue
+                else:
+                    break
             else:
                 word += letter
         return word

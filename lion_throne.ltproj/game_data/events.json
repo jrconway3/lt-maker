@@ -134,42 +134,17 @@
                 ]
             ],
             [
-                "transition",
-                [
-                    "Close"
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "Open"
-                ]
-            ],
-            [
-                "ending",
+                "add_portrait",
                 [
                     "Ophie",
-                    "Ophie, Stern Swordsman",
-                    "Ophie was a wild pig. Lorem ipsum avadra kevadra a worried pig shuckles no fawns. The quick brown fox jumps over the lazy dog."
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "Close"
+                    "MidRight"
                 ]
             ],
             [
                 "speak",
                 [
-                    "",
-                    "{no_wait}"
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "Open"
+                    "Ophie",
+                    "Well? So eager before, and now you hesitate. A pity.|Sidney?"
                 ]
             ]
         ],

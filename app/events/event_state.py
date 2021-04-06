@@ -16,7 +16,7 @@ class EventState(MapState):
         self.game_over: bool = False  # Whether we've called for a game over
         if not self.event:
             self.event = game.events.get()
-            if self.event:
+            if self.event and game.cursor:
                 game.cursor.hide()
 
     def take_input(self, event):
@@ -49,7 +49,8 @@ class EventState(MapState):
             return self.end_event()
 
     def draw(self, surf):
-        surf = super().draw(surf)
+        if game.cursor:
+            surf = super().draw(surf)
         if self.event:
             self.event.draw(surf)
 

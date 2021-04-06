@@ -9,6 +9,8 @@ from app.engine.base_surf import create_base_surf
 from app.engine import text_funcs, engine, image_mods
 from app.engine import config as cf
 
+from app.engine.game_state import game
+
 class Dialog():
     num_lines = 2
     solo_flag = True
@@ -30,11 +32,17 @@ class Dialog():
             self.font_color = 'white'
         else:
             self.font_color = 'black'
+        if self.variant == 'cinematic':
+            self.font_type = 'chapter'
+            self.font_color = 'grey'
+            self.num_lines = 5
+            self.draw_cursor_flag = False
         self.font = FONT[self.font_type + '-' + self.font_color]
 
         # States: process, transition, pause, wait, done, new_line
         self.state = 'transition'
 
+        self.no_wait = False
         self.text_commands = self.format_text(text)
         self.text_lines = []
         
@@ -78,7 +86,7 @@ class Dialog():
             self.background = None
             self.tail = None
             
-        if self.variant in ('noir', 'hint'):
+        if self.variant in ('noir', 'hint', 'cinematic'):
             self.tail = None
         elif self.variant == 'thought_bubble':
             self.tail = SPRITES.get('message_bg_thought_tail')
@@ -103,6 +111,7 @@ class Dialog():
         text = text.replace('|', '{w}{br}')
         if text.endswith('{no_wait}'):
             text = text[:-len('{no_wait}')]
+            self.no_wait = True
         elif not text.endswith('{w}'):
             text += '{w}'
         command = None
@@ -249,7 +258,16 @@ class Dialog():
                 word += letter
         return word
 
+    def is_complete(self):
+        """
+        Should no longer be drawn
+        """
+        return self.state == 'done'
+
     def is_done(self):
+        """
+        Can move onto processing other commands
+        """
         return self.state == 'done'
 
     def is_done_or_wait(self):
@@ -302,7 +320,10 @@ class Dialog():
                 self.play_talk_boop()
         elif self.state == 'pause':
             if current_time - self.last_update > self.pause_time:
-                self.state = 'wait'
+                if self.no_wait:
+                    self.state = 'done'
+                else:
+                    self.state = 'wait'
         elif self.state == 'new_line':
             # Update y_offset
             self.y_offset = max(0, self.y_offset - 2)
@@ -507,3 +528,182 @@ class LocationCard():
         surf.blit(bg, self.position)
 
         return surf
+
+class Credits():
+    speed = 0.02
+
+    def __init__(self, title, text, wait_flag=False, center_flag=True):
+        self.title = title
+        self.text = text
+        self.title_font = FONT['credit_title-white']
+        self.font = FONT['credit-white']
+
+        self.center_flag = center_flag
+        self.wait_flag = wait_flag
+        self.waiting = False
+
+        self.make_surf()
+
+        self.position = [0, WINHEIGHT]
+
+        self.pause_update = engine.get_time()
+        self.has_paused = False
+        self.start_update = engine.get_time()
+
+    def make_surf(self):
+        index = 0
+        self.parsed_text = []
+        for line in self.text:
+            x_bound = WINWIDTH - 12 if self.center_flag else WINWIDTH - 88
+            lines = text_funcs.line_wrap(self.font, line, x_bound)
+            for li in lines:
+                if self.center_flag:
+                    x_pos = WINWIDTH//2 - self.font.width(li)//2
+                else:
+                    x_pos = 88
+                y_pos = self.font.height * index + self.title_font.height
+                index += 1
+                self.parsed_text.append((li, index, (x_pos, y_pos)))
+
+        self.num_lines = index
+
+        size = (WINWIDTH, self.title_font.height + self.font.height * self.num_lines)
+        self.surf = engine.create_surface(size, transparent=True)
+
+        title_pos_x = 32
+        self.title_font.blit(self.title, self.surf, (title_pos_x, 0))
+
+        for text, index, pos in self.parsed_text:
+            self.font.blit(text, self.surf, pos)
+
+    def wait_time(self) -> int:
+        time = int((self.num_lines + 2) * self.font.height * 50)
+        if self.wait_flag:
+            time += int(self.pause_time() * 2.1)
+        return time
+
+    def pause_time(self) -> int:
+        return int((self.num_lines + 1) * 1000)
+
+    def update(self):
+        current_time = engine.get_time()
+
+        if not self.waiting or current_time - self.pause_update > self.pause_time():
+            self.waiting = False
+            ms_passed = current_time - self.start_update
+            if self.has_paused:
+                ms_passed -= self.pause_time()
+            self.position[1] = WINHEIGHT - (ms_passed * self.speed)
+            # Should we pause?
+            if self.wait_flag and WINHEIGHT//2 - self.surf.get_height()//2 >= self.position[1]:
+                self.waiting = True
+                self.wait_flag = False
+                self.pause_update = current_time
+                self.has_paused = True
+        return True
+
+    def draw(self, surf):
+        surf.blit(self.surf, self.position)
+        return surf
+
+class Ending():
+    """
+    Contains a dialog
+    """
+    solo_flag = True
+    wait_time = 5000
+    background = SPRITES.get('endings_display')
+
+    def __init__(self, portrait, title, text, unit):
+        self.portrait = portrait
+        self.title = title
+        self.plain_text = text
+        self.unit = unit
+        self.font = FONT['text-white']
+
+        # Build dialog
+        class EndingDialog(Dialog):
+            num_lines = 6
+            draw_cursor_flag = False
+
+        self.dialog = EndingDialog(text)
+        self.dialog.position = (8, 40)
+        self.dialog.text_width = WINWIDTH - 32
+        self.dialog.width = self.dialog.text_width + 16
+        self.dialog.font = FONT['text-white']
+        self.dialog.font_type = 'text'
+        self.dialog.font_color = 'white'
+
+        self.make_background()
+        self.x_position = WINWIDTH
+
+        self.wait_update = 0
+
+    def make_background(self):
+        size = WINWIDTH, WINHEIGHT
+        self.bg = engine.create_surface(size, transparent=True)
+        self.bg.blit(self.background, (0, 0))
+        self.bg.blit(self.portrait, (136, 57))
+
+        title_pos_x = 68 - self.font.width(self.title)//2
+        self.font.blit(self.title, self.bg, (title_pos_x, 24))
+
+        # Stats
+        if self.unit:
+            kills = game.records.get_kills(self.unit.nid)
+            damage = game.records.get_damage(self.unit.nid)
+            healing = game.records.get_heal(self.unit.nid)
+
+            FONT['text-yellow'].blit(text_funcs.translate('K'), self.bg, (136, 8))
+            FONT['text-yellow'].blit(text_funcs.translate('D'), self.bg, (168, 8))
+            FONT['text-yellow'].blit(text_funcs.translate('H'), self.bg, (200, 8))
+            FONT['text-blue'].blit(str(kills), self.bg, (144, 8))
+            dam = str(damage)
+            if damage >= 1000:
+                dam = dam[:-3] + '.' + dam[-3] + 'k'
+            heal = str(healing)
+            if healing >= 1000:
+                heal = heal[:-3] + '.' + heal[-3] + 'k'
+            FONT['text-blue'].blit(dam, self.bg, (176, 8))
+            FONT['text-blue'].blit(heal, self.bg, (208, 8))
+
+        return self.bg
+
+    def is_complete(self):
+        """
+        Should stop being drawn
+        """
+        return False
+
+    def is_done(self):
+        return self.dialog.is_done()
+
+    def is_done_or_wait(self):
+        return self.dialog.is_done_or_wait()
+
+    def hurry_up(self):
+        self.dialog.hurry_up()
+
+    def update(self):
+        current_time = engine.get_time()
+
+        # Move in
+        if self.x_position > 0:
+            self.x_position -= 8
+            self.x_position = max(0, self.x_position)
+        else:
+            self.dialog.update()
+
+        # Only wait for so long
+        if self.wait_update:
+            if current_time - self.wait_update > self.wait_time:
+                self.dialog.state = 'done'
+        elif self.is_done_or_wait():
+            self.wait_update = current_time
+
+        return False
+
+    def draw(self, surf):
+        bg = self.bg.copy()
+        self.dialog.draw(bg)
+        surf.blit(bg, (self.x_position, 0))

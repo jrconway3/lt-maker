@@ -14,6 +14,7 @@ from app import autoupdate
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
 
+from app.events.event import Event
 
 import logging
 logger = logging.getLogger(__name__)
@@ -450,11 +451,16 @@ class TitleExtrasState(TitleLoadState):
         self.bg = game.memory['title_bg']
         self.particles = game.memory['title_particles']
 
-        # options = ['Options', 'Credits']
-        options = ['Options']  # TODO Credits not implemented yet
+        options = ['Options', 'Credits']
         if cf.SETTINGS['debug']:
             options.insert(0, 'All Saves')
         self.menu = menus.Main(options, 'title_menu_dark')
+
+    def begin(self):
+        # If we came back from the credits event, fade in
+        if game.state.prev_state == 'event':
+            game.state.change('transition_in')
+            return 'repeat'
 
     def take_input(self, event):
         # Only take input in normal state
@@ -480,8 +486,15 @@ class TitleExtrasState(TitleLoadState):
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'Credits':
-                game.memory['next_state'] = 'credits'
-                game.state.change('transition_to')
+                game.sweep()  # Set up event manager
+                event_prefab = DB.events.get_from_nid('Global Credits')
+                if event_prefab:
+                    event = Event(event_prefab.nid, event_prefab.commands)
+                    game.events.append(event)
+                    game.memory['next_state'] = 'event'
+                    game.state.change('transition_to')
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')

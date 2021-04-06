@@ -1,11 +1,11 @@
-Base
+**Base**
 Hidden
 Class Skill
 Stack
 Feat
 Negative
 
-Movement
+**Movement**
 Canto
 Canto Plus
 Canto Sharp
@@ -13,7 +13,7 @@ Movement Type
 Pass
 Ignore Terrain
 
-Boss Powers
+**Boss Powers**
 Resist Status
 Immune Status
 Grounded
@@ -21,13 +21,13 @@ Reflect Status
 Distant Counter
 Ignore Damage
 
-Status Effects
+**Status Effects**
 Ignore Alliances
 Unselectable
 Cannot use Items
 Cannot use Magic Items
 
-Other
+**Other**
 Change AI
 Locktouch
 Sight Range
@@ -43,28 +43,36 @@ Modify Maximum Range
 Growth Change
 Death Tether
 
-Combat Calculations
+**Combat Calculations**
 Stat Change
 Stat Multipler
-Damage -> Defense Speed
+Damage, Resist, Accuracy, Avoid, etc.
 Damage Multiplier
 Resist Multiplier
 
-Dynamic Combat Calculations
+**Dynamic Combat Calculations**
 Eval Damage
-Dynamic Damage -> Dynamic Multiattack
+Dynamic Damage, Dynamic Resist, Dynamic Accuracy, Dynamic Avoid, etc.
 
-Other Combat Stuff
+**Other Combat Stuff**
 Cannot Double
 Can Double on Defense
 Vantage
 Lifelink
 Guaranteed Crit
-Status Give stuff
+Give Status after Combat
+Give Status after Attack
+Gain Skill After Kill
+Gain Skill After Attacking
+Gain SKill After Active Kill
 
-Equations
+**Equations**
+Damage Formula
+Resist Formula
+Accuracy Formula
+etc.
 
-Time/Upkeep Stuff
+**Time/Upkeep Stuff**
 Time
 Regeneration
 Upkeep Stat Change
@@ -76,33 +84,33 @@ Lost on Endchapter
 Lost on End Combat
 Event on Remove
 
-Aesthetics
+**Aesthetics**
 Steal Icon
 GBA Steal Icon
 Unit Anim
 Unit Flickering Tint
 Display Skill Icon in Combat
 
-Charge
+**Charge**
 Build Charge
 Drain Charge
 Combat Charge Increase
 Combat Charge Increase by Stat
 
-Condition
+**Conditionals**
 Condition
 Combat Condition
 
-Modify Splash
+**Modify Splash**
 Oversplash
 Cleave
 
-Aura
+**Aura**
 Aura 
 Aura Range
 Aura Target
 
-Combat Art
+**Combat Art**
 Ability
 Combat Art
 Automatic Combat Art
@@ -110,8 +118,7 @@ Combat Art Allowed Weapons
 Combat Art Set Max Range
 Combat Art Modify Max Range
 
-Proc
+**Proc**
 Attack Proc
 Defense Proc
 Proc Rate
-

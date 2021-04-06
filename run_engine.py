@@ -37,8 +37,8 @@ if __name__ == '__main__':
     if not success:
         engine.terminate()
     try:
-        # main()
-        test_play()
+        main()
+        # test_play()
     except Exception as e:
         logging.exception(e)
         inform_error()
@@ -52,6 +52,7 @@ if __name__ == '__main__':
         time.sleep(0.5)
         engine.on_end(crash=True)
         inform_error()
+        print("Wow")
         if cf.SETTINGS['debug']:
             time.sleep(5)
         else:

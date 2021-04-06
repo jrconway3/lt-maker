@@ -12,7 +12,7 @@ from app.data.level_units import UniqueUnit, GenericUnit
 
 from app.engine import dialog, engine, background, target_system, action, \
     interaction, item_funcs, item_system, banner, skill_system, unit_funcs, \
-    evaluate, static_random
+    evaluate, static_random, image_mods, icons
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
@@ -40,7 +40,7 @@ class Event():
     true_vals = ('t', 'true', '1', 'y', 'yes')
 
     skippable = {"speak", "transition", "wait", "bop_portrait",
-                 "sound", "location_card"}
+                 "sound", "location_card", "credits", "ending"}
 
     def __init__(self, nid, commands, unit=None, unit2=None, item=None, position=None, region=None):
         self.nid = nid
@@ -146,6 +146,8 @@ class Event():
                 if self.text_boxes:
                     if self.text_boxes[-1].is_done():
                         self.state = 'processing'
+                else:
+                    self.state = 'processing'
 
             elif self.state == 'paused':
                 self.state = 'processing'
@@ -184,16 +186,16 @@ class Event():
             box.draw(surf)
 
         # Draw text/dialog boxes
-        if self.state == 'dialog':
-            to_draw = []
-            for dialog_box in reversed(self.text_boxes):
-                if not dialog_box.is_done():
-                    to_draw.insert(0, dialog_box)
-                if dialog_box.solo_flag:
-                    break
-            for dialog_box in to_draw:
-                dialog_box.update()
-                dialog_box.draw(surf)
+        # if self.state == 'dialog':
+        to_draw = []
+        for dialog_box in reversed(self.text_boxes):
+            if not dialog_box.is_complete():
+                to_draw.insert(0, dialog_box)
+            if dialog_box.solo_flag:
+                break
+        for dialog_box in to_draw:
+            dialog_box.update()
+            dialog_box.draw(surf)
 
         # Fade to black
         if self.transition_state:
@@ -933,6 +935,10 @@ class Event():
             game.state.change('victory')
             self.state = 'paused'
 
+        elif command.nid == 'records_screen':
+            game.state.change('base_records')
+            self.state = 'paused'
+
         elif command.nid == 'location_card':
             values, flags = event_commands.parse(command)
             custom_string = values[0]
@@ -942,6 +948,37 @@ class Event():
 
             self.wait_time = engine.get_time() + new_location_card.exist_time
             self.state = 'waiting'
+
+        elif command.nid == 'credits':
+            values, flags = event_commands.parse(command)
+            title = values[0]
+            credits = values[1].split(',') if 'no_split' not in flags else [values[1]]
+            wait = 'wait' in flags
+            center = 'center' in flags
+
+            new_credits = dialog.Credits(title, credits, wait, center)
+            self.other_boxes.append(new_credits)
+
+            self.wait_time = engine.get_time() + new_credits.wait_time()
+            self.state = 'waiting'
+        
+        elif command.nid == 'ending':
+            values, flags = event_commands.parse(command)
+            name = values[0]
+            unit = self.get_unit(name)
+            if unit and unit.portrait_nid:
+                portrait = icons.get_portrait(unit)
+                portrait = portrait.convert_alpha()
+                portrait = image_mods.make_translucent(portrait, 0.2)
+            else:
+                logging.error("Couldn't find unit or portrait %s" % name)
+                return False
+            title = values[1]
+            text = values[2]
+
+            new_ending = dialog.Ending(portrait, title, text, unit)
+            self.text_boxes.append(new_ending)
+            self.state = 'dialog'
 
         elif command.nid == 'unlock':
             # This is a macro that just adds new commands to command list
@@ -1109,6 +1146,10 @@ class Event():
         bg = 'message_bg_base'
         if variant == 'noir':
             bg = 'menu_bg_dark'
+        elif variant == 'cinematic':
+            bg = None
+            if not position:
+                position = 'center'
         elif variant == 'hint':
             bg = 'menu_bg_parchment'
             if not position:
@@ -1508,7 +1549,7 @@ class Event():
             elif placement == 'push':
                 current_occupant = game.get_unit(current_occupant)
                 new_pos = target_system.get_nearest_open_tile(current_occupant, position)
-                action.do(action.Push(current_occupant, new_pos))
+                action.do(action.ForcedMovement(current_occupant, new_pos))
                 return position
         else:
             return position
@@ -2081,7 +2122,7 @@ class Event():
         else:
             unit2 = self.unit2
         
-        valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or event_prefab.level_nid == game.level.nid)]
+        valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or (game.level and event_prefab.level_nid == game.level.nid))]
         for event_prefab in valid_events:
             game.events.add_event(event_prefab.nid, event_prefab.commands, unit, unit2, position=self.position, region=self.region)
             self.state = 'paused'

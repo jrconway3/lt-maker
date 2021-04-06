@@ -1,5 +1,6 @@
 import os
 import shutil
+import filecmp
 import json
 
 from app.utilities.data import Data
@@ -46,9 +47,15 @@ class ManifestCatalog(Data):
         for datum in self:
             new_full_path = os.path.join(loc, datum.nid + self.filetype)
             if os.path.abspath(datum.full_path) != os.path.abspath(new_full_path):
-                shutil.copy(datum.full_path, new_full_path)
+                self.make_copy(datum.full_path, new_full_path)
                 datum.set_full_path(new_full_path)
         self.dump(loc)
+
+    def make_copy(self, old_full_path, new_full_path):
+        if filecmp.cmp(old_full_path, new_full_path, shallow=False):
+            pass  # Identical files
+        else:
+            shutil.copy(old_full_path, new_full_path)
 
     def valid_files(self) -> set:
         return {datum.nid + self.filetype for datum in self}

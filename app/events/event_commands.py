@@ -651,11 +651,28 @@ class VictoryScreen(EventCommand):
     nid = 'victory_screen'
     tag = 'general'
 
+class RecordsScreen(EventCommand):
+    nid = 'records_screen'
+    tag = 'general'
+
 class LocationCard(EventCommand):
     nid = 'location_card'
     tag = 'general'
 
     keywords = ["String"]
+
+class Credits(EventCommand):
+    nid = 'credits'
+    tag = 'general'
+
+    keywords = ["String", "String"]
+    flags = ['wait', 'center', 'no_split']
+
+class Ending(EventCommand):
+    nid = 'ending'
+    tag = 'general'
+
+    keywords = ["Portrait", "String", "String"]
 
 class Unlock(EventCommand):
     nid = 'unlock'

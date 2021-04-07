@@ -36,7 +36,6 @@ class CombatArt(SkillComponent):
 
     def init(self, skill):
         self.skill.data['active'] = False
-        self._action = None
 
     def combat_art(self, unit):
         return self.value
@@ -129,9 +128,6 @@ class AttackProc(SkillComponent):
     expose = Type.Skill
     _did_action = False
 
-    def init(self, skill):
-        self._did_action = False
-
     def start_sub_combat(self, unit, item, target, mode):
         proc_rate = get_proc_rate(unit, self.skill)
         if static_random.get_combat() < proc_rate:
@@ -149,9 +145,6 @@ class DefenseProc(SkillComponent):
 
     expose = Type.Skill
     _did_action = False
-
-    def init(self, skill):
-        self._did_action = False
 
     def start_sub_combat(self, unit, item, target, mode):
         proc_rate = get_proc_rate(unit, self.skill)

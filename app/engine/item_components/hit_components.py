@@ -373,9 +373,10 @@ class Steal(ItemComponent):
     desc = "Steal any unequipped item from target on hit"
     tag = 'special'
 
+    _did_steal = False
+
     def init(self, item):
         item.data['target_item'] = None
-        self._did_steal = False
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Unit has item that can be stolen
@@ -479,8 +480,7 @@ class Trade(ItemComponent):
     desc = "Item allows user to trade with target on hit"
     tag = 'special'
 
-    def init(self, item):
-        self._did_hit = False
+    _did_hit = False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
@@ -497,8 +497,7 @@ class Promote(ItemComponent):
     desc = "Item promotes target after hit"
     tag = 'special'
 
-    def init(self, item):
-        self._did_hit = False
+    _did_hit = False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
@@ -589,8 +588,7 @@ class EventAfterCombat(ItemComponent):
 
     expose = Type.Event
 
-    def init(self, item):
-        self._did_hit = False
+    _did_hit = False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True

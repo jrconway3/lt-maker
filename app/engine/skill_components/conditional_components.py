@@ -12,9 +12,6 @@ class CombatCondition(SkillComponent):
     ignore_conditional = True
     _condition = False
 
-    def init(self, skill):
-        self._condition = False
-
     def pre_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate
         try:

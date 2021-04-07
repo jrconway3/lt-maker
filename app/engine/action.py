@@ -9,10 +9,11 @@ from app.engine import banner, static_random, unit_funcs, equations, \
     skill_system, item_system, item_funcs, particles
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
+from app.engine.objects.skill import SkillObject
+from app.events.regions import Region
 from app.engine.game_state import game
 
 import logging
-logger = logging.getLogger(__name__)
 
 class Action():
     def __init__(self):
@@ -43,6 +44,10 @@ class Action():
             value = ('unit', value.nid)
         elif isinstance(value, ItemObject):
             value = ('item', value.uid)
+        elif isinstance(value, SkillObject):
+            value = ('skill', value.uid)
+        elif isinstance(value, Region):
+            value = ('region', value.nid)
         elif isinstance(value, list):
             value = ('list', [self.save_obj(v) for v in value])
         elif isinstance(value, Action):
@@ -64,6 +69,10 @@ class Action():
             return game.get_unit(value[1])
         elif value[0] == 'item':
             return game.get_item(value[1])
+        elif value[0] == 'skill':
+            return game.get_skill(value[1])
+        elif value[0] == 'region':
+            return game.get_region(value[1])
         elif value[0] == 'list':
             return [self.restore_obj(v) for v in value[1]]
         elif value[0] == 'action':
@@ -1554,6 +1563,7 @@ class AddSkill(Action):
         if skill_obj:
             if self.initiator:
                 skill_obj.initiator_nid = self.initiator.nid
+            skill_system.init(skill_obj)
             if skill_obj.uid not in game.skill_registry:
                 game.register_skill(skill_obj)
         self.skill_obj = skill_obj
@@ -1565,7 +1575,7 @@ class AddSkill(Action):
             return
         # Remove any skills with previous name
         if not self.skill_obj.stack and self.skill_obj.nid in [skill.nid for skill in self.unit.skills]:
-            logger.info("Skill %s already present" % self.skill_obj.nid)
+            logging.info("Skill %s already present" % self.skill_obj.nid)
             for skill in self.unit.skills:
                 if skill.nid == self.skill_obj.nid:
                     self.subactions.append(RemoveSkill(self.unit, skill))
@@ -1590,7 +1600,7 @@ class AddSkill(Action):
             skill_system.on_remove(self.unit, self.skill_obj)
             self.skill_obj.owner_nid = None
         else:
-            logger.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
+            logging.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
         for action in self.subactions:
             action.reverse()
 
@@ -1617,7 +1627,7 @@ class RemoveSkill(Action):
                 self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
             else:
-                logger.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
+                logging.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
 
         # Handle affects movement
         self.reset_action.execute()

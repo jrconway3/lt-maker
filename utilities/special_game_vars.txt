@@ -1,7 +1,8 @@
 Special Game Vars
 
 _random_seed int
-_next_level_nid str
+_next_level_nid str (internal -- don't modify yourself)
+_goto_level str (Set to the nid of the level you want to go to next)
 _current_turnwheel_uses int
 _max_turnwheel_uses int
 _convoy bool

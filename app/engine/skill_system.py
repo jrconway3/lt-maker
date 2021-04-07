@@ -318,6 +318,9 @@ def on_end_chapter(unit, skill):
                 component.on_end_chapter(unit, skill)
 
 def init(skill):
+    """
+    Initializes any data on the parent skill if necessary
+    """
     for component in skill.components:
         if component.defines('init'):
             component.init(skill)
@@ -418,5 +421,5 @@ def activate_combat_art(unit, skill):
 def deactivate_all_combat_arts(unit):
     for skill in unit.skills:
         for component in skill.components:
-            if component.defines('on_deactivation') and skill.data.get('active'):
+            if component.defines('on_deactivation'):
                 component.on_deactivation(unit)

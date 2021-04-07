@@ -441,6 +441,9 @@ def can_unlock(unit, item, region) -> bool:
     return False
 
 def init(item):
+    """
+    Initializes any data on the parent item if necessary
+    """
     for component in item.components:
         if component.defines('init'):
             component.init(item)

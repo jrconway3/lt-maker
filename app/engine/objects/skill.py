@@ -1,6 +1,7 @@
 from app.utilities.data import Data
 
 from app.data.database import DB
+import app.engine.skill_component_access as SCA
 
 class SkillObject():
     next_uid = 100
@@ -34,7 +35,12 @@ class SkillObject():
 
     @classmethod
     def from_prefab(cls, prefab):
-        return cls(prefab.nid, prefab.name, prefab.desc, prefab.icon_nid, prefab.icon_index, prefab.components)
+        # Components NEED To be copies! Since they store individualized information
+        components = Data()
+        for component in prefab.components:
+            new_component = SCA.restore_component((component.nid, component.value))
+            components.append(new_component)
+        return cls(prefab.nid, prefab.name, prefab.desc, prefab.icon_nid, prefab.icon_index, components)
 
     # If the attribute is not found
     def __getattr__(self, attr):
@@ -64,6 +70,6 @@ class SkillObject():
         self.uid = dat['uid']
         self.owner_nid = dat['owner_nid']
         self.data = dat['data']
-        self.initiator_uid = dat.get('initiator_nid', None)
+        self.initiator_nid = dat.get('initiator_nid', None)
         self.subskill_uid = dat.get('subskill', None)
         return self

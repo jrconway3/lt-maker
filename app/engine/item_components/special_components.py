@@ -13,9 +13,6 @@ class UnlockStaff(ItemComponent):
 
     _did_hit = False
 
-    def init(self, item):
-        self._did_hit = False
-
     def _valid_region(self, region) -> bool:
         return region.region_type == 'event' and 'can_unlock' in region.condition
 

@@ -46,6 +46,7 @@ class GameState():
         self.item_registry = {}
         self.skill_registry = {}
         self.terrain_status_registry = {}
+        self.region_registry = {}
 
         self.parties = {}
         self.current_party = None
@@ -146,6 +147,9 @@ class GameState():
                 unit.party = self.current_party
         self.set_up_game_board(self.current_level.tilemap)
 
+        for region in self.current_level.regions:
+            self.register_region(region)
+
         for unit in self.current_level.units:
             self.full_register(unit)
         for unit in self.current_level.units:
@@ -176,6 +180,7 @@ class GameState():
                   'items': [item.save() for item in self.item_registry.values()],
                   'skills': [skill.save() for skill in self.skill_registry.values()],
                   'terrain_status_registry': self.terrain_status_registry,
+                  'regions': [region.save() for region in self.region_registry.values()],
                   'level': self.current_level.save() if self.current_level else None,
                   'turncount': self.turncount,
                   'playtime': self.playtime,
@@ -228,6 +233,7 @@ class GameState():
         from app.engine.objects.unit import UnitObject
         from app.engine.objects.level import LevelObject
         from app.engine.objects.party import PartyObject
+        from app.events.regions import Region
 
         logger.info("Loading Game...")
         self.game_vars = Counter(s_dict.get('game_vars', {}))
@@ -243,6 +249,7 @@ class GameState():
         self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
+        self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
         # Handle subitems
         for item in self.item_registry.values():
@@ -317,6 +324,7 @@ class GameState():
             skill_system.on_end_chapter(unit, skill)
 
         self.terrain_status_registry.clear()
+        self.region_registry.clear()
 
         # Remove all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if not v.generic}
@@ -411,6 +419,10 @@ class GameState():
         logger.debug("Registering terrain status %s", skill_uid)
         self.terrain_status_registry[key] = skill_uid
 
+    def register_region(self, region):
+        logger.debug("Registering region %s", region.nid)
+        self.region_registry[region.nid] = region
+
     def get_unit(self, unit_nid):
         """
         Can get units not just in the current level
@@ -431,6 +443,10 @@ class GameState():
     def get_terrain_status(self, key):
         skill_uid = self.terrain_status_registry.get(key)
         return skill_uid
+
+    def get_region(self, region_nid):
+        region = self.region_registry.get(region_nid)
+        return region
 
     def get_party(self, party_nid):
         return self.parties.get(party_nid)

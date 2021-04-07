@@ -1,6 +1,7 @@
 from app.utilities.data import Data
 
 from app.data.database import DB
+import app.engine.item_component_access as ICA
 
 class ItemObject():
     next_uid = 100
@@ -35,7 +36,12 @@ class ItemObject():
 
     @classmethod
     def from_prefab(cls, prefab):
-        return cls(prefab.nid, prefab.name, prefab.desc, prefab.icon_nid, prefab.icon_index, prefab.components)
+        # Components NEED To be copies! Since they store individualized information
+        components = Data()
+        for component in prefab.components:
+            new_component = ICA.restore_component((component.nid, component.value))
+            components.append(new_component)
+        return cls(prefab.nid, prefab.name, prefab.desc, prefab.icon_nid, prefab.icon_index, components)
 
     # If the attribute is not found
     def __getattr__(self, attr):

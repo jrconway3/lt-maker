@@ -592,12 +592,6 @@
                 ]
             ],
             [
-                "move_cursor",
-                [
-                    "Prim"
-                ]
-            ],
-            [
                 "add_unit",
                 [
                     "Prim"
@@ -3492,6 +3486,20 @@
                 ]
             ],
             [
+                "game_var",
+                [
+                    "_max_turnwheel_uses",
+                    "1"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_current_turnwheel_uses",
+                    "1"
+                ]
+            ],
+            [
                 "change_ai",
                 [
                     "Sidney",
@@ -3583,20 +3591,6 @@
                 "music",
                 [
                     "Ambient Forest"
-                ]
-            ],
-            [
-                "game_var",
-                [
-                    "max_turnwheel_uses",
-                    "1"
-                ]
-            ],
-            [
-                "game_var",
-                [
-                    "current_turnwheel_uses",
-                    "1"
                 ]
             ],
             [
@@ -3741,10 +3735,8 @@
                 ]
             ],
             [
-                "music",
-                [
-                    "Wild Arms Town"
-                ]
+                "end_skip",
+                []
             ],
             [
                 "transition",
@@ -3831,6 +3823,12 @@
                 ]
             ],
             [
+                "music",
+                [
+                    "Wild Arms Town"
+                ]
+            ],
+            [
                 "add_portrait",
                 [
                     "Joel",
@@ -3849,7 +3847,7 @@
                 "speak",
                 [
                     "Ophie",
-                    "Stay down. It could be a trap."
+                    "Stay down, Prim. It could be a trap."
                 ]
             ],
             [

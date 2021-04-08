@@ -5426,7 +5426,7 @@
         "name": "House2",
         "trigger": "Visit",
         "level_nid": "2",
-        "condition": "region.nid == 'House3'",
+        "condition": "region.nid == 'House2'",
         "commands": [
             [
                 "transition",
@@ -6493,6 +6493,10 @@
                 ]
             ],
             [
+                "arrange_formation",
+                []
+            ],
+            [
                 "prep",
                 [
                     "F",
@@ -6605,6 +6609,26 @@
                 [
                     "Ophie",
                     "Althea"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# So they don't start charging immediately"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "109",
+                    "Attack"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "110",
+                    "Attack"
                 ]
             ]
         ],
@@ -7661,7 +7685,7 @@
                 "speak",
                 [
                     "Ophie",
-                    "Then, we can't let them capture you!|You have to come with us.|We'll get you to the Resistance base."
+                    "Then, we can't let them find you!|You have to come with us.|We'll get you to the Resistance base."
                 ]
             ],
             [

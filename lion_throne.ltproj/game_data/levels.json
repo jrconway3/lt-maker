@@ -1139,7 +1139,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     14,
@@ -1162,7 +1162,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     15,

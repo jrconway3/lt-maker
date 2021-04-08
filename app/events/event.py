@@ -187,15 +187,16 @@ class Event():
 
         # Draw text/dialog boxes
         # if self.state == 'dialog':
-        to_draw = []
-        for dialog_box in reversed(self.text_boxes):
-            if not dialog_box.is_complete():
-                to_draw.insert(0, dialog_box)
-            if dialog_box.solo_flag:
-                break
-        for dialog_box in to_draw:
-            dialog_box.update()
-            dialog_box.draw(surf)
+        if not self.do_skip:
+            to_draw = []
+            for dialog_box in reversed(self.text_boxes):
+                if not dialog_box.is_complete():
+                    to_draw.insert(0, dialog_box)
+                if dialog_box.solo_flag:
+                    break
+            for dialog_box in to_draw:
+                dialog_box.update()
+                dialog_box.draw(surf)
 
         # Fade to black
         if self.transition_state:
@@ -283,8 +284,7 @@ class Event():
         if self.state != 'paused':
             self.state = 'processing'
         self.transition_state = None
-        # if self.text_boxes:
-        #     self.text_boxes[-1].hurry_up()
+        self.hurry_up()
 
     def hurry_up(self):
         if self.text_boxes:
@@ -751,7 +751,7 @@ class Event():
         elif command.nid == 'add_market_item':
             values, flags = event_commands.parse(command)
             item = values[0]
-            if item in DB.items:
+            if item in DB.items.keys():
                 game.market_items.add(item)
             else:
                 logging.warning("%s is not a legal item nid", item)

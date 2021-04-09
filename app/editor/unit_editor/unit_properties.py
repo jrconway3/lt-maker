@@ -13,7 +13,7 @@ from app.extensions.multi_select_combo_box import MultiSelectComboBox
 from app.extensions.list_models import VirtualListModel, ReverseDoubleListModel
 from app.extensions.list_widgets import BasicSingleListWidget, AppendMultiListWidget
 
-from app.editor.custom_widgets import ClassBox
+from app.editor.custom_widgets import ClassBox, AffinityBox
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, UnitStatAveragesModel
 from app.editor.learned_skill_delegate import LearnedSkillDelegate
@@ -216,6 +216,9 @@ class UnitProperties(QWidget):
         self.alternate_class_box.edit.addItems(DB.classes.keys())
         self.alternate_class_box.edit.updated.connect(self.alternate_class_changed)
 
+        self.affinity_box = AffinityBox(self)
+        self.affinity_box.edit.currentIndexChanged.connect(self.affinity_changed)
+
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)
         total_section.addLayout(main_section)
@@ -231,6 +234,7 @@ class UnitProperties(QWidget):
         right_section.addWidget(self.personal_skill_widget)
         right_section.addWidget(QHLine())
         right_section.addWidget(self.alternate_class_box)
+        right_section.addWidget(self.affinity_box)
         right_widget = QWidget()
         right_widget.setLayout(right_section)
 
@@ -346,6 +350,9 @@ class UnitProperties(QWidget):
     def alternate_class_changed(self):
         self.current.alternate_classes = self.alternate_class_box.edit.currentText()
 
+    def affinity_changed(self, index):
+        self.current.affinity = self.affinity_box.edit.currentText()
+
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
@@ -377,6 +384,10 @@ class UnitProperties(QWidget):
         if current.alternate_classes:
             alternate_classes = current.alternate_classes[:]
             self.alternate_class_box.edit.setCurrentTexts(alternate_classes)
+        if current.affinity:
+            self.affinity_box.edit.setValue(current.affinity)
+        else:
+            self.affinity_box.edit.setValue("None")
 
         self.icon_edit.set_current(current.portrait_nid)
 

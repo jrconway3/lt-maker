@@ -85,6 +85,14 @@ class PartyBox(ObjBox):
             database = Data([d for d in DB.parties if d is not exclude])
         super().__init__("Party", PartyModel, database, parent, button)
 
+class AffinityBox(ObjBox):
+    def __init__(self, parent=None, button=False, exclude=None):
+        from app.editor.support_editor.affinity_model import AffinityModel
+        database = DB.affinities
+        if exclude:
+            database = Data([d for d in DB.affinities if d is not exclude])
+        super().__init__("Affinity Type", AffinityModel, database, parent, button)
+
 class MovementCostBox(ObjBox):
     def __init__(self, parent=None, button=False):
         from app.editor.mcost_dialog import MovementCostModel

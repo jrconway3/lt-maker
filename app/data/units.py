@@ -24,6 +24,7 @@ class UnitPrefab(Prefab):
     alternate_classes: list = None
 
     portrait_nid: str = None
+    affinity: str = None
 
     def get_stat_titles(self):
         return ["Bases", "Growths"]
@@ -58,7 +59,7 @@ class UnitPrefab(Prefab):
             if isinstance(value, list):
                 value = {k: v for (k, v) in value}
             else:
-                value = value
+                value = value.copy()  # Should be copy so units don't share lists/dicts
         elif name == 'wexp_gain':
             if isinstance(value, list):
                 value = {nid: WexpGain(usable, wexp_gain) for (usable, nid, wexp_gain) in value}

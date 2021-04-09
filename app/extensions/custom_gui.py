@@ -111,27 +111,34 @@ class LineSearch(QWidget):
         self.setLayout(layout)
 
 class PropertyBox(QWidget):
-    def __init__(self, label, widget, parent=None):
+    def __init__(self, label, widget, parent=None, horiz_layout=False):
         super().__init__(parent)
         self.window = parent
 
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
+        if horiz_layout:
+            _layout = QHBoxLayout()
+        else:
+            _layout = QVBoxLayout()
+        self.setLayout(_layout)
+        _layout.setSpacing(0)
+        _layout.setContentsMargins(0, 0, 0, 0)
 
         self.label = QLabel(label, self)
-        self.label.setAlignment(Qt.AlignBottom)
-        self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        if horiz_layout:
+            self.label.setAlignment(Qt.AlignLeft)
+        else:
+            self.label.setAlignment(Qt.AlignBottom)
+        size_policy = QSizePolicy.Preferred
+        self.label.setSizePolicy(size_policy, QSizePolicy.Fixed)
         self.edit = widget(self)
-        self.edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.edit.setSizePolicy(size_policy, QSizePolicy.Fixed)
         self.bottom_section = QHBoxLayout()
         self.bottom_section.addWidget(self.edit)
 
-        layout.addWidget(self.label)
-        layout.addLayout(self.bottom_section)
+        _layout.addWidget(self.label)
+        _layout.addLayout(self.bottom_section)
 
     def add_button(self, button):
         self.button = button
@@ -141,19 +148,19 @@ class PropertyCheckBox(QWidget):
     def __init__(self, label, widget, parent=None):
         super().__init__(parent)
 
-        layout = QHBoxLayout()
-        self.setLayout(layout)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
+        _layout = QHBoxLayout()
+        self.setLayout(_layout)
+        _layout.setSpacing(0)
+        _layout.setContentsMargins(0, 0, 0, 0)
 
         # self.label = QLabel(label, self)
         # self.label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.edit = widget(label, self)
         self.edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        layout.addWidget(self.edit)
-        # layout.addWidget(self.label)
-        # layout.setAlignment(self.label, Qt.AlignLeft)
+        _layout.addWidget(self.edit)
+        # _layout.addWidget(self.label)
+        # _layout.setAlignment(self.label, Qt.AlignLeft)
 
 class RightClickView():
     def __init__(self, action_funcs=None, parent=None):

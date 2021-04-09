@@ -60,16 +60,13 @@ from app.editor.lore_editor.lore_tab import LoreDatabase
 from app.editor.icon_editor import icon_tab
 from app.editor.tile_editor import tile_tab
 from app.editor.sound_editor import sound_tab
+from app.editor.support_editor import support_pair_tab
 from app.editor.portrait_editor.portrait_tab import PortraitDatabase
 from app.editor.panorama_editor.panorama_tab import PanoramaDatabase
 from app.editor.map_sprite_editor.map_sprite_tab import MapSpriteDatabase
 from app.editor.combat_animation_editor.combat_animation_display import CombatAnimDisplay
 
 __version__ = VERSION
-
-
-from app.resources.resources import RESOURCES
-
 
 class MainEditor(QMainWindow):
     def initialize_state_subscriptions(self):
@@ -200,10 +197,6 @@ class MainEditor(QMainWindow):
         self.quit_act = QAction(
             "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
 
-        # self.undo_act = QAction(QIcon(f'{icon_folder}/corner-up-left.png'), "Undo", self, shortcut="Ctrl+Z", triggered=self.undo)
-        # self.redo_act = QAction(QIcon(f'{icon_folder}/corner-up-right.png'), "Redo", self, triggered=self.redo)
-        # self.redo_act.setShortcuts(["Ctrl+Y", "Ctrl+Shift+Z"])
-
         self.preferences_act = QAction(
             "&Preferences...", self, triggered=self.edit_preferences)
         self.about_act = QAction("&About", self, triggered=self.about)
@@ -239,6 +232,7 @@ class MainEditor(QMainWindow):
                             "Stats": StatTypeDatabase.edit,
                             "Equations": self.edit_equations,
                             "Constants": ConstantDatabase.edit,
+                            "Supports": self.edit_supports,
                             "Lore": LoreDatabase.edit,
                             "Translations": self.edit_translations
                             }
@@ -510,6 +504,10 @@ class MainEditor(QMainWindow):
 
     def edit_tags(self, parent=None):
         dialog = TagDialog.create()
+        dialog.exec_()
+
+    def edit_supports(self, parent=None):
+        dialog = support_pair_tab.get_full_editor()
         dialog.exec_()
 
     def edit_mcost(self, parent=None):

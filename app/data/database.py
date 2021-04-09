@@ -2,7 +2,8 @@ import os
 import json
 
 from app.data import constants, stats, equations, tags, weapons, factions, terrain, mcost, \
-    minimap, items, klass, units, parties, ai, translations, skills, levels, lore, overworld, overworld_node
+    minimap, items, klass, units, parties, ai, translations, skills, levels, lore, supports, \
+    overworld, overworld_node
 from app.events import event_prefab
 
 import logging
@@ -10,7 +11,9 @@ import logging
 class Database(object):
     save_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
                        "weapons", "factions", "items", "skills", "tags", "classes", 
-                       "units", "ai", "parties", "translations", "lore", "levels", "events", "overworlds")
+                       "support_constants", "support_ranks", "affinities", "units", "support_pairs",
+                       "ai", "parties", 
+                       "translations", "lore", "levels", "events", "overworlds")
 
     def __init__(self):
         self.constants = constants.constants
@@ -27,7 +30,15 @@ class Database(object):
         self.skills = skills.SkillCatalog()
         self.tags = tags.TagCatalog(['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon', 'ZeroMove', 'AutoPromote', 'NoAutoPromote'])
         self.classes = klass.ClassCatalog()
+
+        self.support_constants = supports.constants
+        self.support_ranks = supports.SupportRankCatalog(['C', 'B', 'A'])
+        self.affinities = supports.AffinityCatalog()
+
         self.units = units.UnitCatalog()
+        
+        self.support_pairs = supports.SupportPairCatalog()
+
         self.parties = parties.PartyCatalog()
         self.ai = ai.AICatalog()
         

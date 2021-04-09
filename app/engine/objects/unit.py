@@ -42,6 +42,7 @@ class UnitObject(Prefab):
             self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
             self.calculate_needed_wexp_from_items()
             self.portrait_nid = None
+            self.affinity = None
         else:
             self.faction = None
             self.name = prefab.name
@@ -54,6 +55,7 @@ class UnitObject(Prefab):
             weapon_gain = prefab.wexp_gain
             self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
             self.portrait_nid = prefab.portrait_nid
+            self.affinity = prefab.affinity
         self.starting_position = self.position
 
         # Get how to level
@@ -411,6 +413,7 @@ class UnitObject(Prefab):
                   'starting_position': self.starting_position,
                   'wexp': self.wexp,
                   'portrait_nid': self.portrait_nid,
+                  'affinity': self.affinity,
                   'skills': [skill.uid for skill in self.skills],
                   'current_hp': self.current_hp,
                   'current_mana': self.current_mana,
@@ -453,6 +456,7 @@ class UnitObject(Prefab):
         self.growth_points = s_dict['growth_points']
         self.wexp = s_dict['wexp']
         self.portrait_nid = s_dict['portrait_nid']
+        self.affinity = s_dict.get('affinity', None)
         self.starting_position = s_dict['starting_position']
 
         self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]

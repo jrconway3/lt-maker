@@ -482,5 +482,16 @@
             24,
             40
         ]
+    },
+    {
+        "nid": "Mage1",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            16,
+            40
+        ]
     }
 ]

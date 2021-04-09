@@ -52,7 +52,7 @@ class ManifestCatalog(Data):
         self.dump(loc)
 
     def make_copy(self, old_full_path, new_full_path):
-        if filecmp.cmp(old_full_path, new_full_path, shallow=False):
+        if os.path.exists(new_full_path) and filecmp.cmp(old_full_path, new_full_path, shallow=False):
             pass  # Identical files
         else:
             shutil.copy(old_full_path, new_full_path)

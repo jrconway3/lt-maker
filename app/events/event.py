@@ -1003,6 +1003,8 @@ class Event():
         unit = self.get_unit(name)
         if unit and unit.portrait_nid:
             portrait = RESOURCES.portraits.get(unit.portrait_nid)
+        elif unit in DB.units.keys():
+            portrait = RESOURCES.portraits.get(DB.units.get(unit).portrait_nid)
         else:
             portrait = RESOURCES.portraits.get(name)
         if not portrait:

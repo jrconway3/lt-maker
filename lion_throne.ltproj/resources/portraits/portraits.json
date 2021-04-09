@@ -1,6 +1,6 @@
 [
     {
-        "nid": "AltheaPortrait",
+        "nid": "Althea",
         "blinking_offset": [
             22,
             39
@@ -22,7 +22,7 @@
         ]
     },
     {
-        "nid": "CoyotePortrait",
+        "nid": "Coyote",
         "blinking_offset": [
             26,
             28
@@ -33,7 +33,7 @@
         ]
     },
     {
-        "nid": "DrakePortrait",
+        "nid": "Drake",
         "blinking_offset": [
             16,
             26
@@ -44,7 +44,7 @@
         ]
     },
     {
-        "nid": "ElizaPortrait",
+        "nid": "Eliza",
         "blinking_offset": [
             24,
             32
@@ -55,7 +55,7 @@
         ]
     },
     {
-        "nid": "JoelPortrait",
+        "nid": "Joel",
         "blinking_offset": [
             24,
             24
@@ -66,7 +66,7 @@
         ]
     },
     {
-        "nid": "KaylaPortrait",
+        "nid": "Kayla",
         "blinking_offset": [
             32,
             24
@@ -77,7 +77,7 @@
         ]
     },
     {
-        "nid": "NiaPortrait",
+        "nid": "Nia",
         "blinking_offset": [
             24,
             32
@@ -88,7 +88,7 @@
         ]
     },
     {
-        "nid": "OphiePortrait",
+        "nid": "Ophie",
         "blinking_offset": [
             24,
             32
@@ -99,7 +99,7 @@
         ]
     },
     {
-        "nid": "PrimPortrait",
+        "nid": "Prim",
         "blinking_offset": [
             20,
             32
@@ -110,7 +110,7 @@
         ]
     },
     {
-        "nid": "RenaePortrait",
+        "nid": "Renae",
         "blinking_offset": [
             20,
             32
@@ -121,7 +121,7 @@
         ]
     },
     {
-        "nid": "SamPortrait",
+        "nid": "Sam",
         "blinking_offset": [
             25,
             23
@@ -132,7 +132,7 @@
         ]
     },
     {
-        "nid": "TheoPortrait",
+        "nid": "Theo",
         "blinking_offset": [
             16,
             24
@@ -143,7 +143,7 @@
         ]
     },
     {
-        "nid": "AdjutantPortrait",
+        "nid": "Adjutant",
         "blinking_offset": [
             16,
             24
@@ -154,7 +154,7 @@
         ]
     },
     {
-        "nid": "AndersPortrait",
+        "nid": "Anders",
         "blinking_offset": [
             24,
             24
@@ -165,7 +165,7 @@
         ]
     },
     {
-        "nid": "BoazPortrait",
+        "nid": "Boaz",
         "blinking_offset": [
             16,
             24
@@ -176,7 +176,7 @@
         ]
     },
     {
-        "nid": "BrighamPortrait",
+        "nid": "Brigham",
         "blinking_offset": [
             17,
             24
@@ -187,7 +187,7 @@
         ]
     },
     {
-        "nid": "HaroldPortrait",
+        "nid": "Harold",
         "blinking_offset": [
             16,
             24
@@ -198,7 +198,7 @@
         ]
     },
     {
-        "nid": "JakinPortrait",
+        "nid": "Jakin",
         "blinking_offset": [
             16,
             24
@@ -209,7 +209,7 @@
         ]
     },
     {
-        "nid": "JulesPortrait",
+        "nid": "Jules",
         "blinking_offset": [
             24,
             32
@@ -220,7 +220,7 @@
         ]
     },
     {
-        "nid": "KileyPortrait",
+        "nid": "Kiley",
         "blinking_offset": [
             24,
             24
@@ -231,7 +231,7 @@
         ]
     },
     {
-        "nid": "MardukPortrait",
+        "nid": "Marduk",
         "blinking_offset": [
             24,
             24
@@ -242,7 +242,7 @@
         ]
     },
     {
-        "nid": "MidasPortrait",
+        "nid": "Midas",
         "blinking_offset": [
             16,
             32
@@ -253,7 +253,7 @@
         ]
     },
     {
-        "nid": "RaziaPortrait",
+        "nid": "Razia",
         "blinking_offset": [
             24,
             29
@@ -264,7 +264,7 @@
         ]
     },
     {
-        "nid": "SidneyPortrait",
+        "nid": "Sidney",
         "blinking_offset": [
             24,
             24
@@ -275,7 +275,7 @@
         ]
     },
     {
-        "nid": "UlverPortrait",
+        "nid": "Ulver",
         "blinking_offset": [
             16,
             16
@@ -286,7 +286,7 @@
         ]
     },
     {
-        "nid": "VagniusPortrait",
+        "nid": "Vagnius",
         "blinking_offset": [
             24,
             24
@@ -297,7 +297,7 @@
         ]
     },
     {
-        "nid": "VincentPortrait",
+        "nid": "Vincent",
         "blinking_offset": [
             24,
             24
@@ -308,7 +308,7 @@
         ]
     },
     {
-        "nid": "YohnPortrait",
+        "nid": "Yohn",
         "blinking_offset": [
             24,
             24

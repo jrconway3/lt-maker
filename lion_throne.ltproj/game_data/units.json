@@ -75,7 +75,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "OphiePortrait"
+        "portrait_nid": "Ophie"
     },
     {
         "nid": "Prim",
@@ -155,7 +155,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "PrimPortrait"
+        "portrait_nid": "Prim"
     },
     {
         "nid": "Joel",
@@ -235,7 +235,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "JoelPortrait"
+        "portrait_nid": "Joel"
     },
     {
         "nid": "Nia",
@@ -315,7 +315,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "NiaPortrait"
+        "portrait_nid": "Nia"
     },
     {
         "nid": "Althea",
@@ -395,7 +395,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "AltheaPortrait"
+        "portrait_nid": "Althea"
     },
     {
         "nid": "Drake",
@@ -475,7 +475,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "DrakePortrait"
+        "portrait_nid": "Drake"
     },
     {
         "nid": "Renae",
@@ -555,7 +555,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "RenaePortrait"
+        "portrait_nid": "Renae"
     },
     {
         "nid": "Theo",
@@ -635,7 +635,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "TheoPortrait"
+        "portrait_nid": "Theo"
     },
     {
         "nid": "Eliza",
@@ -715,7 +715,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "ElizaPortrait"
+        "portrait_nid": "Eliza"
     },
     {
         "nid": "Sam",
@@ -799,7 +799,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "SamPortrait"
+        "portrait_nid": "Sam"
     },
     {
         "nid": "Kayla",
@@ -888,7 +888,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "KaylaPortrait"
+        "portrait_nid": "Kayla"
     },
     {
         "nid": "Coyote",
@@ -973,7 +973,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "CoyotePortrait"
+        "portrait_nid": "Coyote"
     },
     {
         "nid": "Yohn",
@@ -1049,7 +1049,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "YohnPortrait"
+        "portrait_nid": "Yohn"
     },
     {
         "nid": "Kiley",
@@ -1125,7 +1125,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "KileyPortrait"
+        "portrait_nid": "Kiley"
     },
     {
         "nid": "Sidney",
@@ -1205,7 +1205,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "SidneyPortrait"
+        "portrait_nid": "Sidney"
     },
     {
         "nid": "Brigham",
@@ -1287,7 +1287,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "BrighamPortrait"
+        "portrait_nid": "Brigham"
     },
     {
         "nid": "Harold",
@@ -1369,7 +1369,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "HaroldPortrait"
+        "portrait_nid": "Harold"
     },
     {
         "nid": "Anders",
@@ -1451,7 +1451,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "AndersPortrait"
+        "portrait_nid": "Anders"
     },
     {
         "nid": "Midas",
@@ -1529,7 +1529,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "MidasPortrait"
+        "portrait_nid": "Midas"
     },
     {
         "nid": "Jules",
@@ -1611,7 +1611,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "JulesPortrait"
+        "portrait_nid": "Jules"
     },
     {
         "nid": "Vincent",
@@ -1697,7 +1697,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "VincentPortrait"
+        "portrait_nid": "Vincent"
     },
     {
         "nid": "Razia",
@@ -1779,7 +1779,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "RaziaPortrait"
+        "portrait_nid": "Razia"
     },
     {
         "nid": "Marduk",
@@ -1865,7 +1865,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "MardukPortrait"
+        "portrait_nid": "Marduk"
     },
     {
         "nid": "Vagnius",
@@ -1945,7 +1945,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "VagniusPortrait"
+        "portrait_nid": "Vagnius"
     },
     {
         "nid": "Boaz",
@@ -2031,7 +2031,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "BoazPortrait"
+        "portrait_nid": "Boaz"
     },
     {
         "nid": "Jakin",
@@ -2113,7 +2113,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "JakinPortrait"
+        "portrait_nid": "Jakin"
     },
     {
         "nid": "Adjutant",
@@ -2200,7 +2200,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "AdjutantPortrait"
+        "portrait_nid": "Adjutant"
     },
     {
         "nid": "Ulver",
@@ -2283,6 +2283,6 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "UlverPortrait"
+        "portrait_nid": "Ulver"
     }
 ]

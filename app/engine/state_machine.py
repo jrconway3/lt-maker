@@ -99,6 +99,8 @@ class StateMachine():
              'prep_formation_select': prep.PrepFormationSelectState,
              'prep_manage': prep.PrepManageState,
              'prep_manage_select': prep.PrepManageSelectState,
+             'base_manage': prep.PrepManageState,
+             'base_manage_select': prep.PrepManageSelectState,
              'prep_trade_select': prep.PrepTradeSelectState,
              'prep_trade': trade.PrepTradeState,
              'prep_items': prep.PrepItemsState,

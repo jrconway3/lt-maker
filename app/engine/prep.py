@@ -420,7 +420,10 @@ class PrepManageState(State):
         if event == 'SELECT':
             unit = self.menu.get_current()
             game.memory['current_unit'] = unit
-            game.state.change('prep_manage_select')
+            if self.name == 'base_manage':
+                game.state.change('base_manage_select')
+            else:
+                game.state.change('prep_manage_select')
             SOUNDTHREAD.play_sfx('Select 1')
         elif event == 'BACK':
             game.state.change('transition_pop')
@@ -468,8 +471,12 @@ class PrepManageSelectState(State):
                 ignore[2] = False
             if any(convoy_funcs.can_restock(item) for item in tradeable_items):
                 ignore[1] = False
-        if game.game_vars.get('_prep_market') and game.market_items:
-            ignore[5] = False
+        if self.name == 'base_manage_select':
+            if game.game_vars.get('_base_market') and game.market_items:
+                ignore[5] = False
+        else:
+            if game.game_vars.get('_prep_market') and game.market_items:
+                ignore[5] = False
         self.select_menu = menus.Table(self.unit, options, (3, 2), (120, 80))
         self.select_menu.set_ignore(ignore)
 

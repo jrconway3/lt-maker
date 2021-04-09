@@ -77,7 +77,7 @@ class BaseMainState(State):
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'Manage':
-                game.memory['next_state'] = 'prep_manage'
+                game.memory['next_state'] = 'base_manage'
                 game.state.change('transition_to')
             elif selection == 'Market':
                 game.memory['next_state'] = 'base_market_select'
@@ -122,12 +122,12 @@ class BaseMarketSelectState(prep.PrepManageState):
         font = FONT['text-white']
         commands = ['Market']
         commands = [text_funcs.translate(c) for c in commands]
-        size = (49 + max(font.width(c) for c in commands), 40)
+        size = (49 + max(font.width(c) for c in commands), 24)
         bg_surf = base_surf.create_base_surf(size[0], size[1], 'menu_bg_brown')
         bg_surf = image_mods.make_translucent(bg_surf, 0.1)
-        bg_surf.blit(buttons[0], (20 - buttons[0].get_width()//2, 18 - buttons[0].get_height()))
+        bg_surf.blit(buttons[0], (12 - buttons[0].get_width()//2, 18 - buttons[0].get_height()))
         for idx, command in enumerate(commands):
-            font.blit(command, bg_surf, (38, idx * 16 + 3))
+            font.blit(command, bg_surf, (30, idx * 16 + 3))
         return bg_surf
 
     def take_input(self, event):

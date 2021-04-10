@@ -84,7 +84,7 @@ def draw_weapon(surf, weapon_type, topleft, gray=False):
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 
     if gray:
-        image = image_mods.make_gray(image)
+        image = image_mods.make_gray(image.convert_alpha())
     
     surf.blit(image, topleft)
     return surf

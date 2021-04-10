@@ -240,7 +240,6 @@ class GameState():
         static_random.set_seed(self.game_vars.get('_random_seed', 0))
         self.level_vars = Counter(s_dict.get('level_vars', {}))
         self.playtime = float(s_dict['playtime'])
-        self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.current_party = s_dict['current_party']
         self.turncount = int(s_dict['turncount'])
 
@@ -264,6 +263,7 @@ class GameState():
                 skill.subskill = subskill
                 subskill.parent_skill = skill
 
+        self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.market_items = s_dict.get('market_items', set())
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])

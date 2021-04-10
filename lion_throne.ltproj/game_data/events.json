@@ -6,27 +6,23 @@
         "condition": "True",
         "commands": [
             [
-                "comment",
-                [
-                    "# level_var;_fog_of_war;1"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# level_var;_fog_of_war_radius;8"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# speak;Joshua;Say, how are doing {red}head?|The fog of war is{/red}not red."
-                ]
-            ],
-            [
                 "add_weather",
                 [
                     "Snow"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "mycounter",
+                    "1"
+                ]
+            ],
+            [
+                "inc_level_var",
+                [
+                    "mycounter",
+                    "1"
                 ]
             ],
             [
@@ -42,109 +38,96 @@
                 ]
             ],
             [
-                "level_var",
+                "game_var",
                 [
-                    "_fog_of_war",
-                    "1"
+                    "_convoy",
+                    "True"
                 ]
             ],
             [
-                "level_var",
+                "game_var",
                 [
-                    "_fog_of_war_radius",
-                    "3"
+                    "_base_market",
+                    "True"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Enemy Phase Doubling"
+                    "Iron Sword"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Magic"
+                    "Iron Lance"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Magic Wards"
+                    "Iron Axe"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Magic Spells"
+                    "Vulnerary"
                 ]
             ],
             [
-                "add_lore",
-                [
-                    "Turnwheel"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Bows"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Skills"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Feats"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Combat Arts"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Promotion"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Escape"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Unarmed Combat"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Party Size"
-                ]
-            ],
-            [
-                "add_portrait",
+                "give_item",
                 [
                     "Ophie",
-                    "MidRight"
+                    "Steel Sword",
+                    "no_banner"
                 ]
             ],
             [
-                "speak",
+                "give_item",
                 [
                     "Ophie",
-                    "Well? So eager before, and now you hesitate. A pity.|Sidney?"
+                    "Potion",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Angelic Robe",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Prim",
+                    "Ruby",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Drake",
+                    "Spiritbane",
+                    "no_banner"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Joel",
+                    "Vulnerary",
+                    "no_banner"
+                ]
+            ],
+            [
+                "base",
+                [
+                    "MainBase",
+                    "Preparing for Battle"
                 ]
             ]
         ],

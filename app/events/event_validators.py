@@ -367,6 +367,12 @@ class Lore(Validator):
             return text
         return None
 
+class WeaponType(Validator):
+    def validate(self, text, level):
+        if text in DB.weapons.keys():
+            return text
+        return None
+
 class Layer(Validator):
     def validate(self, text, level):
         print(text)

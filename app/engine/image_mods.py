@@ -22,8 +22,8 @@ def make_gray(image):
             color = image.get_at((row, col))
             if color[3] != 0:
                 avg = int(color[0] * 0.298 + color[1] * 0.587 + color[2] * 0.114)
-                image.set_at((row, col), (avg, avg, avg))
-        return image
+                image.set_at((row, col), (avg, avg, avg, color[3]))
+    return image
 
 def make_translucent(image, t):
     """

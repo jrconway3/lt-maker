@@ -196,7 +196,7 @@ class Simple():
             if self.current_index > len(self.options) - 1:
                 self.current_index = 0
                 self.scroll = 0
-            elif self.current_index > self.scroll + self.limit - 2:
+            elif self.current_index > self.scroll + self.limit - 2 and self.scroll + self.limit < len(self.options):
                 self.scroll += 1
             else:
                 self.cursor.y_offset -= 1
@@ -485,7 +485,7 @@ class Choice(Simple):
                 left = topleft[0]
 
                 if self.highlight and idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top, menu_width - 16 if draw_scroll_bar else menu_width)
+                    choice.draw_highlight(surf, left, top, menu_width - 8 if draw_scroll_bar else menu_width)
                 # elif self.highlight and idx + self.scroll == self.fake_cursor_idx:
                     # choice.draw_highlight(surf, left, top, menu_width)
                 else:
@@ -1092,9 +1092,9 @@ class Table(Simple):
                     left += 16
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top, width - 16 if draw_scroll_bar else width)
+                    choice.draw_highlight(surf, left, top, width - 8 if draw_scroll_bar else width)
                 elif idx + (self.scroll * self.columns) == self.fake_cursor_idx:
-                    choice.draw_highlight(surf, left, top, width - 16 if draw_scroll_bar else width)
+                    choice.draw_highlight(surf, left, top, width - 8 if draw_scroll_bar else width)
                 else:
                     choice.draw(surf, left, top)
                 if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
@@ -1130,11 +1130,12 @@ class Table(Simple):
 class Convoy():
     trade_name_surf = SPRITES.get('trade_name')
     
-    def __init__(self, owner, topleft):
+    def __init__(self, owner, topleft, include_other_units=True, disp_value=False):
         self.unit = self.owner = owner  # Unit that's at the convoy
         self.topleft = topleft
-        self.disp_value = False
+        self.disp_value = disp_value
         self.takes_input = True
+        self.include_other_units = include_other_units
 
         self.order = [w.nid for w in DB.weapons]
         self.build_menus()
@@ -1177,9 +1178,11 @@ class Convoy():
         convoy = game.party.convoy
         all_items = []
         all_items += convoy
-        for unit in game.get_units_in_party():
-            items = item_funcs.get_all_tradeable_items(unit)
-            all_items += items                
+        if self.include_other_units:
+            for unit in game.get_units_in_party():
+                if unit.nid != self.unit.nid:
+                    items = item_funcs.get_all_tradeable_items(unit)
+                    all_items += items                
 
         sorted_dict = {}
         for w_type in self.order[:-1]:
@@ -1189,6 +1192,7 @@ class Convoy():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
             value.sort(key=lambda item: item.name)
             value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
+            value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
 
@@ -1261,7 +1265,6 @@ class Convoy():
             return self.get_menu().move_up(first_push)
 
     def move_left(self, first_push=True):
-        print(self.locked)
         if self.selection_index == 0:
             if self.locked:
                 return False
@@ -1350,11 +1353,12 @@ class Convoy():
 
         # Draw Portrait
         # Owner
-        owner_surf = engine.create_surface((96, 80), transparent=True)
-        icons.draw_portrait(owner_surf, self.owner, (0, 0))
-        owner_surf = engine.subsurface(owner_surf, (0, 0, 96, 68))
-        owner_surf = engine.flip_horiz(owner_surf)
-        surf.blit(owner_surf, (18, 0))
+        if not self.disp_value:
+            owner_surf = engine.create_surface((96, 80), transparent=True)
+            icons.draw_portrait(owner_surf, self.owner, (0, 0))
+            owner_surf = engine.subsurface(owner_surf, (0, 0, 96, 68))
+            owner_surf = engine.flip_horiz(owner_surf)
+            surf.blit(owner_surf, (18, 0))
 
         # Get item owner
         surf.blit(self.owner_surf, (156, 0))
@@ -1368,24 +1372,24 @@ class Convoy():
             self.inventory.draw(surf)
 
         # Draw item owner
-        if unit:
+        if unit and self.takes_input:
             unit_str = "Owner: %s" % unit.name
         else:
             unit_str = "Owner: ---"
         FONT['text-white'].blit(unit_str, surf, (160, 4))
 
         # Draw item icons
-        dist = self.menu_width//len(self.order) 
+        dist = (self.menu_width - 10)/len(self.order) 
         for idx, weapon_nid in enumerate(reversed(self.order)):
             true_idx = len(self.order) - idx - 1
             if true_idx == self.selection_index - 1:
                 pass
             else:
-                topleft = self.topleft[0] + true_idx * dist, self.topleft[1] - 14
+                topleft = self.topleft[0] + 3 + int(true_idx * dist), self.topleft[1] - 14
                 icons.draw_weapon(surf, weapon_nid, topleft, gray=True)
         for idx, weapon_nid in enumerate(self.order):
             if idx == self.selection_index - 1:
-                topleft = (self.topleft[0] + idx * dist, self.topleft[1] - 14)
+                topleft = (self.topleft[0] + 3 + int(idx * dist), self.topleft[1] - 14)
                 icons.draw_weapon(surf, weapon_nid, topleft)
                 surf.blit(SPRITES.get('weapon_shine'), topleft)
                 
@@ -1414,8 +1418,8 @@ class Convoy():
 class Market(Convoy):
     def __init__(self, owner, options, topleft, disp_value=None):
         self.options = options
-        super().__init__(owner, topleft)
         self.disp_value = disp_value
+        super().__init__(owner, topleft, disp_value=disp_value)
         self.selection_index = 1
         self.menu_index = 0
         self.inventory = None
@@ -1450,6 +1454,7 @@ class Market(Convoy):
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
             value.sort(key=lambda item: item.name)
             value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
+            value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
 
@@ -1496,6 +1501,7 @@ class Market(Convoy):
         self.menus[self.order[self.selection_index - 1]].toggle_info()
 
     def set_takes_input(self, val):
+        self.takes_input = val
         for menu in self.menus.values():
             menu.takes_input = val
 

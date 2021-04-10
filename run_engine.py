@@ -51,7 +51,6 @@ if __name__ == '__main__':
         traceback.print_exc()
         time.sleep(0.5)
         inform_error()
-        print("Wow", cf.SETTINGS['debug'])
         engine.terminate(crash=True)
         if cf.SETTINGS['debug']:
             time.sleep(5)

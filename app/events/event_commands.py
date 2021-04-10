@@ -397,6 +397,13 @@ class GiveExp(EventCommand):
 
     keywords = ["GlobalUnit", "PositiveInteger"]
 
+class GiveWexp(EventCommand):
+    nid = 'give_wexp'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "WeaponType", "Integer"]
+    flags = ['no_banner']
+
 class GiveSkill(EventCommand):
     nid = 'give_skill'
     tag = 'unit'

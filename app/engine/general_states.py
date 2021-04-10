@@ -650,7 +650,7 @@ class MenuState(MapState):
                 game.state.change('spell_choice')
             elif selection == 'Supply':
                 game.memory['current_unit'] = self.cur_unit
-                game.memory['next_state'] = 'prep_items'
+                game.memory['next_state'] = 'supply_items'
                 game.state.change('transition_to')
             elif selection == 'Wait':
                 game.state.clear()

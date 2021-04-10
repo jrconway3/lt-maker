@@ -292,6 +292,7 @@ class InfoMenuState(State):
     def back(self):
         SOUNDTHREAD.play_sfx('Select 4')
         game.memory['info_menu_state'] = self.state
+        game.memory['current_unit'] = self.unit
         if self.unit.position:
             game.cursor.set_pos(self.unit.position)
         game.state.change('transition_pop')

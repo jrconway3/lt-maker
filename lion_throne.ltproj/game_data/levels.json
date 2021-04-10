@@ -43,33 +43,69 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "None",
                 "ai_group": "1",
                 "starting_position": [
-                    5,
-                    6
+                    10,
+                    5
                 ],
                 "name": null,
                 "desc": null,
                 "generic": true
             },
             {
-                "nid": "Coyote",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    5,
-                    11
-                ],
-                "generic": false
-            },
-            {
                 "nid": "Prim",
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": null,
+                "starting_position": [
+                    3,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Althea",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    2
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Drake",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Nia",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    1
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Joel",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    1
+                ],
                 "generic": false
             }
         ],

@@ -216,8 +216,8 @@ class ItemOption(BasicOption):
             uses_string = str(self.item.data['c_uses'])
         elif self.item.cooldown:
             uses_string = str(self.item.data['cooldown'])
-        left = x + self.width() - 5 - FONT[uses_font].width(uses_string)
-        FONT[uses_font].blit(uses_string, surf, (left, y))
+        left = x + 99
+        FONT[uses_font].blit_right(uses_string, surf, (left, y))
 
 class ConvoyItemOption(ItemOption):
     def __init__(self, idx, item, owner):
@@ -293,6 +293,7 @@ class ValueItemOption(ItemOption):
         FONT[uses_font].blit_right(uses_string, surf, (x + 100, y))
 
         value_font = 'text-grey'
+        value_string = '--'
         owner = game.get_unit(self.item.owner_nid)
         if self.disp_value == 'buy':
             value = item_funcs.buy_price(owner, self.item)

@@ -370,8 +370,8 @@ class PrepManageState(State):
         self.fluid = FluidScroll()
 
         units = game.get_units_in_party()
-        units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
-        self.menu = menus.Table(None, units, (4, 3), (6, 0))
+        self.units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
+        self.menu = menus.Table(None, self.units, (4, 3), (6, 0))
         self.menu.set_mode('unit')
 
         # Display
@@ -383,6 +383,13 @@ class PrepManageState(State):
 
         game.state.change('transition_in')
         return 'repeat'
+
+    def begin(self):
+        # If come back from info menu
+        unit = game.memory.get('current_unit')
+        if unit and unit in self.units:
+            idx = self.units.index(unit)
+            self.menu.move_to(idx)
 
     def create_quick_disp(self):
         sprite = SPRITES.get('buttons')
@@ -618,7 +625,8 @@ class PrepItemsState(State):
         if not self.bg:
             self.bg = background.create_background('rune_background')
         self.unit = game.memory['current_unit']
-        self.menu = menus.Convoy(self.unit, (WINWIDTH - 116, 40))
+        include_other_units_items = (self.name != 'supply_items')
+        self.menu = menus.Convoy(self.unit, (WINWIDTH - 116, 40), include_other_units_items)
         
         self.state = 'free'
         self.sub_menu = None
@@ -880,12 +888,12 @@ class PrepMarketState(State):
         market_items = item_funcs.create_items(self.unit, game.market_items)
         self.buy_menu = menus.Market(self.unit, market_items, (WINWIDTH - 160, 40), disp_value='buy')
         self.display_menu = self.buy_menu
-        self.sell_menu.set_take_input(False)
-        self.buy_menu.set_take_input(False)
+        self.sell_menu.set_takes_input(False)
+        self.buy_menu.set_takes_input(False)
 
         self.state = 'free'
         options = ["Buy", "Sell"]
-        self.choice_menu = menus.Choice(self.unit, options, (16, 16), 'menu_bg_brown')
+        self.choice_menu = menus.Choice(self.unit, options, (20, 24), 'menu_bg_brown')
         self.choice_menu.gem = False
         self.menu = self.choice_menu
 
@@ -906,9 +914,21 @@ class PrepMarketState(State):
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
+            if self.state == 'free':
+                current = self.menu.get_current()
+                if current == 'Buy':
+                    self.display_menu = self.buy_menu
+                else:
+                    self.display_menu = self.sell_menu
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
+            if self.state == 'free':
+                current = self.menu.get_current()
+                if current == 'Buy':
+                    self.display_menu = self.buy_menu
+                else:
+                    self.display_menu = self.sell_menu
         elif 'LEFT' in directions:
             SOUNDTHREAD.play_sfx('TradeRight')
             self.display_menu.move_left(first_push)
@@ -939,6 +959,7 @@ class PrepMarketState(State):
                 else:
                     # You didn't choose anything to buy
                     SOUNDTHREAD.play_sfx('Select 4')
+
             elif self.state == 'sell':
                 item = self.menu.get_current()
                 if item:
@@ -959,6 +980,7 @@ class PrepMarketState(State):
                 else:
                     # You didn't choose anything to sell
                     SOUNDTHREAD.play_sfx('Select 4')
+
             elif self.state == 'free':
                 current = self.menu.get_current()
                 if current == 'Buy':
@@ -969,7 +991,7 @@ class PrepMarketState(State):
                     self.menu = self.sell_menu
                     self.state = 'sell'
                     self.display_menu = self.sell_menu
-                self.menu.set_take_input(True)
+                self.menu.set_takes_input(True)
 
         elif event == 'BACK':
             if self.state == 'buy' or self.state == 'sell':
@@ -979,7 +1001,7 @@ class PrepMarketState(State):
                 else:
                     SOUNDTHREAD.play_sfx('Select 4')
                     self.state = 'free'
-                    self.menu.set_take_input(False)
+                    self.menu.set_takes_input(False)
                     self.menu = self.choice_menu
             else:
                 SOUNDTHREAD.play_sfx('Select 4')

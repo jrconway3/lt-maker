@@ -502,11 +502,11 @@ class Event():
                 to_eval = values[1]
                 try:
                     val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
-                    action.do(action.SetGameVar(nid, game.game_var.get(nid, 0) + val))
+                    action.do(action.SetGameVar(nid, game.game_vars.get(nid, 0) + val))
                 except:
                     logging.error("Could not evaluate {%s}" % to_eval)
             else:
-                action.do(action.SetGameVar(nid, game.game_var.get(nid, 0) + 1))
+                action.do(action.SetGameVar(nid, game.game_vars.get(nid, 0) + 1))
 
         elif command.nid == 'level_var':
             values, flags = event_commands.parse(command)
@@ -531,11 +531,11 @@ class Event():
                 to_eval = values[1]
                 try:
                     val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
-                    action.do(action.SetLevelVar(nid, game.level_var.get(nid, 0) + val))
+                    action.do(action.SetLevelVar(nid, game.level_vars.get(nid, 0) + val))
                 except:
                     logging.error("Could not evaluate {%s}" % to_eval)
             else:
-                action.do(action.SetLevelVar(nid, game.level_var.get(nid, 0) + 1))
+                action.do(action.SetLevelVar(nid, game.level_vars.get(nid, 0) + 1))
 
         elif command.nid == 'win_game':
             game.level_vars['_win_game'] = True
@@ -607,6 +607,9 @@ class Event():
 
         elif command.nid == 'give_exp':
             self.give_exp(command)
+
+        elif command.nid == 'give_wexp':
+            self.give_wexp(command)
 
         elif command.nid == 'give_skill':
             self.give_skill(command)
@@ -1822,6 +1825,19 @@ class Event():
         game.exp_instance.append((unit, exp, None, 'init'))
         game.state.change('exp')
         self.state = 'paused'
+
+    def give_wexp(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit with nid %s" % values[0])
+            return
+        weapon_type = values[1]
+        wexp = int(values[2])
+        if 'no_banner' in flags:
+            action.execute(action.AddWexp(self.unit, weapon_type, wexp))
+        else:
+            action.do(action.AddWexp(self.unit, weapon_type, wexp))
 
     def give_skill(self, command):
         values, flags = event_commands.parse(command)

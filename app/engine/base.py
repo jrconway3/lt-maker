@@ -13,6 +13,7 @@ from app.engine.game_state import game
 from app.engine import menus, base_surf, background, text_funcs, \
     image_mods, gui, icons, prep, record_book
 from app.engine.fluid_scroll import FluidScroll
+import app.engine.config as cf
 
 class BaseMainState(State):
     name = 'base_main'
@@ -53,6 +54,9 @@ class BaseMainState(State):
                 ignore.insert(1, False)
             else:
                 ignore.insert(1, True)
+        if cf.SETTINGS['debug']:
+            options.insert(0, 'Debug')
+            ignore.insert(0, False)
         
         topleft = 4, WINHEIGHT//2 - (len(options) * 16 + 8)//2
         self.menu = menus.Choice(None, options, topleft=topleft)
@@ -76,7 +80,9 @@ class BaseMainState(State):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
-            if selection == 'Manage':
+            if selection == 'Debug':
+                game.state.change('debug')
+            elif selection == 'Manage':
                 game.memory['next_state'] = 'base_manage'
                 game.state.change('transition_to')
             elif selection == 'Market':
@@ -186,7 +192,9 @@ class BaseConvosChildState(State):
         # color = ['text-grey' if i else 'text-white' for i in ignore]
         # self.menu.set_color(color)
         self.menu.set_ignore(ignore)
-        SOUNDTHREAD.fade_in(game.level.music['base'])
+        base_music = game.game_vars.get('_base_music')
+        if base_music:
+            SOUNDTHREAD.fade_in(base_music)
 
     def take_input(self, event):
         first_push = self.fluid.update()

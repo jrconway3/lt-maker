@@ -1,7 +1,7 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action, item_funcs, static_random
+from app.engine import equations, action, static_random
 from app.engine.game_state import game
 
 class Regeneration(SkillComponent):

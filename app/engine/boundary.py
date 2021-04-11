@@ -1,6 +1,7 @@
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities import utils
 
+from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine import engine, target_system, equations
 from app.engine.game_state import game
@@ -93,6 +94,13 @@ class BoundaryInterface():
 
     def _add_unit(self, unit):
         valid_moves = target_system.get_valid_moves(unit, force=True)
+
+        if DB.constants.value('zero_move') and unit.ai and not unit.ai_group_active:
+            ai_prefab = DB.ai.get(unit.ai)
+            guard = ai_prefab.guard_ai()
+            if guard:
+                valid_moves = {unit.position}
+
         valid_attacks = target_system.get_possible_attacks(unit, valid_moves)
         valid_spells = target_system.get_possible_spell_attacks(unit, valid_moves)
         self._set(valid_attacks, 'attack', unit.nid)
@@ -109,7 +117,14 @@ class BoundaryInterface():
             if unit.nid in self.dictionaries[mode]:
                 for (x, y) in self.dictionaries[mode][unit.nid]:
                     grid[x * self.height + y].discard(unit.nid)
+                # del self.dictionaries[mode][unit.nid]
         self.surf = None
+
+    def recalculate_unit(self, unit):
+        if unit.team in self.enemy_teams:
+            self._remove_unit(unit)
+            if unit.position:
+                self._add_unit(unit)
 
     def leave(self, unit):
         if unit.team in self.enemy_teams:
@@ -267,3 +282,14 @@ class BoundaryInterface():
                         
         surf.blit(self.fog_of_war_surf, (0, 0))
         return surf
+
+    def print_grid(self, mode):
+        for y in range(self.height):
+            print("%02d|" % y, end="")
+            for x in range(self.width):
+                cell = self.grids[mode][x * self.height + y]
+                if cell:
+                    print(' %s |' % ','.join(cell), end="")
+                else:
+                    print('  -  |', end="")
+            print('\n', end=""),

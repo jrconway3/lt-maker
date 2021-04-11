@@ -84,6 +84,13 @@ class HighlightController():
 
     def display_highlights(self, unit, light=False):
         valid_moves = target_system.get_valid_moves(unit)
+
+        if DB.constants.value('zero_move') and unit.ai and not unit.ai_group_active:
+            ai_prefab = DB.ai.get(unit.ai)
+            guard = ai_prefab.guard_ai()
+            if guard:
+                valid_moves = {unit.position}
+                
         valid_attacks = target_system.get_possible_spell_attacks(unit, valid_moves)
         self.display_possible_spell_attacks(valid_attacks, light=light)
         valid_attacks = target_system.get_possible_attacks(unit, valid_moves)

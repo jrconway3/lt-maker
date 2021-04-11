@@ -488,9 +488,6 @@ class GameState():
         from app.engine import action, aura_funcs
         if unit.position:
             logger.debug("Leave %s %s", unit.nid, unit.position)
-            # Boundary
-            if not test:
-                self.boundary.leave(unit)
             # Auras
             for aura_data in game.board.get_auras(unit.position):
                 child_aura_uid, target = aura_data
@@ -517,6 +514,9 @@ class GameState():
                     act.do()
                 else:
                     action.do(act)
+            # Boundary
+            if not test:
+                self.boundary.leave(unit)
             # Board
             if not test:
                 self.board.remove_unit(unit.position, unit)

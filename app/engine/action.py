@@ -1194,9 +1194,13 @@ class ChangeAI(Action):
 
     def do(self):
         self.unit.ai = self.ai
+        if game.boundary:
+            game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
         self.unit.ai = self.old_ai
+        if game.boundary:
+            game.boundary.recalculate_unit(self.unit)
 
 class ChangeAIGroup(Action):
     def __init__(self, unit, ai_group):
@@ -1239,7 +1243,8 @@ class ChangeTeam(Action):
             self.ai_action.do()
         if self.unit.position:
             game.arrive(self.unit)
-        game.boundary.reset_unit(self.unit)
+        if game.boundary:
+            game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
     def reverse(self):
@@ -1251,7 +1256,8 @@ class ChangeTeam(Action):
         self.action.reverse()
         if self.unit.position:
             game.arrive(self.unit)
-        game.boundary.reset_unit(self.unit)
+        if game.boundary:
+            game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
 class ChangePortrait(Action):
@@ -1588,10 +1594,7 @@ class AddSkill(Action):
         # Handle affects movement
         self.reset_action.execute()
         if game.boundary:
-            if self.unit.team in game.boundary.enemy_teams:
-                game.boundary._remove_unit(self.unit)
-                if self.unit.position:
-                    game.boundary._add_unit(self.unit)
+            game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
         self.reset_action.reverse()
@@ -1632,10 +1635,7 @@ class RemoveSkill(Action):
         # Handle affects movement
         self.reset_action.execute()
         if game.boundary:
-            if self.unit.team in game.boundary.enemy_teams:
-                game.boundary._remove_unit(self.unit)
-                if self.unit.position:
-                    game.boundary._add_unit(self.unit)
+            game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
         self.reset_action.reverse()

@@ -43,11 +43,34 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Guard",
                 "ai_group": "1",
                 "starting_position": [
                     10,
                     5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 2,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": "1",
+                "starting_position": [
+                    9,
+                    9
                 ],
                 "name": null,
                 "desc": null,
@@ -106,6 +129,62 @@
                     1,
                     1
                 ],
+                "generic": false
+            },
+            {
+                "nid": "Renae",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Theo",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Eliza",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Sam",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Kayla",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Coyote",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Yohn",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
                 "generic": false
             }
         ],

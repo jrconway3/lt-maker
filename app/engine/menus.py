@@ -1,3 +1,5 @@
+import math
+
 from app.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data.database import DB
 from app.utilities import utils
@@ -872,133 +874,89 @@ class Table(Simple):
         idx = utils.clamp(idx, 0, len(self.options) - 1)
         if self.options[idx].ignore:
             return
-        while self.current_index < idx:
-            self.move_right(True)
-        while self.current_index > idx:
-            self.move_left(True)
+        self.current_index = idx
+        row, col = self._true_coords(self.current_index)
+        self.scroll = utils.clamp(self.scroll, row - self.rows + 1, row + self.rows - 1)
         # If we did scroll
         return scroll != self.scroll
 
-    def _move_down(self, first_push=True):
-        if first_push:
-            self.current_index += self.columns
-            if self.current_index > len(self.options) - 1:
-                # If there is an option to the left
-                # If odd number of options and we are on the same row as it
-                if len(self.options) % self.columns and self.current_index // self.columns == len(self.options) // self.columns:
-                    self.current_index = len(self.options) - 1
-                else:
-                    self.current_index = self.current_index % self.columns
-                    self.scroll = 0
-            elif self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                self.scroll += 1
-            else:
-                self.cursor.y_offset -= 1
-        else:
-            if self.current_index < len(self.options) - self.columns:
-                self.current_index += self.columns
-                if self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                    self.scroll += 1
-                self.cursor.y_offset -= 1
-        if self.limit * self.columns < len(self.options):
-            self.scroll = min(len(self.options) - self.limit * self.columns, self.scroll)
-        else:
-            self.scroll = 0  # No need to scroll
+    def _true_coords(self, idx: int) -> tuple:
+        return (idx // self.columns, idx % self.columns)
 
-    def _move_up(self, first_push=True):
-        if first_push:
-            self.current_index -= self.columns
-            if self.current_index < 0:
-                column_idx = self.current_index % self.columns
-                self.current_index = len(self.options) - 1
-                while self.current_index % self.columns != column_idx:
-                    self.current_index -= 1
-                self.scroll = self.current_index // self.columns - self.limit + 1
-            elif self.current_index < self.scroll * self.columns + 1:
-                self.scroll -= 1
-            else:
-                self.cursor.y_offset += 1
-        else:
-            if self.current_index > 0:
-                self.current_index -= self.columns
-                if self.current_index < self.scroll * self.columns + 1:
-                    self.scroll -= 1
-                self.cursor.y_offset += 1
-        self.scroll = max(0, self.scroll)
+    def _exists(self, row: int, col: int) -> bool:
+        if col >= self.columns or row < 0 or col < 0:
+            return False
+        return (row * self.columns + col) < len(self.options)
 
-    def _move_left(self, first_push=True):
-        if first_push:
-            self.current_index -= 1
-            if self.current_index < 0:
-                self.current_index = len(self.options) - 1
-                self.scroll = self.current_index // self.columns - self.limit + 1
-            elif self.current_index < self.scroll * self.columns + 1:
-                self.scroll -= 1
-            else:
-                self.cursor.y_offset += 1
-        else:
-            if self.current_index > 0:
-                self.current_index -= 1
-                if self.current_index < self.scroll * self.columns + 1:
-                    self.scroll -= 1
-                self.cursor.y_offset += 1
-        self.scroll = max(0, self.scroll)
+    def _idx_coords(self, row: int, col: int) -> int:
+        return row * self.columns + col
 
-    def _move_right(self, first_push=True):
-        if first_push:
-            self.current_index += 1
-            if self.current_index > len(self.options) - 1:
-                self.current_index = 0
-                self.scroll = 0
-            elif self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                self.scroll += 1
-            else:
-                self.cursor.y_offset -= 1
+    def _get_bottom(self, col: int) -> int:
+        if col >= len(self.options) % self.columns:
+            return len(self.options) // self.columns - 1
         else:
-            if self.current_index < len(self.options) - 1:
-                self.current_index += 1
-                if self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                    self.scroll += 1
-                self.cursor.y_offset -= 1
-        if self.limit * self.columns < len(self.options):
-            self.scroll = min(len(self.options) - self.limit * self.columns, self.scroll)
+            return len(self.options) // self.columns
+
+    def _get_right(self, row: int) -> int:
+        if row >= len(self.options) // self.columns:
+            return (len(self.options) % self.columns) - 1
         else:
-            self.scroll = 0  # No need to scroll
+            return self.columns - 1
 
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_down(True)
-            while self.options[self.current_index].ignore:
-                self._move_down(True)
-
-        else:
-            if any(not option.ignore for option in self.options[self.current_index + 1:]):
-                self._move_down(False)
-                while self.options[self.current_index].ignore:
-                    self._move_down(False)
-
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            row += 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                row = 0
+                self.scroll = 0
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if row > self.scroll + self.rows - 2:
+                self.scroll += 1
+            elif row != 0:
+                self.cursor.y_offset -= 1
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
         if old_index == self.current_index:
             self.cursor.y_offset = 0
+        num_rows = math.ceil(len(self.options) / self.columns)
+        self.scroll = utils.clamp(self.scroll, 0, num_rows - self.rows)
         return old_index != self.current_index
 
     def move_up(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_up(True)
-            while self.options[self.current_index].ignore:
-                self._move_up(True)
-
-        else:
-            if any(not option.ignore for option in self.options[:self.current_index]):
-                self._move_up(False)
-                while self.options[self.current_index].ignore:
-                    self._move_up(False)
-
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            row -= 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                row = self._get_bottom(col)
+                num_rows = math.ceil(len(self.options) / self.columns)
+                self.scroll = num_rows - self.rows
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if row < self.scroll + 1:
+                self.scroll -= 1
+            elif row != self._get_bottom(col):
+                self.cursor.y_offset += 1
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
+        self.scroll = max(0, self.scroll)
         if old_index == self.current_index:
             self.cursor.y_offset = 0
         return old_index != self.current_index
@@ -1007,38 +965,40 @@ class Table(Simple):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_right(True)
-            while self.options[self.current_index].ignore:
-                self._move_right(True)
-
-        else:
-            if any(not option.ignore for option in self.options[self.current_index + 1:]):
-                self._move_right(False)
-                while self.options[self.current_index].ignore:
-                    self._move_right(False)
-
-        if old_index == self.current_index:
-            self.cursor.y_offset = 0
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            col += 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                col = 0
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
         return old_index != self.current_index
 
     def move_left(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_left(True)
-            while self.options[self.current_index].ignore:
-                self._move_left(True)
-
-        else:
-            if any(not option.ignore for option in self.options[:self.current_index]):
-                self._move_left(False)
-                while self.options[self.current_index].ignore:
-                    self._move_left(False)
-
-        if old_index == self.current_index:
-            self.cursor.y_offset = 0
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            col -= 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                col = self._get_right(row)
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
         return old_index != self.current_index
 
     def get_menu_width(self):
@@ -1068,6 +1028,12 @@ class Table(Simple):
         surf = image_mods.make_translucent(surf, .1)
         return surf
 
+    def draw_scroll_bar(self, surf, topleft):
+        right = topleft[0] + self.get_menu_width()
+        topright = (right, topleft[1])
+        num_rows = math.ceil(len(self.options) / self.columns)
+        self.scroll_bar.draw(surf, topright, self.scroll, self.rows, num_rows)
+
     def draw(self, surf):
         topleft = self.get_topleft()
         bg_surf = self.create_bg_surf()
@@ -1079,8 +1045,9 @@ class Table(Simple):
             self.draw_scroll_bar(surf, topleft)
 
         start_index = self.scroll * self.columns
-        end_index = (self.scroll + self.limit) * self.columns
+        end_index = (self.scroll + self.rows) * self.columns
         choices = self.options[start_index:end_index]
+        # print(self.scroll, start_index, end_index)
         width = max(option.width() for option in self.options)
         width -= width%8
         height = max(option.height() for option in self.options)

@@ -377,7 +377,10 @@ class PrepManageState(State):
         # Display
         self.quick_disp = self.create_quick_disp()
 
-        self.bg = background.create_background('rune_background')
+        if self.name.startswith('base') and game.memory['base_bg']:
+            self.bg = game.memory['base_bg']
+        else:
+            self.bg = background.create_background('rune_background')
         game.memory['prep_bg'] = self.bg
         game.memory['manage_menu'] = self.menu
 

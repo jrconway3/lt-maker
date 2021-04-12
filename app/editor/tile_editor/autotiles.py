@@ -30,6 +30,7 @@ class Series(list):
 class PaletteData():
     def __init__(self, im: QImage):
         self.im: QImage = im
+        self.new_im: QImage = None
         self.colors: list = editor_utilities.get_full_palette(im)
         # Sort by most
         self.uniques: list = sorted(set(self.colors), key=lambda x: self.colors.count(x), reverse=True)
@@ -61,6 +62,7 @@ class AutotileMaker():
         self.should_run = self.load_autotile_templates()
 
     def clear(self):
+        # self.books.clear()
         self.map_tiles.clear()
         self.autotile_column_idxs.clear()
         self.recognized_series.clear()
@@ -68,9 +70,10 @@ class AutotileMaker():
 
     def run(self, tileset):
         self.clear()
-        self.progress_dialog.setValue(20)
+        # self.should_run = self.load_autotile_templates()
         if not self.should_run:
             return None, {}
+        self.progress_dialog.setValue(20)
         self.tileset = tileset
         self.tileset_image = QImage(self.tileset.pixmap)
         if self.progress_dialog.wasCanceled():
@@ -186,6 +189,7 @@ class AutotileMaker():
 
     def color_change(self, tile, closest_frame, closest_series, closest_book):
         # Converts color from closest frame to tile
+        print("Color change")
         color_conversion = {}
         truecolor = {}
         for idx, color in enumerate(closest_frame.colors):
@@ -216,7 +220,7 @@ class AutotileMaker():
 
         for palette_data in closest_series:
             new_im = editor_utilities.color_convert(palette_data.im, color_conversion)
-            palette_data.im = new_im
+            palette_data.new_im = new_im
 
     def create_final_image(self):
         width = len(self.recognized_series) * TILEWIDTH
@@ -229,8 +233,15 @@ class AutotileMaker():
             for j, palette_data in enumerate(series):
                 x, y = i * TILEWIDTH, j * TILEHEIGHT
                 # Paste image
-                painter.drawImage(x, y, palette_data.im)
+                if palette_data.new_im:
+                    painter.drawImage(x, y, palette_data.new_im)
+                else:
+                    painter.drawImage(x, y, palette_data.im)
         painter.end()
+        # Clear color changed images
+        for i, series in enumerate(self.recognized_series):
+            for j, palette_data in enumerate(series):
+                palette_data.new_im = None
 
         self.companion_autotile_im = new_im
 

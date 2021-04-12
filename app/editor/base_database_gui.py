@@ -262,8 +262,6 @@ class DragDropCollectionModel(CollectionModel):
     most_recent_dragdrop = None
     drag_drop_finished = pyqtSignal()
 
-    
-
     def supportedDropActions(self):
         return Qt.MoveAction
 
@@ -294,10 +292,11 @@ class DragDropCollectionModel(CollectionModel):
         self.layoutChanged.emit()
         self.drop_to = None
 
-        old, new = self.most_recent_dragdrop
-        view = self.window.view
-        new_index = self.index(new)
-        view.setCurrentIndex(new_index)
+        if self.most_recent_dragdrop:
+            old, new = self.most_recent_dragdrop
+            view = self.window.view
+            new_index = self.index(new)
+            view.setCurrentIndex(new_index)
         self.drag_drop_finished.emit()
         return True
 

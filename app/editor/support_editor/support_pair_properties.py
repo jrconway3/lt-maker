@@ -28,7 +28,7 @@ class SupportPairProperties(QWidget):
         main_layout.addLayout(unit_section)
 
         self.one_way_box = PropertyCheckBox("One way?", QCheckBox, self)
-        self.one_way_box.setToolTip("First unit gives bonuses to second unit")
+        self.one_way_box.setToolTip("Second unit gives bonuses to first unit")
         self.one_way_box.edit.stateChanged.connect(self.one_way_changed)
         main_layout.addWidget(self.one_way_box)
 

@@ -15,6 +15,39 @@ def get_weapon_rank_bonus(unit, item):
             return combat_bonus
     return None
 
+def get_support_rank_bonus(unit):
+    from app.engine.game_state import game
+    if not unit.position:
+        return None
+    pairs = game.supports.get_pairs(unit.nid)
+    bonuses = []
+    for pair in pairs:
+        if not pair.unlocked_ranks:
+            continue
+        prefab = DB.support_pairs.get(pair.nid)
+        if unit.nid == prefab.unit1:
+            other_unit = game.get_unit(prefab.unit2)
+        else:
+            other_unit = game.get_unit(prefab.unit1)
+        if not (other_unit and other_unit.position):
+            continue
+        # If unit has already been counted
+        if other_unit in [_[1] for _ in bonuses]:
+            continue
+        if not game.supports.check_range(unit, other_unit):
+            continue
+        highest_rank = pair.unlocked_ranks[-1]
+        support_rank_bonus = game.supports.get_bonus(unit, other_unit, highest_rank)
+        bonuses.append((support_rank_bonus, other_unit))
+    num_allies_allowed = DB.support_constants.value('bonus_ally_limit')
+    if num_allies_allowed and len(bonuses) > num_allies_allowed:
+        # Get the X highest bonuses
+        bonuses = sorted(bonuses, key=lambda x: DB.support_ranks.index(x[0].support_rank), reverse=True)
+        bonuses = bonuses[:num_allies_allowed]
+    allies = [_[1] for _ in bonuses]
+    bonuses = [_[0] for _ in bonuses]
+    return bonuses, allies
+
 def compute_advantage(unit1, unit2, item1, item2, advantage=True):
     if not item1 or not item2:
         return None
@@ -70,6 +103,11 @@ def accuracy(unit, item=None):
     weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
     if weapon_rank_bonus:
         accuracy += int(weapon_rank_bonus.accuracy)
+
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        accuracy += float(bonus.accuracy)
+    accuracy = int(accuracy)
 
     accuracy += item_system.modify_accuracy(unit, item)
     accuracy += skill_system.modify_accuracy(unit, item)

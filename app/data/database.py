@@ -36,7 +36,7 @@ class Database(object):
         self.affinities = supports.AffinityCatalog()
 
         self.units = units.UnitCatalog()
-        
+
         self.support_pairs = supports.SupportPairCatalog()
 
         self.parties = parties.PartyCatalog()

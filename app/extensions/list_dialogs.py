@@ -52,7 +52,7 @@ class MultiAttrListDialog(SingleListDialog):
         self.view = RightClickTreeView(deletion_criteria, self)
         self.view.setModel(self.model)
         self.view.setAutoScroll(False)
-        int_columns = [i for i, attr in enumerate(attrs) if type(getattr(self._data[0], attr)) == int]
+        int_columns = [i for i, attr in enumerate(attrs) if len(self._data) and type(getattr(self._data[0], attr)) == int]
         delegate = IntDelegate(self.view, int_columns)
         self.view.setItemDelegate(delegate)
         for col in range(len(attrs)):

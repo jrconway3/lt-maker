@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QTextEdit, \
-    QMessageBox, QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, \
+    QMessageBox, QDoubleSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, \
     QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFontMetrics
 
@@ -91,17 +91,17 @@ class AffinityProperties(QWidget):
 
 class SupportRankBonusDelegate(QStyledItemDelegate):
     rank_column = 0
-    int_columns = (1, 2, 3, 4, 5, 6, 7, 8)
+    float_columns = (1, 2, 3, 4, 5, 6, 7, 8)
 
     def createEditor(self, parent, option, index):
-        if index.column() in self.int_columns:
-            editor = QSpinBox(parent)
+        if index.column() in self.float_columns:
+            editor = QDoubleSpinBox(parent)
             editor.setRange(-255, 255)
             return editor
         elif index.column() == self.rank_column:
             editor = ComboBox(parent)
             for rank in DB.support_ranks:
-                editor.addItem(rank.rank)
+                editor.addItem(rank.nid)
             return editor
         else:
             return super().createEditor(parent, option, index)

@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QSize
+
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
@@ -21,6 +23,7 @@ class SupportPairDatabase(DatabaseTab):
         collection_model = support_pair_model.SupportPairModel
         dialog = cls(data, title, right_frame, (None, None, None), collection_model, parent)
         dialog.left_frame.import_button.setText("Edit Support Ranks...")
+        dialog.left_frame.view.setIconSize(QSize(64, 32))
         return dialog
 
     def import_data(self):

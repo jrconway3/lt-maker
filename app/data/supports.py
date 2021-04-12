@@ -34,14 +34,14 @@ class SupportRankBonus(Prefab):
     def __init__(self, support_rank, effects):
         self.support_rank = support_rank
 
-        self.damage = int(effects[0])
-        self.resist = int(effects[1])
-        self.accuracy = int(effects[2])
-        self.avoid = int(effects[3])
-        self.crit = int(effects[4])
-        self.dodge = int(effects[5])
-        self.attack_speed = int(effects[6])
-        self.defense_speed = int(effects[7])
+        self.damage = float(effects[0])
+        self.resist = float(effects[1])
+        self.accuracy = float(effects[2])
+        self.avoid = float(effects[3])
+        self.crit = float(effects[4])
+        self.dodge = float(effects[5])
+        self.attack_speed = float(effects[6])
+        self.defense_speed = float(effects[7])
 
     @property
     def effects(self):
@@ -82,10 +82,10 @@ class Affinity(Prefab):
     name: str = None
     desc: str = None
 
+    bonus: SupportRankBonusList = None
+
     icon_nid: str = None
     icon_index: tuple = (0, 0)
-
-    bonus: SupportRankBonusList = None
 
     def __repr__(self):
         return ("Affinity %s" % self.nid)
@@ -134,14 +134,14 @@ class SupportRankRequirement(SupportRankBonus):
         self.requirement: int = requirement
         self.gate: str = gate
 
-        self.damage = int(effects[0])
-        self.resist = int(effects[1])
-        self.accuracy = int(effects[2])
-        self.avoid = int(effects[3])
-        self.crit = int(effects[4])
-        self.dodge = int(effects[5])
-        self.attack_speed = int(effects[6])
-        self.defense_speed = int(effects[7])
+        self.damage = float(effects[0])
+        self.resist = float(effects[1])
+        self.accuracy = float(effects[2])
+        self.avoid = float(effects[3])
+        self.crit = float(effects[4])
+        self.dodge = float(effects[5])
+        self.attack_speed = float(effects[6])
+        self.defense_speed = float(effects[7])
 
     @classmethod
     def default(cls):
@@ -187,7 +187,7 @@ class SupportPair(Prefab):
         return value
 
     def restore_attr(self, name, value):
-        if name == 'bonus':
+        if name == 'requirements':
             if value:
                 value = SupportRankRequirementList([SupportRankRequirement.restore(req) for req in value])
             else:

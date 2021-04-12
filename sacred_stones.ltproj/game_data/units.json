@@ -83,7 +83,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Eirika"
+        "portrait_nid": "Eirika",
+        "affinity": "Light"
     },
     {
         "nid": "Seth",
@@ -171,7 +172,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Seth"
+        "portrait_nid": "Seth",
+        "affinity": "Anima"
     },
     {
         "nid": "Franz",
@@ -263,7 +265,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Franz"
+        "portrait_nid": "Franz",
+        "affinity": "Light"
     },
     {
         "nid": "Gilliam",
@@ -343,7 +346,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Gilliam"
+        "portrait_nid": "Gilliam",
+        "affinity": "Thunder"
     },
     {
         "nid": "Vanessa",
@@ -431,7 +435,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Vanessa"
+        "portrait_nid": "Vanessa",
+        "affinity": "Anima"
     },
     {
         "nid": "Moulder",
@@ -515,7 +520,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Moulder"
+        "portrait_nid": "Moulder",
+        "affinity": "Anima"
     },
     {
         "nid": "Ross",
@@ -599,13 +605,14 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Ross"
+        "portrait_nid": "Ross",
+        "affinity": "Fire"
     },
     {
         "nid": "Garcia",
         "name": "Garcia",
         "desc": "A villager from Renais. He was once a feared military leader.",
-        "variant": null,
+        "variant": "",
         "level": 4,
         "klass": "Fighter",
         "tags": [],
@@ -687,7 +694,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Garcia"
+        "portrait_nid": "Garcia",
+        "affinity": "Fire"
     },
     {
         "nid": "Neimi",
@@ -771,7 +779,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Neimi"
+        "portrait_nid": "Neimi",
+        "affinity": "Fire"
     },
     {
         "nid": "Colm",
@@ -859,7 +868,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Colm"
+        "portrait_nid": "Colm",
+        "affinity": "Light"
     },
     {
         "nid": "Artur",
@@ -943,7 +953,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Artur"
+        "portrait_nid": "Artur",
+        "affinity": "Ice"
     },
     {
         "nid": "Lute",
@@ -1023,7 +1034,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Lute"
+        "portrait_nid": "Lute",
+        "affinity": "Anima"
     },
     {
         "nid": "Natasha",
@@ -1107,7 +1119,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Natasha"
+        "portrait_nid": "Natasha",
+        "affinity": "Ice"
     },
     {
         "nid": "Joshua",
@@ -1187,7 +1200,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Joshua"
+        "portrait_nid": "Joshua",
+        "affinity": "Wind"
     },
     {
         "nid": "Ephraim",
@@ -1275,7 +1289,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Ephraim"
+        "portrait_nid": "Ephraim",
+        "affinity": "Fire"
     },
     {
         "nid": "Forde",
@@ -1363,7 +1378,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Forde"
+        "portrait_nid": "Forde",
+        "affinity": "Wind"
     },
     {
         "nid": "Kyle",
@@ -1399,7 +1415,7 @@
         },
         "starting_items": [
             [
-                "Trifire",
+                "Iron Sword",
                 false
             ],
             [
@@ -1451,7 +1467,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Kyle"
+        "portrait_nid": "Kyle",
+        "affinity": "Ice"
     },
     {
         "nid": "Orson",
@@ -1539,7 +1556,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Orson"
+        "portrait_nid": "Orson",
+        "affinity": "None"
     },
     {
         "nid": "Tana",
@@ -1627,7 +1645,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Tana"
+        "portrait_nid": "Tana",
+        "affinity": "Wind"
     },
     {
         "nid": "Amelia",
@@ -1715,7 +1734,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Amelia"
+        "portrait_nid": "Amelia",
+        "affinity": "Thunder"
     },
     {
         "nid": "Innes",
@@ -1803,7 +1823,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Innes"
+        "portrait_nid": "Innes",
+        "affinity": "Ice"
     },
     {
         "nid": "Gerik",
@@ -1891,7 +1912,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Gerik"
+        "portrait_nid": "Gerik",
+        "affinity": "Thunder"
     },
     {
         "nid": "Tethys",
@@ -1979,7 +2001,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Tethys"
+        "portrait_nid": "Tethys",
+        "affinity": "Fire"
     },
     {
         "nid": "Marisa",
@@ -2063,7 +2086,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Marisa"
+        "portrait_nid": "Marisa",
+        "affinity": "Ice"
     },
     {
         "nid": "L'arachel",
@@ -2151,7 +2175,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "L'arachel"
+        "portrait_nid": "L'arachel",
+        "affinity": "Light"
     },
     {
         "nid": "Dozla",
@@ -2235,7 +2260,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Dozla"
+        "portrait_nid": "Dozla",
+        "affinity": "Thunder"
     },
     {
         "nid": "Saleh",
@@ -2319,7 +2345,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Saleh"
+        "portrait_nid": "Saleh",
+        "affinity": "Wind"
     },
     {
         "nid": "Ewan",
@@ -2407,7 +2434,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Ewan"
+        "portrait_nid": "Ewan",
+        "affinity": "Light"
     },
     {
         "nid": "Cormag",
@@ -2495,7 +2523,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Cormag"
+        "portrait_nid": "Cormag",
+        "affinity": "Fire"
     },
     {
         "nid": "Rennac",
@@ -2579,7 +2608,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Rennac"
+        "portrait_nid": "Rennac",
+        "affinity": "Dark"
     },
     {
         "nid": "Duessel",
@@ -2667,7 +2697,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Duessel"
+        "portrait_nid": "Duessel",
+        "affinity": "Anima"
     },
     {
         "nid": "O'Neill",
@@ -2749,7 +2780,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Mercenary1"
+        "portrait_nid": "Mercenary1",
+        "affinity": "None"
     },
     {
         "nid": "Breguet",
@@ -2831,7 +2863,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Breguet"
+        "portrait_nid": "Breguet",
+        "affinity": null
     },
     {
         "nid": "Bone",
@@ -2913,7 +2946,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Bone"
+        "portrait_nid": "Bone",
+        "affinity": null
     },
     {
         "nid": "Bazba",
@@ -2999,7 +3033,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Bazba"
+        "portrait_nid": "Bazba",
+        "affinity": null
     },
     {
         "nid": "Saar",
@@ -3081,7 +3116,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Saar"
+        "portrait_nid": "Saar",
+        "affinity": null
     },
     {
         "nid": "Selena",
@@ -3165,7 +3201,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Selena"
+        "portrait_nid": "Selena",
+        "affinity": null
     },
     {
         "nid": "Vigarde",
@@ -3249,7 +3286,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "VigardeHealthy"
+        "portrait_nid": "VigardeHealthy",
+        "affinity": null
     },
     {
         "nid": "Caellach",
@@ -3337,7 +3375,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Caellach"
+        "portrait_nid": "Caellach",
+        "affinity": null
     },
     {
         "nid": "Valter",
@@ -3425,7 +3464,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Valter"
+        "portrait_nid": "Valter",
+        "affinity": null
     },
     {
         "nid": "Riev",
@@ -3505,7 +3545,8 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Riev"
+        "portrait_nid": "Riev",
+        "affinity": null
     },
     {
         "nid": "Lyon",
@@ -3589,6 +3630,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Lyon"
+        "portrait_nid": "Lyon",
+        "affinity": null
     }
 ]

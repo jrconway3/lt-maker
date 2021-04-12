@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QCheckBox, \
-    QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QLineEdit, QCheckBox, QMessageBox, \
+    QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, QDoubleSpinBox
 
 from app.data.database import DB
 from app.data.supports import SupportRankRequirementList
@@ -40,10 +40,26 @@ class SupportPairProperties(QWidget):
         self.setLayout(main_layout)
 
     def unit1_changed(self, index):
+        old_unit1 = self.current.unit1
         self.current.unit1 = self.unit1_box.edit.currentText()
+        other_nids = [d.nid for d in self._data.values() if d is not self.current]
+        if self.current.nid in other_nids:
+            QMessageBox.warning(self.window, 'Warning', 'Pair %s already in use. Support Pairs must be unique!' % self.current.nid)
+            self.current.unit1 = old_unit1
+            self.unit1_box.edit.setValue(self.current.unit1)
+        self._data.update_nid(self.current, self.current.nid, set_nid=False)
+        self.window.update_list()
 
     def unit2_changed(self, index):
+        old_unit2 = self.current.unit2
         self.current.unit2 = self.unit2_box.edit.currentText()
+        other_nids = [d.nid for d in self._data.values() if d is not self.current]
+        if self.current.nid in other_nids:
+            QMessageBox.warning(self.window, 'Warning', 'Pair %s already in use. Support Pairs must be unique!' % self.current.nid)
+            self.current.unit2 = old_unit2
+            self.unit2_box.edit.setValue(self.current.unit2)
+        self._data.update_nid(self.current, self.current.nid, set_nid=False)
+        self.window.update_list()
 
     def one_way_changed(self, state):
         self.current.one_way = bool(state)
@@ -59,11 +75,11 @@ class SupportRankRequirementDelegate(QStyledItemDelegate):
     rank_column = 0
     requirement_column = 1
     str_column = 2
-    int_columns = (3, 4, 5, 6, 7, 8, 9, 10)
+    float_columns = (3, 4, 5, 6, 7, 8, 9, 10)
 
     def createEditor(self, parent, option, index):
-        if index.column() in self.int_columns:
-            editor = QSpinBox(parent)
+        if index.column() in self.float_columns:
+            editor = QDoubleSpinBox(parent)
             editor.setRange(-255, 255)
             return editor
         elif index.column() == self.requirement_column:
@@ -76,7 +92,7 @@ class SupportRankRequirementDelegate(QStyledItemDelegate):
         elif index.column() == self.rank_column:
             editor = ComboBox(parent)
             for rank in DB.support_ranks:
-                editor.addItem(rank.rank)
+                editor.addItem(rank.nid)
             return editor
         else:
             return super().createEditor(parent, option, index)

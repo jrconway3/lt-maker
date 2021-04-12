@@ -158,6 +158,10 @@ class AutotileMaker():
     def create_autotiles_from_image(self, pos):
         x, y = pos
         tile_palette = self.map_tiles[(x, y)]
+        # No colors or only one color...
+        # Don't bother finding an autotile for this
+        if len(tile_palette.uniques) < 2:
+            return
 
         closest_series = None
         closest_frame = None

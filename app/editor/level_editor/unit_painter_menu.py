@@ -255,6 +255,8 @@ class InventoryDelegate(QStyledItemDelegate):
         unit = self._data[index.row()]
         if isinstance(unit, str):  # It is a nid
             unit = self.window.current_level.units.get(unit)
+        if not unit:
+            return None
         # Don't draw any units which have been deleted in editor
         if not unit.generic and unit.nid not in DB.units.keys():
             return None

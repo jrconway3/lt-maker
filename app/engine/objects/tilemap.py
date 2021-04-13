@@ -1,4 +1,4 @@
-from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FPS, AUTOTILE_FRAMES
+from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES
 from app.utilities.data import Data, Prefab
 
 from app.resources.resources import RESOURCES
@@ -75,7 +75,8 @@ class LayerObject():
             if self.translucence >= 1:
                 self.state = None
 
-        frame = (current_time // AUTOTILE_FPS) % len(self.autotile_images)
+        autotile_wait = int(self.parent.autotile_fps * 16.66)
+        frame = (current_time // autotile_wait) % len(self.autotile_images)
         if frame != self.autotile_frame:
             self.autotile_frame = frame
             in_state = True  # Requires update to image when autotiles turn over
@@ -97,6 +98,7 @@ class TileMapObject(Prefab):
         self.nid = prefab.nid
         self.width = prefab.width
         self.height = prefab.height
+        self.autotile_fps = prefab.autotile_fps
         self.layers = Data()
         self.full_image = None
 

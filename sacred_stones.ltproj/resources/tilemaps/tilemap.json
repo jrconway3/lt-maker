@@ -5,6 +5,7 @@
             15,
             10
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -1225,6 +1226,7 @@
             15,
             10
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -2445,6 +2447,7 @@
             15,
             15
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -4634,6 +4637,7 @@
             17,
             16
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -7063,6 +7067,7 @@
             20,
             20
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -10283,6 +10288,7 @@
             16,
             10
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -11422,6 +11428,7 @@
             29,
             31
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -18690,6 +18697,7 @@
             15,
             15
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -20574,6 +20582,7 @@
             15,
             21
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",

@@ -4,7 +4,7 @@ from enum import IntEnum
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
     QToolBar, QTabBar, QWidget, QDialog, QGroupBox, QFormLayout, QSpinBox, QAction, \
     QGraphicsView, QGraphicsScene, QAbstractItemView, QActionGroup, \
-    QDesktopWidget, QFileDialog, QMessageBox
+    QDesktopWidget, QFileDialog, QMessageBox, QHBoxLayout
 from PyQt5.QtCore import Qt, QRect, QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
@@ -17,15 +17,15 @@ from app.editor import timer
 from app.editor.tile_editor import autotiles
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.terrain_painter_menu import TerrainPainterMenu
-from app.editor.base_database_gui import ResourceCollectionModel
-from app.extensions.custom_gui import ResourceListView, Dialog
+from app.editor.base_database_gui import CollectionModel, ResourceCollectionModel
+from app.extensions.custom_gui import ResourceListView, Dialog, PropertyBox
 
 from app.editor.settings import MainSettingsController
 from app.utilities import str_utils
 
 import logging
 
-def draw_tilemap(tilemap, autotiles=True):
+def draw_tilemap(tilemap, autotile_fps=29):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
@@ -45,7 +45,7 @@ def draw_tilemap(tilemap, autotiles=True):
                 if not tileset.autotile_pixmap:
                     tileset.set_autotile_pixmap(QPixmap(tileset.autotile_full_path))
 
-                pix = tileset.get_pixmap(tile_sprite.tileset_position, ms, autotiles)
+                pix = tileset.get_pixmap(tile_sprite.tileset_position, ms, autotile_fps)
                 if pix:
                     painter.drawImage(coord[0] * TILEWIDTH,
                                       coord[1] * TILEHEIGHT,
@@ -111,7 +111,10 @@ class MapEditorView(QGraphicsView):
         self.show_map()
 
     def get_map_image(self):
-        image = draw_tilemap(self.tilemap, autotiles=self.draw_autotiles)
+        if self.draw_autotiles:
+            image = draw_tilemap(self.tilemap, autotile_fps=self.tilemap.autotile_fps)
+        else:
+            image = draw_tilemap(self.tilemap, autotile_fps=0)
         painter = QPainter()
         painter.begin(image)
         # Draw grid lines
@@ -337,6 +340,9 @@ class MapEditorView(QGraphicsView):
         current_layer = self.get_current_layer()
         tileset, coords = self.window.get_tileset_coords()
 
+        if not coords:
+            return
+
         # Get coords like current coord in current_layer
         current_tile = current_layer.get_sprite(tile_pos)
         # Determine which coords should be flood-filled
@@ -489,9 +495,18 @@ class MapEditor(QDialog):
         self.main_splitter = QSplitter(self)
         self.main_splitter.setChildrenCollapsible(False)
 
+        self.autotile_fps_box = PropertyBox("Autotile Speed", QSpinBox, self)
+        self.autotile_fps_box.edit.setValue(self.current.autotile_fps)
+        self.autotile_fps_box.setMaximumWidth(100)
+        self.autotile_fps_box.edit.setAlignment(Qt.AlignRight)
+        self.autotile_fps_box.edit.valueChanged.connect(self.autotile_fps_changed)
+
         view_frame = QFrame()
         view_layout = QVBoxLayout()
-        view_layout.addWidget(self.toolbar)
+        toolbar_layout = QHBoxLayout()
+        toolbar_layout.addWidget(self.toolbar)
+        toolbar_layout.addWidget(self.autotile_fps_box)
+        view_layout.addLayout(toolbar_layout)
         view_layout.addWidget(self.view)
         view_frame.setLayout(view_layout)
 
@@ -585,6 +600,7 @@ class MapEditor(QDialog):
     def set_current(self, current):  # Current is a TileMapPrefab
         self.current = current
         self.view.set_current(current)
+        self.autotile_fps_box.edit.setValue(current.autotile_fps)
         self.layer_menu.set_current(current)
         self.tileset_menu.set_current(current)
         self.view.update_view()
@@ -602,9 +618,12 @@ class MapEditor(QDialog):
     def autotile_toggle(self, val):
         self.view.draw_autotiles = val
 
+    def autotile_fps_changed(self, val):
+        self.current.autotile_fps = val
+
     def export_as_png(self):
         if self.current:
-            image = draw_tilemap(self.current, autotiles=False)
+            image = draw_tilemap(self.current, autotile_fps=0)
             starting_path = self.settings.get_last_open_path()
             fn, ok = QFileDialog.getSaveFileName(
                 self, "Export Current Image", starting_path, 
@@ -797,7 +816,7 @@ class LayerModel(ResourceCollectionModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        if role == Qt.CheckStateRole:
+        if role == Qt.CheckStateRole and not self.drop_to:
             layer = self._data[index.row()]
             if value == Qt.Checked:
                 layer.visible = True
@@ -808,10 +827,14 @@ class LayerModel(ResourceCollectionModel):
         return super().setData(index, value, role)
 
     def flags(self, index):
-        flags = super().flags(index)
-        if not index.isValid():
-            return flags
-        return flags | Qt.ItemIsUserCheckable
+        flags = CollectionModel.flags(self, index)
+        if (not index.isValid() and index.row() > 1) or index.row() >= len(self._data) or index.model() is not self:
+            fflags = Qt.ItemIsDropEnabled
+        elif index.row() == 0:
+            fflags = Qt.ItemIsUserCheckable | flags
+        else:
+            fflags = Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable | flags
+        return fflags
 
 class LayerMenu(QWidget):
     def __init__(self, parent=None, current=None):

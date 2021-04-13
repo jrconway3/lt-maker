@@ -15,10 +15,13 @@ def get_weapon_rank_bonus(unit, item):
             return combat_bonus
     return None
 
-def get_support_rank_bonus(unit):
+def get_support_rank_bonus(unit, target=None):
     from app.engine.game_state import game
     if not unit.position:
-        return None
+        return [], []
+    # If target, only check for when can attack same unit
+    if target and DB.support_constants.value('bonus_range') != 0:
+        return [], []
     pairs = game.supports.get_pairs(unit.nid)
     bonuses = []
     for pair in pairs:
@@ -34,7 +37,13 @@ def get_support_rank_bonus(unit):
         # If unit has already been counted
         if other_unit in [_[1] for _ in bonuses]:
             continue
-        if not game.supports.check_range(unit, other_unit):
+        if target:
+            # Unit and other unit can both attack target
+            if X:
+                pass
+            else:
+                continue
+        elif not game.supports.check_bonus_range(unit, other_unit):
             continue
         highest_rank = pair.unlocked_ranks[-1]
         support_rank_bonus = game.supports.get_bonus(unit, other_unit, highest_rank)

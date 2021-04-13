@@ -1,5 +1,7 @@
 from app.database.data import DB
 
+from app.utilities import utils
+
 class SupportPair():
     """
     Keeps track of necessary values for each support pair
@@ -32,3 +34,25 @@ class SupportController():
             if prefab.unit1 == unit_nid or (prefab.unit2 == unit_nid and not prefab.one_way):
                 pairs.append(pair)
         return pairs
+
+    def check_bonus_range(self, unit1, unit2) -> bool:
+        return self.check_range(unit1, unit2, 'bonus_range')
+
+    def check_growth_range(self, unit1, unit2) -> bool:
+        return self.check_range(unit1, unit2, 'growth_range')
+
+    def check_range(self, unit1, unit2, constant):
+        if not unit1.position or not unit2.position:
+            return False
+        r = DB.support_constants.value(constant)
+        if r == 99:
+            return True
+        elif r == 0:
+            return False
+        else:
+            dist = utils.calculate_distance(unit1.position, unit2.position)
+            return dist <= r 
+
+    def get_bonus(self, unit1, unit2, highest_rank):
+        pass
+        # TODO

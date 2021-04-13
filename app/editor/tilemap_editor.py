@@ -1,4 +1,5 @@
 import os
+import functools
 from enum import IntEnum
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
@@ -1003,13 +1004,16 @@ class TileSetMenu(QWidget):
         self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "Load Tileset", triggered=self.new)
         self.delete_action = QAction(QIcon(f"{icon_folder}/x-circle.png"), "Unload Tileset", triggered=self.delete)
         self.delete_action.setEnabled(False)
-        self.generate_autotile_action = QAction(QIcon(f"{icon_folder}/wave.png"), "Generate Autotiles", triggered=self.generate_autotiles)
+        self.generate_autotile_action = QAction(QIcon(f"{icon_folder}/wave.png"), "Generate Autotiles", triggered=functools.partial(self.generate_autotiles, True))
+        self.generate_autotile_without_color_action = \
+            QAction(QIcon(f"{icon_folder}/slash_wave.png"), "Generate Autotiles (No Color Change)", triggered=functools.partial(self.generate_autotiles, False))
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
         self.toolbar.addAction(self.new_action)
         self.toolbar.addAction(self.delete_action)
         self.toolbar.addAction(self.generate_autotile_action)
+        self.toolbar.addAction(self.generate_autotile_without_color_action)
 
     def new(self):
         from app.editor.tile_editor import tile_tab
@@ -1033,7 +1037,8 @@ class TileSetMenu(QWidget):
         else:
             self.empty_tileset()
 
-    def generate_autotiles(self):
+    def generate_autotiles(self, color_change_flag=True):
+        print("Generate Autotiles %s" % color_change_flag)
         idx = self.tab_bar.currentIndex()
         if 0 <= idx < len(self.current.tilesets):
             current_tileset_nid = self.current.tilesets[idx]
@@ -1046,7 +1051,7 @@ class TileSetMenu(QWidget):
                 else:
                     return
             maker = autotiles.get_maker()
-            companion_tileset, column_idxs = maker.run(current_tileset)
+            companion_tileset, column_idxs = maker.run(current_tileset, color_change_flag)
             if not column_idxs:
                 QMessageBox.warning(self, "Autotile Generation Warning", "No autotiles match the tiles in this tileset!")
                 return

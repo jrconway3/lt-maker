@@ -50,6 +50,7 @@ class AutotileMaker():
         self.autotile_column_idxs = {}
         self.recognized_series = []
         self.companion_autotile_im = None
+        self.color_change_flag = True
 
         msg = "Generating Autotiles..."
         self.progress_dialog = QProgressDialog(msg, "Cancel", 0, 100, self.window)
@@ -62,13 +63,19 @@ class AutotileMaker():
         self.should_run = self.load_autotile_templates()
 
     def clear(self):
-        # self.books.clear()
         self.map_tiles.clear()
         self.autotile_column_idxs.clear()
         self.recognized_series.clear()
         self.companion_autotile_im = None
 
-    def run(self, tileset):
+        for book in self.books:
+            for series in book:
+                for frame in series:
+                    frame.new_im = None
+
+    def run(self, tileset, color_change_flag=True):
+        self.color_change_flag = color_change_flag
+        print("Color Change Flag: %s" % color_change_flag)
         self.clear()
         # self.should_run = self.load_autotile_templates()
         if not self.should_run:
@@ -187,7 +194,8 @@ class AutotileMaker():
                 # If it's not added to autotile column image, make sure it uses the right colors
                 self.recognized_series.append(closest_series)
                 column_idx = len(self.recognized_series) - 1
-                self.color_change(tile_palette, closest_frame, closest_series, closest_book)
+                if self.color_change_flag:
+                    self.color_change(tile_palette, closest_frame, closest_series, closest_book)
             print("Final column idx", column_idx)
             self.autotile_column_idxs[(x, y)] = (column_idx, closest_frame, closest_series, closest_book)
 
@@ -223,7 +231,7 @@ class AutotileMaker():
                     fix_missing_color(color)
 
         for palette_data in closest_series:
-            new_im = editor_utilities.color_convert(palette_data.im, color_conversion)
+            new_im = editor_utilities.color_convert(palette_data.im.copy(), color_conversion)
             palette_data.new_im = new_im
 
     def create_final_image(self):
@@ -242,10 +250,6 @@ class AutotileMaker():
                 else:
                     painter.drawImage(x, y, palette_data.im)
         painter.end()
-        # Clear color changed images
-        for i, series in enumerate(self.recognized_series):
-            for j, palette_data in enumerate(series):
-                palette_data.new_im = None
 
         self.companion_autotile_im = new_im
 

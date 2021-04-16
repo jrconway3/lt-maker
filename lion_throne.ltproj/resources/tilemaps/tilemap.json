@@ -5,6 +5,7 @@
             15,
             15
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -2194,6 +2195,7 @@
             20,
             10
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -3814,6 +3816,7 @@
             18,
             12
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -5562,6 +5565,7 @@
             20,
             14
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -7871,6 +7875,7 @@
             20,
             19
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -11194,6 +11199,7 @@
             15,
             10
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -12263,6 +12269,7 @@
             23,
             19
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -15765,6 +15772,7 @@
             26,
             17
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -19690,6 +19698,7 @@
             25,
             37
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -27413,6 +27422,7 @@
             28,
             24
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -32809,6 +32819,7 @@
             31,
             28
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -39869,6 +39880,7 @@
             31,
             32
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",
@@ -48322,6 +48334,7 @@
             25,
             37
         ],
+        "autotile_fps": 29,
         "layers": [
             {
                 "nid": "base",

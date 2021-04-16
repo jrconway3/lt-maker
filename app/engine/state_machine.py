@@ -203,6 +203,8 @@ class StateMachine():
         # Draw
         if not repeat_flag:
             if state.transparent and len(self.state) >= 2:
+                if self.state[-2].transparent and len(self.state) >= 3:
+                    surf = self.state[-3].draw(surf)
                 surf = self.state[-2].draw(surf)
             surf = state.draw(surf)
         # End

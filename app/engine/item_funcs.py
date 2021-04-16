@@ -33,7 +33,8 @@ def buy_price(unit, item):
 def sell_price(unit, item):
     value = item_system.sell_price(unit, item)
     if value:
-        value *= skill_system.modify_sell_price(unit, item)
+        if unit:
+            value *= skill_system.modify_sell_price(unit, item)
     else:
         return 0
     return int(value)

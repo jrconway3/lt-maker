@@ -915,6 +915,34 @@ class IncLevel(Action):
     def reverse(self):
         self.unit.level -= 1
 
+class SetLevel(Action):
+    def __init__(self, unit, level):
+        self.unit = unit
+        self.old_level = unit.level
+        self.new_level = level
+
+    def do(self):
+        self.unit.level = self.new_level
+
+    def reverse(self):
+        self.unit.level = self.old_level
+
+class AutoLevel(Action):
+    def __init__(self, unit, diff):
+        self.unit = unit
+        self.diff = diff
+        self.old_stats = self.unit.stats
+        self.old_growth_points = self.unit.growth_points
+        self.old_hp = self.unit.get_hp()
+
+    def do(self):
+        unit_funcs.auto_level(self.unit, self.diff, self.unit.get_internal_level())
+
+    def reverse(self):
+        self.unit.stats = self.old_stats
+        self.unit.growth_points = self.old_growth_points
+        self.unit.set_hp(self.old_hp)
+
 class ApplyStatChanges(Action):
     def __init__(self, unit, stat_changes):
         self.unit = unit
@@ -1157,12 +1185,13 @@ class Die(Action):
 class Resurrect(Action):
     def __init__(self, unit):
         self.unit = unit
+        self.old_dead = self.unit.dead
 
     def do(self):
         self.unit.dead = False
 
     def reverse(self):
-        self.unit.dead = True
+        self.unit.dead = self.old_dead
 
 class UpdateRecords(Action):
     def __init__(self, record_type, data):

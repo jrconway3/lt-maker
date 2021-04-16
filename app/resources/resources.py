@@ -96,7 +96,12 @@ class Resources():
         if not os.path.exists(resource_dir):
             os.mkdir(resource_dir)
 
-        if specific:
+        if specific == 'autosave':
+            save_data_types = list(self.save_data_types)
+            save_data_types.remove('music')
+            save_data_types.remove('sfx')
+            save_data_types = tuple(save_data_types)
+        elif specific:
             save_data_types = specific
         else:
             save_data_types = self.save_data_types

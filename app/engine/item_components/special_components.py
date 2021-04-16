@@ -1,6 +1,9 @@
 from app.utilities import utils
 
+from app.data.database import DB
+
 from app.data.item_components import ItemComponent
+from app.data.components import Type
 
 from app.engine import action
 from app.engine import item_funcs, skill_system
@@ -69,19 +72,40 @@ class StoreUnit(ItemComponent):
             # actions.append(action.WarpOut(target))
             playback.append(('rescue_hit', unit, item, target))
 
+class EmptyTileTargetRestrict(ItemComponent):
+    nid = 'empty_tile_target_restrict'
+    desc = "Item will only target tiles without units on them"
+    tag = 'target'
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        if not game.board.get_unit(def_pos):
+            return True
+        return False
+
 class UnloadUnit(ItemComponent):
     nid = 'unload_unit'
     desc = "Item takes stored unit and warps them to the new location on the map"
     tag = 'special'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
-        if not game.get_unit(def_pos) and game.movement.check_simple_traversable(def_pos):
+        if not game.board.get_unit(def_pos) and game.movement.check_simple_traversable(def_pos):
             return True
         return False
     
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
-        # Since no defender, target is a position
         if self.item.data.get('stored_unit'):
             rescuee = game.get_unit(self.item.data['stored_unit'])
             if rescuee:
                 actions.append(action.Warp(rescuee, target_pos))
+
+class EventOnHit(ItemComponent):
+    nid = 'event_on_hit'
+    desc = "Calls event on hit"
+    tag = 'special'
+
+    expose = Type.Event
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        event_prefab = DB.events.get_from_nid(self.value)
+        if event_prefab:
+            game.events.add_event(event_prefab.nid, event_prefab.commands, unit, target, item, target_pos)

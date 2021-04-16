@@ -314,6 +314,9 @@ class LoreDisplay():
     def update_entry(self, lore_nid):
         from app.engine import dialog
 
+        if self.lore and lore_nid == self.lore.nid:
+            return  # No need to update
+
         class LoreDialog(dialog.Dialog):
             num_lines = 8
             draw_cursor_flag = False
@@ -360,6 +363,9 @@ class LoreDisplay():
             if game.get_unit(self.lore.nid):
                 unit = game.get_unit(self.lore.nid)
                 icons.draw_portrait(image, unit, (self.width - 96, WINHEIGHT - 12 - 80))
+            elif self.lore.nid in DB.units.keys():
+                portrait = icons.get_portrait_from_nid(DB.units.get(self.lore.nid).portrait_nid)
+                image.blit(portrait, (self.width - 96, WINHEIGHT - 12 - 80))
 
             FONT['text-blue'].blit_center(self.lore.title, image, (self.width//2, 4))
 
@@ -386,6 +392,17 @@ class BaseLibraryState(State):
         super().__init__(name)
         self.fluid = FluidScroll()
 
+    def _build_menu(self, unlocked_lore, ignore=None):
+        topleft = 4, 4
+        self.options = unlocked_lore
+        self.menu = menus.Choice(None, self.options, topleft=topleft, background='menu_bg_brown')
+        self.menu.shimmer = 3
+        self.menu.gem = 'brown'
+        self.menu.set_limit(9)
+        self.menu.set_hard_limit(True)
+        if ignore:
+            self.menu.set_ignore(ignore)
+
     def start(self):
         self.bg = game.memory['base_bg']
 
@@ -402,14 +419,7 @@ class BaseLibraryState(State):
             options.append(lore)
             ignore.append(False)
 
-        topleft = 4, 4
-        self.options = options
-        self.menu = menus.Choice(None, self.options, topleft=topleft)
-        self.menu.shimmer = 3
-        self.menu.gem = 'brown'
-        self.menu.set_limit(9)
-        self.menu.set_hard_limit(True)
-        self.menu.set_ignore(ignore)
+        self._build_menu(options, ignore)
 
         self.display = LoreDisplay()
         self.display.update_entry(self.menu.get_current().nid)
@@ -422,14 +432,17 @@ class BaseLibraryState(State):
         directions = self.fluid.get_directions()
 
         self.menu.handle_mouse()
+        if not self.display.lore or self.display.lore.nid != self.menu.get_current().nid:
+            self.display.update_entry(self.menu.get_current().nid)
+
         if 'DOWN' in directions:
             if self.menu.move_down(first_push):
                 SOUNDTHREAD.play_sfx('Select 6')
-                self.display.update_entry(self.menu.get_current().nid)
+            self.display.update_entry(self.menu.get_current().nid)
         elif 'UP' in directions:
             if self.menu.move_up(first_push):
                 SOUNDTHREAD.play_sfx('Select 6')
-                self.display.update_entry(self.menu.get_current().nid)
+            self.display.update_entry(self.menu.get_current().nid)
         elif 'RIGHT' in directions:
             if self.display.page_right():
                 SOUNDTHREAD.play_sfx('Status_Page_Change')
@@ -493,13 +506,7 @@ class BaseGuideState(BaseLibraryState):
         unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore and lore.category == 'Guide']
         self.categories = ["Guide"]
 
-        topleft = 4, 4
-        self.options = unlocked_lore
-        self.menu = menus.Choice(None, self.options, topleft=topleft, background='menu_bg_brown')
-        self.menu.shimmer = 3
-        self.menu.gem = 'brown'
-        self.menu.set_limit(9)
-        self.menu.set_hard_limit(True)
+        self._build_menu(unlocked_lore)
 
         self.display = LoreDisplay()
         self.display.update_entry(self.menu.get_current().nid)
@@ -585,10 +592,10 @@ class BaseRecordsState(State):
 
                 if self.state == 'records':
                     self.state = 'chapter'
-                    self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
+                    self.current_menu = self.chapter_menus[self.current_menu.get_current_index()]
                 elif self.state == 'mvp':
                     self.state = 'unit'
-                    self.current_menu = self.unit_menus[self.record_menu.get_current_index()]
+                    self.current_menu = self.unit_menus[self.current_menu.get_current_index()]
 
     def check_mouse_position(self):
         mouse_position = INPUT.get_mouse_position()

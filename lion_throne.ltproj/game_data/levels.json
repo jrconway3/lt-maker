@@ -1,228 +1,5 @@
 [
     {
-        "nid": "DEBUG",
-        "name": "DEBUG",
-        "tilemap": "DEBUG",
-        "party": "Resistance",
-        "music": {
-            "player_phase": null,
-            "enemy_phase": null,
-            "other_phase": null,
-            "player_battle": null,
-            "enemy_battle": null,
-            "other_battle": null,
-            "base": null
-        },
-        "objective": {
-            "simple": "DEBUG",
-            "win": "Don't Crash",
-            "loss": "Crash"
-        },
-        "units": [
-            {
-                "nid": "Ophie",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    2,
-                    4
-                ],
-                "generic": false
-            },
-            {
-                "nid": "102",
-                "variant": null,
-                "level": 2,
-                "klass": "Soldier",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Guard",
-                "ai_group": "1",
-                "starting_position": [
-                    10,
-                    5
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "103",
-                "variant": null,
-                "level": 2,
-                "klass": "Soldier",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Pursue",
-                "ai_group": "1",
-                "starting_position": [
-                    9,
-                    9
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "Prim",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    3,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Althea",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    6,
-                    2
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Drake",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    6,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Nia",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    2,
-                    1
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Joel",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    1,
-                    1
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Renae",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Theo",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Eliza",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Sam",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Kayla",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Coyote",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Yohn",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            }
-        ],
-        "regions": [
-            {
-                "nid": "Armory",
-                "region_type": "event",
-                "position": [
-                    5,
-                    7
-                ],
-                "size": [
-                    1,
-                    1
-                ],
-                "sub_nid": "Armory",
-                "condition": "True",
-                "only_once": false
-            },
-            {
-                "nid": "Door1",
-                "region_type": "event",
-                "position": [
-                    4,
-                    2
-                ],
-                "size": [
-                    1,
-                    1
-                ],
-                "sub_nid": "Door",
-                "condition": "unit.can_unlock(region)",
-                "only_once": true
-            }
-        ],
-        "unit_groups": []
-    },
-    {
         "nid": "0",
         "name": "Prologue",
         "tilemap": "Prologue",
@@ -12795,6 +12572,229 @@
         },
         "units": [],
         "regions": [],
+        "unit_groups": []
+    },
+    {
+        "nid": "DEBUG",
+        "name": "DEBUG",
+        "tilemap": "DEBUG",
+        "party": "Resistance",
+        "music": {
+            "player_phase": null,
+            "enemy_phase": null,
+            "other_phase": null,
+            "player_battle": null,
+            "enemy_battle": null,
+            "other_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "DEBUG",
+            "win": "Don't Crash",
+            "loss": "Crash"
+        },
+        "units": [
+            {
+                "nid": "Ophie",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    4
+                ],
+                "generic": false
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 2,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": "1",
+                "starting_position": [
+                    10,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 2,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": "1",
+                "starting_position": [
+                    9,
+                    9
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Prim",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Althea",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    2
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Drake",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Nia",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    1
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Joel",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    1
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Renae",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Theo",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Eliza",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Sam",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Kayla",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Coyote",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Yohn",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            }
+        ],
+        "regions": [
+            {
+                "nid": "Armory",
+                "region_type": "event",
+                "position": [
+                    5,
+                    7
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Armory",
+                "condition": "True",
+                "only_once": false
+            },
+            {
+                "nid": "Door1",
+                "region_type": "event",
+                "position": [
+                    4,
+                    2
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Door",
+                "condition": "unit.can_unlock(region)",
+                "only_once": true
+            }
+        ],
         "unit_groups": []
     }
 ]

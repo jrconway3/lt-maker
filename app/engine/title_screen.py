@@ -346,6 +346,9 @@ def build_new_game(slot):
     game.state.process_temp_state()
 
     first_level_nid = DB.levels[0].nid
+    # Skip DEBUG if it's the first level
+    if first_level_nid == 'DEBUG' and len(DB.levels) > 1:
+        first_level_nid = DB.levels[1].nid
     game.start_level(first_level_nid)
     game.game_vars['_next_level_nid'] = first_level_nid
 

@@ -1,14 +1,15 @@
 from app.data.database import DB
 
 from app.engine.sound import SOUNDTHREAD
-from app.engine.state import MapState
+from app.engine.state import State
 import app.engine.config as cf
 from app.engine.game_state import game
 
 import logging
 
-class EventState(MapState):
+class EventState(State):
     name = 'event'
+    transparent = True
     event = None
 
     def begin(self):
@@ -31,7 +32,6 @@ class EventState(MapState):
                 self.event.hurry_up()
 
     def update(self):
-        super().update()
         if self.game_over:
             return
 
@@ -49,8 +49,6 @@ class EventState(MapState):
             return self.end_event()
 
     def draw(self, surf):
-        if game.cursor:
-            surf = super().draw(surf)
         if self.event:
             self.event.draw(surf)
 

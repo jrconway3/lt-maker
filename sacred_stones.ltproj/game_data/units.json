@@ -1207,7 +1207,7 @@
             "DEF": 7,
             "RES": 2,
             "CON": 8,
-            "MOV": 0
+            "MOV": 5
         },
         "growths": {
             "HP": 80,
@@ -1295,7 +1295,7 @@
             "DEF": 8,
             "RES": 2,
             "CON": 9,
-            "MOV": 0
+            "MOV": 7
         },
         "growths": {
             "HP": 85,
@@ -1383,7 +1383,7 @@
             "DEF": 9,
             "RES": 1,
             "CON": 10,
-            "MOV": 0
+            "MOV": 7
         },
         "growths": {
             "HP": 90,
@@ -1399,7 +1399,7 @@
         },
         "starting_items": [
             [
-                "Trifire",
+                "Iron Sword",
                 false
             ],
             [
@@ -1471,7 +1471,7 @@
             "DEF": 13,
             "RES": 7,
             "CON": 12,
-            "MOV": 0
+            "MOV": 8
         },
         "growths": {
             "HP": 80,
@@ -1559,7 +1559,7 @@
             "DEF": 6,
             "RES": 7,
             "CON": 5,
-            "MOV": 0
+            "MOV": 7
         },
         "growths": {
             "HP": 65,
@@ -1647,7 +1647,7 @@
             "DEF": 2,
             "RES": 3,
             "CON": 6,
-            "MOV": 0
+            "MOV": 4
         },
         "growths": {
             "HP": 70,
@@ -1735,7 +1735,7 @@
             "DEF": 10,
             "RES": 9,
             "CON": 9,
-            "MOV": 0
+            "MOV": 6
         },
         "growths": {
             "HP": 75,
@@ -1823,7 +1823,7 @@
             "DEF": 10,
             "RES": 4,
             "CON": 13,
-            "MOV": 0
+            "MOV": 5
         },
         "growths": {
             "HP": 90,
@@ -1911,7 +1911,7 @@
             "DEF": 5,
             "RES": 4,
             "CON": 5,
-            "MOV": 0
+            "MOV": 5
         },
         "growths": {
             "HP": 85,
@@ -1999,7 +1999,7 @@
             "DEF": 4,
             "RES": 3,
             "CON": 5,
-            "MOV": 0
+            "MOV": 5
         },
         "growths": {
             "HP": 75,
@@ -2083,7 +2083,7 @@
             "DEF": 5,
             "RES": 8,
             "CON": 5,
-            "MOV": 0
+            "MOV": 6
         },
         "growths": {
             "HP": 45,
@@ -2171,7 +2171,7 @@
             "DEF": 11,
             "RES": 6,
             "CON": 16,
-            "MOV": 0
+            "MOV": 6
         },
         "growths": {
             "HP": 85,
@@ -2255,7 +2255,7 @@
             "DEF": 8,
             "RES": 13,
             "CON": 8,
-            "MOV": 0
+            "MOV": 6
         },
         "growths": {
             "HP": 50,
@@ -2339,7 +2339,7 @@
             "DEF": 0,
             "RES": 3,
             "CON": 5,
-            "MOV": 0
+            "MOV": 4
         },
         "growths": {
             "HP": 60,
@@ -2427,7 +2427,7 @@
             "DEF": 12,
             "RES": 2,
             "CON": 11,
-            "MOV": 0
+            "MOV": 7
         },
         "growths": {
             "HP": 85,

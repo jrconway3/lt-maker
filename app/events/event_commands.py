@@ -322,6 +322,11 @@ class SetCurrentHP(EventCommand):
     tag = 'unit'
     keywords = ["Unit", "PositiveInteger"]
 
+class Resurrect(EventCommand):
+    nid = 'resurrect'
+    tag = 'unit'
+    keywords = ["GlobalUnit"]
+
 class Reset(EventCommand):
     nid = 'reset'
     tag = 'unit'
@@ -397,6 +402,12 @@ class GiveExp(EventCommand):
 
     keywords = ["GlobalUnit", "PositiveInteger"]
 
+class SetExp(EventCommand):
+    nid = 'set_exp'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "PositiveInteger"]
+
 class GiveWexp(EventCommand):
     nid = 'give_wexp'
     tag = 'unit'
@@ -447,10 +458,10 @@ class SetStats(EventCommand):
     flags = ['immediate']
 
 class AutolevelTo(EventCommand):
-    # Note: This is not reversible
     nid = 'autolevel_to'
     tag = 'unit'
-    keywords = ["GlobalUnit", "Integer"]
+    # Second argument is level that is eval'd
+    keywords = ["GlobalUnit", "String"]
     # Whether to actually change the unit's level
     flags = ["hidden"]
 

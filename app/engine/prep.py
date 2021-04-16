@@ -34,6 +34,8 @@ class PrepMainState(MapState):
         options = ['Manage', 'Formation', 'Options', 'Save', 'Fight']
         if game.level_vars.get('_prep_pick'):
             options.insert(0, 'Pick Units')
+        if cf.SETTINGS['debug']:
+            options.insert(0, 'Debug')
         self.menu = menus.Choice(None, options, topleft='center')
 
         # Force place any required units
@@ -71,7 +73,9 @@ class PrepMainState(MapState):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
-            if selection == 'Pick Units':
+            if selection == 'Debug':
+                game.state.change('debug')
+            elif selection == 'Pick Units':
                 game.memory['next_state'] = 'prep_pick_units'
                 game.state.change('transition_to')
             elif selection == 'Manage':
@@ -393,6 +397,7 @@ class PrepManageState(State):
         if unit and unit in self.units:
             idx = self.units.index(unit)
             self.menu.move_to(idx)
+        game.memory['current_unit'] = None
 
     def create_quick_disp(self):
         sprite = SPRITES.get('buttons')
@@ -915,8 +920,8 @@ class PrepMarketState(State):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down(first_push)
+            if self.menu.move_down(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
             if self.state == 'free':
                 current = self.menu.get_current()
                 if current == 'Buy':
@@ -924,8 +929,8 @@ class PrepMarketState(State):
                 else:
                     self.display_menu = self.sell_menu
         elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up(first_push)
+            if self.menu.move_up(first_push):
+                SOUNDTHREAD.play_sfx('Select 6')
             if self.state == 'free':
                 current = self.menu.get_current()
                 if current == 'Buy':
@@ -948,7 +953,7 @@ class PrepMarketState(State):
                         SOUNDTHREAD.play_sfx('GoldExchange')
                         game.set_money(game.get_money() - value)
                         self.money_counter_disp.start(-value)
-                        new_item = item_funcs.create_items(self.unit, item.nid)[0]
+                        new_item = item_funcs.create_item(self.unit, item.nid)
                         game.register_item(new_item)
                         if not item_funcs.inventory_full(self.unit, new_item):
                             self.unit.add_item(new_item)
@@ -975,7 +980,7 @@ class PrepMarketState(State):
                             owner = game.get_unit(item.owner_nid)
                             owner.remove_item(item)
                         else:
-                            game.convoy.remove(item)
+                            game.party.convoy.remove(item)
                         self.update_options()
                     else:
                         # No value, can't be sold

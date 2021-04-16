@@ -3623,11 +3623,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Rescue",
-                        false
-                    ],
-                    [
-                        "Warp",
+                        "Summon_Soldier",
                         false
                     ]
                 ],

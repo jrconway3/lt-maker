@@ -123,7 +123,7 @@ class MapCombat():
             else:
                 if self.defender:
                     game.cursor.set_pos(self.defender.position)
-                else:
+                elif self.target_positions[0]:
                     game.cursor.set_pos(self.target_positions[0])
             if not self._skip:
                 game.state.change('move_camera')

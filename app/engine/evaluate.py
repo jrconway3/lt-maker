@@ -20,6 +20,8 @@ def evaluate(string: str, unit1=None, unit2=None, item=None, position=None, regi
         """
         Determines whether two units are in combat with one another
         """
+        if not unit1 or not unit2:
+            return False
         return (unit1.nid == s1 and unit2.nid == s2) or (unit1.nid == s2 and unit2.nid == s1)
 
     def check_default(s1: str, t1: tuple) -> bool:
@@ -27,7 +29,9 @@ def evaluate(string: str, unit1=None, unit2=None, item=None, position=None, regi
         Determines whether the default fight quote should be used
         t1 contains the nids of units that have unique fight quotes
         """
-        if unit1.nid == s1 and unit2.team == 'player':
+        if not unit1 or not unit2:
+            return False
+        elif unit1.nid == s1 and unit2.team == 'player':
             return unit2.nid not in t1
         elif unit2.nid == s1 and unit1.team == 'player':
             return unit1.nid not in t1

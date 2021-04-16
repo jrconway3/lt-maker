@@ -285,6 +285,7 @@ class Event():
             self.state = 'processing'
         self.transition_state = None
         self.hurry_up()
+        self.text_boxes.clear()
 
     def hurry_up(self):
         if self.text_boxes:
@@ -608,6 +609,9 @@ class Event():
         elif command.nid == 'give_exp':
             self.give_exp(command)
 
+        elif command.nid == 'set_exp':
+            self.set_exp(command)
+
         elif command.nid == 'give_wexp':
             self.give_wexp(command)
 
@@ -696,6 +700,17 @@ class Event():
                 return 
             hp = int(values[1])
             action.do(action.SetHP(unit, hp))
+
+        elif command.nid == 'resurrect':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            if unit.dead:
+                action.do(action.Resurrect(unit))
+            action.do(action.Reset(unit))
+            action.do(action.SetHP(unit, 1000))
 
         elif command.nid == 'reset':
             values, flags = event_commands.parse(command)
@@ -924,6 +939,9 @@ class Event():
                 custom_string = None
             game.memory['chapter_title_music'] = music
             game.memory['chapter_title_title'] = custom_string
+            # End the skip here
+            self.do_skip = False
+            self.super_skip = False
             game.state.change('chapter_title')
             self.state = 'paused'
 
@@ -1826,6 +1844,15 @@ class Event():
         game.state.change('exp')
         self.state = 'paused'
 
+    def set_exp(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit with nid %s" % values[0])
+            return
+        exp = utils.clamp(int(values[1]), 0, 100)
+        action.do(action.SetExp(unit, exp))
+
     def give_wexp(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
@@ -1835,9 +1862,9 @@ class Event():
         weapon_type = values[1]
         wexp = int(values[2])
         if 'no_banner' in flags:
-            action.execute(action.AddWexp(self.unit, weapon_type, wexp))
+            action.execute(action.AddWexp(unit, weapon_type, wexp))
         else:
-            action.do(action.AddWexp(self.unit, weapon_type, wexp))
+            action.do(action.AddWexp(unit, weapon_type, wexp))
 
     def give_skill(self, command):
         values, flags = event_commands.parse(command)
@@ -1936,18 +1963,17 @@ class Event():
             logging.error("Couldn't find unit %s" % values[0])
             return
 
-        final_level = int(values[1])
+        final_level = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
         current_level = unit.level
         diff = max(0, final_level - current_level)
         if diff <= 0:
             return
 
+        action.do(action.AutoLevel(unit, diff))
         if 'hidden' in flags:
             pass
         else:
-            unit.level = final_level
-
-        unit_funcs.auto_level(unit, diff)
+            action.do(action.SetLevel(unit, final_level))
         if not unit.generic and DB.units.get(unit.nid):
             unit_prefab = DB.units.get(unit.nid)
             personal_skills = unit_funcs.get_personal_skills(unit, unit_prefab)

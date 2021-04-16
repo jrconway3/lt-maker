@@ -123,6 +123,16 @@ def get_portrait(unit):
 
     return image
 
+def get_portrait_from_nid(portrait_nid):
+    image = RESOURCES.portraits.get(portrait_nid)
+    if image:
+        if not image.image:
+            image.image = engine.image_load(image.full_path)
+        image = engine.subsurface(image.image, (0, 0, 96, 80))
+        image = image.convert()
+        engine.set_colorkey(image, COLORKEY, rleaccel=True)
+    return image
+
 def draw_portrait(surf, unit, topleft=None, bottomright=None):
     image = get_portrait(unit)
     if not image:

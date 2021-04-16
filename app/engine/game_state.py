@@ -596,6 +596,8 @@ class GameState():
             action.do(act)
 
     def check_for_region(self, position, region_type, sub_nid=None):
+        if not position:
+            return None
         for region in game.level.regions:
             if region.region_type == region_type and region.contains(position):
                 if not sub_nid or region.sub_nid == sub_nid:

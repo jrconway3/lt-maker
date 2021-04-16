@@ -76,7 +76,7 @@ class AttackerState(SolverState):
                 solver.process(actions, playback, solver.attacker, target, target_pos, item, None, 'splash')
             # Make sure that we run on_hit even if otherwise unavailable
             if not defender and not splash:
-                solver.simple_process(actions, playback, solver.attacker, None, target_pos, item, None, None)
+                solver.simple_process(actions, playback, solver.attacker, solver.attacker, target_pos, item, None, None)
         
         solver.num_subattacks += 1
         multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')

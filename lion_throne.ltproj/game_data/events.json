@@ -3555,12 +3555,6 @@
             [
                 "add_lore",
                 [
-                    "Unarmed Combat"
-                ]
-            ],
-            [
-                "add_lore",
-                [
                     "Party Size"
                 ]
             ],
@@ -8405,63 +8399,72 @@
                 "add_unit",
                 [
                     "fakeSam",
-                    "7,2"
+                    "7,2",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Ophie",
-                    "12,6"
+                    "12,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Prim",
-                    "10,6"
+                    "10,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Theo",
-                    "10,9"
+                    "10,9",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Renae",
-                    "5,9"
+                    "5,9",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Drake",
-                    "5,6"
+                    "5,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Joel",
-                    "9,7"
+                    "9,7",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Althea",
-                    "3,6"
+                    "3,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Nia",
-                    "13,9"
+                    "13,9",
+                    "immediate"
                 ]
             ],
             [
@@ -33268,6 +33271,197 @@
                 [
                     "Close",
                     "1000"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Level3Setup",
+        "trigger": null,
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Sets up / preloads the party for level 3"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Ophie",
+                    "4"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Prim",
+                    "2"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Joel",
+                    "5"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Nia",
+                    "4"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Althea",
+                    "3"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Ophie",
+                    "74"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Prim",
+                    "87"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Joel",
+                    "20"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Nia",
+                    "59"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Althea",
+                    "36"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Drake",
+                    "37"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Ophie",
+                    "Sword",
+                    "12"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Prim",
+                    "Light",
+                    "11"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Joel",
+                    "Axe",
+                    "13"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Nia",
+                    "Bow",
+                    "10"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Althea",
+                    "Anima",
+                    "6"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Drake",
+                    "Sword",
+                    "3"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Drake",
+                    "Sword",
+                    "2"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Steel Sword"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Potion"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Angelic Robe"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Prim",
+                    "Ruby"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Joel",
+                    "Hand Axe"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Drake",
+                    "Spiritbane"
                 ]
             ]
         ],

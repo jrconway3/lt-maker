@@ -298,5 +298,17 @@
     {
         "nid": "config_desc",
         "text": "Change settings."
+    },
+    {
+        "nid": "record_header",
+        "text": "Chapter Name       Turn Count            MVP"
+    },
+    {
+        "nid": "unit_record_header",
+        "text": "Rank    Name        Kills    Damage    Healing"
+    },
+    {
+        "nid": "mvp_record_header",
+        "text": "Chapter Name        Kills    Damage    Healing"
     }
 ]

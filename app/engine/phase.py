@@ -101,6 +101,8 @@ class PhaseIn():
         return engine.get_time() - self.starting_time >= self.t_display
 
     def draw(self, surf):
+        if not self.starting_time:
+            return surf
         current_time = engine.get_time()
         time_passed = min(current_time - self.starting_time, self.t_display)
         

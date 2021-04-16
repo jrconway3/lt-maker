@@ -78,7 +78,7 @@ class LevelRecordOption(RecordOption):
             unit_name = unit_prefab.name
         else:
             unit_name = "???"
-        FONT['text-yellow'].blit(str(self.idx), surf, (x + 4, y))
+        FONT['text-yellow'].blit(str(self.idx + 1), surf, (x + 4, y))
         FONT['text-white'].blit(unit_name, surf, (x + 34, y))
         FONT['text-blue'].blit_right(str(self.kills), surf, (x + 114, y))
         FONT['text-blue'].blit_right(str(self.damage), surf, (x + 164, y))
@@ -188,7 +188,7 @@ class UnitStats(RecordsDisplay):
             offset = (0, 0)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         super().vert_draw(surf, offset)
-        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))
+        FONT['text-yellow'].blit(text_funcs.translate('mvp_record_header'), surf, (offset[0] + 12, offset[1] + 32))
         return surf
 
 class MVPDisplay(RecordsDisplay):
@@ -213,7 +213,7 @@ class MVPDisplay(RecordsDisplay):
             offset = (0, 0)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         super().vert_draw(surf, offset)
-        FONT['text-yellow'].blit(text_funcs.translate('mvp_record_header'), surf, (offset[0] + 12, offset[1] + 32))
+        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))
         return surf
 
 class ChapterStats(RecordsDisplay):
@@ -252,5 +252,5 @@ class ChapterStats(RecordsDisplay):
             offset = (0, 0)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         super().vert_draw(surf, offset)
-        FONT['text-yellow'].blit(text_funcs.translate('mvp_record_header'), surf, (offset[0] + 12, offset[1] + 32))        
+        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))        
         return surf

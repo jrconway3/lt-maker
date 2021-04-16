@@ -170,7 +170,7 @@ class ProjectFileBackend():
 
         # Actually save project
         print("Autosaving project to %s..." % autosave_dir)
-        RESOURCES.save(autosave_dir, progress=self.autosave_progress)
+        RESOURCES.save(autosave_dir, specific='autosave', progress=self.autosave_progress)
         self.autosave_progress.setValue(75)
         DB.serialize(autosave_dir)
         self.autosave_progress.setValue(99)

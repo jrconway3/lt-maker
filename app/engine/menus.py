@@ -296,6 +296,8 @@ class Simple():
                     self.mouse_move(idx)
 
 class Choice(Simple):
+    disp_value = False
+
     def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
         self.horizontal = False
         self.is_convoy = False
@@ -426,7 +428,7 @@ class Choice(Simple):
             if self.shimmer != 0:
                 sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
                 surf.blit(sprite, (surf.get_width() - 1 - sprite.get_width(), surf.get_height() - 5 - sprite.get_height()))
-            if self.is_convoy:
+            if self.is_convoy or self.disp_value == 'sell':
                 # Draw face
                 item = self.get_current()
                 unit = None
@@ -437,7 +439,7 @@ class Choice(Simple):
                     face_image = face_image.convert_alpha()
                     # face_image = engine.subsurface(face_image, (0, 0, 96, 76))
                     face_image = image_mods.make_translucent(face_image, 0.5)
-                    surf.blit(face_image, (8, surf.get_height() - face_image.get_height() - 5))
+                    surf.blit(face_image, (surf.get_width()//2 - face_image.get_width()//2 + 4, surf.get_height() - face_image.get_height() - 5))
             surf = image_mods.make_translucent(surf, .1)
             return surf
 
@@ -929,7 +931,7 @@ class Table(Simple):
         if old_index == self.current_index:
             self.cursor.y_offset = 0
         num_rows = math.ceil(len(self.options) / self.columns)
-        self.scroll = utils.clamp(self.scroll, 0, num_rows - self.rows)
+        self.scroll = utils.clamp(self.scroll, 0, max(0, num_rows - self.rows))
         return old_index != self.current_index
 
     def move_up(self, first_push=True):
@@ -1164,7 +1166,8 @@ class Convoy():
         return sorted_dict
 
     def update_options(self):
-        self.inventory.update_options(self.owner.items)
+        if self.inventory:
+            self.inventory.update_options(self.owner.items)
         sorted_dict = self.get_sorted_dict()
         for name, menu in self.menus.items():
             menu.update_options(sorted_dict[name])
@@ -1318,7 +1321,7 @@ class Convoy():
         surf.blit(self.trade_name_surf, (-4, -1))
         FONT['text-white'].blit(self.owner.name, surf, (24 - FONT['text-white'].width(self.owner.name)//2, 0))
 
-        # Draw Portrait
+        # Draw Portrait to left of menu
         # Owner
         if not self.disp_value:
             owner_surf = engine.create_surface((96, 80), transparent=True)
@@ -1376,11 +1379,12 @@ class Convoy():
                 if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
                     main_menu.mouse_move(idx)
 
-            idxs, option_rects = self.inventory.get_rects()
-            for idx, option_rect in zip(idxs, option_rects):
-                x, y, width, height = option_rect
-                if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
-                    self.inventory.mouse_move(idx)
+            if self.inventory:  # Markets, which inherit from me, don't have inventories
+                idxs, option_rects = self.inventory.get_rects()
+                for idx, option_rect in zip(idxs, option_rects):
+                    x, y, width, height = option_rect
+                    if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                        self.inventory.mouse_move(idx)
 
 class Market(Convoy):
     def __init__(self, owner, options, topleft, disp_value=None):
@@ -1416,7 +1420,7 @@ class Market(Convoy):
         sorted_dict = {}
         for w_type in self.order:
             sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
-        sorted_dict['Consumable'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
+        sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
             value.sort(key=lambda item: item.name)

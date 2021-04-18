@@ -82,7 +82,7 @@ class DropAbility(Ability):
         game.state.change('menu')
         u = game.get_unit(unit.traveler)
         action.do(action.Drop(unit, u, game.cursor.position))
-        if skill_system.has_canto(unit):
+        if skill_system.has_canto(unit, u):
             action.do(action.HasTraded(unit))
             game.state.change('menu')
         else:
@@ -104,7 +104,7 @@ class RescueAbility(Ability):
     def do(unit):
         u = game.board.get_unit(game.cursor.position)
         action.do(action.Rescue(unit, u))
-        if skill_system.has_canto(unit):
+        if skill_system.has_canto(unit, u):
             action.do(action.HasTraded(unit))
             game.state.change('menu')
         else:

@@ -80,6 +80,7 @@ class ProjectFileBackend():
         # Make directory for saving if it doesn't already exist
         if not os.path.isdir(self.current_proj):
             os.mkdir(self.current_proj)
+        self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(1)
 
         # Actually save project
@@ -98,7 +99,6 @@ class ProjectFileBackend():
 
         self.save_progress.setValue(100)
 
-        # self.undo_stack.setClean()
         return True
 
     def new(self):
@@ -107,6 +107,7 @@ class ProjectFileBackend():
             if result:
                 identifier, title = result
 
+                RESOURCES.load('default.ltproj')
                 DB.load('default.ltproj')
                 DB.constants.get('game_nid').set_value(identifier)
                 DB.constants.get('title').set_value(title)

@@ -11,8 +11,9 @@ from app.events.event_portrait import EventPortrait
 from app.data.level_units import UniqueUnit, GenericUnit
 
 from app.engine import dialog, engine, background, target_system, action, \
-    interaction, item_funcs, item_system, banner, skill_system, unit_funcs, \
+    item_funcs, item_system, banner, skill_system, unit_funcs, \
     evaluate, static_random, image_mods, icons
+from app.engine.combat import interaction
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject

@@ -9,10 +9,11 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, image_mods, \
+from app.engine import engine, action, menus, image_mods, \
     banner, save, phase, skill_system, target_system, item_system, \
     item_funcs, ui_view, info_menu, base_surf, gui, background, dialog, \
     text_funcs, equations, evaluate
+from app.engine.combat import interaction
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES, PRIMARY_ABILITIES, OTHER_ABILITIES
 from app.engine.input_manager import INPUT
@@ -589,7 +590,7 @@ class MenuState(MapState):
                 # Only draw one set of highlights
                 if ability.highlights(self.cur_unit):
                     break
-        if skill_system.has_canto(self.cur_unit):
+        if skill_system.has_canto(self.cur_unit, None):
             # Shows the canto moves in the menu
             moves = target_system.get_valid_moves(self.cur_unit)
             game.highlight.display_moves(moves)
@@ -615,7 +616,7 @@ class MenuState(MapState):
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             if self.cur_unit.has_traded:
-                if skill_system.has_canto(self.cur_unit):
+                if skill_system.has_canto(self.cur_unit, None):
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move')
                 else:

@@ -12621,8 +12621,8 @@
                 "ai": "Guard",
                 "ai_group": "1",
                 "starting_position": [
-                    10,
-                    5
+                    4,
+                    3
                 ],
                 "name": null,
                 "desc": null,
@@ -12641,11 +12641,11 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Pursue",
+                "ai": "Guard",
                 "ai_group": "1",
                 "starting_position": [
-                    9,
-                    9
+                    6,
+                    3
                 ],
                 "name": null,
                 "desc": null,
@@ -12668,19 +12668,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    6,
+                    4,
                     2
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Drake",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    6,
-                    3
                 ],
                 "generic": false
             },
@@ -12696,71 +12685,50 @@
                 "generic": false
             },
             {
-                "nid": "Joel",
-                "team": "player",
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Tactician",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Heal",
+                        false
+                    ]
+                ],
+                "team": "enemy",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     1,
-                    1
+                    5
                 ],
-                "generic": false
+                "name": null,
+                "desc": null,
+                "generic": true
             },
             {
-                "nid": "Renae",
+                "nid": "104",
+                "variant": null,
+                "level": 10,
+                "klass": "Warlock",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Angelic Robe",
+                        false
+                    ]
+                ],
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Theo",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Eliza",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Sam",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Kayla",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Coyote",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Yohn",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
+                "starting_position": [
+                    5,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

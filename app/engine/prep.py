@@ -13,7 +13,8 @@ from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine import menus, banner, action, base_surf, background, \
     info_menu, engine, equations, item_funcs, text_funcs, image_mods, \
-    convoy_funcs, item_system, interaction, gui
+    convoy_funcs, item_system, gui
+from app.engine.combat import interaction
 from app.engine.fluid_scroll import FluidScroll
 
 class PrepMainState(MapState):

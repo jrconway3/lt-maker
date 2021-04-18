@@ -3,7 +3,6 @@ from app.data.database import DB
 from app.engine import combat_calcs, item_system, skill_system, static_random, action, item_funcs
 
 import logging
-logger = logging.getLogger(__name__)
 
 class SolverState():
     def get_next_state(self, solver):
@@ -164,7 +163,7 @@ class CombatPhaseSolver():
         old_random_state = static_random.get_combat_random_state()
 
         next_state = self.state.get_next_state(self)
-        logger.debug("Next State: %s" % next_state)
+        logging.debug("Next State: %s" % next_state)
         if next_state:
             self.state = self.states[next_state]()
         else:

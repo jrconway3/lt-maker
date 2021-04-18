@@ -4,8 +4,9 @@ from app.utilities import utils
 from app.constants import FRAMERATE
 from app.data.database import DB
 
-from app.engine import engine, action, interaction, combat_calcs, pathfinding, target_system, \
+from app.engine import engine, action, combat_calcs, pathfinding, target_system, \
     equations, item_system, item_funcs, skill_system, line_of_sight, evaluate
+from app.engine.combat import interaction
 from app.engine.game_state import game
 
 import logging
@@ -65,7 +66,7 @@ class AIController():
             change = self.attack()
             self.attack_ai_complete = True
         elif not self.canto_ai_complete:
-            if self.unit.has_attacked and skill_system.has_canto(self.unit):
+            if self.unit.has_attacked and skill_system.has_canto(self.unit, None):
                 self.retreat()
                 change = self.move()
             self.canto_ai_complete = True

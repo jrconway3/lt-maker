@@ -598,7 +598,7 @@ class InfoMenuState(State):
             self.draw_equipment_surf(main_surf)
 
         elif self.state == 'support_skills':
-            main_surf.blit(SPRITES.get('status_logo'), (100, WINHEIGHT - 34))
+            main_surf.blit(SPRITES.get('status_logo'), (100, WINHEIGHT - 42))
             if not self.skill_surf:
                 self.skill_surf = self.create_skill_surf()
             self.draw_skill_surf(main_surf)
@@ -856,7 +856,7 @@ class InfoMenuState(State):
         return surf
 
     def draw_skill_surf(self, surf):
-        surf.blit(self.skill_surf, (96, WINHEIGHT - 24))
+        surf.blit(self.skill_surf, (96, WINHEIGHT - 32))
 
     def create_class_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)

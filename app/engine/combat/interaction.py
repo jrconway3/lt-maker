@@ -46,7 +46,7 @@ def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: b
 
     if target_positions[0] is None:
         # If we are targeting None, (which means we're in base using an item)
-        combat = BaseCombat(attacker, main_item, main_target, script)
+        combat = BaseCombat(attacker, main_item, attacker, script)
     elif skip:
         # If we are skipping
         combat = SimpleCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)

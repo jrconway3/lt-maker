@@ -6275,6 +6275,12 @@
                 ]
             ],
             [
+                "base",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "#music;Attack;2000"

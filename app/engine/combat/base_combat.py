@@ -34,6 +34,7 @@ class BaseCombat(SimpleCombat):
         self.start_combat()
         while self.state_machine.get_state():
             self.actions, self.playback = self.state_machine.do()
+            self.full_playback += self.playback
             self._apply_actions()
             self.state_machine.setup_next_state()
 
@@ -71,3 +72,6 @@ class BaseCombat(SimpleCombat):
         if self.attacker is not self.defender:
             all_units.append(self.defender)
         return all_units
+
+    def handle_state_stack(self):
+        pass

@@ -1426,6 +1426,8 @@ class CombatState(MapState):
         if self.skip and not self.is_animation_combat:
             while not done:
                 done = self.combat.update()
+        if done:
+            return 'repeat'
 
     def draw(self, surf):
         if self.is_animation_combat:

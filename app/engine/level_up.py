@@ -1,6 +1,5 @@
 import math
 
-from app.utilities import utils
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -9,12 +8,12 @@ from app.engine import engine, image_mods, icons, unit_funcs, action, banner
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
-from app.engine.state import MapState
+from app.engine.state import State
 from app.engine.state_machine import SimpleStateMachine
 from app.engine.animations import Animation
 from app.engine.game_state import game
 
-class ExpState(MapState):
+class ExpState(State):
     name = 'exp'
     transparent = True
     state = None
@@ -80,7 +79,6 @@ class ExpState(MapState):
                 self.level_up_animation = anim
 
     def update(self):
-        super().update()
         current_time = engine.get_time()
 
         # Initiating State
@@ -271,7 +269,6 @@ class ExpState(MapState):
                 game.state.back()
 
     def draw(self, surf):
-        surf = super().draw(surf)
         if not self.state:
             return surf
             

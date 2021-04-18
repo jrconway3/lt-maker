@@ -162,7 +162,7 @@ def get_starting_skills(unit) -> list:
                     if DB.constants.value('generic_feats'):
                         my_feats = [feat for feat in feats if feat.nid not in current_skills and feat.nid not in skills_to_add]
                         random_number = static_random.get_growth() % len(my_feats)
-                        new_skill = random_number[my_feats]
+                        new_skill = my_feats[random_number]
                         skills_to_add.append(new_skill.nid)
                 else:
                     skills_to_add.append(learned_skill[1])

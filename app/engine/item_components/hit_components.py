@@ -516,11 +516,11 @@ class Promote(ItemComponent):
             game.memory['can_go_back'] = True
             if new_klass:
                 game.memory['next_class'] = new_klass
-                game.state.change('promotion')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'promotion'
+                game.state.change('transition_to')
             else:
-                game.state.change('promotion_choice')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'promotion_choice'
+                game.state.change('transition_to')
         self._did_hit = False
 
 class ForcePromote(Promote, ItemComponent):

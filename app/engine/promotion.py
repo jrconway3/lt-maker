@@ -16,6 +16,10 @@ class PromotionChoiceState(State):
     name = 'promotion_choice'
     bg = None
 
+    def __init__(self, name=None):
+        self.name = name
+        self.bg = background.create_background('settings_background')
+
     def _get_choices(self):
         self.class_options = self.unit_klass.turns_into
         return [DB.classes.get(c).name for c in self.class_options]
@@ -28,8 +32,6 @@ class PromotionChoiceState(State):
 
     def start(self):
         self.fluid = FluidScroll()
-
-        self.bg = background.create_background('settings_background')
 
         self.can_go_back = game.memory.get('can_go_back', False)
         game.memory['can_go_back'] = None
@@ -153,10 +155,10 @@ class PromotionChoiceState(State):
                 self.anim_offset = 0
 
     def draw(self, surf):
-        if self.bg:
-            self.bg.draw(surf)
-        else:
+        if not self.started:
             return surf
+
+        self.bg.draw(surf)
 
         top = 88
         surf.blit(self.left_platform, (WINWIDTH//2 - self.left_platform.get_width() + self.anim_offset + 52, top))

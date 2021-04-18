@@ -9,5 +9,5 @@ Promotion Item (Check)
 Heal (Check)
 Wyrmsfire (Check)
 Warp (Check)
-Use Angelic Robe in Base/Prep
-Use Promotion Item in Base/Prep
+Use Angelic Robe in Base/Prep (Check)
+Use Promotion Item in Base/Prep (Check)

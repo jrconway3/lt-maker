@@ -66,8 +66,15 @@ class SimpleCombat():
         self.start_combat()
         while self.state_machine.get_state():
             self.actions, self.playback = self.state_machine.do()
+            self.full_playback += self.playback
             self._apply_actions()
             self.state_machine.setup_next_state()
+
+    def get_from_playback(self, s):
+        return [brush for brush in self.playback if brush[0] == s]
+
+    def get_from_full_playback(self, s):
+        return [brush for brush in self.full_playback if brush[0] == s]
 
     def update(self) -> bool:
         self.clean_up()

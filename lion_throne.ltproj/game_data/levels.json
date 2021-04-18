@@ -12599,10 +12599,7 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": [
-                    2,
-                    4
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {

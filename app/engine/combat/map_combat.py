@@ -40,12 +40,6 @@ class MapCombat(SimpleCombat):
         if self.defender:
             self.defender.sprite.reset()
 
-    def get_from_playback(self, s):
-        return [brush for brush in self.playback if brush[0] == s]
-
-    def get_from_full_playback(self, s):
-        return [brush for brush in self.full_playback if brush[0] == s]
-
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
 

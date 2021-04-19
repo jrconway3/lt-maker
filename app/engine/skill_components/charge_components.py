@@ -63,6 +63,15 @@ class DrainCharge(SkillComponent):
     def cooldown(self):
         return self.skill.data['charge'] / self.skill.data['total_charge']
 
+def get_marks(playback, unit, item):
+    from app.data.database import DB
+    marks = [mark for mark in playback if mark[0] == 'mark_hit']
+    marks += [mark for mark in playback if mark[0] == 'mark_crit']
+    if DB.constants.value('miss_wexp'):
+        marks += [mark for mark in playback if mark[0] == 'mark_miss']
+    marks = [mark for mark in marks if mark[1] == unit and mark[2] != unit and mark[4] == item]
+    return marks
+
 class CombatChargeIncrease(SkillComponent):
     nid = 'combat_charge_increase'
     desc = "Increases charge of skill each combat"
@@ -74,7 +83,8 @@ class CombatChargeIncrease(SkillComponent):
     ignore_conditional = True
 
     def end_combat(self, playback, unit, item, target, mode):
-        if not self.skill.data.get('active'):
+        marks = get_marks(playback, unit, item)
+        if not self.skill.data.get('active') and marks:
             new_value = self.skill.data['charge'] + self.value
             new_value = min(new_value, self.skill.data['total_charge'])
             action.do(action.SetObjData(self.skill, 'charge', new_value))
@@ -90,7 +100,8 @@ class CombatChargeIncreaseByStat(SkillComponent):
     ignore_conditional = True
 
     def end_combat(self, playback, unit, item, target, mode):
-        if not self.skill.data.get('active'):
+        marks = get_marks(playback, unit, item)
+        if not self.skill.data.get('active') and marks:
             new_value = self.skill.data['charge'] + unit.stats[self.value] + unit.stat_bonus(self.value)
             new_value = min(new_value, self.skill.data['total_charge'])
             action.do(action.SetObjData(self.skill, 'charge', new_value))

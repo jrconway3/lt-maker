@@ -26,7 +26,7 @@ class MovementManager():
         self.moving_units[unit.nid] = MovementData(path, event, follow)
 
     def begin_move(self, unit, path, event=False, follow=True):
-        logging.info("Unit %s begin move", unit.nid)
+        logging.info("Unit %s begin move: %s", unit.nid, path)
         self.add(unit, path, event, follow)
         unit.sprite.change_state('moving')
         game.leave(unit)

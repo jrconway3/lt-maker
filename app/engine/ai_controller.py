@@ -680,7 +680,7 @@ class SecondaryAI():
         tp, highest_damage_term, highest_status_term = 0, 0, 0
 
         for item in items:
-            status_term = 1 if item.status else 0
+            status_term = 1 if item.status_on_hit else 0
             true_damage = 0
             if item_system.is_weapon(self.unit, item) or item_system.is_spell(self.unit, item):
                 raw_damage = combat_calcs.compute_damage(self.unit, enemy, item, enemy.get_weapon(), 'attack')
@@ -691,7 +691,7 @@ class SecondaryAI():
                     true_damage = 0
 
             if true_damage <= 0 and status_term <= 0:
-                return None  # If no damage could be dealt, ignore
+                continue  # If no damage could be dealt, ignore
             damage_term = min(float(true_damage / hp_max), 1.)
             new_tp = damage_term + status_term/2
             if new_tp > tp:

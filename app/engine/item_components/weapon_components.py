@@ -230,7 +230,9 @@ class StatusOnEquip(ItemComponent):
     expose = Type.Skill  # Nid
 
     def on_equip_item(self, unit, item):
-        action.do(action.AddSkill(unit, self.value))
+        if self.value not in [skill.nid for skill in unit.skills]:
+            act = action.AddSkill(unit, self.value)
+            action.do(act)
 
     def on_unequip_item(self, unit, item):
         action.do(action.RemoveSkill(unit, self.value))

@@ -7879,7 +7879,7 @@
         "layers": [
             {
                 "nid": "base",
-                "visible": false,
+                "visible": true,
                 "terrain_grid": {
                     "0,0": "Wall",
                     "0,1": "Wall",
@@ -8257,7 +8257,10 @@
                     "9,2": "Floor",
                     "11,2": "Floor",
                     "11,1": "Floor",
-                    "10,2": "Floor"
+                    "10,2": "Floor",
+                    "17,0": "Plain",
+                    "18,0": "Plain",
+                    "19,0": "Forest"
                 },
                 "sprite_grid": {
                     "7,3": [

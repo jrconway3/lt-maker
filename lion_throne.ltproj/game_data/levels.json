@@ -12599,23 +12599,26 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": null,
+                "starting_position": [
+                    6,
+                    11
+                ],
                 "generic": false
             },
             {
                 "nid": "102",
                 "variant": null,
                 "level": 2,
-                "klass": "Soldier",
+                "klass": "Archer",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Lance",
+                        "Willow Bow",
                         false
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Guard",
+                "ai": "Attack",
                 "ai_group": "1",
                 "starting_position": [
                     4,
@@ -12629,7 +12632,7 @@
                 "nid": "103",
                 "variant": null,
                 "level": 2,
-                "klass": "Soldier",
+                "klass": "Knight",
                 "faction": "Soldier",
                 "starting_items": [
                     [
@@ -12638,7 +12641,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Guard",
+                "ai": "Attack",
                 "ai_group": "1",
                 "starting_position": [
                     6,
@@ -12654,8 +12657,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    3,
-                    3
+                    5,
+                    12
                 ],
                 "generic": false
             },
@@ -12666,7 +12669,7 @@
                 "ai_group": null,
                 "starting_position": [
                     4,
-                    2
+                    14
                 ],
                 "generic": false
             },
@@ -12676,52 +12679,29 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    2,
-                    1
+                    4,
+                    13
                 ],
                 "generic": false
             },
             {
                 "nid": "101",
                 "variant": null,
-                "level": 1,
-                "klass": "Tactician",
+                "level": 2,
+                "klass": "Shaman",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Heal",
+                        "Flux",
                         false
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     1,
-                    5
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "104",
-                "variant": null,
-                "level": 10,
-                "klass": "Warlock",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Angelic Robe",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    5,
-                    5
+                    3
                 ],
                 "name": null,
                 "desc": null,

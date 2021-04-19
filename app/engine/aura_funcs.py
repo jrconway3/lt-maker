@@ -32,19 +32,21 @@ def apply_aura(owner, unit, child_skill, target, test=False):
                 not line_of_sight.line_of_sight({owner.position}, {unit.position}, 99):
             return
         logging.debug("Applying Aura %s to %s", child_skill, unit)
-        act = action.AddSkill(unit, child_skill)
         if test:
-            act.do()
+            # Doesn't need to use action system
+            if child_skill.stack or child_skill.nid not in [skill.nid for skill in unit.skills]:
+                unit.skills.append(child_skill)
         else:
+            act = action.AddSkill(unit, child_skill)
             action.do(act)
 
 def remove_aura(unit, child_skill, test=False):
     if child_skill in unit.skills:
         logging.debug("Removing Aura %s from %s", child_skill, unit)
-        act = action.RemoveSkill(unit, child_skill)
         if test:
-            act.do()
+            unit.skills.remove(child_skill)
         else:
+            act = action.RemoveSkill(unit, child_skill)
             action.do(act)
 
 def propagate_aura(unit, skill, game):

@@ -1480,7 +1480,7 @@ class AlertState(State):
                 self.back()
 
     def draw(self, surf):
-        if game.alerts:
+        if game.alerts and self.started:
             alert = game.alerts[-1]
             alert.draw(surf)
         return surf

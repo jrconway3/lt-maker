@@ -49,7 +49,9 @@ class Klass(Prefab):
         return [option for option in self.turns_into if db.classes.get(option).tier == self.tier + 1]
 
     def save_attr(self, name, value):
-        if name == 'wexp_gain':
+        if name in ('bases', 'growths', 'growth_bonus', 'promotion', 'max_stats'):
+            return value.copy()  # So we don't make a copy
+        elif name == 'wexp_gain':
             return {k: v.save() for (k, v) in self.wexp_gain.items()}
         else:
             return super().save_attr(name, value)

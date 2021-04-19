@@ -169,12 +169,6 @@ class GameState():
 
     def save(self):
         self.action_log.record = False
-        # Units need to leave before saving -- this is so you don't 
-        # have to save region and terrain statuses
-        if self.current_level:
-            for unit in self.units:
-                if unit.position:
-                    self.leave(unit, True)
 
         s_dict = {'units': [unit.save() for unit in self.unit_registry.values()],
                   'items': [item.save() for item in self.item_registry.values()],
@@ -215,17 +209,11 @@ class GameState():
             meta_dict['level_title'] = 'Overworld'
             meta_dict['level_nid'] = None
 
-        # Now have units actually arrive on map
-        if self.current_level:
-            for unit in self.units:
-                if unit.position:
-                    self.arrive(unit, True)
-
         self.action_log.record = True
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import turnwheel, records
+        from app.engine import turnwheel, records, save
         from app.events import event_manager
 
         from app.engine.objects.item import ItemObject
@@ -247,6 +235,7 @@ class GameState():
 
         self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
+        save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
         self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
@@ -289,7 +278,8 @@ class GameState():
             # Now have units actually arrive on map
             for unit in self.units:
                 if unit.position:
-                    self.arrive(unit)
+                    self.board.set_unit(unit.position, unit)
+                    self.boundary.arrive(unit)
 
             self.cursor.autocursor(True)
 
@@ -564,12 +554,14 @@ class GameState():
         layer = self.tilemap.get_layer(unit.position)
         key = (*unit.position, layer)  # Terrain position and layer
         skill_uid = self.get_terrain_status(key)
+        act = None
         # Doesn't bother creating a new skill if the skill already exists in data
-        if skill_uid: 
-            skill_obj = self.get_skill(skill_uid)
-            act = action.AddSkill(unit, skill_obj)
+        if skill_uid:            
+            # Only bother adding if not already present
+            if skill_uid not in [s.uid for s in unit.skills]:
+                skill_obj = self.get_skill(skill_uid)
+                act = action.AddSkill(unit, skill_obj)
         else:
-            act = None
             terrain_nid = self.tilemap.get_terrain(unit.position)
             terrain = DB.terrain.get(terrain_nid)
             if terrain and terrain.status:
@@ -585,8 +577,11 @@ class GameState():
         from app.engine import action
         skill_uid = self.get_terrain_status(region.nid)
         if skill_uid:
-            skill_obj = self.get_skill(skill_uid)
-            act = action.AddSkill(unit, skill_obj)
+            act = None
+            # Only bother adding if not already present
+            if skill_uid not in [s.uid for s in unit.skills]:
+                skill_obj = self.get_skill(skill_uid)
+                act = action.AddSkill(unit, skill_obj)
         else:
             act = action.AddSkill(unit, region.sub_nid)
             self.register_terrain_status(region.nid, act.skill_obj.uid)

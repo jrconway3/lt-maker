@@ -490,19 +490,24 @@ class GameState():
             # Regions
             for region in game.level.regions:
                 if region.region_type == 'status' and region.contains(unit.position):
-                    act = action.RemoveSkill(unit, region.sub_nid)
-                    if test:
-                        act.do()
-                    else:
-                        action.do(act)
+                    skill_uid = self.get_terrain_status(region.nid)
+                    skill_obj = self.get_skill(skill_uid)
+                    if skill_obj and skill_obj in unit.skills:
+                        if test:
+                            unit.skills.remove(skill_obj)
+                        else:
+                            act = action.RemoveSkill(unit, skill_obj)
+                            action.do(act)
             # Tiles
-            terrain_nid = self.tilemap.get_terrain(unit.position)
-            terrain = DB.terrain.get(terrain_nid)
-            if terrain.status:
-                act = action.RemoveSkill(unit, terrain.status)
+            layer = self.tilemap.get_layer(unit.position)
+            terrain_key = (*unit.position, layer)  # Terrain position and layer
+            skill_uid = self.get_terrain_status(terrain_key)
+            skill_obj = self.get_skill(skill_uid)
+            if skill_obj and skill_obj in unit.skills:
                 if test:
-                    act.do()
+                    unit.skills.remove(skill_obj)
                 else:
+                    act = action.RemoveSkill(unit, skill_obj)
                     action.do(act)
             # Boundary
             if not test:
@@ -550,45 +555,49 @@ class GameState():
                 self.boundary.arrive(unit)
 
     def add_terrain_status(self, unit, test):
-        from app.engine import action
+        from app.engine import action, item_funcs
         layer = self.tilemap.get_layer(unit.position)
-        key = (*unit.position, layer)  # Terrain position and layer
-        skill_uid = self.get_terrain_status(key)
-        act = None
-        # Doesn't bother creating a new skill if the skill already exists in data
-        if skill_uid:            
-            # Only bother adding if not already present
-            if skill_uid not in [s.uid for s in unit.skills]:
-                skill_obj = self.get_skill(skill_uid)
-                act = action.AddSkill(unit, skill_obj)
-        else:
+        terrain_key = (*unit.position, layer)  # Terrain position and layer
+        skill_uid = self.get_terrain_status(terrain_key)
+        skill_obj = self.get_skill(skill_uid)
+
+        if not skill_obj:
             terrain_nid = self.tilemap.get_terrain(unit.position)
             terrain = DB.terrain.get(terrain_nid)
             if terrain and terrain.status:
-                act = action.AddSkill(unit, terrain.status)
-                self.register_terrain_status(key, act.skill_obj.uid)
-        if act:
-            if test:
-                act.do()
-            else:
-                action.do(act)
+                skill_obj = item_funcs.create_skill(unit, terrain.status)
+                game.register_skill(skill_obj)
+                self.register_terrain_status(terrain_key, skill_obj.uid)
+
+        if skill_obj:
+            # Only bother adding if not already present
+            if skill_obj not in unit.skills:
+                if test:
+                    # Don't need to use action for test
+                    unit.skills.append(skill_obj)
+                else:
+                    act = action.AddSkill(unit, skill_obj)
+                    action.do(act)
 
     def add_region_status(self, unit, region, test):
-        from app.engine import action
+        from app.engine import action, item_funcs
         skill_uid = self.get_terrain_status(region.nid)
-        if skill_uid:
-            act = None
+        skill_obj = self.get_skill(skill_uid)
+
+        if not skill_obj:
+            skill_obj = item_funcs.create_skill(unit, region.sub_nid)
+            game.register_skill(skill_obj)
+            self.register_terrain_status(region.nid, skill_obj.uid)
+
+        if skill_obj:
             # Only bother adding if not already present
-            if skill_uid not in [s.uid for s in unit.skills]:
-                skill_obj = self.get_skill(skill_uid)
-                act = action.AddSkill(unit, skill_obj)
-        else:
-            act = action.AddSkill(unit, region.sub_nid)
-            self.register_terrain_status(region.nid, act.skill_obj.uid)
-        if test:
-            act.do()
-        else:
-            action.do(act)
+            if skill_obj not in unit.skills:
+                if test:
+                    # Don't need to use action for test
+                    unit.skills.append(skill_obj)
+                else:
+                    act = action.AddSkill(unit, skill_obj)
+                    action.do(act)
 
     def check_for_region(self, position, region_type, sub_nid=None):
         if not position:

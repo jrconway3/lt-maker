@@ -172,8 +172,9 @@ class AIController():
 
         logging.info("*** AI Thinking... ***")
 
-        # Can spend up to half a frame thinking
-        while engine.get_true_time() - time < FRAMERATE//2:
+        while True:
+            # Can spend up to half a frame thinking
+            over_time = engine.get_true_time() - time >= 8
             logging.info("Current State: %s", self.state)
 
             if self.state == 'Init':
@@ -183,6 +184,7 @@ class AIController():
                 # Get next behaviour
                 self.set_next_behaviour()
                 if self.behaviour:
+                    logging.info(self.behaviour.action)
                     if self.behaviour.action == "None":
                         pass  # Try again
                     elif self.behaviour.action == "Attack":
@@ -217,7 +219,8 @@ class AIController():
                     else:
                         self.inner_ai = self.build_secondary()
                         self.state = "Secondary"  # Try secondary
-                else:  # Make sure to quick move back so that the in-between frames aren't flickering around
+                elif over_time:
+                    # Make sure to quick move back so that the in-between frames aren't flickering around
                     self.inner_ai.quick_move(self.inner_ai.orig_pos)
 
             elif self.state == 'Secondary':
@@ -235,6 +238,9 @@ class AIController():
                 self.did_something = success
                 self.state = 'Init'
                 return True
+
+            if over_time:
+                break
 
         return False
 
@@ -611,19 +617,27 @@ class SecondaryAI():
         self.best_target = 0
         self.best_path = None
 
-        if self.view_range == -3:
-            self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.double_move]
-        elif self.view_range == -2:
-            if self.behaviour.action in ('Attack', 'Support', 'Steal'):
-                self.available_targets = []  # Because the primary AI should have already taken care of this...
-            else:
-                self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.single_move]
-        elif self.view_range == -1:
-            self.available_targets = []
-        else:
-            self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= self.view_range]
+        limit = self.get_limit()
+        self.available_targets = [t for t in self.all_targets if utils.calculate_distance(self.unit.position, t) <= limit]
 
         self.best_position = None
+
+    def get_limit(self) -> int:
+        # Make sure we don't exceed double move
+        if self.widen_flag or self.view_range == -4:
+            limit = 99
+        elif self.view_range == -3:
+            limit = self.double_move
+        elif self.view_range == -2:
+            if self.behaviour.action in ('Attack', 'Support', 'Steal'):
+                limit = -1  # Because the primary AI should have already taken care of this...
+            else:
+                limit = self.single_move
+        elif self.view_range == -1:
+            limit = -1
+        else:
+            limit = self.view_range
+        return limit
 
     def run(self):
         if self.available_targets:
@@ -665,7 +679,8 @@ class SecondaryAI():
         else:
             adj_good_enough = True
 
-        path = self.pathfinder.process(game.board, adj_good_enough=adj_good_enough, ally_block=False)
+        limit = self.get_limit()
+        path = self.pathfinder.process(game.board, adj_good_enough=adj_good_enough, ally_block=False, limit=limit)
         self.pathfinder.reset()
         return path
 

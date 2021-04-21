@@ -122,18 +122,26 @@ def auto_level(unit, num_levels, starting_level=1):
     unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k, 30)) for (k, v) in unit.stats.items()}
     unit.set_hp(1000)  # Go back to full hp
 
-def apply_stat_changes(unit, stat_changes: dict, in_base: bool = False):
+def apply_stat_changes(unit, stat_changes: dict):
     """
     Assumes stat changes are valid!
     """
     logger.info("Applying stat changes %s to %s", stat_changes, unit.nid)
+
+    old_max_hp = unit.get_max_hp()
+    old_max_mana = unit.get_max_mana()
     
+    # Actually apply changes
     for nid, value in stat_changes.items():
         unit.stats[nid] += value
 
-    if in_base:
-        unit.set_hp(1000)
-        unit.set_mana(1000)
+    current_max_hp = unit.get_max_hp()
+    current_max_mana = unit.get_max_mana()
+
+    if current_max_hp > old_max_hp:
+        unit.set_hp(current_max_hp - old_max_hp + unit.get_hp())
+    if current_max_mana > old_max_mana:
+        unit.set_mana(current_max_mana - old_max_mana + unit.get_mana())
 
 def get_starting_skills(unit) -> list:
     # Class skills

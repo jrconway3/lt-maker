@@ -248,7 +248,9 @@ class OptionMenuState(MapState):
                     game.memory['option_menu'] = self.menu
                     game.state.change('option_child')
                 else:
-                    game.state.change('ai')
+                    game.state.back()
+                    game.state.change('turn_change')
+                    return 'repeat'
             elif selection == 'Suspend' or selection == 'Save':
                 if cf.SETTINGS['confirm_end']:
                     game.memory['option_owner'] = selection
@@ -327,7 +329,10 @@ class OptionChildState(State):
             if selection == 'Yes':
                 SOUNDTHREAD.play_sfx('Select 1')
                 if self.menu.owner == 'End':
-                    game.state.change('ai')
+                    game.state.back()
+                    game.state.back()
+                    game.state.change('turn_change')
+                    return 'repeat'
                 elif self.menu.owner == 'Suspend':
                     suspend()
                 elif self.menu.owner == 'Save':
@@ -590,7 +595,7 @@ class MenuState(MapState):
                 # Only draw one set of highlights
                 if ability.highlights(self.cur_unit):
                     break
-        if skill_system.has_canto(self.cur_unit, None):
+        if skill_system.has_canto(self.cur_unit, self.cur_unit):
             # Shows the canto moves in the menu
             moves = target_system.get_valid_moves(self.cur_unit)
             game.highlight.display_moves(moves)
@@ -616,7 +621,7 @@ class MenuState(MapState):
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             if self.cur_unit.has_traded:
-                if skill_system.has_canto(self.cur_unit, None):
+                if skill_system.has_canto(self.cur_unit, self.cur_unit):
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move')
                 else:
@@ -1377,6 +1382,7 @@ class ItemTargetingState(MapState):
                 target_item = self.menu.get_current()
                 self.item.data['target_item'] = target_item
                 game.state.back()
+                return 'repeat'
 
         elif event == 'INFO':
             self.menu.toggle_info()

@@ -506,6 +506,10 @@ class HasTraded(Reset):
     def do(self):
         self.unit.has_traded = True
 
+class HasNotTraded(Reset):
+    def do(self):
+        self.unit.has_traded = False
+
 # === RESCUE ACTIONS ========================================================
 class Rescue(Action):
     def __init__(self, unit, rescuee):
@@ -681,6 +685,16 @@ class TakeItemFromConvoy(Action):
 
     def reverse(self):
         self.unit.remove_item(self.item)
+        game.party.convoy.append(self.item)
+
+class RemoveItemFromConvoy(Action):
+    def __init__(self, item):
+        self.item = item
+
+    def do(self):
+        game.party.convoy.remove(self.item)
+
+    def reverse(self):
         game.party.convoy.append(self.item)
 
 class MoveItem(Action):
@@ -1223,12 +1237,12 @@ class ChangeAI(Action):
 
     def do(self):
         self.unit.ai = self.ai
-        if game.boundary:
+        if game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
         self.unit.ai = self.old_ai
-        if game.boundary:
+        if game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit)
 
 class ChangeAIGroup(Action):
@@ -1387,6 +1401,7 @@ class AddRegion(Action):
         self.subactions = []
 
     def do(self):
+        self.subactions.clear()
         if self.region.nid in game.level.regions:
             pass
         else:
@@ -1405,8 +1420,6 @@ class AddRegion(Action):
         if self.did_add:
             for act in self.subactions:
                 act.reverse()
-            self.subactions.clear()
-
             game.level.regions.delete(self.region)
 
 class ChangeRegionCondition(Action):
@@ -1428,6 +1441,7 @@ class RemoveRegion(Action):
         self.subactions = []
 
     def do(self):
+        self.subactions.clear()
         if self.region.nid in game.level.regions.keys():
             # Remember to remove the status from the unit
             if self.region.region_type == 'status':
@@ -1447,7 +1461,6 @@ class RemoveRegion(Action):
 
             for act in self.subactions:
                 act.reverse()
-            self.subactions.clear()
 
 class ShowLayer(Action):
     def __init__(self, layer_nid, transition):
@@ -1606,6 +1619,7 @@ class AddSkill(Action):
         self.reset_action = ResetUnitVars(self.unit)
 
     def do(self):
+        self.subactions.clear()
         if not self.skill_obj:
             return
         # Remove any skills with previous name
@@ -1622,7 +1636,7 @@ class AddSkill(Action):
 
         # Handle affects movement
         self.reset_action.execute()
-        if game.boundary:
+        if game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
@@ -1645,6 +1659,7 @@ class RemoveSkill(Action):
         self.reset_action = ResetUnitVars(self.unit)
 
     def do(self):
+        self.removed_skills.clear()
         if isinstance(self.skill, str):
             for skill in self.unit.skills[:]:
                 if skill.nid == self.skill:
@@ -1663,7 +1678,7 @@ class RemoveSkill(Action):
 
         # Handle affects movement
         self.reset_action.execute()
-        if game.boundary:
+        if game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):

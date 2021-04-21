@@ -76,14 +76,12 @@ class UnitObject(Prefab):
         # Handle skills
         self.skills = []
         personal_skills = unit_funcs.get_personal_skills(self, prefab)
+        self.skills += personal_skills
         class_skills = unit_funcs.get_starting_skills(self)
         self.skills = personal_skills + class_skills
 
-        self.current_hp = equations.parser.hitpoints(self)
-        if 'MANA' in DB.equations:
-            self.current_mana = equations.parser.mana(self)
-        else:
-            self.current_mana = 0
+        self.current_hp = self.get_max_hp()
+        self.current_mana = self.get_max_mana()
         self.current_fatigue = 0
         self.movement_left = equations.parser.movement(self)
 
@@ -130,11 +128,20 @@ class UnitObject(Prefab):
 
         return self
 
+    def get_max_hp(self):
+        return equations.parser.hitpoints(self)
+
     def get_hp(self):
         return self.current_hp
 
     def set_hp(self, val):
         self.current_hp = int(utils.clamp(val, 0, equations.parser.hitpoints(self)))
+
+    def get_max_mana(self):
+        if 'MANA' in DB.equations:
+            return equations.parser.mana(self)
+        else:
+            return 0
 
     def get_mana(self):
         return self.current_mana

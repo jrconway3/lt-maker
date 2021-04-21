@@ -448,7 +448,7 @@ class UnitSprite():
             cur_unit = game.cursor.get_hover()
         elif game.state.current() in ('move', 'menu', 'item', 'item_child', 'item_discard',
                                       'weapon_choice', 'spell_choice', 'targeting',
-                                      'combat_targeting'):
+                                      'combat_targeting', 'item_targeting'):
             cur_unit = game.cursor.cur_unit
         else:
             cur_unit = None

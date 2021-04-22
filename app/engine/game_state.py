@@ -312,7 +312,7 @@ class GameState():
             unit = None
             if skill.owner_nid:
                 unit = self.get_unit(skill.owner_nid)
-            skill_system.on_end_chapter(unit, skill)
+                skill_system.on_end_chapter(unit, skill)
 
         self.terrain_status_registry.clear()
         self.region_registry.clear()

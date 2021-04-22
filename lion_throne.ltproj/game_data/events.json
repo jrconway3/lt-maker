@@ -159,6 +159,12 @@
                 [
                     "500"
                 ]
+            ],
+            [
+                "add_group",
+                [
+                    "rein"
+                ]
             ]
         ],
         "only_once": false,
@@ -33804,6 +33810,24 @@
         "level_nid": "DEBUG",
         "condition": "True",
         "commands": [
+            [
+                "inc_level_var",
+                [
+                    "switch"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "6,10"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
             [
                 "alert",
                 [

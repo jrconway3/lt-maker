@@ -1,5 +1,4 @@
 win_game
-win_game
 trigger_script;Level 3 Setup
 trigger_script;Level3Setup
 trigger_script;Level3Setup
@@ -18,3 +17,4 @@ set_current_hp;103;0
 set_current_hp;103;0
 set_current_hp;103;0
 reset;Ophie
+trigger_script;Level3Setup

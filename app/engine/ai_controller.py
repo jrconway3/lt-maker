@@ -303,7 +303,6 @@ class PrimaryAI():
         self.target_index = 0
 
         self.valid_moves = list(valid_moves)
-        # self.possible_moves = []
 
         self.best_target = None
         self.best_position = None
@@ -323,7 +322,6 @@ class PrimaryAI():
         item_range = item_funcs.get_range(unit, item)
         ai_targets = item_system.ai_targets(unit, item)
         logging.info("AI Targets: %s", ai_targets)
-        # valid_targets = [pos for pos in valid_targets if pos in self.all_targets]
         filtered_targets = set()
 
         for pos in ai_targets:
@@ -340,7 +338,8 @@ class PrimaryAI():
         item = self.items[self.item_index]
         logging.info("Determining targets for item: %s", item)
         self.valid_targets = self.get_valid_targets(self.unit, item, self.valid_moves)
-        if 0 in item_funcs.get_range(self.unit, item):
+        # Only if we already have some legal targets (ie, ourself)
+        if self.valid_targets and 0 in item_funcs.get_range(self.unit, item):
             self.valid_targets += self.valid_moves  # Hack to target self in all valid positions
             self.valid_targets = list(set(self.valid_targets))  # Only uniques
         logging.info("Valid Targets: %s", self.valid_targets)
@@ -484,13 +483,17 @@ class PrimaryAI():
         target_damage = 0
         target_accuracy = 0
         # Determine if I would get countered
+        # Even if I wouldn't get countered, check anyway how much damage I would take
         target_weapon = main_target.get_weapon()
-        if combat_calcs.can_counterattack(self.unit, item, main_target, target_weapon):
-            target_damage = combat_calcs.compute_damage(main_target, self.unit, target_weapon, item, "defense")
-            if not target_damage:
-                target_damage = 0
-            target_damage = utils.clamp(target_damage/main_target.get_hp(), 0, 1)
-            target_accuracy = utils.clamp(combat_calcs.compute_hit(main_target, self.unit, target_weapon, item, "defense")/100., 0, 1)
+        target_damage = combat_calcs.compute_damage(main_target, self.unit, target_weapon, item, "defense")
+        if not target_damage:
+            target_damage = 0
+        target_damage = utils.clamp(target_damage/main_target.get_hp(), 0, 1)
+        target_accuracy = utils.clamp(combat_calcs.compute_hit(main_target, self.unit, target_weapon, item, "defense")/100., 0, 1)
+        # If I wouldn't get counterattacked, much less important, so multiply by 10 %
+        if not combat_calcs.can_counterattack(self.unit, item, main_target, target_weapon):
+            target_damage *= 0.3
+            target_accuracy *= 0.3
 
         num_attacks = combat_calcs.outspeed(self.unit, main_target, item, target_weapon, "attack")
         first_strike = lethality * accuracy if lethality >= 1 else 0
@@ -530,7 +533,7 @@ class PrimaryAI():
         terms.append((offense_term, offense_weight))
         terms.append((status_term, .2))
         terms.append((defense_term, defense_weight))
-        terms.append((distance_term, .01))
+        terms.append((distance_term, .0001))
 
         return utils.process_terms(terms)
 
@@ -713,7 +716,10 @@ class SecondaryAI():
                 tp = new_tp
                 highest_damage_term = damage_term
                 highest_status_term = status_term
-        
+
+        if highest_status_term == 0 and highest_damage_term == 0:
+            # Just don't include any of this
+            return terms
         terms.append((highest_damage_term, 15))
         terms.append((highest_status_term, 10))
         terms.append((weakness_term, 15))

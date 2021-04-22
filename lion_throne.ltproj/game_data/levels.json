@@ -12600,29 +12600,47 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    6,
-                    9
+                    5,
+                    7
                 ],
                 "generic": false
             },
             {
                 "nid": "103",
                 "variant": null,
-                "level": 2,
-                "klass": "Knight",
+                "level": 1,
+                "klass": "Mage",
                 "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ]
-                ],
+                "starting_items": [],
                 "team": "enemy",
                 "ai": "Attack",
                 "ai_group": "1",
                 "starting_position": [
-                    2,
-                    4
+                    4,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 10,
+                "klass": "Swordmaster",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    5
                 ],
                 "name": null,
                 "desc": null,
@@ -12676,6 +12694,19 @@
                 "only_once": true
             }
         ],
-        "unit_groups": []
+        "unit_groups": [
+            {
+                "nid": "rein",
+                "units": [
+                    "103"
+                ],
+                "positions": {
+                    "103": [
+                        2,
+                        2
+                    ]
+                }
+            }
+        ]
     }
 ]

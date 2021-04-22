@@ -506,7 +506,7 @@ class UnitSprite():
                     surf.blit(steal_marker, (topleft[0] + 2, topleft[1] + offset))
 
     def check_draw_hp(self) -> bool:
-        if self.unit.is_dying:
+        if self.unit.is_dying or self.unit.dead:
             return False
         if (cf.SETTINGS['hp_map_team'] == 'All') or \
            (cf.SETTINGS['hp_map_team'] == 'Ally' and self.unit.team in ('player', 'other')) or \

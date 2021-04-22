@@ -667,6 +667,8 @@ class MenuState(MapState):
                 for region in self.valid_regions:
                     if region.sub_nid == selection:
                         did_trigger = game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
+                        if did_trigger:
+                            self.menu = None  # Remove menu for a little (Don't worry, it will come back)
                         if did_trigger and region.only_once:
                             action.do(action.RemoveRegion(region))
                         # if did_trigger:
@@ -692,7 +694,8 @@ class MenuState(MapState):
 
     def update(self):
         super().update()
-        self.menu.update()
+        if self.menu:
+            self.menu.update()
 
     def draw(self, surf):
         surf = super().draw(surf)
@@ -1738,6 +1741,8 @@ class ShopState(State):
             elif self.state == 'close':
                 SOUNDTHREAD.play_sfx('Select 1')
                 if self.current_msg.is_done_or_wait():
+                    if self.unit.has_traded:
+                        action.do(action.HasAttacked(self.unit))
                     game.state.change('transition_pop')
                 else:
                     self.current_msg.hurry_up()
@@ -1745,6 +1750,8 @@ class ShopState(State):
         elif event == 'BACK':
             if self.state == 'open' or self.state == 'close':
                 SOUNDTHREAD.play_sfx('Select 4')
+                if self.unit.has_traded:
+                    action.do(action.HasAttacked(self.unit))
                 game.state.change('transition_pop')
             elif self.state == 'choice':
                 SOUNDTHREAD.play_sfx('Select 4')

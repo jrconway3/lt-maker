@@ -12600,20 +12600,20 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    1,
-                    14
+                    4,
+                    6
                 ],
                 "generic": false
             },
             {
                 "nid": "103",
                 "variant": null,
-                "level": 1,
+                "level": 6,
                 "klass": "Mage",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Wyrmsfire",
+                        "Sandblast",
                         false
                     ]
                 ],
@@ -12623,6 +12623,29 @@
                 "starting_position": [
                     5,
                     5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 5,
+                "klass": "Knight",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    4
                 ],
                 "name": null,
                 "desc": null,

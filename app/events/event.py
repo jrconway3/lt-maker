@@ -1670,8 +1670,12 @@ class Event():
             variant = values[6]
         else:
             variant = None
+        if len(values) > 7 and values[7]:
+            starting_items = values[7].split(',')
+        else:
+            starting_items = []
 
-        level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, [], team, ai_nid)
+        level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, starting_items, team, ai_nid)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party
         game.full_register(new_unit)
@@ -1753,8 +1757,7 @@ class Event():
             item.droppable = True
 
         if unit:
-            accessory = item_system.is_accessory(unit, item)
-            if accessory and len(unit.accessories) >= DB.constants.value('num_accessories'):
+            if item_funcs.inventory_full(unit, item):
                 if 'no_choice' in flags:
                     action.do(action.PutItemInConvoy(item))
                     if banner_flag:
@@ -1768,21 +1771,6 @@ class Event():
                     self.state = 'paused'
                     if banner_flag:
                         game.alerts.append(banner.AcquiredItem(self.unit, self.item))
-                        game.state.change('alert')
-            elif not accessory and len(unit.nonaccessories) >= DB.constants.value('num_items'):
-                if 'no_choice' in flags:
-                    action.do(action.PutItemInConvoy(item))
-                    if banner_flag:
-                        game.alerts.append(banner.SentToConvoy(item))
-                        game.state.change('alert')
-                        self.state = 'paused'
-                else:
-                    action.do(action.GiveItem(unit, item))
-                    game.cursor.cur_unit = unit
-                    game.state.change('item_discard')
-                    self.state = 'paused'
-                    if banner_flag: 
-                        game.alerts.append(banner.AcquiredItem(unit, item))
                         game.state.change('alert')
             else:
                 action.do(action.GiveItem(unit, item))

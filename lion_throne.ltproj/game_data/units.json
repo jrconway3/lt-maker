@@ -847,12 +847,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "fSpeed +2"
-            ]
-        ],
+        "learned_skills": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -932,12 +927,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "fMaximum HP +5"
-            ]
-        ],
+        "learned_skills": [],
         "wexp_gain": {
             "Sword": [
                 true,

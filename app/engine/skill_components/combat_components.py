@@ -377,7 +377,7 @@ class Miracle(SkillComponent):
     desc = "Unit cannot be reduced below 1 HP"
     tag = 'combat2'
 
-    def end_combat(self, playback, unit, item, target, mode):
+    def cleanup_combat(self, playback, unit, item, target, mode):
         if unit.get_hp() <= 0:
             action.do(action.SetHP(unit, 1))
             game.death.miracle(unit)

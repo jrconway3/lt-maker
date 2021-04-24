@@ -131,7 +131,7 @@ multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 # Takes in unit
 simple_event_hooks = ('on_death',)
 # Takes in playback, unit, item, target
-combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
+combat_event_hooks = ('start_combat', 'cleanup_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
 subcombat_event_hooks = ('after_hit', 'after_take_hit')
 # Takes in unit, item

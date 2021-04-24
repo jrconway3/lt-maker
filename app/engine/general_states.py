@@ -345,7 +345,9 @@ class OptionChildState(State):
                             action.do(action.RemoveItem(cur_unit, item))
                         elif self.menu.owner == 'Storage':
                             action.do(action.StoreItem(cur_unit, item))
-                    if cur_unit.items:
+                    if item_funcs.too_much_in_inventory(cur_unit):
+                        game.state.back()
+                    elif cur_unit.items:
                         game.state.back()
                         game.state.back()
                     else:  # If the unit has no more items, head all the way back to menu
@@ -863,8 +865,7 @@ class ItemDiscardState(MapState):
     def begin(self):
         self.menu.update_options(self.cur_unit.items)
         # Don't need to do this if we are under items
-        if (len(self.cur_unit.accessories) <= DB.constants.value('num_accessories') and
-                len(self.cur_unit.nonaccessories) <= DB.constants.value('num_items')):
+        if not item_funcs.too_much_in_inventory(self.cur_unit):
             game.state.back()
             return 'repeat'
 

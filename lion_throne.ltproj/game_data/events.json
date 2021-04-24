@@ -14384,7 +14384,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14392,22 +14394,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14428,7 +14414,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14436,22 +14424,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14472,7 +14444,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14480,22 +14454,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14540,7 +14498,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14548,22 +14508,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14584,7 +14528,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14592,22 +14538,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14628,7 +14558,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14636,22 +14568,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14700,7 +14616,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14708,22 +14626,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14744,7 +14646,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14752,22 +14656,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14806,7 +14694,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14814,22 +14704,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14850,7 +14724,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14858,22 +14734,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14918,7 +14778,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -14926,14 +14788,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -14954,7 +14808,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -14962,14 +14818,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -15008,7 +14856,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -15016,14 +14866,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -15044,7 +14886,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -15052,14 +14896,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -15108,7 +14944,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15116,14 +14954,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15144,7 +14974,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15152,14 +14984,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15180,7 +15004,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15188,14 +15014,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15216,7 +15034,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15224,14 +15044,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15252,7 +15064,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15260,14 +15074,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15288,7 +15094,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15296,14 +15104,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15346,7 +15146,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Yew Bow"
                 ]
             ],
             [
@@ -15354,14 +15156,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Yew Bow",
                     "no_banner"
                 ]
             ],
@@ -15382,7 +15176,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Sword"
                 ]
             ],
             [
@@ -15390,14 +15186,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Sword",
                     "no_banner"
                 ]
             ],
@@ -15418,7 +15206,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Blind"
                 ]
             ],
             [
@@ -15426,14 +15216,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Blind",
                     "no_banner"
                 ]
             ],
@@ -15466,7 +15248,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Axe"
                 ]
             ],
             [
@@ -15474,14 +15258,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Axe",
                     "no_banner"
                 ]
             ],
@@ -15502,7 +15278,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Aether"
                 ]
             ],
             [
@@ -15510,14 +15288,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Aether",
                     "no_banner"
                 ]
             ],
@@ -15566,7 +15336,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15574,14 +15346,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15602,7 +15366,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15610,14 +15376,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15638,7 +15396,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15646,14 +15406,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15674,7 +15426,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15682,14 +15436,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15734,7 +15480,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15742,14 +15490,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15770,7 +15510,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15778,14 +15520,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15806,7 +15540,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15814,14 +15550,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15842,7 +15570,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15850,14 +15580,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -16729,6 +16451,14 @@
                 [
                     "_current_turnwheel_uses",
                     "5"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "Kayla",
+                    "fSpeed +2",
+                    "no_banner"
                 ]
             ],
             [
@@ -20506,6 +20236,21 @@
                 ]
             ],
             [
+                "give_skill",
+                [
+                    "Coyote",
+                    "fMaximum HP +5",
+                    "no_banner"
+                ]
+            ],
+            [
+                "set_current_hp",
+                [
+                    "Coyote",
+                    "40"
+                ]
+            ],
+            [
                 "add_weather",
                 [
                     "Snow"
@@ -20767,6 +20512,13 @@
                 "change_background",
                 [
                     "TacticsRoomDay"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 6",
+                    "reload"
                 ]
             ],
             [
@@ -21597,7 +21349,7 @@
         "name": "Guard Duty",
         "trigger": "on_base_convo",
         "level_nid": "6",
-        "condition": "unit == 'Guard Duty",
+        "condition": "unit == 'Guard Duty'",
         "commands": [
             [
                 "music",
@@ -23167,6 +22919,13 @@
                 "change_background",
                 [
                     "TacticsRoomDay"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 7",
+                    "reload"
                 ]
             ],
             [
@@ -25548,6 +25307,13 @@
                 "change_background",
                 [
                     "TacticsRoomDay"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 8",
+                    "reload"
                 ]
             ],
             [
@@ -29908,6 +29674,13 @@
                 ]
             ],
             [
+                "change_tilemap",
+                [
+                    "Chapter 9",
+                    "reload"
+                ]
+            ],
+            [
                 "transition",
                 [
                     "Open"
@@ -34034,6 +33807,34 @@
             ]
         ],
         "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "SearchRuin",
+        "trigger": "Search",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "22,7"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "road"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true,
         "priority": 20
     }
 ]

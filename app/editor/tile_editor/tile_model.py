@@ -74,10 +74,22 @@ class TileSetModel(ResourceCollectionModel):
             msg = "Deleting Tileset <b>%s</b> would affect these tilemaps." % nid
             ok = DeletionDialog.inform(affected, model, msg, self.window)
             if ok:
-                pass
+                self.delete_tileset_from_tilemaps(nid)
             else:
                 return
         super().delete(idx)
+
+    def delete_tileset_from_tilemaps(self, tileset_nid):
+        # What uses tilesets
+        # Tilemaps use tilesets
+        for tilemap in RESOURCES.tilemaps:
+            if tileset_nid in tilemap.tilesets:
+                tilemap.tilesets.remove(tileset_nid)
+            for layer in tilemap.layers:
+                for coord, tile_sprite in list(layer.sprite_grid.items()):
+                    if tile_sprite.tileset_nid == tileset_nid:
+                        # Delete all places that tileset is used
+                        del layer.sprite_grid[coord]
 
     def on_nid_changed(self, old_nid, new_nid):
         # What uses tilesets

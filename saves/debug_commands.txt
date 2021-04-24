@@ -1,9 +1,3 @@
-win_game
-trigger_script;Level 3 Setup
-trigger_script;Level3Setup
-trigger_script;Level3Setup
-trigger_script;Level3Setup
-trigger_script;Level3Setup
 set_current_hp;Althea;3
 give_exp;Althea;20
 trigger_script;Level3Setup
@@ -18,3 +12,9 @@ set_current_hp;103;0
 set_current_hp;103;0
 reset;Ophie
 trigger_script;Level3Setup
+set_current_hp;Sam;4
+set_current_hp;Ophie;5
+1
+
+
+set_current_hp;Ophie;5

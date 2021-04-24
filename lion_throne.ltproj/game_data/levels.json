@@ -12629,67 +12629,13 @@
                 "generic": true
             },
             {
-                "nid": "102",
-                "variant": null,
-                "level": 8,
-                "klass": "Swordmaster",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Sword",
-                        false
-                    ]
-                ],
+                "nid": "Theo",
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    2,
-                    5
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "104",
-                "variant": null,
-                "level": 5,
-                "klass": "Cleric",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Heal",
-                        true
-                    ],
-                    [
-                        "Hatchet",
-                        true
-                    ],
-                    [
-                        "Adamant Axe",
-                        true
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    1,
-                    5
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "Kayla",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    5,
-                    7
+                    4,
+                    4
                 ],
                 "generic": false
             }

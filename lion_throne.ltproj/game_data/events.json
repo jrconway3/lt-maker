@@ -12735,8 +12735,14 @@
         "name": "No More Wagons",
         "trigger": "combat_end",
         "level_nid": "4",
-        "condition": "game.game_vars['escaped_wagons'] + game.game_vars['dead_wagons'] >= 10",
+        "condition": "True",
         "commands": [
+            [
+                "if",
+                [
+                    "game.game_vars['escaped_wagons'] + game.game_vars['dead_wagons'] >= 10"
+                ]
+            ],
             [
                 "if",
                 [
@@ -12785,6 +12791,10 @@
                     "anders_threat",
                     "True"
                 ]
+            ],
+            [
+                "end",
+                []
             ],
             [
                 "end",
@@ -12920,7 +12930,7 @@
                 "speak",
                 [
                     "Joel",
-                    "So Nia, anything catching you're eye?"
+                    "So Nia, anything catching your eye?"
                 ]
             ],
             [
@@ -12959,7 +12969,8 @@
                 "give_item",
                 [
                     "Nia",
-                    "Oak Bow"
+                    "Oak Bow",
+                    "no_choice"
                 ]
             ],
             [
@@ -13039,7 +13050,8 @@
                 "give_item",
                 [
                     "Drake",
-                    "Adamant Lance"
+                    "Adamant Lance",
+                    "no_choice"
                 ]
             ],
             [
@@ -13210,7 +13222,8 @@
                 "give_item",
                 [
                     "Ophie",
-                    "Magebane Sword"
+                    "Magebane Sword",
+                    "no_choice"
                 ]
             ],
             [
@@ -33835,6 +33848,113 @@
             ]
         ],
         "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Wagon Escape",
+        "trigger": "Thief Escape",
+        "level_nid": "4",
+        "condition": "True",
+        "commands": [
+            [
+                "inc_game_var",
+                [
+                    "escaped_wagons"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['escaped_wagons'] >= 4"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "elif",
+                [
+                    "game.game_vars['escaped_wagons'] + game.game_vars['dead_wagons'] >= 10"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_dead('Anders')"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ],
+            [
+                "elif",
+                [
+                    "'anders_threat' not in game.level_vars"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Anders"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Anders",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Anders",
+                    "You haven't won yet, Resistance scum.|I'll take your scalps back to the Duke myself!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Anders"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "anders_threat",
+                    "True"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
         "priority": 20
     }
 ]

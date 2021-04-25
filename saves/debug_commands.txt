@@ -1,7 +1,6 @@
 trigger_script;Level3Setup
 trigger_script;Level3Setup
 trigger_script;Level3Setup
-trigger_script;Level3Setup
 move_unit;Ophie;0,1
 remove_unit;103
 set_current_hp;103;0
@@ -18,3 +17,4 @@ set_current_hp;Ophie;5
 set_current_hp;Ophie;5
 kill_unit;Theo
 remove_unit;Theo
+xzzz

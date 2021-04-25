@@ -957,6 +957,18 @@ class AutoLevel(Action):
         self.unit.growth_points = self.old_growth_points
         self.unit.set_hp(self.old_hp)
 
+class GrowthPointChange(Action):
+    def __init__(self, unit, old_growth_points, new_growth_points):
+        self.unit = unit
+        self.old_growth_points = old_growth_points
+        self.new_growth_points = new_growth_points
+
+    def do(self):
+        self.unit.growth_points = self.new_growth_points
+
+    def reverse(self):
+        self.unit.growth_points = self.old_growth_points
+
 class ApplyStatChanges(Action):
     def __init__(self, unit, stat_changes):
         self.unit = unit

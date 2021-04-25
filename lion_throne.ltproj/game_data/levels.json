@@ -2377,7 +2377,7 @@
         },
         "objective": {
             "simple": "Destroy all Wagons,{eval:game.game_vars.get('dead_wagons', 0)}/10 destroyed",
-            "win": "Destroy at least 7 wagons. {eval:game.game_vars.get('dead_wagons', 0}/10 destroyed",
+            "win": "Destroy at least 7 wagons. {eval:game.game_vars.get('dead_wagons', 0)}/10 destroyed",
             "loss": "Ophie dies,Four or more wagons escape,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}."
         },
         "units": [

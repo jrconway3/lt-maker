@@ -1770,7 +1770,7 @@ class Event():
                     game.state.change('item_discard')
                     self.state = 'paused'
                     if banner_flag:
-                        game.alerts.append(banner.AcquiredItem(self.unit, self.item))
+                        game.alerts.append(banner.AcquiredItem(unit, item))
                         game.state.change('alert')
             else:
                 action.do(action.GiveItem(unit, item))
@@ -1946,9 +1946,6 @@ class Event():
         self._apply_stat_changes(unit, stat_changes, flags)
 
     def autolevel_to(self, command):
-        """
-        Cannot be turnwheeled
-        """
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
         if not unit:

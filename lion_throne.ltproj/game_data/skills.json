@@ -688,7 +688,7 @@
             ],
             [
                 "time",
-                6
+                4
             ],
             [
                 "negative",
@@ -1578,10 +1578,6 @@
         "components": [
             [
                 "class_skill",
-                null
-            ],
-            [
-                "ignore_terrain",
                 null
             ]
         ]

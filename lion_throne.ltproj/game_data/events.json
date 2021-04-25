@@ -165,6 +165,29 @@
                 [
                     "rein"
                 ]
+            ],
+            [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
+                "battle_save",
+                []
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,
@@ -9543,7 +9566,8 @@
                 [
                     "battle_save",
                     "Would you like to save?",
-                    "Yes,No"
+                    "Yes,No",
+                    "h"
                 ]
             ],
             [
@@ -14235,7 +14259,7 @@
                 [
                     "Sam",
                     "20,16",
-                    "",
+                    "immediate",
                     "closest"
                 ]
             ],
@@ -14244,7 +14268,7 @@
                 [
                     "Kayla",
                     "21,16",
-                    "",
+                    "immediate",
                     "closest"
                 ]
             ],
@@ -14268,7 +14292,13 @@
                 ]
             ],
             [
-                "move_cursor",
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "flicker_cursor",
                 [
                     "Sam"
                 ]
@@ -14364,7 +14394,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -15920,7 +15969,7 @@
         "name": "Village",
         "trigger": "Visit",
         "level_nid": "5",
-        "condition": "region.nid == 'Village'",
+        "condition": "True",
         "commands": [
             [
                 "comment",
@@ -16420,14 +16469,6 @@
                 [
                     "Kayla",
                     "96,0"
-                ]
-            ],
-            [
-                "multi_remove_portrait",
-                [
-                    "Kayla",
-                    "Ophie",
-                    "Sam"
                 ]
             ],
             [
@@ -17218,9 +17259,19 @@
                 ]
             ],
             [
+                "change_background",
+                []
+            ],
+            [
                 "transition",
                 [
                     "Open"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ],
             [
@@ -17404,6 +17455,12 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
                 "remove_unit",
                 [
                     "Vagnius"
@@ -17419,6 +17476,12 @@
                 "remove_unit",
                 [
                     "N2"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vincent"
                 ]
             ],
             [
@@ -17474,7 +17537,8 @@
                 "add_unit",
                 [
                     "Ophie",
-                    "3,15"
+                    "3,15",
+                    "immediate"
                 ]
             ],
             [
@@ -17604,6 +17668,12 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
                 "transition",
                 [
                     "Close"
@@ -17650,7 +17720,7 @@
                 "speak",
                 [
                     "Jules",
-                    "You bet your ass we were, sweet cheeks!"
+                    "You bet we were, sweet cheeks!"
                 ]
             ],
             [
@@ -17702,10 +17772,22 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
                 "move_unit",
                 [
                     "Jules",
                     "9,5"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ],
             [
@@ -17755,6 +17837,10 @@
                 [
                     "Open"
                 ]
+            ],
+            [
+                "prep",
+                []
             ]
         ],
         "only_once": false,
@@ -22648,7 +22734,7 @@
                 "speak",
                 [
                     "Marduk",
-                    "In one fell swoop, the Resistance will be defeated,|and I, Marduk, will garner the credit I so rightfully deserve!"
+                    "In one fell swoop, the Resistance will be defeated,|and I will garner the credit I so rightfully deserve!"
                 ]
             ],
             [
@@ -22712,7 +22798,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -25014,7 +25119,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -31549,7 +31673,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -33956,5 +34099,71 @@
         ],
         "only_once": false,
         "priority": 20
+    },
+    {
+        "name": "Battle Save",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "game.level_vars['switch'] >= 2",
+        "commands": [
+            [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
+                "battle_save",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": true,
+        "priority": 10
+    },
+    {
+        "name": "Battle Save",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.level_vars['master_switch']",
+        "commands": [
+            [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
+                "battle_save",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": true,
+        "priority": 10
     }
 ]

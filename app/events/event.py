@@ -94,6 +94,7 @@ class Event():
         ser_dict['unit1'] = self.unit.nid if self.unit else None
         ser_dict['unit2'] = self.unit2.nid if self.unit2 else None
         ser_dict['region'] = self.region.nid if self.region else None
+        ser_dict['item'] = self.item.uid if self.item else None
         ser_dict['position'] = self.position
         ser_dict['if_stack'] = self.if_stack
         ser_dict['parse_stack'] = self.parse_stack
@@ -103,16 +104,12 @@ class Event():
     def restore(cls, ser_dict):
         unit = game.get_unit(ser_dict['unit1'])
         unit2 = game.get_unit(ser_dict['unit2'])
-        region = None
-        if game.level:
-            for reg in game.level.regions:
-                if reg.nid == ser_dict['region']:
-                    region = reg
-                    break
+        region = game.get_region(ser_dict['region'])
+        item = game.get_item(ser_dict.get('item'))
         position = ser_dict['position']
         commands = ser_dict['commands']
         nid = ser_dict['nid']
-        self = cls(nid, commands, unit, unit2, position, region)
+        self = cls(nid, commands, unit, unit2, item, position, region)
         self.command_idx = ser_dict['command_idx']
         self.if_stack = ser_dict['if_stack']
         self.parse_stack = ser_dict['parse_stack']
@@ -1582,6 +1579,9 @@ class Event():
             return position
 
     def change_tilemap(self, command):
+        """
+        Cannot be turnwheeled
+        """
         values, flags = event_commands.parse(command)
         tilemap_nid = values[0]
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)

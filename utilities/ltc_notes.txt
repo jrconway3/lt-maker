@@ -16,3 +16,15 @@ Althea Lv 4 Exp 78 Anima: 17, Fire, Wind, Vulnerary
 Drake Lv 6 Exp 72 Sword: 20, Lance: 25, Iron Lance, Iron Sword, Spiritbane, Potion, Steel Sword
 Renae Lv 5 Exp 2 Sword: 17, Iron Sword, Vulnerary
 Theo Lv 4 Exp 45 Lance: 18, Iron Lance, Vulnerary
+
+Level 5: LTC
+19000 gold
+Ophie Lv 6 Exp 28 Sword: 29, Steel Sword, Iron Sword, Vulnerary, Rapier
+Prim Lv 4 Exp 47 Light: 31, Heal, Glimmer, Shine
+Joel Lv 7 exp 5 Axe: 41, Iron Axe, Hand Axe, Potion, Steel Axe, Hatchet
+Nia Lv 7 Exp 18 Bow: 38, Willow Bow, Oak Bow
+Althea Lv 6 Exp 67 Anima: 22, Fire, Wind, Thunder, Fly, Wyrmsfire
+Drake Lv 7 Exp 67 Sword: 22, Lance: 29, Iron Lance, Iron Sword, Spiritbane, Vulnerary, Steel Sword
+Renae Lv 6 Exp 20 Sword: 22, Iron Sword, Vulnerary, Rapier, Flareblade
+Theo Lv 6 Exp 16 Lance: 28, Iron Lance, Vulnerary
+Eliza Lv 3 Exp 63 Lance: 26, Iron Lance, Steel Lance, Javelin, Prim's Charm, Vulnerary

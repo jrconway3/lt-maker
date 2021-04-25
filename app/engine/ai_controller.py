@@ -451,10 +451,12 @@ class PrimaryAI():
                 continue
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             if ai_priority is None:
+                status = 1 if item.status_on_hit else 0
+                accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, target.get_weapon(), "attack")/100., 0, 1)
+                tp += accuracy * status * 0.5
                 if item_system.damage(self.unit, item):
                     raw_damage = combat_calcs.compute_damage(self.unit, target, item, target.get_weapon(), "attack")
                     lethality = utils.clamp(raw_damage / float(target.get_hp()), 0, 1)
-                    accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, target.get_weapon(), "attack")/100., 0, 1)
                     ai_priority = 3 if lethality * accuracy >= 1 else lethality * accuracy
                     if skill_system.check_enemy(self.unit, target):
                         tp += ai_priority

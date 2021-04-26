@@ -476,8 +476,8 @@
         ],
         "components": [
             [
-                "time",
-                2
+                "end_time",
+                1
             ],
             [
                 "unselectable",
@@ -711,7 +711,7 @@
                 [
                     [
                         "STR",
-                        -4
+                        -3
                     ],
                     [
                         "MAG",

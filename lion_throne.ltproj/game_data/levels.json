@@ -6085,7 +6085,7 @@
                 "region_type": "event",
                 "position": [
                     2,
-                    6
+                    7
                 ],
                 "size": [
                     1,
@@ -6100,7 +6100,7 @@
                 "region_type": "event",
                 "position": [
                     22,
-                    6
+                    7
                 ],
                 "size": [
                     1,
@@ -6115,7 +6115,7 @@
                 "region_type": "event",
                 "position": [
                     1,
-                    29
+                    28
                 ],
                 "size": [
                     1,
@@ -6130,7 +6130,7 @@
                 "region_type": "event",
                 "position": [
                     23,
-                    29
+                    28
                 ],
                 "size": [
                     1,
@@ -6145,7 +6145,7 @@
                 "region_type": "event",
                 "position": [
                     12,
-                    25
+                    26
                 ],
                 "size": [
                     1,
@@ -6160,7 +6160,7 @@
                 "region_type": "event",
                 "position": [
                     12,
-                    34
+                    33
                 ],
                 "size": [
                     1,
@@ -12606,29 +12606,6 @@
                 "generic": false
             },
             {
-                "nid": "103",
-                "variant": null,
-                "level": 6,
-                "klass": "Mage",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Sandblast",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Defend",
-                "ai_group": "1",
-                "starting_position": [
-                    5,
-                    5
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
                 "nid": "Theo",
                 "team": "player",
                 "ai": "None",
@@ -12638,6 +12615,52 @@
                     4
                 ],
                 "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 10,
+                "klass": "Thief",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Mithril Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Thief",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [
@@ -12690,15 +12713,8 @@
         "unit_groups": [
             {
                 "nid": "rein",
-                "units": [
-                    "103"
-                ],
-                "positions": {
-                    "103": [
-                        2,
-                        2
-                    ]
-                }
+                "units": [],
+                "positions": {}
             }
         ]
     }

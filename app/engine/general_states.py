@@ -163,6 +163,7 @@ class FreeState(MapState):
             # End the turn
             logging.info('Autoending turn.')
             game.state.change('turn_change')
+            game.state.change('status_endstep')
             return 'repeat'
 
     def end(self):
@@ -250,6 +251,7 @@ class OptionMenuState(MapState):
                 else:
                     game.state.back()
                     game.state.change('turn_change')
+                    game.state.change('status_endstep')
                     return 'repeat'
             elif selection == 'Suspend' or selection == 'Save':
                 if cf.SETTINGS['confirm_end']:
@@ -332,6 +334,7 @@ class OptionChildState(State):
                     game.state.back()
                     game.state.back()
                     game.state.change('turn_change')
+                    game.state.change('status_endstep')
                     return 'repeat'
                 elif self.menu.owner == 'Suspend':
                     suspend()
@@ -1582,6 +1585,7 @@ class AIState(MapState):
             self.cur_unit = None
             self.cur_group = None
             game.state.change('turn_change')
+            game.state.change('status_endstep')
             self.finish()
             return 'repeat'
 

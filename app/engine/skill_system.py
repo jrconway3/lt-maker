@@ -313,7 +313,7 @@ def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
 
 def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
-        for component in skill.component:
+        for component in skill.components:
             if component.defines('on_endstep'):
                 if component.ignore_conditional or condition(skill, unit):
                     component.on_endstep(actions, playback, unit)

@@ -89,20 +89,29 @@ class AIController():
         if self.goal_target:  # Target is a position tuple
             if self.goal_item and self.goal_item in item_funcs.get_all_items(self.unit):
                 self.unit.equip(self.goal_item)
-                # Highlights
-                if item_system.is_weapon(self.unit, self.goal_item):
-                    game.highlight.remove_highlights()
-                    splash_positions = item_system.splash_positions(self.unit, self.goal_item, self.goal_target)
-                    game.highlight.display_possible_attacks({self.goal_target})
-                    game.highlight.display_possible_attacks(splash_positions, light=True)
-                elif item_system.is_spell(self.unit, self.goal_item):
-                    game.highlight.remove_highlights()
-                    splash_positions = item_system.splash_positions(self.unit, self.goal_item, self.goal_target)
-                    game.highlight.display_possible_spell_attacks({self.goal_target})
-                    game.highlight.display_possible_spell_attacks(splash_positions, light=True)
-                # Combat
-                interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True)
-                return True
+            # Highlights
+            if item_system.is_weapon(self.unit, self.goal_item):
+                game.highlight.remove_highlights()
+                splash_positions = item_system.splash_positions(self.unit, self.goal_item, self.goal_target)
+                game.highlight.display_possible_attacks({self.goal_target})
+                game.highlight.display_possible_attacks(splash_positions, light=True)
+            elif item_system.is_spell(self.unit, self.goal_item):
+                game.highlight.remove_highlights()
+                splash_positions = item_system.splash_positions(self.unit, self.goal_item, self.goal_target)
+                game.highlight.display_possible_spell_attacks({self.goal_target})
+                game.highlight.display_possible_spell_attacks(splash_positions, light=True)
+
+            # Used for steal
+            if item_system.targets_items(self.unit, self.goal_item):
+                # Choose most expensive item that is legal
+                target = game.board.get_unit(self.goal_target)
+                legal_items = [item for item in target.items if item_system.item_restrict(self.unit, self.goal_item, target, item)]
+                items = sorted(legal_items, key=lambda x: item_system.sell_price(self.unit, x) or 0)
+                self.goal_item.data['target_item'] = items[-1]
+
+            # Combat
+            interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True)
+            return True
         # Interacting with regions
         elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':
             # Get region
@@ -291,7 +300,7 @@ class PrimaryAI():
             self.items = []
             self.extra_abilities = skill_system.get_extra_abilities(self.unit)
             for ability in self.extra_abilities.values():
-                if ability.nid == 'Steal':
+                if ability.name == 'Steal':
                     self.items.append(ability)
 
         self.behaviour_targets = get_targets(self.unit, self.behaviour)
@@ -437,11 +446,13 @@ class PrimaryAI():
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             # If no ai priority hook defined
             if ai_priority is None:
-                if item_system.damage(self.unit, item) and \
-                        skill_system.check_enemy(self.unit, main_target):
-                    ai_priority = self.default_priority(main_target, item, move)
-                    tp += ai_priority
+                pass
             else:
+                tp += ai_priority
+
+            if item_system.damage(self.unit, item) and \
+                    skill_system.check_enemy(self.unit, main_target):
+                ai_priority = self.default_priority(main_target, item, move)
                 tp += ai_priority
 
         for splash_pos in splash:
@@ -451,19 +462,19 @@ class PrimaryAI():
                 continue
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             if ai_priority is None:
-                status = 1 if item.status_on_hit else 0
-                accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, target.get_weapon(), "attack")/100., 0, 1)
-                tp += accuracy * status * 0.5
-                if item_system.damage(self.unit, item):
-                    raw_damage = combat_calcs.compute_damage(self.unit, target, item, target.get_weapon(), "attack")
-                    lethality = utils.clamp(raw_damage / float(target.get_hp()), 0, 1)
-                    ai_priority = 3 if lethality * accuracy >= 1 else lethality * accuracy
-                    if skill_system.check_enemy(self.unit, target):
-                        tp += ai_priority
-                    elif skill_system.check_ally(self.unit, target):
-                        tp -= ai_priority
+                pass
             else:
                 tp += ai_priority
+
+            if item_system.damage(self.unit, item):
+                accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, target.get_weapon(), "attack")/100., 0, 1)
+                raw_damage = combat_calcs.compute_damage(self.unit, target, item, target.get_weapon(), "attack")
+                lethality = utils.clamp(raw_damage / float(target.get_hp()), 0, 1)
+                ai_priority = 3 if lethality * accuracy >= 1 else lethality * accuracy
+                if skill_system.check_enemy(self.unit, target):
+                    tp += ai_priority
+                elif skill_system.check_ally(self.unit, target):
+                    tp -= ai_priority
         return tp
 
     def default_priority(self, main_target, item, move):
@@ -471,7 +482,6 @@ class PrimaryAI():
         terms = []
         offense_term = 0
         defense_term = 1
-        status_term = 0
 
         raw_damage = combat_calcs.compute_damage(self.unit, main_target, item, main_target.get_weapon(), "attack")
         crit_damage = combat_calcs.compute_damage(self.unit, main_target, item, main_target.get_weapon(), "attack", crit=True)
@@ -479,8 +489,6 @@ class PrimaryAI():
         # Damage I do compared to target's current hp
         lethality = utils.clamp(raw_damage / float(main_target.get_hp()), 0, 1)
         crit_lethality = utils.clamp(crit_damage / float(main_target.get_hp()), 0, 1)
-        # Do I add a new status to the target
-        status = 1 if item.status_on_hit else 0
         # Accuracy
         hit_comp = combat_calcs.compute_hit(self.unit, main_target, item, main_target.get_weapon(), "attack")
         if hit_comp:
@@ -518,15 +526,14 @@ class PrimaryAI():
         offense_term += 3 if lethality * accuracy >= 1 else lethality * accuracy * num_attacks
         crit_term = (crit_lethality - lethality) * crit_accuracy * accuracy * num_attacks
         offense_term += crit_term
-        status_term += status * min(1, accuracy * num_attacks)
         defense_term -= target_damage * target_accuracy * (1 - first_strike)
-        if offense_term <= 0 and status_term <= 0:
+        if offense_term <= 0:
             if lethality > 0 and DB.constants.value('attack_zero_hit'):
                 logging.info("Accuracy is bad, but continuing with stupid AI")
             elif accuracy > 0 and DB.constants.value('attack_zero_dam'):
                 logging.info("Zero Damage, but continuing with stupid AI")
             else:    
-                logging.info("Offense: %.2f, Defense: %.2f, Status: %.2f", offense_term, defense_term, status_term)
+                logging.info("Offense: %.2f, Defense: %.2f", offense_term, defense_term)
                 return 0
 
         # Only here to break ties
@@ -538,13 +545,12 @@ class PrimaryAI():
             distance_term = 1
 
         logging.info("Damage: %.2f, Accuracy: %.2f, Crit Accuracy: %.2f", lethality, accuracy, crit_accuracy)
-        logging.info("Offense: %.2f, Defense: %.2f, Status: %.2f, Distance: %.2f", offense_term, defense_term, status_term, distance_term)
+        logging.info("Offense: %.2f, Defense: %.2f, Distance: %.2f", offense_term, defense_term, distance_term)
         ai_prefab = DB.ai.get(self.unit.ai)
         offense_bias = ai_prefab.offense_bias
         offense_weight = offense_bias * (1 / (offense_bias + 1))
         defense_weight = 1 - offense_weight
         terms.append((offense_term, offense_weight))
-        terms.append((status_term, .2))
         terms.append((defense_term, defense_weight))
         terms.append((distance_term, .0001))
 

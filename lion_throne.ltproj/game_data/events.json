@@ -148,7 +148,7 @@
                 "add_region",
                 [
                     "escape",
-                    "0,0",
+                    "6,6",
                     "2,1",
                     "event",
                     "Escape"
@@ -165,29 +165,6 @@
                 [
                     "rein"
                 ]
-            ],
-            [
-                "choice",
-                [
-                    "battle_save",
-                    "Would you like to save?",
-                    "Yes,No",
-                    "h"
-                ]
-            ],
-            [
-                "if",
-                [
-                    "game.game_vars['battle_save'] == 'Yes'"
-                ]
-            ],
-            [
-                "battle_save",
-                []
-            ],
-            [
-                "end",
-                []
             ]
         ],
         "only_once": false,
@@ -19581,7 +19558,7 @@
         "name": "Turn2",
         "trigger": "turn_change",
         "level_nid": "6",
-        "condition": "game.turnount == 2",
+        "condition": "game.turncount == 2",
         "commands": [
             [
                 "comment",
@@ -34165,5 +34142,33 @@
         ],
         "only_once": true,
         "priority": 10
+    },
+    {
+        "name": "Door",
+        "trigger": "Door",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Door unlocked!"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
     }
 ]

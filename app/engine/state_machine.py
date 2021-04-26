@@ -209,10 +209,9 @@ class StateMachine():
                     idx -= 1
                 else:
                     break
-            while idx < -1:
+            while idx <= -1:
                 surf = self.state[idx].draw(surf)
                 idx += 1
-            surf = state.draw(surf)
         # End
         if self.temp_state and state.processed:
             state.processed = False

@@ -12595,28 +12595,6 @@
         },
         "units": [
             {
-                "nid": "Ophie",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    4,
-                    6
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Theo",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    4,
-                    4
-                ],
-                "generic": false
-            },
-            {
                 "nid": "101",
                 "variant": null,
                 "level": 10,
@@ -12643,11 +12621,11 @@
                 "nid": "102",
                 "variant": null,
                 "level": 1,
-                "klass": "Soldier",
+                "klass": "Cavalier",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Mithril Lance",
+                        "Iron Lance",
                         false
                     ]
                 ],
@@ -12657,6 +12635,24 @@
                 "starting_position": [
                     2,
                     7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Myrmidon",
+                "faction": "Soldier",
+                "starting_items": [],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    4
                 ],
                 "name": null,
                 "desc": null,

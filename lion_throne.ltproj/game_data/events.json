@@ -138,10 +138,9 @@
                 ]
             ],
             [
-                "base",
+                "comment",
                 [
-                    "MainBase",
-                    "Preparing for Battle"
+                    "#base;MainBase;Preparing for Battle"
                 ]
             ],
             [
@@ -161,9 +160,15 @@
                 ]
             ],
             [
-                "add_group",
+                "show_layer",
                 [
-                    "rein"
+                    "Village1"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ]
         ],

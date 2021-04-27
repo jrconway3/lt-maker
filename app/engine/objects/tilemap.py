@@ -41,7 +41,8 @@ class LayerObject():
         # Cull to only the part I need
         im = engine.subsurface(self.image, cull_rect)
         if self.state in ('fade_in', 'fade_out'):
-            return image_mods.make_translucent_blend(im, self.translucence * 255)
+            im = im.convert_alpha()
+            im = image_mods.make_translucent(im, self.translucence)
         return im
 
     def get_autotile_image(self, cull_rect):
@@ -49,7 +50,8 @@ class LayerObject():
             return None
         im = engine.subsurface(self.autotile_images[self.autotile_frame], cull_rect)
         if self.state in ('fade_in', 'fade_out'):
-            return image_mods.make_translucent_blend(im, self.translucence * 255)
+            im = im.convert_alpha()
+            return image_mods.make_translucent(im, self.translucence)
         return im
 
     def quick_show(self):

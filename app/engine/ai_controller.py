@@ -1,7 +1,6 @@
 import math
 
 from app.utilities import utils
-from app.constants import FRAMERATE
 from app.data.database import DB
 
 from app.engine import engine, action, combat_calcs, pathfinding, target_system, \
@@ -67,7 +66,7 @@ class AIController():
             self.attack_ai_complete = True
         elif not self.canto_ai_complete:
             if self.unit.has_attacked and skill_system.has_canto(self.unit, None):
-                self.retreat()
+                self.canto_retreat()
                 change = self.move()
             self.canto_ai_complete = True
 
@@ -141,12 +140,7 @@ class AIController():
     def smart_retreat(self):
         valid_positions = self.get_true_valid_moves()
 
-        if self.behaviour.target[0] == 'Enemy':
-            target_positions = {u.position for u in game.units if u.position and skill_system.check_enemy(self.unit, u)}
-        elif self.behaviour.target[0] == 'Ally':
-            target_positions = {u.position for u in game.units if u.position and skill_system.check_ally(self.unit, u)}
-        elif self.behaviour.target[0] == 'Unit':
-            target_positions = {u.position for u in game.units if u.position}
+        target_positions = get_targets(self.unit, self.behaviour)
 
         zero_move = max(target_system.find_potential_range(self.unit, True, True), default=0)
         single_move = zero_move + equations.parser.movement(self.unit)
@@ -501,8 +495,6 @@ class PrimaryAI():
         else:
             crit_accuracy = 0
 
-        target_damage = 0
-        target_accuracy = 0
         # Determine if I would get countered
         # Even if I wouldn't get countered, check anyway how much damage I would take
         target_weapon = main_target.get_weapon()
@@ -510,7 +502,10 @@ class PrimaryAI():
         if not target_damage:
             target_damage = 0
         target_damage = utils.clamp(target_damage/main_target.get_hp(), 0, 1)
-        target_accuracy = utils.clamp(combat_calcs.compute_hit(main_target, self.unit, target_weapon, item, "defense")/100., 0, 1)
+        target_accuracy = combat_calcs.compute_hit(main_target, self.unit, target_weapon, item, "defense")
+        if not target_accuracy:
+            target_accuracy = 0
+        target_accuracy = utils.clamp(target_accuracy/100., 0, 1)
         # If I wouldn't get counterattacked, much less important, so multiply by 10 %
         if not combat_calcs.can_counterattack(self.unit, item, main_target, target_weapon):
             target_damage *= 0.3
@@ -623,7 +618,8 @@ class SecondaryAI():
         # Determine all targets
         self.all_targets = get_targets(self.unit, behaviour)
 
-        self.single_move = equations.parser.movement(self.unit) + max(target_system.find_potential_range(self.unit, True, True), default=0)
+        self.zero_move = max(target_system.find_potential_range(self.unit, True, True), default=0)
+        self.single_move = self.zero_move + equations.parser.movement(self.unit)
         self.double_move = self.single_move + equations.parser.movement(self.unit)
 
         movement_group = game.movement.get_movement_group(self.unit)

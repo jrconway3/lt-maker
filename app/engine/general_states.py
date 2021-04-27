@@ -1572,7 +1572,7 @@ class AIState(MapState):
                     # Only do this for non-move actions
                     game.state.change('move_camera')
 
-            if game.ai.is_done():
+            if not change and game.ai.is_done():
                 logging.info("Current AI %s is done with turn.", self.cur_unit.nid)
                 if did_something:  # Don't turn grey if didn't actually do anything
                     self.cur_unit.wait()

@@ -527,6 +527,9 @@ class TitleWaitState(State):
     in_level = False
     show_map = False
     # NOT TRANSPARENT!!!
+    bg = None
+    particles = []
+    menu = None
 
     def start(self):
         self.bg = game.memory['title_bg']

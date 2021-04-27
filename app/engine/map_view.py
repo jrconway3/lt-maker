@@ -32,8 +32,8 @@ class MapView():
         culled_units = [unit for unit in game.units if unit is not game.cursor.cur_unit and (unit.position or unit.sprite.fake_position)]
         # Only draw units within 2 tiles of cull_rect
         culled_units = [unit for unit in culled_units if
-                        cull_rect[0] - TILEWIDTH*2 < (unit.position or unit.fake_position)[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
-                        cull_rect[1] - TILEHEIGHT*2 < (unit.position or unit.fake_position)[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2]
+                        cull_rect[0] - TILEWIDTH*2 < (unit.position or unit.sprite.fake_position)[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
+                        cull_rect[1] - TILEHEIGHT*2 < (unit.position or unit.sprite.fake_position)[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2]
         if game.level_vars.get('_fog_of_war'):
             culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.fake_position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])

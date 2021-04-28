@@ -824,6 +824,8 @@ class PrepItemsState(State):
         self.menu.draw(surf)
         if self.sub_menu:
             self.sub_menu.draw(surf)
+        if self.menu.info_flag:
+            self.menu.draw_info(surf)
         return surf
 
 class PrepRestockState(State):
@@ -961,7 +963,7 @@ class PrepMarketState(State):
                         if not item_funcs.inventory_full(self.unit, new_item):
                             self.unit.add_item(new_item)
                         else:
-                            new_item.owner_nid = None
+                            new_item.change_owner(None)
                             game.party.convoy.append(new_item)
                         self.update_options()
                     else:

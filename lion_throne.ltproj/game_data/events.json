@@ -7212,10 +7212,10 @@
         "priority": 20
     },
     {
-        "name": "KileyCoyoteTalk",
+        "name": "KaylaCoyoteTalk",
         "trigger": "on_talk",
         "level_nid": "6",
-        "condition": "unit.nid == 'Kiley' and unit2.nid == 'Coyote'",
+        "condition": "unit.nid == 'Kayla' and unit2.nid == 'Coyote'",
         "commands": [
             [
                 "multi_add_portrait",

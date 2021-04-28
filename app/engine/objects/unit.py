@@ -291,7 +291,7 @@ class UnitObject(Prefab):
             self.items.insert(index, item)
         else:
             self.items.insert(index, item)
-            item.owner_nid = self.nid
+            item.change_owner(self.nid)
             # Statuses here
             item_system.on_add_item(self, item)
             skill_system.on_add_item(self, item)
@@ -300,7 +300,7 @@ class UnitObject(Prefab):
         if item is self.equipped_weapon or item is self.equipped_accessory:
             self.unequip(item)
         self.items.remove(item)
-        item.owner_nid = None
+        item.change_owner(None)
         # Status effects
         skill_system.on_remove_item(self, item)
         item_system.on_remove_item(self, item)

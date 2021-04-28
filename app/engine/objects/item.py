@@ -34,6 +34,11 @@ class ItemObject():
         self.subitems = []
         self.parent_item = None
 
+    def change_owner(self, nid):
+        self.owner_nid = nid
+        for item in self.subitems:
+            item.owner_nid = nid
+
     @classmethod
     def from_prefab(cls, prefab):
         # Components NEED To be copies! Since they store individualized information

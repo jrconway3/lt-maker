@@ -137,7 +137,7 @@ class AIController():
         enemy_positions = {u.position for u in game.units if u.position and skill_system.check_enemy(self.unit, u)}
         self.goal_position = utils.farthest_away_pos(self.unit.position, valid_positions, enemy_positions)
 
-    def smart_retreat(self):
+    def smart_retreat(self) -> bool:
         valid_positions = self.get_true_valid_moves()
 
         target_positions = get_targets(self.unit, self.behaviour)
@@ -159,7 +159,11 @@ class AIController():
         else:
             target_positions = {(pos, mag) for pos, mag in target_positions if mag < self.view_range}
 
-        self.goal_position = utils.smart_farthest_away_pos(self.unit.position, valid_positions, target_positions)
+        if target_positions and len(valid_positions) > 1:
+            self.goal_position = utils.smart_farthest_away_pos(self.unit.position, valid_positions, target_positions)
+            return True
+        else:
+            return False
 
     def get_true_valid_moves(self) -> set:
         valid_moves = target_system.get_valid_moves(self.unit)
@@ -206,9 +210,11 @@ class AIController():
                         self.inner_ai = self.build_secondary()
                         self.state = "Secondary"
                     elif self.behaviour.action == "Move_away_from":
-                        self.smart_retreat()
-                        success = True
-                        self.state = "Done"
+                        success = self.smart_retreat()
+                        if success:
+                            self.state = "Done"
+                        else:
+                            self.state = "Init"  # Try another behaviour
                 else:
                     self.state = 'Done'
 

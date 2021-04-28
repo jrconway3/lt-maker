@@ -1109,6 +1109,7 @@ class Convoy():
         self.order = [w.nid for w in DB.weapons]
         self.build_menus()
 
+        self._info_flag = False  # Whether to show item info
         self.selection_index = 0  # 0 is inventory, 1+ is convoy
         self.menu_index = 0  # Position for convoy
         self.locked = False  # Whether you are locked to convoy or inventory
@@ -1297,17 +1298,30 @@ class Convoy():
         return True
 
     def toggle_info(self):
+        self._info_flag = not self._info_flag
+        """
         if self.selection_index == 0:
             self.inventory.toggle_info()
         else:
             self.get_menu().toggle_info()
+        """
 
     @property
     def info_flag(self):
+        return self._info_flag
+        """
         if self.selection_index == 0:
             return self.inventory.info_flag
         else:
             return self.get_menu().info_flag
+        """
+
+    def draw_info(self, surf):
+        if self.selection_index == 0:
+            self.inventory.vert_draw_info(surf)
+        else:
+            self.get_menu().vert_draw_info(surf)
+        return surf
 
     def set_takes_input(self, val):
         self.takes_input = val

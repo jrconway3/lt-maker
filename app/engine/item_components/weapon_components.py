@@ -177,7 +177,7 @@ class DamageOnMiss(ItemComponent):
     expose = Type.Float
     value = 0.5
 
-    def on_miss(self, actions, playback, unit, item, target, mode=None):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
         damage = combat_calcs.compute_damage(unit, target, item, mode)
         damage = int(damage * self.value)
 

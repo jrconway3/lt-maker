@@ -178,7 +178,7 @@ class DamageOnMiss(ItemComponent):
     value = 0.5
 
     def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
-        damage = combat_calcs.compute_damage(unit, target, item, mode)
+        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
         damage = int(damage * self.value)
 
         true_damage = min(damage, target.get_hp())

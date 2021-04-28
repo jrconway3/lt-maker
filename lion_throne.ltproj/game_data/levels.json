@@ -12644,9 +12644,14 @@
                 "nid": "103",
                 "variant": null,
                 "level": 1,
-                "klass": "Myrmidon",
+                "klass": "Shaman",
                 "faction": "Soldier",
-                "starting_items": [],
+                "starting_items": [
+                    [
+                        "Disintegrate",
+                        false
+                    ]
+                ],
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,

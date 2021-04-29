@@ -64,12 +64,12 @@ def get_adj_allies(unit) -> list:
     adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
     return adj_allies
 
-def get_attacks(unit, item=None) -> set:
+def get_attacks(unit, item=None, force=False) -> set:
     """
     Determines all possible positions the unit could attack
     Does not attempt to determine if an enemy is actually in that place
     """
-    if unit.has_attacked:
+    if not force and unit.has_attacked:
         return set()
     if not item:
         item = unit.get_weapon()

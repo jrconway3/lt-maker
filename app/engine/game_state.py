@@ -38,7 +38,7 @@ class GameState():
     # Start a new game
     # When the player clicks "New Game"
     def build_new(self):
-        from app.engine import records
+        from app.engine import records, supports
         logger.info("Building New Game")
         self.playtime = 0
 
@@ -67,6 +67,7 @@ class GameState():
         else:
             self.overworld = None
 
+        self.supports = supports.SupportController()
         self.records = records.Recordkeeper()
         self.market_items = set()
         self.unlocked_lore = []
@@ -191,6 +192,7 @@ class GameState():
                   'state': self.state.save(),
                   'action_log': self.action_log.save(),
                   'events': self.events.save(),
+                  'supports': self.supports.save(),
                   'records': self.records.save(),
                   'market_items': self.market_items,  # Item nids
                   'unlocked_lore': self.unlocked_lore,
@@ -225,7 +227,7 @@ class GameState():
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import turnwheel, records
+        from app.engine import turnwheel, records, supports
         from app.events import event_manager
 
         from app.engine.objects.item import ItemObject
@@ -271,6 +273,10 @@ class GameState():
         self.base_convos = s_dict.get('base_convos', {})
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
+        if s_dict.get('supports'):
+            self.supports = supports.SupportController.restore(s_dict['supports'])
+        else:
+            self.supports = supports.SupportController()
         if s_dict.get('records'):
             self.records = records.Recordkeeper.restore(s_dict['records'])
         else:

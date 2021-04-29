@@ -16,7 +16,9 @@ def get_weapon_rank_bonus(unit, item):
     return None
 
 def get_support_rank_bonus(unit, target=None):
+    from app.engine import target_system
     from app.engine.game_state import game
+
     if not unit.position:
         return [], []
     # If target, only check for when can attack same unit
@@ -37,16 +39,18 @@ def get_support_rank_bonus(unit, target=None):
         # If unit has already been counted
         if other_unit in [_[1] for _ in bonuses]:
             continue
-        if target:
+        if target and target.position:
             # Unit and other unit can both attack target
-            if X:
+            if target.position in target_system.get_attacks(other_unit, force=True):
                 pass
             else:
                 continue
         elif not game.supports.check_bonus_range(unit, other_unit):
             continue
+        if not pair.unlocked_ranks:
+            continue
         highest_rank = pair.unlocked_ranks[-1]
-        support_rank_bonus = game.supports.get_bonus(unit, other_unit, highest_rank)
+        support_rank_bonus = game.supports.get_bonus(pair, highest_rank)
         bonuses.append((support_rank_bonus, other_unit))
     num_allies_allowed = DB.support_constants.value('bonus_ally_limit')
     if num_allies_allowed and len(bonuses) > num_allies_allowed:
@@ -121,9 +125,6 @@ def accuracy(unit, item=None):
     accuracy += item_system.modify_accuracy(unit, item)
     accuracy += skill_system.modify_accuracy(unit, item)
 
-    # TODO
-    # Support Bonus
-
     return accuracy
 
 def avoid(unit, item, item_to_avoid=None):
@@ -134,6 +135,12 @@ def avoid(unit, item, item_to_avoid=None):
         if equation == 'AVOID':
             equation = skill_system.avoid_formula(unit)
     avoid = equations.parser.get(equation, unit)
+
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        avoid += float(bonus.avoid)
+    avoid = int(avoid)
+
     if item:
         avoid += item_system.modify_avoid(unit, item)
     avoid += skill_system.modify_avoid(unit, item_to_avoid)
@@ -158,6 +165,11 @@ def crit_accuracy(unit, item=None):
     if weapon_rank_bonus:
         crit_accuracy += int(weapon_rank_bonus.crit)
 
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        crit_accuracy += float(bonus.crit)
+    crit_accuracy = int(crit_accuracy)
+
     crit_accuracy += item_system.modify_crit_accuracy(unit, item)
     crit_accuracy += skill_system.modify_crit_accuracy(unit, item)
 
@@ -171,6 +183,12 @@ def crit_avoid(unit, item, item_to_avoid=None):
         if equation == 'CRIT_AVOID':
             equation = skill_system.crit_avoid_formula(unit)
     avoid = equations.parser.get(equation, unit)
+
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        avoid += float(bonus.dodge)
+    avoid = int(avoid)
+
     if item:
         avoid += item_system.modify_crit_avoid(unit, item)
     avoid += skill_system.modify_crit_avoid(unit, item_to_avoid)
@@ -195,10 +213,13 @@ def damage(unit, item=None):
     if weapon_rank_bonus:
         might += int(weapon_rank_bonus.damage)
 
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        might += float(bonus.damage)
+    might = int(might)
+
     might += item_system.modify_damage(unit, item)
     might += skill_system.modify_damage(unit, item)
-    # TODO
-    # Support bonus
 
     return might
 
@@ -210,6 +231,12 @@ def defense(unit, item, item_to_avoid=None):
         if equation == 'DEFENSE':
             equation = skill_system.resist_formula(unit)
     res = equations.parser.get(equation, unit)
+
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        res += float(bonus.resist)
+    res = int(res)
+
     if item:
         res += item_system.modify_resist(unit, item)
     res += skill_system.modify_resist(unit, item_to_avoid)
@@ -230,6 +257,11 @@ def attack_speed(unit, item=None):
     if weapon_rank_bonus:
         attack_speed += int(weapon_rank_bonus.attack_speed)
 
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        attack_speed += float(bonus.attack_speed)
+    attack_speed = int(attack_speed)
+
     attack_speed += item_system.modify_attack_speed(unit, item)
     attack_speed += skill_system.modify_attack_speed(unit, item)
     # TODO
@@ -245,6 +277,12 @@ def defense_speed(unit, item, item_to_avoid=None):
         if equation == 'DEFENSE_SPEED':
             equation = skill_system.defense_speed_formula(unit)
     speed = equations.parser.get(equation, unit)
+
+    support_rank_bonuses, support_allies = get_support_rank_bonus(unit)
+    for bonus in support_rank_bonuses:
+        speed += float(bonus.defense_speed)
+    speed = int(speed)
+
     if item:
         speed += item_system.modify_defense_speed(unit, item)
     speed += skill_system.modify_defense_speed(unit, item_to_avoid)
@@ -277,6 +315,19 @@ def compute_hit(unit, target, item, def_item, mode):
     if disadv:
         triangle_bonus -= int(disadv.avoid)
     hit += triangle_bonus
+
+    # Three Houses style support bonus (only works on attack)
+    if mode in ('attack', 'splash'):
+        # Attacker's accuracy bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(unit, target)
+        for bonus in support_rank_bonuses:
+            hit += float(bonus.accuracy)
+    if mode == 'defense':
+        # Attacker's avoid bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(target, unit)
+        for bonus in support_rank_bonuses:
+            hit -= float(bonus.avoid)
+    hit = int(hit)
 
     hit -= avoid(target, def_item, item)
 
@@ -313,6 +364,19 @@ def compute_crit(unit, target, item, def_item, mode):
         triangle_bonus -= int(disadv.dodge)
     crit += triangle_bonus
 
+    # Three Houses style support bonus (only works on attack)
+    if mode in ('attack', 'splash'):
+        # Attacker's crit bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(unit, target)
+        for bonus in support_rank_bonuses:
+            crit += float(bonus.crit)
+    if mode == 'defense':
+        # Attacker's dodge bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(target, unit)
+        for bonus in support_rank_bonuses:
+            crit -= float(bonus.dodge)
+    crit = int(crit)
+
     crit -= crit_avoid(target, def_item, item)
 
     crit += skill_system.dynamic_crit_accuracy(unit, item, target, mode)
@@ -347,6 +411,20 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
     if disadv:
         triangle_bonus -= int(disadv.resist)
     might += triangle_bonus
+
+    # Three Houses style support bonus (only works on attack)
+    if mode in ('attack', 'splash'):
+        # Attacker's damage bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(unit, target)
+        for bonus in support_rank_bonuses:
+            might += float(bonus.damage)
+    if mode == 'defense':
+        # Attacker's resist bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(target, unit)
+        for bonus in support_rank_bonuses:
+            might -= float(bonus.resist)
+    might = int(might)
+
     total_might = might
 
     might -= defense(target, def_item, item)
@@ -392,6 +470,19 @@ def outspeed(unit, target, item, def_item, mode) -> bool:
         triangle_bonus -= int(adv.defense_speed)
     if disadv:
         triangle_bonus -= int(disadv.defense_speed)
+
+    # Three Houses style support bonus (only works on attack)
+    if mode in ('attack', 'splash'):
+        # Attacker's attack_speed bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(unit, target)
+        for bonus in support_rank_bonuses:
+            speed += float(bonus.attack_speed)
+    if mode == 'defense':
+        # Attacker's defense_speed bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(target, unit)
+        for bonus in support_rank_bonuses:
+            speed -= float(bonus.defense_speed)
+    speed = int(speed)
 
     speed -= defense_speed(target, def_item, item)
 

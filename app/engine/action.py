@@ -1184,7 +1184,30 @@ class ReverseRecords(Action):
         game.records.pop(self.record_type)
 
     def reverse(self):
-        game.records.append(self.record_type, self.data)        
+        game.records.append(self.record_type, self.data)
+
+class IncrementSupportLevel(Action):
+    def __init__(self, nid, points):
+        self.nid = nid
+        self.points = points
+
+    def do(self):
+        game.supports[self.nid].points += self.points
+
+    def reverse(self):
+        game.supports[self.nid].points -= self.points
+
+class UnlockSupportRank(Action):
+    def __init__(self, nid, rank):
+        self.nid = nid
+        self.rank = rank
+
+    def do(self):
+        game.supports[self.nid].unlocked_ranks.append(self.rank)
+
+    def reverse(self):
+        if self.rank in game.supports[self.nid].unlocked_ranks:
+            game.supports[self.nid].unlocked_ranks.remove(self.rank)
 
 class ChangeAI(Action):
     def __init__(self, unit, ai):

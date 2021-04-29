@@ -430,6 +430,8 @@ class Steal(ItemComponent):
         if target_item:
             actions.append(action.RemoveItem(target, target_item))
             actions.append(action.DropItem(unit, target_item))
+            if unit.team != 'player':
+                actions.append(action.MakeItemDroppable(unit, target_item))
             actions.append(action.UpdateRecords('steal', (unit.nid, target.nid, target_item.nid)))
             self._did_steal = True
 

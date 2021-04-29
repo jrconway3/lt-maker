@@ -4684,7 +4684,7 @@
                 "ai_group": null,
                 "starting_position": [
                     6,
-                    4
+                    5
                 ],
                 "name": "Guard",
                 "desc": "Guard at the Tyrana Prison",
@@ -4707,7 +4707,7 @@
                 "ai_group": null,
                 "starting_position": [
                     18,
-                    4
+                    5
                 ],
                 "name": "Guard",
                 "desc": "Guard at the Tyrana Prison",
@@ -5869,6 +5869,29 @@
                 "generic": true
             },
             {
+                "nid": "200",
+                "variant": null,
+                "level": 9,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    7,
+                    1
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
                 "nid": "r81",
                 "variant": null,
                 "level": 9,
@@ -5884,6 +5907,29 @@
                 "ai": "Pursue",
                 "ai_group": null,
                 "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "201",
+                "variant": null,
+                "level": 9,
+                "klass": "Soldier",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    17,
+                    1
+                ],
                 "name": "Guard",
                 "desc": "Guard at the Tyrana Prison",
                 "generic": true
@@ -5909,6 +5955,29 @@
                 "generic": true
             },
             {
+                "nid": "202",
+                "variant": null,
+                "level": 8,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    19,
+                    1
+                ],
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
                 "nid": "r82",
                 "variant": null,
                 "level": 8,
@@ -5924,6 +5993,29 @@
                 "ai": "Pursue",
                 "ai_group": null,
                 "starting_position": null,
+                "name": "Guard",
+                "desc": "Guard at the Tyrana Prison",
+                "generic": true
+            },
+            {
+                "nid": "203",
+                "variant": null,
+                "level": 8,
+                "klass": "Mage",
+                "faction": "Guard",
+                "starting_items": [
+                    [
+                        "Wind",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    5,
+                    1
+                ],
                 "name": "Guard",
                 "desc": "Guard at the Tyrana Prison",
                 "generic": true
@@ -6271,7 +6363,7 @@
                     2,
                     1
                 ],
-                "sub_nid": null,
+                "sub_nid": "",
                 "condition": "True",
                 "only_once": false
             },
@@ -6302,7 +6394,7 @@
                     2
                 ],
                 "sub_nid": "Thief Escape",
-                "condition": "unit.team == 'enemy'",
+                "condition": "unit.team != 'player'",
                 "only_once": false
             },
             {
@@ -6317,7 +6409,7 @@
                     2
                 ],
                 "sub_nid": "Thief Escape",
-                "condition": "unit.team == 'enemy'",
+                "condition": "unit.team != 'player'",
                 "only_once": false
             },
             {
@@ -6332,7 +6424,7 @@
                     1
                 ],
                 "sub_nid": "Thief Escape",
-                "condition": "unit.team == 'enemy'",
+                "condition": "unit.team != 'player'",
                 "only_once": false
             },
             {
@@ -6347,7 +6439,7 @@
                     1
                 ],
                 "sub_nid": "Thief Escape",
-                "condition": "unit.team == 'enemy'",
+                "condition": "unit.team != 'player'",
                 "only_once": false
             }
         ],
@@ -12603,7 +12695,7 @@
                 "starting_items": [
                     [
                         "Mithril Sword",
-                        false
+                        true
                     ]
                 ],
                 "team": "enemy",
@@ -12621,47 +12713,41 @@
                 "nid": "102",
                 "variant": null,
                 "level": 1,
-                "klass": "Cavalier",
+                "klass": "Dracoknight",
                 "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Attack",
+                "starting_items": [],
+                "team": "other",
+                "ai": "Escape",
                 "ai_group": null,
                 "starting_position": [
-                    2,
-                    7
+                    5,
+                    4
                 ],
                 "name": null,
                 "desc": null,
                 "generic": true
             },
             {
-                "nid": "103",
-                "variant": null,
-                "level": 1,
-                "klass": "Shaman",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Disintegrate",
-                        false
-                    ]
+                "nid": "Ophie",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    4
                 ],
+                "generic": false
+            },
+            {
+                "nid": "Prim",
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     1,
-                    4
+                    2
                 ],
-                "name": null,
-                "desc": null,
-                "generic": true
+                "generic": false
             }
         ],
         "regions": [
@@ -12677,7 +12763,7 @@
                     1
                 ],
                 "sub_nid": "Armory",
-                "condition": "True",
+                "condition": "unit.team != 'player'",
                 "only_once": false
             },
             {
@@ -12709,6 +12795,21 @@
                 "sub_nid": "Switch",
                 "condition": "True",
                 "only_once": true
+            },
+            {
+                "nid": "escape",
+                "region_type": "event",
+                "position": [
+                    0,
+                    0
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": "Thief Escape",
+                "condition": "True",
+                "only_once": false
             }
         ],
         "unit_groups": [

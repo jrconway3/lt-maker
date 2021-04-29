@@ -519,6 +519,10 @@
             [
                 "negative",
                 null
+            ],
+            [
+                "unit_anim",
+                "MapStun"
             ]
         ]
     },
@@ -1385,6 +1389,35 @@
         ]
     },
     {
+        "nid": "Aetherguard",
+        "name": "Aetherguard",
+        "desc": "Grants SPD +2, DEF +2, and RES +2.",
+        "icon_nid": "Skills",
+        "icon_index": [
+            6,
+            6
+        ],
+        "components": [
+            [
+                "stat_change",
+                [
+                    [
+                        "SPD",
+                        2
+                    ],
+                    [
+                        "DEF",
+                        2
+                    ],
+                    [
+                        "RES",
+                        2
+                    ]
+                ]
+            ]
+        ]
+    },
+    {
         "nid": "Underdog",
         "name": "Underdog",
         "desc": "Grants Damage +2 and Damage Taken -2 against enemies with greater max HP.",
@@ -2027,7 +2060,7 @@
             ],
             [
                 "combat_condition",
-                "unit is not target and skill_system.check_ally(unit, target)"
+                "target and unit is not target and skill_system.check_ally(unit, target)"
             ]
         ]
     },

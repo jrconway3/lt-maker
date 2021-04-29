@@ -170,6 +170,13 @@
                 [
                     "500"
                 ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Ophie",
+                    "Prim"
+                ]
             ]
         ],
         "only_once": false,
@@ -2053,6 +2060,28 @@
             [
                 "end",
                 []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Thief Escape",
+        "trigger": "Thief Escape",
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "remove_unit",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "400"
+                ]
             ]
         ],
         "only_once": false,
@@ -18483,7 +18512,7 @@
             [
                 "flicker_cursor",
                 [
-                    "1,21"
+                    "23,21"
                 ]
             ],
             [
@@ -18553,12 +18582,6 @@
                 ]
             ],
             [
-                "wait",
-                [
-                    "500"
-                ]
-            ],
-            [
                 "comment",
                 [
                     "# Replace with open areas"
@@ -18568,6 +18591,12 @@
                 "show_layer",
                 [
                     "Bridge"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ],
             [
@@ -18774,7 +18803,7 @@
             [
                 "if",
                 [
-                    "self.unit.variant == 'Female'"
+                    "unit.variant == 'Female'"
                 ]
             ],
             [
@@ -19122,6 +19151,21 @@
                 [
                     "{unit}"
                 ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Coyote",
+                    "12,32",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "reset",
+                [
+                    "Coyote"
+                ]
             ]
         ],
         "only_once": false,
@@ -19176,7 +19220,7 @@
             [
                 "if",
                 [
-                    "self.unit.team == 'enemy'"
+                    "unit.team == 'enemy'"
                 ]
             ],
             [
@@ -19240,7 +19284,7 @@
             [
                 "if",
                 [
-                    "self.unit.team == 'enemy'"
+                    "unit.team == 'enemy'"
                 ]
             ],
             [
@@ -19304,7 +19348,7 @@
             [
                 "if",
                 [
-                    "self.unit.team == 'enemy'"
+                    "unit.team == 'enemy'"
                 ]
             ],
             [
@@ -20058,7 +20102,7 @@
         "name": "LineCross1",
         "trigger": "turn_change",
         "level_nid": "6",
-        "condition": "any(unit.position[1] < 10 for unit in game.units if unit.position and unit.team == 'player')",
+        "condition": "any(unit.position[1] < 13 for unit in game.units if unit.position and unit.team == 'player')",
         "commands": [
             [
                 "level_var",
@@ -20139,7 +20183,7 @@
         "name": "LineCross2",
         "trigger": "turn_change",
         "level_nid": "6",
-        "condition": "game.turncount == game.level_vars['line_cross'] + 1",
+        "condition": "game.turncount == game.level_vars['line_cross'] + 1 and game.turncount > 2",
         "commands": [
             [
                 "center_cursor",
@@ -20987,7 +21031,7 @@
             [
                 "if",
                 [
-                    "gameStateObj.check_alive(\"Joel\")"
+                    "game.check_alive(\"Joel\")"
                 ]
             ],
             [
@@ -21162,25 +21206,11 @@
                 ]
             ],
             [
-                "add_portrait",
-                [
-                    "SoldierRed",
-                    "OffscreenLeft",
-                    "immediate"
-                ]
-            ],
-            [
                 "speak",
                 [
-                    "SoldierRed",
-                    "Wee-oh, wee-oh, wee-oh!!!"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "SoldierRed",
-                    "immediate"
+                    "",
+                    "Wee-oh, wee-oh, wee-oh!!!",
+                    "60,24"
                 ]
             ],
             [
@@ -22133,7 +22163,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -27305,7 +27335,7 @@
             [
                 "if",
                 [
-                    "game.level_var.get('switch', 0) > 2"
+                    "game.level_vars.get('switch', 0) > 2"
                 ]
             ],
             [
@@ -27322,7 +27352,7 @@
             [
                 "if",
                 [
-                    "game.level_var.get('switch') == 1"
+                    "game.level_vars.get('switch') == 1"
                 ]
             ],
             [
@@ -29547,6 +29577,20 @@
                 "remove_unit",
                 [
                     "105",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Jakin",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Boaz",
                     "immediate"
                 ]
             ],
@@ -34080,7 +34124,7 @@
             ]
         ],
         "only_once": false,
-        "priority": 20
+        "priority": 19
     },
     {
         "name": "Battle Save",
@@ -34170,6 +34214,36 @@
                 "has_attacked",
                 [
                     "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "OphiePrimTalk",
+        "trigger": "on_talk",
+        "level_nid": "DEBUG",
+        "condition": "unit.nid == 'Ophie' and unit2.nid == 'Prim'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Wow"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
                 ]
             ]
         ],

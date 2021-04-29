@@ -2176,7 +2176,7 @@ class Event():
             position = self.get_unit(text).position
         else:
             valid_regions = \
-                [region.position for region in game.level.regions 
+                [tuple(region.position) for region in game.level.regions 
                  if text == region.sub_nid and region.position and 
                  not game.board.get_unit(region.position)]
             if valid_regions:

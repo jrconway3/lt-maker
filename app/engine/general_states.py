@@ -696,6 +696,8 @@ class MenuState(MapState):
             else:  # Selection is one of the other abilities
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('targeting')
+                if selection == 'Talk':
+                    self.menu = None  # So it's not shown during the event
 
     def update(self):
         super().update()

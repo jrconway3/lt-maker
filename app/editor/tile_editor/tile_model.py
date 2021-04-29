@@ -114,6 +114,8 @@ def create_tilemap_pixmap(tilemap):
     painter.begin(image)
     for coord, tile_sprite in base_layer.sprite_grid.items():
         tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
+        if not tileset:
+            continue
         if not tileset.pixmap:
             tileset.set_pixmap(QPixmap(tileset.full_path))
         pix = tileset.get_pixmap(tile_sprite.tileset_position)

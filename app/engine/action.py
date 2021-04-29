@@ -757,6 +757,23 @@ class DropItem(Action):
         self.item.droppable = self.is_droppable
         self.unit.remove_item(self.item)
 
+class MakeItemDroppable(Action):
+    def __init__(self, unit, item):
+        self.unit = unit
+        self.item = item
+        self.is_droppable: list = [i.droppable for i in self.unit.items]
+        self.was_droppable: bool = item.droppable
+
+    def do(self):
+        for item in self.unit.items:
+            item.droppable = False
+        self.item.droppable = True
+
+    def reverse(self):
+        for idx, item in enumerate(self.unit.items):
+            item.droppable = self.is_droppable[idx]
+        self.item.droppable = self.was_droppable
+
 class StoreItem(Action):
     def __init__(self, unit, item):
         self.unit = unit

@@ -1571,7 +1571,6 @@ class Event():
                     return None
                 return position
             elif placement == 'push':
-                current_occupant = game.get_unit(current_occupant)
                 new_pos = target_system.get_nearest_open_tile(current_occupant, position)
                 action.do(action.ForcedMovement(current_occupant, new_pos))
                 return position
@@ -1742,9 +1741,7 @@ class Event():
                 return
         item_nid = values[1]
         if item_nid in DB.items.keys():
-            item_prefab = DB.items.get(item_nid)
-            item = ItemObject.from_prefab(item_prefab)
-            item_system.init(item)
+            item = item_funcs.create_item(None, item_nid)
             game.register_item(item)
         else:
             logging.error("Couldn't find item with nid %s" % item_nid)

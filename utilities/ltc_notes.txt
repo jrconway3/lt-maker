@@ -42,3 +42,18 @@ Theo Lv 7 Exp 93 Lance: 36, Iron Lance, Javelin, Potion
 Eliza Lv 5 Exp 93 Lance: 33, Iron Lance, Javelin, Prim's Charm, Short Spear
 Sam Lv 8 Exp 11 Light: 36, Glimmer, Shine, Heal, Mend, Fortune
 Kayla Lv 9 Exp 8 Dark: 43, Flux, Nyx, Scathe
+
+Level 7: LTC
+12000 gold
+Ophie Lv 9 Exp 91 Sword: 43, Steel Sword, Gustblade, Iron Sword, Vulnerary
+Prim Lv 8 Exp 5 Light: 53, Shine, Heal, Mend, Rescue, Physic
+Joel Lv 1 exp 50 Axe: 65, Bow: 16, Willow Bow, Steel Axe, Longbow, Hatchet, Potion
+Nia Lv 10 Exp 79 Bow: 54, Oak Bow, Longbow
+Althea Lv 1 Exp 0 Anima: 60, Fire, Wind, Thunder, Fly, Wyrmsfire
+Drake Lv 10 Exp 38 Sword: 29, Lance: 35, Steel Lance, Iron Sword, Short Spear, Vulnerary, Javelin
+Renae Lv 8 Exp 10 Sword: 30, Steel Sword, Rapier
+Theo Lv 9 Exp 58 Lance: 46, Mithril Lance, Short Spear, Javelin, Potion
+Eliza Lv 8 Exp 66 Lance: 41, Iron Lance, Javelin, Prim's Charm, Adamant Lance
+Sam Lv 10 Exp 70 Light: 50, Glimmer, Shine, Heal, Mend, Fortune
+Kayla Lv 10 Exp 43 Dark: 55, Flux, Nyx, Scathe, Vulnerary
+Coyote Lv 9 Exp 89 Sword: 46, Magebane Swd, Iron Sword, Rusted Sword, Rapier, Potion

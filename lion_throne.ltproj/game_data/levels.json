@@ -8082,7 +8082,7 @@
                 }
             },
             {
-                "nid": "WyvernNorth",
+                "nid": "WyvernSouth",
                 "units": [
                     "150",
                     "151",
@@ -8091,20 +8091,20 @@
                 ],
                 "positions": {
                     "150": [
-                        26,
-                        0
+                        1,
+                        23
                     ],
                     "151": [
-                        25,
-                        0
+                        2,
+                        23
                     ],
                     "152": [
-                        27,
-                        1
+                        0,
+                        22
                     ],
                     "153": [
-                        27,
-                        2
+                        0,
+                        21
                     ]
                 }
             },
@@ -8789,7 +8789,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     24,
@@ -12710,24 +12710,6 @@
                 "generic": true
             },
             {
-                "nid": "102",
-                "variant": null,
-                "level": 1,
-                "klass": "Dracoknight",
-                "faction": "Soldier",
-                "starting_items": [],
-                "team": "other",
-                "ai": "Escape",
-                "ai_group": null,
-                "starting_position": [
-                    5,
-                    4
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
                 "nid": "Ophie",
                 "team": "player",
                 "ai": "None",
@@ -12744,8 +12726,92 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    1,
-                    2
+                    12,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 1,
+                "klass": "Halberdier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ],
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Swordmaster",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Oracle",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Warp",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    7
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Ulver",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    13
                 ],
                 "generic": false
             }

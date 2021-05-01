@@ -1161,7 +1161,7 @@ class Convoy():
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
             value.sort(key=lambda item: item.name)
-            value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
+            value.sort(key=lambda item: item_system.full_price(self.unit, item) or 0)
             value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
@@ -1438,7 +1438,7 @@ class Market(Convoy):
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
             value.sort(key=lambda item: item.name)
-            value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
+            value.sort(key=lambda item: item_system.full_price(self.unit, item) or 0)
             value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
@@ -1453,10 +1453,10 @@ class Market(Convoy):
         return 'convoy'
 
     def move_down(self, first_push=True):
-        self.menus[self.order[self.selection_index - 1]].move_down(first_push)
+        return self.menus[self.order[self.selection_index - 1]].move_down(first_push)
 
     def move_up(self, first_push=True):
-        self.menus[self.order[self.selection_index - 1]].move_up(first_push)
+        return self.menus[self.order[self.selection_index - 1]].move_up(first_push)
 
     def move_left(self, first_push=True):
         if self.selection_index == 1:

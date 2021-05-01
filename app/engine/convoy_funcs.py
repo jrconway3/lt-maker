@@ -22,6 +22,7 @@ def restock(item):
                     convoy.remove(i)
             else:
                 item.data['uses'] += i.data['uses']
+                i.data['uses'] = 0
                 convoy.remove(i)
         else:
             break

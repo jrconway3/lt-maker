@@ -973,7 +973,7 @@ class WeaponChoiceState(MapState):
             # We don't equip spells
             if item_system.is_weapon(self.cur_unit, selection):
                 equip_action = action.EquipItem(self.cur_unit, selection)
-                game.memory['equip_action'] = equip_action
+                # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
                 
             # If the item is in our inventory, bring it to the top
@@ -1286,10 +1286,11 @@ class CombatTargetingState(MapState):
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
-            equip_action = game.memory.get('equip_action')
-            if equip_action:
-                action.reverse(equip_action)
-            game.memory['equip_action'] = None
+            # Equip Action doesn't need to be reversed
+            # equip_action = game.memory.get('equip_action')
+            # if equip_action:
+            #     action.reverse(equip_action)
+            # game.memory['equip_action'] = None
             game.state.back()
             return 'repeat'
 

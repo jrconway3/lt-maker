@@ -761,7 +761,8 @@ class MakeItemDroppable(Action):
     def __init__(self, unit, item):
         self.unit = unit
         self.item = item
-        self.is_droppable: list = [i.droppable for i in self.unit.items]
+        self.items = self.unit.items[:]
+        self.is_droppable: list = [i.droppable for i in self.items]
         self.was_droppable: bool = item.droppable
 
     def do(self):
@@ -770,7 +771,7 @@ class MakeItemDroppable(Action):
         self.item.droppable = True
 
     def reverse(self):
-        for idx, item in enumerate(self.unit.items):
+        for idx, item in enumerate(self.items):
             item.droppable = self.is_droppable[idx]
         self.item.droppable = self.was_droppable
 

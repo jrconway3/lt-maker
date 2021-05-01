@@ -341,7 +341,7 @@ class GameState():
                     del self.item_registry[k]
             else:
                 for party in self.parties.values():
-                    if v in party.convoy:
+                    if v in party.convoy or (v.parent_item and v.parent_item in party.convoy):
                         break
                 else:  # No party ever found
                     del self.item_registry[k]

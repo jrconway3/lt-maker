@@ -177,6 +177,22 @@
                     "Ophie",
                     "Prim"
                 ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Ophie",
+                    "Prim",
+                    "warp",
+                    "push"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Iron Sword"
+                ]
             ]
         ],
         "only_once": false,
@@ -22776,13 +22792,13 @@
             [
                 "move_cursor",
                 [
-                    "27,0"
+                    "0,23"
                 ]
             ],
             [
                 "add_group",
                 [
-                    "WyvernNorth"
+                    "WyvernSouth"
                 ]
             ],
             [
@@ -23761,13 +23777,6 @@
                 ]
             ],
             [
-                "give_item",
-                [
-                    "{unit}",
-                    "Tomahawk"
-                ]
-            ],
-            [
                 "speak",
                 [
                     "Man1",
@@ -23800,6 +23809,13 @@
                 "transition",
                 [
                     "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Tomahawk"
                 ]
             ],
             [
@@ -23935,7 +23951,7 @@
                 "speak",
                 [
                     "Man5",
-                    "Are you defending the village?|Here, take this.|When the Imperial army passed through here, I managed to snatch it.|It should serve you well"
+                    "Are you defending the village?|Here, take this.|When the Imperial army passed through here, I managed to snatch it.|It should serve you well."
                 ]
             ],
             [
@@ -24021,7 +24037,7 @@
                 "speak",
                 [
                     "Man1",
-                    "I was a soldier once.|I even fought during the Second Rebellion--|A brutal, short affair that was.{w}Now?|I'm just a simple merchant.|Don't have much use for this old hunk of metal any more."
+                    "I was a soldier once.|I even fought during the Second Rebellion--|A brutal, short affair that was. {w}Now?|I'm just a simple merchant.|Don't have much use for this old hunk of metal any more."
                 ]
             ],
             [
@@ -24107,7 +24123,7 @@
                 "speak",
                 [
                     "Woman1",
-                    "My husband was an archer.|He fought off bandits with his trusty bow.|B-but he perished in the fight with Rusonoon army...|Take this.|If using his bow helps you save someone you love, I'm sure he'd be proud."
+                    "My husband was an archer.|He fought off bandits with his trusty bow.|B-but he perished in the fight with the Rusonoon army...|Take this.|If using his bow helps you save someone you love, I'm sure he'd be proud."
                 ]
             ],
             [
@@ -24193,7 +24209,7 @@
                 "speak",
                 [
                     "Boy2",
-                    "Mother says that I should hide in the basemenet whenever bandits attack,|but I want to fight too.{w}{clear}One day, I'll grow big and strong and be able to fight the Empire!|Just like my pa and my big brother.|I'll go all over Kerala, killing Imperials wherever they lurk. Yaaah!"
+                    "Mother says that I should hide in the basement whenever bandits attack,|but I want to fight too.{w}{clear}One day, I'll grow big and strong and be able to fight the Empire!|Just like my pa and my big brother.|I'll go all over Kerala, killing Imperials wherever they lurk. Yaaah!"
                 ]
             ],
             [
@@ -24215,7 +24231,7 @@
                 "speak",
                 [
                     "Boy2",
-                    "Yes, mother!|Here, you can have this"
+                    "Yes, mother!|Here, you can have this."
                 ]
             ],
             [
@@ -25673,7 +25689,7 @@
                 "speak",
                 [
                     "Joel",
-                    "That's an ambitious plan...|Ya think we can pull it off?"
+                    "That's an ambitious plan...|Ya reckon we can pull it off?"
                 ]
             ],
             [
@@ -26817,6 +26833,13 @@
                 ]
             ],
             [
+                "move_portrait",
+                [
+                    "Althea",
+                    "FarLeft"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Prim",
@@ -26865,13 +26888,6 @@
                 ]
             ],
             [
-                "move_portrait",
-                [
-                    "Althea",
-                    "FarLeft"
-                ]
-            ],
-            [
                 "add_portrait",
                 [
                     "Prim",
@@ -26889,14 +26905,14 @@
                 "speak",
                 [
                     "Drake",
-                    "My lady Althea... Your conduct at the meeting was concerning--|Wait, you've been crying?|I would not normally strike a lady, Prim, but you leave me no choice--"
+                    "My lady Althea... Your conduct at the meeting was concerning--|Wait, you've been crying?{w}{clear}I would not normally strike a lady, Prim, but you leave me no choice--"
                 ]
             ],
             [
                 "speak",
                 [
                     "Althea",
-                    "Haha... Drake, hold!"
+                    "Haha... Drake, hold on!"
                 ]
             ],
             [
@@ -27076,7 +27092,7 @@
                 "speak",
                 [
                     "Kayla",
-                    "If we succeed, by tomorrow evening Althea will be on throne,|Duke Ulver will have been defeated, and Kerala will be free."
+                    "If we succeed, by tomorrow evening Althea will be on the throne,|Duke Ulver will have been defeated, and Kerala will be free."
                 ]
             ],
             [
@@ -27211,7 +27227,7 @@
                 "speak",
                 [
                     "Ophie",
-                    "I thought Vagnius was some... incarnation of pure evil,|like a devil out of a storybook.|But really he was just an ordinary man.|Twisted, sure.|But he died just the same as the rest..."
+                    "I-I thought Vagnius was some... incarnation of pure evil,|like a devil out of a storybook.|But really he was just an ordinary man.|Twisted, sure.|But he died just the same as the rest..."
                 ]
             ],
             [
@@ -32321,6 +32337,13 @@
                 "change_background",
                 [
                     "BlackBackground"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Sam",
+                    "immediate"
                 ]
             ],
             [

@@ -247,6 +247,10 @@ class MapCombatInfo():
             self.true_position = x_pos * TILEWIDTH - width//2, y_pos * TILEHEIGHT - 8
             self.ordering = 'middle'
 
+    def update_stats(self, stats):
+        self.hit, self.mt = stats
+        self.stats_surf = None
+
     def update(self):
         # Make blinds wider
         self.blinds = utils.clamp(self.blinds, self.blinds + self.blind_speed, 1)

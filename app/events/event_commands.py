@@ -301,6 +301,14 @@ class RemoveUnit(EventCommand):
     keywords = ["Unit"]
     optional_keywords = ["RemoveType"]
 
+class KillUnit(EventCommand):
+    nid = 'kill_unit'
+    nickname = 'kill'
+    tag = 'unit'
+
+    keywords = ["Unit"]
+    flags = ['immediate']
+
 class RemoveAllUnits(EventCommand):
     nid = 'remove_all_units'
     tag = 'unit'

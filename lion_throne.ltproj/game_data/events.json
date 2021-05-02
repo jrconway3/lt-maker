@@ -8,7 +8,7 @@
             [
                 "add_weather",
                 [
-                    "Snow"
+                    "Dark"
                 ]
             ],
             [
@@ -154,44 +154,10 @@
                 ]
             ],
             [
-                "wait",
-                [
-                    "500"
-                ]
-            ],
-            [
-                "show_layer",
-                [
-                    "Village1"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "500"
-                ]
-            ],
-            [
                 "add_talk",
                 [
                     "Ophie",
                     "Prim"
-                ]
-            ],
-            [
-                "add_unit",
-                [
-                    "Ophie",
-                    "Prim",
-                    "warp",
-                    "push"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "Ophie",
-                    "Iron Sword"
                 ]
             ]
         ],
@@ -29606,6 +29572,20 @@
             [
                 "comment",
                 [
+                    "# Jakin shouldn't be stealing stuff"
+                ]
+            ],
+            [
+                "remove_skill",
+                [
+                    "Jakin",
+                    "Steal",
+                    "no_banner"
+                ]
+            ],
+            [
+                "comment",
+                [
                     "# Remove the one unit that's in the screenspace"
                 ]
             ],
@@ -30571,6 +30551,34 @@
                 ]
             ],
             [
+                "remove_unit",
+                [
+                    "Althea",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Sam",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Joel",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Ophie",
+                    "immediate"
+                ]
+            ],
+            [
                 "arrange_formation",
                 []
             ],
@@ -30632,7 +30640,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30650,7 +30659,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30668,7 +30678,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30686,7 +30697,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30726,7 +30738,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30744,7 +30757,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30762,7 +30776,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30780,7 +30795,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -32363,6 +32379,13 @@
                 "remove_unit",
                 [
                     "Sam",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Ophie",
                     "immediate"
                 ]
             ],

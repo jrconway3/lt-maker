@@ -17,8 +17,9 @@ class Heal(ItemComponent):
     expose = Type.Int
     value = 10
 
-    def _get_heal_amount(self, unit):
-        return self.value
+    def _get_heal_amount(self, unit, target):
+        empower_heal = skill_system.empower_heal(unit, target)
+        return self.value + empower_heal
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
@@ -32,20 +33,21 @@ class Heal(ItemComponent):
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode=None):
-        heal = self._get_heal_amount(unit)
+        heal = self._get_heal_amount(unit, target)
         true_heal = min(heal, equations.parser.hitpoints(target) - target.get_hp())
         actions.append(action.ChangeHP(target, heal))
 
         # For animation
-        playback.append(('heal_hit', unit, item, target, heal, true_heal))
-        playback.append(('hit_sound', 'MapHeal'))
-        if heal >= 30:
-            name = 'MapBigHealTrans'
-        elif heal >= 15:
-            name = 'MapMediumHealTrans'
-        else:
-            name = 'MapSmallHealTrans'
-        playback.append(('hit_anim', name, target))
+        if true_heal > 0:
+            playback.append(('heal_hit', unit, item, target, heal, true_heal))
+            playback.append(('hit_sound', 'MapHeal'))
+            if heal >= 30:
+                name = 'MapBigHealTrans'
+            elif heal >= 15:
+                name = 'MapMediumHealTrans'
+            else:
+                name = 'MapSmallHealTrans'
+            playback.append(('hit_anim', name, target))
 
     def ai_priority(self, unit, item, target, move):
         if skill_system.check_ally(unit, target):
@@ -61,8 +63,9 @@ class MagicHeal(Heal, ItemComponent):
     nid = 'magic_heal'
     desc = "Item heals this amount + HEAL on hit"
 
-    def _get_heal_amount(self, unit):
-        return self.value + equations.parser.heal(unit)
+    def _get_heal_amount(self, unit, target):
+        empower_heal = skill_system.empower_heal(unit, target)
+        return self.value + equations.parser.heal(unit) + empower_heal
 
 class Damage(ItemComponent):
     nid = 'damage'
@@ -368,17 +371,17 @@ class EvalTargetRestrict(ItemComponent):
     value = 'True'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
-        # Restricts target based on whether any unit has < full hp
         from app.engine import evaluate
         try:
-            unit = game.board.get_unit(def_pos)
-            if unit and evaluate.evaluate(self.value, unit, position=def_pos):
+            target = game.board.get_unit(def_pos)
+            if target and evaluate.evaluate(self.value, target, position=def_pos):
                 return True
             for s_pos in splash:
-                unit = game.board.get_unit(s_pos)
-                if evaluate.evaluate(self.value, unit, position=s_pos):
+                target = game.board.get_unit(s_pos)
+                if evaluate.evaluate(self.value, target, position=s_pos):
                     return True
-        except:
+        except Exception as e:
+            print("Could not evaluate %s (%s)" % (self.value, e))
             return True
         return False
 

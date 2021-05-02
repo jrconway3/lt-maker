@@ -391,6 +391,8 @@ class UnitObject(Prefab):
     def wait(self):
         game.events.trigger('unit_wait', self, position=self.position)
         action.do(action.Wait(self))
+        if game.cursor and game.cursor.cur_unit == self:
+            game.cursor.cur_unit = None
 
     def __repr__(self):
         return "Unit %s: %s" % (self.nid, self.position)

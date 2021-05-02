@@ -358,10 +358,28 @@ class SimpleCombat():
                 game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
 
+    def get_exp(self, attacker, item, defender) -> int:
+        exp = item_system.exp(self.full_playback, attacker, item, defender)
+        exp *= skill_system.exp_multiplier(attacker, defender)
+        if defender:
+            exp *= skill_system.enemy_exp_multiplier(defender, attacker)
+            if defender.is_dying:
+                exp *= float(DB.constants.value('kill_multiplier'))
+                if 'Boss' in defender.tags:
+                    exp += int(DB.constants.value('boss_bonus'))
+        return exp
+
     def calculate_exp(self, unit, item):
+        """
+        If you score a hit or a crit,
+        or deal damage to an enemy
+        get exp
+        """
         marks = self.get_from_full_playback('mark_hit')
         marks += self.get_from_full_playback('mark_crit')
         marks = [mark for mark in marks if mark[1] == unit]
+        damage_marks = self.get_from_full_playback('damage_hit')
+        damage_marks = [mark for mark in damage_marks if mark[1] == unit and skill_system.check_enemy(unit, mark[3])]
         total_exp = 0
         all_defenders = set()
         for mark in marks:
@@ -370,15 +388,15 @@ class SimpleCombat():
             if defender in all_defenders:
                 continue  # Don't double count defenders
             all_defenders.add(defender)
-
-            exp = item_system.exp(self.full_playback, attacker, item, defender)
-            exp *= skill_system.exp_multiplier(attacker, defender)
-            if defender:
-                exp *= skill_system.enemy_exp_multiplier(defender, attacker)
-                if defender.is_dying:
-                    exp *= float(DB.constants.value('kill_multiplier'))
-                    if 'Boss' in defender.tags:
-                        exp += int(DB.constants.value('boss_bonus'))
+            exp = self.get_exp(attacker, item, defender)
+            total_exp += exp
+        for mark in damage_marks:
+            attacker = mark[1]
+            defender = mark[3]
+            if defender in all_defenders:
+                continue  # Don't double count defenders
+            all_defenders.add(defender)
+            exp = self.get_exp(attacker, item, defender)
             total_exp += exp
 
         return total_exp
@@ -438,5 +456,8 @@ class SimpleCombat():
                 break
         for unit in units:
             if unit.is_dying:
-                game.events.trigger('unit_death', unit, position=unit.position)
+                killer = game.records.get_killer(unit.nid, game.level.nid if game.level else None)
+                if killer:
+                    killer = game.get_unit(killer)
+                game.events.trigger('unit_death', unit, killer, position=unit.position)
                 skill_system.on_death(unit)

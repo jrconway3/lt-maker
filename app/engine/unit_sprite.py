@@ -105,7 +105,7 @@ class UnitSprite():
     # Normally drawing units is culled to those on the screen
     # Unit sprites matching this will be drawn anyway
     def draw_anyway(self):
-        return self.transition_state != 'normal'
+        return self.transition_state != 'normal' or self.particles
 
     def reset(self):
         self.offset = [0, 0]
@@ -452,7 +452,7 @@ class UnitSprite():
         self.particles = [ps for ps in self.particles if not ps.remove_me_flag]
         for particle_system in self.particles:
             particle_system.update()
-            particle_system.draw(surf, left, anim_top)
+            particle_system.draw(surf, cull_rect[0], cull_rect[1])
 
         return surf
 

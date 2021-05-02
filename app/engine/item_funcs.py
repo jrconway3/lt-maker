@@ -15,6 +15,9 @@ def is_magic(unit, item) -> bool:
 def available(unit, item) -> bool:
     return item_system.available(unit, item) and skill_system.available(unit, item)
 
+def has_magic(unit) -> bool:
+    return any(is_magic(unit, item) for item in unit.items if available(unit, item))
+
 def can_use(unit, item) -> bool:
     if item_system.can_use(unit, item) and available(unit, item):
         defender, splash = item_system.splash(unit, item, unit.position)

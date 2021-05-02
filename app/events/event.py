@@ -50,7 +50,7 @@ class Event():
 
         self.background = None
 
-        self.unit = self.unit1 = unit
+        self.unit = unit
         self.unit2 = unit2
         self.item = item
         self.position = position
@@ -86,6 +86,10 @@ class Event():
         # For map animations
         self.animations = []
 
+    @property
+    def unit1(self):
+        return self.unit
+    
     def save(self):
         ser_dict = {}
         ser_dict['nid'] = self.nid
@@ -561,11 +565,17 @@ class Event():
         elif command.nid == 'make_generic':
             self.make_generic(command)
 
+        elif command.nid == 'create_unit':
+            self.create_unit(command)
+
         elif command.nid == 'add_unit':
             self.add_unit(command)
 
         elif command.nid == 'remove_unit':
             self.remove_unit(command)
+
+        elif command.nid == 'kill_unit':
+            self.kill_unit(command)
 
         elif command.nid == 'remove_all_units':
             for unit in game.units:
@@ -1318,6 +1328,25 @@ class Event():
         else:  # immediate
             action.do(action.LeaveMap(unit))
 
+    def kill_unit(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit %s" % values[0])
+            return
+
+        if not unit.position:
+            unit.dead = True
+        elif 'immediate' in flags:
+            unit.dead = True
+            action.do(action.LeaveMap(unit))
+        else:
+            game.death.should_die(unit)
+            game.state.change('dying')
+        game.events.trigger('unit_death', unit, position=unit.position)
+        skill_system.on_death(unit)
+        self.state = 'paused'
+
     def interact_unit(self, command):
         values, flags = event_commands.parse(command)
         unit1 = self.get_unit(values[0])
@@ -1702,7 +1731,7 @@ class Event():
         else:
             level = unit.level
         if len(values) > 3 and values[3]:
-            position = self.parse_pos(values[1])
+            position = self.parse_pos(values[3])
         else:
             position = unit.starting_position
         if not position:

@@ -8172,7 +8172,7 @@
             {
                 "nid": "101",
                 "variant": null,
-                "level": 7,
+                "level": 5,
                 "klass": "Warlock",
                 "faction": "Claw",
                 "starting_items": [
@@ -8199,7 +8199,7 @@
             {
                 "nid": "126",
                 "variant": null,
-                "level": 7,
+                "level": 5,
                 "klass": "Warlock",
                 "faction": "Claw",
                 "starting_items": [
@@ -12669,7 +12669,7 @@
     {
         "nid": "DEBUG",
         "name": "DEBUG",
-        "tilemap": "DEBUG",
+        "tilemap": "Chapter 9",
         "party": "Resistance",
         "music": {
             "player_phase": null,
@@ -12701,22 +12701,19 @@
                 "team": "enemy",
                 "ai": "Thief",
                 "ai_group": null,
-                "starting_position": [
-                    2,
-                    5
-                ],
+                "starting_position": null,
                 "name": null,
                 "desc": null,
                 "generic": true
             },
             {
                 "nid": "Ophie",
-                "team": "player",
+                "team": "enemy",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    3,
-                    4
+                    27,
+                    26
                 ],
                 "generic": false
             },
@@ -12725,43 +12722,13 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": [
-                    4,
-                    5
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
-                "nid": "104",
+                "nid": "105",
                 "variant": null,
-                "level": 1,
-                "klass": "Halberdier",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ],
-                    [
-                        "Javelin",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    3,
-                    6
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "102",
-                "variant": null,
-                "level": 1,
+                "level": 10,
                 "klass": "Swordmaster",
                 "faction": "Soldier",
                 "starting_items": [
@@ -12770,7 +12737,7 @@
                         false
                     ],
                     [
-                        "Superior Edge",
+                        "Boltblade",
                         false
                     ]
                 ],
@@ -12778,22 +12745,26 @@
                 "ai": "Pursue",
                 "ai_group": null,
                 "starting_position": [
-                    3,
-                    5
+                    14,
+                    14
                 ],
                 "name": null,
                 "desc": null,
                 "generic": true
             },
             {
-                "nid": "103",
+                "nid": "i1",
                 "variant": null,
                 "level": 1,
                 "klass": "Oracle",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Warp",
+                        "Disintegrate",
+                        false
+                    ],
+                    [
+                        "Blind",
                         false
                     ]
                 ],
@@ -12801,8 +12772,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    4,
-                    6
+                    12,
+                    12
                 ],
                 "name": null,
                 "desc": null,
@@ -12818,6 +12789,74 @@
                     4
                 ],
                 "generic": false
+            },
+            {
+                "nid": "Sam",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    13,
+                    12
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Coyote",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    12
+                ],
+                "generic": false
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 10,
+                "klass": "General",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    27,
+                    27
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 10,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    10,
+                    14
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [
@@ -12865,21 +12904,6 @@
                 "sub_nid": "Switch",
                 "condition": "True",
                 "only_once": true
-            },
-            {
-                "nid": "escape",
-                "region_type": "event",
-                "position": [
-                    0,
-                    0
-                ],
-                "size": [
-                    2,
-                    1
-                ],
-                "sub_nid": "Thief Escape",
-                "condition": "True",
-                "only_once": false
             }
         ],
         "unit_groups": [

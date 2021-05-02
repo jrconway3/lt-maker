@@ -660,10 +660,6 @@
             [
                 "class_skill",
                 null
-            ],
-            [
-                "upkeep_animation",
-                "MapSmallHealTrans"
             ]
         ]
     },
@@ -1988,6 +1984,26 @@
         ]
     },
     {
+        "nid": "Purity",
+        "name": "Purity",
+        "desc": "Unit is not affected by negative statuses.",
+        "icon_nid": "Skills",
+        "icon_index": [
+            8,
+            8
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "immune_status",
+                null
+            ]
+        ]
+    },
+    {
         "nid": "Conductance",
         "name": "Conductance",
         "desc": "Grants Hit +15 and Damage +1 against enemies wielding metal weapons.",
@@ -2050,17 +2066,8 @@
                 null
             ],
             [
-                "stat_change",
-                [
-                    [
-                        "MAG",
-                        5
-                    ]
-                ]
-            ],
-            [
-                "combat_condition",
-                "target and unit is not target and skill_system.check_ally(unit, target)"
+                "empower_heal",
+                "5 if target and unit is not target and skill_system.check_ally(unit, target) else 0"
             ]
         ]
     },

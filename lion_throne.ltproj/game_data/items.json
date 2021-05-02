@@ -3464,6 +3464,10 @@
             [
                 "exp",
                 30
+            ],
+            [
+                "eval_target_restrict",
+                "item_funcs.has_magic(unit)"
             ]
         ]
     },

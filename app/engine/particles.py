@@ -59,7 +59,8 @@ class Particle():
         raise NotImplementedError
 
     def draw(self, surf, offset_x=0, offset_y=0):
-        surf.blit(self.sprite, (self.x - offset_x, self.y - offset_y))
+        pos = (self.x - offset_x, self.y - offset_y)
+        surf.blit(self.sprite, pos)
 
 class Raindrop(Particle):
     sprite = SPRITES.get('particle_raindrop')

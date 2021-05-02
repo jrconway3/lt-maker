@@ -28,39 +28,38 @@ class MapView():
         self.x2_counter.update(current_time)
 
     def draw_units(self, surf, cull_rect):
-        # Draw all units except the cur unit
-        culled_units = [unit for unit in game.units if unit is not game.cursor.cur_unit and (unit.position or unit.sprite.fake_position)]
+        # Update all units except the cur unit
+        update_units = [unit for unit in game.units if (unit.position or unit.sprite.fake_position)]
+        for unit in update_units:
+            unit.sprite.update()
+            unit.sound.update()
+
+        pos_units = [unit for unit in update_units if unit is not game.cursor.cur_unit and (unit.position or unit.sprite.fake_position)]
         # Only draw units within 2 tiles of cull_rect
-        culled_units = [unit for unit in culled_units if
-                        cull_rect[0] - TILEWIDTH*2 < (unit.position or unit.sprite.fake_position)[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
-                        cull_rect[1] - TILEHEIGHT*2 < (unit.position or unit.sprite.fake_position)[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2]
+        culled_units = [unit for unit in pos_units if unit.sprite.draw_anyway() or
+                        (cull_rect[0] - TILEWIDTH*2 < (unit.position or unit.sprite.fake_position)[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
+                         cull_rect[1] - TILEHEIGHT*2 < (unit.position or unit.sprite.fake_position)[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2)]
         if game.level_vars.get('_fog_of_war'):
             culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.fake_position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
+        
         for unit in draw_units:
-            unit.sprite.update()
-            unit.sound.update()
-            if unit.position or unit.sprite.fake_position:
-                surf = unit.sprite.draw(surf, cull_rect)
-        if 'event' not in game.state.state_names():
-            for unit in draw_units:
-                if unit.position or unit.sprite.fake_position:
-                    surf = unit.sprite.draw_hp(surf, cull_rect)
-            for unit in draw_units:
-                if unit.position or unit.sprite.fake_position:
-                    surf = unit.sprite.draw_markers(surf, cull_rect)
+            surf = unit.sprite.draw(surf, cull_rect)
+            if 'event' not in game.state.state_names():
+                surf = unit.sprite.draw_hp(surf, cull_rect)
+        for unit in draw_units:
+            surf = unit.sprite.draw_markers(surf, cull_rect)
+
         # Draw the movement arrows
         surf = game.cursor.draw_arrows(surf, cull_rect)
+
         # Draw the main unit
         cur_unit = game.cursor.cur_unit
-        if cur_unit:
-            cur_unit.sprite.update()
-            cur_unit.sound.update()
-            if cur_unit.position or cur_unit.sprite.fake_position:
-                surf = cur_unit.sprite.draw(surf, cull_rect)
-                if 'event' not in game.state.state_names():
-                    surf = cur_unit.sprite.draw_hp(surf, cull_rect)
-                    surf = cur_unit.sprite.draw_markers(surf, cull_rect)
+        if cur_unit and (cur_unit.position or cur_unit.sprite.fake_position):
+            surf = cur_unit.sprite.draw(surf, cull_rect)
+            if 'event' not in game.state.state_names():
+                surf = cur_unit.sprite.draw_hp(surf, cull_rect)
+                surf = cur_unit.sprite.draw_markers(surf, cull_rect)
 
     def draw(self):
         # start = time.time_ns()

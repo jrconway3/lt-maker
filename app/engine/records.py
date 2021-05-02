@@ -253,3 +253,13 @@ class Recordkeeper():
             return mvp
         else:
             return game.get_all_units_in_party()[0].nid
+
+    def get_killer(self, unit_nid: str, level_nid: str = None):
+        """
+        Returns the most recent killer of this unit in this level
+        """
+        for record in reversed(self.kills):
+            if record.killee == unit_nid:
+                if not level_nid or record.level_nid == level_nid:
+                    return record.killer
+        return None

@@ -6,7 +6,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
 from app.engine import banner, static_random, unit_funcs, equations, \
-    skill_system, item_system, item_funcs, particles
+    skill_system, item_system, item_funcs, particles, aura_funcs
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
@@ -1664,6 +1664,9 @@ class AddSkill(Action):
         self.unit.skills.append(self.skill_obj)
         skill_system.on_add(self.unit, self.skill_obj)
 
+        if self.skill_obj.aura and self.unit.position:
+            aura_funcs.propagate_aura(self.unit, self.skill_obj, game)
+
         # Handle affects movement
         self.reset_action.execute()
         if game.tilemap and game.boundary:
@@ -1679,6 +1682,9 @@ class AddSkill(Action):
             logging.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
         for action in self.subactions:
             action.reverse()
+
+        if self.skill_obj.aura and self.unit.position:
+            aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
 class RemoveSkill(Action):
     def __init__(self, unit, skill):
@@ -1697,12 +1703,16 @@ class RemoveSkill(Action):
                     skill_system.on_remove(self.unit, skill)
                     skill.owner_nid = None
                     self.removed_skills.append(skill)
+                    if skill.aura and self.unit.position:
+                        aura_funcs.release_aura(self.unit, skill, game)
         else:
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)
                 skill_system.on_remove(self.unit, self.skill)
                 self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
+                if self.skill.aura and self.unit.position:
+                    aura_funcs.release_aura(self.unit, self.skill, game)
             else:
                 logging.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
 
@@ -1717,6 +1727,8 @@ class RemoveSkill(Action):
             skill.owner_nid = self.unit.nid
             self.unit.skills.append(skill)
             skill_system.on_add(self.unit, skill)
+            if skill.aura and self.unit.position:
+                aura_funcs.propagate_aura(self.unit, skill, game)
 
 # === Master Functions for adding to the action log ===
 def do(action):

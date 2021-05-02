@@ -192,6 +192,21 @@ class Oversplash(SkillComponent):
         from app.engine.item_components.aoe_components import BlastAOE
         return BlastAOE(self.value)
 
+class EmpowerHeal(SkillComponent):
+    nid = 'empower_heal'
+    desc = "Gives +X extra healing"
+    tag = 'advanced'
+
+    expose = Type.String
+
+    def empower_heal(self, unit, target):
+        from app.engine import evaluate
+        try:
+            return int(evaluate.evaluate(self.value, unit, target))
+        except:
+            print("Couldn't evaluate %s conditional" % self.value)
+            return 0
+
 class Cleave(SkillComponent):
     nid = 'Cleave'
     desc = "Grants unit the ability to cleave with all their non-splash attacks"

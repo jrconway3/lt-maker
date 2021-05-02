@@ -42,6 +42,10 @@ class Defaults():
         return False
 
     @staticmethod
+    def empower_heal(unit1, unit2) -> int:
+        return 0
+
+    @staticmethod
     def limit_maximum_range(unit, item) -> int:
         return 1000
 
@@ -115,7 +119,7 @@ exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'steal_icon', 'has_canto')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'steal_icon', 'has_canto', 'empower_heal')
 # Takes in unit, item returns bonus
 modify_hooks = (
     'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
@@ -339,7 +343,7 @@ def on_add(unit, skill):
             component.on_add(unit, skill)
     for other_skill in unit.skills:
         for component in other_skill.components:
-            if component.defines('on_other_skill'):
+            if component.defines('on_gain_skill'):
                 component.on_gain_skill(unit, skill)
 
 def on_remove(unit, skill):

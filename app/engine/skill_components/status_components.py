@@ -106,10 +106,11 @@ class ReflectStatus(SkillComponent):
     tag = 'base'
 
     def on_gain_skill(self, unit, other_skill):
-        if hasattr(other_skill, 'initiator'):
-            other_unit = game.get_unit(other_skill.initiator)
-            # Create a copy of other skill
-            action.do(action.AddSkill(other_unit, other_skill.nid))
+        if hasattr(other_skill, 'initiator_nid'):
+            other_unit = game.get_unit(other_skill.initiator_nid)
+            if other_unit:
+                # Create a copy of other skill
+                action.do(action.AddSkill(other_unit, other_skill.nid))
 
 class DistantCounter(SkillComponent):
     nid = 'distant_counter'

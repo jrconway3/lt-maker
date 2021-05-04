@@ -119,6 +119,7 @@ constants = ConstantCatalog([
     Constant('growth_range', "How close to partner for support growth (0 - can both attack same enemy, 99 - entire map)", int, 1),
     Constant('chapter_points', "Points gained on ending chapter with both alive", int, 0, 'growth'),
     Constant('end_turn_points', "Points gained on ending turn in growth range", int, 1, 'growth'),
+    Constant('combat_points', "Points gained on combat in growth range", int, 0, 'growth'),
     Constant('interact_points', "Points gained on interacting with partner", int, 0, 'growth'),
     Constant('bonus_ally_limit', "Limit to number of support bonuses that can be active at once (0 - No limit)", int, 0, 'limit'),
     Constant("rank_limit", "Limit to number of support ranks allowed per character (0 - No limit)", int, 5, 'limit'),
@@ -198,3 +199,12 @@ class SupportPair(Prefab):
 
 class SupportPairCatalog(Data):
     datatype = SupportPair
+
+    def get_pairs(self, unit1_nid: str, unit2_nid: str) -> list:
+        pairs = []
+        for prefab in self:
+            if prefab.unit1 == unit1_nid and prefab.unit2 == unit2_nid:
+                pairs.append(prefab)
+            elif prefab.unit1 == unit2_nid and prefab.unit2 == unit1_nid:
+                pairs.append(prefab)
+        return pairs

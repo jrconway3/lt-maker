@@ -12,7 +12,7 @@ from app.engine.game_state import game
 from app.engine import engine, action, menus, interaction, image_mods, \
     banner, save, phase, skill_system, target_system, item_system, \
     item_funcs, ui_view, info_menu, base_surf, gui, background, dialog, \
-    text_funcs, equations, evaluate
+    text_funcs, equations, evaluate, supports
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES, PRIMARY_ABILITIES, OTHER_ABILITIES
 from app.engine.input_manager import INPUT
@@ -25,7 +25,7 @@ class TurnChangeState(MapState):
 
     def begin(self):
         if game.phase.get_current() == 'player':
-            # TODO Handle support increments
+            supports.increment_end_turn_supports('player')
             game.memory['previous_cursor_position'] = game.cursor.position
         # Clear all previous states in state machine except me
         game.state.refresh()

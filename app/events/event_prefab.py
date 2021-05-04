@@ -24,6 +24,7 @@ all_triggers = Data([
     Trigger('combat_start', True, True, True, True),
     Trigger('combat_end', True, True, True, True),
     Trigger('on_talk', True, True, False, True),
+    Trigger('on_support', True, True, True, True),  # Item is support rank nid
     Trigger('on_base_convo', True, True, False, False),
     Trigger('on_title_screen'),
 ])

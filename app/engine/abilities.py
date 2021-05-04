@@ -61,6 +61,32 @@ class TalkAbility(Ability):
         did_trigger = game.events.trigger('on_talk', unit, u, unit.position)
         if did_trigger:
             action.do(action.RemoveTalk(unit.nid, u.nid))
+
+class SupportAbility(Ability):
+    name = 'Support'
+
+    @staticmethod
+    def targets(unit) -> set:
+        adj_units = target_system.get_adj_units(unit)
+        units = set()
+        for u in adj_units:
+            for prefab in DB.support_pairs.get_pairs(unit.nid, u.nid):
+                pair = game.supports.support_pairs.get(prefab.nid)
+                if pair.can_support():
+                    units.add(u)
+                    break
+        return {u.position for u in units}
+
+    @staticmethod
+    def do(unit):
+        u = game.board.get_unit(game.cursor.position)
+        pair = game.supports.get(unit.nid, u.nid)
+        rank = pair.locked_ranks[0]
+        game.state.back()
+        action.do(action.HasTraded(unit))
+        did_trigger = game.events.trigger('on_support', unit, u, rank, unit.position)
+        if did_trigger:
+            action.do(action.UnlockSupportRank(pair.nid, rank))
         
 class DropAbility(Ability):
     name = "Drop"

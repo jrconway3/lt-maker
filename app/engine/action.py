@@ -1132,6 +1132,7 @@ class Die(Action):
         self.unit = unit
         self.old_pos = unit.position
         self.leave_map = LeaveMap(self.unit)
+        self.lock_all_support_ranks = LockAllSupportRanks(self.unit.nid)
         self.drop = None
 
     def do(self):
@@ -1142,6 +1143,7 @@ class Die(Action):
             # TODO Drop Sound
 
         self.leave_map.do()
+        self.lock_all_support_ranks.do()
         self.unit.dead = True
         self.unit.is_dying = False
 
@@ -1150,6 +1152,7 @@ class Die(Action):
         self.unit.sprite.set_transition('normal')
         self.unit.sprite.change_state('normal')
 
+        self.lock_all_support_ranks.reverse()
         self.leave_map.reverse()
         if self.drop:
             self.drop.reverse()
@@ -1186,29 +1189,69 @@ class ReverseRecords(Action):
     def reverse(self):
         game.records.append(self.record_type, self.data)
 
-class IncrementSupportLevel(Action):
+class IncrementSupportPoints(Action):
     def __init__(self, nid, points):
         self.nid = nid
-        self.points = points
+        self.inc = points
+
+        pair = game.supports.support_pairs[self.nid]
+        self.saved_data = pair.save()
 
     def do(self):
-        game.supports[self.nid].points += self.points
+        game.supports.support_pairs[self.nid].increment_points(self.inc)
 
     def reverse(self):
-        game.supports[self.nid].points -= self.points
+        pair = game.supports.support_pairs[self.nid]
+        pair.points = int(self.saved_data['points'])
+        pair.locked_ranks = self.saved_data['locked_ranks']
+        pair.points_gained_this_chapter = int(self.saved_data['points_gained_this_chapter'])
+        pair.ranks_gained_this_chapter = int(self.saved_data['ranks_gained_this_chapter'])
 
 class UnlockSupportRank(Action):
     def __init__(self, nid, rank):
         self.nid = nid
         self.rank = rank
+        self.was_locked: bool = False
 
     def do(self):
-        game.supports[self.nid].unlocked_ranks.append(self.rank)
+        self.was_locked = False
+        pair = game.supports.support_pairs[self.nid]
+        if self.rank in pair.locked_ranks:
+            self.was_locked = True
+            pair.locked_ranks.remove(self.rank)
+        if self.rank not in pair.unlocked_ranks:
+            pair.unlocked_ranks.append(self.rank)
 
     def reverse(self):
-        if self.rank in game.supports[self.nid].unlocked_ranks:
-            game.supports[self.nid].unlocked_ranks.remove(self.rank)
+        pair = game.supports.support_pairs[self.nid]
+        if self.rank in pair.unlocked_ranks:
+            pair.unlocked_ranks.remove(self.rank)
+        if self.was_locked and self.rank not in pair.locked_ranks:
+            pair.locked_ranks.append(self.rank)
 
+class LockAllSupportRanks(Action):
+    """
+    Done on death of a unit in the pair
+    To free up slots for other units
+    """
+    def __init__(self, nid):
+        self.nid = nid
+        pair = game.supports.support_pairs[self.nid]
+        self.unlocked_ranks = pair.unlocked_ranks[:]
+
+    def do(self):
+        pair = game.supports.support_pairs[self.nid]
+        for rank in pair.unlocked_ranks:
+            pair.locked_ranks.append(rank)
+        pair.unlocked_ranks.clear()
+        
+    def reverse(self):
+        pair = game.supports.support_pairs[self.nid]
+        for rank in self.unlocked_ranks:
+            if rank in pair.locked_ranks:
+                pair.locked_ranks.remove(rank)
+        pair.unlocked_ranks = self.unlocked_ranks
+        
 class ChangeAI(Action):
     def __init__(self, unit, ai):
         self.unit = unit

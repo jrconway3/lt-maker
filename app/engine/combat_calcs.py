@@ -24,7 +24,7 @@ def get_support_rank_bonus(unit, target=None):
     # If target, only check for when can attack same unit
     if target and DB.support_constants.value('bonus_range') != 0:
         return [], []
-    pairs = game.supports.get_pairs(unit.nid)
+    pairs = game.supports.get_bonus_pairs(unit.nid)
     bonuses = []
     for pair in pairs:
         if not pair.unlocked_ranks:

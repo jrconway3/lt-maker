@@ -304,6 +304,8 @@ class GameState():
     def clean_up(self):
         from app.engine import item_system, skill_system, item_funcs, action
 
+        game.supports.increment_end_chapter_supports()
+
         for unit in self.unit_registry.values():
             self.leave(unit)
         for unit in self.unit_registry.values():

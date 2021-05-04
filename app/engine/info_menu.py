@@ -881,6 +881,28 @@ class InfoMenuState(State):
     def create_support_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
 
+        if game.game_vars.get('_supports'):
+            pairs = game.supports.get_pairs(self.unit.nid)
+            pairs = [pair for pair in pairs if pair.unlocked_ranks]
+        else:
+            pairs = []
+
+        top = 48
+        for idx, pair in enumerate(pairs):
+            other_unit = None
+            if pair.unit1 == self.unit.nid:
+                other_unit = game.get_unit(pair.unit2)
+            elif pair.unit2 == self.unit.nid:
+                other_unit = game.get_unit(pair.unit1)
+            if not other_unit:
+                continue
+            affinity = DB.affinity.get(other_unit.affinity)
+            if affinity:
+                icons.draw_item(surf, affinity, (16, idx * 16 + top))
+            FONT['text-white'].blit(other_unit.name, surf, (36, idx * 16 + top))
+            highest_rank = pair.unlocked_ranks[-1]
+            FONT['text-yellow'].blit_right(highest_rank, surf, (surf.get_width() - 24, idx * 16 + top))
+
         return surf
 
     def draw_support_surf(self, surf):

@@ -161,7 +161,7 @@ class UIView():
 
         # Weapon Icon
         weapon = unit.get_weapon()
-        icon = icons.get_item_icon(weapon)
+        icon = icons.get_icon(weapon)
         if icon:
             pos = (left + width - 20, top + height//2 - 8)
             # icon = item_system.item_icon_mod(unit, weapon, defender, icon)
@@ -346,7 +346,7 @@ class UIView():
         surf.blit(self.attack_info_disp, topleft)
 
         # Attacker Item
-        icon = icons.get_item_icon(weapon)
+        icon = icons.get_icon(weapon)
         if icon:
             icon = item_system.item_icon_mod(attacker, weapon, defender, icon)
             surf.blit(icon, (topleft[0] + 2, topleft[1] + 4))
@@ -354,7 +354,7 @@ class UIView():
         # Defender Item
         if defender.get_weapon():
             eweapon = defender.get_weapon()
-            icon = icons.get_item_icon(eweapon)
+            icon = icons.get_icon(eweapon)
             if icon:
                 icon = item_system.item_icon_mod(defender, eweapon, attacker, icon)
                 y_pos = topleft[1] + 83
@@ -500,7 +500,7 @@ class UIView():
 
             # Blit name
             running_height += 16
-            icon = icons.get_item_icon(spell)
+            icon = icons.get_icon(spell)
             if icon:
                 icon = item_system.item_icon_mod(attacker, spell, defender, icon)
                 bg_surf.blit(icon, (8, running_height))

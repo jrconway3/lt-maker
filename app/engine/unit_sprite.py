@@ -1,7 +1,7 @@
 import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
-from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors
+from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -46,6 +46,8 @@ class MapSprite():
             conversion_dict = enemy2_colors
         elif self.team == 'other':
             conversion_dict = other_colors
+        elif self.team == 'black':
+            conversion_dict = black_colors
 
         return image_mods.color_convert(map_sprite.standing_image, conversion_dict), \
             image_mods.color_convert(map_sprite.moving_image, conversion_dict)
@@ -55,6 +57,23 @@ class MapSprite():
         for img in imgs:
             engine.set_colorkey(img, COLORKEY, rleaccel=True)
         return imgs
+
+def load_map_sprite(unit, team='player'):
+    klass = DB.classes.get(unit.klass)
+    nid = klass.map_sprite_nid
+    if unit.variant:
+        nid += unit.variant
+    res = RESOURCES.map_sprites.get(nid)
+    if not res:  # Try without unit variant
+        res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+    if not res:
+        return None
+
+    map_sprite = game.map_sprite_registry.get(res.nid + '_' + team)
+    if not map_sprite:
+        map_sprite = MapSprite(res, team)
+        game.map_sprite_registry[map_sprite.nid + '_' + team] = map_sprite
+    return map_sprite
 
 class UnitSprite():
     default_transition_time = 450
@@ -79,28 +98,9 @@ class UnitSprite():
         self.animations = {}
         self.particles = []
 
-        self.load_sprites()
+        self.map_sprite = load_map_sprite(self, self.unit.team)
 
         self.health_bar = health_bar.MapHealthBar(self.unit)
-
-    def load_sprites(self):
-        klass = DB.classes.get(self.unit.klass)
-        nid = klass.map_sprite_nid
-        if self.unit.variant:
-            nid += self.unit.variant
-        res = RESOURCES.map_sprites.get(nid)
-        if not res:  # Try without unit variant
-            res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
-        if not res:
-            self.map_sprite = None
-            return
-
-        team = self.unit.team
-        map_sprite = game.map_sprite_registry.get(res.nid + '_' + team)
-        if not map_sprite:
-            map_sprite = MapSprite(res, team)
-            game.map_sprite_registry[map_sprite.nid + '_' + team] = map_sprite
-        self.map_sprite = map_sprite
 
     # Normally drawing units is culled to those on the screen
     # Unit sprites matching this will be drawn anyway

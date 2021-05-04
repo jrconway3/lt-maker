@@ -1267,6 +1267,8 @@ class IncrementSupportPoints(Action):
         self.nid = nid
         self.inc = points
 
+        if self.nid not in game.supports.support_pairs:
+            game.supports.create_pair(self.nid)
         pair = game.supports.support_pairs[self.nid]
         self.saved_data = pair.save()
 
@@ -1285,6 +1287,8 @@ class UnlockSupportRank(Action):
         self.nid = nid
         self.rank = rank
         self.was_locked: bool = False
+        if self.nid not in game.supports.support_pairs:
+            game.supports.create_pair(self.nid)
 
     def do(self):
         self.was_locked = False
@@ -1309,6 +1313,8 @@ class LockAllSupportRanks(Action):
     """
     def __init__(self, nid):
         self.nid = nid
+        if self.nid not in game.supports.support_pairs:
+            game.supports.create_pair(self.nid)
         pair = game.supports.support_pairs[self.nid]
         self.unlocked_ranks = pair.unlocked_ranks[:]
 

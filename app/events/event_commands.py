@@ -540,6 +540,12 @@ class RemoveBaseConvo(EventCommand):
 
     keywords = ["String"]
 
+class IncrementSupportPoints(EventCommand):
+    nid = 'increment_support_points'
+    tag = 'unit'
+
+    keywords = ['GlobalUnit', 'GlobalUnit', 'PositiveInteger']
+
 class AddMarketItem(EventCommand):
     nid = 'add_market_item'
     tag = 'base'

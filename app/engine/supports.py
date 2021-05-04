@@ -105,6 +105,17 @@ class SupportController():
         nid = "%s | %s" % (unit2_nid, unit1_nid)
         return self.support_pairs.get(nid)
 
+    def create_pair(self, nid) -> SupportPair:
+        prefab = DB.support_pairs.get(nid)
+        if not prefab:
+            return
+        if prefab.nid in self.support_pairs:
+            return self.support_pairs[prefab.nid]
+
+        new_support_pair = SupportPair(nid)
+        self.support_pairs[nid] = new_support_pair
+        return new_support_pair
+
     def save(self):
         return [support_pair.save() for support_pair in self.support_pairs]
 

@@ -110,6 +110,7 @@ class StateMachine():
              'base_main': base.BaseMainState,
              'base_market_select': base.BaseMarketSelectState,
              'base_convos_child': base.BaseConvosChildState,
+             'base_supports': base.BaseSupportsState,
              'base_codex_child': base.BaseCodexChildState,
              'base_library': base.BaseLibraryState,
              'base_guide': base.BaseGuideState,

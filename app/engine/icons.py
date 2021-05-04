@@ -8,7 +8,7 @@ from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, skill_system, image_mods
 
-def get_item_icon(item):
+def get_icon(item):
     if not item:
         return None
     image = RESOURCES.icons16.get(item.icon_nid)
@@ -23,7 +23,7 @@ def get_item_icon(item):
     return image
 
 def draw_item(surf, item, topleft, cooldown=False):
-    image = get_item_icon(item)
+    image = get_icon(item)
     if not image:
         return None
 
@@ -31,22 +31,8 @@ def draw_item(surf, item, topleft, cooldown=False):
 
     return surf
 
-def get_skill_icon(skill):
-    if not skill:
-        return None
-    image = RESOURCES.icons16.get(skill.icon_nid)
-    if not image:
-        return None
-
-    if not image.image:
-        image.image = engine.image_load(image.full_path)
-    image = engine.subsurface(image.image, (skill.icon_index[0] * 16, skill.icon_index[1] * 16, 16, 16))
-    image = image.convert()
-    engine.set_colorkey(image, COLORKEY, rleaccel=True)
-    return image
-
 def draw_skill(surf, skill, topleft, compact=True, simple=False):
-    image = get_skill_icon(skill)
+    image = get_icon(skill)
     if not image:
         return None
 

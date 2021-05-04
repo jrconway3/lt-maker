@@ -277,7 +277,7 @@ class MapCombatInfo():
         # Item
         if self.item:
             # Determine effectiveness
-            icon = icons.get_item_icon(self.item)
+            icon = icons.get_icon(self.item)
             if icon:
                 icon = item_system.item_icon_mod(self.unit, self.item, self.target, icon)
                 bg_surf.blit(icon, (2, 3))

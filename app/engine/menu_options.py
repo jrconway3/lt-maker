@@ -204,7 +204,7 @@ class ItemOption(BasicOption):
             return help_menu.HelpDialog(self.item.desc)
 
     def draw(self, surf, x, y):
-        icon = icons.get_item_icon(self.item)
+        icon = icons.get_icon(self.item)
         if icon:
             surf.blit(icon, (x + 2, y))
         main_font, uses_font = self.get_color()
@@ -247,7 +247,7 @@ class FullItemOption(ItemOption):
         return 120
 
     def draw(self, surf, x, y):
-        icon = icons.get_item_icon(self.item)
+        icon = icons.get_icon(self.item)
         if icon:
             surf.blit(icon, (x + 2, y))
         main_font, uses_font = self.get_color()
@@ -277,7 +277,7 @@ class ValueItemOption(ItemOption):
         return 152
 
     def draw(self, surf, x, y):
-        icon = icons.get_item_icon(self.item)
+        icon = icons.get_icon(self.item)
         if icon:
             surf.blit(icon, (x + 2, y))
         main_font, uses_font = self.get_color()

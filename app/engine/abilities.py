@@ -67,15 +67,20 @@ class SupportAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        adj_units = target_system.get_adj_units(unit)
-        units = set()
-        for u in adj_units:
-            for prefab in DB.support_pairs.get_pairs(unit.nid, u.nid):
-                pair = game.supports.support_pairs.get(prefab.nid)
-                if pair.can_support():
-                    units.add(u)
-                    break
-        return {u.position for u in units}
+        if game.game_vars.get('_supports') and DB.support_constants.value('combat_convos'):
+            adj_units = target_system.get_adj_units(unit)
+            units = set()
+            for u in adj_units:
+                for prefab in DB.support_pairs.get_pairs(unit.nid, u.nid):
+                    if prefab.nid not in game.supports.support_pairs:
+                        game.supports.create_pair(prefab.nid)
+                    pair = game.supports.support_pairs[prefab.nid]
+                    if pair.can_support():
+                        units.add(u)
+                        break
+            return {u.position for u in units}
+        else:
+            return set()
 
     @staticmethod
     def do(unit):
@@ -85,8 +90,7 @@ class SupportAbility(Ability):
         game.state.back()
         action.do(action.HasTraded(unit))
         did_trigger = game.events.trigger('on_support', unit, u, rank, unit.position)
-        if did_trigger:
-            action.do(action.UnlockSupportRank(pair.nid, rank))
+        action.do(action.UnlockSupportRank(pair.nid, rank))
         
 class DropAbility(Ability):
     name = "Drop"

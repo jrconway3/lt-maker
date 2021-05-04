@@ -14,7 +14,6 @@ from app.engine import dialog, engine, background, target_system, action, \
     item_funcs, item_system, banner, skill_system, unit_funcs, \
     evaluate, static_random, image_mods, icons
 from app.engine.combat import interaction
-from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.animations import MapAnimation
@@ -773,6 +772,29 @@ class Event():
             values, flags = event_commands.parse(command)
             if values[0] in game.base_convos:
                 game.base_convos[values[0]] = True
+
+        elif command.nid == 'increment_support_points':
+            values, flags = event_commands.parse(command)
+            unit1 = self.get_unit(values[0])
+            if not unit1:
+                unit1 = DB.units.get(values[0])
+            if not unit1:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            unit2 = self.get_unit(values[1])
+            if not unit2:
+                unit2 = DB.units.get(values[1])
+            if not unit2:
+                logging.error("Couldn't find unit %s" % values[1])
+                return
+            inc = int(values[2])
+            prefabs = DB.support_pairs.get_pairs(unit1.nid, unit2.nid)
+            if prefabs:
+                prefab = prefabs[0]
+                action.do(action.IncrementSupportPoints(prefab.nid, inc))
+            else:
+                logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
+                return
 
         elif command.nid == 'add_market_item':
             values, flags = event_commands.parse(command)

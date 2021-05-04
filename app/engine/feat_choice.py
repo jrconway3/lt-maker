@@ -47,7 +47,7 @@ class SkillOption(menu_options.BasicOption):
         return help_menu.HelpDialog(self.skill.desc, name=self.skill.name)
 
     def draw(self, surf, x, y):
-        icon = icons.get_skill_icon(self.skill)
+        icon = icons.get_icon(self.skill)
         if icon:
             surf.blit(icon, (x + 2, y))
         main_font = self.get_color()

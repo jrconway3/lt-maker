@@ -1,4 +1,5 @@
 from app.constants import WINWIDTH, WINHEIGHT
+from app.utilities import utils
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -11,7 +12,7 @@ from app.engine.state import State
 
 from app.engine.game_state import game
 from app.engine import menus, base_surf, background, text_funcs, \
-    image_mods, gui, icons, prep, record_book
+    image_mods, gui, icons, prep, record_book, unit_sprite, action
 from app.engine.fluid_scroll import FluidScroll
 import app.engine.config as cf
 
@@ -47,7 +48,9 @@ class BaseMainState(State):
         ignore = [False, True, False, False, False, False]
         if game.base_convos:
             ignore[1] = False
-        # TODO: Supports
+        if game.game_vars.get('_supports') and DB.support_constants.value('base_convos'):
+            options.insert(2, 'Supports')
+            ignore.insert(2, False)
         if game.game_vars.get('_base_market'):
             options.insert(1, 'Market')
             if game.market_items:
@@ -92,6 +95,9 @@ class BaseMainState(State):
                 game.memory['option_owner'] = selection
                 game.memory['option_menu'] = self.menu
                 game.state.change('base_convos_child')
+            elif selection == 'Supports':
+                game.memory['next_state'] = 'base_supports'
+                game.state.change('transition_to')
             elif selection == 'Codex':
                 game.memory['option_owner'] = selection
                 game.memory['option_menu'] = self.menu
@@ -227,6 +233,294 @@ class BaseConvosChildState(State):
     def draw(self, surf):
         if self.menu:
             self.menu.draw(surf)
+        return surf
+
+class SupportDisplay():
+    support_word_sprite = SPRITES.get('support_words')
+
+    def __init__(self):
+        self.unit = None
+        self.topleft = (84, 4)
+        self.width = WINWIDTH - 84
+        self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8)
+        shimmer = SPRITES.get('menu_shimmer2')
+        self.bg_surf.blit(shimmer, (self.bg_surf.get_width() - shimmer.get_width() - 1, self.bg_surf.get_height() - shimmer.get_height() - 5))
+        self.bg_surf = image_mods.make_translucent(self.bg_surf, .1)
+
+        self.cursor = menus.Cursor()
+        self.draw_cursor = False
+
+        self.char_idx = 0
+        self.rank_idx = 0
+
+    def update_entry(self, unit):
+        if self.unit and unit == self.unit.nid:
+            return  # No need to update
+        self.unit = unit
+        self.options = self.get_other_unit_nids()
+        self.char_idx = 0
+        self.rank_idx = 0
+
+    def get_other_unit_nids(self) -> list:
+        other_unit_nids = []
+        for prefab in DB.support_pairs:
+            if prefab.unit1 == self.unit.nid:
+                other_unit_nid = prefab.unit2
+            elif prefab.unit2 == self.unit.nid:
+                other_unit_nid = prefab.unit1
+            else:
+                continue
+            other_unit_nids.append(other_unit_nid)
+        other_unit_nids = sorted(other_unit_nids)
+        return other_unit_nids
+
+    def click_selection(self) -> bool:
+        other_unit_nids = self.options
+        other_unit_nid = other_unit_nids[self.char_idx]
+        prefabs = DB.support_pairs.get_pairs(self.unit.nid, other_unit_nid)
+        if prefabs:
+            prefab = prefabs[0]
+            if prefab.nid not in game.supports.support_pairs:
+                game.supports.create_pair(prefab.nid)
+            pair = game.supports.support_pairs[prefab.nid]
+            bonus = prefab.requirements[self.rank_idx]
+            rank = bonus.support_rank
+            if rank in pair.unlocked_ranks:
+                game.events.trigger('on_support', self.unit, game.get_unit(other_unit_nid), rank)
+                return True
+            elif pair.can_support() and rank in pair.locked_ranks:
+                game.events.trigger('on_support', self.unit, game.get_unit(other_unit_nid), rank)
+                action.do(action.UnlockSupportRank(pair.nid, rank))
+                return True
+        return False
+
+    def get_num_ranks(self, other_unit_nid) -> int:
+        prefabs = DB.support_pairs.get_pairs(self.unit.nid, other_unit_nid)
+        if prefabs:
+            prefab = prefabs[0]
+            return len(prefab.requirements)
+
+    def move_down(self, first_push=True) -> bool:
+        self.char_idx += 1
+        if self.char_idx > len(self.options) - 1:
+            if first_push:
+                self.char_idx = 0
+            else:
+                self.char_idx -= 1
+                return False
+        else:
+            self.cursor.y_offset -= 1
+        # check limit for new row
+        limit = max(0, self.get_num_ranks(self.options[self.char_idx]) - 1)
+        self.rank_idx = utils.clamp(self.rank_idx, 0, limit)
+        return True
+
+    def move_up(self, first_push=True) -> bool:
+        self.char_idx -= 1
+        if self.char_idx < 0:
+            if first_push:
+                self.char_idx = len(self.options) - 1
+            else:
+                self.char_idx += 1
+                return False
+        else:
+            self.cursor.y_offset += 1
+        # check limit for new row
+        limit = max(0, self.get_num_ranks(self.options[self.char_idx]) - 1)
+        self.rank_idx = utils.clamp(self.rank_idx, 0, limit)
+        return True
+
+    def move_left(self, first_push=True) -> bool:
+        self.rank_idx -= 1
+        if self.rank_idx < 0 and first_push:
+            self.rank_idx = 0
+            return False
+        return True
+
+    def move_right(self, first_push=True) -> bool:
+        self.rank_idx += 1
+        num_ranks = self.get_num_ranks(self.options[self.char_idx])
+        if self.rank_idx > num_ranks - 1:
+            if first_push:
+                self.rank_idx = 0
+            else:
+                self.rank_idx -= 1
+                return False
+        return True
+
+    def draw(self, surf):
+        if self.unit:
+            image = self.bg_surf.copy()
+            other_unit_nids = self.options
+        
+            map_sprites = []
+            for idx, other_unit_nid in enumerate(other_unit_nids):
+                if game.get_unit(other_unit_nid):
+                    other_unit = game.get_unit(other_unit_nid)
+                    if other_unit.dead:
+                        map_sprite = other_unit.sprite.create_image('gray')
+                    elif self.char_idx == idx:
+                        map_sprite = other_unit.sprite.create_image('active')
+                    else:
+                        map_sprite = other_unit.sprite.create_image('passive')
+                    image = map_sprite
+                    name = other_unit.name
+                    affinity = DB.affinities.get(other_unit.affinity)
+                elif DB.units.get(other_unit_nid):  # Not loaded into game yet
+                    other_unit_prefab = DB.units.get(other_unit_nid)
+                    map_sprite = unit_sprite.load_map_sprite(other_unit_prefab, 'black')
+                    image = map_sprite.passive[game.map_view.passive_sprite_counter.count].copy()
+                    name = other_unit_prefab.name
+                    affinity = DB.affinities.get(other_unit_prefab.affinity)
+                else:
+                    image = None
+                    name = '---'
+                    affinity = None
+
+                map_sprites.append(image)
+                # Blit name
+                FONT['text-white'].blit(name, surf, (25, idx * 16 + 12))
+                # Blit affinity
+                if affinity:
+                    icons.draw_item(surf, affinity, (72, idx * 16 + 11))
+                # Blit support levels
+                prefabs = DB.support_pairs.get_pairs(self.unit.nid, other_unit_nid)
+                if prefabs:
+                    prefab = prefabs[0]
+                    if prefab.nid not in game.supports.support_pairs:
+                        game.supports.create_pair(prefab.nid)
+                    pair = game.supports.support_pairs[prefab.nid]
+                    for ridx, bonus in prefab.requirements:
+                        rank = bonus.support_rank
+                        if rank in pair.locked_ranks:
+                            fnt = FONT['text-green']
+                        elif rank in pair.unlocked_ranks:
+                            fnt = FONT['text-white']
+                        else:
+                            fnt = FONT['text-grey']
+                        fnt.blit(rank, surf, (90 + ridx * 10, idx * 16 + 12))
+
+            for idx, map_sprite in enumerate(map_sprites):
+                if map_sprite:
+                    surf.blit(map_sprite, (-20, idx * 16 - 25))
+
+            surf.blit(self.support_word_sprite, (104, 12))
+
+            # Cursor
+            if self.draw_cursor:
+                left = self.rank_idx * 10 + 78
+                top = self.char_idx * 16 + 12
+                self.cursor.draw(surf, (left, top))
+
+        return surf
+
+class BaseSupportsState(State):
+    name = 'base_supports'
+
+    def start(self):
+        self.fluid = FluidScroll()
+        self.bg = game.memory['base_bg']
+
+        player_units = game.get_units_in_party()
+        # Filter only to units with supports
+        self.units = [unit for unit in player_units if any(prefab.unit1 == unit.nid or prefab.unit2 == unit.nid for prefab in DB.support_pairs)]
+
+        self.menu = menus.Choice(None, self.units, (4, 4))
+        self.menu.set_limit(9)
+        self.menu.set_hard_limit(True)
+
+        self.display = SupportDisplay()
+        self.display.update_entry(self.menu.get_current().nid)
+
+        self.in_display = False
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def begin(self):
+        base_music = game.game_vars.get('_base_music')
+        if base_music:
+            SOUNDTHREAD.fade_in(base_music)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if not self.display.unit or self.display.unit.nid != self.menu.get_current().nid:
+            self.display.update_entry(self.menu.get_current())
+
+        if 'DOWN' in directions:
+            if self.in_display:
+                if self.display.move_down(first_push):
+                    SOUNDTHREAD.play_sfx('Select 6')
+            else:
+                if self.menu.move_down(first_push):
+                    SOUNDTHREAD.play_sfx('Select 6')
+                self.display.update_entry(self.menu.get_current())
+        elif 'UP' in directions:
+            if self.in_display:
+                if self.display.move_up(first_push):
+                    SOUNDTHREAD.play_sfx('Select 6')
+            else:
+                if self.menu.move_up(first_push):
+                    SOUNDTHREAD.play_sfx('Select 6')
+                self.display.update_entry(self.menu.get_current())
+        elif 'RIGHT' in directions:
+            if self.in_display:
+                if self.display.move_right(first_push):
+                    SOUNDTHREAD.play_sfx('TradeRight')
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
+            else:
+                SOUNDTHREAD.play_sfx('TradeRight')
+                self.in_display = True
+        elif 'LEFT' in directions:
+            if self.in_display:
+                if self.display.move_left(first_push):
+                    SOUNDTHREAD.play_sfx('TradeRight')
+                else:
+                    self.in_display = False
+                    SOUNDTHREAD.play_sfx('Select 6')
+
+        if event == 'BACK':
+            if self.in_display:
+                SOUNDTHREAD.play_sfx('TradeRight')
+                self.in_display = False
+            else:
+                SOUNDTHREAD.play_sfx('Select 4')
+                game.state.change('transition_pop')
+
+        elif event == 'SELECT':
+            if self.in_display:
+                success = self.display.click_selection()
+                if success:
+                    pass
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
+            else:
+                if self.display.move_right():
+                    SOUNDTHREAD.play_sfx('TradeRight')
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
+
+        elif event == 'INFO':
+            game.memory['scroll_units'] = self.units
+            game.memory['next_state'] = 'info_menu'
+            game.memory['current_unit'] = self.menu.get_current()
+            game.state.change('transition_to')
+
+    def update(self):
+        if self.menu:
+            self.menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        if self.menu:
+            self.menu.draw(surf)
+        if self.display:
+            self.display.draw(surf)
         return surf
 
 class BaseCodexChildState(State):

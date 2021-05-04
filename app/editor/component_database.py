@@ -383,7 +383,7 @@ class DictItemComponent(BoolItemComponent):
         hbox.addWidget(self.editor)
 
     def modify_delegate(self):
-        pass
+        self.delegate.is_float = False
 
 class FloatDictItemComponent(DictItemComponent):
     def modify_delegate(self):

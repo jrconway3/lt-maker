@@ -177,8 +177,8 @@ class DamageOnMiss(ItemComponent):
     expose = Type.Float
     value = 0.5
 
-    def on_miss(self, actions, playback, unit, item, target, mode=None):
-        damage = combat_calcs.compute_damage(unit, target, item, mode)
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
+        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
         damage = int(damage * self.value)
 
         true_damage = min(damage, target.get_hp())
@@ -230,7 +230,9 @@ class StatusOnEquip(ItemComponent):
     expose = Type.Skill  # Nid
 
     def on_equip_item(self, unit, item):
-        action.do(action.AddSkill(unit, self.value))
+        if self.value not in [skill.nid for skill in unit.skills]:
+            act = action.AddSkill(unit, self.value)
+            action.do(act)
 
     def on_unequip_item(self, unit, item):
         action.do(action.RemoveSkill(unit, self.value))

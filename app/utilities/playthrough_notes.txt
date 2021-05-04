@@ -1,5 +1,3 @@
 notes
 
-Move music in Level 1 intro script to after "Hey, you two!"
-"Stay down, Prim."
-Make sure Turnwheel displays number of uses
+Change all portraits to be just "Sam" instead of "SamPortrait"

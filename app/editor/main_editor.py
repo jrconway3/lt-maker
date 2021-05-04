@@ -430,6 +430,9 @@ class MainEditor(QMainWindow):
             # if we made a new game:
             self.set_window_title('Untitled')
             self.project_save_load_handler.save(True)
+            title = os.path.split(self.settings.get_current_project())[-1]
+            self.set_window_title(title)
+
             # Return to global
             if not self.mode.GLOBAL_EDITOR:
                 self.app_state_manager.change_and_broadcast(

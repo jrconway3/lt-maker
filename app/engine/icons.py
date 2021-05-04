@@ -84,7 +84,7 @@ def draw_weapon(surf, weapon_type, topleft, gray=False):
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 
     if gray:
-        image = image_mods.make_gray(image)
+        image = image_mods.make_gray(image.convert_alpha())
     
     surf.blit(image, topleft)
     return surf
@@ -121,6 +121,16 @@ def get_portrait(unit):
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 
+    return image
+
+def get_portrait_from_nid(portrait_nid):
+    image = RESOURCES.portraits.get(portrait_nid)
+    if image:
+        if not image.image:
+            image.image = engine.image_load(image.full_path)
+        image = engine.subsurface(image.image, (0, 0, 96, 80))
+        image = image.convert()
+        engine.set_colorkey(image, COLORKEY, rleaccel=True)
     return image
 
 def draw_portrait(surf, unit, topleft=None, bottomright=None):

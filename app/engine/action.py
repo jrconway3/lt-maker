@@ -6,7 +6,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT
 from app.data.database import DB
 
 from app.engine import banner, static_random, unit_funcs, equations, \
-    skill_system, item_system, item_funcs, particles
+    skill_system, item_system, item_funcs, particles, aura_funcs
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
@@ -506,6 +506,10 @@ class HasTraded(Reset):
     def do(self):
         self.unit.has_traded = True
 
+class HasNotTraded(Reset):
+    def do(self):
+        self.unit.has_traded = False
+
 # === RESCUE ACTIONS ========================================================
 class Rescue(Action):
     def __init__(self, unit, rescuee):
@@ -663,12 +667,12 @@ class PutItemInConvoy(Action):
         self.owner_nid = self.item.owner_nid
 
     def do(self):
-        self.item.owner_nid = None
+        self.item.change_owner(None)
         game.party.convoy.append(self.item)
 
     def reverse(self, gameStateObj):
         game.party.convoy.remove(self.item)
-        self.item.owner_nid = self.owner_nid
+        self.item.change_owner(self.owner_nid)
 
 class TakeItemFromConvoy(Action):
     def __init__(self, unit, item):
@@ -681,6 +685,16 @@ class TakeItemFromConvoy(Action):
 
     def reverse(self):
         self.unit.remove_item(self.item)
+        game.party.convoy.append(self.item)
+
+class RemoveItemFromConvoy(Action):
+    def __init__(self, item):
+        self.item = item
+
+    def do(self):
+        game.party.convoy.remove(self.item)
+
+    def reverse(self):
         game.party.convoy.append(self.item)
 
 class MoveItem(Action):
@@ -742,6 +756,24 @@ class DropItem(Action):
     def reverse(self):
         self.item.droppable = self.is_droppable
         self.unit.remove_item(self.item)
+
+class MakeItemDroppable(Action):
+    def __init__(self, unit, item):
+        self.unit = unit
+        self.item = item
+        self.items = self.unit.items[:]
+        self.is_droppable: list = [i.droppable for i in self.items]
+        self.was_droppable: bool = item.droppable
+
+    def do(self):
+        for item in self.unit.items:
+            item.droppable = False
+        self.item.droppable = True
+
+    def reverse(self):
+        for idx, item in enumerate(self.items):
+            item.droppable = self.is_droppable[idx]
+        self.item.droppable = self.was_droppable
 
 class StoreItem(Action):
     def __init__(self, unit, item):
@@ -914,6 +946,46 @@ class IncLevel(Action):
 
     def reverse(self):
         self.unit.level -= 1
+
+class SetLevel(Action):
+    def __init__(self, unit, level):
+        self.unit = unit
+        self.old_level = unit.level
+        self.new_level = level
+
+    def do(self):
+        self.unit.level = self.new_level
+
+    def reverse(self):
+        self.unit.level = self.old_level
+
+class AutoLevel(Action):
+    def __init__(self, unit, diff):
+        self.unit = unit
+        self.diff = diff
+        self.old_stats = self.unit.stats
+        self.old_growth_points = self.unit.growth_points
+        self.old_hp = self.unit.get_hp()
+
+    def do(self):
+        unit_funcs.auto_level(self.unit, self.diff, self.unit.get_internal_level())
+
+    def reverse(self):
+        self.unit.stats = self.old_stats
+        self.unit.growth_points = self.old_growth_points
+        self.unit.set_hp(self.old_hp)
+
+class GrowthPointChange(Action):
+    def __init__(self, unit, old_growth_points, new_growth_points):
+        self.unit = unit
+        self.old_growth_points = old_growth_points
+        self.new_growth_points = new_growth_points
+
+    def do(self):
+        self.unit.growth_points = self.new_growth_points
+
+    def reverse(self):
+        self.unit.growth_points = self.old_growth_points
 
 class ApplyStatChanges(Action):
     def __init__(self, unit, stat_changes):
@@ -1160,12 +1232,13 @@ class Die(Action):
 class Resurrect(Action):
     def __init__(self, unit):
         self.unit = unit
+        self.old_dead = self.unit.dead
 
     def do(self):
         self.unit.dead = False
 
     def reverse(self):
-        self.unit.dead = True
+        self.unit.dead = self.old_dead
 
 class UpdateRecords(Action):
     def __init__(self, record_type, data):
@@ -1260,9 +1333,13 @@ class ChangeAI(Action):
 
     def do(self):
         self.unit.ai = self.ai
+        if game.tilemap and game.boundary:
+            game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
         self.unit.ai = self.old_ai
+        if game.tilemap and game.boundary:
+            game.boundary.recalculate_unit(self.unit)
 
 class ChangeAIGroup(Action):
     def __init__(self, unit, ai_group):
@@ -1305,7 +1382,8 @@ class ChangeTeam(Action):
             self.ai_action.do()
         if self.unit.position:
             game.arrive(self.unit)
-        game.boundary.reset_unit(self.unit)
+        if game.boundary:
+            game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
     def reverse(self):
@@ -1317,7 +1395,8 @@ class ChangeTeam(Action):
         self.action.reverse()
         if self.unit.position:
             game.arrive(self.unit)
-        game.boundary.reset_unit(self.unit)
+        if game.boundary:
+            game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
 class ChangePortrait(Action):
@@ -1418,6 +1497,7 @@ class AddRegion(Action):
         self.subactions = []
 
     def do(self):
+        self.subactions.clear()
         if self.region.nid in game.level.regions:
             pass
         else:
@@ -1436,8 +1516,6 @@ class AddRegion(Action):
         if self.did_add:
             for act in self.subactions:
                 act.reverse()
-            self.subactions.clear()
-
             game.level.regions.delete(self.region)
 
 class ChangeRegionCondition(Action):
@@ -1459,6 +1537,7 @@ class RemoveRegion(Action):
         self.subactions = []
 
     def do(self):
+        self.subactions.clear()
         if self.region.nid in game.level.regions.keys():
             # Remember to remove the status from the unit
             if self.region.region_type == 'status':
@@ -1478,7 +1557,6 @@ class RemoveRegion(Action):
 
             for act in self.subactions:
                 act.reverse()
-            self.subactions.clear()
 
 class ShowLayer(Action):
     def __init__(self, layer_nid, transition):
@@ -1637,6 +1715,7 @@ class AddSkill(Action):
         self.reset_action = ResetUnitVars(self.unit)
 
     def do(self):
+        self.subactions.clear()
         if not self.skill_obj:
             return
         # Remove any skills with previous name
@@ -1651,13 +1730,13 @@ class AddSkill(Action):
         self.unit.skills.append(self.skill_obj)
         skill_system.on_add(self.unit, self.skill_obj)
 
+        if self.skill_obj.aura and self.unit.position:
+            aura_funcs.propagate_aura(self.unit, self.skill_obj, game)
+
         # Handle affects movement
         self.reset_action.execute()
-        if game.boundary:
-            if self.unit.team in game.boundary.enemy_teams:
-                game.boundary._remove_unit(self.unit)
-                if self.unit.position:
-                    game.boundary._add_unit(self.unit)
+        if game.tilemap and game.boundary:
+            game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
         self.reset_action.reverse()
@@ -1670,6 +1749,9 @@ class AddSkill(Action):
         for action in self.subactions:
             action.reverse()
 
+        if self.skill_obj.aura and self.unit.position:
+            aura_funcs.release_aura(self.unit, self.skill_obj, game)
+
 class RemoveSkill(Action):
     def __init__(self, unit, skill):
         self.unit = unit
@@ -1679,6 +1761,7 @@ class RemoveSkill(Action):
         self.reset_action = ResetUnitVars(self.unit)
 
     def do(self):
+        self.removed_skills.clear()
         if isinstance(self.skill, str):
             for skill in self.unit.skills[:]:
                 if skill.nid == self.skill:
@@ -1686,22 +1769,23 @@ class RemoveSkill(Action):
                     skill_system.on_remove(self.unit, skill)
                     skill.owner_nid = None
                     self.removed_skills.append(skill)
+                    if skill.aura and self.unit.position:
+                        aura_funcs.release_aura(self.unit, skill, game)
         else:
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)
                 skill_system.on_remove(self.unit, self.skill)
                 self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
+                if self.skill.aura and self.unit.position:
+                    aura_funcs.release_aura(self.unit, self.skill, game)
             else:
                 logging.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
 
         # Handle affects movement
         self.reset_action.execute()
-        if game.boundary:
-            if self.unit.team in game.boundary.enemy_teams:
-                game.boundary._remove_unit(self.unit)
-                if self.unit.position:
-                    game.boundary._add_unit(self.unit)
+        if game.tilemap and game.boundary:
+            game.boundary.recalculate_unit(self.unit)
 
     def reverse(self):
         self.reset_action.reverse()
@@ -1709,6 +1793,8 @@ class RemoveSkill(Action):
             skill.owner_nid = self.unit.nid
             self.unit.skills.append(skill)
             skill_system.on_add(self.unit, skill)
+            if skill.aura and self.unit.position:
+                aura_funcs.propagate_aura(self.unit, skill, game)
 
 # === Master Functions for adding to the action log ===
 def do(action):

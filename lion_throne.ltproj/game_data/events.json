@@ -6,27 +6,37 @@
         "condition": "True",
         "commands": [
             [
-                "comment",
-                [
-                    "# level_var;_fog_of_war;1"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# level_var;_fog_of_war_radius;8"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# speak;Joshua;Say, how are doing {red}head?|The fog of war is{/red}not red."
-                ]
-            ],
-            [
                 "add_weather",
                 [
-                    "Snow"
+                    "Dark"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_max_turnwheel_uses",
+                    "10"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_current_turnwheel_uses",
+                    "10"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "mycounter",
+                    "1"
+                ]
+            ],
+            [
+                "inc_level_var",
+                [
+                    "mycounter",
+                    "1"
                 ]
             ],
             [
@@ -42,109 +52,112 @@
                 ]
             ],
             [
-                "level_var",
+                "game_var",
                 [
-                    "_fog_of_war",
-                    "1"
+                    "_convoy",
+                    "True"
                 ]
             ],
             [
-                "level_var",
+                "game_var",
                 [
-                    "_fog_of_war_radius",
-                    "3"
+                    "_base_market",
+                    "True"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Enemy Phase Doubling"
+                    "Iron Sword"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Magic"
+                    "Iron Lance"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Magic Wards"
+                    "Iron Axe"
                 ]
             ],
             [
-                "add_lore",
+                "add_market_item",
                 [
-                    "Magic Spells"
+                    "Vulnerary"
                 ]
             ],
             [
-                "add_lore",
+                "give_item",
                 [
-                    "Turnwheel"
+                    "Ophie",
+                    "Steel Sword",
+                    "no_banner"
                 ]
             ],
             [
-                "add_lore",
+                "give_item",
                 [
-                    "Bows"
+                    "Ophie",
+                    "Potion",
+                    "no_banner"
                 ]
             ],
             [
-                "add_lore",
+                "give_item",
                 [
-                    "Skills"
+                    "Ophie",
+                    "Angelic Robe",
+                    "no_banner"
                 ]
             ],
             [
-                "add_lore",
+                "give_item",
                 [
-                    "Feats"
+                    "Prim",
+                    "Ruby",
+                    "no_banner"
                 ]
             ],
             [
-                "add_lore",
+                "give_item",
                 [
-                    "Combat Arts"
+                    "Drake",
+                    "Spiritbane",
+                    "no_banner"
                 ]
             ],
             [
-                "add_lore",
+                "give_item",
                 [
-                    "Promotion"
+                    "Joel",
+                    "Vulnerary",
+                    "no_banner"
                 ]
             ],
             [
-                "add_lore",
+                "comment",
                 [
+                    "#base;MainBase;Preparing for Battle"
+                ]
+            ],
+            [
+                "add_region",
+                [
+                    "escape",
+                    "6,6",
+                    "2,1",
+                    "event",
                     "Escape"
                 ]
             ],
             [
-                "add_lore",
-                [
-                    "Unarmed Combat"
-                ]
-            ],
-            [
-                "add_lore",
-                [
-                    "Party Size"
-                ]
-            ],
-            [
-                "add_portrait",
+                "add_talk",
                 [
                     "Ophie",
-                    "MidRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Ophie",
-                    "Well? So eager before, and now you hesitate. A pity.|Sidney?"
+                    "Prim"
                 ]
             ]
         ],
@@ -2035,6 +2048,28 @@
         "priority": 20
     },
     {
+        "name": "Thief Escape",
+        "trigger": "Thief Escape",
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "remove_unit",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "400"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
         "name": "DeathOphie",
         "trigger": "unit_death",
         "level_nid": null,
@@ -3572,12 +3607,6 @@
             [
                 "add_lore",
                 [
-                    "Unarmed Combat"
-                ]
-            ],
-            [
-                "add_lore",
-                [
                     "Party Size"
                 ]
             ],
@@ -4746,6 +4775,26 @@
     {
         "name": "WinGame",
         "trigger": "combat_end",
+        "level_nid": "10",
+        "condition": "game.check_dead('Ulver')",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Win game on Ulver's death"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "WinGame",
+        "trigger": "combat_end",
         "level_nid": "6",
         "condition": "game.check_dead('Razia')",
         "commands": [
@@ -5327,7 +5376,7 @@
                 ]
             ],
             [
-                "has_traded",
+                "has_attacked",
                 [
                     "{unit}"
                 ]
@@ -5413,7 +5462,7 @@
                 ]
             ],
             [
-                "has_traded",
+                "has_attacked",
                 [
                     "{unit}"
                 ]
@@ -5426,7 +5475,7 @@
         "name": "House2",
         "trigger": "Visit",
         "level_nid": "2",
-        "condition": "region.nid == 'House3'",
+        "condition": "region.nid == 'House2'",
         "commands": [
             [
                 "transition",
@@ -5499,7 +5548,7 @@
                 ]
             ],
             [
-                "has_traded",
+                "has_attacked",
                 [
                     "{unit}"
                 ]
@@ -5585,7 +5634,7 @@
                 ]
             ],
             [
-                "has_traded",
+                "has_attacked",
                 [
                     "{unit}"
                 ]
@@ -6493,6 +6542,10 @@
                 ]
             ],
             [
+                "arrange_formation",
+                []
+            ],
+            [
                 "prep",
                 [
                     "F",
@@ -6605,6 +6658,26 @@
                 [
                     "Ophie",
                     "Althea"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# So they don't start charging immediately"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "109",
+                    "Attack"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "110",
+                    "Attack"
                 ]
             ]
         ],
@@ -7170,10 +7243,10 @@
         "priority": 20
     },
     {
-        "name": "KileyCoyoteTalk",
+        "name": "KaylaCoyoteTalk",
         "trigger": "on_talk",
         "level_nid": "6",
-        "condition": "unit.nid == 'Kiley' and unit2.nid == 'Coyote'",
+        "condition": "unit.nid == 'Kayla' and unit2.nid == 'Coyote'",
         "commands": [
             [
                 "multi_add_portrait",
@@ -7661,7 +7734,7 @@
                 "speak",
                 [
                     "Ophie",
-                    "Then, we can't let them capture you!|You have to come with us.|We'll get you to the Resistance base."
+                    "Then, we can't let them find you!|You have to come with us.|We'll get you to the Resistance base."
                 ]
             ],
             [
@@ -8398,63 +8471,72 @@
                 "add_unit",
                 [
                     "fakeSam",
-                    "7,2"
+                    "7,2",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Ophie",
-                    "12,6"
+                    "12,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Prim",
-                    "10,6"
+                    "10,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Theo",
-                    "10,9"
+                    "10,9",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Renae",
-                    "5,9"
+                    "5,9",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Drake",
-                    "5,6"
+                    "5,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Joel",
-                    "9,7"
+                    "9,7",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Althea",
-                    "3,6"
+                    "3,6",
+                    "immediate"
                 ]
             ],
             [
                 "add_unit",
                 [
                     "Nia",
-                    "13,9"
+                    "13,9",
+                    "immediate"
                 ]
             ],
             [
@@ -9443,7 +9525,7 @@
             [
                 "if",
                 [
-                    "not game.level_var.get('escape_tiles')"
+                    "not game.level_vars.get('escape_tiles')"
                 ]
             ],
             [
@@ -9497,7 +9579,8 @@
                 [
                     "battle_save",
                     "Would you like to save?",
-                    "Yes,No"
+                    "Yes,No",
+                    "h"
                 ]
             ],
             [
@@ -9599,6 +9682,12 @@
                 [
                     "Switch Pulled!"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -9638,6 +9727,12 @@
                 "alert",
                 [
                     "Switch Pulled!"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -9679,6 +9774,12 @@
                 [
                     "Switch Pulled!"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -9688,7 +9789,7 @@
         "name": "SwitchCenter",
         "trigger": "Switch",
         "level_nid": "3",
-        "condition": "game.level_vars.get('switch', 0) >= 3",
+        "condition": "game.level_vars.get('switch', 0) >= 2",
         "commands": [
             [
                 "center_cursor",
@@ -9764,6 +9865,12 @@
                 [
                     "{unit}"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -9780,6 +9887,18 @@
                 [
                     "DoorWest"
                 ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -9795,6 +9914,18 @@
                 "show_layer",
                 [
                     "DoorEast"
+                ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -9814,9 +9945,21 @@
                 ]
             ],
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "give_money",
                 [
                     "2000"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -9836,9 +9979,21 @@
                 ]
             ],
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "give_money",
                 [
                     "2000"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -9858,9 +10013,21 @@
                 ]
             ],
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "give_money",
                 [
                     "2000"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -9877,6 +10044,12 @@
                 "show_layer",
                 [
                     "ChestCenter"
+                ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
                 ]
             ],
             [
@@ -9953,6 +10126,12 @@
             [
                 "end",
                 []
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -12593,8 +12772,14 @@
         "name": "No More Wagons",
         "trigger": "combat_end",
         "level_nid": "4",
-        "condition": "game.game_vars['escaped_wagons'] + game.game_vars['dead_wagons'] >= 10",
+        "condition": "True",
         "commands": [
+            [
+                "if",
+                [
+                    "game.game_vars['escaped_wagons'] + game.game_vars['dead_wagons'] >= 10"
+                ]
+            ],
             [
                 "if",
                 [
@@ -12647,6 +12832,10 @@
             [
                 "end",
                 []
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,
@@ -12664,6 +12853,12 @@
                     "{unit}",
                     "Wyrmsfire"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -12680,6 +12875,12 @@
                 [
                     "{unit}",
                     "Mithril Mail"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -12766,7 +12967,7 @@
                 "speak",
                 [
                     "Joel",
-                    "So Nia, anything catching you're eye?"
+                    "So Nia, anything catching your eye?"
                 ]
             ],
             [
@@ -12805,7 +13006,8 @@
                 "give_item",
                 [
                     "Nia",
-                    "Oak Bow"
+                    "Oak Bow",
+                    "no_choice"
                 ]
             ],
             [
@@ -12885,7 +13087,8 @@
                 "give_item",
                 [
                     "Drake",
-                    "Adamant Lance"
+                    "Adamant Lance",
+                    "no_choice"
                 ]
             ],
             [
@@ -13056,7 +13259,8 @@
                 "give_item",
                 [
                     "Ophie",
-                    "Magebane Sword"
+                    "Magebane Sword",
+                    "no_choice"
                 ]
             ],
             [
@@ -13755,7 +13959,7 @@
         "name": "Theo Sphinx, Pt. I",
         "trigger": "on_base_convo",
         "level_nid": "4",
-        "condition": "unit == \"Theo Sphinx, Pt. 1\"",
+        "condition": "unit == \"Theo Sphinx, Pt. I\"",
         "commands": [
             [
                 "comment",
@@ -14068,7 +14272,7 @@
                 [
                     "Sam",
                     "20,16",
-                    "",
+                    "immediate",
                     "closest"
                 ]
             ],
@@ -14077,7 +14281,7 @@
                 [
                     "Kayla",
                     "21,16",
-                    "",
+                    "immediate",
                     "closest"
                 ]
             ],
@@ -14101,7 +14305,13 @@
                 ]
             ],
             [
-                "move_cursor",
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
+                "flicker_cursor",
                 [
                     "Sam"
                 ]
@@ -14197,7 +14407,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -14230,7 +14459,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14238,22 +14469,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14274,7 +14489,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14282,22 +14499,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14318,7 +14519,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14326,22 +14529,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14386,7 +14573,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14394,22 +14583,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14430,7 +14603,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14438,22 +14613,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14474,7 +14633,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Bandit"
+                    "Bandit",
+                    "",
+                    "Steel Axe,Hand Axe"
                 ]
             ],
             [
@@ -14482,22 +14643,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Steel Axe",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Hand Axe",
                     "no_banner"
                 ]
             ],
@@ -14546,7 +14691,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14554,22 +14701,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14590,7 +14721,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14598,22 +14731,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14652,7 +14769,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14660,22 +14779,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14696,7 +14799,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Mithril Lance,Short Spear"
                 ]
             ],
             [
@@ -14704,22 +14809,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Short Spear",
                     "no_banner"
                 ]
             ],
@@ -14764,7 +14853,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -14772,14 +14863,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -14800,7 +14883,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -14808,14 +14893,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -14854,7 +14931,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -14862,14 +14941,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -14890,7 +14961,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Guard"
+                    "Guard",
+                    "",
+                    "Wind"
                 ]
             ],
             [
@@ -14898,14 +14971,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Wind",
                     "no_banner"
                 ]
             ],
@@ -14954,7 +15019,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -14962,14 +15029,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -14990,7 +15049,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -14998,14 +15059,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15026,7 +15079,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15034,14 +15089,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15062,7 +15109,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15070,14 +15119,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15098,7 +15139,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15106,14 +15149,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15134,7 +15169,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15142,14 +15179,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15192,7 +15221,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Yew Bow"
                 ]
             ],
             [
@@ -15200,14 +15231,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Yew Bow",
                     "no_banner"
                 ]
             ],
@@ -15228,7 +15251,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Sword"
                 ]
             ],
             [
@@ -15236,14 +15261,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Sword",
                     "no_banner"
                 ]
             ],
@@ -15264,7 +15281,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Blind"
                 ]
             ],
             [
@@ -15272,14 +15291,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Blind",
                     "no_banner"
                 ]
             ],
@@ -15312,7 +15323,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Axe"
                 ]
             ],
             [
@@ -15320,14 +15333,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Axe",
                     "no_banner"
                 ]
             ],
@@ -15348,7 +15353,9 @@
                     "game.turncount - 9",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Aether"
                 ]
             ],
             [
@@ -15356,14 +15363,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Aether",
                     "no_banner"
                 ]
             ],
@@ -15412,7 +15411,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15420,14 +15421,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15448,7 +15441,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15456,14 +15451,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15484,7 +15471,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15492,14 +15481,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15520,7 +15501,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15528,14 +15511,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15580,7 +15555,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15588,14 +15565,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15616,7 +15585,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15624,14 +15595,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15652,7 +15615,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15660,14 +15625,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -15688,7 +15645,9 @@
                     "game.turncount - 4",
                     "enemy",
                     "Pursue",
-                    "Claw"
+                    "Claw",
+                    "",
+                    "Mithril Lance"
                 ]
             ],
             [
@@ -15696,14 +15655,6 @@
                 [
                     "{unit}",
                     "Void_Curse",
-                    "no_banner"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "{unit}",
-                    "Mithril Lance",
                     "no_banner"
                 ]
             ],
@@ -16031,7 +15982,7 @@
         "name": "Village",
         "trigger": "Visit",
         "level_nid": "5",
-        "condition": "region.nid == 'Village'",
+        "condition": "True",
         "commands": [
             [
                 "comment",
@@ -16101,6 +16052,12 @@
                 [
                     "{unit}",
                     "Gustblade"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -16528,14 +16485,6 @@
                 ]
             ],
             [
-                "multi_remove_portrait",
-                [
-                    "Kayla",
-                    "Ophie",
-                    "Sam"
-                ]
-            ],
-            [
                 "transition",
                 [
                     "Close"
@@ -16569,6 +16518,14 @@
                 [
                     "_current_turnwheel_uses",
                     "5"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "Kayla",
+                    "fSpeed +2",
+                    "no_banner"
                 ]
             ],
             [
@@ -17315,9 +17272,19 @@
                 ]
             ],
             [
+                "change_background",
+                []
+            ],
+            [
                 "transition",
                 [
                     "Open"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ],
             [
@@ -17501,6 +17468,12 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
                 "remove_unit",
                 [
                     "Vagnius"
@@ -17516,6 +17489,12 @@
                 "remove_unit",
                 [
                     "N2"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vincent"
                 ]
             ],
             [
@@ -17571,7 +17550,8 @@
                 "add_unit",
                 [
                     "Ophie",
-                    "3,15"
+                    "3,15",
+                    "immediate"
                 ]
             ],
             [
@@ -17701,6 +17681,12 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
                 "transition",
                 [
                     "Close"
@@ -17747,7 +17733,7 @@
                 "speak",
                 [
                     "Jules",
-                    "You bet your ass we were, sweet cheeks!"
+                    "You bet we were, sweet cheeks!"
                 ]
             ],
             [
@@ -17799,10 +17785,22 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "200"
+                ]
+            ],
+            [
                 "move_unit",
                 [
                     "Jules",
                     "9,5"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ],
             [
@@ -17852,6 +17850,10 @@
                 [
                     "Open"
                 ]
+            ],
+            [
+                "prep",
+                []
             ]
         ],
         "only_once": false,
@@ -17870,6 +17872,12 @@
                 ]
             ],
             [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
                 "music",
                 [
                     "Jazz Noir"
@@ -17884,7 +17892,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -18009,6 +18017,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": true,
@@ -18027,6 +18045,12 @@
                 ]
             ],
             [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
                 "change_background",
                 [
                     "TacticsRoomDay"
@@ -18035,7 +18059,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -18211,6 +18235,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": true,
@@ -18229,6 +18263,12 @@
                 ]
             ],
             [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
                 "change_background",
                 [
                     "ClearingSunrise"
@@ -18237,7 +18277,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -18398,6 +18438,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": true,
@@ -18438,6 +18488,12 @@
                 [
                     "Switch Pulled!"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -18458,7 +18514,7 @@
             [
                 "flicker_cursor",
                 [
-                    "1,21"
+                    "23,21"
                 ]
             ],
             [
@@ -18477,6 +18533,12 @@
                 "alert",
                 [
                     "Switch Pulled!"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -18522,12 +18584,6 @@
                 ]
             ],
             [
-                "wait",
-                [
-                    "500"
-                ]
-            ],
-            [
                 "comment",
                 [
                     "# Replace with open areas"
@@ -18537,6 +18593,12 @@
                 "show_layer",
                 [
                     "Bridge"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
                 ]
             ],
             [
@@ -18629,6 +18691,12 @@
                 [
                     "{unit}"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -18645,6 +18713,18 @@
                 [
                     "DoorNW"
                 ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -18660,6 +18740,12 @@
                 "show_layer",
                 [
                     "DoorSW"
+                ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
                 ]
             ],
             [
@@ -18719,7 +18805,7 @@
             [
                 "if",
                 [
-                    "self.unit.variant == 'Female'"
+                    "unit.variant == 'Female'"
                 ]
             ],
             [
@@ -18839,6 +18925,12 @@
                     "C12",
                     "2,30"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -18855,6 +18947,18 @@
                 [
                     "DoorNE"
                 ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -18870,6 +18974,12 @@
                 "show_layer",
                 [
                     "DoorSE"
+                ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
                 ]
             ],
             [
@@ -18892,6 +19002,12 @@
                     "C23",
                     "Escape"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -18907,6 +19023,12 @@
                 "show_layer",
                 [
                     "DoorSouth"
+                ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
                 ]
             ],
             [
@@ -19025,6 +19147,27 @@
                 [
                     "Open"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Coyote",
+                    "12,32",
+                    "",
+                    "closest"
+                ]
+            ],
+            [
+                "reset",
+                [
+                    "Coyote"
+                ]
             ]
         ],
         "only_once": false,
@@ -19040,6 +19183,18 @@
                 "show_layer",
                 [
                     "DoorCenter"
+                ]
+            ],
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -19059,9 +19214,15 @@
                 ]
             ],
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "if",
                 [
-                    "self.unit.team == 'enemy'"
+                    "unit.team == 'enemy'"
                 ]
             ],
             [
@@ -19093,6 +19254,12 @@
             [
                 "end",
                 []
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -19111,9 +19278,15 @@
                 ]
             ],
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "if",
                 [
-                    "self.unit.team == 'enemy'"
+                    "unit.team == 'enemy'"
                 ]
             ],
             [
@@ -19145,6 +19318,12 @@
             [
                 "end",
                 []
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -19163,9 +19342,15 @@
                 ]
             ],
             [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
                 "if",
                 [
-                    "self.unit.team == 'enemy'"
+                    "unit.team == 'enemy'"
                 ]
             ],
             [
@@ -19197,6 +19382,12 @@
             [
                 "end",
                 []
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -19418,7 +19609,7 @@
         "name": "Turn2",
         "trigger": "turn_change",
         "level_nid": "6",
-        "condition": "game.turnount == 2",
+        "condition": "game.turncount == 2",
         "commands": [
             [
                 "comment",
@@ -19913,7 +20104,7 @@
         "name": "LineCross1",
         "trigger": "turn_change",
         "level_nid": "6",
-        "condition": "any(unit.position[1] < 10 for unit in game.units if unit.position and unit.team == 'player')",
+        "condition": "any(unit.position[1] < 13 for unit in game.units if unit.position and unit.team == 'player')",
         "commands": [
             [
                 "level_var",
@@ -19994,7 +20185,7 @@
         "name": "LineCross2",
         "trigger": "turn_change",
         "level_nid": "6",
-        "condition": "game.turncount == game.level_vars['line_cross'] + 1",
+        "condition": "game.turncount == game.level_vars['line_cross'] + 1 and game.turncount > 2",
         "commands": [
             [
                 "center_cursor",
@@ -20169,6 +20360,21 @@
                 [
                     "_current_turnwheel_uses",
                     "6"
+                ]
+            ],
+            [
+                "give_skill",
+                [
+                    "Coyote",
+                    "fMaximum HP +5",
+                    "no_banner"
+                ]
+            ],
+            [
+                "set_current_hp",
+                [
+                    "Coyote",
+                    "40"
                 ]
             ],
             [
@@ -20433,6 +20639,13 @@
                 "change_background",
                 [
                     "TacticsRoomDay"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 6",
+                    "reload"
                 ]
             ],
             [
@@ -20820,7 +21033,7 @@
             [
                 "if",
                 [
-                    "gameStateObj.check_alive(\"Joel\")"
+                    "game.check_alive(\"Joel\")"
                 ]
             ],
             [
@@ -20995,25 +21208,11 @@
                 ]
             ],
             [
-                "add_portrait",
-                [
-                    "SoldierRed",
-                    "OffscreenLeft",
-                    "immediate"
-                ]
-            ],
-            [
                 "speak",
                 [
-                    "SoldierRed",
-                    "Wee-oh, wee-oh, wee-oh!!!"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "SoldierRed",
-                    "immediate"
+                    "",
+                    "Wee-oh, wee-oh, wee-oh!!!",
+                    "60,24"
                 ]
             ],
             [
@@ -21082,6 +21281,12 @@
                 "comment",
                 [
                     "# Episode 3"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ],
             [
@@ -21238,6 +21443,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": true,
@@ -21247,12 +21462,18 @@
         "name": "Guard Duty",
         "trigger": "on_base_convo",
         "level_nid": "6",
-        "condition": "unit == 'Guard Duty",
+        "condition": "unit == 'Guard Duty'",
         "commands": [
             [
                 "music",
                 [
                     "Brave Story - Hare"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ],
             [
@@ -21549,6 +21770,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false,
@@ -21564,6 +21795,12 @@
                 "music",
                 [
                     "Hum of the Streets"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ],
             [
@@ -21847,6 +22084,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false,
@@ -21918,7 +22165,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -22152,6 +22399,12 @@
                     "{unit}",
                     "Warp"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -22169,6 +22422,12 @@
                     "{unit}",
                     "Rescue"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": true,
@@ -22185,6 +22444,12 @@
                 [
                     "{unit}",
                     "Hex"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -22483,7 +22748,7 @@
                 "speak",
                 [
                     "Marduk",
-                    "In one fell swoop, the Resistance will be defeated,|and I, Marduk, will garner the credit I so rightfully deserve!"
+                    "In one fell swoop, the Resistance will be defeated,|and I will garner the credit I so rightfully deserve!"
                 ]
             ],
             [
@@ -22513,13 +22778,13 @@
             [
                 "move_cursor",
                 [
-                    "27,0"
+                    "0,23"
                 ]
             ],
             [
                 "add_group",
                 [
-                    "WyvernNorth"
+                    "WyvernSouth"
                 ]
             ],
             [
@@ -22547,7 +22812,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -22767,6 +23051,13 @@
                 "change_background",
                 [
                     "TacticsRoomDay"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 7",
+                    "reload"
                 ]
             ],
             [
@@ -23472,13 +23763,6 @@
                 ]
             ],
             [
-                "give_item",
-                [
-                    "{unit}",
-                    "Tomahawk"
-                ]
-            ],
-            [
                 "speak",
                 [
                     "Man1",
@@ -23511,6 +23795,19 @@
                 "transition",
                 [
                     "Open"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "{unit}",
+                    "Tomahawk"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -23592,6 +23889,12 @@
                     "{unit}",
                     "Superior Axe"
                 ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
             ]
         ],
         "only_once": false,
@@ -23634,7 +23937,7 @@
                 "speak",
                 [
                     "Man5",
-                    "Are you defending the village?|Here, take this.|When the Imperial army passed through here, I managed to snatch it.|It should serve you well"
+                    "Are you defending the village?|Here, take this.|When the Imperial army passed through here, I managed to snatch it.|It should serve you well."
                 ]
             ],
             [
@@ -23671,6 +23974,12 @@
                 [
                     "{unit}",
                     "Long Spear"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -23714,7 +24023,7 @@
                 "speak",
                 [
                     "Man1",
-                    "I was a soldier once.|I even fought during the Second Rebellion--|A brutal, short affair that was.{w}Now?|I'm just a simple merchant.|Don't have much use for this old hunk of metal any more."
+                    "I was a soldier once.|I even fought during the Second Rebellion--|A brutal, short affair that was. {w}Now?|I'm just a simple merchant.|Don't have much use for this old hunk of metal any more."
                 ]
             ],
             [
@@ -23751,6 +24060,12 @@
                 [
                     "{unit}",
                     "Adamant Sword"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -23794,7 +24109,7 @@
                 "speak",
                 [
                     "Woman1",
-                    "My husband was an archer.|He fought off bandits with his trusty bow.|B-but he perished in the fight with Rusonoon army...|Take this.|If using his bow helps you save someone you love, I'm sure he'd be proud."
+                    "My husband was an archer.|He fought off bandits with his trusty bow.|B-but he perished in the fight with the Rusonoon army...|Take this.|If using his bow helps you save someone you love, I'm sure he'd be proud."
                 ]
             ],
             [
@@ -23831,6 +24146,12 @@
                 [
                     "{unit}",
                     "Magebane Bow"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -23874,7 +24195,7 @@
                 "speak",
                 [
                     "Boy2",
-                    "Mother says that I should hide in the basemenet whenever bandits attack,|but I want to fight too.{w}{clear}One day, I'll grow big and strong and be able to fight the Empire!|Just like my pa and my big brother.|I'll go all over Kerala, killing Imperials wherever they lurk. Yaaah!"
+                    "Mother says that I should hide in the basement whenever bandits attack,|but I want to fight too.{w}{clear}One day, I'll grow big and strong and be able to fight the Empire!|Just like my pa and my big brother.|I'll go all over Kerala, killing Imperials wherever they lurk. Yaaah!"
                 ]
             ],
             [
@@ -23896,7 +24217,7 @@
                 "speak",
                 [
                     "Boy2",
-                    "Yes, mother!|Here, you can have this"
+                    "Yes, mother!|Here, you can have this."
                 ]
             ],
             [
@@ -23933,6 +24254,12 @@
                 [
                     "{unit}",
                     "Angelic Robe"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -24806,7 +25133,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -25115,6 +25461,13 @@
                 ]
             ],
             [
+                "change_tilemap",
+                [
+                    "Chapter 8",
+                    "reload"
+                ]
+            ],
+            [
                 "transition",
                 [
                     "Open"
@@ -25322,7 +25675,7 @@
                 "speak",
                 [
                     "Joel",
-                    "That's an ambitious plan...|Ya think we can pull it off?"
+                    "That's an ambitious plan...|Ya reckon we can pull it off?"
                 ]
             ],
             [
@@ -26034,6 +26387,12 @@
                 ]
             ],
             [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
                 "change_background",
                 [
                     "TacticsRoom"
@@ -26042,7 +26401,7 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "Open"
                 ]
             ],
             [
@@ -26239,6 +26598,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false,
@@ -26254,6 +26623,12 @@
                 "music",
                 [
                     "Lady Eboshi"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ],
             [
@@ -26444,6 +26819,13 @@
                 ]
             ],
             [
+                "move_portrait",
+                [
+                    "Althea",
+                    "FarLeft"
+                ]
+            ],
+            [
                 "speak",
                 [
                     "Prim",
@@ -26492,13 +26874,6 @@
                 ]
             ],
             [
-                "move_portrait",
-                [
-                    "Althea",
-                    "FarLeft"
-                ]
-            ],
-            [
                 "add_portrait",
                 [
                     "Prim",
@@ -26516,14 +26891,14 @@
                 "speak",
                 [
                     "Drake",
-                    "My lady Althea... Your conduct at the meeting was concerning--|Wait, you've been crying?|I would not normally strike a lady, Prim, but you leave me no choice--"
+                    "My lady Althea... Your conduct at the meeting was concerning--|Wait, you've been crying?{w}{clear}I would not normally strike a lady, Prim, but you leave me no choice--"
                 ]
             ],
             [
                 "speak",
                 [
                     "Althea",
-                    "Haha... Drake, hold!"
+                    "Haha... Drake, hold on!"
                 ]
             ],
             [
@@ -26591,15 +26966,25 @@
                 ]
             ],
             [
+                "ignore_base_convo",
+                [
+                    "Coronation"
+                ]
+            ],
+            [
                 "transition",
                 [
                     "Close"
                 ]
             ],
             [
-                "ignore_base_convo",
+                "change_background",
+                []
+            ],
+            [
+                "transition",
                 [
-                    "Coronation"
+                    "Open"
                 ]
             ]
         ],
@@ -26693,7 +27078,7 @@
                 "speak",
                 [
                     "Kayla",
-                    "If we succeed, by tomorrow evening Althea will be on throne,|Duke Ulver will have been defeated, and Kerala will be free."
+                    "If we succeed, by tomorrow evening Althea will be on the throne,|Duke Ulver will have been defeated, and Kerala will be free."
                 ]
             ],
             [
@@ -26828,7 +27213,7 @@
                 "speak",
                 [
                     "Ophie",
-                    "I thought Vagnius was some... incarnation of pure evil,|like a devil out of a storybook.|But really he was just an ordinary man.|Twisted, sure.|But he died just the same as the rest..."
+                    "I-I thought Vagnius was some... incarnation of pure evil,|like a devil out of a storybook.|But really he was just an ordinary man.|Twisted, sure.|But he died just the same as the rest..."
                 ]
             ],
             [
@@ -26952,7 +27337,7 @@
             [
                 "if",
                 [
-                    "game.level_var.get('switch', 0) > 2"
+                    "game.level_vars.get('switch', 0) > 2"
                 ]
             ],
             [
@@ -26969,7 +27354,7 @@
             [
                 "if",
                 [
-                    "game.level_var.get('switch') == 1"
+                    "game.level_vars.get('switch') == 1"
                 ]
             ],
             [
@@ -27068,6 +27453,12 @@
         "level_nid": "9",
         "condition": "unit == 'Promises'",
         "commands": [
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
             [
                 "music",
                 [
@@ -27289,6 +27680,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false,
@@ -27304,6 +27705,12 @@
                 "music",
                 [
                     "Midna's Theme"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ],
             [
@@ -27618,6 +28025,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false,
@@ -27633,6 +28050,12 @@
                 "comment",
                 [
                     "# Episode 4"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ],
             [
@@ -27900,6 +28323,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false,
@@ -27915,6 +28348,12 @@
                 "music",
                 [
                     "Wild Arms Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
                 ]
             ],
             [
@@ -28246,6 +28685,16 @@
                 [
                     "Close"
                 ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
             ]
         ],
         "only_once": false,
@@ -28286,6 +28735,12 @@
                 "alert",
                 [
                     "Switch pulled!"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
                 ]
             ]
         ],
@@ -29117,6 +29572,20 @@
             [
                 "comment",
                 [
+                    "# Jakin shouldn't be stealing stuff"
+                ]
+            ],
+            [
+                "remove_skill",
+                [
+                    "Jakin",
+                    "Steal",
+                    "no_banner"
+                ]
+            ],
+            [
+                "comment",
+                [
                     "# Remove the one unit that's in the screenspace"
                 ]
             ],
@@ -29124,6 +29593,20 @@
                 "remove_unit",
                 [
                     "105",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Jakin",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Boaz",
                     "immediate"
                 ]
             ],
@@ -29367,6 +29850,13 @@
                 "change_background",
                 [
                     "TacticsRoom"
+                ]
+            ],
+            [
+                "change_tilemap",
+                [
+                    "Chapter 9",
+                    "reload"
                 ]
             ],
             [
@@ -30061,6 +30551,34 @@
                 ]
             ],
             [
+                "remove_unit",
+                [
+                    "Althea",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Sam",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Joel",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Ophie",
+                    "immediate"
+                ]
+            ],
+            [
                 "arrange_formation",
                 []
             ],
@@ -30122,7 +30640,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30140,7 +30659,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30158,7 +30678,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30176,7 +30697,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30216,7 +30738,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30234,7 +30757,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30252,7 +30776,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -30270,7 +30795,8 @@
                 "give_skill",
                 [
                     "{unit}",
-                    "Void_Curse"
+                    "Void_Curse",
+                    "no_banner"
                 ]
             ],
             [
@@ -31225,7 +31751,26 @@
                 ]
             ],
             [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
                 "battle_save",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],
@@ -31828,6 +32373,20 @@
                 "change_background",
                 [
                     "BlackBackground"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Sam",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Ophie",
+                    "immediate"
                 ]
             ],
             [
@@ -33261,6 +33820,496 @@
                 [
                     "Close",
                     "1000"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Level3Setup",
+        "trigger": null,
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Sets up / preloads the party for level 3"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Ophie",
+                    "4"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Prim",
+                    "2"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Joel",
+                    "5"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Nia",
+                    "4"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "Althea",
+                    "3"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Ophie",
+                    "74"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Prim",
+                    "87"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Joel",
+                    "20"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Nia",
+                    "59"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Althea",
+                    "36"
+                ]
+            ],
+            [
+                "set_exp",
+                [
+                    "Drake",
+                    "37"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Ophie",
+                    "Sword",
+                    "12"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Prim",
+                    "Light",
+                    "11"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Joel",
+                    "Axe",
+                    "13"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Nia",
+                    "Bow",
+                    "10"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Althea",
+                    "Anima",
+                    "6"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Drake",
+                    "Sword",
+                    "3"
+                ]
+            ],
+            [
+                "give_wexp",
+                [
+                    "Drake",
+                    "Sword",
+                    "2"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Steel Sword"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Potion"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Ophie",
+                    "Angelic Robe"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Prim",
+                    "Ruby"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Joel",
+                    "Hand Axe"
+                ]
+            ],
+            [
+                "give_item",
+                [
+                    "Drake",
+                    "Spiritbane"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Switch",
+        "trigger": "Switch",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "inc_level_var",
+                [
+                    "switch"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "6,10"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Switch Pulled!"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "SearchRuin",
+        "trigger": "Search",
+        "level_nid": "5",
+        "condition": "True",
+        "commands": [
+            [
+                "center_cursor",
+                [
+                    "22,7"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "road"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Wagon Escape",
+        "trigger": "Thief Escape",
+        "level_nid": "4",
+        "condition": "True",
+        "commands": [
+            [
+                "inc_game_var",
+                [
+                    "escaped_wagons"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['escaped_wagons'] >= 4"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "lose_game",
+                []
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "elif",
+                [
+                    "game.game_vars['escaped_wagons'] + game.game_vars['dead_wagons'] >= 10"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.check_dead('Anders')"
+                ]
+            ],
+            [
+                "win_game",
+                []
+            ],
+            [
+                "elif",
+                [
+                    "'anders_threat' not in game.level_vars"
+                ]
+            ],
+            [
+                "move_cursor",
+                [
+                    "Anders"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Anders",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Anders",
+                    "You haven't won yet, Resistance scum.|I'll take your scalps back to the Duke myself!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Anders"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "anders_threat",
+                    "True"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 19
+    },
+    {
+        "name": "Battle Save",
+        "trigger": "turn_change",
+        "level_nid": "6",
+        "condition": "game.level_vars['switch'] >= 2",
+        "commands": [
+            [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
+                "battle_save",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": true,
+        "priority": 10
+    },
+    {
+        "name": "Battle Save",
+        "trigger": "turn_change",
+        "level_nid": "9",
+        "condition": "game.level_vars['master_switch']",
+        "commands": [
+            [
+                "choice",
+                [
+                    "battle_save",
+                    "Would you like to save?",
+                    "Yes,No",
+                    "h"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.game_vars['battle_save'] == 'Yes'"
+                ]
+            ],
+            [
+                "battle_save",
+                []
+            ],
+            [
+                "end",
+                []
+            ]
+        ],
+        "only_once": true,
+        "priority": 10
+    },
+    {
+        "name": "Door",
+        "trigger": "Door",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "unlock",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Door unlocked!"
+                ]
+            ],
+            [
+                "has_attacked",
+                [
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "OphiePrimTalk",
+        "trigger": "on_talk",
+        "level_nid": "DEBUG",
+        "condition": "unit.nid == 'Ophie' and unit2.nid == 'Prim'",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Wow"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
                 ]
             ]
         ],

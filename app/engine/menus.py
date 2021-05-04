@@ -1,3 +1,5 @@
+import math
+
 from app.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data.database import DB
 from app.utilities import utils
@@ -196,7 +198,7 @@ class Simple():
             if self.current_index > len(self.options) - 1:
                 self.current_index = 0
                 self.scroll = 0
-            elif self.current_index > self.scroll + self.limit - 2:
+            elif self.current_index > self.scroll + self.limit - 2 and self.scroll + self.limit < len(self.options):
                 self.scroll += 1
             else:
                 self.cursor.y_offset -= 1
@@ -294,6 +296,8 @@ class Simple():
                     self.mouse_move(idx)
 
 class Choice(Simple):
+    disp_value = False
+
     def __init__(self, owner, options, topleft=None, background='menu_bg_base', info=None):
         self.horizontal = False
         self.is_convoy = False
@@ -424,7 +428,7 @@ class Choice(Simple):
             if self.shimmer != 0:
                 sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
                 surf.blit(sprite, (surf.get_width() - 1 - sprite.get_width(), surf.get_height() - 5 - sprite.get_height()))
-            if self.is_convoy:
+            if self.is_convoy or self.disp_value == 'sell':
                 # Draw face
                 item = self.get_current()
                 unit = None
@@ -435,7 +439,7 @@ class Choice(Simple):
                     face_image = face_image.convert_alpha()
                     # face_image = engine.subsurface(face_image, (0, 0, 96, 76))
                     face_image = image_mods.make_translucent(face_image, 0.5)
-                    surf.blit(face_image, (8, surf.get_height() - face_image.get_height() - 5))
+                    surf.blit(face_image, (surf.get_width()//2 - face_image.get_width()//2 + 4, surf.get_height() - face_image.get_height() - 5))
             surf = image_mods.make_translucent(surf, .1)
             return surf
 
@@ -485,7 +489,7 @@ class Choice(Simple):
                 left = topleft[0]
 
                 if self.highlight and idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top, menu_width - 16 if draw_scroll_bar else menu_width)
+                    choice.draw_highlight(surf, left, top, menu_width - 8 if draw_scroll_bar else menu_width)
                 # elif self.highlight and idx + self.scroll == self.fake_cursor_idx:
                     # choice.draw_highlight(surf, left, top, menu_width)
                 else:
@@ -872,133 +876,89 @@ class Table(Simple):
         idx = utils.clamp(idx, 0, len(self.options) - 1)
         if self.options[idx].ignore:
             return
-        while self.current_index < idx:
-            self.move_right(True)
-        while self.current_index > idx:
-            self.move_left(True)
+        self.current_index = idx
+        row, col = self._true_coords(self.current_index)
+        self.scroll = utils.clamp(self.scroll, row - self.rows + 1, row + self.rows - 1)
         # If we did scroll
         return scroll != self.scroll
 
-    def _move_down(self, first_push=True):
-        if first_push:
-            self.current_index += self.columns
-            if self.current_index > len(self.options) - 1:
-                # If there is an option to the left
-                # If odd number of options and we are on the same row as it
-                if len(self.options) % self.columns and self.current_index // self.columns == len(self.options) // self.columns:
-                    self.current_index = len(self.options) - 1
-                else:
-                    self.current_index = self.current_index % self.columns
-                    self.scroll = 0
-            elif self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                self.scroll += 1
-            else:
-                self.cursor.y_offset -= 1
-        else:
-            if self.current_index < len(self.options) - self.columns:
-                self.current_index += self.columns
-                if self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                    self.scroll += 1
-                self.cursor.y_offset -= 1
-        if self.limit * self.columns < len(self.options):
-            self.scroll = min(len(self.options) - self.limit * self.columns, self.scroll)
-        else:
-            self.scroll = 0  # No need to scroll
+    def _true_coords(self, idx: int) -> tuple:
+        return (idx // self.columns, idx % self.columns)
 
-    def _move_up(self, first_push=True):
-        if first_push:
-            self.current_index -= self.columns
-            if self.current_index < 0:
-                column_idx = self.current_index % self.columns
-                self.current_index = len(self.options) - 1
-                while self.current_index % self.columns != column_idx:
-                    self.current_index -= 1
-                self.scroll = self.current_index // self.columns - self.limit + 1
-            elif self.current_index < self.scroll * self.columns + 1:
-                self.scroll -= 1
-            else:
-                self.cursor.y_offset += 1
-        else:
-            if self.current_index > 0:
-                self.current_index -= self.columns
-                if self.current_index < self.scroll * self.columns + 1:
-                    self.scroll -= 1
-                self.cursor.y_offset += 1
-        self.scroll = max(0, self.scroll)
+    def _exists(self, row: int, col: int) -> bool:
+        if col >= self.columns or row < 0 or col < 0:
+            return False
+        return (row * self.columns + col) < len(self.options)
 
-    def _move_left(self, first_push=True):
-        if first_push:
-            self.current_index -= 1
-            if self.current_index < 0:
-                self.current_index = len(self.options) - 1
-                self.scroll = self.current_index // self.columns - self.limit + 1
-            elif self.current_index < self.scroll * self.columns + 1:
-                self.scroll -= 1
-            else:
-                self.cursor.y_offset += 1
-        else:
-            if self.current_index > 0:
-                self.current_index -= 1
-                if self.current_index < self.scroll * self.columns + 1:
-                    self.scroll -= 1
-                self.cursor.y_offset += 1
-        self.scroll = max(0, self.scroll)
+    def _idx_coords(self, row: int, col: int) -> int:
+        return row * self.columns + col
 
-    def _move_right(self, first_push=True):
-        if first_push:
-            self.current_index += 1
-            if self.current_index > len(self.options) - 1:
-                self.current_index = 0
-                self.scroll = 0
-            elif self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                self.scroll += 1
-            else:
-                self.cursor.y_offset -= 1
+    def _get_bottom(self, col: int) -> int:
+        if col >= len(self.options) % self.columns:
+            return len(self.options) // self.columns - 1
         else:
-            if self.current_index < len(self.options) - 1:
-                self.current_index += 1
-                if self.current_index > (self.scroll + self.limit - 2) * self.columns:
-                    self.scroll += 1
-                self.cursor.y_offset -= 1
-        if self.limit * self.columns < len(self.options):
-            self.scroll = min(len(self.options) - self.limit * self.columns, self.scroll)
+            return len(self.options) // self.columns
+
+    def _get_right(self, row: int) -> int:
+        if row >= len(self.options) // self.columns:
+            return (len(self.options) % self.columns) - 1
         else:
-            self.scroll = 0  # No need to scroll
+            return self.columns - 1
 
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_down(True)
-            while self.options[self.current_index].ignore:
-                self._move_down(True)
-
-        else:
-            if any(not option.ignore for option in self.options[self.current_index + 1:]):
-                self._move_down(False)
-                while self.options[self.current_index].ignore:
-                    self._move_down(False)
-
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            row += 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                row = 0
+                self.scroll = 0
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if row > self.scroll + self.rows - 2:
+                self.scroll += 1
+            elif row != 0:
+                self.cursor.y_offset -= 1
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
         if old_index == self.current_index:
             self.cursor.y_offset = 0
+        num_rows = math.ceil(len(self.options) / self.columns)
+        self.scroll = utils.clamp(self.scroll, 0, max(0, num_rows - self.rows))
         return old_index != self.current_index
 
     def move_up(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_up(True)
-            while self.options[self.current_index].ignore:
-                self._move_up(True)
-
-        else:
-            if any(not option.ignore for option in self.options[:self.current_index]):
-                self._move_up(False)
-                while self.options[self.current_index].ignore:
-                    self._move_up(False)
-
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            row -= 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                row = self._get_bottom(col)
+                num_rows = math.ceil(len(self.options) / self.columns)
+                self.scroll = num_rows - self.rows
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if row < self.scroll + 1:
+                self.scroll -= 1
+            elif row != self._get_bottom(col):
+                self.cursor.y_offset += 1
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
+        self.scroll = max(0, self.scroll)
         if old_index == self.current_index:
             self.cursor.y_offset = 0
         return old_index != self.current_index
@@ -1007,38 +967,40 @@ class Table(Simple):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_right(True)
-            while self.options[self.current_index].ignore:
-                self._move_right(True)
-
-        else:
-            if any(not option.ignore for option in self.options[self.current_index + 1:]):
-                self._move_right(False)
-                while self.options[self.current_index].ignore:
-                    self._move_right(False)
-
-        if old_index == self.current_index:
-            self.cursor.y_offset = 0
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            col += 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                col = 0
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
         return old_index != self.current_index
 
     def move_left(self, first_push=True):
         if all(option.ignore for option in self.options):
             return
         old_index = self.current_index
-        if first_push:
-            self._move_left(True)
-            while self.options[self.current_index].ignore:
-                self._move_left(True)
-
-        else:
-            if any(not option.ignore for option in self.options[:self.current_index]):
-                self._move_left(False)
-                while self.options[self.current_index].ignore:
-                    self._move_left(False)
-
-        if old_index == self.current_index:
-            self.cursor.y_offset = 0
+        row, col = self._true_coords(old_index)
+        idx = old_index
+        while True:
+            col -= 1
+            if self._exists(row, col):
+                pass
+            elif first_push:
+                col = self._get_right(row)
+            else:
+                break
+            idx = self._idx_coords(row, col)
+            if not self.options[idx].ignore:
+                break
+        self.current_index = idx
         return old_index != self.current_index
 
     def get_menu_width(self):
@@ -1068,6 +1030,12 @@ class Table(Simple):
         surf = image_mods.make_translucent(surf, .1)
         return surf
 
+    def draw_scroll_bar(self, surf, topleft):
+        right = topleft[0] + self.get_menu_width()
+        topright = (right, topleft[1])
+        num_rows = math.ceil(len(self.options) / self.columns)
+        self.scroll_bar.draw(surf, topright, self.scroll, self.rows, num_rows)
+
     def draw(self, surf):
         topleft = self.get_topleft()
         bg_surf = self.create_bg_surf()
@@ -1079,8 +1047,9 @@ class Table(Simple):
             self.draw_scroll_bar(surf, topleft)
 
         start_index = self.scroll * self.columns
-        end_index = (self.scroll + self.limit) * self.columns
+        end_index = (self.scroll + self.rows) * self.columns
         choices = self.options[start_index:end_index]
+        # print(self.scroll, start_index, end_index)
         width = max(option.width() for option in self.options)
         width -= width%8
         height = max(option.height() for option in self.options)
@@ -1092,9 +1061,9 @@ class Table(Simple):
                     left += 16
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
-                    choice.draw_highlight(surf, left, top, width - 16 if draw_scroll_bar else width)
+                    choice.draw_highlight(surf, left, top, width - 8 if draw_scroll_bar else width)
                 elif idx + (self.scroll * self.columns) == self.fake_cursor_idx:
-                    choice.draw_highlight(surf, left, top, width - 16 if draw_scroll_bar else width)
+                    choice.draw_highlight(surf, left, top, width - 8 if draw_scroll_bar else width)
                 else:
                     choice.draw(surf, left, top)
                 if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
@@ -1130,15 +1099,17 @@ class Table(Simple):
 class Convoy():
     trade_name_surf = SPRITES.get('trade_name')
     
-    def __init__(self, owner, topleft):
+    def __init__(self, owner, topleft, include_other_units=True, disp_value=False):
         self.unit = self.owner = owner  # Unit that's at the convoy
         self.topleft = topleft
-        self.disp_value = False
+        self.disp_value = disp_value
         self.takes_input = True
+        self.include_other_units = include_other_units
 
         self.order = [w.nid for w in DB.weapons]
         self.build_menus()
 
+        self._info_flag = False  # Whether to show item info
         self.selection_index = 0  # 0 is inventory, 1+ is convoy
         self.menu_index = 0  # Position for convoy
         self.locked = False  # Whether you are locked to convoy or inventory
@@ -1177,23 +1148,28 @@ class Convoy():
         convoy = game.party.convoy
         all_items = []
         all_items += convoy
-        for unit in game.get_units_in_party():
-            items = item_funcs.get_all_tradeable_items(unit)
-            all_items += items                
+        if self.include_other_units:
+            for unit in game.get_units_in_party():
+                if unit.nid != self.unit.nid:
+                    items = item_funcs.get_all_tradeable_items(unit)
+                    all_items += items                
 
         sorted_dict = {}
         for w_type in self.order[:-1]:
             sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
         sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
-            value.sort(key=lambda item: item_system.special_sort(self.unit, item))
+            value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
             value.sort(key=lambda item: item.name)
             value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
+            value.sort(key=lambda item: item_system.full_price(self.unit, item) or 0)
+            value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
 
     def update_options(self):
-        self.inventory.update_options(self.owner.items)
+        if self.inventory:
+            self.inventory.update_options(self.owner.items)
         sorted_dict = self.get_sorted_dict()
         for name, menu in self.menus.items():
             menu.update_options(sorted_dict[name])
@@ -1261,7 +1237,6 @@ class Convoy():
             return self.get_menu().move_up(first_push)
 
     def move_left(self, first_push=True):
-        print(self.locked)
         if self.selection_index == 0:
             if self.locked:
                 return False
@@ -1324,17 +1299,30 @@ class Convoy():
         return True
 
     def toggle_info(self):
+        self._info_flag = not self._info_flag
+        """
         if self.selection_index == 0:
             self.inventory.toggle_info()
         else:
             self.get_menu().toggle_info()
+        """
 
     @property
     def info_flag(self):
+        return self._info_flag
+        """
         if self.selection_index == 0:
             return self.inventory.info_flag
         else:
             return self.get_menu().info_flag
+        """
+
+    def draw_info(self, surf):
+        if self.selection_index == 0:
+            self.inventory.vert_draw_info(surf)
+        else:
+            self.get_menu().vert_draw_info(surf)
+        return surf
 
     def set_takes_input(self, val):
         self.takes_input = val
@@ -1348,13 +1336,14 @@ class Convoy():
         surf.blit(self.trade_name_surf, (-4, -1))
         FONT['text-white'].blit(self.owner.name, surf, (24 - FONT['text-white'].width(self.owner.name)//2, 0))
 
-        # Draw Portrait
+        # Draw Portrait to left of menu
         # Owner
-        owner_surf = engine.create_surface((96, 80), transparent=True)
-        icons.draw_portrait(owner_surf, self.owner, (0, 0))
-        owner_surf = engine.subsurface(owner_surf, (0, 0, 96, 68))
-        owner_surf = engine.flip_horiz(owner_surf)
-        surf.blit(owner_surf, (18, 0))
+        if not self.disp_value:
+            owner_surf = engine.create_surface((96, 80), transparent=True)
+            icons.draw_portrait(owner_surf, self.owner, (0, 0))
+            owner_surf = engine.subsurface(owner_surf, (0, 0, 96, 68))
+            owner_surf = engine.flip_horiz(owner_surf)
+            surf.blit(owner_surf, (18, 0))
 
         # Get item owner
         surf.blit(self.owner_surf, (156, 0))
@@ -1368,24 +1357,24 @@ class Convoy():
             self.inventory.draw(surf)
 
         # Draw item owner
-        if unit:
+        if unit and self.takes_input:
             unit_str = "Owner: %s" % unit.name
         else:
             unit_str = "Owner: ---"
         FONT['text-white'].blit(unit_str, surf, (160, 4))
 
         # Draw item icons
-        dist = self.menu_width//len(self.order) 
+        dist = (self.menu_width - 10)/len(self.order) 
         for idx, weapon_nid in enumerate(reversed(self.order)):
             true_idx = len(self.order) - idx - 1
             if true_idx == self.selection_index - 1:
                 pass
             else:
-                topleft = self.topleft[0] + true_idx * dist, self.topleft[1] - 14
+                topleft = self.topleft[0] + 3 + int(true_idx * dist), self.topleft[1] - 14
                 icons.draw_weapon(surf, weapon_nid, topleft, gray=True)
         for idx, weapon_nid in enumerate(self.order):
             if idx == self.selection_index - 1:
-                topleft = (self.topleft[0] + idx * dist, self.topleft[1] - 14)
+                topleft = (self.topleft[0] + 3 + int(idx * dist), self.topleft[1] - 14)
                 icons.draw_weapon(surf, weapon_nid, topleft)
                 surf.blit(SPRITES.get('weapon_shine'), topleft)
                 
@@ -1405,17 +1394,18 @@ class Convoy():
                 if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
                     main_menu.mouse_move(idx)
 
-            idxs, option_rects = self.inventory.get_rects()
-            for idx, option_rect in zip(idxs, option_rects):
-                x, y, width, height = option_rect
-                if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
-                    self.inventory.mouse_move(idx)
+            if self.inventory:  # Markets, which inherit from me, don't have inventories
+                idxs, option_rects = self.inventory.get_rects()
+                for idx, option_rect in zip(idxs, option_rects):
+                    x, y, width, height = option_rect
+                    if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                        self.inventory.mouse_move(idx)
 
 class Market(Convoy):
     def __init__(self, owner, options, topleft, disp_value=None):
         self.options = options
-        super().__init__(owner, topleft)
         self.disp_value = disp_value
+        super().__init__(owner, topleft, disp_value=disp_value)
         self.selection_index = 1
         self.menu_index = 0
         self.inventory = None
@@ -1445,11 +1435,13 @@ class Market(Convoy):
         sorted_dict = {}
         for w_type in self.order:
             sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
-        sorted_dict['Consumable'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
+        sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
-            value.sort(key=lambda item: item_system.special_sort(self.unit, item))
+            value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
             value.sort(key=lambda item: item.name)
             value.sort(key=lambda item: item_system.sell_price(self.unit, item) or 0)
+            value.sort(key=lambda item: item_system.full_price(self.unit, item) or 0)
+            value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
 
@@ -1463,10 +1455,10 @@ class Market(Convoy):
         return 'convoy'
 
     def move_down(self, first_push=True):
-        self.menus[self.order[self.selection_index - 1]].move_down(first_push)
+        return self.menus[self.order[self.selection_index - 1]].move_down(first_push)
 
     def move_up(self, first_push=True):
-        self.menus[self.order[self.selection_index - 1]].move_up(first_push)
+        return self.menus[self.order[self.selection_index - 1]].move_up(first_push)
 
     def move_left(self, first_push=True):
         if self.selection_index == 1:
@@ -1496,6 +1488,7 @@ class Market(Convoy):
         self.menus[self.order[self.selection_index - 1]].toggle_info()
 
     def set_takes_input(self, val):
+        self.takes_input = val
         for menu in self.menus.values():
             menu.takes_input = val
 

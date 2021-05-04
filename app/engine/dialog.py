@@ -32,7 +32,9 @@ class Dialog():
             self.font_color = 'white'
         else:
             self.font_color = 'black'
-        if self.variant == 'cinematic':
+        if self.variant == 'hint':
+            self.num_lines = 4
+        elif self.variant == 'cinematic':
             self.font_type = 'chapter'
             self.font_color = 'grey'
             self.num_lines = 5
@@ -211,6 +213,8 @@ class Dialog():
             self.y_offset = 16
         else:
             self.state = 'process'
+            if self.portrait:
+                self.portrait.talk()
         self.text_lines.append([])
 
     def _add_letter(self, letter):

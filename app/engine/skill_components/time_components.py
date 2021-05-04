@@ -1,12 +1,12 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action
+from app.engine import action
 from app.engine.game_state import game
 
 class Time(SkillComponent):
     nid = 'time'
-    desc = "Lasts for some number of turns"
+    desc = "Lasts for some number of turns (checked on upkeep)"
     tag = "time"
 
     expose = Type.Int
@@ -24,6 +24,33 @@ class Time(SkillComponent):
 
     def text(self) -> str:
         return str(self.skill.data['turns'])
+
+    def on_end_chapter(self, unit, skill):
+        action.do(action.RemoveSkill(unit, self.skill))
+
+class EndTime(SkillComponent):
+    nid = 'end_time'
+    desc = "Lasts for some number of turns (checked on endstep)"
+    tag = "time"
+
+    expose = Type.Int
+    value = 2
+
+    def init(self, skill):
+        self.skill.data['turns'] = self.value
+        self.skill.data['starting_turns'] = self.value
+
+    def on_endstep(self, actions, playback, unit):
+        val = self.skill.data['turns'] - 1
+        action.do(action.SetObjData(self.skill, 'turns', val))
+        if self.skill.data['turns'] <= 0:
+            actions.append(action.RemoveSkill(unit, self.skill))
+
+    def text(self) -> str:
+        return str(self.skill.data['turns'])
+
+    def on_end_chapter(self, unit, skill):
+        action.do(action.RemoveSkill(unit, self.skill))
 
 class UpkeepStatChange(SkillComponent):
     nid = 'upkeep_stat_change'
@@ -43,6 +70,9 @@ class UpkeepStatChange(SkillComponent):
         val = self.skill.data['counter'] + 1
         action.do(action.SetObjData(self.skill, 'counter', val))
 
+    def on_end_chapter(self, unit, skill):
+        action.do(action.RemoveSkill(unit, self.skill))
+
 class LostOnEndstep(SkillComponent):
     nid = 'lost_on_endstep'
     desc = "Remove on next endstep"
@@ -51,12 +81,18 @@ class LostOnEndstep(SkillComponent):
     def on_endstep(self, actions, playback, unit):
         actions.append(action.RemoveSkill(unit, self.skill))
 
+    def on_end_chapter(self, unit, skill):
+        action.do(action.RemoveSkill(unit, self.skill))
+
 class LostOnEndCombat(SkillComponent):
     nid = 'lost_on_end_combat'
     desc = "Remove after combat"
     tag = "time"
 
     def post_combat(self, playback, unit, item, target, mode):
+        action.do(action.RemoveSkill(unit, self.skill))
+
+    def on_end_chapter(self, unit, skill):
         action.do(action.RemoveSkill(unit, self.skill))
 
 class LostOnEndChapter(SkillComponent):

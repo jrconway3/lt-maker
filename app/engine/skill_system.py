@@ -38,6 +38,14 @@ class Defaults():
         return False
 
     @staticmethod
+    def has_canto(unit1, unit2) -> bool:
+        return False
+
+    @staticmethod
+    def empower_heal(unit1, unit2) -> int:
+        return 0
+
+    @staticmethod
     def limit_maximum_range(unit, item) -> int:
         return 1000
 
@@ -51,6 +59,10 @@ class Defaults():
 
     @staticmethod
     def sight_range(unit):
+        return 0
+
+    @staticmethod
+    def empower_splash(unit):
         return 0
 
     @staticmethod
@@ -98,21 +110,21 @@ class Defaults():
 formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula', 
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_behaviours = (
-    'has_canto', 'pass_through', 'vantage', 'ignore_terrain', 'crit_anyway',
+    'pass_through', 'vantage', 'ignore_terrain', 'crit_anyway',
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
 # Takes in unit, returns default value
-exclusive_behaviours = ('can_select', 'movement_type', 'sight_range')
+exclusive_behaviours = ('can_select', 'movement_type', 'sight_range', 'empower_splash')
 exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'steal_icon')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'steal_icon', 'has_canto', 'empower_heal')
 # Takes in unit, item returns bonus
 modify_hooks = (
     'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
     'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
-    'modify_defense_speed', 'empower_splash')
+    'modify_defense_speed')
 # Takes in unit, item, target, mode, returns bonus
 dynamic_hooks = ('dynamic_damage', 'dynamic_resist', 'dynamic_accuracy', 'dynamic_avoid', 
                  'dynamic_crit_accuracy', 'dynamic_crit_avoid', 'dynamic_attack_speed', 'dynamic_defense_speed',
@@ -123,7 +135,7 @@ multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 # Takes in unit
 simple_event_hooks = ('on_death',)
 # Takes in playback, unit, item, target
-combat_event_hooks = ('start_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
+combat_event_hooks = ('start_combat', 'cleanup_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
 subcombat_event_hooks = ('after_hit', 'after_take_hit')
 # Takes in unit, item
@@ -305,7 +317,7 @@ def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
 
 def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:
-        for component in skill.component:
+        for component in skill.components:
             if component.defines('on_endstep'):
                 if component.ignore_conditional or condition(skill, unit):
                     component.on_endstep(actions, playback, unit)
@@ -331,7 +343,7 @@ def on_add(unit, skill):
             component.on_add(unit, skill)
     for other_skill in unit.skills:
         for component in other_skill.components:
-            if component.defines('on_other_skill'):
+            if component.defines('on_gain_skill'):
                 component.on_gain_skill(unit, skill)
 
 def on_remove(unit, skill):

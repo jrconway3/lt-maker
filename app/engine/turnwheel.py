@@ -160,7 +160,8 @@ class ActionLog():
                         game.cursor.set_pos(self.current_unit.position)
                     # Unless the current unit just DIED!
                     elif isinstance(prev_action, Action.Die):
-                        game.cursor.set_pos(prev_action.old_pos)
+                        if prev_action.old_pos:
+                            game.cursor.set_pos(prev_action.old_pos)
                     self.hover_on(self.current_unit)
                     text_list = self.get_unit_turn(self.current_unit, self.action_index)
                     self.current_move_index += 1
@@ -485,7 +486,8 @@ class TurnwheelState(MapState):
                 self.display.fade_out()
                 self.turnwheel_effect()
                 self.bg.fade_out()
-                game.game_vars['_current_turnwheel_uses'] -= 1
+                if game.game_vars['_current_turnwheel_uses'] > 0:
+                    game.game_vars['_current_turnwheel_uses'] -= 1
             elif not self.force and not game.action_log.locked:
                 self.back_out()
             else:
@@ -531,8 +533,13 @@ class TurnwheelState(MapState):
         if self.transition_out > 0:
             self.transition_out -= 1
             if self.transition_out <= 0:
-                game.state.back()
-                game.state.back()
+                if game.phase.get_current() == 'player':
+                    game.state.back()
+                    game.state.back()
+                else:
+                    game.state.clear()
+                    game.state.change('free')
+                    game.phase.set_player()
                 # Call turnwheel script whenever the turnwheel is used
 
         # Update animations

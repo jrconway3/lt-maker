@@ -6,6 +6,8 @@ from PyQt5.QtCore import QTimer, pyqtSignal
 from app import constants
 from app import counters
 
+from app.editor.settings import MainSettingsController
+
 class Timer(QWidget):
     tick_elapsed = pyqtSignal()
 
@@ -18,7 +20,8 @@ class Timer(QWidget):
         self.main_timer.start()
 
         self.autosave_timer = QTimer()
-        self.autosave_timer.setInterval(5 * 60 * 1000)
+        autosave_time = MainSettingsController().get_autosave_time(5)
+        self.autosave_timer.setInterval(autosave_time * 60 * 1000)
         self.autosave_timer.start()
 
         framerate = 16

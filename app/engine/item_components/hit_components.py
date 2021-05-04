@@ -17,8 +17,9 @@ class Heal(ItemComponent):
     expose = Type.Int
     value = 10
 
-    def _get_heal_amount(self, unit):
-        return self.value
+    def _get_heal_amount(self, unit, target):
+        empower_heal = skill_system.empower_heal(unit, target)
+        return self.value + empower_heal
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
@@ -32,20 +33,21 @@ class Heal(ItemComponent):
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode=None):
-        heal = self._get_heal_amount(unit)
+        heal = self._get_heal_amount(unit, target)
         true_heal = min(heal, equations.parser.hitpoints(target) - target.get_hp())
         actions.append(action.ChangeHP(target, heal))
 
         # For animation
-        playback.append(('heal_hit', unit, item, target, heal, true_heal))
-        playback.append(('hit_sound', 'MapHeal'))
-        if heal >= 30:
-            name = 'MapBigHealTrans'
-        elif heal >= 15:
-            name = 'MapMediumHealTrans'
-        else:
-            name = 'MapSmallHealTrans'
-        playback.append(('hit_anim', name, target))
+        if true_heal > 0:
+            playback.append(('heal_hit', unit, item, target, heal, true_heal))
+            playback.append(('hit_sound', 'MapHeal'))
+            if heal >= 30:
+                name = 'MapBigHealTrans'
+            elif heal >= 15:
+                name = 'MapMediumHealTrans'
+            else:
+                name = 'MapSmallHealTrans'
+            playback.append(('hit_anim', name, target))
 
     def ai_priority(self, unit, item, target, move):
         if skill_system.check_ally(unit, target):
@@ -61,8 +63,9 @@ class MagicHeal(Heal, ItemComponent):
     nid = 'magic_heal'
     desc = "Item heals this amount + HEAL on hit"
 
-    def _get_heal_amount(self, unit):
-        return self.value + equations.parser.heal(unit)
+    def _get_heal_amount(self, unit, target):
+        empower_heal = skill_system.empower_heal(unit, target)
+        return self.value + equations.parser.heal(unit) + empower_heal
 
 class Damage(ItemComponent):
     nid = 'damage'
@@ -219,6 +222,20 @@ class StatusOnHit(ItemComponent):
         actions.append(act)
         playback.append(('status_hit', unit, item, target, self.value))
 
+    def ai_priority(self, unit, item, target, move):
+        # Do I add a new status to the target
+        if target and self.value not in [skill.nid for skill in target.skills]:
+            accuracy_term = utils.clamp(combat_calcs.compute_hit(unit, target, item, target.get_weapon(), "attack")/100., 0, 1)
+            num_attacks = combat_calcs.outspeed(unit, target, item, target.get_weapon(), "attack")
+            accuracy_term *= num_attacks
+            # Tries to maximize distance from target
+            distance_term = 0.01 * utils.calculate_distance(move, target.position)
+            if skill_system.check_enemy(unit, target):
+                return 0.5 * accuracy_term + distance_term
+            else:
+                return -0.5 * accuracy_term
+        return 0
+
 class Restore(ItemComponent):
     nid = 'restore'
     desc = "Item removes all time statuses from target on hit"
@@ -354,17 +371,17 @@ class EvalTargetRestrict(ItemComponent):
     value = 'True'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
-        # Restricts target based on whether any unit has < full hp
         from app.engine import evaluate
         try:
-            unit = game.board.get_unit(def_pos)
-            if unit and evaluate.evaluate(self.value, unit, position=def_pos):
+            target = game.board.get_unit(def_pos)
+            if target and evaluate.evaluate(self.value, target, position=def_pos):
                 return True
             for s_pos in splash:
-                unit = game.board.get_unit(s_pos)
-                if evaluate.evaluate(self.value, unit, position=s_pos):
+                target = game.board.get_unit(s_pos)
+                if evaluate.evaluate(self.value, target, position=s_pos):
                     return True
-        except:
+        except Exception as e:
+            print("Could not evaluate %s (%s)" % (self.value, e))
             return True
         return False
 
@@ -416,6 +433,8 @@ class Steal(ItemComponent):
         if target_item:
             actions.append(action.RemoveItem(target, target_item))
             actions.append(action.DropItem(unit, target_item))
+            if unit.team != 'player':
+                actions.append(action.MakeItemDroppable(unit, target_item))
             actions.append(action.UpdateRecords('steal', (unit.nid, target.nid, target_item.nid)))
             self._did_steal = True
 
@@ -426,6 +445,14 @@ class Steal(ItemComponent):
             game.state.change('alert')
         item.data['target_item'] = None
         self._did_steal = False
+
+    def ai_priority(self, unit, item, target, move):
+        if target:
+            steal_term = 0.75
+            enemy_positions = utils.average_pos({other.position for other in game.units if other.position and skill_system.check_enemy(unit, other)})
+            distance_term = utils.calculate_distance(move, enemy_positions)
+            return steal_term + 0.01 * distance_term
+        return 0
 
 class GBASteal(Steal, ItemComponent):
     nid = 'gba_steal'
@@ -516,11 +543,11 @@ class Promote(ItemComponent):
             game.memory['can_go_back'] = True
             if new_klass:
                 game.memory['next_class'] = new_klass
-                game.state.change('promotion')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'promotion'
+                game.state.change('transition_to')
             else:
-                game.state.change('promotion_choice')
-                game.state.change('transition_out')
+                game.memory['next_state'] = 'promotion_choice'
+                game.state.change('transition_to')
         self._did_hit = False
 
 class ForcePromote(Promote, ItemComponent):

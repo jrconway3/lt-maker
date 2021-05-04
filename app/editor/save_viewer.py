@@ -45,14 +45,22 @@ class SaveViewer(Dialog):
         if time:
             text = 'Saved: %s\n' % time
             self.display_box.edit.insertPlainText(text)
+        party_nid = s_dict['current_party']
+        self.display_box.edit.insertPlainText("Party: %s\n" % party_nid)
         self.display_box.edit.insertPlainText("Units:\n")
         item_registry = {i['uid']: i['nid'] for i in s_dict['items']}
         for unit in s_dict['units']:
             if not unit['dead'] and unit['team'] == 'player':
                 items = ', '.join(item_registry.get(item) for item in unit['items'])
-                unit_text = '%s Lv %d Exp %d Items: %s\n' % (unit['nid'], unit['level'], unit['exp'], items)
+                wlvl = ', '.join('%s: %s' % (k, v) for k, v in unit['wexp'].items() if v > 0)
+                unit_text = '%s Lv %d Exp %d Wlvl %s Items: %s\n' % (unit['nid'], unit['level'], unit['exp'], wlvl, items)
 
                 self.display_box.edit.insertPlainText(unit_text)
+        # party = [party for party in s_dict['parties'] if party['nid'] == party_nid][0]
+        # convoy_items = ', '.join(item for item in party['convoy'])
+        # self.display_box.edit.insertPlainText("Convoy:\n")
+        # self.display_box.edit.insertPlainText(convoy_items)
+        # self.display_box.edit.insertPlainText('\n')
 
         self.display_box.edit.moveCursor(QTextCursor.Start)
         self.display_box.edit.ensureCursorVisible()

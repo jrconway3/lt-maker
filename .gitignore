@@ -9,6 +9,8 @@ saves/progress_log.txt
 debug.log.*
 autosave*
 
+screenshots/
+
 # Builds
 build/
 dist/

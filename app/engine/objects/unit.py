@@ -78,14 +78,12 @@ class UnitObject(Prefab):
         # Handle skills
         self.skills = []
         personal_skills = unit_funcs.get_personal_skills(self, prefab)
+        self.skills += personal_skills
         class_skills = unit_funcs.get_starting_skills(self)
         self.skills = personal_skills + class_skills
 
-        self.current_hp = equations.parser.hitpoints(self)
-        if 'MANA' in DB.equations:
-            self.current_mana = equations.parser.mana(self)
-        else:
-            self.current_mana = 0
+        self.current_hp = self.get_max_hp()
+        self.current_mana = self.get_max_mana()
         self.current_fatigue = 0
         self.movement_left = equations.parser.movement(self)
 
@@ -132,11 +130,20 @@ class UnitObject(Prefab):
 
         return self
 
+    def get_max_hp(self):
+        return equations.parser.hitpoints(self)
+
     def get_hp(self):
         return self.current_hp
 
     def set_hp(self, val):
         self.current_hp = int(utils.clamp(val, 0, equations.parser.hitpoints(self)))
+
+    def get_max_mana(self):
+        if 'MANA' in DB.equations:
+            return equations.parser.mana(self)
+        else:
+            return 0
 
     def get_mana(self):
         return self.current_mana
@@ -286,7 +293,7 @@ class UnitObject(Prefab):
             self.items.insert(index, item)
         else:
             self.items.insert(index, item)
-            item.owner_nid = self.nid
+            item.change_owner(self.nid)
             # Statuses here
             item_system.on_add_item(self, item)
             skill_system.on_add_item(self, item)
@@ -295,7 +302,7 @@ class UnitObject(Prefab):
         if item is self.equipped_weapon or item is self.equipped_accessory:
             self.unequip(item)
         self.items.remove(item)
-        item.owner_nid = None
+        item.change_owner(None)
         # Status effects
         skill_system.on_remove_item(self, item)
         item_system.on_remove_item(self, item)
@@ -386,6 +393,8 @@ class UnitObject(Prefab):
     def wait(self):
         game.events.trigger('unit_wait', self, position=self.position)
         action.do(action.Wait(self))
+        if game.cursor and game.cursor.cur_unit == self:
+            game.cursor.cur_unit = None
 
     def __repr__(self):
         return "Unit %s: %s" % (self.nid, self.position)
@@ -457,7 +466,10 @@ class UnitObject(Prefab):
         self.wexp = s_dict['wexp']
         self.portrait_nid = s_dict['portrait_nid']
         self.affinity = s_dict.get('affinity', None)
-        self.starting_position = s_dict['starting_position']
+        if s_dict['starting_position']:
+            self.starting_position = tuple(s_dict['starting_position'])
+        else:
+            self.starting_position = None
 
         self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]
         self.skills = [s for s in self.skills if s]

@@ -6269,6 +6269,18 @@
                 ]
             ],
             [
+                "trigger_script",
+                [
+                    "Trigger"
+                ]
+            ],
+            [
+                "base",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "#music;Attack;2000"
@@ -11895,6 +11907,195 @@
             ]
         ],
         "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "Trigger",
+        "trigger": null,
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "This is a test"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Summon Phantom",
+        "trigger": null,
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "if",
+                [
+                    "game.get_unit('phantom')"
+                ]
+            ],
+            [
+                "resurrect",
+                [
+                    "phantom"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "phantom",
+                    "warp"
+                ]
+            ],
+            [
+                "autolevel_to",
+                [
+                    "phantom",
+                    "unit.level"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "make_generic",
+                [
+                    "phantom",
+                    "Fighter",
+                    "unit.level",
+                    "player"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "add_unit",
+                [
+                    "phantom",
+                    "{position}",
+                    "warp"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Summon Soldiers",
+        "trigger": null,
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "make_generic",
+                [
+                    "",
+                    "Soldier",
+                    "1",
+                    "other",
+                    "Pursue"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Soldier",
+                    "1",
+                    "other",
+                    "Pursue"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Soldier",
+                    "1",
+                    "other",
+                    "Pursue"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "make_generic",
+                [
+                    "",
+                    "Soldier",
+                    "1",
+                    "other",
+                    "Pursue"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "{unit}",
+                    "{position}",
+                    "warp",
+                    "closest"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "200"
+                ]
+            ]
+        ],
+        "only_once": false,
         "priority": 20
     }
 ]

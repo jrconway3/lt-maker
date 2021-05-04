@@ -48,13 +48,18 @@ class StatusUpkeepState(MapState):
                     skill_system.on_upkeep(self.actions, self.playback, self.cur_unit)
                     for item in item_funcs.get_all_items(self.cur_unit):
                         item_system.on_upkeep(self.actions, self.playback, self.cur_unit, item)
-                if (self.actions or self.playback) and self.cur_unit.position:
+                if self.playback and self.cur_unit.position:
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move_camera')
                     self.cur_unit.sprite.change_state('selected')
                     self.health_bar = health_bar.MapCombatInfo('splash', self.cur_unit, None, None, None)
                     self.state = 'start'
                     self.last_update = engine.get_time()
+                elif self.actions and self.cur_unit.position:
+                    for act in self.actions:
+                        action.do(act)
+                    self.check_death()
+                    self.cur_unit = None
                 else:
                     self.cur_unit = None
                     return 'repeat'
@@ -78,14 +83,7 @@ class StatusUpkeepState(MapState):
 
         elif self.state == 'running':
             if engine.get_time() > self.last_update + self.time_for_change:
-                if self.cur_unit.get_hp() <= 0:
-                    # Handle death
-                    game.death.should_die(self.cur_unit)
-                    game.state.change('dying')
-                    game.events.trigger('unit_death', self.cur_unit, position=self.cur_unit.position)
-                    skill_system.on_death(self.cur_unit)
-                else:
-                    self.cur_unit.sprite.change_state('normal')
+                self.check_death()
                 self.state = 'processing'
                 self.cur_unit = None
 
@@ -107,6 +105,16 @@ class StatusUpkeepState(MapState):
                 if anim:
                     anim = animations.MapAnimation(anim, pos)
                     self.animations.append(anim)
+
+    def check_death(self):
+        if self.cur_unit.get_hp() <= 0:
+            # Handle death
+            game.death.should_die(self.cur_unit)
+            game.state.change('dying')
+            game.events.trigger('unit_death', self.cur_unit, position=self.cur_unit.position)
+            skill_system.on_death(self.cur_unit)
+        else:
+            self.cur_unit.sprite.change_state('normal')
 
     def draw(self, surf):
         surf = super().draw(surf)

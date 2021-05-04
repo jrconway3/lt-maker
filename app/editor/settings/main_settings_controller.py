@@ -40,6 +40,12 @@ class MainSettingsController():
     def get_theme(self, fallback=0):
         return self.state.value("theme", fallback)
 
+    def set_autosave_time(self, value):
+        self.state.setValue("autosave_time", value)
+
+    def get_autosave_time(self, fallback=5):
+        return float(self.state.value("autosave_time", fallback))
+
     """========== General Control Settings =========="""
 
     def set_place_button(self, value):

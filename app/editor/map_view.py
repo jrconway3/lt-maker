@@ -81,6 +81,8 @@ class SimpleMapView(QGraphicsView):
         klass_nid = unit.klass
         num = timer.get_timer().passive_counter.count
         klass = DB.classes.get(klass_nid)
+        if not klass:
+            klass = DB.classes[0]
         pixmap = class_model.get_map_sprite_icon(
             klass, num, False, unit.team, unit.variant)
         coord = position
@@ -314,7 +316,8 @@ class NewMapView(SimpleMapView):
                         continue
                     # With full opacity
                     unit = self.main_editor.current_level.units.get(unit_nid)
-                    self.draw_unit(painter, unit, position)
+                    if unit:
+                        self.draw_unit(painter, unit, position)
 
                 # Highlight current unit with cursor
                 current_unit = self.main_editor.group_painter_menu.get_current_unit()

@@ -9,10 +9,11 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State, MapState
 import app.engine.config as cf
 from app.engine.game_state import game
-from app.engine import engine, action, menus, interaction, image_mods, \
+from app.engine import engine, action, menus, image_mods, \
     banner, save, phase, skill_system, target_system, item_system, \
     item_funcs, ui_view, info_menu, base_surf, gui, background, dialog, \
     text_funcs, equations, evaluate, supports
+from app.engine.combat import interaction
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES, PRIMARY_ABILITIES, OTHER_ABILITIES
 from app.engine.input_manager import INPUT
@@ -162,6 +163,7 @@ class FreeState(MapState):
             # End the turn
             logging.info('Autoending turn.')
             game.state.change('turn_change')
+            game.state.change('status_endstep')
             return 'repeat'
 
     def end(self):
@@ -247,7 +249,10 @@ class OptionMenuState(MapState):
                     game.memory['option_menu'] = self.menu
                     game.state.change('option_child')
                 else:
-                    game.state.change('ai')
+                    game.state.back()
+                    game.state.change('turn_change')
+                    game.state.change('status_endstep')
+                    return 'repeat'
             elif selection == 'Suspend' or selection == 'Save':
                 if cf.SETTINGS['confirm_end']:
                     game.memory['option_owner'] = selection
@@ -326,7 +331,11 @@ class OptionChildState(State):
             if selection == 'Yes':
                 SOUNDTHREAD.play_sfx('Select 1')
                 if self.menu.owner == 'End':
-                    game.state.change('ai')
+                    game.state.back()
+                    game.state.back()
+                    game.state.change('turn_change')
+                    game.state.change('status_endstep')
+                    return 'repeat'
                 elif self.menu.owner == 'Suspend':
                     suspend()
                 elif self.menu.owner == 'Save':
@@ -339,7 +348,9 @@ class OptionChildState(State):
                             action.do(action.RemoveItem(cur_unit, item))
                         elif self.menu.owner == 'Storage':
                             action.do(action.StoreItem(cur_unit, item))
-                    if cur_unit.items:
+                    if item_funcs.too_much_in_inventory(cur_unit):
+                        game.state.back()
+                    elif cur_unit.items:
                         game.state.back()
                         game.state.back()
                     else:  # If the unit has no more items, head all the way back to menu
@@ -589,7 +600,7 @@ class MenuState(MapState):
                 # Only draw one set of highlights
                 if ability.highlights(self.cur_unit):
                     break
-        if skill_system.has_canto(self.cur_unit):
+        if skill_system.has_canto(self.cur_unit, self.cur_unit):
             # Shows the canto moves in the menu
             moves = target_system.get_valid_moves(self.cur_unit)
             game.highlight.display_moves(moves)
@@ -615,7 +626,7 @@ class MenuState(MapState):
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
             if self.cur_unit.has_traded:
-                if skill_system.has_canto(self.cur_unit):
+                if skill_system.has_canto(self.cur_unit, self.cur_unit):
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move')
                 else:
@@ -650,7 +661,7 @@ class MenuState(MapState):
                 game.state.change('spell_choice')
             elif selection == 'Supply':
                 game.memory['current_unit'] = self.cur_unit
-                game.memory['next_state'] = 'prep_items'
+                game.memory['next_state'] = 'supply_items'
                 game.state.change('transition_to')
             elif selection == 'Wait':
                 game.state.clear()
@@ -661,6 +672,8 @@ class MenuState(MapState):
                 for region in self.valid_regions:
                     if region.sub_nid == selection:
                         did_trigger = game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
+                        if did_trigger:
+                            self.menu = None  # Remove menu for a little (Don't worry, it will come back)
                         if did_trigger and region.only_once:
                             action.do(action.RemoveRegion(region))
                         # if did_trigger:
@@ -683,10 +696,13 @@ class MenuState(MapState):
             else:  # Selection is one of the other abilities
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('targeting')
+                if selection == 'Talk':
+                    self.menu = None  # So it's not shown during the event
 
     def update(self):
         super().update()
-        self.menu.update()
+        if self.menu:
+            self.menu.update()
 
     def draw(self, surf):
         surf = super().draw(surf)
@@ -854,8 +870,7 @@ class ItemDiscardState(MapState):
     def begin(self):
         self.menu.update_options(self.cur_unit.items)
         # Don't need to do this if we are under items
-        if (len(self.cur_unit.accessories) <= DB.constants.value('num_accessories') and
-                len(self.cur_unit.nonaccessories) <= DB.constants.value('num_items')):
+        if not item_funcs.too_much_in_inventory(self.cur_unit):
             game.state.back()
             return 'repeat'
 
@@ -958,7 +973,7 @@ class WeaponChoiceState(MapState):
             # We don't equip spells
             if item_system.is_weapon(self.cur_unit, selection):
                 equip_action = action.EquipItem(self.cur_unit, selection)
-                game.memory['equip_action'] = equip_action
+                # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
                 
             # If the item is in our inventory, bring it to the top
@@ -1271,10 +1286,11 @@ class CombatTargetingState(MapState):
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
-            equip_action = game.memory.get('equip_action')
-            if equip_action:
-                action.reverse(equip_action)
-            game.memory['equip_action'] = None
+            # Equip Action doesn't need to be reversed
+            # equip_action = game.memory.get('equip_action')
+            # if equip_action:
+            #     action.reverse(equip_action)
+            # game.memory['equip_action'] = None
             game.state.back()
             return 'repeat'
 
@@ -1376,6 +1392,7 @@ class ItemTargetingState(MapState):
                 target_item = self.menu.get_current()
                 self.item.data['target_item'] = target_item
                 game.state.back()
+                return 'repeat'
 
         elif event == 'INFO':
             self.menu.toggle_info()
@@ -1425,6 +1442,8 @@ class CombatState(MapState):
         if self.skip and not self.is_animation_combat:
             while not done:
                 done = self.combat.update()
+        if done:
+            return 'repeat'
 
     def draw(self, surf):
         if self.is_animation_combat:
@@ -1477,7 +1496,7 @@ class AlertState(State):
                 self.back()
 
     def draw(self, surf):
-        if game.alerts:
+        if game.alerts and self.started:
             alert = game.alerts[-1]
             alert.draw(surf)
         return surf
@@ -1556,7 +1575,7 @@ class AIState(MapState):
                     # Only do this for non-move actions
                     game.state.change('move_camera')
 
-            if game.ai.is_done():
+            if not change and game.ai.is_done():
                 logging.info("Current AI %s is done with turn.", self.cur_unit.nid)
                 if did_something:  # Don't turn grey if didn't actually do anything
                     self.cur_unit.wait()
@@ -1569,6 +1588,7 @@ class AIState(MapState):
             self.cur_unit = None
             self.cur_group = None
             game.state.change('turn_change')
+            game.state.change('status_endstep')
             self.finish()
             return 'repeat'
 
@@ -1729,6 +1749,8 @@ class ShopState(State):
             elif self.state == 'close':
                 SOUNDTHREAD.play_sfx('Select 1')
                 if self.current_msg.is_done_or_wait():
+                    if self.unit.has_traded:
+                        action.do(action.HasAttacked(self.unit))
                     game.state.change('transition_pop')
                 else:
                     self.current_msg.hurry_up()
@@ -1736,6 +1758,8 @@ class ShopState(State):
         elif event == 'BACK':
             if self.state == 'open' or self.state == 'close':
                 SOUNDTHREAD.play_sfx('Select 4')
+                if self.unit.has_traded:
+                    action.do(action.HasAttacked(self.unit))
                 game.state.change('transition_pop')
             elif self.state == 'choice':
                 SOUNDTHREAD.play_sfx('Select 4')

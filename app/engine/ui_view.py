@@ -175,14 +175,16 @@ class UIView():
         if current_unit and 'Tile' in current_unit.tags:
             current_hp = current_unit.get_hp()
             self.expected_coord = None
-            bg_surf = SPRITES.get('tile_info_destructible').copy()
+            bg_surf = SPRITES.get('tile_info_destructible_opaque').copy()
+            bg_surf = image_mods.make_translucent(bg_surf, .1)
             at_icon = SPRITES.get('icon_attackable_terrain')
             bg_surf.blit(at_icon, (7, bg_surf.get_height() - 7 - at_icon.get_height()))
             cur = str(current_hp)
             FONT['small-white'].blit_right(cur, bg_surf, (bg_surf.get_width() - 9, 24))
         else:
             self.expected_coord = coord
-            bg_surf = SPRITES.get('tile_info_quick').copy()
+            bg_surf = SPRITES.get('tile_info_quick_opaque').copy()
+            bg_surf = image_mods.make_translucent(bg_surf, .1)
             tile_def, tile_avoid = 0, 0
             if terrain.status:
                 status_prefab = DB.skills.get(terrain.status)
@@ -690,13 +692,14 @@ class ItemDescriptionPanel():
             self.surf = self.create_surf()
 
         portrait = icons.get_portrait(self.unit)
-        if game.cursor.position[0] > TILEX // 2 + game.camera.get_x():
-            topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
-            surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
-        else:
-            topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
-            portrait = engine.flip_horiz(portrait)
-            surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
+        if portrait:
+            if game.cursor.position[0] > TILEX // 2 + game.camera.get_x():
+                topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
+                surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
+            else:
+                topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
+                portrait = engine.flip_horiz(portrait)
+                surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
 
         surf.blit(self.surf, topleft)
         return surf

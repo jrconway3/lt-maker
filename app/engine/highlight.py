@@ -84,6 +84,13 @@ class HighlightController():
 
     def display_highlights(self, unit, light=False):
         valid_moves = target_system.get_valid_moves(unit)
+
+        if DB.constants.value('zero_move') and unit.ai and not unit.ai_group_active:
+            ai_prefab = DB.ai.get(unit.ai)
+            guard = ai_prefab.guard_ai()
+            if guard:
+                valid_moves = {unit.position}
+                
         valid_attacks = target_system.get_possible_spell_attacks(unit, valid_moves)
         self.display_possible_spell_attacks(valid_attacks, light=light)
         valid_attacks = target_system.get_possible_attacks(unit, valid_moves)
@@ -109,13 +116,13 @@ class HighlightController():
     def update(self):
         self.update_idx = (self.update_idx + 1) % 64
 
-    def draw(self, surf):
+    def draw(self, surf, cull_rect):
         # Handle Formation Highlight
         formation_image = SPRITES.get('highlight_blue')
         rect = (self.update_idx//4 * TILEWIDTH, 0, TILEWIDTH, TILEHEIGHT)
         formation_image = engine.subsurface(formation_image, rect)
         for position in self.formation_highlights:
-            surf.blit(formation_image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT))
+            surf.blit(formation_image, (position[0] * TILEWIDTH - cull_rect[0], position[1] * TILEHEIGHT - cull_rect[1]))
 
         # Handle escape Highlight
         escape_image = SPRITES.get('highlight_yellow')
@@ -124,7 +131,7 @@ class HighlightController():
         for region in game.level.regions:
             if region.region_type == 'event' and region.sub_nid in ('Escape', 'Arrive'):
                 for position in region.get_all_positions():
-                    surf.blit(escape_image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT))
+                    surf.blit(escape_image, (position[0] * TILEWIDTH - cull_rect[0], position[1] * TILEHEIGHT - cull_rect[1]))
 
         # Regular highlights
         for name, highlight_set in self.highlights.items():
@@ -135,5 +142,5 @@ class HighlightController():
             rect = (self.update_idx//4 * TILEWIDTH + cut_off, cut_off, TILEWIDTH - cut_off, TILEHEIGHT - cut_off)
             image = engine.subsurface(self.images[name], rect)
             for position in highlight_set:
-                surf.blit(image, (position[0] * TILEWIDTH, position[1] * TILEHEIGHT))
+                surf.blit(image, (position[0] * TILEWIDTH - cull_rect[0], position[1] * TILEHEIGHT - cull_rect[1]))
         return surf

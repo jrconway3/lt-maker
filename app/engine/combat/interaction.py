@@ -1,12 +1,25 @@
-from app.engine.solver import CombatPhaseSolver
-from app.engine.map_combat import MapCombat
-from app.engine import item_system, action
+from app.engine import item_system
 from app.engine.game_state import game
+
+from app.engine.combat.simple_combat import SimpleCombat
+from app.engine.combat.map_combat import MapCombat
+from app.engine.combat.base_combat import BaseCombat
+from app.engine.combat.animation_combat import AnimationCombat
+
+from app.engine.objects.unit import UnitObject
+from app.engine.objects.item import ItemObject
 
 def has_animation(attacker, item, main_target, splash):
     return False
 
-def engage(attacker, positions, main_item, skip=False, script=None):
+def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: bool = False, script: list = None):
+    """
+    Builds the correct combat controller for this interaction
+
+    Targets each of the positions in "positions" with the item
+    Determines what kind of combat (Simple, Map, or Animation), should be used for this kind of interaction
+    "positions" is a list. The subelements of positions can also be a list, if the item is a multitargeting item
+    """
     target_positions = []
     main_targets = []
     splashes = []
@@ -31,16 +44,27 @@ def engage(attacker, positions, main_item, skip=False, script=None):
         main_targets.append(main_target)
         splashes.append(splash)
 
-    if skip:
-        combat = SimpleCombat(attacker, item, main_target, splash, script)
+    if target_positions[0] is None:
+        # If we are targeting None, (which means we're in base using an item)
+        combat = BaseCombat(attacker, main_item, attacker, script)
+    elif skip:
+        # If we are skipping
+        combat = SimpleCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
+    elif len(positions) > 1 or len(items) > 1:
+        combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
+    elif not main_targets[0] or splashes[0]:
+        combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
     elif has_animation(attacker, item, main_target, splash):
         combat = AnimationCombat(attacker, item, main_target, splash, script)
     else:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
     return combat
 
-def start_combat(unit, target: tuple, item, ai_combat=False, event_combat=False, script=None):
-    # Target is a position tuple
+def start_combat(unit: UnitObject, target: tuple, item: ItemObject, 
+                 ai_combat: bool = False, event_combat: bool = False, script: list = None):
+    """
+    Target is a position tuple
+    """
     # Set up the target positions
     if item.sequence_item:
         targets = []
@@ -62,48 +86,3 @@ def start_combat(unit, target: tuple, item, ai_combat=False, event_combat=False,
     combat.event_combat = event_combat # Must mark this so we can come back!
     game.combat_instance.append(combat)
     game.state.change('combat')
-
-class SimpleCombat():
-    """
-    Used when engaging in combat within the base or when for
-    some reason, an animation combat cannot be used and the attacker
-    has no position
-    """
-    def __init__(self, attacker, item, main_target, splash, script):
-        self.attacker = attacker
-        self.state_machine = CombatPhaseSolver(attacker, main_target, splash, item, script)
-        while self.state_machine.get_state():
-            self.actions, self.playback = self.state_machine.do()
-            self._apply_actions()
-            self.state_machine.setup_next_state()
-
-    def _apply_actions(self):
-        """
-        Actually commit the actions that we had stored!
-        """
-        for act in self.actions:
-            action.execute(act)
-
-    def update(self) -> bool:
-        self.clean_up()
-        return True
-
-    def draw(self, surf):
-        return surf
-
-    def clean_up(self):
-        action.do(action.HasAttacked(self.attacker))
-        if self.attacker.team == 'player':
-            game.state.clear()
-            game.state.change('free')
-            game.state.change('wait')
-        else:
-            game.state.back()
-            game.state.change('wait')
-
-class AnimationCombat(SimpleCombat):
-    # TODO Implement
-    pass
-
-
-

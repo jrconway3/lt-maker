@@ -161,7 +161,7 @@ class DynamicDamage(SkillComponent):
     def dynamic_damage(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -176,7 +176,7 @@ class DynamicResist(SkillComponent):
     def dynamic_resist(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -191,7 +191,7 @@ class DynamicAccuracy(SkillComponent):
     def dynamic_accuracy(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -206,7 +206,7 @@ class DynamicAvoid(SkillComponent):
     def dynamic_avoid(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -221,7 +221,7 @@ class DynamicCritAccuracy(SkillComponent):
     def dynamic_crit_accuracy(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -236,7 +236,7 @@ class DynamicCritAvoid(SkillComponent):
     def dynamic_crit_avoid(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -251,7 +251,7 @@ class DynamicAttackSpeed(SkillComponent):
     def dynamic_attack_speed(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -266,7 +266,7 @@ class DynamicDefenseSpeed(SkillComponent):
     def dynamic_defense_speed(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -281,7 +281,7 @@ class DynamicMultiattacks(SkillComponent):
     def dynamic_multiattacks(self, unit, item, target, mode) -> int:
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode))
+            return int(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -317,7 +317,7 @@ class GiveStatusAfterCombat(SkillComponent):
 
     def end_combat(self, playback, unit, item, target, mode):
         from app.engine import skill_system
-        if skill_system.check_enemy(unit, target):
+        if target and skill_system.check_enemy(unit, target):
             action.do(action.AddSkill(target, self.value, unit))
             action.do(action.TriggerCharge(unit, self.skill))
 
@@ -330,25 +330,25 @@ class GiveStatusAfterAttack(SkillComponent):
 
     def end_combat(self, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
-        if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+        if target and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(target, self.value, unit))
-        action.do(action.TriggerCharge(unit, self.skill))
+            action.do(action.TriggerCharge(unit, self.skill))
 
 class GainSkillAfterKill(SkillComponent):
     nid = 'gain_skill_after_kill'
-    desc = "Gives a skill after a kill"
+    desc = "Gives a skill to user after a kill"
     tag = 'combat2'
 
     expose = Type.Skill
 
     def end_combat(self, playback, unit, item, target, mode):
-        if target.get_hp() <= 0:
+        if target and target.get_hp() <= 0:
             action.do(action.AddSkill(unit, self.value))
-        action.do(action.TriggerCharge(unit, self.skill))
+            action.do(action.TriggerCharge(unit, self.skill))
 
 class GainSkillAfterAttacking(SkillComponent):
     nid = 'gain_skill_after_attack'
-    desc = "Gives a skill after an attack"
+    desc = "Gives a skill to user after an attack"
     tag = 'combat2'
 
     expose = Type.Skill
@@ -357,7 +357,7 @@ class GainSkillAfterAttacking(SkillComponent):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(unit, self.value))
-        action.do(action.TriggerCharge(unit, self.skill))
+            action.do(action.TriggerCharge(unit, self.skill))
 
 class GainSkillAfterActiveKill(SkillComponent):
     nid = 'gain_skill_after_active_kill'
@@ -368,16 +368,16 @@ class GainSkillAfterActiveKill(SkillComponent):
 
     def end_combat(self, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
-        if target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+        if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(unit, self.value))
-        action.do(action.TriggerCharge(unit, self.skill))
+            action.do(action.TriggerCharge(unit, self.skill))
 
 class Miracle(SkillComponent):
     nid = 'miracle'
     desc = "Unit cannot be reduced below 1 HP"
     tag = 'combat2'
 
-    def end_combat(self, playback, unit, item, target, mode):
+    def cleanup_combat(self, playback, unit, item, target, mode):
         if unit.get_hp() <= 0:
             action.do(action.SetHP(unit, 1))
             game.death.miracle(unit)

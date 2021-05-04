@@ -126,7 +126,7 @@ class ScrollBar():
         self.arrow_counter.update()
 
         # Get properties
-        x = topright[0] - 10
+        x = topright[0] - 9
         y = topright[1] + 12
         height = limit * 16 - 20
         start_fraction = scroll / num_options

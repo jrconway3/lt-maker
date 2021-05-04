@@ -3,7 +3,6 @@ from app.data.database import DB
 from app.engine import combat_calcs, item_system, skill_system, static_random, action, item_funcs
 
 import logging
-logger = logging.getLogger(__name__)
 
 class SolverState():
     def get_next_state(self, solver):
@@ -76,7 +75,7 @@ class AttackerState(SolverState):
                 solver.process(actions, playback, solver.attacker, target, target_pos, item, None, 'splash')
             # Make sure that we run on_hit even if otherwise unavailable
             if not defender and not splash:
-                solver.simple_process(actions, playback, solver.attacker, None, target_pos, item, None, None)
+                solver.simple_process(actions, playback, solver.attacker, solver.attacker, target_pos, item, None, None)
         
         solver.num_subattacks += 1
         multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
@@ -164,7 +163,7 @@ class CombatPhaseSolver():
         old_random_state = static_random.get_combat_random_state()
 
         next_state = self.state.get_next_state(self)
-        logger.debug("Next State: %s" % next_state)
+        logging.debug("Next State: %s" % next_state)
         if next_state:
             self.state = self.states[next_state]()
         else:

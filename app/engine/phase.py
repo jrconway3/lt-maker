@@ -46,6 +46,10 @@ class PhaseController():
     def get_previous(self):
         return DB.teams[self.previous]
 
+    def set_player(self):
+        self.current = 0
+        self.previous = (self.current - 1) % len(DB.teams)
+
     def _next(self):
         self.current = (self.current + 1) % len(DB.teams)
 
@@ -101,6 +105,8 @@ class PhaseIn():
         return engine.get_time() - self.starting_time >= self.t_display
 
     def draw(self, surf):
+        if not self.starting_time:
+            return surf
         current_time = engine.get_time()
         time_passed = min(current_time - self.starting_time, self.t_display)
         

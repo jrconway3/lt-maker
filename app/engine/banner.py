@@ -101,7 +101,7 @@ class SentToConvoy(Banner):
         super().__init__()
         self.item = item
         self.text = [item.name, ' sent to convoy.']
-        self.font = ['text-blue', 'txt_white']
+        self.font = ['text-blue', 'text-white']
         self.figure_out_size()
         self.sound = 'Item'
 

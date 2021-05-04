@@ -13,6 +13,7 @@ from app.engine.game_state import game
 from app.engine import menus, base_surf, background, text_funcs, \
     image_mods, gui, icons, prep, record_book
 from app.engine.fluid_scroll import FluidScroll
+import app.engine.config as cf
 
 class BaseMainState(State):
     name = 'base_main'
@@ -53,6 +54,9 @@ class BaseMainState(State):
                 ignore.insert(1, False)
             else:
                 ignore.insert(1, True)
+        if cf.SETTINGS['debug']:
+            options.insert(0, 'Debug')
+            ignore.insert(0, False)
         
         topleft = 4, WINHEIGHT//2 - (len(options) * 16 + 8)//2
         self.menu = menus.Choice(None, options, topleft=topleft)
@@ -76,8 +80,10 @@ class BaseMainState(State):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
-            if selection == 'Manage':
-                game.memory['next_state'] = 'prep_manage'
+            if selection == 'Debug':
+                game.state.change('debug')
+            elif selection == 'Manage':
+                game.memory['next_state'] = 'base_manage'
                 game.state.change('transition_to')
             elif selection == 'Market':
                 game.memory['next_state'] = 'base_market_select'
@@ -122,12 +128,12 @@ class BaseMarketSelectState(prep.PrepManageState):
         font = FONT['text-white']
         commands = ['Market']
         commands = [text_funcs.translate(c) for c in commands]
-        size = (49 + max(font.width(c) for c in commands), 40)
+        size = (49 + max(font.width(c) for c in commands), 24)
         bg_surf = base_surf.create_base_surf(size[0], size[1], 'menu_bg_brown')
         bg_surf = image_mods.make_translucent(bg_surf, 0.1)
-        bg_surf.blit(buttons[0], (20 - buttons[0].get_width()//2, 18 - buttons[0].get_height()))
+        bg_surf.blit(buttons[0], (12 - buttons[0].get_width()//2, 18 - buttons[0].get_height()))
         for idx, command in enumerate(commands):
-            font.blit(command, bg_surf, (38, idx * 16 + 3))
+            font.blit(command, bg_surf, (30, idx * 16 + 3))
         return bg_surf
 
     def take_input(self, event):
@@ -186,7 +192,9 @@ class BaseConvosChildState(State):
         # color = ['text-grey' if i else 'text-white' for i in ignore]
         # self.menu.set_color(color)
         self.menu.set_ignore(ignore)
-        SOUNDTHREAD.fade_in(game.level.music['base'])
+        base_music = game.game_vars.get('_base_music')
+        if base_music:
+            SOUNDTHREAD.fade_in(base_music)
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -306,6 +314,9 @@ class LoreDisplay():
     def update_entry(self, lore_nid):
         from app.engine import dialog
 
+        if self.lore and lore_nid == self.lore.nid:
+            return  # No need to update
+
         class LoreDialog(dialog.Dialog):
             num_lines = 8
             draw_cursor_flag = False
@@ -352,6 +363,9 @@ class LoreDisplay():
             if game.get_unit(self.lore.nid):
                 unit = game.get_unit(self.lore.nid)
                 icons.draw_portrait(image, unit, (self.width - 96, WINHEIGHT - 12 - 80))
+            elif self.lore.nid in DB.units.keys():
+                portrait = icons.get_portrait_from_nid(DB.units.get(self.lore.nid).portrait_nid)
+                image.blit(portrait, (self.width - 96, WINHEIGHT - 12 - 80))
 
             FONT['text-blue'].blit_center(self.lore.title, image, (self.width//2, 4))
 
@@ -378,6 +392,17 @@ class BaseLibraryState(State):
         super().__init__(name)
         self.fluid = FluidScroll()
 
+    def _build_menu(self, unlocked_lore, ignore=None):
+        topleft = 4, 4
+        self.options = unlocked_lore
+        self.menu = menus.Choice(None, self.options, topleft=topleft, background='menu_bg_brown')
+        self.menu.shimmer = 3
+        self.menu.gem = 'brown'
+        self.menu.set_limit(9)
+        self.menu.set_hard_limit(True)
+        if ignore:
+            self.menu.set_ignore(ignore)
+
     def start(self):
         self.bg = game.memory['base_bg']
 
@@ -394,14 +419,7 @@ class BaseLibraryState(State):
             options.append(lore)
             ignore.append(False)
 
-        topleft = 4, 4
-        self.options = options
-        self.menu = menus.Choice(None, self.options, topleft=topleft)
-        self.menu.shimmer = 3
-        self.menu.gem = 'brown'
-        self.menu.set_limit(9)
-        self.menu.set_hard_limit(True)
-        self.menu.set_ignore(ignore)
+        self._build_menu(options, ignore)
 
         self.display = LoreDisplay()
         self.display.update_entry(self.menu.get_current().nid)
@@ -414,14 +432,17 @@ class BaseLibraryState(State):
         directions = self.fluid.get_directions()
 
         self.menu.handle_mouse()
+        if not self.display.lore or self.display.lore.nid != self.menu.get_current().nid:
+            self.display.update_entry(self.menu.get_current().nid)
+
         if 'DOWN' in directions:
             if self.menu.move_down(first_push):
                 SOUNDTHREAD.play_sfx('Select 6')
-                self.display.update_entry(self.menu.get_current().nid)
+            self.display.update_entry(self.menu.get_current().nid)
         elif 'UP' in directions:
             if self.menu.move_up(first_push):
                 SOUNDTHREAD.play_sfx('Select 6')
-                self.display.update_entry(self.menu.get_current().nid)
+            self.display.update_entry(self.menu.get_current().nid)
         elif 'RIGHT' in directions:
             if self.display.page_right():
                 SOUNDTHREAD.play_sfx('Status_Page_Change')
@@ -485,13 +506,7 @@ class BaseGuideState(BaseLibraryState):
         unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore and lore.category == 'Guide']
         self.categories = ["Guide"]
 
-        topleft = 4, 4
-        self.options = unlocked_lore
-        self.menu = menus.Choice(None, self.options, topleft=topleft, background='menu_bg_brown')
-        self.menu.shimmer = 3
-        self.menu.gem = 'brown'
-        self.menu.set_limit(9)
-        self.menu.set_hard_limit(True)
+        self._build_menu(unlocked_lore)
 
         self.display = LoreDisplay()
         self.display.update_entry(self.menu.get_current().nid)
@@ -510,13 +525,10 @@ class BaseRecordsState(State):
         self.mouse_indicator = gui.MouseIndicator()
         self.bg = game.memory['base_bg']
 
-        levels = game.records.get_levels()
-
         self.record_menu = record_book.RecordsDisplay()
-        self.chapter_menus = [record_book.ChapterStats(level_nid) for level_nid in levels]
+        self.chapter_menus = [record_book.ChapterStats(option.get()[0]) for option in self.record_menu.options if not option.ignore]
         self.mvp = record_book.MVPDisplay()
-        units = game.get_all_units_in_party()
-        self.unit_menus = [record_book.UnitStats(unit.nid) for unit in units]
+        self.unit_menus = [record_book.UnitStats(option.get()[0]) for option in self.mvp.options if not option.ignore]
 
         self.state = 'records'
         self.current_menu = self.record_menu
@@ -577,10 +589,10 @@ class BaseRecordsState(State):
 
                 if self.state == 'records':
                     self.state = 'chapter'
-                    self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
+                    self.current_menu = self.chapter_menus[self.current_menu.get_current_index()]
                 elif self.state == 'mvp':
                     self.state = 'unit'
-                    self.current_menu = self.unit_menus[self.record_menu.get_current_index()]
+                    self.current_menu = self.unit_menus[self.current_menu.get_current_index()]
 
     def check_mouse_position(self):
         mouse_position = INPUT.get_mouse_position()

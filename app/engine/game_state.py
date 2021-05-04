@@ -116,6 +116,7 @@ class GameState():
         """
         Done at the beginning of a new level to start the level up
         """
+        self.boundary = None
         self.generic()
         logging.debug("Starting Level %s", level_nid)
         
@@ -170,12 +171,6 @@ class GameState():
 
     def save(self):
         self.action_log.record = False
-        # Units need to leave before saving -- this is so you don't 
-        # have to save region and terrain statuses
-        if self.current_level:
-            for unit in self.units:
-                if unit.position:
-                    self.leave(unit, True)
 
         s_dict = {'units': [unit.save() for unit in self.unit_registry.values()],
                   'items': [item.save() for item in self.item_registry.values()],
@@ -217,17 +212,11 @@ class GameState():
             meta_dict['level_title'] = 'Overworld'
             meta_dict['level_nid'] = None
 
-        # Now have units actually arrive on map
-        if self.current_level:
-            for unit in self.units:
-                if unit.position:
-                    self.arrive(unit, True)
-
         self.action_log.record = True
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import turnwheel, records, supports
+        from app.engine import turnwheel, records, save, supports
         from app.events import event_manager
 
         from app.engine.objects.item import ItemObject
@@ -242,7 +231,6 @@ class GameState():
         static_random.set_seed(self.game_vars.get('_random_seed', 0))
         self.level_vars = Counter(s_dict.get('level_vars', {}))
         self.playtime = float(s_dict['playtime'])
-        self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.current_party = s_dict['current_party']
         self.turncount = int(s_dict['turncount'])
 
@@ -250,6 +238,7 @@ class GameState():
 
         self.item_registry = {item['uid']: ItemObject.restore(item) for item in s_dict['items']}
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
+        save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
         self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
@@ -266,6 +255,7 @@ class GameState():
                 skill.subskill = subskill
                 subskill.parent_skill = skill
 
+        self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.market_items = s_dict.get('market_items', set())
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
@@ -295,7 +285,8 @@ class GameState():
             # Now have units actually arrive on map
             for unit in self.units:
                 if unit.position:
-                    self.arrive(unit)
+                    self.board.set_unit(unit.position, unit)
+                    self.boundary.arrive(unit)
 
             self.cursor.autocursor(True)
 
@@ -306,6 +297,9 @@ class GameState():
 
         game.supports.increment_end_chapter_supports()
 
+        self.game_vars['_current_turnwheel_uses'] = \
+            self.game_vars.get('_max_turnwheel_uses', -1)
+            
         for unit in self.unit_registry.values():
             self.leave(unit)
         for unit in self.unit_registry.values():
@@ -329,7 +323,7 @@ class GameState():
             unit = None
             if skill.owner_nid:
                 unit = self.get_unit(skill.owner_nid)
-            skill_system.on_end_chapter(unit, skill)
+                skill_system.on_end_chapter(unit, skill)
 
         self.terrain_status_registry.clear()
         self.region_registry.clear()
@@ -358,14 +352,14 @@ class GameState():
                     del self.item_registry[k]
             else:
                 for party in self.parties.values():
-                    if v in party.convoy:
+                    if v in party.convoy or (v.parent_item and v.parent_item in party.convoy):
                         break
                 else:  # No party ever found
                     del self.item_registry[k]
 
         # Handle player death
         for unit in self.unit_registry.values():
-            if unit.dead:
+            if unit.dead and unit.team == 'player':
                 if not DB.constants.value('permadeath'):
                     unit.dead = False  # Resurrect unit
                 elif DB.constants.value('convoy_on_death'):
@@ -496,9 +490,6 @@ class GameState():
         from app.engine import action, aura_funcs
         if unit.position:
             logger.debug("Leave %s %s", unit.nid, unit.position)
-            # Boundary
-            if not test:
-                self.boundary.leave(unit)
             # Auras
             for aura_data in game.board.get_auras(unit.position):
                 child_aura_uid, target = aura_data
@@ -511,20 +502,28 @@ class GameState():
             # Regions
             for region in game.level.regions:
                 if region.region_type == 'status' and region.contains(unit.position):
-                    act = action.RemoveSkill(unit, region.sub_nid)
-                    if test:
-                        act.do()
-                    else:
-                        action.do(act)
+                    skill_uid = self.get_terrain_status(region.nid)
+                    skill_obj = self.get_skill(skill_uid)
+                    if skill_obj and skill_obj in unit.skills:
+                        if test:
+                            unit.skills.remove(skill_obj)
+                        else:
+                            act = action.RemoveSkill(unit, skill_obj)
+                            action.do(act)
             # Tiles
-            terrain_nid = self.tilemap.get_terrain(unit.position)
-            terrain = DB.terrain.get(terrain_nid)
-            if terrain.status:
-                act = action.RemoveSkill(unit, terrain.status)
+            layer = self.tilemap.get_layer(unit.position)
+            terrain_key = (*unit.position, layer)  # Terrain position and layer
+            skill_uid = self.get_terrain_status(terrain_key)
+            skill_obj = self.get_skill(skill_uid)
+            if skill_obj and skill_obj in unit.skills:
                 if test:
-                    act.do()
+                    unit.skills.remove(skill_obj)
                 else:
+                    act = action.RemoveSkill(unit, skill_obj)
                     action.do(act)
+            # Boundary
+            if not test:
+                self.boundary.leave(unit)
             # Board
             if not test:
                 self.board.remove_unit(unit.position, unit)
@@ -568,42 +567,53 @@ class GameState():
                 self.boundary.arrive(unit)
 
     def add_terrain_status(self, unit, test):
-        from app.engine import action
+        from app.engine import action, item_funcs
         layer = self.tilemap.get_layer(unit.position)
-        key = (*unit.position, layer)  # Terrain position and layer
-        skill_uid = self.get_terrain_status(key)
-        # Doesn't bother creating a new skill if the skill already exists in data
-        if skill_uid: 
-            skill_obj = self.get_skill(skill_uid)
-            act = action.AddSkill(unit, skill_obj)
-        else:
-            act = None
+        terrain_key = (*unit.position, layer)  # Terrain position and layer
+        skill_uid = self.get_terrain_status(terrain_key)
+        skill_obj = self.get_skill(skill_uid)
+
+        if not skill_obj:
             terrain_nid = self.tilemap.get_terrain(unit.position)
             terrain = DB.terrain.get(terrain_nid)
             if terrain and terrain.status:
-                act = action.AddSkill(unit, terrain.status)
-                self.register_terrain_status(key, act.skill_obj.uid)
-        if act:
-            if test:
-                act.do()
-            else:
-                action.do(act)
+                skill_obj = item_funcs.create_skill(unit, terrain.status)
+                game.register_skill(skill_obj)
+                self.register_terrain_status(terrain_key, skill_obj.uid)
+
+        if skill_obj:
+            # Only bother adding if not already present
+            if skill_obj not in unit.skills:
+                if test:
+                    # Don't need to use action for test
+                    unit.skills.append(skill_obj)
+                else:
+                    act = action.AddSkill(unit, skill_obj)
+                    action.do(act)
 
     def add_region_status(self, unit, region, test):
-        from app.engine import action
+        from app.engine import action, item_funcs
         skill_uid = self.get_terrain_status(region.nid)
-        if skill_uid:
-            skill_obj = self.get_skill(skill_uid)
-            act = action.AddSkill(unit, skill_obj)
-        else:
-            act = action.AddSkill(unit, region.sub_nid)
-            self.register_terrain_status(region.nid, act.skill_obj.uid)
-        if test:
-            act.do()
-        else:
-            action.do(act)
+        skill_obj = self.get_skill(skill_uid)
+
+        if not skill_obj:
+            skill_obj = item_funcs.create_skill(unit, region.sub_nid)
+            game.register_skill(skill_obj)
+            self.register_terrain_status(region.nid, skill_obj.uid)
+
+        if skill_obj:
+            # Only bother adding if not already present
+            if skill_obj not in unit.skills:
+                if test:
+                    # Don't need to use action for test
+                    unit.skills.append(skill_obj)
+                else:
+                    act = action.AddSkill(unit, skill_obj)
+                    action.do(act)
 
     def check_for_region(self, position, region_type, sub_nid=None):
+        if not position:
+            return None
         for region in game.level.regions:
             if region.region_type == region_type and region.contains(position):
                 if not sub_nid or region.sub_nid == sub_nid:

@@ -9,7 +9,7 @@ from app.engine.game_state import game
 
 class HealthBar():
     time_for_change_min = 200
-    speed = FRAMERATE   # 1 frame for each hp point
+    speed = 16   # 1 frame for each hp point
 
     def __init__(self, unit):
         self.unit = unit
@@ -32,6 +32,9 @@ class HealthBar():
             self.transition_flag = True
             self.time_for_change = max(self.time_for_change_min, abs(self.displayed_hp - self.unit.get_hp()) * self.speed)
             self.last_update = engine.get_time()
+
+        if equations.parser.hitpoints(self.unit) != self.total_hp:
+            self.total_hp = equations.parser.hitpoints(self.unit)
 
         # Check to see if we should update
         if self.transition_flag:
@@ -243,6 +246,10 @@ class MapCombatInfo():
                 y_pos = self.unit.position[1] - game.camera.get_y() - 3
             self.true_position = x_pos * TILEWIDTH - width//2, y_pos * TILEHEIGHT - 8
             self.ordering = 'middle'
+
+    def update_stats(self, stats):
+        self.hit, self.mt = stats
+        self.stats_surf = None
 
     def update(self):
         # Make blinds wider

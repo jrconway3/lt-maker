@@ -83,15 +83,18 @@ class Canto(SkillComponent):
     desc = "Unit can move again after certain actions"
     tag = 'movement'
 
-    def has_canto(self, unit) -> bool:
-        return not unit.has_attacked
+    def has_canto(self, unit, unit2) -> bool:
+        """
+        Can move again if hasn't attacked or attacked self
+        """
+        return not unit.has_attacked or unit is unit2
 
 class CantoPlus(SkillComponent):
     nid = 'canto_plus'
     desc = "Unit can move again even after attacking"
     tag = 'movement'
 
-    def has_canto(self, unit) -> bool:
+    def has_canto(self, unit, unit2) -> bool:
         return True
 
 class CantoSharp(SkillComponent):
@@ -99,7 +102,7 @@ class CantoSharp(SkillComponent):
     desc = "Unit can move and attack in either order"
     tag = 'movement'
 
-    def has_canto(self, unit) -> bool:
+    def has_canto(self, unit, unit2) -> bool:
         return not unit.has_attacked or unit.movement_left >= equations.parser.movement(unit)
 
 class MovementType(SkillComponent):

@@ -1,6 +1,7 @@
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities import utils
 
+from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine import engine, target_system, equations
 from app.engine.game_state import game
@@ -93,6 +94,13 @@ class BoundaryInterface():
 
     def _add_unit(self, unit):
         valid_moves = target_system.get_valid_moves(unit, force=True)
+
+        if DB.constants.value('zero_move') and unit.ai and not unit.ai_group_active:
+            ai_prefab = DB.ai.get(unit.ai)
+            guard = ai_prefab.guard_ai()
+            if guard:
+                valid_moves = {unit.position}
+
         valid_attacks = target_system.get_possible_attacks(unit, valid_moves)
         valid_spells = target_system.get_possible_spell_attacks(unit, valid_moves)
         self._set(valid_attacks, 'attack', unit.nid)
@@ -109,7 +117,14 @@ class BoundaryInterface():
             if unit.nid in self.dictionaries[mode]:
                 for (x, y) in self.dictionaries[mode][unit.nid]:
                     grid[x * self.height + y].discard(unit.nid)
+                # del self.dictionaries[mode][unit.nid]
         self.surf = None
+
+    def recalculate_unit(self, unit):
+        if unit.team in self.enemy_teams:
+            self._remove_unit(unit)
+            if unit.position:
+                self._add_unit(unit)
 
     def leave(self, unit):
         if unit.team in self.enemy_teams:
@@ -165,12 +180,12 @@ class BoundaryInterface():
         self.all_on_flag = False
         self.surf = None
 
-    def draw(self, surf, size):
+    def draw(self, surf, full_size, cull_rect):
         if not self.draw_flag:
             return surf
 
         if not self.surf:
-            self.surf = engine.create_surface(size, transparent=True)
+            self.surf = engine.create_surface(full_size, transparent=True)
 
             for grid_name in self.draw_order:
                 # Check whether we can skip this boundary interface
@@ -221,7 +236,8 @@ class BoundaryInterface():
                             image = self.create_image(new_grid, x, y, grid_name)
                             self.surf.blit(image, (x * TILEWIDTH, y * TILEHEIGHT))
 
-        surf.blit(self.surf, (0, 0))
+        im = engine.subsurface(self.surf, cull_rect)
+        surf.blit(im, (0, 0))
         return surf
 
     def create_image(self, grid, x, y, grid_name):
@@ -252,10 +268,10 @@ class BoundaryInterface():
         idx = top*8 + left*4 + right*2 + bottom  # Binary logis to get correct index
         return engine.subsurface(self.modes[grid_name], (idx * TILEWIDTH, 0, TILEWIDTH, TILEHEIGHT))
 
-    def draw_fog_of_war(self, surf, size):
-        if not self.fog_of_war_surf:
-            self.fog_of_war_surf = engine.create_surface(size, transparent=True)
-            if game.level_vars['_fog_of_war']:
+    def draw_fog_of_war(self, surf, full_size, cull_rect):
+        if game.level_vars['_fog_of_war']:
+            if not self.fog_of_war_surf:
+                self.fog_of_war_surf = engine.create_surface(full_size, transparent=True)
                 for y in range(self.height):
                     for x in range(self.width):
                         if not game.board.in_vision((x, y)):
@@ -265,5 +281,17 @@ class BoundaryInterface():
                                 image = self.fog_of_war_tile1
                             self.fog_of_war_surf.blit(image, (x * TILEWIDTH, y * TILEHEIGHT))
                         
-        surf.blit(self.fog_of_war_surf, (0, 0))
+            im = engine.subsurface(self.fog_of_war_surf, cull_rect)
+            surf.blit(im, (0, 0))
         return surf
+
+    def print_grid(self, mode):
+        for y in range(self.height):
+            print("%02d|" % y, end="")
+            for x in range(self.width):
+                cell = self.grids[mode][x * self.height + y]
+                if cell:
+                    print(' %s |' % ','.join(cell), end="")
+                else:
+                    print('  -  |', end="")
+            print('\n', end=""),

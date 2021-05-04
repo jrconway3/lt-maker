@@ -78,7 +78,7 @@ class LevelRecordOption(RecordOption):
             unit_name = unit_prefab.name
         else:
             unit_name = "???"
-        FONT['text-yellow'].blit(str(self.idx), surf, (x + 4, y))
+        FONT['text-yellow'].blit(str(self.idx + 1), surf, (x + 4, y))
         FONT['text-white'].blit(unit_name, surf, (x + 34, y))
         FONT['text-blue'].blit_right(str(self.kills), surf, (x + 114, y))
         FONT['text-blue'].blit_right(str(self.damage), surf, (x + 164, y))
@@ -108,7 +108,7 @@ class RecordsDisplay(menus.Choice):
         self.right_arrow = gui.ScrollArrow('right', (self.get_menu_width() - 8, 7), 0.5)
 
     def get_options(self):
-        levels = game.records.get_levels()
+        levels = game.records.get_levels()[:-1]
         turncounts = game.records.get_turncounts(levels)
         mvps = [game.records.get_mvp(level_nid) for level_nid in levels]
 
@@ -127,7 +127,7 @@ class RecordsDisplay(menus.Choice):
                 self.options.append(option)
 
     def create_top_banner(self):
-        levels = game.records.get_levels()
+        levels = game.records.get_levels()[:-1]
         total_turns = sum(game.records.get_turncounts(levels))
         total_turns = str(total_turns)
         overall_mvp = game.records.get_mvp()
@@ -166,7 +166,8 @@ class UnitStats(RecordsDisplay):
         super().__init__()
 
     def get_options(self):
-        levels = game.records.get_levels()
+        # Ignore the last level
+        levels = game.records.get_levels()[:-1]
         kills = [game.records.get_kills(self.unit_nid, level) for level in levels]
         damage = [game.records.get_damage(self.unit_nid, level) for level in levels]
         healing = [game.records.get_heal(self.unit_nid, level) for level in levels]
@@ -188,7 +189,7 @@ class UnitStats(RecordsDisplay):
             offset = (0, 0)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         super().vert_draw(surf, offset)
-        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))
+        FONT['text-yellow'].blit(text_funcs.translate('mvp_record_header'), surf, (offset[0] + 12, offset[1] + 32))
         return surf
 
 class MVPDisplay(RecordsDisplay):
@@ -200,20 +201,20 @@ class MVPDisplay(RecordsDisplay):
     option_type = LevelRecordOption
 
     def get_options(self):
-        units = game.get_all_units_in_party()
-        units = list(sorted(units, key=lambda x: game.records.determine_score(x)))
+        units = [unit.nid for unit in game.get_all_units_in_party()]
+        units = list(sorted(units, key=lambda x: game.records.determine_score(x), reverse=True))
         kills = [game.records.get_kills(unit_nid) for unit_nid in units]
         damage = [game.records.get_damage(unit_nid) for unit_nid in units]
         healing = [game.records.get_heal(unit_nid) for unit_nid in units]
 
-        return [(u.nid, k, d, h) for (u, k, d, h) in zip(units, kills, damage, healing)]
+        return [(u, k, d, h) for (u, k, d, h) in zip(units, kills, damage, healing)]
 
     def draw(self, surf, offset=None):
         if not offset:
             offset = (0, 0)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         super().vert_draw(surf, offset)
-        FONT['text-yellow'].blit(text_funcs.translate('mvp_record_header'), surf, (offset[0] + 12, offset[1] + 32))
+        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))
         return surf
 
 class ChapterStats(RecordsDisplay):
@@ -229,13 +230,13 @@ class ChapterStats(RecordsDisplay):
         super().__init__()
 
     def get_options(self):
-        units = game.get_all_units_in_party()
-        units = list(sorted(units, key=lambda x: game.records.determine_score(x, self.level_nid)))
+        units = [unit.nid for unit in game.get_all_units_in_party()]
+        units = list(sorted(units, key=lambda x: game.records.determine_score(x, self.level_nid), reverse=True))
         kills = [game.records.get_kills(unit_nid, self.level_nid) for unit_nid in units]
         damage = [game.records.get_damage(unit_nid, self.level_nid) for unit_nid in units]
         healing = [game.records.get_heal(unit_nid, self.level_nid) for unit_nid in units]
 
-        return [(u.nid, k, d, h) for (u, k, d, h) in zip(units, kills, damage, healing)]
+        return [(u, k, d, h) for (u, k, d, h) in zip(units, kills, damage, healing)]
 
     def create_top_banner(self):
         bg = SPRITES.get('purple_background').convert_alpha().copy()
@@ -252,5 +253,5 @@ class ChapterStats(RecordsDisplay):
             offset = (0, 0)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         super().vert_draw(surf, offset)
-        FONT['text-yellow'].blit(text_funcs.translate('mvp_record_header'), surf, (offset[0] + 12, offset[1] + 32))        
+        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))        
         return surf

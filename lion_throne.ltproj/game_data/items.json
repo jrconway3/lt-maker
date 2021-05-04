@@ -38,10 +38,6 @@
                 "D"
             ],
             [
-                "uses",
-                45
-            ],
-            [
                 "weight",
                 3
             ],
@@ -56,6 +52,10 @@
             [
                 "max_range",
                 1
+            ],
+            [
+                "uses",
+                45
             ]
         ]
     },
@@ -455,7 +455,7 @@
             ],
             [
                 "hit",
-                100
+                95
             ],
             [
                 "weapon_type",
@@ -599,7 +599,7 @@
             ],
             [
                 "hit",
-                60
+                65
             ],
             [
                 "weapon_type",
@@ -3186,10 +3186,6 @@
                 15
             ],
             [
-                "blast_aoe",
-                1
-            ],
-            [
                 "map_cast_anim",
                 "AOE_Mend"
             ],
@@ -3212,6 +3208,10 @@
                     144,
                     232
                 ]
+            ],
+            [
+                "ally_blast_aoe",
+                1
             ]
         ]
     },
@@ -3464,6 +3464,10 @@
             [
                 "exp",
                 30
+            ],
+            [
+                "eval_target_restrict",
+                "item_funcs.has_magic(unit)"
             ]
         ]
     },
@@ -3858,7 +3862,7 @@
             ],
             [
                 "status_on_equip",
-                "Speed +2,Defense +2,Resistance +2"
+                "Aetherguard"
             ],
             [
                 "value",
@@ -4733,7 +4737,7 @@
     {
         "nid": "Stun",
         "name": "Stun",
-        "desc": "Stuns target.",
+        "desc": "Stuns target for one turn.",
         "icon_nid": "Dark",
         "icon_index": [
             0,
@@ -5858,7 +5862,7 @@
     },
     {
         "nid": "so_Steal",
-        "name": "so_Steal",
+        "name": "Steal",
         "desc": "Steal items from enemies.",
         "icon_nid": "Skills",
         "icon_index": [

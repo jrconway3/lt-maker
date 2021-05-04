@@ -15,6 +15,9 @@ def is_magic(unit, item) -> bool:
 def available(unit, item) -> bool:
     return item_system.available(unit, item) and skill_system.available(unit, item)
 
+def has_magic(unit) -> bool:
+    return any(is_magic(unit, item) for item in unit.items if available(unit, item))
+
 def can_use(unit, item) -> bool:
     if item_system.can_use(unit, item) and available(unit, item):
         defender, splash = item_system.splash(unit, item, unit.position)
@@ -33,7 +36,8 @@ def buy_price(unit, item):
 def sell_price(unit, item):
     value = item_system.sell_price(unit, item)
     if value:
-        value *= skill_system.modify_sell_price(unit, item)
+        if unit:
+            value *= skill_system.modify_sell_price(unit, item)
     else:
         return 0
     return int(value)
@@ -114,6 +118,10 @@ def get_all_tradeable_items(unit) -> list:
         if not item_system.locked(unit, item):
             items.append(item)
     return items
+
+def too_much_in_inventory(unit) -> bool:
+    return len(unit.accessories) > DB.constants.value('num_accessories') or \
+        len(unit.nonaccessories) > DB.constants.value('num_items')
 
 def inventory_full(unit, item) -> bool:
     if item_system.is_accessory(unit, item):

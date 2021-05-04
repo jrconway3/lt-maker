@@ -179,7 +179,8 @@ class InfoGraph():
         #     engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
         #     surf.blit(s, (bb.aabb[0], bb.aabb[1]))
         if self.current_bb:
-            right = self.current_bb.aabb[0] >= int(0.75 * WINWIDTH)
+            # right = self.current_bb.aabb[0] >= int(0.75 * WINWIDTH)
+            right = False
             pos = (max(0, self.current_bb.aabb[0] - 32), self.current_bb.aabb[1] + 13)
             self.current_bb.help_box.draw(surf, pos, right)
 
@@ -292,6 +293,7 @@ class InfoMenuState(State):
     def back(self):
         SOUNDTHREAD.play_sfx('Select 4')
         game.memory['info_menu_state'] = self.state
+        game.memory['current_unit'] = self.unit
         if self.unit.position:
             game.cursor.set_pos(self.unit.position)
         game.state.change('transition_pop')
@@ -597,7 +599,7 @@ class InfoMenuState(State):
             self.draw_equipment_surf(main_surf)
 
         elif self.state == 'support_skills':
-            main_surf.blit(SPRITES.get('status_logo'), (100, WINHEIGHT - 34))
+            main_surf.blit(SPRITES.get('status_logo'), (100, WINHEIGHT - 42))
             if not self.skill_surf:
                 self.skill_surf = self.create_skill_surf()
             self.draw_skill_surf(main_surf)
@@ -642,9 +644,10 @@ class InfoMenuState(State):
             else:
                 highest_stat = DB.stats.get(stat_nid).maximum
                 max_stat = max_stats.get(stat_nid, 30)
-                total_length = int(max_stat / highest_stat * 44)
-                frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)
-                build_groove(surf, (27, 16 * idx + 32), total_length, frac)
+                if max_stat > 0:
+                    total_length = int(max_stat / highest_stat * 44)
+                    frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)
+                    build_groove(surf, (27, 16 * idx + 32), total_length, frac)
                 icons.draw_stat(surf, stat_nid, self.unit, (47, 16 * idx + 24))
             # Name
             name = DB.stats.get(stat_nid).name
@@ -849,12 +852,12 @@ class InfoMenuState(State):
                 charge = ' %d / %d' % (skill.data['charge'], skill.data['total_charge'])
             else:
                 charge = ''
-            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 20, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name + charge), 'support_skills')
+            self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 28, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name + charge), 'support_skills')
 
         return surf
 
     def draw_skill_surf(self, surf):
-        surf.blit(self.skill_surf, (96, WINHEIGHT - 24))
+        surf.blit(self.skill_surf, (96, WINHEIGHT - 32))
 
     def create_class_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)

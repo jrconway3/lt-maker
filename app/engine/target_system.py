@@ -123,7 +123,7 @@ def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:
 
 def get_valid_moves(unit, force=False) -> set:
     # Assumes unit is on the map
-    if not force and unit.finished or (unit.has_moved and not skill_system.has_canto(unit)):
+    if not force and unit.finished:
         return set()
 
     mtype = game.movement.get_movement_group(unit)

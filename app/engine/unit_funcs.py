@@ -14,8 +14,6 @@ def get_next_level_up(unit) -> dict:
         if method == 'Match':
             method = DB.constants.value('player_leveling')
 
-    r = static_random.get_levelup(unit.nid, unit.get_internal_level())
-
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
     klass = DB.classes.get(unit.klass)
     for nid in DB.stats.keys():
@@ -29,28 +27,30 @@ def get_next_level_up(unit) -> dict:
                 unit.growth_points[nid] = (unit.growth_points[nid] - growth) % 100
 
         elif method == 'Random':
-            stat_changes[nid] += _random_levelup(r, growth)
+            stat_changes[nid] += _random_levelup(unit, unit.get_internal_level(), growth)
         elif method == 'Dynamic':
-            _dynamic_levelup(r, stat_changes, unit.growth_points, nid, growth)
+            _dynamic_levelup(unit, unit.get_internal_level(), stat_changes, unit.growth_points, nid, growth)
             
         stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
 
     return stat_changes
 
-def _random_levelup(r, growth_rate):
+def _random_levelup(unit, level, growth_rate):
+    rng = static_random.get_levelup(unit.nid, level)
     counter = 0
     if growth_rate > 0:
         while growth_rate > 0:
-            counter += 1 if r.randint(0, 99) < growth_rate else 0
+            counter += 1 if rng.randint(0, 99) < growth_rate else 0
             growth_rate -= 100
     elif growth_rate < 0:
         growth_rate = -growth_rate
         while growth_rate > 0:
-            counter -= 1 if r.randint(0, 99) < growth_rate else 0
+            counter -= 1 if rng.randint(0, 99) < growth_rate else 0
             growth_rate -= 100
     return counter
 
-def _dynamic_levelup(r, stats, growth_points, growth_nid, growth_rate):
+def _dynamic_levelup(unit, level, stats, growth_points, growth_nid, growth_rate):
+    rng = static_random.get_levelup(unit.nid, level)
     variance = 10
     if growth_rate > 0:
         start_growth = growth_rate + growth_points[growth_nid]
@@ -61,7 +61,7 @@ def _dynamic_levelup(r, stats, growth_points, growth_nid, growth_rate):
             stats[growth_nid] += free_levels
             new_growth = growth_rate % 100
             start_growth = new_growth + growth_points[growth_nid]
-            if r.randint(0, 99) < int(start_growth):
+            if rng.randint(0, 99) < int(start_growth):
                 stats[growth_nid] += 1
                 growth_points[growth_nid] -= (100 - new_growth) / variance
             else:
@@ -76,13 +76,13 @@ def _dynamic_levelup(r, stats, growth_points, growth_nid, growth_rate):
             stats[growth_nid] -= free_levels
             new_growth = growth_rate % 100
             start_growth = new_growth + growth_points[growth_nid]
-            if r.randint(0, 99) < int(start_growth):
+            if rng.randint(0, 99) < int(start_growth):
                 stats[growth_nid] -= 1
                 growth_points[growth_nid] -= (100 - new_growth) / variance
             else:
                 growth_points[growth_nid] += new_growth/variance
 
-def auto_level(unit, num_levels):
+def auto_level(unit, num_levels, starting_level=1):
     """
     Only for generics
     """
@@ -94,8 +94,6 @@ def auto_level(unit, num_levels):
         method = DB.constants.value('enemy_leveling')
         if method == 'Match':
             method = DB.constants.value('player_leveling')
-
-    r = static_random.get_levelup(unit.nid, 0)
 
     if method == 'Fixed':
         for growth_nid, growth_value in unit.growths.items():
@@ -111,31 +109,39 @@ def auto_level(unit, num_levels):
         for growth_nid, growth_value in unit.growths.items():
             growth_rate = growth_value + unit.growth_bonus(growth_nid)
             for n in range(num_levels):    
-                unit.stats[growth_nid] += _random_levelup(r, growth_rate)
+                unit.stats[growth_nid] += _random_levelup(unit, starting_level + n, growth_rate)
 
     elif method == 'Dynamic':
         for growth_nid, growth_value in unit.growths.items():
             growth_rate = growth_value + unit.growth_bonus(growth_nid)
             for n in range(num_levels):
-                _dynamic_levelup(r, unit.stats, unit.growth_points, growth_nid, growth_rate)
+                _dynamic_levelup(unit, starting_level + n, unit.stats, unit.growth_points, growth_nid, growth_rate)
                 
     # Make sure we don't exceed max
     klass = DB.classes.get(unit.klass)
     unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k, 30)) for (k, v) in unit.stats.items()}
     unit.set_hp(1000)  # Go back to full hp
 
-def apply_stat_changes(unit, stat_changes: dict, in_base: bool = False):
+def apply_stat_changes(unit, stat_changes: dict):
     """
     Assumes stat changes are valid!
     """
     logger.info("Applying stat changes %s to %s", stat_changes, unit.nid)
+
+    old_max_hp = unit.get_max_hp()
+    old_max_mana = unit.get_max_mana()
     
+    # Actually apply changes
     for nid, value in stat_changes.items():
         unit.stats[nid] += value
 
-    if in_base:
-        unit.set_hp(1000)
-        unit.set_mana(1000)
+    current_max_hp = unit.get_max_hp()
+    current_max_mana = unit.get_max_mana()
+
+    if current_max_hp > old_max_hp:
+        unit.set_hp(current_max_hp - old_max_hp + unit.get_hp())
+    if current_max_mana > old_max_mana:
+        unit.set_mana(current_max_mana - old_max_mana + unit.get_mana())
 
 def get_starting_skills(unit) -> list:
     # Class skills
@@ -164,7 +170,7 @@ def get_starting_skills(unit) -> list:
                     if DB.constants.value('generic_feats'):
                         my_feats = [feat for feat in feats if feat.nid not in current_skills and feat.nid not in skills_to_add]
                         random_number = static_random.get_growth() % len(my_feats)
-                        new_skill = random_number[my_feats]
+                        new_skill = my_feats[random_number]
                         skills_to_add.append(new_skill.nid)
                 else:
                     skills_to_add.append(learned_skill[1])

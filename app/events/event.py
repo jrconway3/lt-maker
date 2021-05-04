@@ -11,8 +11,9 @@ from app.events.event_portrait import EventPortrait
 from app.data.level_units import UniqueUnit, GenericUnit
 
 from app.engine import dialog, engine, background, target_system, action, \
-    interaction, item_funcs, item_system, banner, skill_system, unit_funcs, \
+    item_funcs, item_system, banner, skill_system, unit_funcs, \
     evaluate, static_random, image_mods, icons
+from app.engine.combat import interaction
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.tilemap import TileMapObject
@@ -49,7 +50,7 @@ class Event():
 
         self.background = None
 
-        self.unit = self.unit1 = unit
+        self.unit = unit
         self.unit2 = unit2
         self.item = item
         self.position = position
@@ -85,6 +86,10 @@ class Event():
         # For map animations
         self.animations = []
 
+    @property
+    def unit1(self):
+        return self.unit
+    
     def save(self):
         ser_dict = {}
         ser_dict['nid'] = self.nid
@@ -93,6 +98,7 @@ class Event():
         ser_dict['unit1'] = self.unit.nid if self.unit else None
         ser_dict['unit2'] = self.unit2.nid if self.unit2 else None
         ser_dict['region'] = self.region.nid if self.region else None
+        ser_dict['item'] = self.item.uid if self.item else None
         ser_dict['position'] = self.position
         ser_dict['if_stack'] = self.if_stack
         ser_dict['parse_stack'] = self.parse_stack
@@ -102,16 +108,12 @@ class Event():
     def restore(cls, ser_dict):
         unit = game.get_unit(ser_dict['unit1'])
         unit2 = game.get_unit(ser_dict['unit2'])
-        region = None
-        if game.level:
-            for reg in game.level.regions:
-                if reg.nid == ser_dict['region']:
-                    region = reg
-                    break
+        region = game.get_region(ser_dict['region'])
+        item = game.get_item(ser_dict.get('item'))
         position = ser_dict['position']
         commands = ser_dict['commands']
         nid = ser_dict['nid']
-        self = cls(nid, commands, unit, unit2, position, region)
+        self = cls(nid, commands, unit, unit2, item, position, region)
         self.command_idx = ser_dict['command_idx']
         self.if_stack = ser_dict['if_stack']
         self.parse_stack = ser_dict['parse_stack']
@@ -187,15 +189,16 @@ class Event():
 
         # Draw text/dialog boxes
         # if self.state == 'dialog':
-        to_draw = []
-        for dialog_box in reversed(self.text_boxes):
-            if not dialog_box.is_complete():
-                to_draw.insert(0, dialog_box)
-            if dialog_box.solo_flag:
-                break
-        for dialog_box in to_draw:
-            dialog_box.update()
-            dialog_box.draw(surf)
+        if not self.do_skip:
+            to_draw = []
+            for dialog_box in reversed(self.text_boxes):
+                if not dialog_box.is_complete():
+                    to_draw.insert(0, dialog_box)
+                if dialog_box.solo_flag:
+                    break
+            for dialog_box in to_draw:
+                dialog_box.update()
+                dialog_box.draw(surf)
 
         # Fade to black
         if self.transition_state:
@@ -283,8 +286,8 @@ class Event():
         if self.state != 'paused':
             self.state = 'processing'
         self.transition_state = None
-        # if self.text_boxes:
-        #     self.text_boxes[-1].hurry_up()
+        self.hurry_up()
+        self.text_boxes.clear()
 
     def hurry_up(self):
         if self.text_boxes:
@@ -502,11 +505,11 @@ class Event():
                 to_eval = values[1]
                 try:
                     val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
-                    action.do(action.SetGameVar(nid, game.game_var.get(nid, 0) + val))
+                    action.do(action.SetGameVar(nid, game.game_vars.get(nid, 0) + val))
                 except:
                     logging.error("Could not evaluate {%s}" % to_eval)
             else:
-                action.do(action.SetGameVar(nid, game.game_var.get(nid, 0) + 1))
+                action.do(action.SetGameVar(nid, game.game_vars.get(nid, 0) + 1))
 
         elif command.nid == 'level_var':
             values, flags = event_commands.parse(command)
@@ -531,11 +534,11 @@ class Event():
                 to_eval = values[1]
                 try:
                     val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
-                    action.do(action.SetLevelVar(nid, game.level_var.get(nid, 0) + val))
+                    action.do(action.SetLevelVar(nid, game.level_vars.get(nid, 0) + val))
                 except:
                     logging.error("Could not evaluate {%s}" % to_eval)
             else:
-                action.do(action.SetLevelVar(nid, game.level_var.get(nid, 0) + 1))
+                action.do(action.SetLevelVar(nid, game.level_vars.get(nid, 0) + 1))
 
         elif command.nid == 'win_game':
             game.level_vars['_win_game'] = True
@@ -562,11 +565,17 @@ class Event():
         elif command.nid == 'make_generic':
             self.make_generic(command)
 
+        elif command.nid == 'create_unit':
+            self.create_unit(command)
+
         elif command.nid == 'add_unit':
             self.add_unit(command)
 
         elif command.nid == 'remove_unit':
             self.remove_unit(command)
+
+        elif command.nid == 'kill_unit':
+            self.kill_unit(command)
 
         elif command.nid == 'remove_all_units':
             for unit in game.units:
@@ -607,6 +616,12 @@ class Event():
 
         elif command.nid == 'give_exp':
             self.give_exp(command)
+
+        elif command.nid == 'set_exp':
+            self.set_exp(command)
+
+        elif command.nid == 'give_wexp':
+            self.give_wexp(command)
 
         elif command.nid == 'give_skill':
             self.give_skill(command)
@@ -694,6 +709,17 @@ class Event():
             hp = int(values[1])
             action.do(action.SetHP(unit, hp))
 
+        elif command.nid == 'resurrect':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            if unit.dead:
+                action.do(action.Resurrect(unit))
+            action.do(action.Reset(unit))
+            action.do(action.SetHP(unit, 1000))
+
         elif command.nid == 'reset':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
@@ -751,7 +777,7 @@ class Event():
         elif command.nid == 'add_market_item':
             values, flags = event_commands.parse(command)
             item = values[0]
-            if item in DB.items:
+            if item in DB.items.keys():
                 game.market_items.add(item)
             else:
                 logging.warning("%s is not a legal item nid", item)
@@ -921,6 +947,9 @@ class Event():
                 custom_string = None
             game.memory['chapter_title_music'] = music
             game.memory['chapter_title_title'] = custom_string
+            # End the skip here
+            self.do_skip = False
+            self.super_skip = False
             game.state.change('chapter_title')
             self.state = 'paused'
 
@@ -1003,6 +1032,8 @@ class Event():
         unit = self.get_unit(name)
         if unit and unit.portrait_nid:
             portrait = RESOURCES.portraits.get(unit.portrait_nid)
+        elif unit in DB.units.keys():
+            portrait = RESOURCES.portraits.get(DB.units.get(unit).portrait_nid)
         else:
             portrait = RESOURCES.portraits.get(name)
         if not portrait:
@@ -1297,6 +1328,25 @@ class Event():
         else:  # immediate
             action.do(action.LeaveMap(unit))
 
+    def kill_unit(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit %s" % values[0])
+            return
+
+        if not unit.position:
+            unit.dead = True
+        elif 'immediate' in flags:
+            unit.dead = True
+            action.do(action.LeaveMap(unit))
+        else:
+            game.death.should_die(unit)
+            game.state.change('dying')
+        game.events.trigger('unit_death', unit, position=unit.position)
+        skill_system.on_death(unit)
+        self.state = 'paused'
+
     def interact_unit(self, command):
         values, flags = event_commands.parse(command)
         unit1 = self.get_unit(values[0])
@@ -1361,6 +1411,9 @@ class Event():
                 continue
             position = tuple(position)
             position = self.check_placement(position, placement)
+            if not position:
+                logging.warning("Couldn't determine valid position for %s?", unit.nid)
+                continue
             self._place_unit(unit, position, entry_type)
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
@@ -1547,7 +1600,6 @@ class Event():
                     return None
                 return position
             elif placement == 'push':
-                current_occupant = game.get_unit(current_occupant)
                 new_pos = target_system.get_nearest_open_tile(current_occupant, position)
                 action.do(action.ForcedMovement(current_occupant, new_pos))
                 return position
@@ -1555,6 +1607,9 @@ class Event():
             return position
 
     def change_tilemap(self, command):
+        """
+        Cannot be turnwheeled
+        """
         values, flags = event_commands.parse(command)
         tilemap_nid = values[0]
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
@@ -1643,8 +1698,12 @@ class Event():
             variant = values[6]
         else:
             variant = None
+        if len(values) > 7 and values[7]:
+            starting_items = values[7].split(',')
+        else:
+            starting_items = []
 
-        level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, [], team, ai_nid)
+        level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, starting_items, team, ai_nid)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party
         game.full_register(new_unit)
@@ -1672,7 +1731,7 @@ class Event():
         else:
             level = unit.level
         if len(values) > 3 and values[3]:
-            position = self.parse_pos(values[1])
+            position = self.parse_pos(values[3])
         else:
             position = unit.starting_position
         if not position:
@@ -1711,9 +1770,7 @@ class Event():
                 return
         item_nid = values[1]
         if item_nid in DB.items.keys():
-            item_prefab = DB.items.get(item_nid)
-            item = ItemObject.from_prefab(item_prefab)
-            item_system.init(item)
+            item = item_funcs.create_item(None, item_nid)
             game.register_item(item)
         else:
             logging.error("Couldn't find item with nid %s" % item_nid)
@@ -1726,8 +1783,7 @@ class Event():
             item.droppable = True
 
         if unit:
-            accessory = item_system.is_accessory(unit, item)
-            if accessory and len(unit.accessories) >= DB.constants.value('num_accessories'):
+            if item_funcs.inventory_full(unit, item):
                 if 'no_choice' in flags:
                     action.do(action.PutItemInConvoy(item))
                     if banner_flag:
@@ -1740,21 +1796,6 @@ class Event():
                     game.state.change('item_discard')
                     self.state = 'paused'
                     if banner_flag:
-                        game.alerts.append(banner.AcquiredItem(self.unit, self.item))
-                        game.state.change('alert')
-            elif not accessory and len(unit.nonaccessories) >= DB.constants.value('num_items'):
-                if 'no_choice' in flags:
-                    action.do(action.PutItemInConvoy(item))
-                    if banner_flag:
-                        game.alerts.append(banner.SentToConvoy(item))
-                        game.state.change('alert')
-                        self.state = 'paused'
-                else:
-                    action.do(action.GiveItem(unit, item))
-                    game.cursor.cur_unit = unit
-                    game.state.change('item_discard')
-                    self.state = 'paused'
-                    if banner_flag: 
                         game.alerts.append(banner.AcquiredItem(unit, item))
                         game.state.change('alert')
             else:
@@ -1820,6 +1861,28 @@ class Event():
         game.exp_instance.append((unit, exp, None, 'init'))
         game.state.change('exp')
         self.state = 'paused'
+
+    def set_exp(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit with nid %s" % values[0])
+            return
+        exp = utils.clamp(int(values[1]), 0, 100)
+        action.do(action.SetExp(unit, exp))
+
+    def give_wexp(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit with nid %s" % values[0])
+            return
+        weapon_type = values[1]
+        wexp = int(values[2])
+        if 'no_banner' in flags:
+            action.execute(action.AddWexp(unit, weapon_type, wexp))
+        else:
+            action.do(action.AddWexp(unit, weapon_type, wexp))
 
     def give_skill(self, command):
         values, flags = event_commands.parse(command)
@@ -1909,27 +1972,23 @@ class Event():
         self._apply_stat_changes(unit, stat_changes, flags)
 
     def autolevel_to(self, command):
-        """
-        Cannot be turnwheeled
-        """
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
             return
 
-        final_level = int(values[1])
+        final_level = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
         current_level = unit.level
         diff = max(0, final_level - current_level)
         if diff <= 0:
             return
 
+        action.do(action.AutoLevel(unit, diff))
         if 'hidden' in flags:
             pass
         else:
-            unit.level = final_level
-
-        unit_funcs.auto_level(unit, diff)
+            action.do(action.SetLevel(unit, final_level))
         if not unit.generic and DB.units.get(unit.nid):
             unit_prefab = DB.units.get(unit.nid)
             personal_skills = unit_funcs.get_personal_skills(unit, unit_prefab)
@@ -2143,7 +2202,7 @@ class Event():
             position = self.get_unit(text).position
         else:
             valid_regions = \
-                [region.position for region in game.level.regions 
+                [tuple(region.position) for region in game.level.regions 
                  if text == region.sub_nid and region.position and 
                  not game.board.get_unit(region.position)]
             if valid_regions:

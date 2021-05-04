@@ -99,9 +99,12 @@ class StateMachine():
              'prep_formation_select': prep.PrepFormationSelectState,
              'prep_manage': prep.PrepManageState,
              'prep_manage_select': prep.PrepManageSelectState,
+             'base_manage': prep.PrepManageState,
+             'base_manage_select': prep.PrepManageSelectState,
              'prep_trade_select': prep.PrepTradeSelectState,
              'prep_trade': trade.PrepTradeState,
              'prep_items': prep.PrepItemsState,
+             'supply_items': prep.PrepItemsState,
              'prep_restock': prep.PrepRestockState,
              'prep_market': prep.PrepMarketState,
              'base_main': base.BaseMainState,
@@ -199,9 +202,16 @@ class StateMachine():
                 repeat_flag = True
         # Draw
         if not repeat_flag:
-            if state.transparent and len(self.state) >= 2:
-                surf = self.state[-2].draw(surf)
-            surf = state.draw(surf)
+            # Handles transparency of states
+            idx = -1
+            while True:
+                if self.state[idx].transparent and len(self.state) >= (abs(idx) + 1):
+                    idx -= 1
+                else:
+                    break
+            while idx <= -1:
+                surf = self.state[idx].draw(surf)
+                idx += 1
         # End
         if self.temp_state and state.processed:
             state.processed = False

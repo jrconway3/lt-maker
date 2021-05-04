@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QApplication
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QApplication, QDoubleSpinBox
 from PyQt5.QtCore import Qt
 
 from app import dark_theme
 from app.extensions.custom_gui import ComboBox, PropertyBox, Dialog
 
 from app.editor.settings import MainSettingsController
+
+from app.editor import timer
 
 name_to_button = {'L-click': Qt.LeftButton,
                   'R-click': Qt.RightButton}
@@ -25,6 +27,7 @@ class PreferencesDialog(Dialog):
         self.saved_preferences['select_button'] = self.settings.get_select_button(Qt.LeftButton)
         self.saved_preferences['place_button'] = self.settings.get_place_button(Qt.RightButton)
         self.saved_preferences['theme'] = self.settings.get_theme(0)
+        self.saved_preferences['autosave_time'] = self.settings.get_autosave_time()
 
         self.available_options = name_to_button.keys()
 
@@ -47,10 +50,16 @@ class PreferencesDialog(Dialog):
         self.theme.edit.setValue(self.theme_options[self.saved_preferences['theme']])
         self.theme.edit.currentIndexChanged.connect(self.theme_changed)
 
+        self.autosave = PropertyBox('Autosave Time (minutes)', QDoubleSpinBox, self)
+        self.autosave.edit.setRange(0.5, 99)
+        self.autosave.edit.setValue(self.saved_preferences['autosave_time'])
+        self.autosave.edit.valueChanged.connect(self.autosave_time_changed)
+
         self.layout.addWidget(label)
         self.layout.addWidget(self.select)
         self.layout.addWidget(self.place)
         self.layout.addWidget(self.theme)
+        self.layout.addWidget(self.autosave)
         self.layout.addWidget(self.buttonbox)
 
     def select_changed(self, idx):
@@ -60,7 +69,7 @@ class PreferencesDialog(Dialog):
         else:
             self.place.edit.setValue('L-click')
 
-    def place_changed(self, idx):
+    def place_changed(self, idx):           
         choice = self.place.edit.currentText()
         if choice == 'L-click':
             self.select.edit.setValue('R-click')
@@ -73,10 +82,18 @@ class PreferencesDialog(Dialog):
         dark_theme.set(ap, idx)
         self.window.set_icons(idx)  # Change icons of main editor
 
+    def autosave_time_changed(self, val):
+        print(val)
+        t = timer.get_timer()
+        t.autosave_timer.stop()
+        t.autosave_timer.setInterval(val * 60 * 1000)
+        t.autosave_timer.start()
+
     def accept(self):
         self.settings.set_select_button(name_to_button[self.select.edit.currentText()])
         self.settings.set_place_button(name_to_button[self.place.edit.currentText()])
         self.settings.set_theme(self.theme.edit.currentIndex())
+        self.settings.set_autosave_time(float(self.autosave.edit.value()))
         super().accept()
 
     def reject(self):

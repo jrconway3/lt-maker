@@ -1,6 +1,6 @@
 import os, shutil
 
-from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY, AUTOTILE_FPS, AUTOTILE_FRAMES
+from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY, AUTOTILE_FRAMES
 
 from app.utilities.data import Data, Prefab
 from app.resources.base_catalog import ManifestCatalog
@@ -10,6 +10,7 @@ class TileMapPrefab(Prefab):
     def __init__(self, nid):
         self.nid = nid
         self.width, self.height = TILEX, TILEY
+        self.autotile_fps = 29
         self.layers = Data()
         self.layers.append(LayerGrid('base', self))
 
@@ -63,6 +64,7 @@ class TileMapPrefab(Prefab):
         s_dict['size'] = self.width, self.height
         if self.width == 0 or self.height == 0:
             print("TileMap: Width or Height == 0!!!")
+        s_dict['autotile_fps'] = self.autotile_fps
         s_dict['layers'] = [layer.save() for layer in self.layers]
         s_dict['tilesets'] = self.tilesets
         return s_dict
@@ -71,6 +73,7 @@ class TileMapPrefab(Prefab):
     def restore(cls, s_dict):
         self = cls(s_dict['nid'])
         self.width, self.height = s_dict['size']
+        self.autotile_fps = s_dict.get('autotile_fps', 29)
         self.tilesets = s_dict['tilesets']
         self.layers = Data([LayerGrid.restore(layer, self) for layer in s_dict['layers']])
         return self
@@ -117,10 +120,11 @@ class TileSet(Prefab):
                 p = self.pixmap.copy(x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
                 self.subpixmaps[(x, y)] = p
 
-    def get_pixmap(self, pos, ms=0, autotiles=True):
-        if autotiles and pos in self.autotiles and self.autotile_pixmap:
+    def get_pixmap(self, pos, ms=0, autotile_fps=29):
+        if autotile_fps and pos in self.autotiles and self.autotile_pixmap:
             column = self.autotiles[pos]
-            num = (ms // AUTOTILE_FPS) % AUTOTILE_FRAMES
+            autotile_wait = int(autotile_fps * 16.66)
+            num = (ms // autotile_wait) % AUTOTILE_FRAMES
             p = self.autotile_pixmap.copy(column * TILEWIDTH, num * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
             return p
         elif pos in self.subpixmaps:

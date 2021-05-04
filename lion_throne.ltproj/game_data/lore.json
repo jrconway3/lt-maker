@@ -186,7 +186,7 @@
         "name": "Bows",
         "title": "Bows",
         "category": "Guide",
-        "text": "All bows have 2-3 range at base. This allows bow users to outrange all other 1-2 range weapons. "
+        "text": "All bows have 2-3 range at base. This allows bow users to outrange all other 1-2 range weapons.{br}However, bows are not effective against fliers, so watch out!"
     },
     {
         "nid": "Skills",
@@ -241,7 +241,7 @@
         "nid": "Party Size",
         "name": "Party Size",
         "title": "Party Size",
-        "category": "Character",
-        "text": "In addition to the required units, you must also make sure that you don't lose too many units in your party.{br}You can check the required minimum number of units in the \"Objective\" menu."
+        "category": "Guide",
+        "text": "In addition to the required units, you must also make sure that you don't lose too many units in your party.{br}You can check the required number of units in the \"Objective\" menu."
     }
 ]

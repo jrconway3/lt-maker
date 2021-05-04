@@ -28,6 +28,7 @@ class LevelDatabase(QWidget):
         self.view = RightClickListView((deletion_func, None, None), self)
         self.view.setMinimumSize(128, 320)
         self.view.setIconSize(QSize(64, 64))
+        # self.view.setUniformItemSizes(True)
         self.view.currentChanged = self.on_level_changed
         self.view.doubleClicked.connect(self.on_double_click)
 

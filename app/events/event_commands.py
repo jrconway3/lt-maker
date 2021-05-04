@@ -266,7 +266,7 @@ class MakeGeneric(EventCommand):
 
     # Nid, class, level, team, ai, faction, anim variant
     keywords = ["String", "Klass", "String", "Team"]
-    optional_keywords = ["AI", "Faction", "String"]
+    optional_keywords = ["AI", "Faction", "String", "ItemList"]
 
 class CreateUnit(EventCommand):
     nid = 'create_unit'
@@ -301,6 +301,14 @@ class RemoveUnit(EventCommand):
     keywords = ["Unit"]
     optional_keywords = ["RemoveType"]
 
+class KillUnit(EventCommand):
+    nid = 'kill_unit'
+    nickname = 'kill'
+    tag = 'unit'
+
+    keywords = ["Unit"]
+    flags = ['immediate']
+
 class RemoveAllUnits(EventCommand):
     nid = 'remove_all_units'
     tag = 'unit'
@@ -321,6 +329,11 @@ class SetCurrentHP(EventCommand):
     nid = 'set_current_hp'
     tag = 'unit'
     keywords = ["Unit", "PositiveInteger"]
+
+class Resurrect(EventCommand):
+    nid = 'resurrect'
+    tag = 'unit'
+    keywords = ["GlobalUnit"]
 
 class Reset(EventCommand):
     nid = 'reset'
@@ -397,6 +410,19 @@ class GiveExp(EventCommand):
 
     keywords = ["GlobalUnit", "PositiveInteger"]
 
+class SetExp(EventCommand):
+    nid = 'set_exp'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "PositiveInteger"]
+
+class GiveWexp(EventCommand):
+    nid = 'give_wexp'
+    tag = 'unit'
+
+    keywords = ["GlobalUnit", "WeaponType", "Integer"]
+    flags = ['no_banner']
+
 class GiveSkill(EventCommand):
     nid = 'give_skill'
     tag = 'unit'
@@ -440,10 +466,10 @@ class SetStats(EventCommand):
     flags = ['immediate']
 
 class AutolevelTo(EventCommand):
-    # Note: This is not reversible
     nid = 'autolevel_to'
     tag = 'unit'
-    keywords = ["GlobalUnit", "Integer"]
+    # Second argument is level that is eval'd
+    keywords = ["GlobalUnit", "String"]
     # Whether to actually change the unit's level
     flags = ["hidden"]
 

@@ -159,6 +159,14 @@
                     "Ophie",
                     "Prim"
                 ]
+            ],
+            [
+                "give_skill",
+                [
+                    "107",
+                    "Poison",
+                    "no_banner"
+                ]
             ]
         ],
         "only_once": false,

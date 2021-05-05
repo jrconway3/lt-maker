@@ -98,7 +98,7 @@ class Channel():
             self._channel.set_volume(self.local_volume * self.global_volume)
             if progress >= 1:
                 if self.state == 'fade_out':
-                    logging.debug('%s Paused from %s', self.nid, self.last_state)
+                    # logging.debug('%s Paused from %s', self.nid, self.last_state)
                     if self.last_state == 'playing':
                         self.state = "paused"
                         self.last_state = "paused"
@@ -123,7 +123,7 @@ class Channel():
         return False
 
     def _play(self):
-        logging.debug('%s _Play: %s %s', self.nid, self.last_state, self.num_plays)
+        # logging.debug('%s _Play: %s %s', self.nid, self.last_state, self.num_plays)
         self.last_play = engine.get_time()
         if self.num_plays == 0:
             self.last_state = "stopped"
@@ -137,11 +137,11 @@ class Channel():
                 self._channel.play(self.current_song.battle, 0)
         else:
             if self.current_song.intro and not self.played_intro:
-                logging.debug("Playing Intro %s", self.current_song.intro)
+                # logging.debug("Playing Intro %s", self.current_song.intro)
                 self._channel.play(self.current_song.intro, 0)
                 self.played_intro = True
             else:
-                logging.debug("Playing %s", self.current_song.song)
+                # logging.debug("Playing %s", self.current_song.song)
                 self._channel.play(self.current_song.song, 0)
 
     def set_current_song(self, song, num_plays=-1):
@@ -156,7 +156,7 @@ class Channel():
         self.fade_out_time = max(fade_out, 1)
 
     def clear(self):
-        logging.debug("%s Clear", self.nid)
+        # logging.debug("%s Clear", self.nid)
         self._channel.stop()
         self.current_song = None
         self.num_plays = 0
@@ -165,9 +165,9 @@ class Channel():
         self.state = "stopped"
 
     def fade_in(self):
-        logging.debug("%s Fade In: %s", self.nid, self.last_state)
+        # logging.debug("%s Fade In: %s", self.nid, self.last_state)
         if self.last_state == "paused":
-            logging.debug("%s Unpause", self.nid)
+            # logging.debug("%s Unpause", self.nid)
             self._channel.unpause()
         elif self.last_state == "stopped":
             self._play()
@@ -176,7 +176,7 @@ class Channel():
         self.last_update = engine.get_time()
 
     def fade_out(self):
-        logging.debug("%s Fade Out: %s", self.nid, self.last_state)
+        # logging.debug("%s Fade Out: %s", self.nid, self.last_state)
         self.state = "fade_out"
         self.last_update = engine.get_time()
 
@@ -191,19 +191,19 @@ class Channel():
         self.last_update = engine.get_time()
 
     def pause(self):
-        logging.debug("%s Pause: %s", self.nid, self.last_state)
+        # logging.debug("%s Pause: %s", self.nid, self.last_state)
         self._channel.pause()
         self.last_state = "paused"
         self.state = "paused"
 
     def resume(self):
-        logging.debug("%s Resume: %s", self.nid, self.last_state)
+        # logging.debug("%s Resume: %s", self.nid, self.last_state)
         self._channel.unpause()
         self.last_state = "playing"
         self.state = "playing"
 
     def stop(self):
-        logging.debug("%s Stop: %s", self.nid, self.last_state)
+        # logging.debug("%s Stop: %s", self.nid, self.last_state)
         self._channel.stop()
         self.played_intro = False
         self.last_state = "stopped"

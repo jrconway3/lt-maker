@@ -164,6 +164,7 @@ class FreeState(MapState):
             logging.info('Autoending turn.')
             game.state.change('turn_change')
             game.state.change('status_endstep')
+            game.state.change('ai')
             return 'repeat'
 
     def end(self):
@@ -252,6 +253,7 @@ class OptionMenuState(MapState):
                     game.state.back()
                     game.state.change('turn_change')
                     game.state.change('status_endstep')
+                    game.state.change('ai')
                     return 'repeat'
             elif selection == 'Suspend' or selection == 'Save':
                 if cf.SETTINGS['confirm_end']:
@@ -335,6 +337,7 @@ class OptionChildState(State):
                     game.state.back()
                     game.state.change('turn_change')
                     game.state.change('status_endstep')
+                    game.state.change('ai')
                     return 'repeat'
                 elif self.menu.owner == 'Suspend':
                     suspend()
@@ -375,6 +378,10 @@ class MoveState(MapState):
         game.cursor.show()
         cur_unit = game.cursor.cur_unit
         cur_unit.sprite.change_state('selected')
+
+        # Reset their previous position
+        if cur_unit.previous_position != cur_unit.position:
+            action.do(action.SetPreviousPosition(cur_unit))
 
         if cur_unit.has_traded:
             self.valid_moves = target_system.get_valid_moves(cur_unit)
@@ -1550,7 +1557,11 @@ class AIState(MapState):
 
         if (not self.cur_unit or not self.cur_unit.position):
             self.cur_unit = self.get_next_unit()
+            # Reset previous position
+
             if self.cur_unit:
+                if self.cur_unit.position and self.cur_unit.previous_position != self.cur_unit.position:
+                    action.do(action.SetPreviousPosition(self.cur_unit))
                 self.cur_group = self.cur_unit.ai_group
             else:
                 self.cur_group = None

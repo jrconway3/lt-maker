@@ -85,11 +85,12 @@ class CombatArtAllowedWeapons(SkillComponent):
         from app.engine import evaluate
         good_weapons = []
         for item in item_funcs.get_all_items(unit):
-            try:
-                if bool(evaluate.evaluate(self.value, unit, item=item)):
-                    good_weapons.append(item)
-            except:
-                print("Couldn't evaluate conditional: %s" % self.value)
+            if item_funcs.available(unit, item):
+                try:
+                    if bool(evaluate.evaluate(self.value, unit, item=item)):
+                        good_weapons.append(item)
+                except:
+                    print("Couldn't evaluate conditional: %s" % self.value)
         return good_weapons
 
 class CombatArtSetMaxRange(SkillComponent):

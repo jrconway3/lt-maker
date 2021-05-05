@@ -238,11 +238,11 @@ class StatusOnHit(ItemComponent):
 
 class Restore(ItemComponent):
     nid = 'restore'
-    desc = "Item removes all time statuses from target on hit"
+    desc = "Item removes all negative statuses from target on hit"
     tag = 'special'
 
     def _can_be_restored(self, status):
-        return status.time
+        return status.negative
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         defender = game.board.get_unit(def_pos)
@@ -256,9 +256,9 @@ class Restore(ItemComponent):
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
-        for skill in unit.skill:
+        for skill in target.skills:
             if self._can_be_restored(skill):
-                actions.append(action.RemoveSkill(unit, skill))
+                actions.append(action.RemoveSkill(target, skill))
         playback.append(('restore_hit', unit, item, target))
 
 class RestoreSpecific(Restore, ItemComponent):

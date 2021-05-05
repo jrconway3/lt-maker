@@ -472,6 +472,17 @@ class ResetUnitVars(Action):
         self.unit.set_fatigue(self.old_current_fatigue)
         self.unit.movement_left = self.old_movement_left
 
+class SetPreviousPosition(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_previous_position = self.unit.previous_position
+
+    def do(self):
+        self.unit.previous_position = self.position
+
+    def reverse(self):
+        self.unit.previous_position = self.old_previous_position
+
 class Reset(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -1751,4 +1762,4 @@ def reverse(action):
     action.reverse()
     game.action_log.action_depth -= 1
     if game.action_log.record and game.action_log.action_depth <= 0:
-        game.action_log.remove(action)
+        game.action_log.hard_remove(action)

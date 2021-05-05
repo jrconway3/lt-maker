@@ -12687,26 +12687,6 @@
         },
         "units": [
             {
-                "nid": "101",
-                "variant": null,
-                "level": 10,
-                "klass": "Thief",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Mithril Sword",
-                        true
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Thief",
-                "ai_group": null,
-                "starting_position": null,
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
                 "nid": "Ophie",
                 "team": "enemy",
                 "ai": "None",
@@ -12714,79 +12694,6 @@
                 "starting_position": [
                     27,
                     26
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Prim",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "105",
-                "variant": null,
-                "level": 10,
-                "klass": "Swordmaster",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Sword",
-                        false
-                    ],
-                    [
-                        "Boltblade",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Pursue",
-                "ai_group": null,
-                "starting_position": [
-                    14,
-                    14
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "i1",
-                "variant": null,
-                "level": 1,
-                "klass": "Oracle",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Disintegrate",
-                        false
-                    ],
-                    [
-                        "Blind",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    12,
-                    12
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "Ulver",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    4,
-                    4
                 ],
                 "generic": false
             },
@@ -12800,40 +12707,6 @@
                     12
                 ],
                 "generic": false
-            },
-            {
-                "nid": "Coyote",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    11,
-                    12
-                ],
-                "generic": false
-            },
-            {
-                "nid": "103",
-                "variant": null,
-                "level": 10,
-                "klass": "General",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Mithril Lance",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    27,
-                    27
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
             },
             {
                 "nid": "106",
@@ -12851,8 +12724,77 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    10,
-                    14
+                    14,
+                    21
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": [
+                    17,
+                    13
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 5,
+                "klass": "Dragoon",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    18
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Oracle",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Restore",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    19
                 ],
                 "name": null,
                 "desc": null,

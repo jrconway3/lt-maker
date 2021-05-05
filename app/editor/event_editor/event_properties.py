@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
-    QGridLayout, QSizePolicy, QAction, QToolBar, QSpinBox
-from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics, QIcon
+    QGridLayout, QSizePolicy, QAction, QToolBar, QSpinBox, QStyle, QApplication
+from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics, QIcon, QPen
 from PyQt5.QtCore import QRegularExpression, Qt, QSize, QRect
 
 from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, QHLine, ComboBox
@@ -583,9 +583,9 @@ class EventProperties(QWidget):
         self.show_map_button.setEnabled(False)
 
         self.show_commands_dialog = None
-        # self.show_commands_button = QPushButton("Show Commands")
-        # self.show_commands_button.clicked.connect(self.show_commands)
-        # bottom_section.addWidget(self.show_commands_button)
+        self.show_commands_button = QPushButton("Show Commands")
+        self.show_commands_button.clicked.connect(self.show_commands)
+        bottom_section.addWidget(self.show_commands_button)
 
     def setEnabled(self, val):
         super().setEnabled(val)
@@ -632,20 +632,20 @@ class EventProperties(QWidget):
             self.show_map_dialog.done(0)
             self.show_map_dialog = None
 
-    # def show_commands(self):
-    #     # Modeless dialog
-    #     if not self.show_commands_dialog:
-    #         self.show_commands_dialog = ShowCommandsDialog(self)
-    #     self.show_commands_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
-    #     self.show_commands_dialog.setWindowFlags(self.show_commands_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
-    #     self.show_commands_dialog.show()
-    #     self.show_commands_dialog.raise_()
-    #     # self.show_commands_dialog.activateWindow()
+    def show_commands(self):
+        # Modeless dialog
+        if not self.show_commands_dialog:
+            self.show_commands_dialog = ShowCommandsDialog(self)
+        self.show_commands_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        self.show_commands_dialog.setWindowFlags(self.show_commands_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
+        self.show_commands_dialog.show()
+        self.show_commands_dialog.raise_()
+        # self.show_commands_dialog.activateWindow()
 
-    # def close_commands(self):
-    #     if self.show_commands_dialog:
-    #         self.show_commands_dialog.done(0)
-    #         self.show_commands_dialog = None
+    def close_commands(self):
+        if self.show_commands_dialog:
+            self.show_commands_dialog.done(0)
+            self.show_commands_dialog = None
 
     def name_changed(self, text):
         self.current.name = text
@@ -754,7 +754,7 @@ class EventProperties(QWidget):
     
     def hideEvent(self, event):
         self.close_map()
-        # self.close_commands()
+        self.close_commands()
 
 class ShowMapDialog(QDialog):
     def __init__(self, current_level, parent=None):
@@ -809,33 +809,53 @@ class ShowCommandsDialog(QDialog):
         self.setWindowTitle("Event Commands")
         self.window = parent
 
-        self._data = event_commands.get_commands()
-        self.model = EventCommandModel(self._data, self)
+        self.commands = event_commands.get_commands()
+        self.categories = event_commands.tags
+        self._data = []
+        for category in self.categories[:-1]:  # Ignore hidden categoy
+            self._data.append(category)
+            commands = [command for command in self.commands if command.tag == category]
+            self._data += commands
+
+        self.model = EventCommandModel(self._data, self.categories, self)
         self.view = QListView(self)
-        self.view.setMinimumSize(128, 360)
+        self.view.setMinimumSize(256, 360)
         self.view.setModel(self.model)
         self.view.doubleClicked.connect(self.on_double_click)
 
         self.delegate = CommandDelegate(self._data, self)
         self.view.setItemDelegate(self.delegate)
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        layout.addWidget(self.view)
+        main_layout = QHBoxLayout()
+        left_layout = QVBoxLayout()
+        main_layout.addLayout(left_layout)
+        self.setLayout(main_layout)
+        # Add search
+        left_layout.addWidget(self.view)
+        # Add description Box
+
 
     def on_double_click(self, index):
         idx = index.row()
         command = self._data[idx]
-        self.window.insert_text_on_newline(command.nid)
+        if command not in self.categories:
+            self.window.insert_text_with_newline(command.nid)
 
 class EventCommandModel(CollectionModel):
+    def __init__(self, data, categories, window):
+        super().__init__(data, window)
+        self.categories = categories
+
     def data(self, index, role):
         if not index.isValid():
             return None
         if role == Qt.DisplayRole:
             command = self._data[index.row()]
-            text = command.nid
-            return text
+            if command in self.categories:
+                return command
+            else:
+                text = command.nid
+                return text
 
 class CommandDelegate(QStyledItemDelegate):
     def __init__(self, data, parent=None):
@@ -843,7 +863,11 @@ class CommandDelegate(QStyledItemDelegate):
         self._data = data
 
     def sizeHint(self, option, index):
-        return QSize(0, 48)
+        command = self._data[index.row()]
+        if hasattr(command, 'nid'):
+            return QSize(0, 24)
+        else:
+            return QSize(0, 32)
 
     def paint(self, painter, option, index):
         command = self._data[index.row()]
@@ -852,18 +876,42 @@ class CommandDelegate(QStyledItemDelegate):
         right = rect.right()
         top = rect.top()
         bottom = rect.bottom()
+        if option.state & QStyle.State_Selected:
+            palette = QApplication.palette()
+            color = palette.color(QPalette.Highlight)
+            painter.fillRect(rect, color)
         font = painter.font()
-        font_height = 16
-        if command.nickname:
-            painter.drawText(left, top, "%s (%s)" % (command.nid, command.nickname))
+        if hasattr(command, 'nid'):
+            font.setBold(True)
+            font_height = QFontMetrics(font).lineSpacing()
+            painter.setFont(font)
+            painter.drawText(left, top + font_height, command.nid)
+            horiz_advance = QFontMetrics(font).horizontalAdvance(command.nid)
+            font.setBold(False)
+            painter.setFont(font)
+            # pen = painter.pen()
+            # pen.setStyle(Qt.DotLine)
+            # painter.setPen(pen)
+            # painter.drawLine(left, top + 1.25 * font_height, right, top + 1.25 * font_height)
+            keywords = ";".join(command.keywords)
+            optional_keywords = ";".join(command.optional_keywords)
+            flags = ";".join(command.flags)
+            if keywords:
+                painter.drawText(left + horiz_advance, top + font_height, ";" + keywords)
         else:
-            painter.drawText(left, top, command.nid)
-        painter.drawLine(left, top + font_height, right, top + font_height)
-        keywords = ";".join(command.keywords)
-        optional_keywords = ";".join(command.optional_keywords)
-        flags = ";".join(command.flags)
-        painter.drawText(left, top + font_height + 4, keywords)
+            prev_size = font.pointSize()
+            font.setPointSize(prev_size + 4)
+            font_height = QFontMetrics(font).lineSpacing()
+            painter.setFont(font)
+            painter.drawText(left, top + font_height, command)
+            font.setPointSize(prev_size)
+            painter.setFont(font)
+            painter.drawLine(left, top + 1.25 * font_height, right, top + 1.25 * font_height)
         # italics
-        font.setItalic(True)
-        painter.drawText(left, top + font_height*2 + 4, optional_keywords)
-        painter.drawText(left, top + font_height*3 + 4, "{" + flags + "}")
+        # font.setItalic(True)
+        # painter.drawText(left, top + font_height*3 + 4, optional_keywords)
+        # if flags:
+            # painter.drawText(left, top + font_height*4 + 4, "Optional Flags: {" + flags + "}")
+        # pen.setStyle(Qt.SolidLine)
+        # painter.setPen(pen)
+        # painter.drawLine(left, top + 4.5 * font_height, right, top + 4.5 * font_height)

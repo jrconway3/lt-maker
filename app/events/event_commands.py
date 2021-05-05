@@ -1,5 +1,11 @@
 from app.utilities.data import Prefab
 
+tags = ('Flow Control', 'Music/Sound', 'Portrait', 'Background/Foreground',
+        'Dialogue/Text', 'Cursor/Camera', 
+        'Level-wide Unlocks and Variables', 'Game-wide Unlocks and Variables',
+        'Tilemap', 'Region', 'Add/Remove/Interact with Units', 'Modify Unit Properties', 
+        'Unit Groups', 'Miscellaneous', 'Hidden')
+
 class EventCommand(Prefab):
     nid: str = None
     nickname: str = None
@@ -26,49 +32,73 @@ class EventCommand(Prefab):
 class Comment(EventCommand):
     nid = "comment"
     nickname = '#'
-    tag = None
+    tag = "Flow Control"
+    desc = \
+        """
+        Lines starting with '#' will be ignored.
+        """
 
     def to_plain_text(self):
         return self.values[0]
 
 class If(EventCommand):
     nid = "if"
-    tag = "flow"
+    tag = "Flow Control"
+    desc = \
+        """
+        _Condition_ is a valid Python expression to evaluate.
+
+        If the _Condition_ returns true, the block under this command will be executed. If it returns false, the script will search for the next **elif**, **else**, or **end** command before proceeding.
+
+        Remember to end your **if** blocks with **end**.
+
+        Example:
+
+        ```
+        if;game.check_dead('Eirika')
+            lose_game
+        elif;game.check_dead('Lyon')
+            win_game
+        else
+            s;Eirika;Nice!
+        end
+        ```
+        """
 
     keywords = ['Condition']
 
 class Elif(EventCommand):
     nid = "elif"
-    tag = "flow"
+    tag = "Flow Control"
 
     keywords = ['Condition']
 
 class Else(EventCommand):
     nid = "else"
-    tag = "flow"
+    tag = "Flow Control"
 
 class End(EventCommand):
     nid = "end"
-    tag = "flow"
+    tag = "Flow Control"
 
 class Break(EventCommand):
     nid = "break"
-    tag = "flow"
+    tag = "Flow Control"
 
 class Wait(EventCommand):
     nid = "wait"
-    tag = "general"
+    tag = "Flow Control"
 
     keywords = ['Time']
 
 class EndSkip(EventCommand):
     nid = "end_skip"
-    tag = "general"
+    tag = "Flow Control"
 
 class Music(EventCommand):
     nid = "music"
     nickname = "m"
-    tag = "sound"
+    tag = "Music/Sound"
 
     keywords = ['Music']
     optional_keywords = ['Time']  # How long to fade in (default 400)
@@ -76,26 +106,26 @@ class Music(EventCommand):
 class MusicClear(EventCommand):
     nid = "music_clear"
     nickname = "m"
-    tag = "sound"
+    tag = "Music/Sound"
 
     optional_keywords = ['Time']  # How long to fade out
 
 class Sound(EventCommand):
     nid = "sound"
-    tag = "sound"
+    tag = "Music/Sound"
 
     keywords = ['Sound']
 
 class ChangeMusic(EventCommand):
     nid = 'change_music'
-    tag = 'sound'
+    tag = 'Music/Sound'
 
     keywords = ['PhaseMusic', 'Music']
 
 class AddPortrait(EventCommand):
     nid = "add_portrait"
     nickname = "u"
-    tag = "dialogue"
+    tag = "Portrait"
 
     keywords = ['Portrait', 'ScreenPosition']
     optional_keywords = ['Slide', 'ExpressionList']
@@ -104,7 +134,7 @@ class AddPortrait(EventCommand):
 class MultiAddPortrait(EventCommand):
     nid = "multi_add_portrait"
     nickname = "uu"
-    tag = "dialogue"
+    tag = "Portrait"
 
     keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']
     optional_keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']
@@ -112,7 +142,7 @@ class MultiAddPortrait(EventCommand):
 class RemovePortrait(EventCommand):
     nid = "remove_portrait"
     nickname = "r"
-    tag = "dialogue"
+    tag = "Portrait"
 
     keywords = ['Portrait']
     flags = ["immediate", "no_block"]
@@ -120,14 +150,14 @@ class RemovePortrait(EventCommand):
 class MultiRemovePortrait(EventCommand):
     nid = "multi_remove_portrait"
     nickname = "rr"
-    tag = "dialogue"
+    tag = "Portrait"
 
     keywords = ['Portrait', 'Portrait']
     optional_keywords = ['Portrait', 'Portrait']
 
 class MovePortrait(EventCommand):
     nid = "move_portrait"
-    tag = "dialogue"
+    tag = "Portrait"
 
     keywords = ['Portrait', 'ScreenPosition']
     flags = ["immediate", "no_block"]
@@ -135,7 +165,7 @@ class MovePortrait(EventCommand):
 class BopPortrait(EventCommand):
     nid = "bop_portrait"
     nickname = "bop"
-    tag = "dialogue"
+    tag = "Portrait"
 
     keywords = ['Portrait']
     flags = ["no_block"]
@@ -143,14 +173,14 @@ class BopPortrait(EventCommand):
 class Expression(EventCommand):
     nid = "expression"
     nickname = "e"
-    tag = "dialogue"
+    tag = "Portrait"
 
     keywords = ['Portrait', 'ExpressionList']
 
 class Speak(EventCommand):
     nid = "speak"
     nickname = "s"
-    tag = "dialogue"
+    tag = "Dialogue/Text"
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
@@ -159,7 +189,7 @@ class Speak(EventCommand):
 class Transition(EventCommand):
     nid = "transition"
     nickname = "t"
-    tag = "background"
+    tag = "Background/Foreground"
 
     optional_keywords = ['Direction', 'Speed', 'Color3']
 
@@ -167,27 +197,28 @@ class Background(EventCommand):
     # Also does remove background
     nid = "change_background"
     nickname = "b"
-    tag = "background"
+    tag = "Background/Foreground"
 
     optional_keywords = ['Panorama']
     flags = ["keep_portraits"]
 
 class DispCursor(EventCommand):
     nid = "disp_cursor"
-    tag = "cursor"
+    tag = "Cursor/Camera"
+
     keywords = ["Bool"]
 
 class MoveCursor(EventCommand):
     nid = "move_cursor"
     nickname = "set_cursor"
-    tag = "cursor"
+    tag = "Cursor/Camera"
     
     keywords = ["Position"]
     flags = ["immediate"]
 
 class CenterCursor(EventCommand):
     nid = "center_cursor"
-    tag = "cursor"
+    tag = "Cursor/Camera"
     
     keywords = ["Position"]
     flags = ["immediate"]
@@ -195,48 +226,48 @@ class CenterCursor(EventCommand):
 class FlickerCursor(EventCommand):
     nid = 'flicker_cursor'
     nickname = 'highlight'
-    tag = 'cursor'
+    tag = "Cursor/Camera"
 
     keywords = ["Position"]
     flags = ["immediate"]
 
 class GameVar(EventCommand):
     nid = 'game_var'
-    tag = 'general'
+    tag = "Game-wide Unlocks and Variables"
 
     keywords = ["Nid", "Condition"]
 
 class IncGameVar(EventCommand):
     nid = 'inc_game_var'
-    tag = 'general'
+    tag = "Game-wide Unlocks and Variables"
 
     keywords = ["Nid"]
     optional_keywords = ["Condition"]
 
 class LevelVar(EventCommand):
     nid = 'level_var'
-    tag = 'general'
+    tag = "Level-wide Unlocks and Variables"
 
     keywords = ["Nid", "Condition"]
 
 class IncLevelVar(EventCommand):
     nid = 'inc_level_var'
-    tag = 'general'
+    tag = "Level-wide Unlocks and Variables"
 
     keywords = ["Nid"]
     optional_keywords = ["Condition"]
 
 class WinGame(EventCommand):
     nid = 'win_game'
-    tag = "general"
+    tag = "Level-wide Unlocks and Variables"
 
 class LoseGame(EventCommand):
     nid = 'lose_game'
-    tag = "general"
+    tag = "Level-wide Unlocks and Variables"
 
 class ActivateTurnwheel(EventCommand):
     nid = 'activate_turnwheel'
-    tag = 'general'
+    tag = "Miscellaneous"
 
     # Whether to force the player to move the turnwheel back
     # defaults to true
@@ -244,25 +275,25 @@ class ActivateTurnwheel(EventCommand):
 
 class BattleSave(EventCommand):
     nid = 'battle_save'
-    tag = 'general'
+    tag = "Miscellaneous"
 
 class ChangeTilemap(EventCommand):
     nid = 'change_tilemap'
-    tag = 'general'
+    tag = "Tilemap"
 
     keywords = ["Tilemap"]
     flags = ["reload"]  # Should place units in previously recorded positions
 
 class LoadUnit(EventCommand):
     nid = 'load_unit'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
     keywords = ["UniqueUnit"]
     optional_keywords = ["Team", "AI"]
 
 class MakeGeneric(EventCommand):
     nid = 'make_generic'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
     # Nid, class, level, team, ai, faction, anim variant
     keywords = ["String", "Klass", "String", "Team"]
@@ -270,7 +301,7 @@ class MakeGeneric(EventCommand):
 
 class CreateUnit(EventCommand):
     nid = 'create_unit'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
     # Unit template and new unit nid (can be '')
     keywords = ["Unit", "String"]
     # Unit level, position, entrytype, placement
@@ -279,7 +310,7 @@ class CreateUnit(EventCommand):
 class AddUnit(EventCommand):
     nid = 'add_unit'
     nickname = 'add'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
     keywords = ["Unit"]
     optional_keywords = ["Position", "EntryType", "Placement"]
@@ -287,7 +318,7 @@ class AddUnit(EventCommand):
 class MoveUnit(EventCommand):
     nid = 'move_unit'
     nickname = 'move'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
     keywords = ["Unit"]
     optional_keywords = ["Position", "MovementType", "Placement"]
@@ -296,7 +327,7 @@ class MoveUnit(EventCommand):
 class RemoveUnit(EventCommand):
     nid = 'remove_unit'
     nickname = 'remove'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
     keywords = ["Unit"]
     optional_keywords = ["RemoveType"]
@@ -304,55 +335,55 @@ class RemoveUnit(EventCommand):
 class KillUnit(EventCommand):
     nid = 'kill_unit'
     nickname = 'kill'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
     keywords = ["Unit"]
     flags = ['immediate']
 
 class RemoveAllUnits(EventCommand):
     nid = 'remove_all_units'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
 class RemoveAllEnemies(EventCommand):
     nid = 'remove_all_enemies'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
 class InteractUnit(EventCommand):
     nid = 'interact_unit'
     nickname = 'interact'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
 
     keywords = ["Unit", "Unit"]
     optional_keywords = ["CombatScript", "Ability"]
 
 class SetCurrentHP(EventCommand):
     nid = 'set_current_hp'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["Unit", "PositiveInteger"]
 
 class Resurrect(EventCommand):
     nid = 'resurrect'
-    tag = 'unit'
+    tag = "Add/Remove/Interact with Units"
     keywords = ["GlobalUnit"]
 
 class Reset(EventCommand):
     nid = 'reset'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["Unit"]
 
 class HasAttacked(EventCommand):
     nid = 'has_attacked'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["Unit"]
 
 class HasTraded(EventCommand):
     nid = 'has_traded'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ['Unit']
 
 class AddGroup(EventCommand):
     nid = 'add_group'
-    tag = 'unit'
+    tag = "Unit Groups"
 
     keywords = ["Group"]
     optional_keywords = ["StartingGroup", "EntryType", "Placement"]
@@ -360,7 +391,7 @@ class AddGroup(EventCommand):
 
 class SpawnGroup(EventCommand):
     nid = 'spawn_group'
-    tag = "unit"
+    tag = "Unit Groups"
 
     keywords = ["Group", "CardinalDirection", "StartingGroup"]
     optional_keywords = ["EntryType", "Placement"]
@@ -369,7 +400,7 @@ class SpawnGroup(EventCommand):
 class MoveGroup(EventCommand):
     nid = 'move_group'
     nickname = 'morph_group'
-    tag = 'unit'
+    tag = "Unit Groups"
 
     keywords = ["Group", "StartingGroup"]
     optional_keywords = ["MovementType", "Placement"]
@@ -377,28 +408,28 @@ class MoveGroup(EventCommand):
 
 class RemoveGroup(EventCommand):
     nid = 'remove_group'
-    tag = 'unit'
+    tag = "Unit Groups"
 
     keywords = ["Group"]
     optional_keywords = ["RemoveType"]
 
 class GiveItem(EventCommand):
     nid = 'give_item'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner', 'no_choice', 'droppable']
 
 class RemoveItem(EventCommand):
     nid = 'remove_item'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
 
 class GiveMoney(EventCommand):
     nid = 'give_money'
-    tag = 'general'
+    tag = 'Game-wide Unlocks and Variables'
 
     keywords = ["Integer"]
     optional_keywords = ["Party"]
@@ -406,68 +437,68 @@ class GiveMoney(EventCommand):
 
 class GiveExp(EventCommand):
     nid = 'give_exp'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "PositiveInteger"]
 
 class SetExp(EventCommand):
     nid = 'set_exp'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "PositiveInteger"]
 
 class GiveWexp(EventCommand):
     nid = 'give_wexp'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "WeaponType", "Integer"]
     flags = ['no_banner']
 
 class GiveSkill(EventCommand):
     nid = 'give_skill'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "Skill"]
     flags = ['no_banner']
 
 class RemoveSkill(EventCommand):
     nid = 'remove_skill'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "Skill"]
     flags = ['no_banner']
 
 class ChangeAI(EventCommand):
     nid = 'change_ai'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "AI"] 
 
 class ChangeTeam(EventCommand):
     nid = 'change_team'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["GlobalUnit", "Team"]
 
 class ChangePortrait(EventCommand):
     nid = 'change_portrait'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["GlobalUnit", "PortraitNid"]
 
 class ChangeStats(EventCommand):
     nid = 'change_stats'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["GlobalUnit", "StatList"]
     flags = ['immediate']
 
 class SetStats(EventCommand):
     nid = 'set_stats'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["GlobalUnit", "StatList"]
     flags = ['immediate']
 
 class AutolevelTo(EventCommand):
     nid = 'autolevel_to'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     # Second argument is level that is eval'd
     keywords = ["GlobalUnit", "String"]
     # Whether to actually change the unit's level
@@ -475,92 +506,92 @@ class AutolevelTo(EventCommand):
 
 class Promote(EventCommand):
     nid = 'promote'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["GlobalUnit"]
     optional_keywords = ["Klass"]
 
 class ChangeClass(EventCommand):
     nid = 'change_class'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
     keywords = ["GlobalUnit"]
     optional_keywords = ["Klass"]
 
 class AddTag(EventCommand):
     nid = 'add_tag'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "Tag"]
 
 class RemoveTag(EventCommand):
     nid = 'remove_tag'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ["GlobalUnit", "Tag"]
 
 class AddTalk(EventCommand):
     nid = 'add_talk'
-    tag = 'unit'
+    tag = 'Level-wide Unlocks and Variables'
 
     keywords = ["Unit", "Unit"]
 
 class RemoveTalk(EventCommand):
     nid = 'remove_talk'
-    tag = 'unit'
+    tag = 'Level-wide Unlocks and Variables'
 
     keywords = ["Unit", "Unit"]
 
 class AddLore(EventCommand):
     nid = 'add_lore'
     nickname = 'unlock_lore'
-    tag = 'base'
+    tag = 'Game-wide Unlocks and Variables'
 
     keywords = ["Lore"]
 
 class RemoveLore(EventCommand):
     nid = 'remove_lore'
-    tag = 'base'
+    tag = 'Game-wide Unlocks and Variables'
 
     keywords = ["Lore"]
 
 class AddBaseConvo(EventCommand):
     nid = 'add_base_convo'
-    tag = 'base'
+    tag = 'Level-wide Unlocks and Variables'
 
     keywords = ["String"]
 
 class IgnoreBaseConvo(EventCommand):
     nid = 'ignore_base_convo'
-    tag = 'base'
+    tag = 'Level-wide Unlocks and Variables'
 
     keywords = ["String"]
 
 class RemoveBaseConvo(EventCommand):
     nid = 'remove_base_convo'
-    tag = 'base'
+    tag = 'Level-wide Unlocks and Variables'
 
     keywords = ["String"]
 
 class IncrementSupportPoints(EventCommand):
     nid = 'increment_support_points'
-    tag = 'unit'
+    tag = "Modify Unit Properties"
 
     keywords = ['GlobalUnit', 'GlobalUnit', 'PositiveInteger']
 
 class AddMarketItem(EventCommand):
     nid = 'add_market_item'
-    tag = 'base'
+    tag = 'Game-wide Unlocks and Variables'
 
     keywords = ["Item"]
 
 class RemoveMarketItem(EventCommand):
     nid = 'remove_market_item'
-    tag = 'base'
+    tag = 'Game-wide Unlocks and Variables'
 
     keywords = ["Item"]
 
 class AddRegion(EventCommand):
     nid = 'add_region'
-    tag = 'map'
+    tag = "Region"
 
     keywords = ["Nid", "Position", "Size", "RegionType"]
     optional_keywords = ["String"]
@@ -568,165 +599,165 @@ class AddRegion(EventCommand):
 
 class RegionCondition(EventCommand):
     nid = 'region_condition'
-    tag = 'map'
+    tag = "Region"
 
     keywords = ["Nid", "Condition"]
 
 class RemoveRegion(EventCommand):
     nid = 'remove_region'
-    tag = 'map'
+    tag = "Region"
 
     keywords = ["Nid"]
 
 class ShowLayer(EventCommand):
     nid = 'show_layer'
-    tag = 'map'
+    tag = "Tilemap"
 
     keywords = ["Layer"]
     optional_keywords = ["LayerTransition"]
 
 class HideLayer(EventCommand):
     nid = 'hide_layer'
-    tag = 'map'
+    tag = "Tilemap"
 
     keywords = ["Layer"]
     optional_keywords = ["LayerTransition"]
 
 class AddWeather(EventCommand):
     nid = 'add_weather'
-    tag = 'map'
+    tag = "Tilemap"
 
     keywords = ["Weather"]
 
 class RemoveWeather(EventCommand):
     nid = 'remove_weather'
-    tag = 'map'
+    tag = "Tilemap"
 
     keywords = ["Weather"]
 
 class ChangeObjectiveSimple(EventCommand):
     nid = 'change_objective_simple'
-    tag = 'general'
+    tag = "Level-wide Unlocks and Variables"
 
     keywords = ["String"]
 
 class ChangeObjectiveWin(EventCommand):
     nid = 'change_objective_win'
-    tag = 'general'
+    tag = "Level-wide Unlocks and Variables"
     
     keywords = ["String"]
 
 class ChangeObjectiveLoss(EventCommand):
     nid = 'change_objective_loss'
-    tag = 'general'
+    tag = "Level-wide Unlocks and Variables"
     
     keywords = ["String"]
 
 class SetPosition(EventCommand):
     nid = 'set_position'
-    tag = 'general'
+    tag = "Miscellaneous"
 
     keywords = ["String"]
 
 class MapAnim(EventCommand):
     nid = 'map_anim'
-    tag = 'map'
+    tag = "Tilemap"
 
     keywords = ["MapAnim", "Position"]
     flags = ["no_block"]
 
 class ArrangeFormation(EventCommand):
     nid = 'arrange_formation'
-    tag = 'general'
+    tag = 'Miscellaneous'
     # Puts units on formation tiles automatically
 
 class Prep(EventCommand):
     nid = 'prep'
-    tag = 'general'
+    tag = 'Miscellaneous'
 
     optional_keywords = ["Bool", "Music"]  # Pick units
 
 class Base(EventCommand):
     nid = 'base'
-    tag = 'general'
+    tag = 'Miscellaneous'
 
     keywords = ["Panorama"]
     optional_keywords = ["Music"]
 
 class Shop(EventCommand):
     nid = 'shop'
-    tag = 'general'
+    tag = 'Miscellaneous'
 
     keywords = ["Unit", "ItemList"]
     optional_keywords = ["ShopFlavor"]
 
 class Choice(EventCommand):
     nid = 'choice'
-    tag = 'general'
+    tag = 'Miscellaneous'
 
     keywords = ['Nid', 'String', 'StringList']  
     optional_keywords = ['Orientation']
 
 class ChapterTitle(EventCommand):
     nid = 'chapter_title'
-    tag = 'general'
+    tag = 'Miscellaneous'
 
     optional_keywords = ["Music", "String"]
 
 class Alert(EventCommand):
     nid = 'alert'
-    tag = 'general'
+    tag = 'Dialogue/Text'
 
     keywords = ["String"]
 
 class VictoryScreen(EventCommand):
     nid = 'victory_screen'
-    tag = 'general'
+    tag = 'Miscellaneous'
 
 class RecordsScreen(EventCommand):
     nid = 'records_screen'
-    tag = 'general'
+    tag = 'Miscellaneous'
 
 class LocationCard(EventCommand):
     nid = 'location_card'
-    tag = 'general'
+    tag = "Dialogue/Text"
 
     keywords = ["String"]
 
 class Credits(EventCommand):
     nid = 'credits'
-    tag = 'general'
+    tag = "Dialogue/Text"
 
     keywords = ["String", "String"]
     flags = ['wait', 'center', 'no_split']
 
 class Ending(EventCommand):
     nid = 'ending'
-    tag = 'general'
+    tag = "Dialogue/Text"
 
     keywords = ["Portrait", "String", "String"]
 
 class Unlock(EventCommand):
     nid = 'unlock'
-    tag = 'general'
+    tag = "Region"
 
     keywords = ["Unit"]
 
 class FindUnlock(EventCommand):
     nid = 'find_unlock'
-    tag = 'general'
+    tag = 'Hidden'
 
     keywords = ["Unit"]
 
 class SpendUnlock(EventCommand):
     nid = 'spend_unlock'
-    tag = 'general'
+    tag = 'Hidden'
 
     keywords = ["Unit"]
 
 class TriggerScript(EventCommand):
     nid = 'trigger_script'
-    tag = 'general'
+    tag = "Miscellaneous"
 
     keywords = ["Event"]
     optional_keywords = ["GlobalUnit", "GlobalUnit"]

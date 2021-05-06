@@ -478,7 +478,7 @@ class SetPreviousPosition(Action):
         self.old_previous_position = self.unit.previous_position
 
     def do(self):
-        self.unit.previous_position = self.position
+        self.unit.previous_position = self.unit.position
 
     def reverse(self):
         self.unit.previous_position = self.old_previous_position

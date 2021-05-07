@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.database.data import DB
+from app.data.database import DB
 
 from app.utilities import utils
 
@@ -18,6 +18,14 @@ class SupportPair():
         self.unlocked_ranks = []
         self.points_gained_this_chapter = 0
         self.ranks_gained_this_chapter = 0
+
+    @property
+    def unit1(self):
+        return self.nid.split(' | ')[0]
+
+    @property
+    def unit2(self):
+        return self.nid.split(' | ')[1]
 
     def increment_points(self, inc):
         point_limit = DB.support_constants.value('point_limit_per_chapter')
@@ -47,9 +55,9 @@ class SupportPair():
         reqs = support_prefab.requirements
         if self.locked_ranks:
             for rank in self.locked_ranks:
-                bonus = reqs.get(rank)
-                if bonus and not bonus.gate or game.game_vars.get(bonus.gate):
-                    return True
+                for bonus in reqs:
+                    if bonus and not bonus.gate or game.game_vars.get(bonus.gate):
+                        return True
         return False
 
     def save(self):
@@ -131,6 +139,8 @@ class SupportController():
         pairs = []
         for prefab in DB.support_pairs:
             if prefab.unit1 == unit_nid or prefab.unit2 == unit_nid:
+                if prefab.nid not in self.support_pairs:
+                    self.create_pair(prefab.nid)
                 pairs.append(self.support_pairs[prefab.nid])
         return pairs
 

@@ -98,7 +98,7 @@ class UnitSprite():
         self.animations = {}
         self.particles = []
 
-        self.map_sprite = load_map_sprite(self, self.unit.team)
+        self.map_sprite = load_map_sprite(self.unit, self.unit.team)
 
         self.health_bar = health_bar.MapHealthBar(self.unit)
 

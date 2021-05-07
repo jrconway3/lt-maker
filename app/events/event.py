@@ -791,6 +791,7 @@ class Event():
             prefabs = DB.support_pairs.get_pairs(unit1.nid, unit2.nid)
             if prefabs:
                 prefab = prefabs[0]
+                print(prefab.nid, inc)
                 action.do(action.IncrementSupportPoints(prefab.nid, inc))
             else:
                 logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))

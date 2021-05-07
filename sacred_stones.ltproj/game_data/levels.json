@@ -3507,17 +3507,6 @@
                 "generic": true
             },
             {
-                "nid": "Colm",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    3,
-                    4
-                ],
-                "generic": false
-            },
-            {
                 "nid": "Seth",
                 "team": "player",
                 "ai": "None",
@@ -3527,63 +3516,6 @@
                     4
                 ],
                 "generic": false
-            },
-            {
-                "nid": "Gerik",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    1,
-                    3
-                ],
-                "generic": false
-            },
-            {
-                "nid": "101",
-                "variant": null,
-                "level": 1,
-                "klass": "Journeyman",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Hatchet",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    1,
-                    13
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "102",
-                "variant": null,
-                "level": 7,
-                "klass": "Journeyman",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Axe",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    3,
-                    14
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
             }
         ],
         "regions": [

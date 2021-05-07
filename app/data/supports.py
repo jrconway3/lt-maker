@@ -126,7 +126,7 @@ constants = ConstantCatalog([
     Constant("highest_rank_limit", "Limit to number of highest rank supports allowed on one character (0 - No limit)", int, 1, 'limit'),
     Constant("ally_limit", "Limit to number of allies that can be supported with per character (0 - No limit)", int, 0, 'limit'),
     Constant("point_limit_per_chapter", "Limit to number of points gained in a chapter (0 - No limit)", int, 0, 'limit'),
-    Constant("rank_limit_per_chapter", "Limit to number of ranks gained in a chapter (0 - No limit", int, 1, 'limit')
+    Constant("rank_limit_per_chapter", "Limit to number of ranks gained in a chapter (0 - No limit)", int, 1, 'limit')
 ])
 
 class SupportRankRequirement(SupportRankBonus):

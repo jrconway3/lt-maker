@@ -541,7 +541,7 @@ class InfoMenuState(State):
             surf.blit(portrait_surf, (8, 8))
 
         FONT['text-white'].blit_center(self.unit.name, surf, (48, 80))
-        self.info_graph.register((24, 80, 56, 24), self.unit.desc, 'all')
+        self.info_graph.register((24, 80, 52, 24), self.unit.desc, 'all')
         class_obj = DB.classes.get(self.unit.klass)
         FONT['text-white'].blit(class_obj.name, surf, (8, 104))
         self.info_graph.register((8, 104, 72, 16), class_obj.desc, 'all')
@@ -555,6 +555,11 @@ class InfoMenuState(State):
         FONT['text-blue'].blit_right(str(max_hp), surf, (63, 136))
         # Blit the white status platform
         surf.blit(SPRITES.get('status_platform'), (66, 131))
+        # Blit affinity
+        affinity = DB.affinities.get(self.unit.affinity)
+        if affinity:
+            icons.draw_item(surf, affinity, (78, 81))
+            self.info_graph.register((76, 80, 16, 16), affinity.desc, 'all')
         return surf
 
     def draw_top_arrows(self, surf):
@@ -896,13 +901,13 @@ class InfoMenuState(State):
                 other_unit = game.get_unit(pair.unit1)
             if not other_unit:
                 continue
-            affinity = DB.affinity.get(other_unit.affinity)
+            affinity = DB.affinities.get(other_unit.affinity)
             if affinity:
                 icons.draw_item(surf, affinity, (16, idx * 16 + top))
+                self.info_graph.register((112, idx * 16 + top, WINWIDTH - 120, 16), affinity.desc, 'support_skills')
             FONT['text-white'].blit(other_unit.name, surf, (36, idx * 16 + top))
             highest_rank = pair.unlocked_ranks[-1]
             FONT['text-yellow'].blit_right(highest_rank, surf, (surf.get_width() - 24, idx * 16 + top))
-
         return surf
 
     def draw_support_surf(self, surf):

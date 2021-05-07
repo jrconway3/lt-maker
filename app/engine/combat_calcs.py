@@ -50,7 +50,7 @@ def get_support_rank_bonus(unit, target=None):
         if not pair.unlocked_ranks:
             continue
         highest_rank = pair.unlocked_ranks[-1]
-        support_rank_bonus = game.supports.get_bonus(pair, highest_rank)
+        support_rank_bonus = game.supports.get_bonus(unit, other_unit, highest_rank)
         bonuses.append((support_rank_bonus, other_unit))
     num_allies_allowed = DB.support_constants.value('bonus_ally_limit')
     if num_allies_allowed and len(bonuses) > num_allies_allowed:

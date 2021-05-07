@@ -6225,17 +6225,15 @@
         "condition": "True",
         "commands": [
             [
-                "level_var",
+                "comment",
                 [
-                    "_fog_of_war",
-                    "1"
+                    "#level_var;_fog_of_war;1"
                 ]
             ],
             [
-                "level_var",
+                "comment",
                 [
-                    "_fog_of_war_radius",
-                    "3"
+                    "#level_var;_fog_of_war_radius;3"
                 ]
             ],
             [
@@ -6269,15 +6267,22 @@
                 ]
             ],
             [
-                "trigger_script",
+                "game_var",
                 [
-                    "Trigger"
+                    "_supports",
+                    "True"
                 ]
             ],
             [
-                "base",
+                "comment",
                 [
-                    "Clearing"
+                    "#trigger_script;Trigger"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#base;Clearing"
                 ]
             ],
             [

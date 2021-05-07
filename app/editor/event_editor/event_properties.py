@@ -3,9 +3,10 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
     QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
-    QGridLayout, QSizePolicy, QAction, QToolBar, QSpinBox, QStyle, QApplication
+    QGridLayout, QSizePolicy, QAction, QToolBar, QSpinBox, QStyle, QApplication, QTextEdit, \
+    QSplitter, QFrame
 from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics, QIcon, QPen
-from PyQt5.QtCore import QRegularExpression, Qt, QSize, QRect
+from PyQt5.QtCore import QRegularExpression, Qt, QSize, QRect, QSortFilterProxyModel
 
 from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, QHLine, ComboBox
 from app.editor import timer
@@ -636,8 +637,8 @@ class EventProperties(QWidget):
         # Modeless dialog
         if not self.show_commands_dialog:
             self.show_commands_dialog = ShowCommandsDialog(self)
-        self.show_commands_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.show_commands_dialog.setWindowFlags(self.show_commands_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
+        # self.show_commands_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        # self.show_commands_dialog.setWindowFlags(self.show_commands_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
         self.show_commands_dialog.show()
         self.show_commands_dialog.raise_()
         # self.show_commands_dialog.activateWindow()
@@ -818,33 +819,98 @@ class ShowCommandsDialog(QDialog):
             self._data += commands
 
         self.model = EventCommandModel(self._data, self.categories, self)
+        self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.model)
         self.view = QListView(self)
         self.view.setMinimumSize(256, 360)
-        self.view.setModel(self.model)
+        self.view.setModel(self.proxy_model)
         self.view.doubleClicked.connect(self.on_double_click)
 
         self.delegate = CommandDelegate(self._data, self)
         self.view.setItemDelegate(self.delegate)
 
-        main_layout = QHBoxLayout()
-        left_layout = QVBoxLayout()
-        main_layout.addLayout(left_layout)
-        self.setLayout(main_layout)
-        # Add search
-        left_layout.addWidget(self.view)
-        # Add description Box
+        self.search_box = QLineEdit(self)
+        self.search_box.setPlaceholderText("Enter search term here...")
+        self.search_box.textChanged.connect(self.search)
 
+        self.desc_box = QTextEdit(self)
+        self.desc_box.setReadOnly(True)
+        self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
+
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(self.search_box)
+        left_layout.addWidget(self.view)
+        left_frame = QFrame(self)
+        left_frame.setLayout(left_layout)
+
+        splitter = QSplitter(self)
+        splitter.setOrientation(Qt.Horizontal)
+        splitter.setChildrenCollapsible(False)
+        splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
+        splitter.addWidget(left_frame)
+        splitter.addWidget(self.desc_box)
+    
+        main_layout = QHBoxLayout()
+        main_layout.addWidget(splitter)
+        self.setLayout(main_layout)
+
+    def search(self, text):
+        self.proxy_model.setFilterRegularExpression(text.lower())
 
     def on_double_click(self, index):
+        index = self.proxy_model.mapToSource(index)
         idx = index.row()
         command = self._data[idx]
         if command not in self.categories:
             self.window.insert_text_with_newline(command.nid)
 
+    def on_item_changed(self, curr, prev):
+        if curr.indexes():
+            index = curr.indexes()[0]
+            index = self.proxy_model.mapToSource(index)
+            idx = index.row()
+            command = self._data[idx]
+            if command not in self.categories:
+                if command.nickname:
+                    text = '**%s**' % command.nickname
+                else:
+                    text = '**%s**' % command.nid
+                if command.keywords: 
+                    text += ';' + ';'.join(command.keywords) + '\n\n'
+                else:
+                    text += '\n\n'
+                if command.optional_keywords:
+                    text += '_Optional Keywords:_ ' + ';'.join(command.optional_keywords) + '\n\n'
+                if command.flags:
+                    text += '_Optional Flags:_ ' + ';'.join(command.flags) + '\n\n'
+                text += " --- \n\n"
+                already = []
+                for keyword in command.keywords + command.optional_keywords:
+                    if keyword in already:
+                        continue
+                    else:
+                        already.append(keyword)
+                    validator = event_validators.get(keyword)
+                    if validator.desc:
+                        text += '_%s_ %s\n\n' % (keyword, validator().desc)
+                if command.desc:
+                    text += " --- \n\n"
+                text += command.desc
+                self.desc_box.setMarkdown(text)
+            else:
+                self.desc_box.setMarkdown(command + ' Section')
+        else:
+            self.desc_box.setMarkdown('')
+
 class EventCommandModel(CollectionModel):
     def __init__(self, data, categories, window):
         super().__init__(data, window)
         self.categories = categories
+
+    def get_text(self, command) -> str:
+        full_text = command.nid + ';'.join(command.keywords) + ';'.join(command.optional_keywords) + \
+            ';'.join(command.flags) + ':' + command.desc
+        return full_text
 
     def data(self, index, role):
         if not index.isValid():
@@ -852,17 +918,20 @@ class EventCommandModel(CollectionModel):
         if role == Qt.DisplayRole:
             command = self._data[index.row()]
             if command in self.categories:
-                return command
+                category = command
+                # We want to include the header if any of it's children are counted
+                return '-'.join([self.get_text(command).lower() for command in self._data if command not in self.categories and command.tag == category])
             else:
-                text = command.nid
-                return text
+                return self.get_text(command).lower()
 
 class CommandDelegate(QStyledItemDelegate):
     def __init__(self, data, parent=None):
         super().__init__(parent=None)
+        self.window = parent
         self._data = data
 
     def sizeHint(self, option, index):
+        index = self.window.proxy_model.mapToSource(index)
         command = self._data[index.row()]
         if hasattr(command, 'nid'):
             return QSize(0, 24)
@@ -870,6 +939,7 @@ class CommandDelegate(QStyledItemDelegate):
             return QSize(0, 32)
 
     def paint(self, painter, option, index):
+        index = self.window.proxy_model.mapToSource(index)
         command = self._data[index.row()]
         rect = option.rect
         left = rect.left()

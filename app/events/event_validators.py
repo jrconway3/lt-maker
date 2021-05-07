@@ -3,17 +3,25 @@ from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 class Validator():
+    desc = ""
+    
     def validate(self, text, level):
         return text
 
 class OptionValidator(Validator):
+    valid = []
+
+    @property
+    def desc(self) -> str:
+        return "must be one of (`%s`)" % '`, `'.join(self.valid)
+
     def validate(self, text, level):
         if text.lower() in self.valid:
             return text
         return None
 
 class Condition(Validator):
-    pass
+    desc = "must be a valid Python expression to evaluate."
 
 class Nid(Validator):
     """
@@ -29,6 +37,7 @@ class Integer(Validator):
         return None
 
 class PositiveInteger(Validator):
+    desc = "must be a positive whole number"
     def validate(self, text, level):
         if str_utils.is_int(text) and int(text) > 0:
             return int(text)
@@ -61,9 +70,8 @@ class Sound(Validator):
         return None
 
 class PhaseMusic(OptionValidator):
-    valid = ['player_phase', 'enemy_phase', 'other_phase',
-             'player_battle', 'enemy_battle', 'other_battle',
-             'base']
+    valid = ['player_phase', 'enemy_phase', 'other_phase', 'enemy2_phase',
+             'player_battle', 'enemy_battle', 'other_battle', 'enemy2_battle']
 
 class PortraitNid(Validator):
     def validate(self, text, level):
@@ -72,6 +80,8 @@ class PortraitNid(Validator):
         return None
 
 class Portrait(Validator):
+    desc = "can be a unit's nid, a portrait's nid, or one of (`{unit}`, `{unit1}`, `{unit2}`)."
+
     def validate(self, text, level):
         if text in DB.units.keys():
             return text
@@ -102,6 +112,8 @@ class Tag(Validator):
 class ScreenPosition(Validator):
     valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "Right", "FarRight", "OffscreenRight"]
 
+    desc = "determines where to add the portrait to the screen. Available options are (`OffscreenLeft`, `FarLeft`, `Left`, `MidLeft`, `MidRight`, `Right`, `FarRight`, `OffscreenRight`). Alternatively, specify a position in pixels (`x,y`) for the topleft of the portrait. If the portrait is placed on the left side of the screen to start, it will be facing right, and vice versa."
+
     def validate(self, text, level):
         if text in self.valid_positions:
             return text
@@ -122,6 +134,7 @@ class Orientation(OptionValidator):
 
 class ExpressionList(Validator):
     valid_expressions = ["NoSmile", "Smile", "NormalBlink", "CloseEyes", "HalfCloseEyes", "OpenEyes"]
+    desc = "expects a comma-delimited list of expressions. Valid expressions are: (`NoSmile`, `Smile`, `NormalBlink`, `CloseEyes`, `HalfCloseEyes`, `OpenEyes`). Example: `Smile,CloseEyes`"
 
     def validate(self, text, level):
         text = text.split(',')
@@ -134,6 +147,8 @@ class DialogVariant(OptionValidator):
     valid = ["thought_bubble", "noir", "hint", "narration", "narration_top", "cinematic"]
 
 class StringList(Validator):
+    desc = "must be delimited by commas. For example: `Water,Earth,Fire,Air`"
+
     def validate(self, text, level):
         text = text.split(',')
         return text
@@ -153,18 +168,24 @@ class Panorama(Validator):
         return None
 
 class Width(Validator):
+    desc = "is measured in pixels"
+
     def validate(self, text, level):
         if str_utils.is_int(text):
             return 8 * round(int(text) / 8)
         return None
 
 class Speed(Validator):
+    desc = "is measured in milliseconds"
+
     def validate(self, text, level):
         if str_utils.is_int(text) and int(text) > 0:
             return text
         return None
 
 class Color3(Validator):
+    desc = "uses 0-255 for color channels. Example: `128,160,136`"
+
     def validate(self, text, level):
         if ',' not in text:
             return None
@@ -182,6 +203,8 @@ class ShopFlavor(OptionValidator):
     valid = ['armory', 'vendor']
 
 class Position(Validator):
+    desc = "accepts a valid `(x, y)` position. You use a unit's nid to use their position. Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`, `{position}`)"
+
     def validate(self, text, level):
         text = text.split(',')
         if len(text) == 1:
@@ -208,6 +231,8 @@ class Position(Validator):
         return None
 
 class Size(Validator):
+    desc = "must be in the format `x,y`. Example: `64,32`"
+
     def validate(self, text, level):
         text = text.split(',')
         if len(text) > 2:
@@ -217,6 +242,8 @@ class Size(Validator):
         return text
 
 class Unit(Validator):
+    desc = "accepts a unit's nid. Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`)."
+    
     def validate(self, text, level):
         if not level:
             return text
@@ -237,6 +264,8 @@ class Group(Validator):
         return None
 
 class StartingGroup(Validator):
+    desc = "accepts a unit group's nid. Alternatively, can be `starting` to use the unit's starting positions in the level."
+
     def validate(self, text, level):
         if not level:
             return None
@@ -259,6 +288,8 @@ class UniqueUnit(Validator):
         return None
 
 class GlobalUnit(Validator):
+    desc = "accepts a unit's nid. Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`) or `convoy` where appropriate."
+
     def validate(self, text, level):
         if level:
             nids = [u.nid for u in level.units]
@@ -295,6 +326,7 @@ class Weather(OptionValidator):
 
 class CombatScript(Validator):
     valid_commands = ['hit1', 'hit2', 'crit1', 'crit2', 'miss1', 'miss2', '--', 'end']
+    desc = "specifies the order and type of actions in combat. Valid actions: (`hit1`, `hit2`, `crit1`, `crit2`, `miss1`, `miss2`, `--`, `end`)."
 
     def validate(self, text, level):
         commands = text.split(',')
@@ -317,6 +349,8 @@ class Item(Validator):
         return None
 
 class ItemList(Validator):
+    desc = "accepts a comma-delimited list of item nids. Example: `Iron Sword,Iron Lance,Iron Bow`"
+
     def validate(self, text, level):
         items = text.split(',')
         if all(item in DB.items.keys() for item in items):
@@ -324,6 +358,8 @@ class ItemList(Validator):
         return None
 
 class StatList(Validator):
+    desc = "accepts a comma-delimited list of pairs of stat nids and stat changes. For example, `STR,2,SPD,-3` to increase STR by 2 and decrease SPD by 3."
+
     def validate(self, text, level):
         s_l = text.split(',')
         if len(s_l)%2 != 0:  # Must be divisible by 2
@@ -375,11 +411,7 @@ class WeaponType(Validator):
 
 class Layer(Validator):
     def validate(self, text, level):
-        print(text)
         tilemap_prefab = RESOURCES.tilemaps.get(level.tilemap)
-        print(tilemap_prefab)
-        print(tilemap_prefab.layers)
-        print(tilemap_prefab.layers.keys())
         if text in tilemap_prefab.layers.keys():
             return text
         return None
@@ -400,6 +432,8 @@ class Tilemap(Validator):
         return None
 
 class Event(Validator):
+    desc = "accepts the name of an event. Will run the event appropriate for the level if more than one event with the same name exists."
+
     def validate(self, text, level):
         for event in DB.events:
             if event.name == text and (not event.level_nid or not level or event.level_nid == level.nid):
@@ -420,3 +454,10 @@ def validate(var_type, text, level):
         return v.validate(text, level)
     else:
         return text
+
+def get(keyword) -> Validator:
+    if keyword in validators:
+        return validators[keyword]
+    elif keyword in option_validators:
+        return option_validators[keyword]
+    return None

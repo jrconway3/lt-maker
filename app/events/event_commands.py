@@ -10,6 +10,7 @@ class EventCommand(Prefab):
     nid: str = None
     nickname: str = None
     tag: str = 'general'
+    desc: str = ''
 
     keywords: list = []
     optional_keywords: list = []
@@ -35,7 +36,7 @@ class Comment(EventCommand):
     tag = "Flow Control"
     desc = \
         """
-        Lines starting with '#' will be ignored.
+**Lines** starting with '#' will be ignored.
         """
 
     def to_plain_text(self):
@@ -46,23 +47,25 @@ class If(EventCommand):
     tag = "Flow Control"
     desc = \
         """
-        _Condition_ is a valid Python expression to evaluate.
+If the _Condition_ returns true, the block under this command will be executed. If it returns false, the script will search for the next **elif**, **else**, or **end** command before proceeding. If it is not a valid Python expression, the result will be treated as false.
 
-        If the _Condition_ returns true, the block under this command will be executed. If it returns false, the script will search for the next **elif**, **else**, or **end** command before proceeding.
+Remember to end your **if** blocks with **end**.
 
-        Remember to end your **if** blocks with **end**.
+The indentation is not required, but is recommended for organization of the conditional blocks.
 
-        Example:
+Example:
 
-        ```
-        if;game.check_dead('Eirika')
-            lose_game
-        elif;game.check_dead('Lyon')
-            win_game
-        else
-            s;Eirika;Nice!
-        end
-        ```
+```
+if;game.check_dead('Eirika')
+    lose_game
+elif;game.check_dead('Lyon')
+    win_game
+else
+    u;Eirika
+    s;Eirika;Nice!
+    r;Eirika
+end
+```
         """
 
     keywords = ['Condition']
@@ -70,43 +73,108 @@ class If(EventCommand):
 class Elif(EventCommand):
     nid = "elif"
     tag = "Flow Control"
+    desc = \
+        """
+Works exactly like the **if** statement, but is called only if the previous **if** or **elif** returned false.
+
+In the following example, the **elif** will only be processed if `if;game.check_dead('Eirika')` return false.
+
+Example:
+
+```
+if;game.check_dead('Eirika')
+    lose_game
+elif;game.check_dead('Lyon')
+    win_game
+else
+    u;Eirika
+    s;Eirika;Nice!
+    r;Eirika
+end
+```
+        """
 
     keywords = ['Condition']
 
 class Else(EventCommand):
     nid = "else"
     tag = "Flow Control"
+    desc = \
+        """
+Defines a block to be executed only if the previous **if** or **elif** returned false.
+
+Example:
+
+```
+if;game.check_dead('Eirika')
+    lose_game
+elif;game.check_dead('Lyon')
+    win_game
+else
+    u;Eirika
+    s;Eirika;Nice!
+    r;Eirika
+end
+```
+        """
 
 class End(EventCommand):
     nid = "end"
     tag = "Flow Control"
+    desc = \
+        """
+Ends a conditional block. Refer to the **if** command for more information.
+        """
 
 class Break(EventCommand):
     nid = "break"
     tag = "Flow Control"
+    desc = \
+        """
+Immediately ends the current event.
+        """
+
 
 class Wait(EventCommand):
     nid = "wait"
     tag = "Flow Control"
+    desc = \
+        """
+Pauses the execution of the script for _Time_ milliseconds.
+
+Often used after a scene transition, cursor movement, or reinforcements to give the player a chance to take in the scene.
+        """
 
     keywords = ['Time']
 
 class EndSkip(EventCommand):
     nid = "end_skip"
     tag = "Flow Control"
+    desc = \
+        """
+If the player was skipping through the event script, stop the skip here. Used to prevent a single skip from skipping through an entire event.
+        """
 
 class Music(EventCommand):
     nid = "music"
     nickname = "m"
     tag = "Music/Sound"
+    desc = \
+        """
+Fades in _Music_ over the course of _Time_ milliseconds. Fade in defaults to 400 milliseconds.
+        """
 
     keywords = ['Music']
     optional_keywords = ['Time']  # How long to fade in (default 400)
 
 class MusicClear(EventCommand):
     nid = "music_clear"
-    nickname = "m"
     tag = "Music/Sound"
+
+    desc = \
+        """
+Fades out the currently playing song over the course of _Time_ milliseconds. Also clears the entire song stack. Fade out defaults to 400 milliseconds.
+        """
 
     optional_keywords = ['Time']  # How long to fade out
 
@@ -114,11 +182,21 @@ class Sound(EventCommand):
     nid = "sound"
     tag = "Music/Sound"
 
+    desc = \
+        """
+Plays the _Sound_ once.
+        """
+
     keywords = ['Sound']
 
 class ChangeMusic(EventCommand):
     nid = 'change_music'
     tag = 'Music/Sound'
+
+    desc = \
+        """
+Changes the phase theme music. For instance, you could use this command to change the player phase theme halfway through the chapter.
+        """
 
     keywords = ['PhaseMusic', 'Music']
 
@@ -126,6 +204,18 @@ class AddPortrait(EventCommand):
     nid = "add_portrait"
     nickname = "u"
     tag = "Portrait"
+
+    desc = \
+        """
+Adds a portrait to the screen.
+
+Extra flags:
+
+1. _mirror_: Portrait will face opposite expected direction.
+2. _low_priority_: Portrait will appear behind all other portraits on the screen.
+3. _immediate_: Portrait will not fade in.
+4. _no_block_: Portrait will fade in, but will not pause execution of event script while doing so.
+        """
 
     keywords = ['Portrait', 'ScreenPosition']
     optional_keywords = ['Slide', 'ExpressionList']
@@ -135,6 +225,11 @@ class MultiAddPortrait(EventCommand):
     nid = "multi_add_portrait"
     nickname = "uu"
     tag = "Portrait"
+
+    desc = \
+        """
+A command that conveniently adds more than one portrait to the screen at the same time. Accepts 2-4 portraits and their associated _ScreenPosition_ as input.
+        """
 
     keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']
     optional_keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']

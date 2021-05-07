@@ -1,16 +1,65 @@
 import functools
 
 from PyQt5.QtWidgets import QWidget, QButtonGroup, QInputDialog, QMenu, \
-    QListWidgetItem, QRadioButton, QHBoxLayout, QLabel, QListWidget, QAction
-from PyQt5.QtCore import Qt
+    QListWidgetItem, QRadioButton, QHBoxLayout, QLabel, QListWidget, QAction, \
+    QColorDialog, QVBoxLayout
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QColor
 
-from app import utilities
+from app.editor.icon_editor.icon_view import IconView
+from app.utilities.data import Data
 from app.resources import combat_anims
+from app.editor.combat_animation_editor.palette_model import PaletteModel
 
 from app.extensions.color_icon import ColorIcon
+from app.extensions.custom_gui import RightClickListView
 
-class PaletteWidget(QWidget):
+class AnimView(IconView):
+    def get_color_at_pos(self, pixmap, pos):
+        image = pixmap.toImage()
+        current_color = image.pixel(*pos)
+        color = QColor(current_color)
+        return (color.red(), color.green(), color.blue())
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x()), int(scene_pos.y())
+
+        # Need to get original frame with base palette
+        frame_nid = self.window.frame_nid
+        if not frame_nid:
+            return
+        weapon_anim = self.window.get_current_weapon_anim()
+        frame = weapon_anim.frames.get(frame_nid)
+        if not frame:
+            return
+        offset_x, offset_y = frame.offset
+        pos = pos[0] - offset_x, pos[1] - offset_y
+        pixmap = frame.pixmap
+
+        if event.button() == Qt.LeftButton:
+            base_color = self.get_color_at_pos(pixmap, pos)
+            palette = self.window.get_current_palette()
+            base_colors = combat_anims.base_palette.colors
+            if base_color not in base_colors:
+                print("Cannot find color: %s in %s" % (base_color, base_colors))
+                return
+            idx = base_colors.index(base_color)
+            dlg = QColorDialog()
+            c = palette.colors[idx]
+            print(c, flush=True)
+            dlg.setCurrentColor(QColor(*c))
+            if dlg.exec_():
+                new_color = QColor(dlg.currentColor())
+                print(new_color, flush=True)
+                color = new_color.getRgb()
+                print(color, flush=True)
+                palette_widget = self.window.palette_menu.get_palette_widget()
+                icon = palette_widget.color_icons[idx]
+                icon.change_color(new_color.name())
+
+class PaletteDisplay(QWidget):
     def __init__(self, idx, palette, parent=None):
         super().__init__(parent)
         self.window = parent
@@ -51,7 +100,7 @@ class PaletteWidget(QWidget):
         color = color.getRgb()
         self.palette.colors[idx] = color[:3]
 
-class PaletteMenu(QListWidget):
+class PaletteDisplay(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.window = parent

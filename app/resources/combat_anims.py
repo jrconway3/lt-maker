@@ -34,6 +34,7 @@ class Frame():
         self.rect = rect
         self.offset = offset
 
+        self.pixmap = None
         self.image = None
 
     def save(self):
@@ -73,7 +74,10 @@ class WeaponAnimation():
         self.full_path = full_path
         self.poses = Data()
         self.frames = Data()
+        self.weapon_type = None
+        self.weapon_kind = None
 
+        self.pixmap = None
         self.image = None
 
     def set_full_path(self, full_path):
@@ -136,8 +140,8 @@ class CombatCatalog(ManifestCatalog):
                 short_path = "%s-%s.png" % (combat_anim.nid, weapon_anim.nid)
                 new_full_path = os.path.join(loc, short_path)
                 if os.path.abspath(weapon_anim.full_path) != os.path.abspath(new_full_path):
-                    shutil.copy(weapon_anim.full_path, new_full_path)
-                weapon_anim.set_full_path(new_full_path)
+                    self.make_copy(weapon_anim.full_path, new_full_path)
+                    weapon_anim.set_full_path(new_full_path)
         self.dump(loc)
 
     def clean(self, loc):

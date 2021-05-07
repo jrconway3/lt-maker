@@ -228,7 +228,7 @@ class MultiAddPortrait(EventCommand):
 
     desc = \
         """
-A command that conveniently adds more than one portrait to the screen at the same time. Accepts 2-4 portraits and their associated _ScreenPosition_ as input.
+Adds more than one portrait to the screen at the same time. Accepts 2-4 portraits and their associated _ScreenPosition_ as input.
         """
 
     keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']

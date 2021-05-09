@@ -3,7 +3,7 @@ from app.data.database import DB
 
 from app.engine.combat.solver import CombatPhaseSolver
 
-from app.engine import action, skill_system, banner, item_system, item_funcs
+from app.engine import action, skill_system, banner, item_system, item_funcs, supports
 from app.engine.game_state import game
 
 from app.engine.objects.unit import UnitObject
@@ -122,6 +122,8 @@ class SimpleCombat():
         self.cleanup_combat()
         game.events.trigger('combat_end', self.attacker, self.defender, self.main_item, self.attacker.position)
         self.handle_item_gain(all_units)
+
+        self.handle_supports(all_units)
 
         # handle wexp & skills
         if not self.attacker.is_dying:
@@ -400,6 +402,19 @@ class SimpleCombat():
             total_exp += exp
 
         return total_exp
+
+    def handle_supports(self, all_units):
+        if game.game_vars.get('_supports'):
+            # End combat supports
+            for unit in all_units:
+                if unit is self.attacker and self.defender and self.defender is not self.attacker:
+                    supports.increment_end_combat_supports(self.attacker, self.defender)
+                else:
+                    supports.increment_end_combat_supports(unit)
+            enemies = all_units.copy()
+            enemies.remove(self.attacker)
+            for unit in enemies:
+                supports.increment_interact_supports(self.attacker, unit)
 
     def handle_records(self, full_playback, all_units):
         miss_marks = self.get_from_full_playback('mark_miss')

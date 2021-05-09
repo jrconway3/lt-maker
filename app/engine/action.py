@@ -1204,7 +1204,8 @@ class Die(Action):
         self.unit = unit
         self.old_pos = unit.position
         self.leave_map = LeaveMap(self.unit)
-        self.lock_all_support_ranks = LockAllSupportRanks(self.unit.nid)
+        self.lock_all_support_ranks = \
+            [LockAllSupportRanks(pair.nid) for pair in game.supports.get_pairs(self.unit.nid)]
         self.drop = None
 
     def do(self):
@@ -1215,7 +1216,8 @@ class Die(Action):
             # TODO Drop Sound
 
         self.leave_map.do()
-        self.lock_all_support_ranks.do()
+        for act in self.lock_all_support_ranks:
+            act.do()
         self.unit.dead = True
         self.unit.is_dying = False
 
@@ -1224,7 +1226,8 @@ class Die(Action):
         self.unit.sprite.set_transition('normal')
         self.unit.sprite.change_state('normal')
 
-        self.lock_all_support_ranks.reverse()
+        for act in self.lock_all_support_ranks:
+            act.reverse()
         self.leave_map.reverse()
         if self.drop:
             self.drop.reverse()
@@ -1273,7 +1276,8 @@ class IncrementSupportPoints(Action):
         self.saved_data = pair.save()
 
     def do(self):
-        game.supports.support_pairs[self.nid].increment_points(self.inc)
+        pair = game.supports.support_pairs[self.nid]
+        pair.increment_points(self.inc)
 
     def reverse(self):
         pair = game.supports.support_pairs[self.nid]

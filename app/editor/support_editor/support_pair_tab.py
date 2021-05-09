@@ -31,7 +31,7 @@ class SupportPairDatabase(DatabaseTab):
         result = dlg.exec_()
 
 def get_full_editor():
-    return MultiDatabaseEditor((AffinityDatabase, SupportPairDatabase, SupportConstantDatabase))
+    return MultiDatabaseEditor((SupportPairDatabase, AffinityDatabase, SupportConstantDatabase))
 
 # Testing
 # Run "python -m app.editor.support_editor.support_pair_tab" from main directory

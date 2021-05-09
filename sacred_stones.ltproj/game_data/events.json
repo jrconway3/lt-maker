@@ -6261,12 +6261,6 @@
                 ]
             ],
             [
-                "give_money",
-                [
-                    "5000"
-                ]
-            ],
-            [
                 "game_var",
                 [
                     "_supports",
@@ -6280,9 +6274,9 @@
                 ]
             ],
             [
-                "comment",
+                "base",
                 [
-                    "#base;Clearing"
+                    "Clearing"
                 ]
             ],
             [
@@ -6556,6 +6550,13 @@
                 [
                     "Bone",
                     "player"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "EirikaSupport",
+                    "True"
                 ]
             ]
         ],
@@ -12098,6 +12099,66 @@
                 [
                     "200"
                 ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Support Gain",
+        "trigger": "on_support",
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "if",
+                [
+                    "item == 'C'"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Reached rank C!"
+                ]
+            ],
+            [
+                "elif",
+                [
+                    "item == 'B'"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Reached rank B!"
+                ]
+            ],
+            [
+                "elif",
+                [
+                    "item == 'A'"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "Reached rank A!"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "alert",
+                [
+                    "Support increased!"
+                ]
+            ],
+            [
+                "end",
+                []
             ]
         ],
         "only_once": false,

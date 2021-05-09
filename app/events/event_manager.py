@@ -4,7 +4,6 @@ from app.engine.game_state import game
 from app.engine import action, evaluate
 
 import logging
-logger = logging.getLogger(__name__)
 
 class EventManager():
     def __init__(self):
@@ -16,13 +15,12 @@ class EventManager():
         triggered_events = []
         for event_prefab in DB.events.get(trigger, game.level.nid):
             try:
-                logger.debug("%s %s", event_prefab.trigger, event_prefab.condition)
                 result = evaluate.evaluate(event_prefab.condition, unit, unit2, item, position, region)
-                logger.debug("%s" % result)
+                logging.debug("%s %s: %s", event_prefab.trigger, event_prefab.condition, result)
                 if event_prefab.nid not in game.already_triggered_events and result:
                     triggered_events.append(event_prefab)
             except:
-                logger.error("Condition {%s} could not be evaluated" % event_prefab.condition)
+                logging.error("Condition {%s} could not be evaluated" % event_prefab.condition)
 
         new_event = False
         sorted_events = sorted(triggered_events, key=lambda x: x.priority)

@@ -155,7 +155,10 @@ class SupportRankRequirement(SupportRankBonus):
 class SupportRankRequirementList(SupportRankBonusList):
     def add_new_default(self, db):
         new_support_rank_req = SupportRankRequirement.default()
-        new_support_rank_req.support_rank = db.support_ranks[0].nid
+        if db.support_ranks:
+            new_support_rank_req.support_rank = db.support_ranks[0].nid
+        else:
+            new_support_rank_req.support_rank = None
         self.append(new_support_rank_req)
         return new_support_rank_req
 

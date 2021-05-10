@@ -832,6 +832,23 @@ class Ending(EventCommand):
 
     keywords = ["Portrait", "String", "String"]
 
+class PopDialog(EventCommand):
+    nid = 'pop_dialog'
+    tag = "Dialogue/Text"
+    desc = \
+        """
+Removes the most recent dialog text box from the screen. Generally only used in conjunction with the `ending` command to remove the Ending box during a transition.
+
+Example:
+
+```
+ending;Coyote;Coyote, Man of Mystery;Too mysterious for words.
+transition;Close
+pop_dialog
+transition;Open
+```
+        """
+
 class Unlock(EventCommand):
     nid = 'unlock'
     tag = "Region"

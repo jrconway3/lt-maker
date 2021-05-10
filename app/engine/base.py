@@ -239,9 +239,9 @@ class SupportDisplay():
     support_word_sprite = SPRITES.get('support_words')
 
     def __init__(self):
-        self.unit = None
+        self.unit_nid = None
         self.topleft = (84, 4)
-        self.width = WINWIDTH - 84
+        self.width = WINWIDTH - 100
         self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8)
         shimmer = SPRITES.get('menu_shimmer2')
         self.bg_surf.blit(shimmer, (self.bg_surf.get_width() - shimmer.get_width() - 1, self.bg_surf.get_height() - shimmer.get_height() - 5))
@@ -253,10 +253,10 @@ class SupportDisplay():
         self.char_idx = 0
         self.rank_idx = 0
 
-    def update_entry(self, unit):
-        if self.unit and unit == self.unit.nid:
+    def update_entry(self, unit_nid):
+        if self.unit_nid and unit_nid == self.unit_nid:
             return  # No need to update
-        self.unit = unit
+        self.unit_nid = unit_nid
         self.options = self.get_other_unit_nids()
         self.char_idx = 0
         self.rank_idx = 0
@@ -264,9 +264,9 @@ class SupportDisplay():
     def get_other_unit_nids(self) -> list:
         other_unit_nids = []
         for prefab in DB.support_pairs:
-            if prefab.unit1 == self.unit.nid:
+            if prefab.unit1 == self.unit_nid:
                 other_unit_nid = prefab.unit2
-            elif prefab.unit2 == self.unit.nid:
+            elif prefab.unit2 == self.unit_nid:
                 other_unit_nid = prefab.unit1
             else:
                 continue
@@ -277,7 +277,7 @@ class SupportDisplay():
     def click_selection(self) -> bool:
         other_unit_nids = self.options
         other_unit_nid = other_unit_nids[self.char_idx]
-        prefabs = DB.support_pairs.get_pairs(self.unit.nid, other_unit_nid)
+        prefabs = DB.support_pairs.get_pairs(self.unit_nid, other_unit_nid)
         if prefabs:
             prefab = prefabs[0]
             if prefab.nid not in game.supports.support_pairs:
@@ -286,16 +286,16 @@ class SupportDisplay():
             bonus = prefab.requirements[self.rank_idx]
             rank = bonus.support_rank
             if rank in pair.unlocked_ranks:
-                game.events.trigger('on_support', self.unit, game.get_unit(other_unit_nid), rank)
+                game.events.trigger('on_support', game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), rank)
                 return True
             elif pair.can_support() and rank in pair.locked_ranks:
-                game.events.trigger('on_support', self.unit, game.get_unit(other_unit_nid), rank)
+                game.events.trigger('on_support', game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), rank)
                 action.do(action.UnlockSupportRank(pair.nid, rank))
                 return True
         return False
 
     def get_num_ranks(self, other_unit_nid) -> int:
-        prefabs = DB.support_pairs.get_pairs(self.unit.nid, other_unit_nid)
+        prefabs = DB.support_pairs.get_pairs(self.unit_nid, other_unit_nid)
         if prefabs:
             prefab = prefabs[0]
             return len(prefab.requirements)
@@ -349,8 +349,8 @@ class SupportDisplay():
         return True
 
     def draw(self, surf):
-        if self.unit:
-            image = self.bg_surf.copy()
+        if self.unit_nid:
+            bg_surf = self.bg_surf.copy()
             other_unit_nids = self.options
         
             map_sprites = []
@@ -370,7 +370,8 @@ class SupportDisplay():
                     other_unit_prefab = DB.units.get(other_unit_nid)
                     map_sprite = unit_sprite.load_map_sprite(other_unit_prefab, 'black')
                     image = map_sprite.passive[game.map_view.passive_sprite_counter.count].copy()
-                    name = other_unit_prefab.name
+                    # name = other_unit_prefab.name
+                    name = '---'
                     affinity = DB.affinities.get(other_unit_prefab.affinity)
                 else:
                     image = None
@@ -379,18 +380,18 @@ class SupportDisplay():
 
                 map_sprites.append(image)
                 # Blit name
-                FONT['text-white'].blit(name, surf, (25, idx * 16 + 12))
+                FONT['text-white'].blit(name, bg_surf, (25, idx * 16 + 20))
                 # Blit affinity
                 if affinity:
-                    icons.draw_item(surf, affinity, (72, idx * 16 + 11))
+                    icons.draw_item(bg_surf, affinity, (72, idx * 16 + 19))
                 # Blit support levels
-                prefabs = DB.support_pairs.get_pairs(self.unit.nid, other_unit_nid)
+                prefabs = DB.support_pairs.get_pairs(self.unit_nid, other_unit_nid)
                 if prefabs:
                     prefab = prefabs[0]
                     if prefab.nid not in game.supports.support_pairs:
                         game.supports.create_pair(prefab.nid)
                     pair = game.supports.support_pairs[prefab.nid]
-                    for ridx, bonus in prefab.requirements:
+                    for ridx, bonus in enumerate(prefab.requirements):
                         rank = bonus.support_rank
                         if rank in pair.locked_ranks:
                             fnt = FONT['text-green']
@@ -398,19 +399,22 @@ class SupportDisplay():
                             fnt = FONT['text-white']
                         else:
                             fnt = FONT['text-grey']
-                        fnt.blit(rank, surf, (90 + ridx * 10, idx * 16 + 12))
+                        fnt.blit(rank, bg_surf, (90 + ridx * 10, idx * 16 + 20))
 
             for idx, map_sprite in enumerate(map_sprites):
                 if map_sprite:
-                    surf.blit(map_sprite, (-20, idx * 16 - 25))
+                    bg_surf.blit(map_sprite, (-20, idx * 16 - 4))
 
-            surf.blit(self.support_word_sprite, (104, 12))
+            surf.blit(bg_surf, (100, 4))
+
+            surf.blit(self.support_word_sprite, (120, 11))
 
             # Cursor
             if self.draw_cursor:
-                left = self.rank_idx * 10 + 78
-                top = self.char_idx * 16 + 12
-                self.cursor.draw(surf, (left, top))
+                left = self.rank_idx * 10 + 82 + 100
+                top = self.char_idx * 16 + 12 + 12
+                self.cursor.update()
+                self.cursor.draw(surf, left, top)
 
         return surf
 
@@ -425,9 +429,8 @@ class BaseSupportsState(State):
         # Filter only to units with supports
         self.units = [unit for unit in player_units if any(prefab.unit1 == unit.nid or prefab.unit2 == unit.nid for prefab in DB.support_pairs)]
 
-        self.menu = menus.Choice(None, self.units, (4, 4))
-        self.menu.set_limit(9)
-        self.menu.set_hard_limit(True)
+        self.menu = menus.Table(None, self.units, (9, 1), (4, 4))
+        self.menu.set_mode('unit')
 
         self.display = SupportDisplay()
         self.display.update_entry(self.menu.get_current().nid)
@@ -447,8 +450,8 @@ class BaseSupportsState(State):
         directions = self.fluid.get_directions()
 
         self.menu.handle_mouse()
-        if not self.display.unit or self.display.unit.nid != self.menu.get_current().nid:
-            self.display.update_entry(self.menu.get_current())
+        if not self.display.unit_nid or self.display.unit_nid != self.menu.get_current().nid:
+            self.display.update_entry(self.menu.get_current().nid)
 
         if 'DOWN' in directions:
             if self.in_display:
@@ -457,7 +460,7 @@ class BaseSupportsState(State):
             else:
                 if self.menu.move_down(first_push):
                     SOUNDTHREAD.play_sfx('Select 6')
-                self.display.update_entry(self.menu.get_current())
+                self.display.update_entry(self.menu.get_current().nid)
         elif 'UP' in directions:
             if self.in_display:
                 if self.display.move_up(first_push):
@@ -465,7 +468,7 @@ class BaseSupportsState(State):
             else:
                 if self.menu.move_up(first_push):
                     SOUNDTHREAD.play_sfx('Select 6')
-                self.display.update_entry(self.menu.get_current())
+                self.display.update_entry(self.menu.get_current().nid)
         elif 'RIGHT' in directions:
             if self.in_display:
                 if self.display.move_right(first_push):
@@ -475,18 +478,21 @@ class BaseSupportsState(State):
             else:
                 SOUNDTHREAD.play_sfx('TradeRight')
                 self.in_display = True
+                self.display.draw_cursor = True
         elif 'LEFT' in directions:
             if self.in_display:
                 if self.display.move_left(first_push):
                     SOUNDTHREAD.play_sfx('TradeRight')
                 else:
                     self.in_display = False
+                    self.display.draw_cursor = False
                     SOUNDTHREAD.play_sfx('Select 6')
 
         if event == 'BACK':
             if self.in_display:
                 SOUNDTHREAD.play_sfx('TradeRight')
                 self.in_display = False
+                self.display.draw_cursor = False
             else:
                 SOUNDTHREAD.play_sfx('Select 4')
                 game.state.change('transition_pop')
@@ -511,7 +517,8 @@ class BaseSupportsState(State):
             game.state.change('transition_to')
 
     def update(self):
-        if self.menu:
+        game.map_view.update()
+        if self.menu and not self.display.draw_cursor:
             self.menu.update()
 
     def draw(self, surf):
@@ -817,7 +824,11 @@ class BaseRecordsState(State):
 
     def start(self):
         self.mouse_indicator = gui.MouseIndicator()
-        self.bg = game.memory['base_bg']
+        self.bg = game.memory.get('base_bg')
+        if not self.bg:
+            panorama = RESOURCES.panoramas.get('default_background')
+            self.bg = background.ScrollingBackground(panorama)
+            self.bg.scroll_speed = 50
 
         self.record_menu = record_book.RecordsDisplay()
         self.chapter_menus = [record_book.ChapterStats(option.get()[0]) for option in self.record_menu.options if not option.ignore]

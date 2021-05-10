@@ -293,9 +293,9 @@ class GameState():
         self.events = event_manager.EventManager.restore(s_dict.get('events'))
 
     def clean_up(self):
-        from app.engine import item_system, skill_system, item_funcs, action
+        from app.engine import item_system, skill_system, item_funcs, action, supports
 
-        game.supports.increment_end_chapter_supports()
+        supports.increment_end_chapter_supports()
 
         self.game_vars['_current_turnwheel_uses'] = \
             self.game_vars.get('_max_turnwheel_uses', -1)
@@ -323,7 +323,10 @@ class GameState():
             unit = None
             if skill.owner_nid:
                 unit = self.get_unit(skill.owner_nid)
-                skill_system.on_end_chapter(unit, skill)
+                if unit:
+                    skill_system.on_end_chapter(unit, skill)
+                else:
+                    logging.error("Unable to find owner %s in unit_registry", skill.owner_nid)
 
         self.terrain_status_registry.clear()
         self.region_registry.clear()

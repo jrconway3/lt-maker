@@ -102,6 +102,9 @@ class UnitSprite():
 
         self.health_bar = health_bar.MapHealthBar(self.unit)
 
+    def load_sprites(self):
+        self.map_sprite = load_map_sprite(self.unit, self.unit.team)
+
     # Normally drawing units is culled to those on the screen
     # Unit sprites matching this will be drawn anyway
     def draw_anyway(self):

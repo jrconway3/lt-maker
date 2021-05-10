@@ -40,6 +40,17 @@ class ActionLog():
         self.actions.remove(action)
         self.action_index -= 1
 
+    def hard_remove(self, action):
+        """
+        Removes action and all actions that happened after it
+        """
+        logging.debug("Hard Remove Action %d: %s", self.action_index, action.__class__.__name__)
+        idx = self.actions.index(action)
+        diff = len(self.actions) - idx
+        self.action_index -= diff
+        self.actions = self.actions[:idx]
+        logging.debug("New Action Index: %d", self.action_index)
+
     def run_action_backward(self):
         action = self.actions[self.action_index]
         action.reverse()
@@ -106,7 +117,7 @@ class ActionLog():
             last_action_index = len(self.actions) - 1
             if isinstance(last_move, self.Move):
                 if last_move.end < last_action_index:
-                    self.unique_moves.append(('Extra', last_move.end + 1, last_action_index ))
+                    self.unique_moves.append(('Extra', last_move.end + 1, last_action_index))
             elif last_move[1] < last_action_index:
                 self.unique_moves.append(('Extra', last_move[1] + 1, last_action_index))
 

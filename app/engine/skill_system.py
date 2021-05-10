@@ -392,7 +392,7 @@ def get_combat_arts(unit):
         if not condition(skill, unit):
             continue
         combat_art = None
-        combat_art_weapons = item_funcs.get_all_items(unit)
+        combat_art_weapons = [item for item in item_funcs.get_all_items(unit) if item_funcs.available(unit, item)]
         combat_art_set_max_range = None
         combat_art_modify_max_range = None
         for component in skill.components:

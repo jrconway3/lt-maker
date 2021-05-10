@@ -36,10 +36,7 @@ class SupportPair():
                 (not rank_limit or self.ranks_gained_this_chapter < rank_limit):
             reqs = support_prefab.requirements
             for bonus in reversed(reqs):
-                if self.points < bonus.requirement and self.points + 1 >= bonus.requirement:
-                    # # Can't get this yet since it's gated
-                    # if bonus.gate and not game.game_vars.get(bonus.gate):
-                    #     return                        
+                if self.points < bonus.requirement and self.points + 1 >= bonus.requirement:                     
                     self.ranks_gained_this_chapter += 1
                     self.locked_ranks.append(bonus.support_rank)
             inc -= 1
@@ -53,10 +50,10 @@ class SupportPair():
     def can_support(self) -> bool:
         support_prefab = DB.support_pairs.get(self.nid)
         reqs = support_prefab.requirements
-        if self.locked_ranks:
+        if self.locked_ranks and game.supports.check_rank_limit(self):
             for rank in self.locked_ranks:
                 for bonus in reqs:
-                    if bonus and not bonus.gate or game.game_vars.get(bonus.gate):
+                    if bonus.support_rank == rank and not bonus.gate or game.game_vars.get(bonus.gate):
                         return True
         return False
 
@@ -68,6 +65,7 @@ class SupportPair():
         s_dict['unlocked_ranks'] = self.unlocked_ranks[:]
         s_dict['points_gained_this_chapter'] = self.points_gained_this_chapter
         s_dict['ranks_gained_this_chapter'] = self.ranks_gained_this_chapter
+        return s_dict
 
     @classmethod
     def restore(cls, s_dict):
@@ -125,7 +123,7 @@ class SupportController():
         return new_support_pair
 
     def save(self):
-        return [support_pair.save() for support_pair in self.support_pairs]
+        return [support_pair.save() for support_pair in self.support_pairs.values()]
 
     @classmethod
     def restore(cls, s_list):
@@ -155,6 +153,22 @@ class SupportController():
                 pairs.append(pair)
         return pairs
 
+    def check_rank_limit(self, support_pair: SupportPair) -> bool:
+        """
+        Return False if either of the units is already at their limit
+        """
+        rank_limit = DB.support_constants.value('rank_limit')
+        highest_rank_limit = DB.support_constants.value('highest_rank_limit')
+        rank1 = game.supports.get_num_ranks(support_pair.unit1)
+        rank2 = game.supports.get_num_ranks(support_pair.unit2)
+        highest_rank1 = game.supports.get_num_highest_ranks(support_pair.unit1)
+        highest_rank2 = game.supports.get_num_highest_ranks(support_pair.unit2)
+        if rank_limit and (rank1 >= rank_limit or rank2 >= rank_limit):
+            return False
+        if highest_rank_limit and (highest_rank1 >= highest_rank_limit or highest_rank2 >= highest_rank_limit):
+            return False
+        return True
+
     # Next three functions used for limits
     def get_num_ranks(self, unit_nid: str) -> int:
         total = 0
@@ -165,10 +179,10 @@ class SupportController():
 
     def get_num_highest_ranks(self, unit_nid: str) -> int:
         highest_rank = DB.support_ranks[-1]
-        return len(pair for pair in self.get_pairs(unit_nid) if highest_rank in pair.unlocked_ranks)
+        return len([pair for pair in self.get_pairs(unit_nid) if highest_rank in pair.unlocked_ranks])
 
     def get_num_allies(self, unit_nid: str) -> int:
-        return len(pair for pair in self.get_pairs(unit_nid) if pair.unlocked_ranks)
+        return len([pair for pair in self.get_pairs(unit_nid) if pair.unlocked_ranks])
 
     def check_bonus_range(self, unit1, unit2) -> bool:
         return self.check_range(unit1, unit2, 'bonus_range')
@@ -291,10 +305,13 @@ def increment_end_combat_supports(combatant, target=None):
         units = [unit for unit in game.units if unit.position and not unit.generic and unit.team == combatant.team and unit is not combatant]
         unit_nids = {unit.nid for unit in units}
         for support_prefab in DB.support_pairs:
+            other_unit = None
             if support_prefab.unit1 == combatant.nid and support_prefab.unit2 in unit_nids:
                 other_unit = game.get_unit(support_prefab.unit2)
             elif support_prefab.unit2 == combatant.nid and support_prefab.unit1 in unit_nids:
                 other_unit = game.get_unit(support_prefab.unit1)
+            if not other_unit:
+                continue
             if dist == 0 and target:
                 if target.position in target_system.get_attacks(other_unit, force=True):
                     action.do(action.IncrementSupportPoints(support_prefab.nid, inc))

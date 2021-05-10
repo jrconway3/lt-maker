@@ -1050,7 +1050,7 @@ class TileSetMenu(QWidget):
     def new(self):
         from app.editor.tile_editor import tile_tab
         res, ok = tile_tab.get_tilesets()
-        if ok:
+        if res and ok:
             nid = res.nid
             self.current.tilesets.append(nid)
             self.tab_bar.addTab(nid)

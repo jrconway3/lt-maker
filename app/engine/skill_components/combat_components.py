@@ -448,7 +448,7 @@ class LimitMaximumRange(SkillComponent):
     expose = Type.Int
     value = 1
 
-    def limit_maximum_range(self, unit, skill):
+    def limit_maximum_range(self, unit, item):
         return self.value
 
 class ModifyMaximumRange(SkillComponent):
@@ -459,7 +459,7 @@ class ModifyMaximumRange(SkillComponent):
     expose = Type.Int
     value = 1
 
-    def modify_maximum_range(self, unit, skill):
+    def modify_maximum_range(self, unit, item):
         return self.value
 
 class GuaranteedCrit(SkillComponent):

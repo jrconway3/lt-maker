@@ -472,6 +472,17 @@ class ResetUnitVars(Action):
         self.unit.set_fatigue(self.old_current_fatigue)
         self.unit.movement_left = self.old_movement_left
 
+class SetPreviousPosition(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_previous_position = self.unit.previous_position
+
+    def do(self):
+        self.unit.previous_position = self.unit.position
+
+    def reverse(self):
+        self.unit.previous_position = self.old_previous_position
+
 class Reset(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -1204,7 +1215,8 @@ class Die(Action):
         self.unit = unit
         self.old_pos = unit.position
         self.leave_map = LeaveMap(self.unit)
-        self.lock_all_support_ranks = LockAllSupportRanks(self.unit.nid)
+        self.lock_all_support_ranks = \
+            [LockAllSupportRanks(pair.nid) for pair in game.supports.get_pairs(self.unit.nid)]
         self.drop = None
 
     def do(self):
@@ -1215,7 +1227,8 @@ class Die(Action):
             # TODO Drop Sound
 
         self.leave_map.do()
-        self.lock_all_support_ranks.do()
+        for act in self.lock_all_support_ranks:
+            act.do()
         self.unit.dead = True
         self.unit.is_dying = False
 
@@ -1224,7 +1237,8 @@ class Die(Action):
         self.unit.sprite.set_transition('normal')
         self.unit.sprite.change_state('normal')
 
-        self.lock_all_support_ranks.reverse()
+        for act in self.lock_all_support_ranks:
+            act.reverse()
         self.leave_map.reverse()
         if self.drop:
             self.drop.reverse()
@@ -1273,7 +1287,8 @@ class IncrementSupportPoints(Action):
         self.saved_data = pair.save()
 
     def do(self):
-        game.supports.support_pairs[self.nid].increment_points(self.inc)
+        pair = game.supports.support_pairs[self.nid]
+        pair.increment_points(self.inc)
 
     def reverse(self):
         pair = game.supports.support_pairs[self.nid]
@@ -1823,4 +1838,4 @@ def reverse(action):
     action.reverse()
     game.action_log.action_depth -= 1
     if game.action_log.record and game.action_log.action_depth <= 0:
-        game.action_log.remove(action)
+        game.action_log.hard_remove(action)

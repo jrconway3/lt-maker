@@ -824,7 +824,11 @@ class BaseRecordsState(State):
 
     def start(self):
         self.mouse_indicator = gui.MouseIndicator()
-        self.bg = game.memory['base_bg']
+        self.bg = game.memory.get('base_bg')
+        if not self.bg:
+            panorama = RESOURCES.panoramas.get('default_background')
+            self.bg = background.ScrollingBackground(panorama)
+            self.bg.scroll_speed = 50
 
         self.record_menu = record_book.RecordsDisplay()
         self.chapter_menus = [record_book.ChapterStats(option.get()[0]) for option in self.record_menu.options if not option.ignore]

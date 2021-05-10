@@ -1032,6 +1032,9 @@ class Event():
             self.text_boxes.append(new_ending)
             self.state = 'dialog'
 
+        elif command.nid == 'pop_dialog':
+            self.text_boxes.pop()
+
         elif command.nid == 'unlock':
             # This is a macro that just adds new commands to command list
             find_unlock_command = event_commands.FindUnlock(command.values)

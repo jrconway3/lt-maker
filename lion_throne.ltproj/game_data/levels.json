@@ -12732,6 +12732,29 @@
                 "generic": true
             },
             {
+                "nid": "108",
+                "variant": null,
+                "level": 10,
+                "klass": "Mage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    14,
+                    18
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
                 "nid": "104",
                 "variant": null,
                 "level": 5,
@@ -12771,7 +12794,7 @@
                 "ai_group": null,
                 "starting_position": [
                     12,
-                    18
+                    21
                 ],
                 "name": null,
                 "desc": null,
@@ -12785,7 +12808,15 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Restore",
+                        "Rescue",
+                        false
+                    ],
+                    [
+                        "Warp",
+                        false
+                    ],
+                    [
+                        "Refresh",
                         false
                     ]
                 ],
@@ -12794,6 +12825,33 @@
                 "ai_group": null,
                 "starting_position": [
                     11,
+                    19
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Meta",
+                "variant": null,
+                "level": 5,
+                "klass": "Sage",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Fire",
+                        false
+                    ],
+                    [
+                        "Wyrmsfire",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    13,
                     19
                 ],
                 "name": null,

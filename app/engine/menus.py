@@ -1584,14 +1584,15 @@ class ChapterSelect(Main):
         super().update()
         if self.use_rel_y:
             if self.rel_pos_y > 0:
-                self.rel_pos_y = max(0, self.rel_pos_y - 4)
+                self.rel_pos_y = max(0, self.rel_pos_y - 8)
             elif self.rel_pos_y < 0:
-                self.rel_pos_y = min(0, self.rel_pos_y + 4)
+                self.rel_pos_y = min(0, self.rel_pos_y + 8)
 
     def draw(self, surf, center=(WINWIDTH//2, WINHEIGHT//2), show_cursor=True, flicker=False):
         self.center = center
         num_options = len(self.options)
         start_index = max(0, self.current_index - 3)
+        num_shown = len(self.options[start_index:self.current_index + 3])
         for idx, option in enumerate(self.options[start_index:self.current_index + 3], start_index):
             diff = idx - self.current_index
             if self.use_rel_y:
@@ -1606,8 +1607,12 @@ class ChapterSelect(Main):
             else:
                 option.draw(surf, center[0], top)
                 
-        if show_cursor:
-            height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
+        if show_cursor and self.options:
+            option = self.options[0]
+            if self.use_rel_y:
+                height = center[1] - 12
+            else:
+                height = center[1] - 12 - (num_shown/2.0 - (self.current_index - start_index)) * (option.height() + 1)
             self.cursor1.draw_vert(surf, center[0] - option.width()//2 - 8 - 8, height)
             self.cursor2.draw_vert(surf, center[0] + option.width()//2 - 8 + 8, height)
 

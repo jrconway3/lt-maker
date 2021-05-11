@@ -1,0 +1,385 @@
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColorDialog, QVBoxLayout, \
+    QGraphicsView, QGraphicsScene, QDoubleSpinBox, QLabel, QSizePolicy, QPushButton
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter
+
+from app.constants import WINWIDTH, WINHEIGHT
+
+from app.editor import timer
+from app.utilities import utils
+from app.extensions.custom_gui import PropertyBox
+from app.extensions.color_icon import ColorIcon
+from app.extensions.color_slider import RGBSlider, HSVSlider
+from app.editor.combat_animation_editor.frame_selector import FrameSelector
+from app.resources.combat_anims import Frame
+from app.resources.combat_palettes import Palette
+from app.editor.icon_editor.icon_view import IconView
+import app.editor.utilities as editor_utilities
+from app.resources import combat_anims
+
+class AnimView(IconView):
+    def get_color_at_pos(self, pixmap, pos):
+        image = pixmap.toImage()
+        current_color = image.pixel(*pos)
+        color = QColor(current_color)
+        return (color.red(), color.green(), color.blue())
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        scene_pos = self.mapToScene(event.pos())
+        pos = int(scene_pos.x()), int(scene_pos.y())
+
+        # Need to get original frame with base palette
+        frame_nid = self.window.frame_nid
+        if not frame_nid:
+            return
+        weapon_anim = self.window.get_current_weapon_anim()
+        frame = weapon_anim.frames.get(frame_nid)
+        if not frame:
+            return
+        offset_x, offset_y = frame.offset
+        pos = pos[0] - offset_x, pos[1] - offset_y
+        pixmap = frame.pixmap
+
+        if event.button() == Qt.LeftButton:
+            base_color = self.get_color_at_pos(pixmap, pos)
+            palette = self.window.get_current_palette()
+            base_colors = combat_anims.base_palette.colors
+            if base_color not in base_colors:
+                print("Cannot find color: %s in %s" % (base_color, base_colors))
+                return
+            idx = base_colors.index(base_color)
+            dlg = QColorDialog()
+            c = palette.colors[idx]
+            print(c, flush=True)
+            dlg.setCurrentColor(QColor(*c))
+            if dlg.exec_():
+                new_color = QColor(dlg.currentColor())
+                print(new_color, flush=True)
+                color = new_color.getRgb()
+                print(color, flush=True)
+                palette_widget = self.window.palette_menu.get_palette_widget()
+                icon = palette_widget.color_icons[idx]
+                icon.change_color(new_color.name())
+
+class ColorSelectorWidget(QGraphicsView):
+    palette_size = 32
+    square_size = 8
+    selectionChanged = pyqtSignal(tuple)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.window = parent
+
+        self.scene = QGraphicsScene(self)
+        self.setScene(self.scene)
+        self.setMouseTracking(True)
+        self.setStyleSheet("background-color:rgb(192,192,192);")
+
+        self.current_palette = None
+        self.current_frame = None
+        self.current_color = None
+
+        self.working_image = None
+
+        timer.get_timer().tick_elapsed.connect(self.tick)
+
+    def tick(self):
+        if self.current_palette:
+            self.update_view()
+
+    def clear_scene(self):
+        self.scene.clear()
+
+    def update_view(self):
+        if self.current_palette:
+            self.working_image = QPixmap.fromImage(self.get_palette_image())
+            self.show_image()
+        else:
+            self.clear_scene()
+
+    def show_image(self):
+        self.clear_scene()
+        self.scene.addPixmap(self.working_image)
+
+    def get_coords_used_in_frame(self, frame: Frame) -> list:
+        im = QImage(frame.pixmap)
+        unique_colors = editor_utilities.find_palette(im)
+        coords = [(uc[1], uc[2]) for uc in unique_colors]
+        return coords
+
+    def get_palette_image(self) -> QImage:
+        side_length = self.palette_size * self.square_size
+        base_image = QImage(side_length, side_length, QImage.Format_ARGB32)
+        base_image.fill(QColor(192, 192, 192, 255))
+
+        painter = QPainter()
+        painter.begin(base_image)
+        painter.setPen(QPen(QColor(0, 0, 0, 255), 1, Qt.SolidLine))
+        for coord in self.get_coords_used_in_frame(self.current_frame):
+            painter.drawRect(coord[0] * self.palette_size + 1, coord[1] * self.palette_size + 1, self.palette_size - 2, self.palette_size - 2)
+        # Outline chosen color in bright yellow
+        painter.setPen(QPen(QColor(0, 255, 255, 255), 2, Qt.SolidLine))
+        coord = self.current_color
+        painter.drawRect(coord[0] * self.palette_size, coord[1] * self.palette_size, self.palette_size, self.palette_size)
+        for coord, color in self.current_palette.colors.items():
+            write_color = QColor(color[0], color[1], color[2])
+            painter.fillRect(coord[0] * self.palette_size + 2, coord[1] * self.palette_size + 2, self.palette_size - 4, self.palette_size - 4, write_color)
+        painter.end()
+        return base_image
+
+    def set_current(self, current_palette: Palette, current_frame: Frame):
+        self.current_palette = current_palette
+        self.current_frame = current_frame
+        self.current_color = None
+        self.update_view()
+        self.selectionChanged.emit(None)
+
+    def get_current_color(self) -> tuple:
+        """
+        Returns 3-tuple of color
+        """
+        return self.current_palette.colors.get(self.current_color)
+
+    def mousePressEvent(self, event):
+        scene_pos = self.mapToScene(event.pos())
+        tile_pos = int(scene_pos.x() // self.palette_size), \
+            int(scene_pos.y() // self.palette_size)
+
+        if event.button() == Qt.LeftButton:
+            self.current_color = tile_pos
+            self.selectionChanged.emit(self.current_palette.colors[self.current_color])
+
+class ChannelBox(QWidget):
+    colorChanged = pyqtSignal(QColor)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.color: QColor = QColor(0, 0, 0)
+
+        self.hue_slider = HSVSlider('hue', self)
+        self.hue_slider.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.hue_slider.setMinimumSize(200, 20)
+        self.saturation_slider = HSVSlider('saturation', self)
+        self.saturation_slider.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.saturation_slider.setMinimumSize(200, 20)
+        self.value_slider = HSVSlider('value', self)
+        self.value_slider.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.value_slider.setMinimumSize(200, 20)
+
+        self.hue_label = QLabel('H')
+        self.saturation_label = QLabel('S')
+        self.value_label = QLabel('V')
+
+        self.hue_spin = QDoubleSpinBox()
+        self.hue_spin.setRange(0, 360)
+        self.hue_spin.setDecimals(1)
+        self.saturation_spin = QDoubleSpinBox()
+        self.saturation_spin.setRange(0, 100)
+        self.saturation_spin.setDecimals(1)
+        self.value_spin = QDoubleSpinBox()
+        self.value_spin.setRange(0, 100)
+        self.value_spin.setDecimals(1)
+
+        self.manual_edit: bool = False  # Guard so that we don't get infinite change
+
+        self.hue_slider.hueChanged.connect(self.change_hue)
+        self.saturation_slider.saturationChanged.connect(self.change_saturation)
+        self.value_slider.valueChanged.connect(self.change_value)
+
+        self.hue_spin.valueChanged.connect(self.change_hue_i)
+        self.saturation_spin.valueChanged.connect(self.change_saturation_i)
+        self.value_spin.valueChanged.connect(self.change_hue_i)
+
+        main_layout = QVBoxLayout()
+        hue_layout = QHBoxLayout()
+        saturation_layout = QHBoxLayout()
+        value_layout = QHBoxLayout()
+        hue_layout.addWidget(self.hue_label)
+        hue_layout.addWidget(self.hue_spin)
+        hue_layout.addWidget(self.hue_slider)
+        saturation_layout.addWidget(self.saturation_label)
+        saturation_layout.addWidget(self.saturation_spin)
+        saturation_layout.addWidget(self.saturation_slider)
+        value_layout.addWidget(self.value_label)
+        value_layout.addWidget(self.value_spin)
+        value_layout.addWidget(self.value_slider)
+        main_layout.addLayout(hue_layout)
+        main_layout.addLayout(saturation_layout)
+        main_layout.addLayout(value_layout)
+        self.setLayout(main_layout)
+
+    def change_color(self, color: QColor):
+        if self.color != color:
+            self.color = color
+            self.change_hue(color)
+            self.change_saturation(color)
+            self.change_value(color)
+
+    def change_hue(self, color: QColor):
+        self.manual_edit = False
+        self.hue_slider.set_hue(color)
+        self.hue_spin.setValue(color.hue())
+
+        self.saturation_slider.change_hue(color)
+        self.value_slider.change_hue(color)
+
+        self.colorChanged.emit(color)
+
+    def change_hue_i(self, i: int):
+        if self.manual_edit:
+            new_color = QColor.fromHsv(i, 0, 0)
+            self.change_hue(new_color)
+        self.manual_edit = True
+
+    def change_saturation(self, color: QColor):
+        self.manual_edit = False
+        self.saturation_slider.set_saturation(color)
+        self.saturation_spin.setValue(color.saturation())
+
+        self.hue_slider.change_saturation(color)
+        self.value_slider.change_saturation(color)
+
+        self.colorChanged.emit(color)
+
+    def change_saturation_i(self, i: int):
+        if self.manual_edit:
+            new_color = QColor.fromHsv(0, i, 0)
+            self.change_saturation(new_color)
+        self.manual_edit = True
+
+    def change_value(self, color: QColor):
+        self.manual_edit = False
+        self.value_slider.set_value(color)
+        self.value_spin.setValue(color.value())
+
+        self.hue_slider.change_value(color)
+        self.saturation_slider.change_value(color)
+
+        self.colorChanged.emit(color)
+
+    def change_value_i(self, i: int):
+        if self.manual_edit:
+            new_color = QColor.fromHsv(0, 0, i)
+            self.change_hue(new_color)
+        self.manual_edit = True
+
+class ColorEditorWidget(QWidget):
+    colorChanged = pyqtSignal(tuple)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.window = parent
+
+        self.current_color = (0, 0, 0)  # RGB
+
+        self.color_icon = ColorIcon(QColor(0, 0, 0).name(), self)
+        self.color_icon.colorChanged.connect(self.on_color_change)
+
+        self.channel_box = ChannelBox(self)
+        self.channel_box.colorChanged.connect(self.on_color_change)
+
+        self.hex_label = PropertyBox('Hex Code', QLabel, self)
+        self.hex_label.edit.setText(utils.color_to_hex(self.current_color))
+
+        main_layout = QHBoxLayout()
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(self.color_icon)
+        left_layout.addWidget(self.hex_label)
+        main_layout.addLayout(left_layout)
+        main_layout.addWidget(self.channel_box)
+        self.setLayout(main_layout)
+
+    def on_color_change(self, color: QColor):
+        new_color = color.getRgb()
+        self.set_current(new_color)
+
+    def set_current(self, color: tuple):
+        if color != self.current_color:
+            self.current_color = color
+
+            self.color_icon.change_color(QColor(color[0], color[1], color[2]).name())
+            self.hex_label.edit.setText(utils.color_to_hex(color))
+            self.channel_box.change_color(QColor(color[0], color[1], color[2]))
+
+            self.colorChanged.emit(color)
+
+class PaletteProperties(QWidget):
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.window = parent
+        self._data = self.window._data
+
+        self.current_palette = None
+        self.current_combat_anim = None
+        self.current_weapon_anim = None
+        self.current_frame = None
+        
+        self.raw_view = AnimView(self)
+        self.raw_view.static_size = True
+        self.raw_view.setSceneRect(0, 0, WINWIDTH, WINHEIGHT)
+        self.raw_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        self.select_frame_button = QPushButton("Select Frame", self)
+        self.select_frame_button.clicked.connect(self.select_frame)
+
+        self.color_selector_widget = ColorSelectorWidget(self)
+        self.color_editor_widget = ColorEditorWidget(self)
+
+        self.color_editor_widget.colorChanged.connect(self.color_changed)
+        self.color_selector_widget.selectionChanged.connect(self.selection_changed)
+        
+        main_layout = QVBoxLayout()
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(self.color_selector_widget)
+        view_layout = QVBoxLayout()
+        view_layout.addWidget(self.raw_view)
+        view_layout.addWidget(self.select_frame_button)
+        top_layout.addLayout(view_layout)
+        main_layout.addLayout(top_layout)
+        main_layout.addWidget(self.color_editor_widget)
+        self.setLayout(main_layout)
+
+    @property
+    def current(self):
+        return self.current_palette
+
+    def set_current(self, current):
+        self.current_palette = current
+        self.color_selector_widget.set_current(current, self.current_frame)
+        if self.current_palette:
+            current_color = self.color_selector_widget.get_current_color()
+            if current_color:
+                self.color_editor_widget.setEnabled(True)
+                self.color_editor_widget.set_current(current_color)
+            else:
+                self.color_editor_widget.setEnabled(False)
+            self.draw_frame()
+
+    def set_current_combat_anim(self, combat_anim, weapon_anim):
+        self.current_combat_anim = combat_anim
+        self.current_weapon_anim = weapon_anim
+
+    def select_frame(self):
+        if self.current_combat_anim and self.current_weapon_anim:
+            frame, ok = FrameSelector.get(self.current_combat_anim, self.current_weapon_anim, self)
+            if frame and ok:
+                self.current_frame = frame
+                self.color_selector_widget.set_current(self.current_palette, self.current_frame)
+                self.draw_frame()
+
+    def selection_changed(self, selection):
+        current = self.color_selector_widget.get_current_color()
+        if current:
+            self.color_editor_widget.setEnabled(True)
+            self.color_editor_widget.set_current(current)
+        else:
+            self.color_editor_widget.setEnabled(False)
+
+    def color_changed(self, color):
+        self.draw_frame()
+
+    def draw_frame(self):
+        self.raw_view.set_image(self.current_frame.pixmap)
+        self.raw_view.show_image()

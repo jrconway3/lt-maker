@@ -28,8 +28,6 @@ class FrameModel(ResourceCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             frame = self._data[index.row()]
-            if not frame.pixmap:
-                frame.pixmap = QPixmap(frame.full_path)
             return QIcon(frame.pixmap)
         return None
 
@@ -49,7 +47,7 @@ class FrameSelector(Dialog):
             self.current = None
 
         self.display = IconView(self)
-        self.display.static_size = WINWIDTH, WINHEIGHT
+        self.display.static_size = True
         self.display.setSceneRect(0, 0, WINWIDTH, WINHEIGHT)
 
         offset_section = QGroupBox(self)
@@ -173,8 +171,8 @@ class FrameSelector(Dialog):
         self.display.show_image()
 
     @classmethod
-    def get(cls, weapon_anim, parent=None):
-        dlg = cls(weapon_anim, parent)
+    def get(cls, combat_anim, weapon_anim, parent=None):
+        dlg = cls(combat_anim, weapon_anim, parent)
         result = dlg.exec_()
         if result == QDialog.Accepted:
             return dlg.current, True

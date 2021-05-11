@@ -1,7 +1,6 @@
 import os
 import shutil
 
-from app.constants import COLORKEY
 from app.resources.base_catalog import ManifestCatalog
 from app.resources import combat_commands
 from app.utilities.data import Data
@@ -45,29 +44,6 @@ class Frame():
         self = cls(*s_tuple)
         return self
 
-class Palette():
-    def __init__(self, nid, colors=None):
-        self.nid = nid
-        self.colors = colors or []
-
-    def __repr__(self):
-        return self.nid + ": " + str(self.colors)
-
-    def is_similar(self, colors):
-        # Returns true if 12 of the colors in the intersection
-        # are the same
-        return len(set(self.colors) & set(colors)) > 12
-        
-    def save(self):
-        return (self.nid, self.colors)
-
-    @classmethod
-    def restore(cls, s_tuple):
-        self = cls(*s_tuple)
-        # Tuple-ify (they spawn in as lists)
-        self.colors = [tuple(c) for c in self.colors]
-        return self
-
 class WeaponAnimation():
     def __init__(self, nid, full_path=None):
         self.nid = nid
@@ -103,20 +79,19 @@ class CombatAnimation():
     def __init__(self, nid):
         self.nid = nid
         self.weapon_anims = Data()
-        self.palettes = Data()
+        self.palettes = []
 
     def save(self):
         s_dict = {}
         s_dict['nid'] = self.nid
         s_dict['weapon_anims'] = [weapon_anim.save() for weapon_anim in self.weapon_anims]
-        s_dict['palettes'] = [palette.save() for palette in self.palettes]
+        s_dict['palettes'] = self.palettes[:]
         return s_dict
 
     @classmethod
     def restore(cls, s_dict):
         self = cls(s_dict['nid'])
-        for palette_save in s_dict['palettes']:
-            self.palettes.append(Palette.restore(palette_save))
+        self.palettes = s_dict['palettes'][:]
         for weapon_anim_save in s_dict['weapon_anims']:
             self.weapon_anims.append(WeaponAnimation.restore(weapon_anim_save))
         return self
@@ -169,5 +144,3 @@ class CombatEffectCatalog(ManifestCatalog):
 
     def clean(self, loc):
         pass  # TODO implement
-
-base_palette = Palette('base', [COLORKEY] + [(0, 0, x*8) for x in range(31)])

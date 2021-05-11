@@ -46,5 +46,5 @@ class PaletteWidget(QWidget):
     def on_double_click(self, index):
         idx = index.row()
         palette = self._data[idx]
-        dlg = PaletteDisplay.create(palette)
+        dlg = PaletteDisplay.edit(palette)
         result = dlg.exec_()

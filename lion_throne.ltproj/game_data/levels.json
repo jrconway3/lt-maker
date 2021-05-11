@@ -12704,7 +12704,7 @@
                 "ai_group": null,
                 "starting_position": [
                     13,
-                    12
+                    18
                 ],
                 "generic": false
             },
@@ -12857,6 +12857,17 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Coyote",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    15
+                ],
+                "generic": false
             }
         ],
         "regions": [

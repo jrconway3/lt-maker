@@ -26,8 +26,6 @@ class UnitObject(Prefab):
         self.ai = prefab.ai
         self.ai_group = prefab.ai_group
 
-        self.items = item_funcs.create_items(self, prefab.starting_items)
-
         if self.generic:
             self.faction = prefab.faction
             self.name = DB.factions.get(self.faction).name
@@ -40,7 +38,6 @@ class UnitObject(Prefab):
             self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             weapon_gain = klass_obj.wexp_gain
             self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
-            self.calculate_needed_wexp_from_items()
             self.portrait_nid = None
             self.affinity = None
         else:
@@ -71,7 +68,23 @@ class UnitObject(Prefab):
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}
 
+        self.current_hp = 0
+        self.current_mana = 0
+        self.current_fatigue = 0
+        self.movement_left = 0
+
+        self.traveler = None
+
+        # -- Other properties
+        self.dead = False
+        self.is_dying = False
+        self._finished = False
+        self._has_attacked = False
+        self._has_traded = False
+        self._has_moved = False
+
         # -- Equipped Items
+        self.items = []
         self.equipped_weapon = None
         self.equipped_accessory = None
 
@@ -82,24 +95,22 @@ class UnitObject(Prefab):
         class_skills = unit_funcs.get_starting_skills(self)
         self.skills = personal_skills + class_skills
 
+        # Handle items
+        items = item_funcs.create_items(self, prefab.starting_items)
+        for item in items:
+            self.add_item(item)
+
+        if self.generic:
+            self.calculate_needed_wexp_from_items()
+
         self.current_hp = self.get_max_hp()
         self.current_mana = self.get_max_mana()
         self.current_fatigue = 0
         self.movement_left = equations.parser.movement(self)
 
-        self.traveler = None
-
         # -- Equipped Items
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
-
-        # -- Other properties
-        self.dead = False
-        self.is_dying = False
-        self._finished = False
-        self._has_attacked = False
-        self._has_traded = False
-        self._has_moved = False
 
         # For rescue
         self.has_rescued = False

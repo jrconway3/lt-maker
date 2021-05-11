@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColorDialog, QVBoxLayout, \
-    QGraphicsView, QGraphicsScene, QDoubleSpinBox, QLabel, QSizePolicy, QPushButton
+    QGraphicsView, QGraphicsScene, QDoubleSpinBox, QLabel, QSizePolicy, QPushButton, \
+    QSpinBox
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter
 
@@ -65,7 +66,7 @@ class AnimView(IconView):
 class ColorSelectorWidget(QGraphicsView):
     palette_size = 32
     square_size = 8
-    selectionChanged = pyqtSignal(tuple)
+    selectionChanged = pyqtSignal(object)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -115,13 +116,16 @@ class ColorSelectorWidget(QGraphicsView):
 
         painter = QPainter()
         painter.begin(base_image)
-        painter.setPen(QPen(QColor(0, 0, 0, 255), 1, Qt.SolidLine))
-        for coord in self.get_coords_used_in_frame(self.current_frame):
-            painter.drawRect(coord[0] * self.palette_size + 1, coord[1] * self.palette_size + 1, self.palette_size - 2, self.palette_size - 2)
+        if self.current_frame:
+            painter.setPen(QPen(QColor(0, 0, 0, 255), 1, Qt.SolidLine))
+            for coord in self.get_coords_used_in_frame(self.current_frame):
+                painter.drawRect(coord[0] * self.palette_size + 1, coord[1] * self.palette_size + 1, self.palette_size - 2, self.palette_size - 2)
         # Outline chosen color in bright yellow
-        painter.setPen(QPen(QColor(0, 255, 255, 255), 2, Qt.SolidLine))
-        coord = self.current_color
-        painter.drawRect(coord[0] * self.palette_size, coord[1] * self.palette_size, self.palette_size, self.palette_size)
+        if self.current_color:
+            painter.setPen(QPen(QColor(0, 255, 255, 255), 2, Qt.SolidLine))
+            coord = self.current_color
+            painter.drawRect(coord[0] * self.palette_size, coord[1] * self.palette_size, self.palette_size, self.palette_size)
+        # draw actual colors
         for coord, color in self.current_palette.colors.items():
             write_color = QColor(color[0], color[1], color[2])
             painter.fillRect(coord[0] * self.palette_size + 2, coord[1] * self.palette_size + 2, self.palette_size - 4, self.palette_size - 4, write_color)
@@ -141,6 +145,10 @@ class ColorSelectorWidget(QGraphicsView):
         """
         return self.current_palette.colors.get(self.current_color)
 
+    def set_current_color(self, color: QColor):
+        if self.current_palette and self.current_color:
+            self.current_palette.colors[self.current_color] = color.getRgb()
+
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         tile_pos = int(scene_pos.x() // self.palette_size), \
@@ -148,7 +156,7 @@ class ColorSelectorWidget(QGraphicsView):
 
         if event.button() == Qt.LeftButton:
             self.current_color = tile_pos
-            self.selectionChanged.emit(self.current_palette.colors[self.current_color])
+            self.selectionChanged.emit(self.current_palette.colors.get(self.current_color))
 
 class ChannelBox(QWidget):
     colorChanged = pyqtSignal(QColor)
@@ -172,15 +180,33 @@ class ChannelBox(QWidget):
         self.saturation_label = QLabel('S')
         self.value_label = QLabel('V')
 
-        self.hue_spin = QDoubleSpinBox()
+        self.hue_spin = QSpinBox()
         self.hue_spin.setRange(0, 360)
-        self.hue_spin.setDecimals(1)
-        self.saturation_spin = QDoubleSpinBox()
-        self.saturation_spin.setRange(0, 100)
-        self.saturation_spin.setDecimals(1)
-        self.value_spin = QDoubleSpinBox()
-        self.value_spin.setRange(0, 100)
-        self.value_spin.setDecimals(1)
+        self.saturation_spin = QSpinBox()
+        self.saturation_spin.setRange(0, 255)
+        self.value_spin = QSpinBox()
+        self.value_spin.setRange(0, 255)
+
+        self.red_slider = RGBSlider('red', self)
+        self.red_slider.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.red_slider.setMinimumSize(200, 20)
+        self.green_slider = RGBSlider('green', self)
+        self.green_slider.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.green_slider.setMinimumSize(200, 20)
+        self.blue_slider = RGBSlider('blue', self)
+        self.blue_slider.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.blue_slider.setMinimumSize(200, 20)
+
+        self.red_label = QLabel('R')
+        self.green_label = QLabel('G')
+        self.blue_label = QLabel('B')
+
+        self.red_spin = QSpinBox()
+        self.red_spin.setRange(0, 255)
+        self.green_spin = QSpinBox()
+        self.green_spin.setRange(0, 255)
+        self.blue_spin = QSpinBox()
+        self.blue_spin.setRange(0, 255)
 
         self.manual_edit: bool = False  # Guard so that we don't get infinite change
 
@@ -190,7 +216,15 @@ class ChannelBox(QWidget):
 
         self.hue_spin.valueChanged.connect(self.change_hue_i)
         self.saturation_spin.valueChanged.connect(self.change_saturation_i)
-        self.value_spin.valueChanged.connect(self.change_hue_i)
+        self.value_spin.valueChanged.connect(self.change_value_i)
+
+        self.red_slider.redChanged.connect(self.change_red)
+        self.green_slider.greenChanged.connect(self.change_green)
+        self.blue_slider.blueChanged.connect(self.change_blue)
+
+        self.red_spin.valueChanged.connect(self.change_red_i)
+        self.green_spin.valueChanged.connect(self.change_green_i)
+        self.blue_spin.valueChanged.connect(self.change_blue_i)
 
         main_layout = QVBoxLayout()
         hue_layout = QHBoxLayout()
@@ -208,6 +242,23 @@ class ChannelBox(QWidget):
         main_layout.addLayout(hue_layout)
         main_layout.addLayout(saturation_layout)
         main_layout.addLayout(value_layout)
+
+        red_layout = QHBoxLayout()
+        green_layout = QHBoxLayout()
+        blue_layout = QHBoxLayout()
+        red_layout.addWidget(self.red_label)
+        red_layout.addWidget(self.red_spin)
+        red_layout.addWidget(self.red_slider)
+        green_layout.addWidget(self.green_label)
+        green_layout.addWidget(self.green_spin)
+        green_layout.addWidget(self.green_slider)
+        blue_layout.addWidget(self.blue_label)
+        blue_layout.addWidget(self.blue_spin)
+        blue_layout.addWidget(self.blue_slider)
+        main_layout.addLayout(red_layout)
+        main_layout.addLayout(green_layout)
+        main_layout.addLayout(blue_layout)
+
         self.setLayout(main_layout)
 
     def change_color(self, color: QColor):
@@ -216,6 +267,9 @@ class ChannelBox(QWidget):
             self.change_hue(color)
             self.change_saturation(color)
             self.change_value(color)
+            self.change_red(color)
+            self.change_green(color)
+            self.change_blue(color)
 
     def change_hue(self, color: QColor):
         self.manual_edit = False
@@ -225,7 +279,10 @@ class ChannelBox(QWidget):
         self.saturation_slider.change_hue(color)
         self.value_slider.change_hue(color)
 
-        self.colorChanged.emit(color)
+        self.color = self.hue_slider.color
+        self.colorChanged.emit(self.color)
+
+        self.update_rgb_sliders(self.color)
 
     def change_hue_i(self, i: int):
         if self.manual_edit:
@@ -241,7 +298,10 @@ class ChannelBox(QWidget):
         self.hue_slider.change_saturation(color)
         self.value_slider.change_saturation(color)
 
-        self.colorChanged.emit(color)
+        self.color = self.saturation_slider.color
+        self.colorChanged.emit(self.color)
+
+        self.update_rgb_sliders(self.color)
 
     def change_saturation_i(self, i: int):
         if self.manual_edit:
@@ -257,31 +317,121 @@ class ChannelBox(QWidget):
         self.hue_slider.change_value(color)
         self.saturation_slider.change_value(color)
 
-        self.colorChanged.emit(color)
+        self.color = self.value_slider.color
+        self.colorChanged.emit(self.color)
+
+        self.update_rgb_sliders(self.color)
 
     def change_value_i(self, i: int):
         if self.manual_edit:
             new_color = QColor.fromHsv(0, 0, i)
-            self.change_hue(new_color)
+            self.change_value(new_color)
         self.manual_edit = True
 
+    def update_hsv_sliders(self, color: QColor):
+        self.hue_slider.change_hue(color)
+        self.hue_slider.change_saturation(color)
+        self.hue_slider.change_value(color)
+        self.saturation_slider.change_hue(color)
+        self.saturation_slider.change_saturation(color)
+        self.saturation_slider.change_value(color)
+        self.value_slider.change_hue(color)
+        self.value_slider.change_saturation(color)
+        self.value_slider.change_value(color)
+
+        self.hue_spin.setValue(color.hue())
+        self.saturation_spin.setValue(color.saturation())
+        self.value_spin.setValue(color.value())
+
+    def change_red(self, color: QColor):
+        self.manual_edit = False
+        self.red_slider.set_red(color)
+        self.red_spin.setValue(color.red())
+
+        self.green_slider.change_red(color)
+        self.blue_slider.change_red(color)
+
+        self.color = self.red_slider.color
+        self.colorChanged.emit(self.color)
+
+        self.update_hsv_sliders(self.color)
+
+    def change_red_i(self, i: int):
+        if self.manual_edit:
+            new_color = QColor.fromRgb(i, 0, 0)
+            self.change_red(new_color)
+        self.manual_edit = True
+
+    def change_green(self, color: QColor):
+        self.manual_edit = False
+        self.green_slider.set_green(color)
+        self.green_spin.setValue(color.green())
+
+        self.red_slider.change_green(color)
+        self.blue_slider.change_green(color)
+
+        self.color = self.green_slider.color
+        self.colorChanged.emit(self.color)
+
+        self.update_hsv_sliders(self.color)
+
+    def change_green_i(self, i: int):
+        if self.manual_edit:
+            new_color = QColor.fromRgb(0, i, 0)
+            self.change_green(new_color)
+        self.manual_edit = True
+
+    def change_blue(self, color: QColor):
+        self.manual_edit = False
+        self.blue_slider.set_blue(color)
+        self.blue_spin.setValue(color.blue())
+
+        self.red_slider.change_blue(color)
+        self.green_slider.change_blue(color)
+
+        self.color = self.blue_slider.color
+        self.colorChanged.emit(self.color)
+
+        self.update_hsv_sliders(self.color)
+
+    def change_blue_i(self, i: int):
+        if self.manual_edit:
+            new_color = QColor.fromRgb(0, 0, i)
+            self.change_blue(new_color)
+        self.manual_edit = True
+
+    def update_rgb_sliders(self, color: QColor):
+        self.red_slider.change_red(color)
+        self.red_slider.change_green(color)
+        self.red_slider.change_blue(color)
+        self.green_slider.change_red(color)
+        self.green_slider.change_green(color)
+        self.green_slider.change_blue(color)
+        self.blue_slider.change_red(color)
+        self.blue_slider.change_green(color)
+        self.blue_slider.change_blue(color)
+        
+        self.red_spin.setValue(color.red())
+        self.green_spin.setValue(color.green())
+        self.blue_spin.setValue(color.blue())
+
 class ColorEditorWidget(QWidget):
-    colorChanged = pyqtSignal(tuple)
+    colorChanged = pyqtSignal(QColor)
 
     def __init__(self, parent):
         super().__init__(parent)
         self.window = parent
 
-        self.current_color = (0, 0, 0)  # RGB
+        self.current_color = QColor(0, 0, 0)
 
-        self.color_icon = ColorIcon(QColor(0, 0, 0).name(), self)
+        self.color_icon = ColorIcon(self.current_color, self)
         self.color_icon.colorChanged.connect(self.on_color_change)
 
         self.channel_box = ChannelBox(self)
         self.channel_box.colorChanged.connect(self.on_color_change)
 
         self.hex_label = PropertyBox('Hex Code', QLabel, self)
-        self.hex_label.edit.setText(utils.color_to_hex(self.current_color))
+        self.hex_label.edit.setText(utils.color_to_hex(self.current_color.getRgb()))
 
         main_layout = QHBoxLayout()
         left_layout = QVBoxLayout()
@@ -292,16 +442,16 @@ class ColorEditorWidget(QWidget):
         self.setLayout(main_layout)
 
     def on_color_change(self, color: QColor):
-        new_color = color.getRgb()
-        self.set_current(new_color)
+        self.set_current(color)
 
-    def set_current(self, color: tuple):
+    def set_current(self, color: QColor):
         if color != self.current_color:
-            self.current_color = color
+            self.current_color: QColor = color
 
-            self.color_icon.change_color(QColor(color[0], color[1], color[2]).name())
-            self.hex_label.edit.setText(utils.color_to_hex(color))
-            self.channel_box.change_color(QColor(color[0], color[1], color[2]))
+            self.color_icon.change_color(color)
+            tuple_color = color.getRgb()
+            self.hex_label.edit.setText(utils.color_to_hex(tuple_color))
+            self.channel_box.change_color(color)
 
             self.colorChanged.emit(color)
 
@@ -373,13 +523,16 @@ class PaletteProperties(QWidget):
         current = self.color_selector_widget.get_current_color()
         if current:
             self.color_editor_widget.setEnabled(True)
-            self.color_editor_widget.set_current(current)
+            self.color_editor_widget.set_current(QColor(*current))
         else:
             self.color_editor_widget.setEnabled(False)
 
-    def color_changed(self, color):
+    def color_changed(self, color: QColor):
+        if self.current_palette:
+            self.color_selector_widget.set_current_color(color)
         self.draw_frame()
 
     def draw_frame(self):
-        self.raw_view.set_image(self.current_frame.pixmap)
-        self.raw_view.show_image()
+        if self.current_frame:
+            self.raw_view.set_image(self.current_frame.pixmap)
+            self.raw_view.show_image()

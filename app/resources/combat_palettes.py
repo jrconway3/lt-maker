@@ -2,20 +2,22 @@ import os
 from app.utilities.data import Prefab
 from app.resources.base_catalog import ManifestCatalog
 
+from app.constants import COLORKEY
+
 class Palette(Prefab):
     def __init__(self, nid):
         self.nid = nid
         # Mapping of color indices to true colors
         # Color indices are generally (0, 1) -> (240, 160, 240), etc.
-        self.colors = {}
+        self.colors = {(0, 0): COLORKEY}
 
     def save(self):
-        return (self.nid, self.colors.copy())
+        return (self.nid, list(self.colors.items()))
 
     @classmethod
     def restore(cls, s):
         self = cls(s[0])
-        self.colors = s[1].copy()
+        self.colors = {k: v for k, v in s[1].copy()}
         return self
 
 class PaletteCatalog(ManifestCatalog):

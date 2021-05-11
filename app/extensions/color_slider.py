@@ -144,13 +144,10 @@ class RGBSlider(ColorSlider):
         self.window = parent
 
         self.slider_type = slider_type
-        self.red = 1
+        self.red = 0
         self.green = 0
         self.blue = 0
         self.color = QColor.fromRgbF(self.red, self.green, self.blue)
-
-        if self.slider_type == 'red':
-            self.slider_value = self.max_rgb
 
         self.color.setRgbF(self.red, self.green, self.blue)
 
@@ -199,8 +196,8 @@ class RGBSlider(ColorSlider):
         self.width_changed = False
 
     def paint_red(self, grad: QLinearGradient):
-        grad.setColorAt(0, QColor.fromRgbF(self.red, self.green, self.blue))
-        grad.setColorAt(1, QColor.fromRgbF(self.red, self.green, self.blue))
+        grad.setColorAt(0, QColor.fromRgbF(0, self.green, self.blue))
+        grad.setColorAt(1, QColor.fromRgbF(1, self.green, self.blue))
 
     def paint_green(self, grad: QLinearGradient):
         grad.setColorAt(0, QColor.fromRgbF(self.red, 0, self.blue))
@@ -217,15 +214,15 @@ class RGBSlider(ColorSlider):
 
         if self.slider_type == 'red':
             self.red = val
-            self.color.setHsvF(self.red, self.green, self.blue)
+            self.color.setRgbF(self.red, self.green, self.blue)
             self.redChanged.emit(self.color)
         elif self.slider_type == 'green':
             self.green = val
-            self.color.setHsvF(self.red, self.green, self.blue)
+            self.color.setRgbF(self.red, self.green, self.blue)
             self.greenChanged.emit(self.color)
         elif self.slider_type == 'blue':
             self.blue = val
-            self.color.setHsvF(self.red, self.green, self.blue)
+            self.color.setRgbF(self.red, self.green, self.blue)
             self.blueChanged.emit(self.color)
 
     def set_color_component(self, color: QColor, slider_type: str):
@@ -243,7 +240,7 @@ class RGBSlider(ColorSlider):
             val = self.blue
 
         self.slider_value = math.ceil(val * self.maxRange)
-        self.color = QColor.fromHsvF(self.red, self.green, self.blue)
+        self.color = QColor.fromRgbF(self.red, self.green, self.blue)
         self.update()
 
     def set_red(self, color: QColor):
@@ -381,11 +378,11 @@ class HSVSlider(ColorSlider):
             self.hue = color.hueF()
             val = self.hue
         elif slider_type == 'saturation':
-            self.saturation = color.saturationF()
-            val = self.saturation
+            self.sat = color.saturationF()
+            val = self.sat
         elif slider_type == 'value':
-            self.value = color.valueF()
-            val = self.value
+            self.val = color.valueF()
+            val = self.val
 
         self.slider_value = math.ceil(val * self.maxRange)
         self.color = QColor.fromHsvF(self.hue, self.sat, self.val)

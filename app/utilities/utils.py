@@ -95,6 +95,9 @@ def color_to_hex(c: tuple) -> str:
 def hsv2rgb(h: float, s: float, v: float) -> tuple:
     return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h, s, v))
 
+def rgb2hsv(r: int, g: int, b: int) -> tuple:
+    return tuple(colorsys.rgb_to_hsv(r, g, b))
+
 def average_pos(pos_list: list) -> tuple:
     avg_x, avg_y = 0, 0
     for x, y in pos_list:

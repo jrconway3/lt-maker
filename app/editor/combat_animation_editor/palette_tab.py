@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QDialog
 
 from app.resources.resources import RESOURCES
 
-from app.extensions.custom_gui import ResourceListView
 from app.editor.data_editor import SingleResourceEditor
 from app.editor.base_database_gui import DatabaseTab
 
@@ -18,8 +17,7 @@ class PaletteDatabase(DatabaseTab):
         deletion_criteria = None
 
         dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...",
-                     view_type=ResourceListView)
+                     collection_model, parent, button_text="Add New %s...")
         return dialog
 
     @classmethod

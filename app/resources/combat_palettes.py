@@ -21,6 +21,7 @@ class Palette(Prefab):
         return self
 
 class PaletteCatalog(ManifestCatalog):
+    datatype = Palette
     manifest = 'palettes.json'
     title = 'palettes'
 

@@ -1,13 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColorDialog, QVBoxLayout, \
-    QGraphicsView, QGraphicsScene, QDoubleSpinBox, QLabel, QSizePolicy, QPushButton, \
-    QSpinBox
+    QGraphicsView, QGraphicsScene, QLineEdit, QLabel, QSizePolicy, QPushButton, \
+    QSpinBox, QMessageBox
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
 
 from app.editor import timer
-from app.utilities import utils
+from app.utilities import utils, str_utils
 from app.extensions.custom_gui import PropertyBox
 from app.extensions.color_icon import ColorIcon
 from app.extensions.color_slider import RGBSlider, HSVSlider
@@ -460,11 +460,20 @@ class PaletteProperties(QWidget):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window._data
+        self.model = self.window.left_frame.model
 
         self.current_palette = None
         self.current_combat_anim = None
         self.current_weapon_anim = None
         self.current_frame = None
+
+        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
+        self.nid_box.edit.textChanged.connect(self.nid_changed)
+        self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
+
+        left_frame = self.window.left_frame
+        grid = left_frame.layout()
+        grid.addWidget(self.nid_box, 2, 0, 1, 2)
         
         self.raw_view = AnimView(self)
         self.raw_view.static_size = True
@@ -491,12 +500,27 @@ class PaletteProperties(QWidget):
         main_layout.addWidget(self.color_editor_widget)
         self.setLayout(main_layout)
 
+    def nid_changed(self, text):
+        self.current_palette.nid = text
+        self.window.update_list()
+
+    def nid_done_editing(self):
+        # Check validity of nid!
+        other_nids = [d.nid for d in self._data.values() if d is not self.current_palette]
+        if self.current_palette.nid in other_nids:
+            QMessageBox.warning(self.window, 'Warning', 'Palette ID %s already in use' % self.current_palette.nid)
+            self.current_palette.nid = str_utils.get_next_name(self.current_palette.nid, other_nids)
+        self.model.on_nid_changed(self._data.find_key(self.current_palette), self.current_palette.nid)
+        self._data.update_nid(self.current_palette, self.current_palette.nid)
+        self.window.update_list()
+
     @property
     def current(self):
         return self.current_palette
 
     def set_current(self, current):
         self.current_palette = current
+        self.nid_box.edit.setText(self.current_palette.nid)
         self.color_selector_widget.set_current(current, self.current_frame)
         if self.current_palette:
             current_color = self.color_selector_widget.get_current_color()

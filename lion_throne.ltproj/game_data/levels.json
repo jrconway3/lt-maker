@@ -12688,7 +12688,7 @@
         "units": [
             {
                 "nid": "Ophie",
-                "team": "enemy",
+                "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
@@ -12868,6 +12868,29 @@
                     15
                 ],
                 "generic": false
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Soldier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Javelin",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    24,
+                    26
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

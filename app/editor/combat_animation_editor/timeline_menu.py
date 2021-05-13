@@ -87,7 +87,7 @@ class TimelineMenu(QWidget):
         self._finished = False
 
         self.view = TimelineList(self)
-        self.view.setStyleSheet("QListWidget::item:selected {background-color: yellow;}")
+        self.view.setStyleSheet("QListWidget::item:selected {background-color: palette(highlight);}")
         self.view.order_swapped.connect(self.command_moved)
         self.view.currentChanged = self.on_new_selection
 
@@ -145,6 +145,9 @@ class TimelineMenu(QWidget):
 
     def remove_command(self, command):
         self.view.remove_command(command)
+
+    def remove_command_widget(self, command):
+        self.view.remove_command_widget(command)
 
     def add_command(self, command):
         self.current_pose.timeline.append(command)

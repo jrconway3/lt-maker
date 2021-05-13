@@ -79,7 +79,7 @@ class CombatAnimation():
     def __init__(self, nid):
         self.nid = nid
         self.weapon_anims = Data()
-        self.palettes = []
+        self.palettes = []  # Palette name -> Palette nid
 
     def save(self):
         s_dict = {}
@@ -91,7 +91,9 @@ class CombatAnimation():
     @classmethod
     def restore(cls, s_dict):
         self = cls(s_dict['nid'])
-        self.palettes = s_dict['palettes'][:]
+        self.palettes = []
+        for palette_name, palette_nid in s_dict['palettes'][:]:
+            self.palettes.append([palette_name, palette_nid])
         for weapon_anim_save in s_dict['weapon_anims']:
             self.weapon_anims.append(WeaponAnimation.restore(weapon_anim_save))
         return self

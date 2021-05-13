@@ -17,7 +17,7 @@ from app.editor.settings import MainSettingsController
 from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.base_database_gui import DatabaseTab
-from app.editor.combat_animation_editor.palette_display import PaletteWidget
+from app.editor.combat_animation_editor.palette_menu import PaletteMenu
 from app.editor.combat_animation_editor.timeline_menu import TimelineMenu
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
 from app.editor.combat_animation_editor.combat_animation_model import CombatAnimModel
@@ -73,7 +73,7 @@ class CombatAnimProperties(QWidget):
         self.anim_view.static_size = True
         self.anim_view.setSceneRect(0, 0, WINWIDTH, WINHEIGHT)
 
-        self.palette_menu = PaletteWidget(self)
+        self.palette_menu = PaletteMenu(self)
         self.timeline_menu = TimelineMenu(self)
 
         view_section = QVBoxLayout()
@@ -115,6 +115,13 @@ class CombatAnimProperties(QWidget):
         self.nid_box.textChanged.connect(self.nid_changed)
         self.nid_box.editingFinished.connect(self.nid_done_editing)
 
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
         self.weapon_box.currentIndexChanged.connect(self.weapon_changed)
@@ -123,11 +130,11 @@ class CombatAnimProperties(QWidget):
         self.new_weapon_button.clicked.connect(self.add_new_weapon)
         self.delete_weapon_button = QPushButton()
         self.delete_weapon_button.setMaximumWidth(30)
-        self.delete_weapon_button.setIcon(QIcon("icons/icons/x.png"))
+        self.delete_weapon_button.setIcon(QIcon(f"{icon_folder}/x.png"))
         self.delete_weapon_button.clicked.connect(self.delete_weapon)
         self.duplicate_weapon_button = QPushButton()
         self.duplicate_weapon_button.setMaximumWidth(30)
-        self.duplicate_weapon_button.setIcon(QIcon("icons/icons/duplicate.png"))
+        self.duplicate_weapon_button.setIcon(QIcon(f"{icon_folder}/duplicate.png"))
         self.duplicate_weapon_button.clicked.connect(self.duplicate_weapon)
         weapon_row.addWidget(self.weapon_box)
         weapon_row.addWidget(self.new_weapon_button)
@@ -142,11 +149,11 @@ class CombatAnimProperties(QWidget):
         self.new_pose_button.clicked.connect(self.add_new_pose)
         self.delete_pose_button = QPushButton()
         self.delete_pose_button.setMaximumWidth(30)
-        self.delete_pose_button.setIcon(QIcon("icons/icons/x.png"))
+        self.delete_pose_button.setIcon(QIcon(f"{icon_folder}/x.png"))
         self.delete_pose_button.clicked.connect(self.delete_pose)
         self.duplicate_pose_button = QPushButton()
         self.duplicate_pose_button.setMaximumWidth(30)
-        self.duplicate_pose_button.setIcon(QIcon("icons/icons/duplicate.png"))
+        self.duplicate_pose_button.setIcon(QIcon(f"{icon_folder}/duplicate.png"))
         self.duplicate_pose_button.clicked.connect(self.duplicate_pose)
         pose_row.addWidget(self.pose_box)
         pose_row.addWidget(self.new_pose_button)
@@ -352,7 +359,7 @@ class CombatAnimProperties(QWidget):
         has_pixmap = False
 
         main_pixmap_backup = None
-        if hasattr(current_weapon, 'pixmap'):
+        if current_weapon.pixmap:
             main_pixmap_backup = current_weapon.pixmap #Could contain references
             current_weapon.pixmap = None
             has_pixmap = True
@@ -372,7 +379,7 @@ class CombatAnimProperties(QWidget):
             current_weapon.pixmap = main_pixmap_backup           
             new_weapon.pixmap = QPixmap(current_weapon.full_path)
 
-            for index in range(0,len(current_weapon.frames)):
+            for index in range(len(current_weapon.frames)):
                 frame = current_weapon.frames[index]
                 new_frame = new_weapon.frames[index]
                 x, y, width, height = frame.rect
@@ -530,7 +537,7 @@ class CombatAnimProperties(QWidget):
             self.pose_box.clear()
             weapon_anim, poses = None, None
 
-        self.palette_menu.set_current(self.current.palettes)
+        self.palette_menu.set_current(self.current)
 
         if weapon_anim and poses:
             current_pose_nid = self.pose_box.currentText()

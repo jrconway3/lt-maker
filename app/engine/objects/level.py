@@ -13,6 +13,7 @@ class LevelObject():
         self.tilemap: TileMapObject = None  # Actually the tilemap, not a nid
         self.party: str = None  # Party Nid
         self.roam = False
+        self.roam_unit = None
 
         self.music = {}
         self.objective = {}

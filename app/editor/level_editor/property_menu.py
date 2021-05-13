@@ -7,8 +7,9 @@ from PyQt5.QtCore import Qt
 from app.data.database import DB
 
 from app.extensions.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
-from app.editor.custom_widgets import PartyBox
+from app.editor.custom_widgets import UnitBox, PartyBox
 from app.utilities import str_utils
+from app.editor.unit_editor import unit_tab
 from app.editor.sound_editor import sound_tab
 from app.editor.tile_editor import tile_tab
 
@@ -74,9 +75,15 @@ class PropertiesMenu(QWidget):
         self.title_box.edit.textChanged.connect(self.title_changed)
         form.addWidget(self.title_box)
 
+        # Free roam stuff
         self.free_roam_box = PropertyCheckBox("Free Roam?", QCheckBox, self)
         self.free_roam_box.edit.stateChanged.connect(self.free_roam_changed)
         form.addWidget(self.free_roam_box)
+
+        self.unit_box = UnitBox(self, button=True)
+        self.unit_box.edit.currentIndexChanged.connect(self.unit_changed)
+        self.unit_box.button.clicked.connect(self.access_units)
+        form.addWidget(self.unit_box)
 
         self.party_box = PartyBox(self)
         self.party_box.edit.activated.connect(self.party_changed)
@@ -138,6 +145,7 @@ class PropertiesMenu(QWidget):
             self.party_box.edit.setCurrentIndex(0)
             self.party_changed()
         self.free_roam_box.edit.setChecked(bool(current.roam))
+        self.unit_box.edit.setValue(self.current.roam_unit)
 
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
@@ -196,3 +204,16 @@ class PropertiesMenu(QWidget):
             nid = res.nid
             self.current.tilemap = nid
             self.state_manager.change_and_broadcast('ui_refresh_signal', None)
+
+    def access_units(self):
+        unit, ok = unit_tab.get(self.current.roam_unit)
+        if ok:
+            self.nid_changed(unit.nid)
+
+    def unit_changed(self, index):
+        self.nid_changed(DB.units[index].nid)
+
+    def nid_changed(self, nid):
+        self.current.roam_unit = nid
+        self.unit_box.edit.setValue(self.current.roam_unit)
+        # self.current.prefab = DB.units.get(nid)

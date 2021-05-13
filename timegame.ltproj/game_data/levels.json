@@ -4,6 +4,7 @@
         "name": "Prologue",
         "tilemap": "Prologue",
         "party": "Eirika",
+        "roam": true,
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -132,6 +133,7 @@
         "name": "Ch. 1: Escape!",
         "tilemap": "Chapter 1",
         "party": "Eirika",
+        "roam": null,
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -586,6 +588,7 @@
         "name": "Ch. 2: The Protected",
         "tilemap": "Chapter 2",
         "party": "Eirika",
+        "roam": false,
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -999,6 +1002,7 @@
         "name": "DEBUG",
         "tilemap": "Chapter 2",
         "party": "Eirika",
+        "roam": true,
         "music": {
             "player_phase": null,
             "enemy_phase": null,

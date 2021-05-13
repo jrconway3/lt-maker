@@ -10,6 +10,8 @@ class LevelPrefab(Prefab):
         self.name = name
         self.tilemap = None  # Tilemap Nid
         self.party = None  # Party Prefab Nid
+        self.roam = False
+        self.roam_unit = None
         self.music = OrderedDict()
         music_keys = ['player_phase', 'enemy_phase', 'other_phase', 'enemy2_phase',
                       'player_battle', 'enemy_battle', 'other_battle', 'enemy2_battle']
@@ -30,13 +32,15 @@ class LevelPrefab(Prefab):
             value = [unit_group.save() for unit_group in value]
         elif name == 'regions':
             value = [region.save() for region in value]
+        elif name == 'roam':
+            pass
         else:
             value = super().save_attr(name, value)
         return value
 
     def restore_attr(self, name, value):
         if name == 'units':
-            value = Data([GenericUnit.restore(unit_data) if unit_data['generic'] 
+            value = Data([GenericUnit.restore(unit_data) if unit_data['generic']
                           else UniqueUnit.restore(unit_data) for unit_data in value])
         elif name == 'unit_groups':
             value = Data([UnitGroup.restore(val) for val in value])

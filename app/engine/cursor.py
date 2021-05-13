@@ -79,13 +79,16 @@ class Cursor():
                 self.path.insert(0, self._last_valid_position)
                 if target_system.check_path(self.cur_unit, self.path):
                     return self.path
-        
+
         self.path = target_system.get_path(self.cur_unit, self._last_valid_position)
         return self.path
 
     def move(self, dx, dy, mouse=False, sound=True):
         x, y = self.position
         self.position = x + dx, y + dy
+        self.roaming = game.current_level.roam
+        if self.roaming:
+            self.fluid.update_speed(32)
 
         # Cursor Sound
         if mouse:
@@ -123,6 +126,9 @@ class Cursor():
             else:
                 self.offset_x += 12*dx
                 self.offset_y += 12*dy
+
+        if self.roaming:
+            self.speed_state = True
 
         self.offset_x = min(self.offset_x, 12)
         self.offset_y = min(self.offset_y, 12)
@@ -199,6 +205,9 @@ class Cursor():
         self.arrows.clear()
 
     def take_input(self):
+        self.roaming = game.current_level.roam
+        if self.roaming:
+            self.fluid.update_speed(32)
         self.fluid.update()
         if self.stopped_at_move_border:
             directions = self.fluid.get_directions(double_speed=self.speed_state, slow_speed=True)
@@ -230,26 +239,38 @@ class Cursor():
 
         # Handle keyboard first
         if 'LEFT' in directions and self.position[0] > 0:
-            self.move(-1, 0)
+            if self.roaming:
+                self.move(-0.2, 0)
+            else:
+                self.move(-1, 0)
             game.camera.cursor_x(self.position[0])
             self.mouse_mode = False
         elif 'RIGHT' in directions and self.position[0] < game.tilemap.width - 1:
-            self.move(1, 0)
+            if self.roaming:
+                self.move(0.2, 0)
+            else:
+                self.move(1, 0)
             game.camera.cursor_x(self.position[0])
             self.mouse_mode = False
 
         if 'UP' in directions and self.position[1] > 0:
-            self.move(0, -1)
+            if self.roaming:
+                self.move(0, -0.2)
+            else:
+                self.move(0, -1)
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
         elif 'DOWN' in directions and self.position[1] < game.tilemap.height - 1:
-            self.move(0, 1)
+            if self.roaming:
+                self.move(0, 0.2)
+            else:
+                self.move(0, 1)
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
 
         # Handle mouse
         mouse_position = INPUT.get_mouse_position()
-        if mouse_position:
+        if mouse_position and not game.current_level.roam:
             self.mouse_mode = True
         if self.mouse_mode:
             # Get the actual mouse position, irrespective if actually used recently

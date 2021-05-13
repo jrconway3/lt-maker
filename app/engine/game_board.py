@@ -34,7 +34,7 @@ class Node():
         return "Node(%d, %d): cost=%d, g=%d, h=%d, f=%f, %s" % (self.x, self.y, self.cost, self.g, self.h, self.f, self.reachable)
 
 class GameBoard(object):
-    # __slots__ = ['width', 'height', 'grids', 'team_grid', 'unit_grid', 
+    # __slots__ = ['width', 'height', 'grids', 'team_grid', 'unit_grid',
     #              'aura_grid', 'known_auras']
 
     def __init__(self, tilemap):
@@ -58,7 +58,7 @@ class GameBoard(object):
         # For Auras
         self.aura_grid = self.init_aura_grid()
         # Key: Aura Skill Uid, Value: Set of positions
-        self.known_auras = {}  
+        self.known_auras = {}
 
         # For opacity
         self.opacity_grid = self.init_opacity_grid(tilemap)
@@ -111,7 +111,7 @@ class GameBoard(object):
             self.team_grid[idx].remove(unit.team)
 
     def get_unit(self, pos):
-        if not pos:
+        if not pos or game.current_level.roam:
             return None
         idx = pos[0] * self.height + pos[1]
         if self.unit_grid[idx]:

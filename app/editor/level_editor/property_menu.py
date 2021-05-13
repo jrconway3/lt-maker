@@ -1,12 +1,12 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, \
-    QWidget, QPushButton, QMessageBox, QLabel
+    QWidget, QPushButton, QMessageBox, QLabel, QCheckBox
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.extensions.custom_gui import SimpleDialog, PropertyBox, QHLine
+from app.extensions.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
 from app.editor.custom_widgets import PartyBox
 from app.utilities import str_utils
 from app.editor.sound_editor import sound_tab
@@ -74,6 +74,10 @@ class PropertiesMenu(QWidget):
         self.title_box.edit.textChanged.connect(self.title_changed)
         form.addWidget(self.title_box)
 
+        self.free_roam_box = PropertyCheckBox("Free Roam?", QCheckBox, self)
+        self.free_roam_box.edit.stateChanged.connect(self.free_roam_changed)
+        form.addWidget(self.free_roam_box)
+
         self.party_box = PartyBox(self)
         self.party_box.edit.activated.connect(self.party_changed)
         form.addWidget(self.party_box)
@@ -133,6 +137,7 @@ class PropertiesMenu(QWidget):
         else:
             self.party_box.edit.setCurrentIndex(0)
             self.party_changed()
+        self.free_roam_box.edit.setChecked(bool(current.roam))
 
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
@@ -163,6 +168,9 @@ class PropertiesMenu(QWidget):
     def title_changed(self, text):
         self.current.name = text
         self.state_manager.change_and_broadcast('ui_refresh_signal', None)
+
+    def free_roam_changed(self, state):
+        self.current.roam = bool(state)
 
     def party_changed(self):
         idx = self.party_box.edit.currentIndex()

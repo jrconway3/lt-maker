@@ -328,5 +328,16 @@
             16,
             48
         ]
+    },
+    {
+        "nid": "Fess",
+        "blinking_offset": [
+            24,
+            24
+        ],
+        "smiling_offset": [
+            28,
+            40
+        ]
     }
 ]

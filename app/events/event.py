@@ -271,8 +271,10 @@ class Event():
             return False
         elif command.nid == 'end':
             logging.info('%s: %s', command.nid, command.values)
-            self.if_stack.pop()
-            self.parse_stack.pop()
+            if self.if_stack:
+                self.if_stack.pop()
+            if self.parse_stack:
+                self.parse_stack.pop()
             return False
 
         if self.if_stack and not self.if_stack[-1]:

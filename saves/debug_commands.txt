@@ -1,4 +1,3 @@
-zzz
 increment_suppo
 set_current_hp;Vanessa;5
 increment_support_points;Eirika;Seth;43
@@ -18,3 +17,4 @@ remove_item;Kayla;Warp
 give_item;Kayla;Warp
 remove_item;Prim;Rescue
 give_item;Prim;Rescue
+win_game

@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
+from app.editor.settings import MainSettingsController
+
 from app.resources import combat_commands
 
 from app.editor import combat_command_widgets
@@ -194,12 +196,19 @@ class TimelineMenu(QWidget):
         self.toolbar = QToolBar(self)
         self.menus = {}
 
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
         for command in combat_commands.anim_commands:
             if command.tag not in self.menus:
                 new_menu = QMenu(self)
                 self.menus[command.tag] = new_menu
                 toolbutton = QToolButton(self)
-                toolbutton.setIcon(QIcon("icons/icons/command_%s.png" % command.tag))
+                toolbutton.setIcon(QIcon(f"{icon_folder}/command_%s.png" % command.tag))
                 toolbutton.setMenu(new_menu)
                 toolbutton.setPopupMode(QToolButton.InstantPopup)
                 toolbutton_action = QWidgetAction(self)

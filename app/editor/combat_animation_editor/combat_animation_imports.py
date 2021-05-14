@@ -4,39 +4,10 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QImage, QPixmap, qRgb, QColor, QPainter
 
 from app import utilities
-from app.resources import combat_anims, combat_commands
+from app.resources.resources import RESOURCES
+from app.resources import combat_anims, combat_commands, combat_palettes
 
 import app.editor.utilities as editor_utilities
-
-def update_weapon_anim_pixmap(weapon_anim):
-    width_limit = 1200
-    left = 0
-    heights = []
-    max_heights = []
-    for frame in weapon_anim.frames:
-        width, height = frame.pixmap.width(), frame.pixmap.height()
-        if left + width > width_limit:
-            max_heights.append(max(heights))
-            frame.rect = (0, sum(max_heights), width, height)
-            heights = [height]
-            left = width
-        else:
-            frame.rect = (left, sum(max_heights), width, height)
-            left += width
-            heights.append(height)
-
-    total_width = min(width_limit, sum(frame.rect[2] for frame in weapon_anim.frames))
-    total_height = sum(max_heights)
-    print(total_width, total_height)
-    new_pixmap = QPixmap(total_width, total_height)
-    new_pixmap.fill(QColor(editor_utilities.qCOLORKEY))
-    painter = QPainter()
-    painter.begin(new_pixmap)
-    for frame in weapon_anim.frames:
-        x, y, width, height = frame.rect
-        painter.drawPixmap(x, y, frame.pixmap)
-    painter.end()
-    weapon_anim.pixmap = new_pixmap
 
 def import_from_lion_throne(current, fn):
     """
@@ -51,6 +22,9 @@ def import_from_lion_throne(current, fn):
     """
 
     print(fn)
+    if '-Script.txt' not in fn:
+        QMessageBox.critical(None, "Error", "Not a valid combat animation script file: %s" % fn)
+        return
     kind = os.path.split(fn)[-1].replace('-Script.txt', '')
     print(kind)
     nid, weapon = kind.split('-')
@@ -62,25 +36,31 @@ def import_from_lion_throne(current, fn):
     if not images:
         QMessageBox.critical(None, "Error", "Could not find any associated palettes")
         return
-    palette_nids = []
+
+    # Propulate palettes
     for image_fn in images:
-        palette_nid = os.path.split(image_fn)[-1][:-4].split('-')[-1]
-        palette_nids.append(palette_nid)
-        if palette_nid not in current.palettes:
-            pix = QPixmap(image_fn)
-            palette_colors = editor_utilities.find_palette(pix.toImage())
-            new_palette = combat_anims.Palette(palette_nid, palette_colors)
-            current.palettes.append(new_palette)
+        palette_name = os.path.split(image_fn)[-1][:-4].split('-')[-1]
+        palette_nid = nid + '_' + palette_name
+        if palette_name not in [_[0] for _ in current.palettes]:
+            if palette_nid not in RESOURCES.combat_palettes:
+                # Need to create palette
+                pix = QPixmap(image_fn)
+                palette_colors = editor_utilities.find_palette(pix.toImage())
+                new_palette = combat_palettes.Palette(palette_nid)
+                colors = {(int(idx / 8), idx % 8): color for idx, color in enumerate(palette_colors)}
+                new_palette.colors = colors
+            current.palettes.append([palette_name, palette_nid])
     new_weapon = combat_anims.WeaponAnimation(weapon)
+
     # Now add frames to weapon animation
     with open(index_fn, encoding='utf-8') as index_fp:
         index_lines = [line.strip() for line in index_fp.readlines()]
         index_lines = [l.split(';') for l in index_lines]
 
     # Use the first palette
-    my_colors = current.palettes[0].colors
-    base_colors = combat_anims.base_palette.colors
-    convert_dict = {qRgb(*a): qRgb(*b) for a, b in zip(my_colors, base_colors)}
+    colors = current.palettes[0].colors
+    # Need to convert to universal coord palette
+    convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in colors.items()}
     main_pixmap = QPixmap(images[0])
     for i in index_lines:
         nid = i[0]
@@ -125,6 +105,36 @@ def import_from_lion_throne(current, fn):
     print("Done!!! %s" % fn)
 
 # === IMPORT FROM GBA ========================================================
+def update_weapon_anim_pixmap(weapon_anim):
+    width_limit = 1200
+    left = 0
+    heights = []
+    max_heights = []
+    for frame in weapon_anim.frames:
+        width, height = frame.pixmap.width(), frame.pixmap.height()
+        if left + width > width_limit:
+            max_heights.append(max(heights))
+            frame.rect = (0, sum(max_heights), width, height)
+            heights = [height]
+            left = width
+        else:
+            frame.rect = (left, sum(max_heights), width, height)
+            left += width
+            heights.append(height)
+
+    total_width = min(width_limit, sum(frame.rect[2] for frame in weapon_anim.frames))
+    total_height = sum(max_heights)
+    print(total_width, total_height)
+    new_pixmap = QPixmap(total_width, total_height)
+    new_pixmap.fill(QColor(editor_utilities.qCOLORKEY))
+    painter = QPainter()
+    painter.begin(new_pixmap)
+    for frame in weapon_anim.frames:
+        x, y, width, height = frame.rect
+        painter.drawPixmap(x, y, frame.pixmap)
+    painter.end()
+    weapon_anim.pixmap = new_pixmap
+
 def convert_gba(pixmap: QPixmap) -> QPixmap:
     im = pixmap.toImage()
     im.convertTo(QImage.Format_Indexed8)

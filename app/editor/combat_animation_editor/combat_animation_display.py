@@ -547,7 +547,7 @@ class CombatAnimProperties(QWidget):
             self.timeline_menu.clear_pose()
 
     def get_current_palette(self):
-        return self.palette_menu.get_current()
+        return self.palette_menu.get_palette()
 
     def modify_for_palette(self, pixmap: QPixmap) -> QImage:
         current_palette = self.get_current_palette()
@@ -560,7 +560,7 @@ class CombatAnimProperties(QWidget):
 
     def update(self):
         if self.playing:
-            current_time = time.time() * 1000
+            current_time = int(time.time_ns() / 1e6)
             framerate = 1000 / self.speed_box.value()
             milliseconds_past = current_time - self.last_update
             num_frames_passed = int(milliseconds_past / framerate)

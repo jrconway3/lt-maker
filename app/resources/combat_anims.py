@@ -27,14 +27,14 @@ class Pose():
         return self
 
 class Frame():
-    def __init__(self, nid, rect, offset):
+    def __init__(self, nid, rect, offset, pixmap=None, image=None):
         self.nid = nid
 
         self.rect = rect
         self.offset = offset
 
-        self.pixmap = None
-        self.image = None
+        self.pixmap = pixmap
+        self.image = image
 
     def save(self):
         return (self.nid, self.rect, self.offset)

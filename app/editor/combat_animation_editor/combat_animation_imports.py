@@ -49,6 +49,7 @@ def import_from_lion_throne(current, fn):
                 new_palette = combat_palettes.Palette(palette_nid)
                 colors = {(int(idx / 8), idx % 8): color for idx, color in enumerate(palette_colors)}
                 new_palette.colors = colors
+                RESOURCES.combat_palettes.append(new_palette)
             current.palettes.append([palette_name, palette_nid])
     new_weapon = combat_anims.WeaponAnimation(weapon)
 
@@ -58,7 +59,10 @@ def import_from_lion_throne(current, fn):
         index_lines = [l.split(';') for l in index_lines]
 
     # Use the first palette
-    colors = current.palettes[0].colors
+    palette_name, palette_nid = current.palettes[0]
+    palette = RESOURCES.combat_palettes.get(palette_nid)
+    colors = palette.colors
+
     # Need to convert to universal coord palette
     convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in colors.items()}
     main_pixmap = QPixmap(images[0])

@@ -1,14 +1,25 @@
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import qRgb
 
 from app.utilities.data import Data
 from app.data.database import DB
+from app.resources.resources import RESOURCES
 from app.resources import combat_anims
 
 from app.editor.base_database_gui import ResourceCollectionModel
 
 from app.extensions.custom_gui import DeletionDialog
 
-from app import utilities
+from app.utilities import str_utils
+from app.editor import utilities as editor_utilities
+
+def palette_swap(pixmap, palette_nid):
+    palette = RESOURCES.combat_palettes.get(palette_nid)
+    im = pixmap.toImage()
+    conv_dict = {qRgb(0, *coord): qRgb(*color) for coord, color in palette.colors.items()}
+    im = editor_utilities.color_convert(im, conv_dict)
+    im = editor_utilities.convert_colorkey(im)
+    return im
 
 class CombatAnimModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -24,7 +35,7 @@ class CombatAnimModel(ResourceCollectionModel):
         return None
 
     def create_new(self):
-        nid = utilities.get_next_name('New Combat Anim', self._data.keys())
+        nid = str_utils.get_next_name('New Combat Anim', self._data.keys())
         new_anim = combat_anims.CombatAnimation(nid)
         self._data.append(new_anim)
         return new_anim

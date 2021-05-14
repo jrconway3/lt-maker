@@ -15,7 +15,7 @@ from app.editor.settings import MainSettingsController
 from app.extensions.custom_gui import Dialog
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.editor.icon_editor.icon_view import IconView
-from app.editor.combat_animation_editor import combat_animation_imports
+from app.editor.combat_animation_editor import combat_animation_imports, combat_animation_model
 import app.editor.utilities as editor_utilities
 
 class FrameModel(ResourceCollectionModel):
@@ -28,7 +28,9 @@ class FrameModel(ResourceCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             frame = self._data[index.row()]
-            return QIcon(frame.pixmap)
+            im = combat_animation_model.palette_swap(frame.pixmap, self.window.current_palette_nid)
+            pix = QPixmap.fromImage(im)
+            return QIcon(pix)
         return None
 
 class FrameSelector(Dialog):
@@ -40,6 +42,8 @@ class FrameSelector(Dialog):
 
         self.combat_anim = combat_anim
         self.weapon_anim = weapon_anim
+        self.current_palette_nid = self.window.get_current_palette()
+        # Get a referenceto the color change function
         self.frames = weapon_anim.frames
         if self.frames:
             self.current = self.frames[0]
@@ -165,7 +169,9 @@ class FrameSelector(Dialog):
         base_image.fill(editor_utilities.qCOLORKEY)
         painter = QPainter()
         painter.begin(base_image)
-        painter.drawImage(self.current.offset[0], self.current.offset[1], self.current.pixmap.toImage())
+        pixmap = self.current.pixmap
+        im = combat_animation_model.palette_swap(pixmap, self.current_palette_nid)
+        painter.drawImage(self.current.offset[0], self.current.offset[1], im)
         painter.end()
         self.display.set_image(QPixmap.fromImage(base_image))
         self.display.show_image()

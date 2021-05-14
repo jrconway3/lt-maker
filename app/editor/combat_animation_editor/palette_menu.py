@@ -23,13 +23,14 @@ class PaletteWidget(QWidget):
         radio_button.clicked.connect(lambda: self.window.set_palette(self.idx))
 
         self.name_label = QLineEdit(self)
-        palette_name = self.current_combat_anim.palettes[self.idx][0]
+        palette_name, palette_nid = self.current_combat_anim.palettes[self.idx]
         self.name_label.setText(palette_name)
 
         self.palette_box = ComboBox(self)
         model = PaletteModel(RESOURCES.combat_palettes, self)
         self.palette_box.setModel(model)
         self.palette_box.view().setUniformItemSizes(True)
+        self.palette_box.setValue(palette_nid)
 
         layout.addWidget(radio_button)
         layout.addWidget(self.name_label)

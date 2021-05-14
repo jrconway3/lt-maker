@@ -20,7 +20,7 @@ from app.editor.base_database_gui import DatabaseTab
 from app.editor.combat_animation_editor.palette_menu import PaletteMenu
 from app.editor.combat_animation_editor.timeline_menu import TimelineMenu
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
-from app.editor.combat_animation_editor.combat_animation_model import CombatAnimModel
+from app.editor.combat_animation_editor.combat_animation_model import CombatAnimModel, palette_swap
 import app.editor.combat_animation_editor.combat_animation_imports as combat_animation_imports
 from app.extensions.custom_gui import ResourceListView, ComboBox
 
@@ -550,13 +550,8 @@ class CombatAnimProperties(QWidget):
         return self.palette_menu.get_palette()
 
     def modify_for_palette(self, pixmap: QPixmap) -> QImage:
-        current_palette = self.get_current_palette()
-        im = pixmap.toImage()
-        im_palette = combat_anims.base_palette
-        conv_dict = {qRgb(*a): qRgb(*b) for a, b in zip(im_palette.colors, current_palette.colors)}
-        im = editor_utilities.color_convert(im, conv_dict)
-        im = editor_utilities.convert_colorkey(im)
-        return im
+        current_palette_nid = self.get_current_palette()
+        return palette_swap(pixmap, current_palette_nid)
 
     def update(self):
         if self.playing:

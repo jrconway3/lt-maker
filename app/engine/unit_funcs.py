@@ -6,7 +6,7 @@ from app.engine import static_random, item_funcs
 import logging
 logger = logging.getLogger(__name__)
 
-def get_next_level_up(unit) -> dict:
+def get_next_level_up(unit, custom_method) -> dict:
     if unit.team == 'player':
         method = DB.constants.value('player_leveling')
     else:
@@ -16,20 +16,25 @@ def get_next_level_up(unit) -> dict:
 
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
     klass = DB.classes.get(unit.klass)
-    for nid in DB.stats.keys():
-        growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0)
-        if method == 'Fixed':
-            if growth > 0:
-                stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
-                unit.growth_points[nid] = (unit.growth_points[nid] + growth) % 100
-            elif growth < 0:
-                stat_changes[nid] = (-unit.growth_points[nid] + growth) // 100
-                unit.growth_points[nid] = (unit.growth_points[nid] - growth) % 100
 
-        elif method == 'Random':
-            stat_changes[nid] += _random_levelup(unit, unit.get_internal_level(), growth)
-        elif method == 'Dynamic':
-            _dynamic_levelup(unit, unit.get_internal_level(), stat_changes, unit.growth_points, nid, growth)
+    if custom_method == 'rdbexp':
+        _rd_bexp_levelup(unit, unit.get_internal_level(), klass,stat_changes)
+    else:
+        for nid in DB.stats.keys():
+            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0)
+
+            if method == 'Fixed':
+                if growth > 0:
+                    stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
+                    unit.growth_points[nid] = (unit.growth_points[nid] + growth) % 100
+                elif growth < 0:
+                    stat_changes[nid] = (-unit.growth_points[nid] + growth) // 100
+                    unit.growth_points[nid] = (unit.growth_points[nid] - growth) % 100
+
+            elif method == 'Random':
+                stat_changes[nid] += _random_levelup(unit, unit.get_internal_level(), growth)
+            elif method == 'Dynamic':
+                _dynamic_levelup(unit, unit.get_internal_level(), stat_changes, unit.growth_points, nid, growth)
             
         stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
 
@@ -81,6 +86,31 @@ def _dynamic_levelup(unit, level, stats, growth_points, growth_nid, growth_rate)
                 growth_points[growth_nid] -= (100 - new_growth) / variance
             else:
                 growth_points[growth_nid] += new_growth/variance
+
+def _rd_bexp_levelup(unit, level, klass, stat_changes):
+    growths = []
+    possible_growths = []
+    index = 0
+    for nid in DB.stats.keys():
+        if unit.stats[nid] < klass.max_stats.get(nid, 30) and unit.growths[nid] != 0:
+            possible_growths.append(index)
+            growths.append(list(unit.growths.values())[index])
+        index += 1
+    r = static_random.get_levelup(unit.nid, level)
+    n = 3
+    if len(possible_growths) < 3:
+        n = len(possible_growths)
+    for i in range(0, n):
+        choice = static_random.weighted_growth_choice(possible_growths, growths, r)
+        nid = list(stat_changes.keys())[choice]
+        stat_changes[nid] += 1
+        idx = possible_growths.index(choice)
+        possible_growths.remove(choice)
+        growths.pop(idx)
+    for nid in DB.stats.keys():
+        stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid],
+                                        klass.max_stats.get(nid, 30) - unit.stats[nid])
+    return stat_changes
 
 def auto_level(unit, num_levels, starting_level=1):
     """

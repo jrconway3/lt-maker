@@ -1,4 +1,6 @@
 # https://en.wikipedia.org/wiki/Linear_congruential_generator
+import random
+
 from app.utilities import utils
 
 class LCG(object):
@@ -79,6 +81,11 @@ def shuffle(lst):
 
 # def set_other_random_state(state):
 #     r.other_random.state = state
+
+# === Returns the index of a weighted list
+def weighted_growth_choice(choices, growths, generator):
+    rn = random.choices(choices, growths)[0]
+    return rn
 
 if __name__ == '__main__':
     print(get_combat())

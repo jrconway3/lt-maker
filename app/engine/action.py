@@ -1,4 +1,3 @@
-
 import sys
 
 from app.utilities import utils
@@ -14,6 +13,7 @@ from app.events.regions import Region
 from app.engine.game_state import game
 
 import logging
+
 
 class Action():
     def __init__(self):
@@ -89,10 +89,12 @@ class Action():
             setattr(self, name, self.restore_obj(value))
         return self
 
+
 class Move(Action):
     """
     A basic, user-directed move
     """
+
     def __init__(self, unit, new_pos, path=None, event=False, follow=True):
         self.unit = unit
         self.old_pos = self.unit.position
@@ -127,14 +129,17 @@ class Move(Action):
         self.unit.position = self.old_pos
         game.arrive(self.unit)
 
+
 # Just another name for move
 class CantoMove(Move):
     pass
+
 
 class SimpleMove(Move):
     """
     A script directed move, no animation
     """
+
     def __init__(self, unit, new_pos):
         self.unit = unit
         self.old_pos = self.unit.position
@@ -159,8 +164,10 @@ class SimpleMove(Move):
         self.unit.position = self.old_pos
         game.arrive(self.unit)
 
+
 class Teleport(SimpleMove):
     pass
+
 
 class ForcedMovement(SimpleMove):
     def do(self):
@@ -174,6 +181,7 @@ class ForcedMovement(SimpleMove):
         self.unit.position = self.new_pos
         game.arrive(self.unit)
         self.update_fow_action.do()
+
 
 class Swap(Action):
     def __init__(self, unit1, unit2):
@@ -202,6 +210,7 @@ class Swap(Action):
         game.arrive(self.unit2)
         game.arrive(self.unit1)
 
+
 class Warp(SimpleMove):
     def do(self):
         self.unit.sprite.set_transition('warp_move')
@@ -210,6 +219,7 @@ class Warp(SimpleMove):
         self.unit.position = self.new_pos
         game.arrive(self.unit)
         self.update_fow_action.do()
+
 
 class Swoosh(SimpleMove):
     def do(self):
@@ -220,6 +230,7 @@ class Swoosh(SimpleMove):
         game.arrive(self.unit)
         self.update_fow_action.do()
 
+
 class FadeMove(SimpleMove):
     def do(self):
         self.unit.sprite.set_transition('fade_move')
@@ -228,6 +239,7 @@ class FadeMove(SimpleMove):
         self.unit.position = self.new_pos
         game.arrive(self.unit)
         self.update_fow_action.do()
+
 
 class ArriveOnMap(Action):
     def __init__(self, unit, pos):
@@ -242,17 +254,20 @@ class ArriveOnMap(Action):
         game.leave(self.unit)
         self.place_on_map.reverse()
 
+
 class WarpIn(ArriveOnMap):
     def do(self):
         self.place_on_map.do()
         self.unit.sprite.set_transition('warp_in')
         game.arrive(self.unit)
 
+
 class SwooshIn(ArriveOnMap):
     def do(self):
         self.place_on_map.do()
         self.unit.sprite.set_transition('swoosh_in')
         game.arrive(self.unit)
+
 
 class FadeIn(ArriveOnMap):
     def do(self):
@@ -271,6 +286,7 @@ class FadeIn(ArriveOnMap):
             self.unit.sprite.set_transition('fade_in')
         game.arrive(self.unit)
 
+
 class PlaceOnMap(Action):
     def __init__(self, unit, pos):
         self.unit = unit
@@ -286,6 +302,7 @@ class PlaceOnMap(Action):
     def reverse(self):
         self.update_fow_action.reverse()
         self.unit.position = None
+
 
 class LeaveMap(Action):
     def __init__(self, unit):
@@ -304,17 +321,20 @@ class LeaveMap(Action):
         self.remove_from_map.reverse()
         game.arrive(self.unit)
 
+
 class WarpOut(LeaveMap):
     def do(self):
         game.leave(self.unit)
         self.unit.sprite.set_transition('warp_out')
         self.remove_from_map.do()
 
+
 class SwooshOut(LeaveMap):
     def do(self):
         game.leave(self.unit)
         self.unit.sprite.set_transition('swoosh_out')
         self.remove_from_map.do()
+
 
 class FadeOut(LeaveMap):
     def do(self):
@@ -333,6 +353,7 @@ class FadeOut(LeaveMap):
             self.unit.sprite.set_transition('fade_out')
         self.remove_from_map.do()
 
+
 class RemoveFromMap(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -349,6 +370,7 @@ class RemoveFromMap(Action):
         if self.unit.position:
             self.unit.previous_position = self.unit.position
 
+
 class IncrementTurn(Action):
     def do(self):
         from app.engine.game_state import game
@@ -357,13 +379,16 @@ class IncrementTurn(Action):
     def reverse(self):
         game.turncount -= 1
 
+
 class MarkPhase(Action):
     def __init__(self, phase_name):
         self.phase_name = phase_name
 
+
 class LockTurnwheel(Action):
     def __init__(self, lock):
         self.lock = lock
+
 
 class ChangePhaseMusic(Action):
     def __init__(self, phase, music):
@@ -377,9 +402,11 @@ class ChangePhaseMusic(Action):
     def reverse(self):
         game.level.music[self.phase] = self.old_music
 
+
 class Message(Action):
     def __init__(self, message):
         self.message = message
+
 
 class SetGameVar(Action):
     def __init__(self, nid, val):
@@ -393,6 +420,7 @@ class SetGameVar(Action):
     def reverse(self):
         game.game_vars[self.nid] = self.old_val
 
+
 class SetLevelVar(Action):
     def __init__(self, nid, val):
         self.nid = nid
@@ -404,6 +432,7 @@ class SetLevelVar(Action):
 
     def reverse(self):
         game.level_vars[self.nid] = self.old_val
+
 
 class Wait(Action):
     def __init__(self, unit):
@@ -424,6 +453,7 @@ class Wait(Action):
         self.unit.set_action_state(self.action_state)
         self.update_fow_action.reverse()
 
+
 class UpdateFogOfWar(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -436,7 +466,8 @@ class UpdateFogOfWar(Action):
             if self.unit.team == 'player':
                 fog_of_war_radius = game.level_vars.get('_fog_of_war_radius', 0)
             else:
-                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))
+                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius',
+                                                        game.level_vars.get('_fog_of_war_radius', 0))
             sight_range = skill_system.sight_range(self.unit) + fog_of_war_radius
             game.board.update_fow(self.unit.position, self.unit, sight_range)
             game.boundary.reset_fog_of_war()
@@ -447,10 +478,12 @@ class UpdateFogOfWar(Action):
             if self.unit.team == 'player':
                 fog_of_war_radius = game.level_vars.get('_fog_of_war_radius', 0)
             else:
-                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))
+                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius',
+                                                        game.level_vars.get('_fog_of_war_radius', 0))
             sight_range = skill_system.sight_range(self.unit) + fog_of_war_radius
             game.board.update_fow(self.prev_pos, self.unit, sight_range)
             game.boundary.reset_fog_of_war()
+
 
 class ResetUnitVars(Action):
     def __init__(self, unit):
@@ -472,6 +505,7 @@ class ResetUnitVars(Action):
         self.unit.set_fatigue(self.old_current_fatigue)
         self.unit.movement_left = self.old_movement_left
 
+
 class SetPreviousPosition(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -482,6 +516,7 @@ class SetPreviousPosition(Action):
 
     def reverse(self):
         self.unit.previous_position = self.old_previous_position
+
 
 class Reset(Action):
     def __init__(self, unit):
@@ -497,6 +532,7 @@ class Reset(Action):
         self.unit.set_action_state(self.action_state)
         self.unit.movement_left = self.movement_left
 
+
 class ResetAll(Action):
     def __init__(self, units):
         self.actions = [Reset(unit) for unit in units]
@@ -509,17 +545,21 @@ class ResetAll(Action):
         for action in self.actions:
             action.reverse()
 
+
 class HasAttacked(Reset):
     def do(self):
         self.unit.has_attacked = True
+
 
 class HasTraded(Reset):
     def do(self):
         self.unit.has_traded = True
 
+
 class HasNotTraded(Reset):
     def do(self):
         self.unit.has_traded = False
+
 
 # === RESCUE ACTIONS ========================================================
 class Rescue(Action):
@@ -563,6 +603,7 @@ class Rescue(Action):
         for action in self.subactions:
             action.reverse()
 
+
 class Drop(Action):
     def __init__(self, unit, droppee, pos):
         self.unit = unit
@@ -587,7 +628,7 @@ class Drop(Action):
 
         if utils.calculate_distance(self.unit.position, self.pos) == 1:
             self.droppee.sprite.set_transition('fake_in')
-            self.droppee.sprite.offset = [(self.unit.position[0] - self.pos[0]) * TILEWIDTH, 
+            self.droppee.sprite.offset = [(self.unit.position[0] - self.pos[0]) * TILEWIDTH,
                                           (self.unit.position[1] - self.pos[1]) * TILEHEIGHT]
 
     def execute(self):
@@ -613,6 +654,7 @@ class Drop(Action):
         for action in self.subactions:
             action.reverse()
 
+
 class Give(Action):
     def __init__(self, unit, other):
         self.unit = unit
@@ -633,7 +675,7 @@ class Give(Action):
 
         for action in self.subactions:
             action.do()
-        
+
     def reverse(self):
         self.unit.traveler = self.other.traveler
         self.other.traveler = None
@@ -641,6 +683,7 @@ class Give(Action):
 
         for action in self.subactions:
             action.reverse()
+
 
 class Take(Action):
     def __init__(self, unit, other):
@@ -662,7 +705,7 @@ class Take(Action):
 
         for action in self.subactions:
             action.do()
-        
+
     def reverse(self):
         self.other.traveler = self.unit.traveler
         self.unit.traveler = None
@@ -670,6 +713,7 @@ class Take(Action):
 
         for action in self.subactions:
             action.reverse()
+
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
@@ -685,6 +729,7 @@ class PutItemInConvoy(Action):
         game.party.convoy.remove(self.item)
         self.item.change_owner(self.owner_nid)
 
+
 class TakeItemFromConvoy(Action):
     def __init__(self, unit, item):
         self.unit = unit
@@ -698,6 +743,7 @@ class TakeItemFromConvoy(Action):
         self.unit.remove_item(self.item)
         game.party.convoy.append(self.item)
 
+
 class RemoveItemFromConvoy(Action):
     def __init__(self, item):
         self.item = item
@@ -707,6 +753,7 @@ class RemoveItemFromConvoy(Action):
 
     def reverse(self):
         game.party.convoy.append(self.item)
+
 
 class MoveItem(Action):
     def __init__(self, owner, unit, item):
@@ -721,6 +768,7 @@ class MoveItem(Action):
     def reverse(self):
         self.unit.remove_item(self.item)
         self.owner.add_item(self.item)
+
 
 class TradeItemWithConvoy(Action):
     def __init__(self, unit, convoy_item, unit_item):
@@ -741,6 +789,7 @@ class TradeItemWithConvoy(Action):
         game.party.convoy.append(self.convoy_item)
         self.unit.insert_item(self.unit_idx, self.unit_item)
 
+
 class GiveItem(Action):
     def __init__(self, unit, item):
         self.unit = unit
@@ -753,6 +802,7 @@ class GiveItem(Action):
     def reverse(self):
         if self.item in self.unit.items:
             self.unit.remove_item(self.item)
+
 
 class DropItem(Action):
     def __init__(self, unit, item):
@@ -767,6 +817,7 @@ class DropItem(Action):
     def reverse(self):
         self.item.droppable = self.is_droppable
         self.unit.remove_item(self.item)
+
 
 class MakeItemDroppable(Action):
     def __init__(self, unit, item):
@@ -786,6 +837,7 @@ class MakeItemDroppable(Action):
             item.droppable = self.is_droppable[idx]
         self.item.droppable = self.was_droppable
 
+
 class StoreItem(Action):
     def __init__(self, unit, item):
         self.unit = unit
@@ -800,12 +852,14 @@ class StoreItem(Action):
         game.party.convoy.remove(self.item)
         self.unit.insert_item(self.item_index, self.item)
 
+
 class RemoveItem(StoreItem):
     def do(self):
         self.unit.remove_item(self.item)
 
     def reverse(self):
         self.unit.insert_item(self.item_index, self.item)
+
 
 class EquipItem(Action):
     def __init__(self, unit, item):
@@ -824,6 +878,7 @@ class EquipItem(Action):
         if self.current_equipped:
             self.unit.equip(self.current_equipped)
 
+
 class UnequipItem(Action):
     def __init__(self, unit, item):
         self.unit = unit
@@ -838,10 +893,12 @@ class UnequipItem(Action):
         if self.is_equipped_weapon:
             self.unit.equip(self.item)
 
+
 class BringToTopItem(Action):
     """
     Assumes item is in inventory
     """
+
     def __init__(self, unit, item):
         self.unit = unit
         self.item = item
@@ -852,6 +909,7 @@ class BringToTopItem(Action):
 
     def reverse(self):
         self.unit.insert_item(self.old_idx, self.item)
+
 
 class TradeItem(Action):
     def __init__(self, unit1, unit2, item1, item2):
@@ -877,6 +935,7 @@ class TradeItem(Action):
     def reverse(self):
         self.swap(self.unit1, self.unit2, self.item2, self.item1, self.item_index2, self.item_index1)
 
+
 class RepairItem(Action):
     def __init__(self, item):
         self.item = item
@@ -895,6 +954,7 @@ class RepairItem(Action):
         if self.old_c_uses is not None and self.item.c_uses:
             self.item.data['c_uses'] = self.old_c_uses
 
+
 class SetObjData(Action):
     def __init__(self, obj, keyword, value):
         self.obj = obj
@@ -910,6 +970,7 @@ class SetObjData(Action):
     def reverse(self):
         if self.keyword in self.obj.data:
             self.obj.data[self.keyword] = self.old_value
+
 
 class GainMoney(Action):
     def __init__(self, party_nid, money):
@@ -929,6 +990,7 @@ class GainMoney(Action):
         party = game.parties.get(self.party_nid)
         party.money = self.old_money
 
+
 class GainExp(Action):
     def __init__(self, unit, exp_gain):
         self.unit = unit
@@ -941,14 +1003,17 @@ class GainExp(Action):
     def reverse(self):
         self.unit.set_exp(self.old_exp)
 
+
 class SetExp(GainExp):
     def do(self):
         self.unit.set_exp(self.exp_gain)
+
 
 class IncLevel(Action):
     """
     Assumes unit did not promote
     """
+
     def __init__(self, unit):
         self.unit = unit
 
@@ -957,6 +1022,7 @@ class IncLevel(Action):
 
     def reverse(self):
         self.unit.level -= 1
+
 
 class SetLevel(Action):
     def __init__(self, unit, level):
@@ -969,6 +1035,7 @@ class SetLevel(Action):
 
     def reverse(self):
         self.unit.level = self.old_level
+
 
 class AutoLevel(Action):
     def __init__(self, unit, diff):
@@ -986,6 +1053,7 @@ class AutoLevel(Action):
         self.unit.growth_points = self.old_growth_points
         self.unit.set_hp(self.old_hp)
 
+
 class GrowthPointChange(Action):
     def __init__(self, unit, old_growth_points, new_growth_points):
         self.unit = unit
@@ -997,6 +1065,7 @@ class GrowthPointChange(Action):
 
     def reverse(self):
         self.unit.growth_points = self.old_growth_points
+
 
 class ApplyStatChanges(Action):
     def __init__(self, unit, stat_changes):
@@ -1010,6 +1079,7 @@ class ApplyStatChanges(Action):
         negative_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_stat_changes(self.unit, negative_changes)
 
+
 class ApplyGrowthChanges(Action):
     def __init__(self, unit, stat_changes):
         self.unit = unit
@@ -1021,6 +1091,7 @@ class ApplyGrowthChanges(Action):
     def reverse(self):
         negative_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_growth_changes(self.unit, negative_changes)
+
 
 class Promote(Action):
     def __init__(self, unit, new_class_nid):
@@ -1081,6 +1152,7 @@ class Promote(Action):
             act.reverse()
         self.subactions.clear()
 
+
 class ClassChange(Action):
     def __init__(self, unit, new_class_nid):
         self.unit = unit
@@ -1131,6 +1203,7 @@ class ClassChange(Action):
             act.reverse()
         self.subactions.clear()
 
+
 class GainWexp(Action):
     def __init__(self, unit, item, wexp_gain):
         self.unit = unit
@@ -1162,6 +1235,7 @@ class GainWexp(Action):
             return
         self.unit.wexp[weapon_type] = self.old_value
 
+
 class AddWexp(Action):
     def __init__(self, unit, weapon_type, wexp_gain):
         self.unit = unit
@@ -1186,6 +1260,7 @@ class AddWexp(Action):
     def reverse(self):
         self.unit.wexp[self.weapon_type] = self.old_value
 
+
 class ChangeHP(Action):
     def __init__(self, unit, num):
         self.unit = unit
@@ -1198,6 +1273,7 @@ class ChangeHP(Action):
     def reverse(self):
         self.unit.set_hp(self.old_hp)
 
+
 class SetHP(Action):
     def __init__(self, unit, new_hp):
         self.unit = unit
@@ -1209,6 +1285,7 @@ class SetHP(Action):
 
     def reverse(self):
         self.unit.set_hp(self.old_hp)
+
 
 class Die(Action):
     def __init__(self, unit):
@@ -1243,6 +1320,7 @@ class Die(Action):
         if self.drop:
             self.drop.reverse()
 
+
 class Resurrect(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -1253,6 +1331,7 @@ class Resurrect(Action):
 
     def reverse(self):
         self.unit.dead = self.old_dead
+
 
 class UpdateRecords(Action):
     def __init__(self, record_type, data):
@@ -1265,6 +1344,7 @@ class UpdateRecords(Action):
     def reverse(self):
         game.records.pop(self.record_type)
 
+
 class ReverseRecords(Action):
     def __init__(self, record_type, data):
         self.record_type = record_type
@@ -1275,6 +1355,7 @@ class ReverseRecords(Action):
 
     def reverse(self):
         game.records.append(self.record_type, self.data)
+
 
 class IncrementSupportPoints(Action):
     def __init__(self, nid, points):
@@ -1296,6 +1377,7 @@ class IncrementSupportPoints(Action):
         pair.locked_ranks = self.saved_data['locked_ranks']
         pair.points_gained_this_chapter = int(self.saved_data['points_gained_this_chapter'])
         pair.ranks_gained_this_chapter = int(self.saved_data['ranks_gained_this_chapter'])
+
 
 class UnlockSupportRank(Action):
     def __init__(self, nid, rank):
@@ -1321,11 +1403,13 @@ class UnlockSupportRank(Action):
         if self.was_locked and self.rank not in pair.locked_ranks:
             pair.locked_ranks.append(self.rank)
 
+
 class LockAllSupportRanks(Action):
     """
     Done on death of a unit in the pair
     To free up slots for other units
     """
+
     def __init__(self, nid):
         self.nid = nid
         if self.nid not in game.supports.support_pairs:
@@ -1338,14 +1422,15 @@ class LockAllSupportRanks(Action):
         for rank in pair.unlocked_ranks:
             pair.locked_ranks.append(rank)
         pair.unlocked_ranks.clear()
-        
+
     def reverse(self):
         pair = game.supports.support_pairs[self.nid]
         for rank in self.unlocked_ranks:
             if rank in pair.locked_ranks:
                 pair.locked_ranks.remove(rank)
         pair.unlocked_ranks = self.unlocked_ranks
-        
+
+
 class ChangeAI(Action):
     def __init__(self, unit, ai):
         self.unit = unit
@@ -1362,6 +1447,7 @@ class ChangeAI(Action):
         if game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit)
 
+
 class ChangeAIGroup(Action):
     def __init__(self, unit, ai_group):
         self.unit = unit
@@ -1374,6 +1460,7 @@ class ChangeAIGroup(Action):
     def reverse(self):
         self.unit.ai_group = self.old_ai_group
 
+
 class AIGroupPing(Action):
     def __init__(self, unit):
         self.unit = unit
@@ -1384,6 +1471,7 @@ class AIGroupPing(Action):
 
     def reverse(self):
         self.unit.ai_group_active = self.old_ai_group_state
+
 
 class ChangeTeam(Action):
     def __init__(self, unit, team):
@@ -1420,6 +1508,7 @@ class ChangeTeam(Action):
             game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
+
 class ChangePortrait(Action):
     def __init__(self, unit, portrait_nid):
         self.unit = unit
@@ -1432,6 +1521,7 @@ class ChangePortrait(Action):
     def reverse(self):
         self.unit.portrait.nid = self.old_portrait
 
+
 class AddTag(Action):
     def __init__(self, unit, tag):
         self.unit = unit
@@ -1443,6 +1533,7 @@ class AddTag(Action):
     def reverse(self):
         if self.tag in self.unit._tags:
             self.unit._tags.remove(self.tag)
+
 
 class RemoveTag(Action):
     def __init__(self, unit, tag):
@@ -1459,6 +1550,7 @@ class RemoveTag(Action):
         if self.did_remove:
             self.unit._tags.append(self.tag)
 
+
 class AddTalk(Action):
     def __init__(self, unit1_nid, unit2_nid):
         self.unit1 = unit1_nid
@@ -1470,6 +1562,7 @@ class AddTalk(Action):
     def reverse(self):
         if (self.unit1, self.unit2) in game.talk_options:
             game.talk_options.remove((self.unit1, self.unit2))
+
 
 class RemoveTalk(Action):
     def __init__(self, unit1_nid, unit2_nid):
@@ -1486,6 +1579,7 @@ class RemoveTalk(Action):
         if self.did_remove:
             game.talk_options.append((self.unit1, self.unit2))
 
+
 class AddLore(Action):
     def __init__(self, lore_nid):
         self.lore_nid = lore_nid
@@ -1496,6 +1590,7 @@ class AddLore(Action):
     def reverse(self):
         if self.lore_nid in game.unlocked_lore:
             game.unlocked_lore.remove(self.lore_nid)
+
 
 class RemoveLore(Action):
     def __init__(self, lore_nid):
@@ -1510,6 +1605,7 @@ class RemoveLore(Action):
     def reverse(self):
         if self.did_remove:
             game.unlocked_lore.append(self.lore_nid)
+
 
 class AddRegion(Action):
     def __init__(self, region):
@@ -1539,6 +1635,7 @@ class AddRegion(Action):
                 act.reverse()
             game.level.regions.delete(self.region)
 
+
 class ChangeRegionCondition(Action):
     def __init__(self, region, condition):
         self.region = region
@@ -1550,6 +1647,7 @@ class ChangeRegionCondition(Action):
 
     def reverse(self):
         self.region.condition = self.old_condition
+
 
 class RemoveRegion(Action):
     def __init__(self, region):
@@ -1578,6 +1676,7 @@ class RemoveRegion(Action):
 
             for act in self.subactions:
                 act.reverse()
+
 
 class ShowLayer(Action):
     def __init__(self, layer_nid, transition):
@@ -1608,6 +1707,7 @@ class ShowLayer(Action):
         game.board.reset_grid(game.level.tilemap)
         game.boundary.reset()
 
+
 class HideLayer(Action):
     def __init__(self, layer_nid, transition):
         self.layer_nid = layer_nid
@@ -1637,6 +1737,7 @@ class HideLayer(Action):
         game.board.reset_grid(game.level.tilemap)
         game.boundary.reset()
 
+
 class AddWeather(Action):
     def __init__(self, weather_nid):
         self.weather_nid = weather_nid
@@ -1649,6 +1750,7 @@ class AddWeather(Action):
         if any(ps.nid == self.weather_nid for ps in game.tilemap.weather):
             bad_weather = [ps for ps in game.tilemap.weather if ps.nid == self.weather_nid]
             game.tilemap.weather.remove(bad_weather[0])
+
 
 class RemoveWeather(Action):
     def __init__(self, weather_nid):
@@ -1666,6 +1768,7 @@ class RemoveWeather(Action):
             new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height)
             game.tilemap.weather.append(new_ps)
 
+
 class ChangeObjective(Action):
     def __init__(self, key, string):
         self.key = key
@@ -1678,6 +1781,7 @@ class ChangeObjective(Action):
     def reverse(self):
         game.level.objective[self.key] = self.old_objective
 
+
 class OnlyOnceEvent(Action):
     def __init__(self, event_nid):
         self.event_nid = event_nid
@@ -1687,6 +1791,7 @@ class OnlyOnceEvent(Action):
 
     def reverse(self):
         game.already_triggered_events.remove(self.event_nid)
+
 
 class RecordRandomState(Action):
     def __init__(self, old, new):
@@ -1702,6 +1807,7 @@ class RecordRandomState(Action):
     def reverse(self):
         static_random.set_combat_random_state(self.old)
 
+
 class TriggerCharge(Action):
     def __init__(self, unit, skill):
         self.unit = unit
@@ -1715,6 +1821,7 @@ class TriggerCharge(Action):
     def reverse(self):
         if self.new_charge is not None:
             self.skill.data['charge'] = self.old_charge
+
 
 class AddSkill(Action):
     def __init__(self, unit, skill, initiator=None):
@@ -1773,10 +1880,11 @@ class AddSkill(Action):
         if self.skill_obj.aura and self.unit.position:
             aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
+
 class RemoveSkill(Action):
     def __init__(self, unit, skill):
         self.unit = unit
-        self.skill = skill # Skill obj or skill nid str
+        self.skill = skill  # Skill obj or skill nid str
         self.removed_skills = []
         self.old_owner_nid = None
         self.reset_action = ResetUnitVars(self.unit)
@@ -1817,6 +1925,25 @@ class RemoveSkill(Action):
             if skill.aura and self.unit.position:
                 aura_funcs.propagate_aura(self.unit, skill, game)
 
+
+class GiveBexp(Action):
+    def __init__(self, party_nid, bexp):
+        self.party_nid = party_nid
+        self.bexp = bexp
+        self.old_bexp = None
+
+    def do(self):
+        party = game.parties.get(self.party_nid)
+        self.old_bexp = party.bexp
+        # Can't go below zero
+        if party.bexp + self.bexp < 0:
+            self.bexp = -party.bexp
+        party.bexp += self.bexp
+
+    def reverse(self):
+        party = game.parties.get(self.party_nid)
+        party.bexp = self.old_bexp
+
 # === Master Functions for adding to the action log ===
 def do(action):
     from app.engine.game_state import game
@@ -1826,12 +1953,14 @@ def do(action):
     if game.action_log.record and game.action_log.action_depth <= 0:
         game.action_log.append(action)
 
+
 def execute(action):
     game.action_log.action_depth += 1
     action.execute()
     game.action_log.action_depth -= 1
     if game.action_log.record and game.action_log.action_depth <= 0:
         game.action_log.append(action)
+
 
 def reverse(action):
     game.action_log.action_depth += 1

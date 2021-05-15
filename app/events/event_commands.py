@@ -530,6 +530,14 @@ class GiveMoney(EventCommand):
     optional_keywords = ["Party"]
     flags = ['no_banner']
 
+class GiveBexp(EventCommand):
+    nid = 'give_bexp'
+    tag = 'Game-wide Unlocks and Variables'
+
+    keywords = ["Condition"]
+    optional_keywords = ["Party", "String"]
+    flags = ['no_banner']
+
 class GiveExp(EventCommand):
     nid = 'give_exp'
     tag = "Modify Unit Properties"

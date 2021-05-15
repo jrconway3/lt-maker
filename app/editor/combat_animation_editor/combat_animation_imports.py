@@ -47,7 +47,7 @@ def import_from_lion_throne(current, fn):
                 pix = QPixmap(image_fn)
                 palette_colors = editor_utilities.find_palette(pix.toImage())
                 new_palette = combat_palettes.Palette(palette_nid)
-                colors = {(int(idx / 8), idx % 8): color for idx, color in enumerate(palette_colors)}
+                colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(palette_colors)}
                 new_palette.colors = colors
                 RESOURCES.combat_palettes.append(new_palette)
             current.palettes.append([palette_name, palette_nid])

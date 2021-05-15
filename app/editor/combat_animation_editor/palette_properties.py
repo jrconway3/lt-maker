@@ -147,7 +147,7 @@ class ColorSelectorWidget(QGraphicsView):
 
     def set_current_color(self, color: QColor):
         if self.current_palette and self.current_color:
-            self.current_palette.colors[self.current_color] = color.getRgb()
+            self.current_palette.colors[self.current_color] = tuple(color.getRgb()[:3])
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -155,6 +155,7 @@ class ColorSelectorWidget(QGraphicsView):
             int(scene_pos.y() // self.palette_size)
 
         if event.button() == Qt.LeftButton:
+            print(tile_pos)
             self.current_color = tile_pos
             self.selectionChanged.emit(self.current_palette.colors.get(self.current_color))
 

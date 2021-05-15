@@ -1117,6 +1117,7 @@ class TileSetView(MapEditorView):
 
         self.tileset = None
         self.current_mouse_position = (0, 0)
+        self.old_middle_pos = None
         self.left_selecting = None
         self.current_coords = set()
 
@@ -1178,6 +1179,8 @@ class TileSetView(MapEditorView):
                 self.left_selecting = tile_pos
                 self.window.window.void_right_selection()
                 self.current_coords.clear()
+            elif event.button() == Qt.MiddleButton:
+                self.old_middle_pos = event.pos()
 
     def find_coords(self):
         self.current_coords.clear()
@@ -1200,6 +1203,12 @@ class TileSetView(MapEditorView):
             self.current_mouse_position = tile_pos
             self.find_coords()
             self.update_view()
+        elif event.buttons() & Qt.MiddleButton:
+            offset = self.old_middle_pos - event.pos()
+            self.old_middle_pos = event.pos()
+
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + offset.y())
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + offset.x())
             
     def mouseReleaseEvent(self, event):
         scene_pos = self.mapToScene(event.pos())

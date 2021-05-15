@@ -5,10 +5,9 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
     QLabel, QToolButton, QInputDialog
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter
+from PyQt5.QtGui import QImage, QPixmap, QIcon, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.resources import combat_anims
 
@@ -16,30 +15,15 @@ from app.editor.settings import MainSettingsController
 
 from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
-from app.editor.base_database_gui import DatabaseTab
 from app.editor.combat_animation_editor.palette_menu import PaletteMenu
 from app.editor.combat_animation_editor.timeline_menu import TimelineMenu
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
-from app.editor.combat_animation_editor.combat_animation_model import CombatAnimModel, palette_swap
+from app.editor.combat_animation_editor.combat_animation_model import palette_swap
 import app.editor.combat_animation_editor.combat_animation_imports as combat_animation_imports
-from app.extensions.custom_gui import ResourceListView, ComboBox
+from app.extensions.custom_gui import ComboBox
 
 import app.editor.utilities as editor_utilities
 from app import utilities
-
-class CombatAnimDisplay(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = RESOURCES.combat_anims
-        title = "Combat Animation"
-        right_frame = CombatAnimProperties
-        collection_model = CombatAnimModel
-        deletion_criteria = None
-
-        dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...",
-                     view_type=ResourceListView)
-        return dialog
                 
 class CombatAnimProperties(QWidget):
     def __init__(self, parent, current=None):

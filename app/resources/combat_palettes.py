@@ -17,7 +17,7 @@ class Palette(Prefab):
     @classmethod
     def restore(cls, s):
         self = cls(s[0])
-        self.colors = {k: v for k, v in s[1].copy()}
+        self.colors = {tuple(k): tuple(v) for k, v in s[1].copy()}
         return self
 
 class PaletteCatalog(ManifestCatalog):

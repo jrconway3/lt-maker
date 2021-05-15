@@ -16,7 +16,7 @@ from app.editor import utilities as editor_utilities
 def palette_swap(pixmap, palette_nid):
     palette = RESOURCES.combat_palettes.get(palette_nid)
     im = pixmap.toImage()
-    conv_dict = {qRgb(0, *coord): qRgb(*color) for coord, color in palette.colors.items()}
+    conv_dict = {qRgb(0, *coord): qRgb(*color[:3]) for coord, color in palette.colors.items()}
     im = editor_utilities.color_convert(im, conv_dict)
     im = editor_utilities.convert_colorkey(im)
     return im

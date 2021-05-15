@@ -4577,5 +4577,38 @@
         "commands": [],
         "only_once": false,
         "priority": 20
+    },
+    {
+        "name": "TalkEvent",
+        "trigger": "on_talk",
+        "level_nid": "0",
+        "condition": "unit2.nid == 'Eirika'",
+        "commands": [
+            [
+                "multi_add_portrait",
+                [
+                    "Ross",
+                    "Right",
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Hello"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Hi"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
     }
 ]

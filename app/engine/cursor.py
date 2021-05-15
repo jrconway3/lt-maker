@@ -343,6 +343,12 @@ class Cursor():
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
 
+        if INPUT.just_pressed('SELECT') and self.roaming and self.roaming_unit:
+            talkable = self.roamer_can_talk(self.roaming_unit)
+            if talkable:
+                game.events.trigger('on_talk', self.roaming_unit, talkable)
+
+
         if self.delay > 0:
             self.delay -= 1
             if self.delay == 0:
@@ -362,6 +368,20 @@ class Cursor():
                 self.move(dpos[0], dpos[1], mouse=True, sound=bool(mouse_position))
                 game.camera.cursor_x(self.position[0])
                 game.camera.cursor_y(self.position[1])
+
+    def roamer_can_talk(self, u1):
+        """Returns whether there is a unit close enough to talk. Returns the first unit it finds
+        or False if there are no good targets
+        """
+        u1_pos = u1.position
+        if u1_pos:
+            for u in game.units:
+                if u.position and u1_pos and u1 != u and \
+                        (abs(u1_pos[0] - u.position[0]) <= 0.5 or \
+                        abs(u1_pos[1] - u.position[1]) <= 0.5) and \
+                        u.team == 'player' or u.team == 'other':
+                    return u
+        return False
 
     def update(self):
         self.cursor_counter.update(engine.get_time())

@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from app.data.database import DB
 
 from app.extensions.custom_gui import SimpleDialog, PropertyBox, PropertyCheckBox, QHLine
-from app.editor.custom_widgets import UnitBox, PartyBox
+from app.editor.custom_widgets import RoamerBox, PartyBox
 from app.utilities import str_utils
 from app.editor.unit_editor import unit_tab
 from app.editor.sound_editor import sound_tab
@@ -80,7 +80,7 @@ class PropertiesMenu(QWidget):
         self.free_roam_box.edit.stateChanged.connect(self.free_roam_changed)
         form.addWidget(self.free_roam_box)
 
-        self.unit_box = UnitBox(self, button=True)
+        self.unit_box = RoamerBox(self, button=True)
         self.unit_box.edit.currentIndexChanged.connect(self.unit_changed)
         self.unit_box.button.clicked.connect(self.access_units)
         form.addWidget(self.unit_box)

@@ -143,7 +143,9 @@ class FreeState(MapState):
                         SOUNDTHREAD.play_sfx('Error')
             else:
                 SOUNDTHREAD.play_sfx('Select 2')
-                game.state.change('option_menu')
+                roaming_unit = game.cursor.roaming_unit
+                if not roaming_unit or not game.cursor.roamer_can_talk(roaming_unit):
+                    game.state.change('option_menu')
 
         elif event == 'BACK':
             pass

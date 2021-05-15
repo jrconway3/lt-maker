@@ -81,7 +81,7 @@ def import_from_lion_throne(current, fn):
 
     # Need to build full image file now
     sprite_sheet = QPixmap(main_pixmap.width(), main_pixmap.height())
-    sprite_sheet.fill(QColor(editor_utilities.qCOLORKEY))
+    sprite_sheet.fill(QColor(0, 0, 0))
     painter = QPainter()
     painter.begin(sprite_sheet)
     for frame in new_weapon.frames:

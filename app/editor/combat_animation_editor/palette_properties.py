@@ -1,17 +1,19 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColorDialog, QVBoxLayout, \
     QGraphicsView, QGraphicsScene, QLineEdit, QLabel, QSizePolicy, QPushButton, \
-    QSpinBox, QMessageBox
+    QSpinBox, QMessageBox, QDialog
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
+from app.resources.resources import RESOURCES
 
 from app.editor import timer
 from app.utilities import utils, str_utils
-from app.extensions.custom_gui import PropertyBox
+from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.extensions.color_icon import ColorIcon
 from app.extensions.color_slider import RGBSlider, HSVSlider
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
+from app.editor.combat_animation_editor import combat_animation_model
 from app.resources.combat_anims import Frame
 from app.resources.combat_palettes import Palette
 from app.editor.icon_editor.icon_view import IconView
@@ -456,6 +458,46 @@ class ColorEditorWidget(QWidget):
 
             self.colorChanged.emit(color)
 
+class WeaponAnimSelection(Dialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.window = parent
+
+        main_layout = QVBoxLayout()
+        self.setLayout(main_layout)
+
+        self.current_combat_anim = None
+
+        self.combat_box = PropertyBox("Combat Animations", ComboBox, self)
+        self.combat_box.edit.addItems(RESOURCES.combat_anims.keys())
+        self.current_combat_anim = RESOURCES.combat_anims[0]
+        self.combat_box.edit.currentIndexChanged.connect(self.combat_changed)
+        
+        self.weapon_box = PropertyBox("Weapon Animations", ComboBox, self)
+        if RESOURCES.combat_anims:
+            weapon_anims = self.current_combat_anim.weapon_anims
+            self.weapon_box.edit.addItems(weapon_anims.keys())
+
+        main_layout.addWidget(self.combat_box)
+        main_layout.addWidget(self.weapon_box)
+        main_layout.addWidget(self.buttonbox)
+
+    def combat_changed(self, idx):
+        combat_text = self.combat_box.currentText()
+        self.current_combat_anim = RESOURCES.combat_anims.get(combat_text)
+        self.weapon_box.edit.clear()
+        weapon_anims = self.current_combat_anim.weapon_anims
+        self.weapon_box.edit.addItems(weapon_anims[0])
+
+    @classmethod
+    def get(cls, parent):
+        dlg = cls(parent)
+        result = dlg.exec_()
+        if result == QDialog.Accepted:
+            return dlg.combat_box.edit.currentText(), dlg.weapon_box.edit.currentText()
+        else:
+            return None, None
+
 class PaletteProperties(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -464,8 +506,6 @@ class PaletteProperties(QWidget):
         self.model = self.window.left_frame.model
 
         self.current_palette = None
-        self.current_combat_anim = None
-        self.current_weapon_anim = None
         self.current_frame = None
 
         self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
@@ -532,13 +572,15 @@ class PaletteProperties(QWidget):
                 self.color_editor_widget.setEnabled(False)
             self.draw_frame()
 
-    def set_current_combat_anim(self, combat_anim, weapon_anim):
-        self.current_combat_anim = combat_anim
-        self.current_weapon_anim = weapon_anim
+    def get_current_palette(self):
+        return self.current_palette.nid
 
     def select_frame(self):
-        if self.current_combat_anim and self.current_weapon_anim:
-            frame, ok = FrameSelector.get(self.current_combat_anim, self.current_weapon_anim, self)
+        combat_anim_nid, weapon_anim_nid = WeaponAnimSelection.get(self)
+        combat_anim = RESOURCES.combat_anims.get(combat_anim_nid)
+        weapon_anim = combat_anim.weapon_anims.get(weapon_anim_nid)
+        if combat_anim and weapon_anim:
+            frame, ok = FrameSelector.get(combat_anim, weapon_anim, self)
             if frame and ok:
                 self.current_frame = frame
                 self.color_selector_widget.set_current(self.current_palette, self.current_frame)
@@ -559,5 +601,13 @@ class PaletteProperties(QWidget):
 
     def draw_frame(self):
         if self.current_frame:
-            self.raw_view.set_image(self.current_frame.pixmap)
+            im = combat_animation_model.palette_swap(self.current_frame.pixmap, self.get_current_palette())
+            base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+            base_image.fill(editor_utilities.qCOLORKEY)
+            painter = QPainter()
+            painter.begin(base_image)
+            offset_x, offset_y = self.current_frame.offset
+            painter.drawImage(offset_x, offset_y, im)
+            painter.end()
+            self.raw_view.set_image(QPixmap.fromImage(base_image))
             self.raw_view.show_image()

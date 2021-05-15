@@ -86,7 +86,7 @@ class CombatAnimation():
         s_dict['nid'] = self.nid
         s_dict['weapon_anims'] = [weapon_anim.save() for weapon_anim in self.weapon_anims]
         s_dict['palettes'] = self.palettes[:]
-        return s_dict
+        return s_dict 
 
     @classmethod
     def restore(cls, s_dict):

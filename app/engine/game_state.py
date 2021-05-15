@@ -119,7 +119,7 @@ class GameState():
         self.boundary = None
         self.generic()
         logging.debug("Starting Level %s", level_nid)
-        
+
         from app.engine.objects.level import LevelObject
         from app.engine.objects.tilemap import TileMapObject
         from app.engine.objects.party import PartyObject
@@ -278,7 +278,7 @@ class GameState():
         if s_dict['level']:
             logger.info("Loading Level...")
             self.current_level = LevelObject.restore(s_dict['level'], self)
-            self.set_up_game_board(self.current_level.tilemap)           
+            self.set_up_game_board(self.current_level.tilemap)
 
             self.generic()
 
@@ -299,7 +299,7 @@ class GameState():
 
         self.game_vars['_current_turnwheel_uses'] = \
             self.game_vars.get('_max_turnwheel_uses', -1)
-            
+
         for unit in self.unit_registry.values():
             self.leave(unit)
         for unit in self.unit_registry.values():
@@ -312,7 +312,7 @@ class GameState():
             unit.position = None
             unit.sprite.change_state('normal')
             unit.reset()
-        
+
         for item in self.item_registry.values():
             unit = None
             if item.owner_nid:
@@ -341,7 +341,7 @@ class GameState():
                     if v.parent_skill.owner_nid not in self.unit_registry:
                         del self.skill_registry[k]
                 else:
-                    del self.skill_registry[k]                        
+                    del self.skill_registry[k]
             elif v.owner_nid:  # Remove skills from units that no longer exist
                 if v.owner_nid not in self.unit_registry:
                     del self.skill_registry[k]
@@ -482,12 +482,12 @@ class GameState():
         # 1. removing the unit from the boundary manager
         # 2. Removes any auras from the unit's skill list, since they will no longer be on the map
         # 3. Removes any of the unit's own auras from the map
-        # 4. Removes any status/skills that the terrain or regions on the map are giving 
+        # 4. Removes any status/skills that the terrain or regions on the map are giving
         # the unit
         #
         # If "test" is True, some of these are skipped, such as removing the unit from
         # the boundary manager and registering these actions with the action_log
-        # Set "test" to True when you are just testing what would happen by moving 
+        # Set "test" to True when you are just testing what would happen by moving
         # to a position (generally used for AI)
         """
         from app.engine import action, aura_funcs
@@ -539,11 +539,11 @@ class GameState():
         # 1. adding the unit to the boundary manager
         # 2. adding any auras from that the unit should be affected by to the the unit's skill list
         # 3. Adding any of the unit's own auras to other units
-        # 4. Adding any status/skills that the terrain or regions on the map are giving 
+        # 4. Adding any status/skills that the terrain or regions on the map are giving
         #
         # If "test" is True, some of these are skipped, such as adding the unit to
         # the boundary manager and registering these actions with the action_log
-        # Set "test" to True when you are just testing what would happen by moving 
+        # Set "test" to True when you are just testing what would happen by moving
         # to a position (generally used for AI)
         """
         from app.engine import skill_system, aura_funcs

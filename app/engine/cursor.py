@@ -2,9 +2,11 @@ from app.counters import generic3counter
 from app.utilities import utils
 from app.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
 
+from app.data.database import DB
+
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, target_system, skill_system
+from app.engine import engine, target_system, skill_system, movement
 from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine.input_manager import INPUT
@@ -33,6 +35,9 @@ class Cursor():
         self.stopped_at_move_border = False
 
         self.mouse_mode: bool = False
+
+        self.move_checker = movement.MovementManager()
+        self.roaming_sprite = None
 
     def get_hover(self):
         unit = game.board.get_unit(self.position)
@@ -204,11 +209,44 @@ class Cursor():
         self._display_arrows = False
         self.arrows.clear()
 
+    def roamer_can_move(self, unit, dir: str) -> bool:
+        '''Four directions, LEFT, RIGHT, DOWN, and UP'''
+        if unit:
+            if dir == 'LEFT':
+                check_x = int(round(self.position[0] - 0.4))
+                check_y = int(round(self.position[1]))
+                return self.move_checker.get_mcost(unit,
+                (check_x, check_y)) < 99
+            elif dir == 'RIGHT':
+                check_x = int(round(self.position[0] + 0.4))
+                check_y = int(round(self.position[1]))
+                return self.move_checker.get_mcost(unit,
+                (check_x, check_y)) < 99
+            elif dir == 'UP':
+                check_x = int(round(self.position[0]))
+                check_y = int(round(self.position[1] - 0.4))
+                return self.move_checker.get_mcost(unit,
+                (check_x, check_y)) < 99
+            elif dir == 'DOWN':
+                check_x = int(round(self.position[0]))
+                check_y = int(round(self.position[1] + 0.4))
+                return self.move_checker.get_mcost(unit,
+                (check_x, check_y)) < 99
+        return True
+
     def take_input(self):
         self.roaming = game.current_level.roam
+        self.roaming_unit = None
+        for u in game.units:
+            if u.nid == game.current_level.roam_unit:
+                self.roaming_unit = u
         if self.roaming:
             self.fluid.update_speed(32)
         self.fluid.update()
+
+        if self.roaming_unit:
+            self.roaming_unit.position = self.position
+
         if self.stopped_at_move_border:
             directions = self.fluid.get_directions(double_speed=self.speed_state, slow_speed=True)
         else:
@@ -240,14 +278,20 @@ class Cursor():
         # Handle keyboard first
         if 'LEFT' in directions and self.position[0] > 0:
             if self.roaming:
-                self.move(-0.2, 0)
+                if self.roamer_can_move(self.roaming_unit, 'LEFT'):
+                    self.move(-0.2, 0)
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
             else:
                 self.move(-1, 0)
             game.camera.cursor_x(self.position[0])
             self.mouse_mode = False
         elif 'RIGHT' in directions and self.position[0] < game.tilemap.width - 1:
             if self.roaming:
-                self.move(0.2, 0)
+                if self.roamer_can_move(self.roaming_unit, 'RIGHT'):
+                    self.move(0.2, 0)
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
             else:
                 self.move(1, 0)
             game.camera.cursor_x(self.position[0])
@@ -255,14 +299,20 @@ class Cursor():
 
         if 'UP' in directions and self.position[1] > 0:
             if self.roaming:
-                self.move(0, -0.2)
+                if self.roamer_can_move(self.roaming_unit, 'UP'):
+                    self.move(0, -0.2)
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
             else:
                 self.move(0, -1)
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
         elif 'DOWN' in directions and self.position[1] < game.tilemap.height - 1:
             if self.roaming:
-                self.move(0, 0.2)
+                if self.roamer_can_move(self.roaming_unit, 'DOWN'):
+                    self.move(0, 0.2)
+                else:
+                    SOUNDTHREAD.play_sfx('Error')
             else:
                 self.move(0, 1)
             game.camera.cursor_y(self.position[1])

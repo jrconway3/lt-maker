@@ -5,7 +5,7 @@
         "tilemap": "Prologue",
         "party": "Eirika",
         "roam": true,
-        "roam_unit": "Garcia",
+        "roam_unit": "Vanessa",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -101,6 +101,22 @@
                     8
                 ],
                 "generic": false
+            },
+            {
+                "nid": "Ross",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
+            },
+            {
+                "nid": "Vanessa",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
             }
         ],
         "regions": [],
@@ -134,8 +150,8 @@
         "name": "Ch. 1: Escape!",
         "tilemap": "Chapter 1",
         "party": "Eirika",
-        "roam": null,
-        "roam_unit": null,
+        "roam": false,
+        "roam_unit": "1",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -591,7 +607,7 @@
         "tilemap": "Chapter 2",
         "party": "Eirika",
         "roam": false,
-        "roam_unit": null,
+        "roam_unit": "2",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",

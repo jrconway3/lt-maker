@@ -111,9 +111,10 @@ class GameBoard(object):
             self.team_grid[idx].remove(unit.team)
 
     def get_unit(self, pos):
-        if not pos or game.current_level.roam:
+        if not pos:
             return None
         idx = pos[0] * self.height + pos[1]
+        idx = int(round(idx))
         if self.unit_grid[idx]:
             return self.unit_grid[idx][0]
         return None

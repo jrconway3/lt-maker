@@ -198,7 +198,7 @@ class UnitSprite():
         elif self.transition_state == 'warp_out':
             SOUNDTHREAD.play_sfx('Warp')
             self.fake_position = self.unit.position
-            self.add_warp_anim('warp_out')     
+            self.add_warp_anim('warp_out')
             self.begin_flicker(self.transition_time, (255, 255, 255))
             self.add_warp_flowers()
         elif self.transition_state == 'warp_move':
@@ -274,7 +274,8 @@ class UnitSprite():
         if self.state == 'normal':
             if self.unit.finished and not self.unit.is_dying:
                 self.image_state = 'gray'
-            elif game.cursor.draw_state and game.cursor.position == self.unit.position and self.unit.team == 'player':
+            elif game.cursor.draw_state and game.cursor.position == self.unit.position and self.unit.team == 'player' \
+                    and not game.current_level.roam:
                 self.image_state = 'active'
             else:
                 self.image_state = 'passive'
@@ -371,7 +372,7 @@ class UnitSprite():
         current_time = engine.get_time()
         image = self.create_image(self.image_state)
         left, top = self.get_topleft(cull_rect)
-        
+
         anim_top = top
 
         self.vibrate_counter += 1
@@ -430,7 +431,7 @@ class UnitSprite():
                 diff = current_time % length
                 if diff > length // 2:
                     diff = length - diff
-                diff = utils.clamp(255. * diff / length * 2, 0, 255) 
+                diff = utils.clamp(255. * diff / length * 2, 0, 255)
                 color = (0, int(diff * .5), 0)  # Tint image green at magnitude depending on diff
                 image = image_mods.change_color(image.convert_alpha(), color)
 
@@ -471,7 +472,7 @@ class UnitSprite():
         if not cur_unit:
             return surf
         map_markers = SPRITES.get('map_markers')
-        
+
         left, top = self.get_topleft(cull_rect)
         topleft = (left - 2, top - 14)
 

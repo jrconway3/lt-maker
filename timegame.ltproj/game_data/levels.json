@@ -5,7 +5,7 @@
         "tilemap": "Prologue",
         "party": "Eirika",
         "roam": true,
-        "roam_unit": "Vanessa",
+        "roam_unit": "Ross",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",

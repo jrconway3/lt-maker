@@ -38,11 +38,13 @@ class Cursor():
 
         self.move_checker = movement.MovementManager()
         self.roaming_sprite = None
+        self.delay = 0
 
     def get_hover(self):
-        unit = game.board.get_unit(self.position)
-        if unit and 'Tile' not in unit.tags and game.board.in_vision(unit.position):
-            return unit
+        if not game.current_level.roam:
+            unit = game.board.get_unit(self.position)
+            if unit and 'Tile' not in unit.tags and game.board.in_vision(unit.position):
+                return unit
         return None
 
     def hide(self):
@@ -216,22 +218,33 @@ class Cursor():
                 check_x = int(round(self.position[0] - 0.4))
                 check_y = int(round(self.position[1]))
                 return self.move_checker.get_mcost(unit,
-                (check_x, check_y)) < 99
+                (check_x, check_y)) < 99 and self.no_bumps(check_x, check_y)
             elif dir == 'RIGHT':
                 check_x = int(round(self.position[0] + 0.4))
                 check_y = int(round(self.position[1]))
                 return self.move_checker.get_mcost(unit,
-                (check_x, check_y)) < 99
+                (check_x, check_y)) < 99 and self.no_bumps(check_x, check_y)
             elif dir == 'UP':
                 check_x = int(round(self.position[0]))
                 check_y = int(round(self.position[1] - 0.4))
                 return self.move_checker.get_mcost(unit,
-                (check_x, check_y)) < 99
+                (check_x, check_y)) < 99 and self.no_bumps(check_x, check_y)
             elif dir == 'DOWN':
                 check_x = int(round(self.position[0]))
                 check_y = int(round(self.position[1] + 0.4))
                 return self.move_checker.get_mcost(unit,
-                (check_x, check_y)) < 99
+                (check_x, check_y)) < 99 and self.no_bumps(check_x, check_y)
+        return True
+
+    def no_bumps(self, x: int, y: int) -> bool:
+        '''Used to detect if the space is occupied by an impassable unit'''
+        new_pos = (x, y)
+        if game.board.get_unit(new_pos):
+            other_team = game.board.get_team(new_pos)
+            if not other_team or utils.compare_teams(self.roaming_unit.team, other_team):
+                return True # Allies, this is fine
+            else:  # Enemies
+                return False
         return True
 
     def take_input(self):
@@ -278,8 +291,11 @@ class Cursor():
         # Handle keyboard first
         if 'LEFT' in directions and self.position[0] > 0:
             if self.roaming:
+                self.delay = 10
                 if self.roamer_can_move(self.roaming_unit, 'LEFT'):
                     self.move(-0.2, 0)
+                    self.roaming_unit.sprite.change_state('moving')
+                    self.roaming_unit.sprite.handle_net_position((-0.2, 0))
                 else:
                     SOUNDTHREAD.play_sfx('Error')
             else:
@@ -287,9 +303,12 @@ class Cursor():
             game.camera.cursor_x(self.position[0])
             self.mouse_mode = False
         elif 'RIGHT' in directions and self.position[0] < game.tilemap.width - 1:
+            self.delay = 10
             if self.roaming:
                 if self.roamer_can_move(self.roaming_unit, 'RIGHT'):
                     self.move(0.2, 0)
+                    self.roaming_unit.sprite.change_state('moving')
+                    self.roaming_unit.sprite.handle_net_position((0.2, 0))
                 else:
                     SOUNDTHREAD.play_sfx('Error')
             else:
@@ -298,9 +317,12 @@ class Cursor():
             self.mouse_mode = False
 
         if 'UP' in directions and self.position[1] > 0:
+            self.delay = 10
             if self.roaming:
                 if self.roamer_can_move(self.roaming_unit, 'UP'):
                     self.move(0, -0.2)
+                    self.roaming_unit.sprite.change_state('moving')
+                    self.roaming_unit.sprite.handle_net_position((0, -0.2))
                 else:
                     SOUNDTHREAD.play_sfx('Error')
             else:
@@ -308,15 +330,23 @@ class Cursor():
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
         elif 'DOWN' in directions and self.position[1] < game.tilemap.height - 1:
+            self.delay = 10
             if self.roaming:
                 if self.roamer_can_move(self.roaming_unit, 'DOWN'):
                     self.move(0, 0.2)
+                    self.roaming_unit.sprite.change_state('moving')
+                    self.roaming_unit.sprite.handle_net_position((0, 0.2))
                 else:
                     SOUNDTHREAD.play_sfx('Error')
             else:
                 self.move(0, 1)
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
+
+        if self.delay > 0:
+            self.delay -= 1
+            if self.delay == 0:
+                self.roaming_unit.sprite.change_state('normal')
 
         # Handle mouse
         mouse_position = INPUT.get_mouse_position()
@@ -363,7 +393,8 @@ class Cursor():
             x, y = self.position
             left = x * TILEWIDTH - max(0, (self.image.get_width() - 16)//2) - self.offset_x
             top = y * TILEHEIGHT - max(0, (self.image.get_height() - 16)//2) - self.offset_y
-            surf.blit(self.image, (left - cull_rect[0], top - cull_rect[1]))
+            if not game.current_level.roam:
+                surf.blit(self.image, (left - cull_rect[0], top - cull_rect[1]))
 
             # Now reset offset
             num = 8 if self.speed_state else 4

@@ -1,7 +1,9 @@
+from app.engine.game_state import game
 from app.utilities import utils
 from app.data.database import DB
 from app.data import weapons
-from app.engine import equations, item_system, item_funcs, skill_system
+from app.engine import equations, item_system, item_funcs, skill_system, game_state
+
 
 def get_weapon_rank_bonus(unit, item):
     weapon_type = item_system.weapon_type(unit, item)
@@ -122,6 +124,10 @@ def accuracy(unit, item=None):
         accuracy += float(bonus.accuracy)
     accuracy = int(accuracy)
 
+    if DB.constants.value('lead'):
+        stars = sum(u.stats['LEAD'] for u in game.get_all_units() if u.team == unit.team)
+        accuracy += stars * equations.parser.lead_hit(unit)
+
     accuracy += item_system.modify_accuracy(unit, item)
     accuracy += skill_system.modify_accuracy(unit, item)
 
@@ -140,6 +146,10 @@ def avoid(unit, item, item_to_avoid=None):
     for bonus in support_rank_bonuses:
         avoid += float(bonus.avoid)
     avoid = int(avoid)
+
+    if DB.constants.value('lead'):
+        target_stars = sum(u.stats['LEAD'] for u in game.get_all_units() if u.team == unit.team)
+        avoid += target_stars * equations.parser.lead_avoid(unit)
 
     if item:
         avoid += item_system.modify_avoid(unit, item)
@@ -316,6 +326,7 @@ def compute_hit(unit, target, item, def_item, mode):
         triangle_bonus -= int(disadv.avoid)
     hit += triangle_bonus
 
+
     # Three Houses style support bonus (only works on attack)
     if mode in ('attack', 'splash'):
         # Attacker's accuracy bonus
@@ -328,6 +339,7 @@ def compute_hit(unit, target, item, def_item, mode):
         for bonus in support_rank_bonuses:
             hit -= float(bonus.avoid)
     hit = int(hit)
+
 
     hit -= avoid(target, def_item, item)
 

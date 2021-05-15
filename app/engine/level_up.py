@@ -20,8 +20,13 @@ class ExpState(State):
 
     def start(self):
         if game.exp_instance:
-            self.unit, self.exp_gain, self.combat_object, self.starting_state = \
-                game.exp_instance.pop()
+            if len(game.exp_instance[0]) < 5:
+                self.unit, self.exp_gain, self.combat_object, self.starting_state = \
+                    game.exp_instance.pop()
+                self.method = 'default'
+            else:
+                self.unit, self.exp_gain, self.combat_object, self.starting_state, self.method = \
+                    game.exp_instance.pop()
         else:
             game.state.back()
             return 'repeat'
@@ -153,7 +158,7 @@ class ExpState(State):
             # Extra time to account for pause at end
             if current_time - self.start_time >= self.total_time_for_exp + 333:
                 old_growth_points = self.unit.growth_points.copy()
-                self.stat_changes = unit_funcs.get_next_level_up(self.unit)
+                self.stat_changes = unit_funcs.get_next_level_up(self.unit, self.method)
                 action.do(action.GrowthPointChange(self.unit, old_growth_points, self.unit.growth_points))
                 action.do(action.IncLevel(self.unit))
                 action.do(action.ApplyStatChanges(self.unit, self.stat_changes))

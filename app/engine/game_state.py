@@ -159,6 +159,7 @@ class GameState():
             self.arrive(unit)
 
         if DB.constants.get('timeline').value:
+            self.timeline_position = 0
             self.timeline = self.create_timeline([])
 
     def create_timeline(self, t) -> list:

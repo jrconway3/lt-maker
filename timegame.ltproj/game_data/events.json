@@ -73,7 +73,7 @@
             [
                 "flicker_cursor",
                 [
-                    "13,6"
+                    "12,4"
                 ]
             ],
             [
@@ -4305,7 +4305,7 @@
                 "speak",
                 [
                     "Ross",
-                    "Hmm, I feel like there's more to do here."
+                    "Hmm, I feel like there's more to do here.{w}{br} I should go check out those bones."
                 ]
             ]
         ],

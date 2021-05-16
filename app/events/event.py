@@ -2259,6 +2259,7 @@ class Event():
             if change.lower() in self.true_vals:
                 game.current_level.roam = True
             else:
+                game.cursor.rationalize()
                 game.current_level.roam = False
 
     def parse_pos(self, text):

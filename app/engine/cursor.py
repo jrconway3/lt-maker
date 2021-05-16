@@ -44,6 +44,7 @@ class Cursor():
         if not game.current_level.roam:
             unit = game.board.get_unit(self.position)
             if unit and 'Tile' not in unit.tags and game.board.in_vision(unit.position):
+                print(unit)
                 return unit
         return None
 
@@ -248,6 +249,15 @@ class Cursor():
             else:  # Enemies
                 return False
         return True
+
+    def rationalize(self) -> None:
+        '''Moves both the cursor and roaming_unit positions into the tile grid'''
+        if self.position:
+            self.position = (int(round(self.position[0])), int(round(self.position[1])))
+        for u in game.units:
+            if u.position and (isinstance(u.position[0], float) or isinstance(u.position[1], float)):
+                u.position = (int(round(u.position[0])), int(round(u.position[1])))
+                game.board.set_unit(u.position, u)
 
     def take_input(self):
         self.roaming = game.current_level.roam

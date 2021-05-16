@@ -6,7 +6,7 @@ from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, target_system, skill_system, movement
+from app.engine import engine, target_system, skill_system, movement, evaluate
 from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine.input_manager import INPUT
@@ -96,6 +96,8 @@ class Cursor():
         self.roaming = game.current_level.roam
         if self.roaming:
             self.fluid.update_speed(32)
+        else:
+            self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
 
         # Cursor Sound
         if mouse:
@@ -106,7 +108,7 @@ class Cursor():
                 SOUNDTHREAD.play_sfx('Select 5')
         else:
             SOUNDTHREAD.stop_sfx('Select 5')
-            if sound:
+            if sound and not self.roaming:
                 SOUNDTHREAD.play_sfx('Select 5')
 
         if game.highlight.check_in_move(self.position):
@@ -213,7 +215,7 @@ class Cursor():
 
     def roamer_can_move(self, unit, dir: str) -> bool:
         '''Four directions, LEFT, RIGHT, DOWN, and UP'''
-        if unit:
+        if unit and self.roaming:
             if dir == 'LEFT':
                 check_x = int(round(self.position[0] - 0.4))
                 check_y = int(round(self.position[1]))
@@ -255,9 +257,11 @@ class Cursor():
                 self.roaming_unit = u
         if self.roaming:
             self.fluid.update_speed(32)
+        else:
+            self.fluid.update_speed(cf.SETTINGS['cursor_speed'])
         self.fluid.update()
 
-        if self.roaming_unit:
+        if self.roaming_unit and self.roaming:
             self.roaming_unit.position = self.position
 
         if self.stopped_at_move_border:
@@ -343,15 +347,10 @@ class Cursor():
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
 
-        if INPUT.just_pressed('SELECT') and self.roaming and self.roaming_unit:
-            talkable = self.roamer_can_talk(self.roaming_unit)
-            if talkable:
-                game.events.trigger('on_talk', self.roaming_unit, talkable)
-
 
         if self.delay > 0:
             self.delay -= 1
-            if self.delay == 0:
+            if self.delay == 0 and self.roaming_unit:
                 self.roaming_unit.sprite.change_state('normal')
 
         # Handle mouse
@@ -373,14 +372,29 @@ class Cursor():
         """Returns whether there is a unit close enough to talk. Returns the first unit it finds
         or False if there are no good targets
         """
-        u1_pos = u1.position
-        if u1_pos:
+        if u1:
+            u1_pos = u1.position
             for u in game.units:
                 if u.position and u1_pos and u1 != u and \
-                        (abs(u1_pos[0] - u.position[0]) <= 0.5 or \
-                        abs(u1_pos[1] - u.position[1]) <= 0.5) and \
+                        abs(u1_pos[0] - u.position[0]) <= 0.5 and \
+                        abs(u1_pos[1] - u.position[1]) <= 0.5 and \
                         u.team == 'player' or u.team == 'other':
+                    print(abs(u1_pos[0] - u.position[0]), u1_pos[1] - u.position[1])
                     return u
+        return False
+
+    def roamer_can_visit(self):
+        """Returns whether there is a tile close enough to visit.
+        """
+        if self.roaming_unit:
+            for region in game.level.regions:
+                if region.region_type == 'event' and region.contains(self.roaming_unit.position):
+                    try:
+                        truth = evaluate.evaluate(region.condition, self.roaming_unit, region=region)
+                        if truth:
+                            return region
+                    except:
+                        pass
         return False
 
     def update(self):

@@ -2,7 +2,7 @@
     {
         "nid": "0",
         "name": "Prologue",
-        "tilemap": "Prologue",
+        "tilemap": "Starting Cave",
         "party": "Eirika",
         "roam": true,
         "roam_unit": "Ross",
@@ -24,90 +24,14 @@
         },
         "units": [
             {
-                "nid": "Eirika",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    4,
-                    5
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Seth",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    4,
-                    4
-                ],
-                "generic": false
-            },
-            {
-                "nid": "101",
-                "variant": null,
-                "level": 1,
-                "klass": "Fighter (M) {IS}",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Axe",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Attack",
-                "ai_group": null,
-                "starting_position": [
-                    9,
-                    6
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "102",
-                "variant": null,
-                "level": 2,
-                "klass": "Fighter (M) {IS}",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Axe",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Attack",
-                "ai_group": null,
-                "starting_position": [
-                    8,
-                    6
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "O'Neill",
-                "team": "enemy",
-                "ai": "Guard",
-                "ai_group": null,
-                "starting_position": [
-                    10,
-                    8
-                ],
-                "generic": false
-            },
-            {
                 "nid": "Ross",
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": null,
+                "starting_position": [
+                    2,
+                    4
+                ],
                 "generic": false
             },
             {
@@ -117,29 +41,70 @@
                 "ai_group": null,
                 "starting_position": null,
                 "generic": false
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Returned",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
-        "regions": [],
+        "regions": [
+            {
+                "nid": "Bones",
+                "region_type": "event",
+                "position": [
+                    11,
+                    4
+                ],
+                "size": [
+                    2,
+                    3
+                ],
+                "sub_nid": "Visit",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "firstexit",
+                "region_type": "event",
+                "position": [
+                    13,
+                    8
+                ],
+                "size": [
+                    2,
+                    1
+                ],
+                "sub_nid": "firstexittrigger",
+                "condition": "True",
+                "only_once": false
+            }
+        ],
         "unit_groups": [
             {
-                "nid": "Enemy1",
+                "nid": "Monsters",
                 "units": [
-                    "101",
-                    "102",
-                    "O'Neill"
+                    "103"
                 ],
                 "positions": {
-                    "101": [
-                        14,
-                        7
-                    ],
-                    "102": [
+                    "103": [
                         14,
                         8
-                    ],
-                    "O'Neill": [
-                        14,
-                        9
                     ]
                 }
             }

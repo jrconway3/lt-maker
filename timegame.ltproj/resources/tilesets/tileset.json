@@ -18,5 +18,15 @@
         "nid": "SacredStonesBase",
         "terrain_grid": {},
         "autotiles": {}
+    },
+    {
+        "nid": "Arcadia Temple",
+        "terrain_grid": {},
+        "autotiles": {}
+    },
+    {
+        "nid": "cave",
+        "terrain_grid": {},
+        "autotiles": {}
     }
 ]

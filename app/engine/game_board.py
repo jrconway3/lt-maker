@@ -115,6 +115,8 @@ class GameBoard(object):
             return None
         idx = pos[0] * self.height + pos[1]
         idx = int(round(idx))
+        if idx > len(self.unit_grid) - 1:
+            idx = len(self.unit_grid) - 1
         if self.unit_grid[idx]:
             return self.unit_grid[idx][0]
         return None

@@ -127,9 +127,12 @@ class FreeState(MapState):
             info_menu.handle_aux()
 
         elif event == 'SELECT':
+            roaming = game.cursor.roaming
+            roaming_unit = game.cursor.roaming_unit
             cur_pos = game.cursor.position
             cur_unit = game.board.get_unit(cur_pos)
-            if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position):
+            if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position) \
+                    and not roaming:
                 if skill_system.can_select(cur_unit):
                     game.cursor.cur_unit = cur_unit
                     SOUNDTHREAD.play_sfx('Select 3')
@@ -143,8 +146,13 @@ class FreeState(MapState):
                         SOUNDTHREAD.play_sfx('Error')
             else:
                 SOUNDTHREAD.play_sfx('Select 2')
-                roaming_unit = game.cursor.roaming_unit
-                if not roaming_unit or not game.cursor.roamer_can_talk(roaming_unit):
+                u2 = game.cursor.roamer_can_talk(roaming_unit)
+                reg = game.cursor.roamer_can_visit()
+                if u2 and roaming_unit:
+                    game.events.trigger('on_talk', roaming_unit, u2)
+                elif reg and roaming_unit:
+                    game.events.trigger(reg.sub_nid, roaming_unit, position=roaming_unit.position, region=reg)
+                else:
                     game.state.change('option_menu')
 
         elif event == 'BACK':

@@ -1,9 +1,9 @@
 from app.utilities.data import Prefab
 
 tags = ('Flow Control', 'Music/Sound', 'Portrait', 'Background/Foreground',
-        'Dialogue/Text', 'Cursor/Camera', 
+        'Dialogue/Text', 'Cursor/Camera',
         'Level-wide Unlocks and Variables', 'Game-wide Unlocks and Variables',
-        'Tilemap', 'Region', 'Add/Remove/Interact with Units', 'Modify Unit Properties', 
+        'Tilemap', 'Region', 'Add/Remove/Interact with Units', 'Modify Unit Properties',
         'Unit Groups', 'Miscellaneous', 'Hidden')
 
 class EventCommand(Prefab):
@@ -307,14 +307,14 @@ class MoveCursor(EventCommand):
     nid = "move_cursor"
     nickname = "set_cursor"
     tag = "Cursor/Camera"
-    
+
     keywords = ["Position"]
     flags = ["immediate"]
 
 class CenterCursor(EventCommand):
     nid = "center_cursor"
     tag = "Cursor/Camera"
-    
+
     keywords = ["Position"]
     flags = ["immediate"]
 
@@ -366,7 +366,7 @@ class ActivateTurnwheel(EventCommand):
 
     # Whether to force the player to move the turnwheel back
     # defaults to true
-    optional_keywords = ['Bool']  
+    optional_keywords = ['Bool']
 
 class BattleSave(EventCommand):
     nid = 'battle_save'
@@ -511,14 +511,14 @@ class RemoveGroup(EventCommand):
 class GiveItem(EventCommand):
     nid = 'give_item'
     tag = "Modify Unit Properties"
-    
+
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner', 'no_choice', 'droppable']
 
 class RemoveItem(EventCommand):
     nid = 'remove_item'
     tag = "Modify Unit Properties"
-    
+
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
 
@@ -567,7 +567,7 @@ class ChangeAI(EventCommand):
     nid = 'change_ai'
     tag = "Modify Unit Properties"
 
-    keywords = ["GlobalUnit", "AI"] 
+    keywords = ["GlobalUnit", "AI"]
 
 class ChangeTeam(EventCommand):
     nid = 'change_team'
@@ -739,13 +739,13 @@ class ChangeObjectiveSimple(EventCommand):
 class ChangeObjectiveWin(EventCommand):
     nid = 'change_objective_win'
     tag = "Level-wide Unlocks and Variables"
-    
+
     keywords = ["String"]
 
 class ChangeObjectiveLoss(EventCommand):
     nid = 'change_objective_loss'
     tag = "Level-wide Unlocks and Variables"
-    
+
     keywords = ["String"]
 
 class SetPosition(EventCommand):
@@ -790,7 +790,7 @@ class Choice(EventCommand):
     nid = 'choice'
     tag = 'Miscellaneous'
 
-    keywords = ['Nid', 'String', 'StringList']  
+    keywords = ['Nid', 'String', 'StringList']
     optional_keywords = ['Orientation']
 
 class ChapterTitle(EventCommand):
@@ -856,7 +856,14 @@ class TriggerScript(EventCommand):
 
     keywords = ["Event"]
     optional_keywords = ["GlobalUnit", "GlobalUnit"]
-    
+
+class ChangeRoaming(EventCommand):
+    nid = 'change_roaming'
+    tag = "Miscellaneous"
+    desc = "Turns free roam on or off"
+
+    keywords = ["Bool"]
+
 def get_commands():
     return EventCommand.__subclasses__()
 

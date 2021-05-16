@@ -6590,7 +6590,7 @@
             0,
             0
         ],
-        "map_sprite_nid": "Lance Cavalier (M) {IS}",
+        "map_sprite_nid": "Cavalier (M) Lance {IS}",
         "combat_anim_nid": null
     },
     {
@@ -6710,7 +6710,7 @@
             0,
             0
         ],
-        "map_sprite_nid": "Lance Paladin (M) {IS}",
+        "map_sprite_nid": "Paladin (M) Lance {IS}",
         "combat_anim_nid": null
     },
     {
@@ -6838,7 +6838,7 @@
             0,
             0
         ],
-        "map_sprite_nid": "Pegasus Knight (F) {IS}",
+        "map_sprite_nid": "Pegasi (F) T1 {IS}",
         "combat_anim_nid": null
     },
     {
@@ -6957,7 +6957,7 @@
             0,
             0
         ],
-        "map_sprite_nid": "Lance Armor (U) {IS}",
+        "map_sprite_nid": "Knight (M) Lance {SALVAGED, BoneManSeth}",
         "combat_anim_nid": null
     },
     {
@@ -7543,6 +7543,123 @@
             0
         ],
         "map_sprite_nid": "Villager (M) (Man) {IS}",
+        "combat_anim_nid": null
+    },
+    {
+        "nid": "Returned",
+        "name": "Returned",
+        "desc": "Its flesh boils and bursts, constantly changed by some mysterious force.",
+        "tier": 1,
+        "movement_group": "Armors",
+        "promotes_from": null,
+        "turns_into": [],
+        "tags": [],
+        "max_level": 20,
+        "bases": {
+            "HP": 20,
+            "STR": 5,
+            "MAG": 0,
+            "SKL": 2,
+            "SPD": 4,
+            "LCK": 0,
+            "DEF": 2,
+            "RES": 0,
+            "CON": 11,
+            "MOV": 5
+        },
+        "growths": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growth_bonus": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "promotion": {
+            "HP": 20,
+            "STR": 5,
+            "MAG": 0,
+            "SKL": 2,
+            "SPD": 4,
+            "LCK": 0,
+            "DEF": 2,
+            "RES": 0,
+            "CON": 11,
+            "MOV": 5
+        },
+        "max_stats": {
+            "HP": 60,
+            "STR": 30,
+            "MAG": 30,
+            "SKL": 30,
+            "SPD": 30,
+            "LCK": 30,
+            "DEF": 30,
+            "RES": 30,
+            "CON": 25,
+            "MOV": 15
+        },
+        "learned_skills": [],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Staff": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                2,
+                0
+            ]
+        },
+        "icon_nid": "[MON] Revenant (Entombed) {IS}",
+        "icon_index": [
+            0,
+            0
+        ],
+        "map_sprite_nid": "Skeleton (U) Wight Sword {IS}",
         "combat_anim_nid": null
     }
 ]

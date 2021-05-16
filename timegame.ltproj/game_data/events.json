@@ -6,375 +6,97 @@
         "condition": "True",
         "commands": [
             [
-                "remove_unit",
+                "show_layer",
                 [
-                    "Eirika",
-                    "immediate"
-                ]
-            ],
-            [
-                "remove_unit",
-                [
-                    "Seth",
-                    "immediate"
-                ]
-            ],
-            [
-                "remove_group",
-                [
-                    "Enemy1",
-                    "immediate"
-                ]
-            ],
-            [
-                "add_unit",
-                [
-                    "Seth",
-                    "14,9"
-                ]
-            ],
-            [
-                "move_unit",
-                [
-                    "Seth",
-                    "8,5"
-                ]
-            ],
-            [
-                "add_unit",
-                [
-                    "Eirika",
-                    "8,5",
-                    "immediate",
-                    "stack"
-                ]
-            ],
-            [
-                "move_unit",
-                [
-                    "Eirika",
-                    "9,5"
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "close"
+                    "bottom"
                 ]
             ],
             [
                 "change_background",
                 [
-                    "Forest"
+                    "BlackBackground"
                 ]
             ],
             [
-                "transition",
+                "change_roaming",
                 [
-                    "open"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Seth",
-                    "Left",
-                    "no_block"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Eirika",
-                    "Right"
+                    "0"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Seth",
-                    "Princess Eirika! This way! I can see no more of Grado's men.|If we've made it this far, we've surely earned a moment's rest.|Please forgive my grabbing you so...brusquely earlier."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "Don't be foolish, Seth.|If it weren't for you, I would never have made it out of the castle.|You are the reason I'm still alive. You have my gratitude."
-                ]
-            ],
-            [
-                "move_portrait",
-                [
-                    "Eirika",
-                    "CenterRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "And whoever that man was, he was clearly after me...|It's my fault that you received such a grave wound.|Allow me to treat it, I--"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "Your Highness, I can't allow an injury like this to be an obstacle.|We have more important matters to attend to. We must press on to Frelia.|We must fulfill His Majesty's wishes."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "...|I wonder how my father fares alone in the castle. Do you think he's safe?|And what of my brother on the Grado front? We've heard nothing from him for days."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "King Fado and Prince Ephraim are both valiant and brave men.|I doubt even the might of the Grado Empire can hold them in check.|More important to me, Your Highness, is that you look to your own safety.|How sad the two of them would be if something were to happen to you.|We must reach Frelia to ensure the day of your happy reunion."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "Yes, of course. You're right.|Until I'm reunited with my father and brother, I must not despair.|Come, Seth. Let us go."
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "close"
+                    "Narrator",
+                    "On his hands and knees,{w} a young man crawls through a shallow tunnel.{w}{br}A torch held weakly in front of him,{w} the man seems to barely be able to fit through the space.{w}{br}Finally, after far too long for his liking,{w} he emerges into a broader cavern."
                 ]
             ],
             [
                 "change_background",
-                []
-            ],
-            [
-                "transition",
                 [
-                    "open"
+                    ""
                 ]
             ],
             [
-                "move_unit",
+                "speak",
                 [
-                    "Seth",
-                    "4,4"
+                    "Narrator",
+                    "Slowly rising to his feet,{w} he makes a half-hearted attempt to brush dirt off his animal-hide clothes."
                 ]
             ],
             [
                 "add_portrait",
                 [
-                    "Seth",
+                    "Ross",
                     "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Seth",
-                    "Once we cross that bridge, we will be in Frelia, near Border Mulan.|Let us proceed, Princess Eirika."
+                    "Ross",
+                    "No way am I going back through there.{w}{br}There's got to be another exit around here somewhere..."
                 ]
             ],
             [
-                "remove_portrait",
+                "flicker_cursor",
                 [
-                    "Seth"
+                    "14,8"
                 ]
             ],
             [
-                "move_unit",
+                "speak",
                 [
-                    "Eirika",
-                    "4,5"
+                    "Ross",
+                    "There!{w} I'm sure that will take me back to Emelia."
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "13,6"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Are those human remains?{w}{br}They're nothing but bones, but it's still worth checking."
                 ]
             ],
             [
                 "move_cursor",
                 [
-                    "Seth"
+                    "Ross"
                 ]
             ],
             [
-                "disp_cursor",
+                "change_roaming",
                 [
                     "1"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "0"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Eirika",
-                    "Left",
-                    "no_block"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Seth",
-                    "Right"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "Your highness, I won't lie to you. This will not be an easy ride.|Please, take this rapier.{br}If something should happen to me|you must continue to Frelia,{br}alone if need be."
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Seth",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Eirika"
-                ]
-            ],
-            [
-                "give_item",
-                [
-                    "Eirika",
-                    "Rapier"
-                ]
-            ],
-            [
-                "add_group",
-                [
-                    "Enemy1"
-                ]
-            ],
-            [
-                "move_group",
-                [
-                    "Enemy1",
-                    "Starting"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "move_cursor",
-                [
-                    "O'Neill"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "1"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "1000"
-                ]
-            ],
-            [
-                "disp_cursor",
-                [
-                    "0"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "O'Neill",
-                    "Right"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "O'Neill",
-                    "You there! Renais dogs! Where do you think you're going?"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "O'Neill"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Eirika",
-                    "MidLeft",
-                    "no_block"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Seth",
-                    "FarLeft"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "Grado's men...|Stand back, Princess Eirika."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "It's all right, Seth.|My brother has taught me something of swordplay.|I will stand with you."
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Eirika",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Seth"
-                ]
-            ],
-            [
-                "set_current_hp",
-                [
-                    "Seth",
-                    "13"
                 ]
             ]
         ],
-        "only_once": null,
+        "only_once": false,
         "priority": 20
     },
     {
@@ -536,43 +258,6 @@
         "priority": 20
     },
     {
-        "name": "DeathONeill",
-        "trigger": "unit_death",
-        "level_nid": "0",
-        "condition": "unit.nid == \"O'Neill\"",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "O'Neill",
-                    "Left"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "O'Neill",
-                    "What? How?"
-                ]
-            ],
-            [
-                "expression",
-                [
-                    "O'Neill",
-                    "CloseEyes"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "O'Neill"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
         "name": "DeathBreguet",
         "trigger": "unit_death",
         "level_nid": "1",
@@ -610,127 +295,6 @@
         "priority": 20
     },
     {
-        "name": "Outro",
-        "trigger": "level_end",
-        "level_nid": "0",
-        "condition": "True",
-        "commands": [
-            [
-                "transition",
-                [
-                    "Close"
-                ]
-            ],
-            [
-                "change_background",
-                [
-                    "Forest"
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "Open"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Seth",
-                    "Left",
-                    "no_block"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Eirika",
-                    "Right"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "Princess, are you injured?"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "What?|Oh, no...{br}I'm fine, Seth."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "But you look so pale..."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "I'm fine... Fine.|...This is war, isn't it?|It's not at all like the games I used to play with my brother or Lyon.|I never thought-- I didn't know it would this...savage.|Are words useless? Is strength all that matters?  It's so sad...|Why would the Grado Empire do this? To what end would they start a war?"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "Princess..."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Eirika",
-                    "...Don't worry, Seth. I won't give in to sorrow.|Let's get moving.|I'm not broken, and I won't stop until I see Renais restored.|I won't stop until I'm reunited with my father and brother."
-                ]
-            ],
-            [
-                "transition",
-                [
-                    "Close"
-                ]
-            ]
-        ],
-        "only_once": null,
-        "priority": 20
-    },
-    {
-        "name": "OnlyBoss",
-        "trigger": "combat_end",
-        "level_nid": "0",
-        "condition": "len(game.get_enemy_units()) == 1",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Seth",
-                    "Left"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "All that's left is their leader..."
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Seth"
-                ]
-            ]
-        ],
-        "only_once": true,
-        "priority": 20
-    },
-    {
         "name": "Win",
         "trigger": "combat_end",
         "level_nid": "0",
@@ -742,80 +306,6 @@
             ]
         ],
         "only_once": false,
-        "priority": 20
-    },
-    {
-        "name": "EnemyTurn2",
-        "trigger": "enemy_turn_change",
-        "level_nid": "0",
-        "condition": "game.turncount == 2",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "O'Neill",
-                    "Right"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "O'Neill",
-                    "What was that? Do you think you can take me, wretched lordling?|Come! It's time you high-and-mighty knights learned to respect a true warrior!"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "O'Neill"
-                ]
-            ],
-            [
-                "change_ai",
-                [
-                    "O'Neill",
-                    "Defend"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
-        "name": "FightONeill",
-        "trigger": "combat_start",
-        "level_nid": "0",
-        "condition": "unit.nid == \"O'Neill\" or unit2.nid == \"O'Neill\"",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "O'Neill",
-                    "Left"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "O'Neill",
-                    "You will be the first to die!"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "O'Neill"
-                ]
-            ],
-            [
-                "change_music",
-                [
-                    "player_phase",
-                    "Grasp at Victory"
-                ]
-            ]
-        ],
-        "only_once": true,
         "priority": 20
     },
     {
@@ -4605,6 +4095,217 @@
                 [
                     "Eirika",
                     "Hi"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Bones",
+        "trigger": "Visit",
+        "level_nid": "0",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Huh, what's this?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Narrator",
+                    "Ross kneels down, nearly touching the bones.{w}{br}A skull, a few ribs,{w} and a mysterious belt lay against the wall.{w}{br}These are, without a doubt, human remains."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "They look like they've been here forever...{w}{br}What's this belt?{w}{br}It almost looks like it's all iron!{w}{br}I can't wait to show Emelia all of this."
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "exit"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "30Silence"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Oh, not-{w} gah!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Narrator",
+                    "Throwing the belt around his waist,{w} Ross quickly begins to back up."
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Sword!{w} Right, here.{w} Draw it, just like Jarod taught-"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "100"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "Knight Step"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Focus.{w} Calm down, and focus."
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "Monsters"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "103",
+                    "10,7"
+                ]
+            ],
+            [
+                "change_roaming",
+                [
+                    "0"
+                ]
+            ]
+        ],
+        "only_once": true,
+        "priority": 20
+    },
+    {
+        "name": "firstexit",
+        "trigger": "firstexittrigger",
+        "level_nid": "0",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Hmm, I feel like there's more to do here."
                 ]
             ]
         ],

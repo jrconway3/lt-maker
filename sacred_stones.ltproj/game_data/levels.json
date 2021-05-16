@@ -3538,17 +3538,6 @@
                     2
                 ],
                 "generic": false
-            },
-            {
-                "nid": "SuperSeth",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    3,
-                    4
-                ],
-                "generic": false
             }
         ],
         "regions": [

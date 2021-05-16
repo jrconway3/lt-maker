@@ -1149,14 +1149,12 @@ class BaseBEXPAllocateState(State):
             SOUNDTHREAD.play_sfx('Select 5')
             if self.new_exp < 100 and self.new_bexp > self.exp_increment:
                 amount_needed = (100 - self.new_exp) * self.exp_increment
-                print(amount_needed, self.current_bexp, self.new_bexp, self.new_exp)
                 if self.new_bexp >= amount_needed:
                     self.new_bexp -= amount_needed
                     self.new_exp = 100
                 else:
                     self.new_exp += int(self.new_bexp / self.exp_increment)
                     self.new_bexp = self.new_bexp % self.exp_increment
-                print(self.new_exp, self.new_bexp, self.exp_increment)
 
         # Allocates EXP, performs level up, and sets values as needed
         if event == 'SELECT':

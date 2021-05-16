@@ -29,9 +29,6 @@ class TurnChangeState(MapState):
             supports.increment_end_turn_supports('player')
             game.memory['previous_cursor_position'] = game.cursor.position
         # Clear all previous states in state machine except me
-        if DB.constants.get('timeline').value:
-            game.timeline.append(game.timeline[game.timeline_position])
-            game.timeline_position += 1
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
         return 'repeat'

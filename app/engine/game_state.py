@@ -6,7 +6,7 @@ from app.constants import VERSION
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
-from app.engine import state_machine, static_random, equations
+from app.engine import state_machine, static_random
 from app.engine import config as cf
 
 import logging
@@ -162,41 +162,41 @@ class GameState():
             self.timeline = self.create_timeline([])
 
     def create_timeline(self, t) -> list:
-        '''Creates a timeline. Most likely only happens on start of level'''
+        #Creates a timeline. Most likely only happens on start of level
         to_sort = self.get_all_units()
         timeline = t
         for u in to_sort:
             i = 0
             stop = False
             while i < len(timeline) and not stop:
-                if equations.parser.timelinespeed(u) > equations.parser.timelinespeed(timeline[i]):
+                if u.timeline_speed > timeline[i].timeline_speed:
                     timeline.insert(u, i)
                     stop = True
                 i += 1
             if i == len(timeline) and not stop:
                 timeline.append(u)
-        print(t)
         return timeline
 
     def add_to_timeline(self, u, t: list, pos=0) -> None:
-        '''Adds a unit into the given timeline. Lists are mutable, so no need to return
-        u - UnitObject
-        pos is included to prevent reinforcements from being added to the front of the timeline
-        '''
+        # Adds a unit into the given timeline. Lists are mutable, so no need to return
+        # u - UnitObject
+        # pos is included to prevent reinforcements from being added to the front of the timeline
         i = pos
         stop = False
         while i < len(t) and not stop:
-            if equations.parser.timelinespeed(u) > equations.parser.timelinespeed(t[i]):
+            if u.timeline_speed > t[i].timeline_speed:
                 t.insert(u, i)
                 stop = True
             i += 1
         if i == len(t) and not stop:
             t.append(u)
-        print(t)
-        return t
+
+    def insert_in_timeline(self, u, t: list, pos) -> None:
+        # A more controlled version of add_to_timeline. Always inserts at the specified index
+        t.insert(u, pos)
 
     def remove_from_timeline(self, u, t: list) -> None:
-        '''Removes a unit from the timeline. Probably only use this when they die'''
+        # Probably only do this when a unit dies or is removed
         for unit in t:
             if unit == u:
                 t.remove(unit)

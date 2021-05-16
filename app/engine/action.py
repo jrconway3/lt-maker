@@ -1303,6 +1303,15 @@ class Die(Action):
             self.drop.do()
             # TODO Drop Sound
 
+        if DB.constants.get('timeline').value:
+            self.timeline_positions = []
+            i = 0
+            while i < len(game.timeline):
+                if game.timeline[i] == self.unit:
+                    self.timeline_positions.append(i)
+                i += 1
+            game.remove_from_timeline(self.unit, game.timeline)
+
         self.leave_map.do()
         for act in self.lock_all_support_ranks:
             act.do()
@@ -1313,6 +1322,10 @@ class Die(Action):
         self.unit.dead = False
         self.unit.sprite.set_transition('normal')
         self.unit.sprite.change_state('normal')
+
+        if DB.constants.get('timeline').value and self.timeline_positions:
+            for pos in self.timeline_positions:
+                game.insert_in_timeline(self.unit, game.timeline, pos)
 
         for act in self.lock_all_support_ranks:
             act.reverse()
@@ -1487,7 +1500,7 @@ class ChangeTeam(Action):
         self.unit.team = self.team
         self.action.do()
         if self.team == 'player':
-            # Make sure player unit's don't keep their AI 
+            # Make sure player unit's don't keep their AI
             self.ai_action.do()
         if self.unit.position:
             game.arrive(self.unit)

@@ -158,49 +158,6 @@ class GameState():
         for unit in self.current_level.units:
             self.arrive(unit)
 
-        if DB.constants.get('timeline').value:
-            self.timeline = self.create_timeline([])
-
-    def create_timeline(self, t) -> list:
-        #Creates a timeline. Most likely only happens on start of level
-        to_sort = self.get_all_units()
-        timeline = t
-        for u in to_sort:
-            i = 0
-            stop = False
-            while i < len(timeline) and not stop:
-                if u.timeline_speed > timeline[i].timeline_speed:
-                    timeline.insert(u, i)
-                    stop = True
-                i += 1
-            if i == len(timeline) and not stop:
-                timeline.append(u)
-        return timeline
-
-    def add_to_timeline(self, u, t: list, pos=0) -> None:
-        # Adds a unit into the given timeline. Lists are mutable, so no need to return
-        # u - UnitObject
-        # pos is included to prevent reinforcements from being added to the front of the timeline
-        i = pos
-        stop = False
-        while i < len(t) and not stop:
-            if u.timeline_speed > t[i].timeline_speed:
-                t.insert(u, i)
-                stop = True
-            i += 1
-        if i == len(t) and not stop:
-            t.append(u)
-
-    def insert_in_timeline(self, u, t: list, pos) -> None:
-        # A more controlled version of add_to_timeline. Always inserts at the specified index
-        t.insert(u, pos)
-
-    def remove_from_timeline(self, u, t: list) -> None:
-        # Probably only do this when a unit dies or is removed
-        for unit in t:
-            if unit == u:
-                t.remove(unit)
-
     def full_register(self, unit):
         self.register_unit(unit)
         for item in unit.items:

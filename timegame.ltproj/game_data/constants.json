@@ -1,18 +1,14 @@
 [
     [
         "num_items",
-        3
+        5
     ],
     [
         "num_accessories",
-        2
+        0
     ],
     [
         "turnwheel",
-        true
-    ],
-    [
-        "timeline",
         true
     ],
     [
@@ -45,7 +41,7 @@
     ],
     [
         "permadeath",
-        false
+        true
     ],
     [
         "trade",
@@ -93,7 +89,7 @@
     ],
     [
         "rng",
-        "Classic"
+        "True Hit"
     ],
     [
         "min_damage",

@@ -139,9 +139,6 @@ class UnitObject(Prefab):
         for skill in self.skills:
             skill_system.on_add(self, skill)
 
-        if DB.constants.get('timeline').value:
-            self.get_timeline_speed()
-
         return self
 
     def get_max_hp(self):
@@ -182,9 +179,6 @@ class UnitObject(Prefab):
 
     def growth_bonus(self, stat):
         return skill_system.growth_change(self, stat)
-
-    def get_timeline_speed(self):
-        self.timeline_speed = equations.parser.timelinespeed(self)
 
     @property
     def sprite(self):

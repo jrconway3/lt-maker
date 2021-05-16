@@ -1186,7 +1186,7 @@
     },
     {
         "nid": "fConstitution +3",
-        "name": "Constitution ",
+        "name": "Constitution +3",
         "desc": "Grants CON +3.",
         "icon_nid": "Skills",
         "icon_index": [

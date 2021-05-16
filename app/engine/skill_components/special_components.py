@@ -191,7 +191,7 @@ class Oversplash(SkillComponent):
 
     def alternate_splash(self, unit):
         from app.engine.item_components.aoe_components import BlastAOE
-        return BlastAOE(self.value)
+        return BlastAOE(0)
 
 class EmpowerHeal(SkillComponent):
     nid = 'empower_heal'

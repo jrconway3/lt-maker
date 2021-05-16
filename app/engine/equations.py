@@ -38,7 +38,9 @@ class Parser():
         exec("def %s(equations, unit): return %s" % (lhs, rhs), self.equations)
 
     def get(self, lhs, unit):
-        return self.equations[lhs](self.equations, unit)
+        if lhs in self.equations:
+            return self.equations[lhs](self.equations, unit)
+        return 0
 
     def get_expression(self, expr, unit):
         # For one time use

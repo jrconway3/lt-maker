@@ -58,13 +58,13 @@ from app.editor.lore_editor.lore_tab import LoreDatabase
 
 # Resources
 from app.editor.icon_editor import icon_tab
+from app.editor.combat_animation_editor import combat_animation_tab
 from app.editor.tile_editor import tile_tab
 from app.editor.sound_editor import sound_tab
 from app.editor.support_editor import support_pair_tab
 from app.editor.portrait_editor.portrait_tab import PortraitDatabase
 from app.editor.panorama_editor.panorama_tab import PanoramaDatabase
 from app.editor.map_sprite_editor.map_sprite_tab import MapSpriteDatabase
-from app.editor.combat_animation_editor.combat_animation_display import CombatAnimDisplay
 
 __version__ = VERSION
 
@@ -246,7 +246,7 @@ class MainEditor(QMainWindow):
                             # "Map Animations": AnimationDatabase.edit_resource,
                             "Backgrounds": PanoramaDatabase.edit,
                             "Map Sprites": MapSpriteDatabase.edit,
-                            "Combat Animations": CombatAnimDisplay.edit,
+                            "Combat Animations": self.edit_combat_animations,
                             "Tilemaps": self.edit_tilemaps,
                             "Sounds": self.edit_sounds
                             }
@@ -527,6 +527,10 @@ class MainEditor(QMainWindow):
 
     def edit_icons(self, parent=None):
         dialog = icon_tab.get_full_editor()
+        dialog.exec_()
+
+    def edit_combat_animations(self, parent=None):
+        dialog = combat_animation_tab.get_full_editor()
         dialog.exec_()
 
     def edit_tilemaps(self, parent=None):

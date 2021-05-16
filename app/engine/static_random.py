@@ -80,6 +80,20 @@ def shuffle(lst):
 # def set_other_random_state(state):
 #     r.other_random.state = state
 
+# === Returns the index of a weighted list
+def weighted_choice(choices, generator=None) -> int:
+    if generator:
+        rn = generator.randint(0, sum(choices) - 1)
+    else:
+        rn = r.growth_random.randint(0, sum(choices) - 1)
+    print(rn, generator.state)
+    upto = 0
+    for index, w in enumerate(choices):
+        upto += w
+        if upto > rn:
+            return index
+    assert False, "Shouldn't get here"
+
 if __name__ == '__main__':
     print(get_combat())
     state = r.combat_random.serialize()

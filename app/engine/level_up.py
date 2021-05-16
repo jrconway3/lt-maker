@@ -25,6 +25,11 @@ class ExpState(State):
         else:
             game.state.back()
             return 'repeat'
+        # Check if we need to use a custom method
+        self.method = None
+        if game.memory.get('exp_method'):
+            self.method = game.memory['exp_method']
+            game.memory['exp_method'] = None
 
         self.old_exp = self.unit.exp
         self.old_level = self.unit.level
@@ -153,7 +158,7 @@ class ExpState(State):
             # Extra time to account for pause at end
             if current_time - self.start_time >= self.total_time_for_exp + 333:
                 old_growth_points = self.unit.growth_points.copy()
-                self.stat_changes = unit_funcs.get_next_level_up(self.unit)
+                self.stat_changes = unit_funcs.get_next_level_up(self.unit, self.method)
                 action.do(action.GrowthPointChange(self.unit, old_growth_points, self.unit.growth_points))
                 action.do(action.IncLevel(self.unit))
                 action.do(action.ApplyStatChanges(self.unit, self.stat_changes))

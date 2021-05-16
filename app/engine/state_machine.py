@@ -109,6 +109,8 @@ class StateMachine():
              'prep_market': prep.PrepMarketState,
              'base_main': base.BaseMainState,
              'base_market_select': base.BaseMarketSelectState,
+             'base_bexp_select': base.BaseBEXPSelectState,
+             'base_bexp_allocate': base.BaseBEXPAllocateState,
              'base_convos_child': base.BaseConvosChildState,
              'base_supports': base.BaseSupportsState,
              'base_codex_child': base.BaseCodexChildState,

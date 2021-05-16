@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QVBoxLayout, QWidget, QAction, QWidgetAction, \
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
+from app.editor.settings import MainSettingsController
+
 from app.resources import combat_commands
 
 from app.editor import combat_command_widgets
@@ -87,7 +89,7 @@ class TimelineMenu(QWidget):
         self._finished = False
 
         self.view = TimelineList(self)
-        self.view.setStyleSheet("QListWidget::item:selected {background-color: yellow;}")
+        self.view.setStyleSheet("QListWidget::item:selected {background-color: palette(highlight);}")
         self.view.order_swapped.connect(self.command_moved)
         self.view.currentChanged = self.on_new_selection
 
@@ -146,6 +148,9 @@ class TimelineMenu(QWidget):
     def remove_command(self, command):
         self.view.remove_command(command)
 
+    def remove_command_widget(self, command):
+        self.view.remove_command_widget(command)
+
     def add_command(self, command):
         self.current_pose.timeline.append(command)
         self.add_command_widget(command)
@@ -191,12 +196,19 @@ class TimelineMenu(QWidget):
         self.toolbar = QToolBar(self)
         self.menus = {}
 
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
         for command in combat_commands.anim_commands:
             if command.tag not in self.menus:
                 new_menu = QMenu(self)
                 self.menus[command.tag] = new_menu
                 toolbutton = QToolButton(self)
-                toolbutton.setIcon(QIcon("icons/icons/command_%s.png" % command.tag))
+                toolbutton.setIcon(QIcon(f"{icon_folder}/command_%s.png" % command.tag))
                 toolbutton.setMenu(new_menu)
                 toolbutton.setPopupMode(QToolButton.InstantPopup)
                 toolbutton_action = QWidgetAction(self)

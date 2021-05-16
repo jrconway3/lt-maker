@@ -228,7 +228,7 @@ class MultiAddPortrait(EventCommand):
 
     desc = \
         """
-A command that conveniently adds more than one portrait to the screen at the same time. Accepts 2-4 portraits and their associated _ScreenPosition_ as input.
+Adds more than one portrait to the screen at the same time. Accepts 2-4 portraits and their associated _ScreenPosition_ as input.
         """
 
     keywords = ['Portrait', 'ScreenPosition', 'Portrait', 'ScreenPosition']
@@ -528,6 +528,14 @@ class GiveMoney(EventCommand):
 
     keywords = ["Integer"]
     optional_keywords = ["Party"]
+    flags = ['no_banner']
+
+class GiveBexp(EventCommand):
+    nid = 'give_bexp'
+    tag = 'Game-wide Unlocks and Variables'
+
+    keywords = ["Condition"]
+    optional_keywords = ["Party", "String"]
     flags = ['no_banner']
 
 class GiveExp(EventCommand):
@@ -831,6 +839,23 @@ class Ending(EventCommand):
     tag = "Dialogue/Text"
 
     keywords = ["Portrait", "String", "String"]
+
+class PopDialog(EventCommand):
+    nid = 'pop_dialog'
+    tag = "Dialogue/Text"
+    desc = \
+        """
+Removes the most recent dialog text box from the screen. Generally only used in conjunction with the `ending` command to remove the Ending box during a transition.
+
+Example:
+
+```
+ending;Coyote;Coyote, Man of Mystery;Too mysterious for words.
+transition;Close
+pop_dialog
+transition;Open
+```
+        """
 
 class Unlock(EventCommand):
     nid = 'unlock'

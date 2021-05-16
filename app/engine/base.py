@@ -1,3 +1,4 @@
+from app import sprites
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils
 
@@ -15,6 +16,7 @@ from app.engine import menus, base_surf, background, text_funcs, \
     image_mods, gui, icons, prep, record_book, unit_sprite, action
 from app.engine.fluid_scroll import FluidScroll
 import app.engine.config as cf
+
 
 class BaseMainState(State):
     name = 'base_main'
@@ -51,6 +53,9 @@ class BaseMainState(State):
         if game.game_vars.get('_supports') and DB.support_constants.value('base_convos'):
             options.insert(2, 'Supports')
             ignore.insert(2, False)
+        if DB.constants.value('bexp'):
+            options.insert(2, 'Bonus EXP')
+            ignore.insert(2, False)
         if game.game_vars.get('_base_market'):
             options.insert(1, 'Market')
             if game.market_items:
@@ -60,8 +65,8 @@ class BaseMainState(State):
         if cf.SETTINGS['debug']:
             options.insert(0, 'Debug')
             ignore.insert(0, False)
-        
-        topleft = 4, WINHEIGHT//2 - (len(options) * 16 + 8)//2
+
+        topleft = 4, WINHEIGHT // 2 - (len(options) * 16 + 8) // 2
         self.menu = menus.Choice(None, options, topleft=topleft)
         self.menu.set_ignore(ignore)
 
@@ -111,6 +116,9 @@ class BaseMainState(State):
                 game.state.change('transition_to')
             elif selection == 'Continue':
                 game.state.change('transition_pop')
+            elif selection == 'Bonus EXP':
+                game.memory['next_state'] = 'base_bexp_select'
+                game.state.change('transition_to')
 
     def update(self):
         super().update()
@@ -125,6 +133,7 @@ class BaseMainState(State):
             self.menu.draw(surf)
         return surf
 
+
 class BaseMarketSelectState(prep.PrepManageState):
     name = 'base_market_select'
 
@@ -137,7 +146,7 @@ class BaseMarketSelectState(prep.PrepManageState):
         size = (49 + max(font.width(c) for c in commands), 24)
         bg_surf = base_surf.create_base_surf(size[0], size[1], 'menu_bg_brown')
         bg_surf = image_mods.make_translucent(bg_surf, 0.1)
-        bg_surf.blit(buttons[0], (12 - buttons[0].get_width()//2, 18 - buttons[0].get_height()))
+        bg_surf.blit(buttons[0], (12 - buttons[0].get_width() // 2, 18 - buttons[0].get_height()))
         for idx, command in enumerate(commands):
             font.blit(command, bg_surf, (30, idx * 16 + 3))
         return bg_surf
@@ -175,6 +184,7 @@ class BaseMarketSelectState(prep.PrepManageState):
             game.memory['next_state'] = 'info_menu'
             game.memory['current_unit'] = self.menu.get_current()
             game.state.change('transition_to')
+
 
 class BaseConvosChildState(State):
     name = 'base_convos_child'
@@ -235,6 +245,7 @@ class BaseConvosChildState(State):
             self.menu.draw(surf)
         return surf
 
+
 class SupportDisplay():
     support_word_sprite = SPRITES.get('support_words')
 
@@ -244,7 +255,8 @@ class SupportDisplay():
         self.width = WINWIDTH - 100
         self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8)
         shimmer = SPRITES.get('menu_shimmer2')
-        self.bg_surf.blit(shimmer, (self.bg_surf.get_width() - shimmer.get_width() - 1, self.bg_surf.get_height() - shimmer.get_height() - 5))
+        self.bg_surf.blit(shimmer, (
+            self.bg_surf.get_width() - shimmer.get_width() - 1, self.bg_surf.get_height() - shimmer.get_height() - 5))
         self.bg_surf = image_mods.make_translucent(self.bg_surf, .1)
 
         self.cursor = menus.Cursor()
@@ -352,7 +364,7 @@ class SupportDisplay():
         if self.unit_nid:
             bg_surf = self.bg_surf.copy()
             other_unit_nids = self.options
-        
+
             map_sprites = []
             for idx, other_unit_nid in enumerate(other_unit_nids):
                 if game.get_unit(other_unit_nid):
@@ -418,6 +430,7 @@ class SupportDisplay():
 
         return surf
 
+
 class BaseSupportsState(State):
     name = 'base_supports'
 
@@ -427,7 +440,8 @@ class BaseSupportsState(State):
 
         player_units = game.get_units_in_party()
         # Filter only to units with supports
-        self.units = [unit for unit in player_units if any(prefab.unit1 == unit.nid or prefab.unit2 == unit.nid for prefab in DB.support_pairs)]
+        self.units = [unit for unit in player_units if
+                      any(prefab.unit1 == unit.nid or prefab.unit2 == unit.nid for prefab in DB.support_pairs)]
 
         self.menu = menus.Table(None, self.units, (9, 1), (4, 4))
         self.menu.set_mode('unit')
@@ -530,10 +544,11 @@ class BaseSupportsState(State):
             self.display.draw(surf)
         return surf
 
+
 class BaseCodexChildState(State):
     name = 'base_codex_child'
     transparent = True
-    
+
     def start(self):
         self.fluid = FluidScroll()
 
@@ -597,6 +612,7 @@ class BaseCodexChildState(State):
             self.menu.draw(surf)
         return surf
 
+
 class LoreDisplay():
     def __init__(self):
         self.lore = None
@@ -604,7 +620,8 @@ class LoreDisplay():
         self.width = WINWIDTH - 84
         self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8, 'menu_bg_brown')
         shimmer = SPRITES.get('menu_shimmer3')
-        self.bg_surf.blit(shimmer, (self.bg_surf.get_width() - shimmer.get_width() - 1, self.bg_surf.get_height() - shimmer.get_height() - 5))
+        self.bg_surf.blit(shimmer, (
+            self.bg_surf.get_width() - shimmer.get_width() - 1, self.bg_surf.get_height() - shimmer.get_height() - 5))
         self.bg_surf = image_mods.make_translucent(self.bg_surf, .1)
 
         self.left_arrow = gui.ScrollArrow('left', (self.topleft[0] + 4, 8))
@@ -668,7 +685,7 @@ class LoreDisplay():
                 portrait = icons.get_portrait_from_nid(DB.units.get(self.lore.nid).portrait_nid)
                 image.blit(portrait, (self.width - 96, WINHEIGHT - 12 - 80))
 
-            FONT['text-blue'].blit_center(self.lore.title, image, (self.width//2, 4))
+            FONT['text-blue'].blit_center(self.lore.title, image, (self.width // 2, 4))
 
             if self.num_pages > 1:
                 text = '%d / %d' % (self.page_num + 1, self.num_pages)
@@ -685,6 +702,7 @@ class LoreDisplay():
                 self.right_arrow.draw(surf)
 
         return surf
+
 
 class BaseLibraryState(State):
     name = 'base_library'
@@ -767,7 +785,7 @@ class BaseLibraryState(State):
             new_category = self.categories[(cidx + 1) % len(self.categories)]
             idx = self.options.index(new_category)
             option = self.options[idx + 1]
-            
+
             self.display.update_entry(option.nid)
 
         elif event == 'INFO':
@@ -794,6 +812,7 @@ class BaseLibraryState(State):
             self.display.draw(surf)
         return surf
 
+
 class BaseGuideState(BaseLibraryState):
     name = 'base_guide'
 
@@ -815,6 +834,7 @@ class BaseGuideState(BaseLibraryState):
         game.state.change('transition_in')
         return 'repeat'
 
+
 class BaseRecordsState(State):
     name = 'base_records'
 
@@ -824,10 +844,15 @@ class BaseRecordsState(State):
 
     def start(self):
         self.mouse_indicator = gui.MouseIndicator()
-        self.bg = game.memory['base_bg']
+        self.bg = game.memory.get('base_bg')
+        if not self.bg:
+            panorama = RESOURCES.panoramas.get('default_background')
+            self.bg = background.ScrollingBackground(panorama)
+            self.bg.scroll_speed = 50
 
         self.record_menu = record_book.RecordsDisplay()
-        self.chapter_menus = [record_book.ChapterStats(option.get()[0]) for option in self.record_menu.options if not option.ignore]
+        self.chapter_menus = [record_book.ChapterStats(option.get()[0]) for option in self.record_menu.options if
+                              not option.ignore]
         self.mvp = record_book.MVPDisplay()
         self.unit_menus = [record_book.UnitStats(option.get()[0]) for option in self.mvp.options if not option.ignore]
 
@@ -858,7 +883,7 @@ class BaseRecordsState(State):
 
         if event == 'LEFT':
             self.move_left()
-                
+
         elif event == 'RIGHT':
             self.move_right()
 
@@ -992,4 +1017,174 @@ class BaseRecordsState(State):
             self.prev_menu.draw(surf, offset=(self.prev_offset_x, self.prev_offset_y))
         if self.mouse_indicator:
             self.mouse_indicator.draw(surf)
+        return surf
+
+
+class BaseBEXPSelectState(prep.PrepManageState):
+    name = 'base_bexp_select'
+
+    def create_quick_disp(self):
+        sprite = SPRITES.get('buttons')
+        buttons = [sprite.subsurface(0, 66, 14, 13)]
+        font = FONT['text-white']
+        commands = ['Manage']
+        commands = [text_funcs.translate(c) for c in commands]
+        size = (49 + max(font.width(c) for c in commands), 24)
+        bg_surf = base_surf.create_base_surf(size[0], size[1], 'menu_bg_brown')
+        bg_surf = image_mods.make_translucent(bg_surf, 0.1)
+        bg_surf.blit(buttons[0], (12 - buttons[0].get_width() // 2, 18 - buttons[0].get_height()))
+        for idx, command in enumerate(commands):
+            font.blit(command, bg_surf, (30, idx * 16 + 3))
+        return bg_surf
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+        elif 'LEFT' in directions:
+            if self.menu.move_left(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+        elif 'RIGHT' in directions:
+            if self.menu.move_right(first_push):
+                SOUNDTHREAD.play_sfx('Select 5')
+
+        if event == 'SELECT':
+            unit = self.menu.get_current()
+            game.memory['current_unit'] = unit
+            game.memory['next_state'] = 'base_bexp_allocate'
+            game.state.change('transition_to')
+            SOUNDTHREAD.play_sfx('Select 1')
+        elif event == 'BACK':
+            game.state.change('transition_pop')
+            SOUNDTHREAD.play_sfx('Select 4')
+        elif event == 'INFO':
+            SOUNDTHREAD.play_sfx('Select 1')
+            game.memory['scroll_units'] = game.get_units_in_party()
+            game.memory['next_state'] = 'info_menu'
+            game.memory['current_unit'] = self.menu.get_current()
+            game.state.change('transition_to')
+
+
+class BaseBEXPAllocateState(State):
+    show_map = False
+    name = 'base_bexp_allocate'
+
+    def start(self):
+        self.fluid = FluidScroll()
+        self.unit = game.memory['current_unit']
+        # These 2 need removal
+        options = ['Right: +1 EXP', 'Left: -1 EXP', 'Up: To Next Level',
+                   'Down: Reset']
+        self.menu = menus.Choice(self.unit, options, (128, 80))
+        self.menu.draw_cursor = False
+
+        # This draws the controls
+        self.buttons = [SPRITES.get('buttons').subsurface(1, 19, 13, 12),
+                        SPRITES.get('buttons').subsurface(1, 4, 13, 12),
+                        SPRITES.get('buttons').subsurface(1, 50, 12, 13),
+                        SPRITES.get('buttons').subsurface(1, 34, 12, 13)]
+        self.font = FONT['text-white']
+        self.commands = ['+1 EXP', '-1 EXP', 'To Next Level', 'Reset']
+        pos = (
+            33 + self.font.size(self.commands[2])[0] + 4, self.font.size(self.commands[2])[1] * len(self.commands) + 8)
+        self.quick_sort_disp = base_surf.create_base_surf(pos[0], pos[1], 'menu_bg_brown')
+        self.quick_sort_disp = image_mods.make_translucent(self.quick_sort_disp, 10)
+        for idx, button in enumerate(self.buttons):
+            self.quick_sort_disp.blit(button, (
+                10 - button.get_width() // 2, idx * self.font.height + 8 - button.get_height() // 2 + 4))
+        for idx, command in enumerate(self.commands):
+            self.font.blit(command, self.quick_sort_disp, (25, idx * self.font.height + 4))
+
+        self.bg = game.memory['base_bg']
+
+        # Sets up variables, needed for display and calculations
+        self.current_bexp = int(game.get_bexp())
+        self.new_bexp = int(game.get_bexp())
+        self.current_exp = int(self.unit.exp)
+        self.new_exp = int(self.unit.exp)
+        # This is Radiant Dawn's formula, can be adjusted per user's needs.
+        # Note that this does take tier zero into account. A level 5 fighter who promoted from Journeyman would be treated as level 15.
+        self.determine_needed_bexp(int(self.unit.get_internal_level()))
+
+    def determine_needed_bexp(self, level):
+        self.bexp_needed = 50 * level + 50
+        self.exp_increment = int(self.bexp_needed / 100)
+
+    # Player input is handled here
+    def take_input(self, event):
+        first_push = self.fluid.update(game)
+        directions = self.fluid.get_directions()
+
+        # Down resets values to their starting values
+        if 'DOWN' in directions:
+            if self.new_exp > self.current_exp:
+                SOUNDTHREAD.play_sfx('Select 5')
+                self.new_bexp = self.current_bexp
+                self.new_exp = self.current_exp
+            elif first_push:
+                SOUNDTHREAD.play_sfx('Error')
+        # Right increments by 1 EXP
+        elif 'RIGHT' in directions:
+            if self.new_exp < 100 and self.new_bexp > 0 and self.new_bexp >= self.exp_increment:
+                SOUNDTHREAD.play_sfx('Select 5')
+                self.new_exp += 1
+                self.new_bexp -= self.exp_increment
+            elif first_push:
+                SOUNDTHREAD.play_sfx('Error')
+        # Left decrements by 1 EXP
+        elif 'LEFT' in directions:
+            SOUNDTHREAD.play_sfx('Select 5')
+            if self.new_exp > self.current_exp:
+                self.new_exp -= 1
+                self.new_bexp += self.exp_increment
+        # Up attempts to get us to 100 EXP, or the highest amount possible if 100 cannot be reached.
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 5')
+            if self.new_exp < 100 and self.new_bexp > self.exp_increment:
+                amount_needed = (100 - self.new_exp) * self.exp_increment
+                if self.new_bexp >= amount_needed:
+                    self.new_bexp -= amount_needed
+                    self.new_exp = 100
+                else:
+                    self.new_exp += int(self.new_bexp / self.exp_increment)
+                    self.new_bexp = self.new_bexp % self.exp_increment
+
+        # Allocates EXP, performs level up, and sets values as needed
+        if event == 'SELECT':
+            if self.new_exp > self.current_exp:
+                SOUNDTHREAD.play_sfx('Select 1')
+                exp_to_gain = self.new_exp - self.current_exp
+                if DB.constants.value('rd_bexp_lvl'):
+                    game.memory['exp_method'] = 'BEXP'
+                game.exp_instance.append((self.unit, exp_to_gain, None, 'init'))
+                game.state.change('exp')
+                if self.new_exp == 100:
+                    self.current_exp = 0
+                    self.new_exp = 0
+                    self.determine_needed_bexp(int(self.unit.get_internal_level() + 1))
+                else:
+                    self.current_exp = self.new_exp
+                self.current_bexp = self.new_bexp
+                game.set_bexp(self.current_bexp)
+
+            # Resets values to starting values and goes back to previous menu
+        elif event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
+            self.new_bexp = self.current_exp
+            self.new_bexp = self.current_bexp
+            game.state.change('transition_pop')
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        self.menu.draw(surf)
+        menus.draw_unit_bexp(surf, (6, 72), self.unit, self.new_exp, self.new_bexp, self.current_bexp,
+                             include_face=True, include_top=True, shimmer=2)
         return surf

@@ -1,13 +1,17 @@
+from functools import partial
+
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QToolButton, \
     QSpinBox, QLineEdit, QPushButton, QCheckBox, QVBoxLayout, \
     QGroupBox, QFormLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor, QPixmap
 
+from app.editor.settings import MainSettingsController
+
 from app.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 
-from app.editor.frame_selector import FrameSelector
+from app.editor.combat_animation_editor.frame_selector import FrameSelector
 from app.extensions.color_icon import ColorIcon
 from app.extensions.custom_gui import ComboBox
 
@@ -21,8 +25,17 @@ class CombatCommand(QWidget):
         hbox.setContentsMargins(0, 0, 0, 0)
         self.setLayout(hbox)
 
+        self.setToolTip(self._data.desc)
+
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
         icon_label = QLabel()
-        pixmap = QPixmap("icons/icons/command_%s.png" % self._data.tag)
+        pixmap = QPixmap(f"{icon_folder}/command_%s.png" % self._data.tag)
         pixmap = pixmap.scaled(32, 32)
         icon_label.setPixmap(pixmap)
         hbox.addWidget(icon_label)
@@ -32,11 +45,11 @@ class CombatCommand(QWidget):
 
         self.create_editor(hbox)
 
-        # x_button = QToolButton(self)
-        # x_button.setIcon(QIcon("icons/icons/x.png"))
-        # x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
-        # x_button.clicked.connect(functools.partial(self.window.remove_command, self._data))
-        # hbox.addWidget(x_button, Qt.AlignRight)
+        x_button = QToolButton(self)
+        x_button.setIcon(QIcon(f"{icon_folder}/x.png"))
+        x_button.setStyleSheet("QToolButton { border: 0px solid #575757; background-color: palette(base); }")
+        x_button.clicked.connect(partial(self.window.remove_command_widget, self))
+        hbox.addWidget(x_button, Qt.AlignRight)
 
     def create_editor(self, hbox):
         raise NotImplementedError

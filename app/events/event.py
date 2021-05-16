@@ -271,8 +271,10 @@ class Event():
             return False
         elif command.nid == 'end':
             logging.info('%s: %s', command.nid, command.values)
-            self.if_stack.pop()
-            self.parse_stack.pop()
+            if self.if_stack:
+                self.if_stack.pop()
+            if self.parse_stack:
+                self.parse_stack.pop()
             return False
 
         if self.if_stack and not self.if_stack[-1]:
@@ -612,6 +614,9 @@ class Event():
 
         elif command.nid == 'give_money':
             self.give_money(command)
+
+        elif command.nid == 'give_bexp':
+            self.give_bexp(command)
 
         elif command.nid == 'give_exp':
             self.give_exp(command)
@@ -1031,6 +1036,9 @@ class Event():
             new_ending = dialog.Ending(portrait, title, text, unit)
             self.text_boxes.append(new_ending)
             self.state = 'dialog'
+
+        elif command.nid == 'pop_dialog':
+            self.text_boxes.pop()
 
         elif command.nid == 'unlock':
             # This is a macro that just adds new commands to command list
@@ -1873,6 +1881,32 @@ class Event():
                 b = banner.Advanced(['Got ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'], 'Item')
             else:
                 b = banner.Advanced(['Lost ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'], 'ItemBreak')
+            game.alerts.append(b)
+            game.state.change('alert')
+            self.state = 'paused'
+
+    def give_bexp(self, command):
+        values, flags = event_commands.parse(command)
+        # bexp = int(values[0])
+        val = 0
+        if len(values) > 1 and values[1]:
+            party_nid = values[1]
+        else:
+            party_nid = game.current_party
+        to_eval = values[0]
+        try:
+            val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
+            action.do(action.GiveBexp(party_nid, val))
+        except:
+            logging.error("Could not evaluate {%s}" % to_eval)
+        banner_flag = 'no_banner' not in flags
+
+        # action.do(action.GiveBexp(party_nid, bexp))
+        if banner_flag:
+            if len(values) > 2 and values[2]:
+                b = banner.Advanced([values[2], ": ", str(val), " BEXP."], ['text-blue', 'text-white', 'text-blue', "text-white"], 'Item')
+            else:
+                b = banner.Advanced(['Got ', str(val), ' BEXP.'], ['text-white', 'text-blue', 'text-white'], 'Item')
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'

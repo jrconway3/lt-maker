@@ -1,16 +1,17 @@
 from app.utilities.data import Data
 
 class CombatAnimationCommand():
-    def __init__(self, nid=None, name='', attr=bool, value=True, tag=None):
+    def __init__(self, nid=None, name='', attr=bool, value=True, tag=None, desc=''):
         self.nid: str = nid
         self.name: str = name
         self.attr: tuple = attr  # Can have multiple attributes
         self.value: tuple = value
         self.tag: str = tag
+        self.desc: str = desc
 
     @classmethod
     def copy(cls, other):
-        return cls(other.nid, other.name, other.attr, other.value, other.tag)
+        return cls(other.nid, other.name, other.attr, other.value, other.tag, other.desc)
 
     def save(self):
         return self.nid, self.value
@@ -96,12 +97,12 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
     return command
 
 anim_commands = Data([
-    CombatAnimationCommand('frame', 'Display Frame', (int, 'frame'), (0, None), 'frame'),
-    CombatAnimationCommand('wait', 'Wait', (int,), (0,), 'frame'),
-    CombatAnimationCommand('over_frame', 'Display Over Frame', (int, 'frame'), (0, None), 'frame'),
-    CombatAnimationCommand('under_frame', 'Display Under Frame', (int, 'frame'), (0, None), 'frame'),
-    CombatAnimationCommand('dual_frame', 'Display Dual Frame', (int, 'frame', 'frame'), (0, None, None), 'frame'),
-    CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame'),
+    CombatAnimationCommand('frame', 'Display Frame', (int, 'frame'), (0, None), 'frame', 'Displays the animation image for # of frames'),
+    CombatAnimationCommand('wait', 'Wait', (int,), (0,), 'frame', "Don't display any image for # of frames"),
+    CombatAnimationCommand('over_frame', 'Display Over Frame', (int, 'frame'), (0, None), 'frame', 'Displays the animation image above all other images for # of frames'),
+    CombatAnimationCommand('under_frame', 'Display Under Frame', (int, 'frame'), (0, None), 'frame', 'Displays the animation image below all other images for # of frames'),
+    CombatAnimationCommand('dual_frame', 'Display Dual Frame', (int, 'frame', 'frame'), (0, None, None), 'frame', 'Display two animation images at the same time for # of frames. The second is always the bottommost image drawn'),
+    CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame', 'Displays the animation image with a custom (x, y) offset for # of frames'),
     
     CombatAnimationCommand('sound', 'Play Sound', 'sound', (None,), 'sound'),
     CombatAnimationCommand('stop_sound', 'Stop Sound', 'sound', (None,), 'sound'),

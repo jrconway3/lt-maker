@@ -89,6 +89,15 @@ def hash_to_color(h: int) -> tuple:
     color = colorsys.hls_to_rgb(hue / 360., lightness, saturation)
     return tuple([int(_ * 255) for _ in color])
 
+def color_to_hex(c: tuple) -> str:
+    return '#%02x%02x%02x' % (c[0], c[1], c[2])
+
+def hsv2rgb(h: float, s: float, v: float) -> tuple:
+    return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h, s, v))
+
+def rgb2hsv(r: int, g: int, b: int) -> tuple:
+    return tuple(colorsys.rgb_to_hsv(r, g, b))
+
 def average_pos(pos_list: list) -> tuple:
     avg_x, avg_y = 0, 0
     for x, y in pos_list:

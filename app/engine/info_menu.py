@@ -712,6 +712,17 @@ class InfoMenuState(State):
                 FONT['text-yellow'].blit('Rat', surf, (72, 16 * true_idx + 24))
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Rating_desc', state)
 
+            if DB.constants.value('lead'):
+                FONT['text-yellow'].blit('Lead', surf, (72, 120))
+                self.info_graph.register((96 + 72, 120, 64, 16), 'Lead_desc', state)
+
+                if growths:
+                    icons.draw_growth(surf, 'LEAD', self.unit, (111, 120))
+                else:
+                    icons.draw_stat(surf, 'LEAD', self.unit, (111, 120))
+                    lead_surf = engine.subsurface(SPRITES.get('lead_star'), (0, 16, 16, 16))
+                    surf.blit(lead_surf, (111, 120))
+
         return surf
 
     def draw_personal_data_surf(self, surf):

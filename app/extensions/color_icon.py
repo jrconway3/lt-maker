@@ -8,7 +8,7 @@ class ColorIcon(QPushButton):
 
     def __init__(self, color, parent):
         super().__init__(parent)
-        self._color = None
+        self._color: QColor = None
         self.change_color(color)
 
         self.set_size(self.size)
@@ -25,10 +25,10 @@ class ColorIcon(QPushButton):
     def change_color(self, color):
         if color != self._color:
             self._color = color
-            self.colorChanged.emit(QColor(color))
+            self.colorChanged.emit(color)
 
         if self._color:
-            self.setStyleSheet("background-color: %s;" % self._color)
+            self.setStyleSheet("background-color: %s;" % self._color.name())
         else:
             self.setStyleSheet("")
 
@@ -38,15 +38,15 @@ class ColorIcon(QPushButton):
     def onColorPicker(self):
         dlg = QColorDialog()
         if self._color:
-            dlg.setCurrentColor(QColor(self._color))
+            dlg.setCurrentColor(self._color)
         if dlg.exec_():
-            self.change_color(dlg.currentColor().name())
+            self.change_color(dlg.currentColor())
 
 class AlphaColorIcon(ColorIcon):
     def onColorPicker(self):
         dlg = QColorDialog()
         dlg.setOption(QColorDialog.ShowAlphaChannel, True)
         if self._color:
-            dlg.setCurrentColor(QColor(self._color))
+            dlg.setCurrentColor(self._color)
         if dlg.exec_():
-            self.change_color(dlg.currentColor().name(QColor.HexArgb))
+            self.change_color(dlg.currentColor())

@@ -959,13 +959,7 @@ class CommandDelegate(QStyledItemDelegate):
             horiz_advance = QFontMetrics(font).horizontalAdvance(command.nid)
             font.setBold(False)
             painter.setFont(font)
-            # pen = painter.pen()
-            # pen.setStyle(Qt.DotLine)
-            # painter.setPen(pen)
-            # painter.drawLine(left, top + 1.25 * font_height, right, top + 1.25 * font_height)
             keywords = ";".join(command.keywords)
-            optional_keywords = ";".join(command.optional_keywords)
-            flags = ";".join(command.flags)
             if keywords:
                 painter.drawText(left + horiz_advance, top + font_height, ";" + keywords)
         else:
@@ -977,11 +971,3 @@ class CommandDelegate(QStyledItemDelegate):
             font.setPointSize(prev_size)
             painter.setFont(font)
             painter.drawLine(left, top + 1.25 * font_height, right, top + 1.25 * font_height)
-        # italics
-        # font.setItalic(True)
-        # painter.drawText(left, top + font_height*3 + 4, optional_keywords)
-        # if flags:
-            # painter.drawText(left, top + font_height*4 + 4, "Optional Flags: {" + flags + "}")
-        # pen.setStyle(Qt.SolidLine)
-        # painter.setPen(pen)
-        # painter.drawLine(left, top + 4.5 * font_height, right, top + 4.5 * font_height)

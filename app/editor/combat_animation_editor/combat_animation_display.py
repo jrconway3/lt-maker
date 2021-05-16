@@ -1,128 +1,29 @@
 import time, os, pickle
-from pprint import pprint
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
     QMessageBox, QStyle, QHBoxLayout, QPushButton, QLineEdit, \
-    QLabel, QToolButton, QInputDialog, QColorDialog
-from PyQt5.QtCore import Qt, QByteArray, QDataStream, QIODevice
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, QPainter, QColor
+    QLabel, QToolButton, QInputDialog
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QImage, QPixmap, QIcon, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.utilities.data import Data
-from app.resources.resources import RESOURCES
 from app.data.database import DB
 from app.resources import combat_anims
 
 from app.editor.settings import MainSettingsController
 
-from app.editor.timer import get_timer
+from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
-from app.editor.base_database_gui import DatabaseTab, ResourceCollectionModel
-from app.editor.palette_display import PaletteMenu
-from app.editor.timeline_menu import TimelineMenu
-from app.editor.frame_selector import FrameSelector
+from app.editor.combat_animation_editor.palette_menu import PaletteMenu
+from app.editor.combat_animation_editor.timeline_menu import TimelineMenu
+from app.editor.combat_animation_editor.frame_selector import FrameSelector
+from app.editor.combat_animation_editor.combat_animation_model import palette_swap
 import app.editor.combat_animation_editor.combat_animation_imports as combat_animation_imports
-from app.extensions.custom_gui import ResourceListView, ComboBox, DeletionDialog
+from app.extensions.custom_gui import ComboBox
 
 import app.editor.utilities as editor_utilities
 from app import utilities
-
-class CombatAnimDisplay(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = RESOURCES.combat_anims
-        title = "Combat Animation"
-        right_frame = CombatAnimProperties
-        collection_model = CombatAnimModel
-        deletion_criteria = None
-
-        dialog = cls(data, title, right_frame, deletion_criteria,
-                     collection_model, parent, button_text="Add New %s...",
-                     view_type=ResourceListView)
-        return dialog
-
-class CombatAnimModel(ResourceCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            animation = self._data[index.row()]
-            text = animation.nid
-            return text
-        elif role == Qt.DecorationRole:
-            # TODO create icon out of standing image
-            return None
-        return None
-
-    def create_new(self):
-        nid = utilities.get_next_name('New Combat Anim', self._data.keys())
-        new_anim = combat_anims.CombatAnimation(nid)
-        self._data.append(new_anim)
-        return new_anim
-
-    def delete(self, idx):
-        # Check to see what is using me?
-        res = self._data[idx]
-        nid = res.nid
-        affected_classes = [klass for klass in DB.classes if klass.male_combat_anim_nid == nid or klass.female_combat_anim_nid == nid]
-
-        if affected_classes:
-            affected = Data(affected_classes)
-            from app.editor.class_editor.class_model import ClassModel
-            model = ClassModel
-            msg = "Deleting Combat Animation <b>%s</b> would affect these classes"
-            ok = DeletionDialog.inform(affected, model, msg, self.window)
-            if ok:
-                pass
-            else:
-                return
-        super().delete(idx)
-
-class AnimView(IconView):
-    def get_color_at_pos(self, pixmap, pos):
-        image = pixmap.toImage()
-        current_color = image.pixel(*pos)
-        color = QColor(current_color)
-        return (color.red(), color.green(), color.blue())
-
-    def mousePressEvent(self, event):
-        super().mousePressEvent(event)
-        scene_pos = self.mapToScene(event.pos())
-        pos = int(scene_pos.x()), int(scene_pos.y())
-
-        # Need to get original frame with base palette
-        frame_nid = self.window.frame_nid
-        if not frame_nid:
-            return
-        weapon_anim = self.window.get_current_weapon_anim()
-        frame = weapon_anim.frames.get(frame_nid)
-        if not frame:
-            return
-        offset_x, offset_y = frame.offset
-        pos = pos[0] - offset_x, pos[1] - offset_y
-        pixmap = frame.pixmap
-
-        if event.button() == Qt.LeftButton:
-            base_color = self.get_color_at_pos(pixmap, pos)
-            palette = self.window.get_current_palette()
-            base_colors = combat_anims.base_palette.colors
-            if base_color not in base_colors:
-                print("Cannot find color: %s in %s" % (base_color, base_colors))
-                return
-            idx = base_colors.index(base_color)
-            dlg = QColorDialog()
-            c = palette.colors[idx]
-            print(c, flush=True)
-            dlg.setCurrentColor(QColor(*c))
-            if dlg.exec_():
-                new_color = QColor(dlg.currentColor())
-                print(new_color, flush=True)
-                color = new_color.getRgb()
-                print(color, flush=True)
-                palette_widget = self.window.palette_menu.get_palette_widget()
-                icon = palette_widget.color_icons[idx]
-                icon.change_color(new_color.name())
                 
 class CombatAnimProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -133,9 +34,7 @@ class CombatAnimProperties(QWidget):
         # Populate resources
         for combat_anim in self._data:
             for weapon_anim in combat_anim.weapon_anims:
-                if not hasattr(weapon_anim, 'pixmap'):
-                    weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
-
+                weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
                 for frame in weapon_anim.frames:
                     x, y, width, height = frame.rect
                     frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
@@ -154,12 +53,11 @@ class CombatAnimProperties(QWidget):
         self.under_frame_nid = None
         self.custom_frame_offset = None
 
-        self.anim_view = AnimView(self)
+        self.anim_view = IconView(self)
         self.anim_view.static_size = True
         self.anim_view.setSceneRect(0, 0, WINWIDTH, WINHEIGHT)
 
         self.palette_menu = PaletteMenu(self)
-        # self.palette_menu.palette_changed.connect(self.palette_changed)
         self.timeline_menu = TimelineMenu(self)
 
         view_section = QVBoxLayout()
@@ -184,7 +82,7 @@ class CombatAnimProperties(QWidget):
         label.setAlignment(Qt.AlignRight)
 
         self.speed_box = QSpinBox(self)
-        self.speed_box.setValue(60)
+        self.speed_box.setValue(30)
         self.speed_box.setRange(1, 240)
         self.speed_box.valueChanged.connect(self.speed_changed)
 
@@ -201,6 +99,13 @@ class CombatAnimProperties(QWidget):
         self.nid_box.textChanged.connect(self.nid_changed)
         self.nid_box.editingFinished.connect(self.nid_done_editing)
 
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
         self.weapon_box.currentIndexChanged.connect(self.weapon_changed)
@@ -209,11 +114,11 @@ class CombatAnimProperties(QWidget):
         self.new_weapon_button.clicked.connect(self.add_new_weapon)
         self.delete_weapon_button = QPushButton()
         self.delete_weapon_button.setMaximumWidth(30)
-        self.delete_weapon_button.setIcon(QIcon("icons/icons/x.png"))
+        self.delete_weapon_button.setIcon(QIcon(f"{icon_folder}/x.png"))
         self.delete_weapon_button.clicked.connect(self.delete_weapon)
         self.duplicate_weapon_button = QPushButton()
         self.duplicate_weapon_button.setMaximumWidth(30)
-        self.duplicate_weapon_button.setIcon(QIcon("icons/icons/duplicate.png"))
+        self.duplicate_weapon_button.setIcon(QIcon(f"{icon_folder}/duplicate.png"))
         self.duplicate_weapon_button.clicked.connect(self.duplicate_weapon)
         weapon_row.addWidget(self.weapon_box)
         weapon_row.addWidget(self.new_weapon_button)
@@ -228,11 +133,11 @@ class CombatAnimProperties(QWidget):
         self.new_pose_button.clicked.connect(self.add_new_pose)
         self.delete_pose_button = QPushButton()
         self.delete_pose_button.setMaximumWidth(30)
-        self.delete_pose_button.setIcon(QIcon("icons/icons/x.png"))
+        self.delete_pose_button.setIcon(QIcon(f"{icon_folder}/x.png"))
         self.delete_pose_button.clicked.connect(self.delete_pose)
         self.duplicate_pose_button = QPushButton()
         self.duplicate_pose_button.setMaximumWidth(30)
-        self.duplicate_pose_button.setIcon(QIcon("icons/icons/duplicate.png"))
+        self.duplicate_pose_button.setIcon(QIcon(f"{icon_folder}/duplicate.png"))
         self.duplicate_pose_button.clicked.connect(self.duplicate_pose)
         pose_row.addWidget(self.pose_box)
         pose_row.addWidget(self.new_pose_button)
@@ -251,6 +156,7 @@ class CombatAnimProperties(QWidget):
         self.import_from_lt_button.clicked.connect(self.import_lion_throne)
         self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
+        self.import_from_gba_button.setEnabled(False)
         self.import_png_button = QPushButton("View Frames...")
         self.import_png_button.clicked.connect(self.select_frame)
         frame_layout.addWidget(self.import_from_lt_button)
@@ -281,7 +187,7 @@ class CombatAnimProperties(QWidget):
         self.setLayout(final_section)
         final_section.addWidget(main_splitter)
 
-        get_timer().tick_elapsed.connect(self.tick)
+        timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
         self.draw_frame()
@@ -388,15 +294,13 @@ class CombatAnimProperties(QWidget):
     def get_available_weapon_types(self) -> list:
         items = []
         for weapon in DB.weapons:
-            if hasattr(weapon, 'magic'):
-                items.append("Magic" + weapon.nid)
-            else:
-                items.append(weapon.nid)
-                items.append("Ranged" + weapon.nid)
-                items.append("Magic" + weapon.nid)
+            items.append(weapon.nid)
+            items.append("Ranged" + weapon.nid)
+            items.append("Magic" + weapon.nid)
         items.append("MagicGeneric")
         items.append("Neutral")
         items.append("RangedNeutral")
+        items.append("MagicNeutral")
         items.append("Unarmed")
         items.append("Custom")
         for weapon_nid in self.current.weapon_anims.keys():
@@ -423,7 +327,7 @@ class CombatAnimProperties(QWidget):
     def duplicate_weapon(self):
         items = self.get_available_weapon_types()
 
-        new_nid, ok = QInputDialog.getItem(self, "New Weapon Animation", "Select Weapon Type", items, 0, False)
+        new_nid, ok = QInputDialog.getItem(self, "Duplicate Weapon Animation", "Select Weapon Type", items, 0, False)
         if not new_nid or not ok:
             return
         if new_nid == "Custom":
@@ -439,7 +343,7 @@ class CombatAnimProperties(QWidget):
         has_pixmap = False
 
         main_pixmap_backup = None
-        if hasattr(current_weapon, 'pixmap'):
+        if current_weapon.pixmap:
             main_pixmap_backup = current_weapon.pixmap #Could contain references
             current_weapon.pixmap = None
             has_pixmap = True
@@ -459,7 +363,7 @@ class CombatAnimProperties(QWidget):
             current_weapon.pixmap = main_pixmap_backup           
             new_weapon.pixmap = QPixmap(current_weapon.full_path)
 
-            for index in range(0,len(current_weapon.frames)):
+            for index in range(len(current_weapon.frames)):
                 frame = current_weapon.frames[index]
                 new_frame = new_weapon.frames[index]
                 x, y, width, height = frame.rect
@@ -574,9 +478,6 @@ class CombatAnimProperties(QWidget):
             self.pose_box.setValue(poses[0].nid)
         return poses
 
-    def palette_changed(self, palette):
-        pass
-
     def import_lion_throne(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
@@ -620,7 +521,7 @@ class CombatAnimProperties(QWidget):
             self.pose_box.clear()
             weapon_anim, poses = None, None
 
-        self.palette_menu.set_current(self.current.palettes)
+        self.palette_menu.set_current(self.current)
 
         if weapon_anim and poses:
             current_pose_nid = self.pose_box.currentText()
@@ -633,17 +534,12 @@ class CombatAnimProperties(QWidget):
         return self.palette_menu.get_palette()
 
     def modify_for_palette(self, pixmap: QPixmap) -> QImage:
-        current_palette = self.get_current_palette()
-        im = pixmap.toImage()
-        im_palette = combat_anims.base_palette
-        conv_dict = {qRgb(*a): qRgb(*b) for a, b in zip(im_palette.colors, current_palette.colors)}
-        im = editor_utilities.color_convert(im, conv_dict)
-        im = editor_utilities.convert_colorkey(im)
-        return im
+        current_palette_nid = self.get_current_palette()
+        return palette_swap(pixmap, current_palette_nid)
 
     def update(self):
         if self.playing:
-            current_time = time.time() * 1000
+            current_time = int(time.time_ns() / 1e6)
             framerate = 1000 / self.speed_box.value()
             milliseconds_past = current_time - self.last_update
             num_frames_passed = int(milliseconds_past / framerate)

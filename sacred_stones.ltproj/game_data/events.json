@@ -6268,6 +6268,14 @@
                 ]
             ],
             [
+                "give_bexp",
+                [
+                    "17000",
+                    "",
+                    "Wow"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "#trigger_script;Trigger"

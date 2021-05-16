@@ -1287,9 +1287,6 @@ class Event():
         if not position:
             return None
 
-        if DB.constants.get('timeline').value:
-            game.add_to_timeline(unit, game.timeline, pos=1)
-
         self._place_unit(unit, position, entry_type)
 
     def move_unit(self, command):

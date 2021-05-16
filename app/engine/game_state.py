@@ -75,6 +75,7 @@ class GameState():
         self.sweep()
         self.generic()
 
+
     def sweep(self):
         """
         Cleans up variables that need to be reset at the end of each level
@@ -194,7 +195,7 @@ class GameState():
                   'already_triggered_events': self.already_triggered_events,
                   'talk_options': self.talk_options,
                   'base_convos': self.base_convos,
-                  'current_random_state': static_random.get_combat_random_state()
+                  'current_random_state': static_random.get_combat_random_state(),
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
@@ -291,6 +292,7 @@ class GameState():
             self.cursor.autocursor(True)
 
         self.events = event_manager.EventManager.restore(s_dict.get('events'))
+
 
     def clean_up(self):
         from app.engine import item_system, skill_system, item_funcs, action, supports
@@ -392,16 +394,6 @@ class GameState():
     def units(self):
         return list(self.unit_registry.values())
 
-    def get_units_in_party(self, party=None):
-        if party is None:
-            party = self.current_party
-        return [unit for unit in self.unit_registry.values() if unit.team == 'player' and not unit.dead and not unit.generic and unit.party == party]
-
-    def get_all_units_in_party(self, party=None):
-        if party is None:
-            party = self.current_party
-        return [unit for unit in self.unit_registry.values() if unit.team == 'player' and not unit.generic and unit.party == party]
-
     def register_unit(self, unit):
         logger.debug("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
@@ -456,11 +448,24 @@ class GameState():
     def get_party(self, party_nid):
         return self.parties.get(party_nid)
 
+    def get_all_units(self):
+        return [unit for unit in self.level.units if unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
+
     def get_player_units(self):
-        return [unit for unit in self.unit_registry.values() if unit.team == 'player' and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
+        return [unit for unit in self.get_all_units() if unit.team == 'player']
 
     def get_enemy_units(self):
-        return [unit for unit in self.unit_registry.values() if unit.team.startswith('enemy') and unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
+        return [unit for unit in self.get_all_units() if unit.team.startswith('enemy')]
+
+    def get_all_units_in_party(self, party=None):
+        if party is None:
+            party = self.current_party
+        return [unit for unit in self.unit_registry.values() if unit.team == 'player' and not unit.generic and unit.party == party]
+
+    def get_units_in_party(self, party=None):
+        if party is None:
+            party = self.current_party
+        return [unit for unit in self.get_all_units_in_party() if not unit.dead]
 
     def check_dead(self, nid):
         unit = self.get_unit(nid)
@@ -647,6 +652,15 @@ class GameState():
 
     def set_money(self, val):
         self.parties[self.current_party].money = val
+
+    def get_bexp(self):
+        return self.parties[self.current_party].bexp
+
+    def inc_bexp(self, amount):
+        self.parties[self.current_party].bexp += amount
+
+    def set_bexp(self, amount):
+        self.parties[self.current_party].bexp = amount
 
 game = GameState()
 

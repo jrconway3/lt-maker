@@ -19,7 +19,8 @@
             "DEF": 3,
             "CON": 5,
             "MOV": 5,
-            "RES": 1
+            "RES": 1,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -31,7 +32,8 @@
             "DEF": 30,
             "CON": 0,
             "MOV": 0,
-            "RES": 30
+            "RES": 30,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -104,7 +106,8 @@
             "DEF": 11,
             "CON": 11,
             "MOV": 8,
-            "RES": 8
+            "RES": 8,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -116,7 +119,8 @@
             "DEF": 40,
             "CON": 0,
             "MOV": 0,
-            "RES": 30
+            "RES": 30,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -193,7 +197,8 @@
             "DEF": 6,
             "CON": 9,
             "MOV": 7,
-            "RES": 1
+            "RES": 1,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -205,7 +210,8 @@
             "DEF": 25,
             "CON": 0,
             "MOV": 0,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -286,7 +292,8 @@
             "DEF": 9,
             "CON": 14,
             "MOV": 4,
-            "RES": 3
+            "RES": 3,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -298,7 +305,8 @@
             "DEF": 55,
             "CON": 0,
             "MOV": 0,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -367,7 +375,8 @@
             "DEF": 6,
             "RES": 5,
             "CON": 5,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -379,7 +388,8 @@
             "DEF": 20,
             "RES": 30,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -456,7 +466,8 @@
             "DEF": 2,
             "RES": 5,
             "CON": 9,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -468,7 +479,8 @@
             "DEF": 25,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -541,7 +553,8 @@
             "DEF": 3,
             "RES": 0,
             "CON": 8,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -553,7 +566,8 @@
             "DEF": 30,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -626,7 +640,8 @@
             "DEF": 5,
             "RES": 1,
             "CON": 14,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -638,7 +653,8 @@
             "DEF": 25,
             "RES": 15,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -715,7 +731,8 @@
             "DEF": 3,
             "RES": 2,
             "CON": 5,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 55,
@@ -727,7 +744,8 @@
             "DEF": 15,
             "RES": 35,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -800,7 +818,8 @@
             "DEF": 3,
             "RES": 1,
             "CON": 6,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -812,7 +831,8 @@
             "DEF": 25,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -889,7 +909,8 @@
             "DEF": 2,
             "RES": 6,
             "CON": 6,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 55,
@@ -901,7 +922,8 @@
             "DEF": 15,
             "RES": 55,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -974,7 +996,8 @@
             "DEF": 3,
             "RES": 5,
             "CON": 3,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -986,7 +1009,8 @@
             "DEF": 15,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1055,7 +1079,8 @@
             "DEF": 2,
             "RES": 6,
             "CON": 4,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -1067,7 +1092,8 @@
             "DEF": 15,
             "RES": 55,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1140,7 +1166,8 @@
             "DEF": 5,
             "RES": 2,
             "CON": 8,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -1152,7 +1179,8 @@
             "DEF": 20,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1221,7 +1249,8 @@
             "DEF": 7,
             "RES": 2,
             "CON": 8,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -1233,7 +1262,8 @@
             "DEF": 35,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1310,7 +1340,8 @@
             "DEF": 8,
             "RES": 2,
             "CON": 9,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -1322,7 +1353,8 @@
             "DEF": 20,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1399,7 +1431,8 @@
             "DEF": 9,
             "RES": 1,
             "CON": 10,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -1411,7 +1444,8 @@
             "DEF": 25,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1488,7 +1522,8 @@
             "DEF": 13,
             "RES": 7,
             "CON": 12,
-            "MOV": 8
+            "MOV": 8,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -1500,7 +1535,8 @@
             "DEF": 45,
             "RES": 30,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1577,7 +1613,8 @@
             "DEF": 6,
             "RES": 7,
             "CON": 5,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -1589,7 +1626,8 @@
             "DEF": 20,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1666,7 +1704,8 @@
             "DEF": 2,
             "RES": 3,
             "CON": 6,
-            "MOV": 4
+            "MOV": 4,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -1678,7 +1717,8 @@
             "DEF": 35,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1755,7 +1795,8 @@
             "DEF": 10,
             "RES": 9,
             "CON": 9,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -1767,7 +1808,8 @@
             "DEF": 20,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1844,7 +1886,8 @@
             "DEF": 10,
             "RES": 4,
             "CON": 13,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -1856,7 +1899,8 @@
             "DEF": 35,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -1933,7 +1977,8 @@
             "DEF": 5,
             "RES": 4,
             "CON": 5,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -1945,7 +1990,8 @@
             "DEF": 30,
             "RES": 75,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2022,7 +2068,8 @@
             "DEF": 4,
             "RES": 3,
             "CON": 5,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -2034,7 +2081,8 @@
             "DEF": 15,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2107,7 +2155,8 @@
             "DEF": 5,
             "RES": 8,
             "CON": 5,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -2119,7 +2168,8 @@
             "DEF": 15,
             "RES": 50,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2196,7 +2246,8 @@
             "DEF": 11,
             "RES": 6,
             "CON": 16,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -2208,7 +2259,8 @@
             "DEF": 30,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2281,7 +2333,8 @@
             "DEF": 8,
             "RES": 13,
             "CON": 8,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -2293,7 +2346,8 @@
             "DEF": 30,
             "RES": 35,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2366,7 +2420,8 @@
             "DEF": 0,
             "RES": 3,
             "CON": 5,
-            "MOV": 4
+            "MOV": 4,
+            "LEAD": 0
         },
         "growths": {
             "HP": 60,
@@ -2378,7 +2433,8 @@
             "DEF": 20,
             "RES": 45,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2455,7 +2511,8 @@
             "DEF": 12,
             "RES": 2,
             "CON": 11,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -2467,7 +2524,8 @@
             "DEF": 25,
             "RES": 15,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2544,7 +2602,8 @@
             "DEF": 9,
             "RES": 11,
             "CON": 7,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -2556,7 +2615,8 @@
             "DEF": 25,
             "RES": 30,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2629,7 +2689,8 @@
             "DEF": 17,
             "RES": 9,
             "CON": 15,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -2641,7 +2702,8 @@
             "DEF": 45,
             "RES": 30,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2720,7 +2782,8 @@
             "DEF": 2,
             "CON": 11,
             "MOV": 5,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -2732,7 +2795,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2803,7 +2867,8 @@
             "DEF": 9,
             "CON": 13,
             "MOV": 4,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -2815,7 +2880,8 @@
             "DEF": 28,
             "CON": 0,
             "MOV": 0,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2886,7 +2952,8 @@
             "DEF": 5,
             "CON": 12,
             "MOV": 5,
-            "RES": 1
+            "RES": 1,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -2898,7 +2965,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -2969,7 +3037,8 @@
             "DEF": 5,
             "CON": 12,
             "MOV": 5,
-            "RES": 3
+            "RES": 3,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -2981,7 +3050,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -3056,7 +3126,8 @@
             "DEF": 11,
             "CON": 13,
             "MOV": 4,
-            "RES": 3
+            "RES": 3,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -3068,7 +3139,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -3137,7 +3209,8 @@
             "DEF": 11,
             "RES": 18,
             "CON": 6,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -3149,7 +3222,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -3222,7 +3296,8 @@
             "DEF": 21,
             "RES": 13,
             "CON": 17,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -3234,7 +3309,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -3307,7 +3383,8 @@
             "DEF": 16,
             "RES": 14,
             "CON": 13,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -3319,7 +3396,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -3396,7 +3474,8 @@
             "DEF": 14,
             "RES": 13,
             "CON": 11,
-            "MOV": 8
+            "MOV": 8,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -3408,7 +3487,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -3485,7 +3565,8 @@
             "DEF": 16,
             "RES": 20,
             "CON": 7,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -3497,7 +3578,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [
@@ -3566,7 +3648,8 @@
             "DEF": 17,
             "RES": 20,
             "CON": 7,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -3578,7 +3661,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "starting_items": [
             [

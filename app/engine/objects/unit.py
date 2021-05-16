@@ -321,7 +321,7 @@ class UnitObject(Prefab):
         self.get_weapon()
         self.get_accessory()
 
-    def get_internal_level(self):
+    def get_internal_level(self) -> int:
         klass = DB.classes.get(self.klass)
         if klass.tier == 0:
             return self.level - klass.max_level

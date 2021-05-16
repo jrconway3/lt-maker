@@ -185,7 +185,7 @@ class StatModel(VirtualListModel):
         if role == Qt.DisplayRole or role == Qt.EditRole:
             row = self._data[index.row()]  # row is a dict
             key = self._columns[index.column()]
-            val = row.get(key, 0)
+            val = row.get(key, DB.stats.get(key).maximum)
             return val
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignRight + Qt.AlignVCenter
@@ -324,7 +324,7 @@ class ClassStatAveragesModel(VirtualListModel):
                 level_ups += 0
         stat_base = obj.bases.get(stat_nid, 0)
         stat_growth = obj.growths.get(stat_nid, 0)
-        stat_max = obj.max_stats.get(stat_nid, 0)
+        stat_max = obj.max_stats.get(stat_nid, DB.stats.get(stat_nid).maximum)
 
         average = int(stat_base + 0.5 + (stat_growth/100) * level_ups)
 
@@ -400,7 +400,7 @@ class GenericStatAveragesModel(ClassStatAveragesModel):
                 level_ups += 0
         stat_base = klass.bases.get(stat_nid, 0)
         stat_growth = klass.growths.get(stat_nid, 0)
-        stat_max = klass.max_stats.get(stat_nid, 0)
+        stat_max = klass.max_stats.get(stat_nid, DB.stats.get(stat_nid).maximum)
 
         average = int(stat_base + 0.5 + (stat_growth/100) * level_ups)
 
@@ -471,7 +471,7 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
             if idx != 0:
                 level_ups -= 1  # Costs one level to move up a class
             klass = DB.classes.get(klass)
-            stat_max = klass.max_stats.get(stat_nid, 0)
+            stat_max = klass.max_stats.get(stat_nid, DB.stats.get(stat_nid).maximum)
             if idx == 0:
                 ticks = utils.clamp(level_ups, 0, klass.max_level - obj.level)
             else:

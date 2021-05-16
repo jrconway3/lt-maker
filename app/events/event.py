@@ -1357,9 +1357,6 @@ class Event():
         else:
             remove_type = 'fade'
 
-        if DB.constants.get('timeline').value:
-            game.remove_from_timeline(unit, game.timeline)
-
         if self.do_skip:
             action.do(action.LeaveMap(unit))
         elif remove_type == 'warp':
@@ -1377,9 +1374,6 @@ class Event():
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
             return
-
-        if DB.constants.get('timeline').value:
-            game.remove_from_timeline(unit, game.timeline)
 
         if not unit.position:
             unit.dead = True
@@ -1460,8 +1454,6 @@ class Event():
             if not position:
                 logging.warning("Couldn't determine valid position for %s?", unit.nid)
                 continue
-            if DB.constants.get('timeline').value:
-                game.add_to_timeline(unit, game.timeline, pos=1)
             self._place_unit(unit, position, entry_type)
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
@@ -1569,8 +1561,6 @@ class Event():
                 continue
 
             if self._add_unit_from_direction(unit, position, cardinal_direction, placement):
-                if DB.constants.get('timeline').value:
-                    game.add_to_timeline(unit, game.timeline, pos=1)
                 self._move_unit(movement_type, placement, follow, unit, position)
             else:
                 logging.error("Couldn't add unit %s to position %s" % (unit.nid, position))
@@ -1626,8 +1616,6 @@ class Event():
         for unit_nid in group.units:
             unit = game.get_unit(unit_nid)
             if unit.position:
-                if DB.constants.get('timeline').value:
-                    game.remove_from_timeline(unit, game.timeline)
                 if self.do_skip:
                     action.do(action.LeaveMap(unit))
                 elif remove_type == 'warp':
@@ -1808,9 +1796,6 @@ class Event():
         game.full_register(new_unit)
         if assign_unit:
             self.unit = new_unit
-
-        if DB.constants.get('timeline').value:
-            game.add_to_timeline(unit, game.timeline, pos=1)
 
         self._place_unit(new_unit, position, entry_type)
 

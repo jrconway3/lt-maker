@@ -86,5 +86,9 @@
     {
         "nid": "CONSTITUTION",
         "expression": "CON"
+    },
+    {
+        "nid": "TIMELINESPEED",
+        "expression": "SKL + LCK//2"
     }
 ]

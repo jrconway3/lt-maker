@@ -53,6 +53,9 @@ class BaseMainState(State):
         if game.game_vars.get('_supports') and DB.support_constants.value('base_convos'):
             options.insert(2, 'Supports')
             ignore.insert(2, False)
+        if DB.constants.value('bexp'):
+            options.insert(2, 'Bonus EXP')
+            ignore.insert(2, False)
         if game.game_vars.get('_base_market'):
             options.insert(1, 'Market')
             if game.market_items:
@@ -62,9 +65,6 @@ class BaseMainState(State):
         if cf.SETTINGS['debug']:
             options.insert(0, 'Debug')
             ignore.insert(0, False)
-        if DB.constants.value('bexp'):
-            options.insert(2, 'Bonus EXP')
-            ignore.insert(2, False)
 
         topleft = 4, WINHEIGHT // 2 - (len(options) * 16 + 8) // 2
         self.menu = menus.Choice(None, options, topleft=topleft)
@@ -1111,9 +1111,11 @@ class BaseBEXPAllocateState(State):
         self.new_exp = int(self.unit.exp)
         # This is Radiant Dawn's formula, can be adjusted per user's needs.
         # Note that this does take tier zero into account. A level 5 fighter who promoted from Journeyman would be treated as level 15.
-        self.bexp_needed = (50 * (int(self.unit.get_internal_level()))) + 50
-        self.exp_increment = int(self.bexp_needed / 100)
+        self.determine_needed_bexp(int(self.unit.get_internal_level()))
 
+    def determine_needed_bexp(self, level):
+        self.bexp_needed = 50 * level + 50
+        self.exp_increment = int(self.bexp_needed / 100)
 
     # Player input is handled here
     def take_input(self, event):
@@ -1122,16 +1124,20 @@ class BaseBEXPAllocateState(State):
 
         # Down resets values to their starting values
         if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
             if self.new_exp > self.current_exp:
+                SOUNDTHREAD.play_sfx('Select 5')
                 self.new_bexp = self.current_bexp
                 self.new_exp = self.current_exp
+            elif first_push:
+                SOUNDTHREAD.play_sfx('Error')
         # Right increments by 1 EXP
         elif 'RIGHT' in directions:
-            SOUNDTHREAD.play_sfx('Select 5')
             if self.new_exp < 100 and self.new_bexp > 0 and self.new_bexp >= self.exp_increment:
+                SOUNDTHREAD.play_sfx('Select 5')
                 self.new_exp += 1
                 self.new_bexp -= self.exp_increment
+            elif first_push:
+                SOUNDTHREAD.play_sfx('Error')
         # Left decrements by 1 EXP
         elif 'LEFT' in directions:
             SOUNDTHREAD.play_sfx('Select 5')
@@ -1143,12 +1149,14 @@ class BaseBEXPAllocateState(State):
             SOUNDTHREAD.play_sfx('Select 5')
             if self.new_exp < 100 and self.new_bexp > self.exp_increment:
                 amount_needed = (100 - self.new_exp) * self.exp_increment
-                if self.current_bexp >= amount_needed:
+                print(amount_needed, self.current_bexp, self.new_bexp, self.new_exp)
+                if self.new_bexp >= amount_needed:
                     self.new_bexp -= amount_needed
                     self.new_exp = 100
                 else:
-                    self.new_exp += int(self.current_bexp / self.exp_increment)
-                    self.new_bexp = int(self.current_bexp % self.exp_increment)
+                    self.new_exp += int(self.new_bexp / self.exp_increment)
+                    self.new_bexp = self.new_bexp % self.exp_increment
+                print(self.new_exp, self.new_bexp, self.exp_increment)
 
         # Allocates EXP, performs level up, and sets values as needed
         if event == 'SELECT':
@@ -1156,13 +1164,13 @@ class BaseBEXPAllocateState(State):
                 SOUNDTHREAD.play_sfx('Select 1')
                 exp_to_gain = self.new_exp - self.current_exp
                 if DB.constants.value('rd_bexp_lvl'):
-                    game.exp_instance.append((self.unit, exp_to_gain, None, 'init', 'rdbexp'))
-                else:
-                    game.exp_instance.append((self.unit, exp_to_gain, None, 'init'))
+                    game.memory['exp_method'] = 'BEXP'
+                game.exp_instance.append((self.unit, exp_to_gain, None, 'init'))
                 game.state.change('exp')
                 if self.new_exp == 100:
                     self.current_exp = 0
                     self.new_exp = 0
+                    self.determine_needed_bexp(int(self.unit.get_internal_level() + 1))
                 else:
                     self.current_exp = self.new_exp
                 self.current_bexp = self.new_bexp
@@ -1175,7 +1183,6 @@ class BaseBEXPAllocateState(State):
             self.new_bexp = self.current_bexp
             game.state.change('transition_pop')
 
-
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
@@ -1183,4 +1190,3 @@ class BaseBEXPAllocateState(State):
         menus.draw_unit_bexp(surf, (6, 72), self.unit, self.new_exp, self.new_bexp, self.current_bexp,
                              include_face=True, include_top=True, shimmer=2)
         return surf
-

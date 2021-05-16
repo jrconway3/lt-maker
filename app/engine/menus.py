@@ -16,36 +16,46 @@ from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.game_state import game
 
+def draw_unit_top(surf, topleft, unit):
+    x, y = topleft
+    white_surf = SPRITES.get('prep_top')
+    surf.blit(white_surf, (x - 6, y - white_surf.get_height()))
+    icons.draw_chibi(surf, unit.portrait_nid, (x + 3, y - 35))
+    FONT['text-white'].blit_center(unit.name, surf, (x + 68, y - 35))
+    FONT['text-blue'].blit_right(str(unit.level), surf, (x + 72, y - 19))
+    FONT['text-blue'].blit_right(str(unit.exp), surf, (x + 97, y - 19))
+
+def make_bg_surf(shimmer):
+    bg_surf = create_base_surf(104, 16 * DB.constants.total_items() + 8, 'menu_bg_base')
+    if shimmer:
+        img = SPRITES.get('menu_shimmer%d' % shimmer)
+        bg_surf.blit(img, (bg_surf.get_width() - img.get_width() - 1, bg_surf.get_height() - img.get_height() - 5))
+    bg_surf = image_mods.make_translucent(bg_surf, 0.1)
+    return bg_surf
+
+def draw_unit_face(surf, topleft, unit, right):
+    x, y = topleft
+    face_image = icons.get_portrait(unit)
+    if right:
+        face_image = engine.flip_horiz(face_image)
+    face_image = face_image.convert_alpha()
+    face_image = engine.subsurface(face_image, (0, 0, 96, 76))
+    face_image = image_mods.make_translucent(face_image, 0.5)
+    left = x + 104//2 + 1
+    top = y + (16 * DB.constants.total_items() + 8)//2 - 1 + 2
+    engine.blit_center(surf, face_image, (left, top))
+
 def draw_unit_items(surf, topleft, unit, include_top=False, include_bottom=True, include_face=False, right=True, shimmer=0):
     x, y = topleft
     if include_top:
-        white_surf = SPRITES.get('prep_top')
-        surf.blit(white_surf, (x - 6, y - white_surf.get_height()))
-        icons.draw_chibi(surf, unit.portrait_nid, (x + 3, y - 35))
-        FONT['text-white'].blit_center(unit.name, surf, (x + 68, y - 35))
-        FONT['text-blue'].blit_right(str(unit.level), surf, (x + 72, y - 19))
-        FONT['text-blue'].blit_right(str(unit.exp), surf, (x + 97, y - 19))
+        draw_unit_top(surf, topleft, unit)
 
     if include_bottom:
-        bg_surf = create_base_surf(104, 16 * DB.constants.total_items() + 8, 'menu_bg_base')
-        if shimmer:
-            img = SPRITES.get('menu_shimmer%d' % shimmer)
-            bg_surf.blit(img, (bg_surf.get_width() - img.get_width() - 1, bg_surf.get_height() - img.get_height() - 5))
-        bg_surf = image_mods.make_translucent(bg_surf, 0.1)
-        # if include_top:
-        #     y -= 4
+        bg_surf = make_bg_surf(shimmer)
         surf.blit(bg_surf, (x, y))
 
         if include_face:
-            face_image = icons.get_portrait(unit)
-            if right:
-                face_image = engine.flip_horiz(face_image)
-            face_image = face_image.convert_alpha()
-            face_image = engine.subsurface(face_image, (0, 0, 96, 76))
-            face_image = image_mods.make_translucent(face_image, 0.5)
-            left = x + bg_surf.get_width()//2 + 1
-            top = y + bg_surf.get_height()//2 - 1 + 2
-            engine.blit_center(surf, face_image, (left, top))
+            draw_unit_face(surf, topleft, unit, right)
         
         # Blit items
         for idx, item in enumerate(unit.nonaccessories):
@@ -60,35 +70,16 @@ def draw_unit_bexp(surf, topleft, unit, new_exp, new_bexp, current_bexp, include
                    include_face=False, right=True, shimmer=0):
     x, y = topleft
     if include_top:
-        white_surf = SPRITES.get('prep_top')
-        surf.blit(white_surf, (x - 6, y - white_surf.get_height()))
-        icons.draw_chibi(surf, unit.portrait_nid, (x + 3, y - 35))
-        FONT['text-white'].blit_center(unit.name, surf, (x + 68, y - 35))
-        FONT['text-blue'].blit_right(str(unit.level), surf, (x + 72, y - 19))
-        FONT['text-blue'].blit_right(str(unit.exp), surf, (x + 97, y - 19))
+        draw_unit_top(surf, topleft, unit)
 
     if include_bottom:
-        bg_surf = create_base_surf(104, 16 * DB.constants.total_items() + 8, 'menu_bg_base')
-        if shimmer:
-            img = SPRITES.get('menu_shimmer%d' % shimmer)
-            bg_surf.blit(img, (bg_surf.get_width() - img.get_width() - 1, bg_surf.get_height() - img.get_height() - 5))
-        bg_surf = image_mods.make_translucent(bg_surf, 0.1)
-        # if include_top:
-        #     y -= 4
+        bg_surf = make_bg_surf(shimmer)
         surf.blit(bg_surf, (x, y))
 
         if include_face:
-            face_image = icons.get_portrait(unit)
-            if right:
-                face_image = engine.flip_horiz(face_image)
-            face_image = face_image.convert_alpha()
-            face_image = engine.subsurface(face_image, (0, 0, 96, 76))
-            face_image = image_mods.make_translucent(face_image, 0.5)
-            left = x + bg_surf.get_width() // 2 + 1
-            top = y + bg_surf.get_height() // 2 - 1 + 2
-            engine.blit_center(surf, face_image, (left, top))
+            draw_unit_face(surf, topleft, unit, right)
 
-        # Blit items
+        # Blit bonus exp
         button_right = SPRITES.get('buttons').subsurface(1, 19, 13, 12)
         FONT['text-blue'].blit('Current/New EXP', surf, (topleft[0] + 2, topleft[1] + 4))
         FONT['text-white'].blit(str(unit.exp), surf, (topleft[0] + 2, topleft[1] + 20))

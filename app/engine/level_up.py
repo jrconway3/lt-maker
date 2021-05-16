@@ -20,16 +20,16 @@ class ExpState(State):
 
     def start(self):
         if game.exp_instance:
-            if len(game.exp_instance[0]) < 5:
-                self.unit, self.exp_gain, self.combat_object, self.starting_state = \
-                    game.exp_instance.pop()
-                self.method = 'default'
-            else:
-                self.unit, self.exp_gain, self.combat_object, self.starting_state, self.method = \
-                    game.exp_instance.pop()
+            self.unit, self.exp_gain, self.combat_object, self.starting_state = \
+                game.exp_instance.pop()
         else:
             game.state.back()
             return 'repeat'
+        # Check if we need to use a custom method
+        self.method = None
+        if game.memory.get('exp_method'):
+            self.method = game.memory['exp_method']
+            game.memory['exp_method'] = None
 
         self.old_exp = self.unit.exp
         self.old_level = self.unit.level

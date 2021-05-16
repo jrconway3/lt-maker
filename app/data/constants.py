@@ -38,7 +38,7 @@ constants = ConstantCatalog([
     Constant('num_accessories', "Max number of Accessories in inventory", int, 0, 'inventory'),
     Constant('turnwheel', "Turnwheel", bool, False, 'features'),
     Constant('fatigue', "Fatigue", bool, False, 'features'),
-    Constant('lead', "Leadership", bool, False, 'features'),
+    Constant('lead', "Thracia-style Leadership Stars", bool, False, 'features'),
     Constant('bexp', "Bonus Experience", bool, False, 'features'),
     Constant('rd_bexp_lvl', "Radiant Dawn Bonus Experience Level-Ups", bool, False, 'features'),
     Constant('support', "Supports", bool, False, 'features'),

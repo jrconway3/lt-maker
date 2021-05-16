@@ -16,6 +16,18 @@
         false
     ],
     [
+        "lead",
+        true
+    ],
+    [
+        "bexp",
+        true
+    ],
+    [
+        "rd_bexp_lvl",
+        true
+    ],
+    [
         "support",
         false
     ],

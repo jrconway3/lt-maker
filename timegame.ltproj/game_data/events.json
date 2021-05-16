@@ -4096,6 +4096,12 @@
                     "Eirika",
                     "Hi"
                 ]
+            ],
+            [
+                "change_roaming_unit",
+                [
+                    "Eirika"
+                ]
             ]
         ],
         "only_once": false,

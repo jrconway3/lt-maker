@@ -44,7 +44,6 @@ class Cursor():
         if not game.current_level.roam:
             unit = game.board.get_unit(self.position)
             if unit and 'Tile' not in unit.tags and game.board.in_vision(unit.position):
-                print(unit)
                 return unit
         return None
 
@@ -389,7 +388,6 @@ class Cursor():
                         abs(u1_pos[0] - u.position[0]) <= 0.5 and \
                         abs(u1_pos[1] - u.position[1]) <= 0.5 and \
                         u.team == 'player' or u.team == 'other':
-                    print(abs(u1_pos[0] - u.position[0]), u1_pos[1] - u.position[1])
                     return u
         return False
 

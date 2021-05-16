@@ -148,9 +148,9 @@ class FreeState(MapState):
                 SOUNDTHREAD.play_sfx('Select 2')
                 u2 = game.cursor.roamer_can_talk(roaming_unit)
                 reg = game.cursor.roamer_can_visit()
-                if u2 and roaming_unit:
+                if u2 and roaming_unit and roaming:
                     game.events.trigger('on_talk', roaming_unit, u2)
-                elif reg and roaming_unit:
+                elif reg and roaming_unit and roaming:
                     game.events.trigger(reg.sub_nid, roaming_unit, position=roaming_unit.position, region=reg)
                 else:
                     game.state.change('option_menu')

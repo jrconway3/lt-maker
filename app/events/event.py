@@ -1060,6 +1060,9 @@ class Event():
         elif command.nid == 'change_roaming':
             self.change_roaming(command)
 
+        elif command.nid == 'change_roaming_unit':
+            self.change_roaming_unit(command)
+
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
         name = values[0]
@@ -2261,6 +2264,14 @@ class Event():
             else:
                 game.cursor.rationalize()
                 game.current_level.roam = False
+
+    def change_roaming_unit(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        if game.current_level and unit in game.units:
+            game.cursor.roaming_unit.sprite.change_state('normal')
+            game.current_level.roam_unit = unit.nid
+            game.cursor.roaming_unit = unit
 
     def parse_pos(self, text):
         position = None

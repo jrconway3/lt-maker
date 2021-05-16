@@ -889,6 +889,14 @@ class ChangeRoaming(EventCommand):
 
     keywords = ["Bool"]
 
+class ChangeRoamingUnit(EventCommand):
+    nid = 'change_roaming_unit'
+    tag = "Miscellaneous"
+    desc = "Changes the level's roaming unit"
+
+    keywords = ["Unit"]
+
+
 def get_commands():
     return EventCommand.__subclasses__()
 

@@ -29,7 +29,7 @@ class StateMachine():
         from app.engine import title_screen, transitions, general_states, level_up, \
             turnwheel, game_over, settings, info_menu, prep, base, trade, promotion, \
             status_upkeep, debug_mode, chapter_title, player_choice, feat_choice, \
-            victory_screen, objective_menu, minimap
+            victory_screen, objective_menu, minimap, roam_state
         from app.events import event_state
         self.all_states = \
             {'title_start': title_screen.TitleStartState,
@@ -117,6 +117,7 @@ class StateMachine():
              'base_library': base.BaseLibraryState,
              'base_guide': base.BaseGuideState,
              'base_records': base.BaseRecordsState,
+             'free_roam': roam_state.FreeRoamState,
              'debug': debug_mode.DebugState,
              }
 

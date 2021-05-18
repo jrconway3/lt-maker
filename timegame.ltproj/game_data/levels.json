@@ -29,8 +29,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    2,
-                    4
+                    6,
+                    5
                 ],
                 "generic": false
             },
@@ -61,6 +61,14 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Gilliam",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "generic": false
             }
         ],
         "regions": [

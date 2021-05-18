@@ -196,7 +196,6 @@ class GameState():
                   'talk_options': self.talk_options,
                   'base_convos': self.base_convos,
                   'current_random_state': static_random.get_combat_random_state(),
-                  'cursor_pos': self.cursor.position
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
@@ -286,17 +285,13 @@ class GameState():
 
             # Now have units actually arrive on map
             for unit in self.units:
-                if unit.position and (not self.current_level.roam or unit.nid != self.current_level.roam_unit):
+                if unit.position:
                     self.board.set_unit(unit.position, unit)
                     self.boundary.arrive(unit)
 
-            if s_dict['cursor_pos']:
-                self.cursor.position = s_dict['cursor_pos']
-            else:
-                self.cursor.autocursor(True)
+            self.cursor.autocursor(True)
 
         self.events = event_manager.EventManager.restore(s_dict.get('events'))
-
 
     def clean_up(self):
         from app.engine import item_system, skill_system, item_funcs, action, supports

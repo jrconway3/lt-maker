@@ -1057,9 +1057,6 @@ class Event():
         elif command.nid == 'trigger_script':
             self.trigger_script(command)
 
-        elif command.nid == 'change_roaming':
-            self.change_roaming(command)
-
         elif command.nid == 'change_roaming_unit':
             self.change_roaming_unit(command)
 
@@ -2255,23 +2252,16 @@ class Event():
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
             return
 
-    def change_roaming(self, command):
-        values, flags = event_commands.parse(command)
-        change = command.values[0]
-        if game.current_level:
-            if change.lower() in self.true_vals:
-                game.current_level.roam = True
-            else:
-                game.cursor.rationalize()
-                game.current_level.roam = False
-
     def change_roaming_unit(self, command):
         values, flags = event_commands.parse(command)
-        unit = self.get_unit(values[0])
-        if game.current_level and unit in game.units:
-            game.cursor.roaming_unit.sprite.change_state('normal')
-            game.current_level.roam_unit = unit.nid
-            game.cursor.roaming_unit = unit
+        if values and values[0] and game.level:
+            unit = self.get_unit(values[0])
+            if unit:
+                game.level.roam_unit = values[0]
+            else:
+                game.level.roam_unit = None
+        else:
+            game.level.roam_unit = None
 
     def parse_pos(self, text):
         position = None

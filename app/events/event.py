@@ -1650,8 +1650,17 @@ class Event():
         if not tilemap_prefab:
             logging.error("Couldn't find tilemap %s" % tilemap_nid)
             return
+            
         reload_map = 'reload' in flags
-
+        if len(values) > 1 and values[1]:
+            position_offset = tuple(str_utils.intify(values[1]))
+        else:
+            position_offset = (0, 0)
+        if len(values) > 2 and values[2]:
+            reload_map_nid = values[2]
+        else:
+            reload_map_nid = tilemap_nid
+        
         # Remove all units from the map
         # But remember their original positions for later
         previous_unit_pos = {}
@@ -1668,11 +1677,14 @@ class Event():
         game.set_up_game_board(game.level.tilemap)
 
         # If we're reloading the map
-        if reload_map and game.level_vars.get('_prev_pos_%s' % tilemap_nid):
-            for unit_nid, pos in game.level_vars['_prev_pos_%s' % tilemap_nid].items():
-                unit = game.get_unit(unit_nid)
-                act = action.ArriveOnMap(unit, pos)
-                act.execute()
+        if reload_map and game.level_vars.get('_prev_pos_%s' % reload_map_nid):
+            for unit_nid, pos in game.level_vars['_prev_pos_%s' % reload_map_nid].items():
+                # Reload unit's position with position offset
+                final_pos = pos[0] + position_offset[0], pos[1] + position_offset[1]
+                if game.tilemap.check_bounds(final_pos):
+                    unit = game.get_unit(unit_nid)
+                    act = action.ArriveOnMap(unit, final_pos)
+                    act.execute()
 
         # Can't use turnwheel to go any further back
         game.action_log.set_first_free_action()

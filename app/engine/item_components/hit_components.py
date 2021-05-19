@@ -54,7 +54,7 @@ class Heal(ItemComponent):
             max_hp = equations.parser.hitpoints(target)
             missing_health = max_hp - target.get_hp()
             help_term = utils.clamp(missing_health / float(max_hp), 0, 1)
-            heal = self._get_heal_amount(unit)
+            heal = self._get_heal_amount(unit, target)
             heal_term = utils.clamp(min(heal, missing_health) / float(max_hp), 0, 1)
             return help_term * heal_term
         return 0

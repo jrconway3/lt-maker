@@ -1057,6 +1057,9 @@ class Event():
         elif command.nid == 'trigger_script':
             self.trigger_script(command)
 
+        elif command.nid == 'change_roaming':
+            self.change_roaming(command)
+
         elif command.nid == 'change_roaming_unit':
             self.change_roaming_unit(command)
 
@@ -1280,7 +1283,7 @@ class Event():
             placement = values[3]
         else:
             placement = 'giveup'
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             return None
 
@@ -1314,7 +1317,7 @@ class Event():
             placement = 'giveup'
         follow = 'no_follow' not in flags
 
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             logging.error("Couldn't get a good position %s %s %s" % (position, movement_type, placement))
             return None
@@ -1444,7 +1447,7 @@ class Event():
             if not position:
                 continue
             position = tuple(position)
-            position = self.check_placement(position, placement)
+            position = self.check_placement(unit, position, placement)
             if not position:
                 logging.warning("Couldn't determine valid position for %s?", unit.nid)
                 continue
@@ -1452,7 +1455,7 @@ class Event():
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
         position = tuple(position)
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             logging.warning("Couldn't determine valid position for %s?", unit.nid)
             return
@@ -1503,7 +1506,7 @@ class Event():
                 else:
                     test_pos = (position[1] + x, game.tilemap.height - 1)
         if final_pos:
-            final_pos = self.check_placement(final_pos, placement)
+            final_pos = self.check_placement(unit, final_pos, placement)
         if final_pos:
             action.do(action.ArriveOnMap(unit, final_pos))
             return True
@@ -1619,7 +1622,7 @@ class Event():
                 else:  # immediate
                     action.do(action.LeaveMap(unit))
 
-    def check_placement(self, position, placement):
+    def check_placement(self, unit, position, placement):
         current_occupant = game.board.get_unit(position)
         if current_occupant:
             if placement == 'giveup':
@@ -1628,7 +1631,7 @@ class Event():
             elif placement == 'stack':
                 return position
             elif placement == 'closest':
-                position = target_system.get_nearest_open_tile(current_occupant, position)
+                position = target_system.get_nearest_open_tile(unit, position)
                 if not position:
                     logging.warning("Somehow wasn't able to find a nearby open tile")
                     return None
@@ -1650,7 +1653,7 @@ class Event():
         if not tilemap_prefab:
             logging.error("Couldn't find tilemap %s" % tilemap_nid)
             return
-            
+
         reload_map = 'reload' in flags
         if len(values) > 1 and values[1]:
             position_offset = tuple(str_utils.intify(values[1]))
@@ -1791,13 +1794,13 @@ class Event():
             placement = values[5]
         else:
             placement = 'giveup'
-        position = self.check_placement(position, placement)
-        if not position:
-            return None
 
         level_unit_prefab = GenericUnit(
             unit_nid, unit.variant, level, unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
+        position = self.check_placement(new_unit, position, placement)
+        if not position:
+            return None
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
@@ -2264,16 +2267,23 @@ class Event():
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
             return
 
+    def change_roaming(self, command):
+        values, flags = event_commands.parse(command)
+        val = values[0].lower()
+        if game.level:
+            if val in self.true_vals:
+                game.level.roam = True
+            else:
+                game.level.roam = False
+
     def change_roaming_unit(self, command):
         values, flags = event_commands.parse(command)
-        if values and values[0] and game.level:
+        if game.level:
             unit = self.get_unit(values[0])
             if unit:
                 game.level.roam_unit = values[0]
             else:
                 game.level.roam_unit = None
-        else:
-            game.level.roam_unit = None
 
     def parse_pos(self, text):
         position = None

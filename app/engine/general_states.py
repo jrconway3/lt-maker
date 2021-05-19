@@ -109,7 +109,7 @@ class FreeState(MapState):
     name = 'free'
 
     def begin(self):
-        if game.level.roam_unit:
+        if game.level.roam and game.level.roam_unit:
             game.state.change('free_roam')
             return 'repeat'
             
@@ -209,7 +209,7 @@ class OptionMenuState(MapState):
             options.append('Save')
             info_desc.append('Save_desc')
             ignore.append(False)
-        if not game.level or not game.level.roam_unit:
+        if not game.level or not game.level.roam:
             options.append('End')
             info_desc.append('End_desc')
         ignore.append(False)
@@ -218,7 +218,7 @@ class OptionMenuState(MapState):
             options.insert(2, 'Guide')
             info_desc.insert(2, 'Guide_desc')
             ignore.insert(2, False)
-        if DB.constants.get('turnwheel').value and (not game.level or not game.level.roam_unit):
+        if DB.constants.get('turnwheel').value and (not game.level or not game.level.roam):
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
             ignore.insert(1, False)

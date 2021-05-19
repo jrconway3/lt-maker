@@ -12,6 +12,7 @@ class LevelObject():
         self.name: str = None
         self.tilemap: TileMapObject = None  # Actually the tilemap, not a nid
         self.party: str = None  # Party Nid
+        self.roam: bool = False
         self.roam_unit: str = None  # Unit Nid
 
         self.music = {}
@@ -28,6 +29,7 @@ class LevelObject():
         level.name = prefab.name
         level.tilemap = tilemap
         level.party = prefab.party
+        level.roam = prefab.roam
         level.roam_unit = prefab.roam_unit
 
         level.music = {k: v for k, v in prefab.music.items()}
@@ -58,6 +60,7 @@ class LevelObject():
                   'name': self.name,
                   'tilemap': self.tilemap.save(),
                   'party': self.party,
+                  'roam': self.roam,
                   'roam_unit': self.roam_unit,
                   'music': self.music,
                   'objective': self.objective,
@@ -74,6 +77,7 @@ class LevelObject():
         level.name = s_dict['name']
         level.tilemap = TileMapObject.restore(s_dict['tilemap'])
         level.party = s_dict['party']
+        level.roam = s_dict.get('roam', False)
         level.roam_unit = s_dict.get('roam_unit')
 
         level.music = s_dict['music']

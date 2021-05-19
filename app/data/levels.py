@@ -18,7 +18,8 @@ class LevelPrefab(Prefab):
         self.objective = {'simple': '',
                           'win': '',
                           'loss': ''}
-        self.roam_unit = None
+        self.roam: bool = False
+        self.roam_unit: str = None
 
         self.units = Data()
         self.regions = Data()

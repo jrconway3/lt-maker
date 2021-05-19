@@ -885,12 +885,19 @@ class TriggerScript(EventCommand):
     keywords = ["Event"]
     optional_keywords = ["GlobalUnit", "GlobalUnit"]
 
+class ChangeRoaming(EventCommand):
+    nid = 'change_roaming'
+    tag = "Miscellaneous"
+    desc = "Turn free roam mode on or off"
+
+    keywords = ["Bool"]
+
 class ChangeRoamingUnit(EventCommand):
     nid = 'change_roaming_unit'
     tag = "Miscellaneous"
-    desc = "Changes the level's roaming unit. Leave off the Unit keyword to turn off free roam."
+    desc = "Changes the level's current roaming unit."
 
-    optional_keywords = ["Unit"]
+    keywords = ["Unit"]
 
 
 def get_commands():

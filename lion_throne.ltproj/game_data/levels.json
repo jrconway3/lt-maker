@@ -20,6 +20,8 @@
             "win": "Escape the monastery",
             "loss": "Ophie dies,Prim dies"
         },
+        "roam": null,
+        "roam_unit": "Ophie",
         "units": [
             {
                 "nid": "Ophie",
@@ -399,6 +401,8 @@
             "win": "Defeat Sidney",
             "loss": "Ophies dies,Any two of your units are defeated"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Ophie",
@@ -750,6 +754,8 @@
             "win": "Defeat Brigham",
             "loss": "Ophie dies,Althea dies,Party size falls below three"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Althea",
@@ -1234,6 +1240,8 @@
             "win": "Escape the fort with the money",
             "loss": "Renae OR Ophie die,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Renae",
@@ -2380,6 +2388,8 @@
             "win": "Destroy at least 7 wagons. {eval:game.game_vars.get('dead_wagons', 0)}/10 destroyed",
             "loss": "Ophie dies,Four or more wagons escape,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}."
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Eliza",
@@ -3436,6 +3446,8 @@
             "win": "Seize Temple Gate",
             "loss": "Ophie dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Sam",
@@ -4533,6 +4545,8 @@
             "win": "Defeat the Warden",
             "loss": "Ophie dies,Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Coyote",
@@ -6465,6 +6479,8 @@
             "win": "Seize the fort",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Marduk",
@@ -8157,6 +8173,8 @@
             "win": "Defeat Vagnius",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Vagnius",
@@ -9960,6 +9978,8 @@
             "win": "Escape the sewers",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Jakin",
@@ -11524,6 +11544,8 @@
             "win": "Defeat Duke Ulver",
             "loss": "Ophie dies,Sam dies"
         },
+        "roam": null,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Ulver",
@@ -12662,6 +12684,8 @@
             "win": "--",
             "loss": "--"
         },
+        "roam": false,
+        "roam_unit": "Ophie",
         "units": [],
         "regions": [],
         "unit_groups": []
@@ -12685,6 +12709,8 @@
             "win": "Don't Crash",
             "loss": "Crash"
         },
+        "roam": true,
+        "roam_unit": "Ophie",
         "units": [
             {
                 "nid": "Ophie",
@@ -12936,6 +12962,21 @@
                     1
                 ],
                 "sub_nid": "Switch",
+                "condition": "True",
+                "only_once": true
+            },
+            {
+                "nid": "Visit",
+                "region_type": "event",
+                "position": [
+                    28,
+                    25
+                ],
+                "size": [
+                    1,
+                    1
+                ],
+                "sub_nid": "Visit",
                 "condition": "True",
                 "only_once": true
             }

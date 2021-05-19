@@ -377,6 +377,9 @@ class ChangeTilemap(EventCommand):
     tag = "Tilemap"
 
     keywords = ["Tilemap"]
+    # How much to offset placed units by
+    # Which tilemap to load the unit positions from
+    optional_keywords = ["PositionOffset", "Tilemap"]
     flags = ["reload"]  # Should place units in previously recorded positions
 
 class LoadUnit(EventCommand):

@@ -230,6 +230,17 @@ class Position(Validator):
             return text
         return None
 
+class PositionOffset(Validator):
+    desc = "accepts a valid `(x, y)` position offset."
+
+    def validate(self, text, level):
+        text = text.split(',')
+        if len(text) != 2:
+            return None
+        if not all(str_utils.is_int(t) for t in text):
+            return None
+        return text
+
 class Size(Validator):
     desc = "must be in the format `x,y`. Example: `64,32`"
 

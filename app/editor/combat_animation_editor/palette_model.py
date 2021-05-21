@@ -1,8 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor
 
 from app.resources.resources import RESOURCES
 
+from app.utilities import utils
 from app.utilities.data import Data
 
 from app.resources.combat_palettes import Palette
@@ -11,8 +12,18 @@ from app.editor.base_database_gui import DragDropCollectionModel
 from app.utilities import str_utils
 
 def get_palette_pixmap(palette) -> QPixmap:
-    # TODO
-    return QPixmap()
+    painter = QPainter()
+    main_pixmap = QPixmap(32, 32)
+    painter.begin(main_pixmap)
+    painter.fillRect(0, 0, 32, 32, QColor(0, 0, 0, 0))
+    colors = palette.colors.values()
+    colors = sorted(colors, key=lambda color: utils.rgb2hsv(*color)[0])
+    for idx, color in enumerate(colors):
+        left = idx % 4
+        top = idx // 4
+        painter.fillRect(left * 8, top * 8, 8, 8, QColor(*color))
+    painter.end()
+    return main_pixmap
 
 class PaletteModel(DragDropCollectionModel):
     def data(self, index, role):

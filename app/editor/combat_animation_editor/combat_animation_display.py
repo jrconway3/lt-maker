@@ -82,7 +82,7 @@ class CombatAnimProperties(QWidget):
         label.setAlignment(Qt.AlignRight)
 
         self.speed_box = QSpinBox(self)
-        self.speed_box.setValue(30)
+        self.speed_box.setValue(60)
         self.speed_box.setRange(1, 240)
         self.speed_box.valueChanged.connect(self.speed_changed)
 

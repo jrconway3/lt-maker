@@ -104,8 +104,8 @@ anim_commands = Data([
     CombatAnimationCommand('dual_frame', 'Display Dual Frame', (int, 'frame', 'frame'), (0, None, None), 'frame', 'Display two animation images at the same time for # of frames. The second is always the bottommost image drawn'),
     CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame', 'Displays the animation image with a custom (x, y) offset for # of frames'),
     
-    CombatAnimationCommand('sound', 'Play Sound', 'sound', (None,), 'sound'),
-    CombatAnimationCommand('stop_sound', 'Stop Sound', 'sound', (None,), 'sound'),
+    CombatAnimationCommand('sound', 'Play Sound', ('sound',), (None,), 'sound'),
+    CombatAnimationCommand('stop_sound', 'Stop Sound', ('sound',), (None,), 'sound'),
 
     CombatAnimationCommand('start_hit', 'Start Normal Hit Routine', None, None, 'process'),
     CombatAnimationCommand('wait_for_hit', 'Wait for End of Normal Hit Routine', ('frame', 'frame'), (None, None), 'process'),

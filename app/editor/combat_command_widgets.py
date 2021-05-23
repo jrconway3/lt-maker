@@ -96,7 +96,7 @@ class SoundCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.addItems([d.nid for d in RESOURCES.sfx])
-        self.editor.setValue(self._data.value)
+        self.editor.setValue(self._data.value[0])
         self.editor.currentIndexChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
@@ -124,7 +124,7 @@ class WaitForHitCommand(CombatCommand):
         self.editor1.setMaximumWidth(100)
         self.editor1.setReadOnly(True)
         if self._data.value[0]:
-            self.frame.setText(self._data.value[0])
+            self.editor1.setText(self._data.value[0])
         self.editor1.textChanged.connect(self.on_value_changed)
         hbox1.addWidget(self.editor1)
 
@@ -138,7 +138,7 @@ class WaitForHitCommand(CombatCommand):
         self.editor2.setMaximumWidth(100)
         self.editor2.setReadOnly(True)
         if self._data.value[1]:
-            self.frame.setText(self._data.value[1])
+            self.editor2.setText(self._data.value[1])
         self.editor2.textChanged.connect(self.on_value_changed)
         hbox2.addWidget(self.editor2)
 
@@ -224,7 +224,7 @@ class DualFrameCommand(CombatCommand):
         self.editor1.setMaximumWidth(100)
         self.editor1.setReadOnly(True)
         if self._data.value[1]:
-            self.frame.setText(self._data.value[1])
+            self.editor1.setText(self._data.value[1])
         self.editor1.textChanged.connect(self.on_value_changed)
         hbox1.addWidget(self.editor1)
 
@@ -238,7 +238,7 @@ class DualFrameCommand(CombatCommand):
         self.editor2.setMaximumWidth(100)
         self.editor2.setReadOnly(True)
         if self._data.value[2]:
-            self.frame.setText(self._data.value[2])
+            self.editor2.setText(self._data.value[2])
         self.editor2.textChanged.connect(self.on_value_changed)
         hbox2.addWidget(self.editor2)
 
@@ -337,26 +337,29 @@ class ColorTimeCommand(CombatCommand):
         self.num_frames.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.num_frames)
 
-        self.color = ColorIcon(QColor(248, 248, 248).name(), self)
+        self.color = ColorIcon(QColor(248, 248, 248), self)
+        if len(self._data.value) > 1:
+            new_color = QColor(*self._data.value[1])
+            self.color.change_color(new_color)
         self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 
     def on_value_changed(self, val):
-        num_frames = int(self.num_frame.value())
+        num_frames = int(self.num_frames.value())
         color = self.color.color().getRgb()
         self._data.value = (num_frames, color)
 
 def get_command_widget(command, parent):
     if command.attr is None:
         c = BasicCommand(command, parent)
-    elif command.attr is bool:
+    elif command.attr == (bool,):
         c = BoolCommand(command, parent)
-    elif command.attr is int:
+    elif command.attr == (int,):
         c = IntCommand(command, parent)
-    elif command.attr == 'sound':
+    elif command.attr == ('sound',):
         c = SoundCommand(command, parent)
-    elif command.attr == 'effect':
+    elif command.attr == ('effect',):
         c = EffectCommand(command, parent)
     elif command.nid == 'wait_for_hit':
         c = WaitForHitCommand(command, parent)

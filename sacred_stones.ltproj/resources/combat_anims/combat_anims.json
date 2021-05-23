@@ -1,6 +1,6 @@
 [
     {
-        "nid": "New Combat Anim",
+        "nid": "Archer",
         "weapon_anims": [
             {
                 "nid": "Unarmed",
@@ -116,6 +116,116 @@
             [
                 "GenericRed",
                 "Archer0_GenericRed"
+            ]
+        ]
+    },
+    {
+        "nid": "Myrmidon",
+        "weapon_anims": [
+            {
+                "nid": "Unarmed",
+                "poses": [
+                    [
+                        "Dodge",
+                        [
+                            [
+                                "frame",
+                                [
+                                    1,
+                                    "Disarmed_000"
+                                ]
+                            ],
+                            [
+                                "frame",
+                                [
+                                    3,
+                                    "Disarmed_001"
+                                ]
+                            ],
+                            [
+                                "frame",
+                                [
+                                    27,
+                                    "Disarmed_002"
+                                ]
+                            ],
+                            [
+                                "frame",
+                                [
+                                    3,
+                                    "Disarmed_001"
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        "Stand",
+                        [
+                            [
+                                "frame",
+                                [
+                                    4,
+                                    "Disarmed_000"
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                "frames": [
+                    [
+                        "Disarmed_000",
+                        [
+                            0,
+                            0,
+                            27,
+                            32
+                        ],
+                        [
+                            137,
+                            73
+                        ]
+                    ],
+                    [
+                        "Disarmed_001",
+                        [
+                            27,
+                            0,
+                            31,
+                            32
+                        ],
+                        [
+                            139,
+                            72
+                        ]
+                    ],
+                    [
+                        "Disarmed_002",
+                        [
+                            58,
+                            0,
+                            29,
+                            32
+                        ],
+                        [
+                            147,
+                            71
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "palettes": [
+            [
+                "GenericBlue",
+                "Myrmidon0_GenericBlue"
+            ],
+            [
+                "GenericRed",
+                "Myrmidon0_GenericRed"
+            ],
+            [
+                "Ophie",
+                "Myrmidon0_Ophie"
             ]
         ]
     }

@@ -9,6 +9,74 @@ from app.resources import combat_anims, combat_commands, combat_palettes
 
 import app.editor.utilities as editor_utilities
 
+def populate_palettes(current, images, nid):
+    for image_fn in images:
+        palette_name = os.path.split(image_fn)[-1][:-4].split('-')[-1]
+        palette_nid = nid + '_' + palette_name
+        if palette_name not in [_[0] for _ in current.palettes]:
+            if palette_nid not in RESOURCES.combat_palettes:
+                # Need to create palette
+                pix = QPixmap(image_fn)
+                palette_colors = editor_utilities.find_palette(pix.toImage())
+                new_palette = combat_palettes.Palette(palette_nid)
+                colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(palette_colors)}
+                new_palette.colors = colors
+                RESOURCES.combat_palettes.append(new_palette)
+            current.palettes.append([palette_name, palette_nid])
+
+def add_frames(index_fn, current, new_weapon, images):
+    # Now add frames to weapon animation
+    with open(index_fn, encoding='utf-8') as index_fp:
+        index_lines = [line.strip() for line in index_fp.readlines()]
+        index_lines = [line.split(';') for line in index_lines]
+
+    # Use the first palette
+    palette_name, palette_nid = current.palettes[0]
+    palette = RESOURCES.combat_palettes.get(palette_nid)
+    colors = palette.colors
+
+    # Need to convert to universal coord palette
+    convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in colors.items()}
+    main_pixmap = QPixmap(images[0])
+    for i in index_lines:
+        nid = i[0]
+        x, y = [int(_) for _ in i[1].split(',')]
+        width, height = [int(_) for _ in i[2].split(',')]
+        offset_x, offset_y = [int(_) for _ in i[3].split(',')]
+        new_pixmap = main_pixmap.copy(x, y, width, height)
+        # Need to convert to universal base palette
+        im = new_pixmap.toImage()
+        im = editor_utilities.color_convert(im, convert_dict)
+        new_pixmap = QPixmap.fromImage(im)
+        new_frame = combat_anims.Frame(nid, (x, y, width, height), (offset_x, offset_y), pixmap=new_pixmap)
+        new_weapon.frames.append(new_frame)
+    return main_pixmap
+
+def build_full_image(main_pixmap, new_weapon):
+    sprite_sheet = QPixmap(main_pixmap.width(), main_pixmap.height())
+    sprite_sheet.fill(QColor(0, 0, 0))
+    painter = QPainter()
+    painter.begin(sprite_sheet)
+    for frame in new_weapon.frames:
+        x, y, width, height = frame.rect
+        painter.drawPixmap(x, y, frame.pixmap)
+    painter.end()
+    new_weapon.pixmap = sprite_sheet
+
+def add_poses(fn, new_weapon):
+    # Now add poses to the weapon anim
+    with open(fn, encoding='utf-8') as script_fp:
+        script_lines = [line.strip() for line in script_fp.readlines()]
+        script_lines = [line.split(';') for line in script_lines if line and not line.startswith('#')]
+    current_pose = None
+    for line in script_lines:
+        if line[0] == 'pose':
+            current_pose = combat_anims.Pose(line[1])
+            new_weapon.poses.append(current_pose)
+        else:
+            command = combat_commands.parse_text(line)
+            current_pose.timeline.append(command)
+
 def import_from_lion_throne(current, fn):
     """
     Imports weapon animations from a Lion Throne formatted combat animation script file.
@@ -37,75 +105,63 @@ def import_from_lion_throne(current, fn):
         QMessageBox.critical(None, "Error", "Could not find any associated palettes")
         return
 
-    # Propulate palettes
-    for image_fn in images:
-        palette_name = os.path.split(image_fn)[-1][:-4].split('-')[-1]
-        palette_nid = nid + '_' + palette_name
-        if palette_name not in [_[0] for _ in current.palettes]:
-            if palette_nid not in RESOURCES.combat_palettes:
-                # Need to create palette
-                pix = QPixmap(image_fn)
-                palette_colors = editor_utilities.find_palette(pix.toImage())
-                new_palette = combat_palettes.Palette(palette_nid)
-                colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(palette_colors)}
-                new_palette.colors = colors
-                RESOURCES.combat_palettes.append(new_palette)
-            current.palettes.append([palette_name, palette_nid])
+    # Populate palettes
+    populate_palettes(current, images, nid)
     new_weapon = combat_anims.WeaponAnimation(weapon)
 
-    # Now add frames to weapon animation
-    with open(index_fn, encoding='utf-8') as index_fp:
-        index_lines = [line.strip() for line in index_fp.readlines()]
-        index_lines = [l.split(';') for l in index_lines]
-
-    # Use the first palette
-    palette_name, palette_nid = current.palettes[0]
-    palette = RESOURCES.combat_palettes.get(palette_nid)
-    colors = palette.colors
-
-    # Need to convert to universal coord palette
-    convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in colors.items()}
-    main_pixmap = QPixmap(images[0])
-    for i in index_lines:
-        nid = i[0]
-        x, y = [int(_) for _ in i[1].split(',')]
-        width, height = [int(_) for _ in i[2].split(',')]
-        offset_x, offset_y = [int(_) for _ in i[3].split(',')]
-        new_pixmap = main_pixmap.copy(x, y, width, height)
-        # Need to convert to universal base palette
-        im = new_pixmap.toImage()
-        im = editor_utilities.color_convert(im, convert_dict)
-        new_pixmap = QPixmap.fromImage(im)
-        new_frame = combat_anims.Frame(nid, (x, y, width, height), (offset_x, offset_y), pixmap=new_pixmap)
-        new_weapon.frames.append(new_frame)
+    main_pixmap = add_frames(index_fn, current, new_weapon, images)
 
     # Need to build full image file now
-    sprite_sheet = QPixmap(main_pixmap.width(), main_pixmap.height())
-    sprite_sheet.fill(QColor(0, 0, 0))
-    painter = QPainter()
-    painter.begin(sprite_sheet)
-    for frame in new_weapon.frames:
-        x, y, width, height = frame.rect
-        painter.drawPixmap(x, y, frame.pixmap)
-    painter.end()
-    new_weapon.pixmap = sprite_sheet
+    build_full_image(main_pixmap, new_weapon)
 
-    # Now add poses to the weapon anim
-    with open(fn, encoding='utf-8') as script_fp:
-        script_lines = [line.strip() for line in script_fp.readlines()]
-        script_lines = [line.split(';') for line in script_lines if line and not line.startswith('#')]
-    current_pose = None
-    for line in script_lines:
-        if line[0] == 'pose':
-            current_pose = combat_anims.Pose(line[1])
-            new_weapon.poses.append(current_pose)
-        else:
-            command = combat_commands.parse_text(line)
-            current_pose.timeline.append(command)
+    add_poses(fn, new_weapon)
     # Actually add weapon to current
     if new_weapon.nid in current.weapon_anims.keys():
         current.weapon_anims.remove_key(new_weapon.nid)
     current.weapon_anims.append(new_weapon)
+    print("Done!!! %s" % fn)
+
+def import_effect_from_lion_throne(fn):
+    """
+    Imports effect animations from a Lion Throne formatted effect animation script file.
+
+    Parameters
+    ----------
+    fn: str, filename
+        "*-Script.txt" file to read from
+    """
+
+    print(fn)
+    if '-Script.txt' not in fn:
+        QMessageBox.critical(None, "Error", "Not a valid combat animation script file: %s" % fn)
+        return
+    nid = os.path.split(fn)[-1].replace('-Script.txt', '')
+    index_fn = fn.replace('-Script.txt', '-Index.txt')
+    if not os.path.exists(index_fn):
+        QMessageBox.critical(None, "Error", "Could not find associated index file: %s" % index_fn)
+        return
+    images = glob.glob(fn.replace('-Script.txt', '-*.png'))
+    if not images:
+        QMessageBox.critical(None, "Error", "Could not find any associated palettes")
+        return
+
+    # Populate palettes
+    current = combat_anims.EffectAnimation(nid)
+    populate_palettes(current, images, nid)
+
+    main_pixmap = add_frames(index_fn, current, current, images)
+
+    # Need to build full image file now
+    build_full_image(main_pixmap, current)
+
+    # Now add poses to the effect anim
+    add_poses(fn, current)
+    
+    # Actually add effect animation to RESOURCES
+    if current.nid in RESOURCES.combat_effects.keys():
+        RESOURCES.combat_effects.remove_key(current.nid)
+    RESOURCES.combat_effects.append(current)
+    return current
     print("Done!!! %s" % fn)
 
 # === IMPORT FROM GBA ========================================================

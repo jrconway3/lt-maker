@@ -39,6 +39,32 @@ class CombatAnimProperties(QWidget):
                     x, y, width, height = frame.rect
                     frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
 
+        self.control_setup(current)
+
+        self.info_form = QFormLayout()
+
+        self.nid_box = QLineEdit()
+        self.nid_box.textChanged.connect(self.nid_changed)
+        self.nid_box.editingFinished.connect(self.nid_done_editing)
+
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
+        weapon_row = self.weapon_box(icon_folder)
+        pose_row = self.pose_box(icon_folder)
+
+        self.info_form.addRow("Unique ID", self.nid_box)
+        self.info_form.addRow("Weapon", weapon_row)
+        self.info_form.addRow("Pose", pose_row)
+
+        self.build_frames()
+        self.set_layout()
+
+    def control_setup(self, current):
         self.current = current
         self.playing = False
         self.paused = False
@@ -60,10 +86,10 @@ class CombatAnimProperties(QWidget):
         self.palette_menu = PaletteMenu(self)
         self.timeline_menu = TimelineMenu(self)
 
-        view_section = QVBoxLayout()
+        self.view_section = QVBoxLayout()
 
-        button_section = QHBoxLayout()
-        button_section.setAlignment(Qt.AlignTop)
+        self.button_section = QHBoxLayout()
+        self.button_section.setAlignment(Qt.AlignTop)
 
         self.play_button = QToolButton(self)
         self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
@@ -86,26 +112,14 @@ class CombatAnimProperties(QWidget):
         self.speed_box.setRange(1, 240)
         self.speed_box.valueChanged.connect(self.speed_changed)
 
-        button_section.addWidget(self.play_button)
-        button_section.addWidget(self.stop_button)
-        button_section.addWidget(self.loop_button)
-        button_section.addSpacing(40)
-        button_section.addWidget(label, Qt.AlignRight)
-        button_section.addWidget(self.speed_box, Qt.AlignRight)
+        self.button_section.addWidget(self.play_button)
+        self.button_section.addWidget(self.stop_button)
+        self.button_section.addWidget(self.loop_button)
+        self.button_section.addSpacing(40)
+        self.button_section.addWidget(label, Qt.AlignRight)
+        self.button_section.addWidget(self.speed_box, Qt.AlignRight)
 
-        info_form = QFormLayout()
-
-        self.nid_box = QLineEdit()
-        self.nid_box.textChanged.connect(self.nid_changed)
-        self.nid_box.editingFinished.connect(self.nid_done_editing)
-
-        self.settings = MainSettingsController()
-        theme = self.settings.get_theme(0)
-        if theme == 0:
-            icon_folder = 'icons/icons'
-        else:
-            icon_folder = 'icons/dark_icons'
-
+    def weapon_box(self, icon_folder):
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
         self.weapon_box.currentIndexChanged.connect(self.weapon_changed)
@@ -124,7 +138,9 @@ class CombatAnimProperties(QWidget):
         weapon_row.addWidget(self.new_weapon_button)
         weapon_row.addWidget(self.duplicate_weapon_button)
         weapon_row.addWidget(self.delete_weapon_button)
+        return weapon_row
 
+    def pose_box(self, icon_folder):
         pose_row = QHBoxLayout()
         self.pose_box = ComboBox()
         self.pose_box.currentIndexChanged.connect(self.pose_changed)
@@ -143,15 +159,13 @@ class CombatAnimProperties(QWidget):
         pose_row.addWidget(self.new_pose_button)
         pose_row.addWidget(self.duplicate_pose_button)
         pose_row.addWidget(self.delete_pose_button)
+        return pose_row
 
-        info_form.addRow("Unique ID", self.nid_box)
-        info_form.addRow("Weapon", weapon_row)
-        info_form.addRow("Pose", pose_row)
-
-        frame_group_box = QGroupBox()
-        frame_group_box.setTitle("Image Frames")
+    def build_frames(self):
+        self.frame_group_box = QGroupBox()
+        self.frame_group_box.setTitle("Image Frames")
         frame_layout = QVBoxLayout()
-        frame_group_box.setLayout(frame_layout)
+        self.frame_group_box.setLayout(frame_layout)
         self.import_from_lt_button = QPushButton("Import Lion Throne Weapon Animation...")
         self.import_from_lt_button.clicked.connect(self.import_lion_throne)
         self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
@@ -163,13 +177,14 @@ class CombatAnimProperties(QWidget):
         frame_layout.addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
 
-        view_section.addWidget(self.anim_view)
-        view_section.addLayout(button_section)
-        view_section.addLayout(info_form)
-        view_section.addWidget(frame_group_box)
+    def set_layout(self):
+        self.view_section.addWidget(self.anim_view)
+        self.view_section.addLayout(self.button_section)
+        self.view_section.addLayout(self.info_form)
+        self.view_section.addWidget(self.frame_group_box)
 
         view_frame = QFrame()
-        view_frame.setLayout(view_section)
+        view_frame.setLayout(self.view_section)
 
         main_splitter = QSplitter(self)
         main_splitter.setChildrenCollapsible(False)
@@ -410,8 +425,7 @@ class CombatAnimProperties(QWidget):
                 items.remove(pose_nid)
         return items
 
-    def add_new_pose(self):
-        weapon_anim = self.get_current_weapon_anim()
+    def make_pose(self, weapon_anim) -> str:
         items = self.get_available_pose_types(weapon_anim)
 
         new_nid, ok = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
@@ -422,6 +436,14 @@ class CombatAnimProperties(QWidget):
             if not new_nid or not ok:
                 return
             new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+        return new_nid
+
+    def add_new_pose(self):
+        weapon_anim = self.get_current_weapon_anim()
+        new_nid = self.make_pose(weapon_anim)
+        if not new_nid:
+            return
+        
         new_pose = combat_anims.Pose(new_nid)
         weapon_anim.poses.append(new_pose)
         self.pose_box.addItem(new_nid)
@@ -429,16 +451,9 @@ class CombatAnimProperties(QWidget):
 
     def duplicate_pose(self):
         weapon_anim = self.get_current_weapon_anim()
-        items = self.get_available_pose_types(weapon_anim)
-
-        new_nid, ok = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
-        if not new_nid or not ok:
+        new_nid = self.make_pose(weapon_anim)
+        if not new_nid:
             return
-        if new_nid == "Custom":
-            new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
-            if not new_nid or not ok:
-                return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
 
         current_pose_nid = self.pose_box.currentText()
         current_pose = weapon_anim.poses.get(current_pose_nid)
@@ -617,7 +632,7 @@ class CombatAnimProperties(QWidget):
                 frame = weapon_anim.frames.get(self.frame_nid)
                 if frame:
                     if self.custom_frame_offset:
-                        offset_x, offset_y = self.frame_offset
+                        offset_x, offset_y = self.custom_frame_offset
                     else:
                         offset_x, offset_y = frame.offset
                     actor_im = self.modify_for_palette(frame.pixmap)
@@ -629,6 +644,11 @@ class CombatAnimProperties(QWidget):
                     under_offset_x, under_offset_y = frame.offset
                     under_actor_im = self.modify_for_palette(frame.pixmap)
 
+        self.set_anim_view(actor_im, (offset_x, offset_y), under_actor_im, (under_offset_x, under_offset_y))
+
+    def set_anim_view(self, actor_im, offset, under_actor_im, under_offset):
+        offset_x, offset_y = offset
+        under_offset_x, under_offset_y = under_offset
         base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
         base_image.fill(editor_utilities.qCOLORKEY)
         if actor_im:
@@ -640,3 +660,184 @@ class CombatAnimProperties(QWidget):
             painter.end()
         self.anim_view.set_image(QPixmap.fromImage(base_image))
         self.anim_view.show_image()
+
+class CombatEffectProperties(QWidget):
+    def __init__(self, parent, current=None):
+        QWidget.__init__(self, parent)
+        self.window = parent
+        self._data = self.window._data
+
+        # Populate resources
+        for effect_anim in self._data:
+            effect_anim.pixmap = QPixmap(effect_anim.full_path)
+            for frame in effect_anim.frames:
+                x, y, width, height = frame.rect
+                frame.pixmap = effect_anim.pixmap.copy(x, y, width, height)
+
+        self.control_setup(current)
+
+        self.info_form = QFormLayout()
+
+        self.nid_box = QLineEdit()
+        self.nid_box.textChanged.connect(self.nid_changed)
+        self.nid_box.editingFinished.connect(self.nid_done_editing)
+
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
+        pose_row = self.pose_box(icon_folder)
+
+        self.info_form.addRow("Unique ID", self.nid_box)
+        self.info_form.addRow("Pose", pose_row)
+
+        self.build_frames()
+        self.set_layout()
+
+    def on_nid_changed(self, old_nid, new_nid):
+        pass
+
+    def has_weapon(self, b: bool):
+        self.duplicate_weapon_button.setEnabled(b)
+        self.delete_weapon_button.setEnabled(b)
+        self.new_pose_button.setEnabled(b)
+
+    def has_pose(self, b: bool):
+        self.timeline_menu.setEnabled(b)
+        self.duplicate_pose_button.setEnabled(b)
+        self.delete_pose_button.setEnabled(b)
+
+    def pose_changed(self, idx):
+        current_pose_nid = self.pose_box.currentText()
+        poses = self.current.poses
+        current_pose = poses.get(current_pose_nid)
+        self.has_pose(True)
+        self.timeline_menu.set_current_pose(current_pose)
+
+    def get_available_pose_types(self) -> float:
+        items = [_ for _ in combat_anims.required_poses] + ['Critical']
+        items.append("Custom")
+        for pose_nid in self.current.poses.keys():
+            if pose_nid in items:
+                items.remove(pose_nid)
+        return items
+
+    def make_pose(self):
+        items = self.get_available_pose_types()
+
+        new_nid, ok = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
+        if not new_nid or not ok:
+            return
+        if new_nid == "Custom":
+            new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
+            if not new_nid or not ok:
+                return
+            new_nid = utilities.get_next_name(new_nid, self.current.poses.keys())
+        return new_nid
+
+    def add_new_pose(self):
+        new_nid = self.make_pose()
+        if not new_nid:
+            return
+        
+        new_pose = combat_anims.Pose(new_nid)
+        self.current.poses.append(new_pose)
+        self.pose_box.addItem(new_nid)
+        self.pose_box.setValue(new_nid)
+
+    def duplicate_pose(self):
+        new_nid = self.make_pose()
+        if not new_nid:
+            return 
+
+        current_pose_nid = self.pose_box.currentText()
+        current_pose = self.current.poses.get(current_pose_nid)
+        # Make a copy
+        ser = current_pose.serialize()
+        new_pose = combat_anims.Pose.deserialize(ser)
+        new_pose.nid = new_nid
+        self.current.poses.append(new_pose)
+        self.pose_box.addItem(new_nid)
+        self.pose_box.setValue(new_nid)
+        return new_pose
+
+    def delete_pose(self):
+        pose = self.current.poses.get(self.pose_box.currentText())
+        if self.ask_permission(pose, 'Pose'):
+            self.current.poses.delete(pose)
+            self.reset_pose_box()
+
+    def reset_pose_box(self):
+        self.pose_box.clear()
+        poses = self.current.poses
+        if poses:
+            self.pose_box.addItems([d.nid for d in poses])
+            self.pose_box.setValue(poses[0].nid)
+        return poses
+
+    def import_lion_throne(self):
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Effect Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
+        if ok and fns:
+            for fn in fns:
+                new_effect_anim = None
+                if fn.endswith('-Script.txt'):
+                    new_effect_anim = combat_animation_imports.import_effect_from_lion_throne(fn)
+            # Reset
+            if new_effect_anim:
+                self.current = new_effect_anim
+            self.set_current(self.current)
+            parent_dir = os.path.split(fns[-1])[0]
+            settings.set_last_open_path(parent_dir)
+
+    def import_gba(self):
+        pass
+
+    def select_frame(self):
+        dlg = FrameSelector(self.current, self.current)
+        dlg.exec_()
+
+    def set_current(self, current):
+        print("Set Current!")
+        self.stop()
+
+        self.current = current
+        self.nid_box.setText(self.current.nid)
+
+        poses = self.reset_pose_box()
+        self.timeline_menu.set_current_frames(self.current.frames)
+        self.palette_menu.set_current(self.current)
+        current_pose_nid = self.pose_box.currentText()
+        current_pose = poses.get(current_pose_nid)
+        self.timeline_menu.set_current_pose(current_pose)
+
+    def draw_frame(self):
+        self.update()
+
+        # Actually show current frame
+        # Need to draw 240x160 area
+        # And place in space according to offset
+        actor_im = None
+        offset_x, offset_y = 0, 0
+        under_actor_im = None
+        under_offset_x, under_offset_y = 0, 0
+
+        if self.frame_nid:
+            frame = self.current.frames.get(self.frame_nid)
+            if frame:
+                if self.custom_frame_offset:
+                    offset_x, offset_y = self.custom_frame_offset
+                else:
+                    offset_x, offset_y = frame.offset
+                actor_im = self.modify_for_palette(frame.pixmap)
+        if self.under_frame_nid:
+            frame = self.current.frames.get(self.under_frame_nid)
+            if frame:
+                under_offset_x, under_offset_y = frame.offset
+                under_actor_im = self.modify_for_palette(frame.pixmap)
+
+        self.set_anim_view(actor_im, (offset_x, offset_y), under_actor_im, (under_offset_x, under_offset_y))

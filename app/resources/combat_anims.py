@@ -98,6 +98,40 @@ class CombatAnimation():
             self.weapon_anims.append(WeaponAnimation.restore(weapon_anim_save))
         return self
 
+class EffectAnimation():
+    def __init__(self, nid, full_path=None):
+        self.nid = nid
+        self.full_path = full_path
+        self.poses = Data()
+        self.frames = Data()
+        self.palettes = []  # Palette name -> Palette nid
+
+        self.pixmap = None
+        self.image = None
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
+
+    def save(self):
+        s_dict = {}
+        s_dict['nid'] = self.nid
+        s_dict['poses'] = [pose.save() for pose in self.poses]
+        s_dict['frames'] = [frame.save() for frame in self.frames]
+        s_dict['palettes'] = self.palettes[:]
+        return s_dict
+
+    @classmethod
+    def restore(cls, s_dict):
+        self = cls(s_dict['nid'])
+        for frame_save in s_dict['frames']:
+            self.frames.append(Frame.restore(frame_save))
+        for pose_save in s_dict['poses']:
+            self.poses.append(Pose.restore(pose_save))
+        self.palettes = []
+        for palette_name, palette_nid in s_dict['palettes'][:]:
+            self.palettes.append([palette_name, palette_nid])
+        return self
+
 class CombatCatalog(ManifestCatalog):
     manifest = 'combat_anims.json'
     title = 'Combat Animations'
@@ -133,7 +167,7 @@ class CombatEffectCatalog(ManifestCatalog):
     def load(self, loc):
         effect_dict = self.read_manifest(os.path.join(loc, self.manifest))
         for s_dict in effect_dict:
-            new_effect_anim = WeaponAnimation.restore(s_dict)
+            new_effect_anim = EffectAnimation.restore(s_dict)
             full_path = os.path.join(loc, new_effect_anim.nid + '.png')
             new_effect_anim.set_full_path(os.path.join(loc, full_path))
             self.append(new_effect_anim)

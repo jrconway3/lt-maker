@@ -58,3 +58,25 @@ class CombatAnimModel(ResourceCollectionModel):
             else:
                 return
         super().delete(idx)
+
+class CombatEffectModel(ResourceCollectionModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            animation = self._data[index.row()]
+            text = animation.nid
+            return text
+        elif role == Qt.DecorationRole:
+            # TODO create icon out of standing image
+            return None
+        return None
+
+    def create_new(self):
+        nid = str_utils.get_next_name('New Combat Effect', self._data.keys())
+        new_anim = combat_anims.EffectAnimation(nid)
+        self._data.append(new_anim)
+        return new_anim
+
+    def delete(self, idx):
+        super().delete(idx)

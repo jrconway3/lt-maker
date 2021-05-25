@@ -22,7 +22,7 @@ from app.engine.game_state import game
 
 import logging
 
-screen_positions = {'OffscreenLeft': -96, 
+screen_positions = {'OffscreenLeft': -96,
                     'FarLeft': -24,
                     'Left': 0,
                     'MidLeft': 24,
@@ -88,7 +88,7 @@ class Event():
     @property
     def unit1(self):
         return self.unit
-    
+
     def save(self):
         ser_dict = {}
         ser_dict['nid'] = self.nid
@@ -120,7 +120,7 @@ class Event():
 
     def update(self):
         current_time = engine.get_time()
-        
+
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
         while counter < 5:
@@ -205,10 +205,10 @@ class Event():
             s.fill((*self.transition_color, int(255 * self.transition_progress)))
             surf.blit(s, (0, 0))
 
-        return surf   
+        return surf
 
     def end(self):
-        self.state = 'complete'     
+        self.state = 'complete'
 
     def process(self):
         while self.command_idx < len(self.commands) and self.state == 'processing':
@@ -300,7 +300,7 @@ class Event():
 
         if command.nid == 'break':
             self.end()
-            
+
         elif command.nid == 'wait':
             self.wait_time = current_time + int(command.values[0])
             self.state = 'waiting'
@@ -313,7 +313,7 @@ class Event():
             music = command.values[0]
             fade = 400
             if len(command.values) > 1 and command.values[1]:
-                fade = int(command.values[1]) 
+                fade = int(command.values[1])
             if self.do_skip:
                 fade = 0
             if music == 'None':
@@ -488,7 +488,7 @@ class Event():
             self.commands.insert(self.command_idx + 1, wait_command)
             self.commands.insert(self.command_idx + 1, disp_cursor_command1)
             self.commands.insert(self.command_idx + 1, move_cursor_command)
-            
+
         elif command.nid == 'game_var':
             values, flags = event_commands.parse(command)
             nid = values[0]
@@ -638,7 +638,7 @@ class Event():
             unit = self.get_unit(values[0])
             if not unit:
                 logging.error("Couldn't find unit %s" % values[0])
-                return 
+                return
             if values[1] in DB.ai.keys():
                 action.do(action.ChangeAI(unit, values[1]))
             else:
@@ -650,7 +650,7 @@ class Event():
             unit = self.get_unit(values[0])
             if not unit:
                 logging.error("Couldn't find unit %s" % values[0])
-                return 
+                return
             if values[1] in DB.teams:
                 action.do(action.ChangeTeam(unit, values[1]))
                 if unit.position:
@@ -664,11 +664,11 @@ class Event():
             unit = self.get_unit(values[0])
             if not unit:
                 logging.error("Couldn't find unit %s" % values[0])
-                return 
+                return
             portrait = RESOURCES.portraits.get(values[1])
             if not portrait:
                 logging.error("Couldn't find portrat %s" % values[1])
-                return 
+                return
             action.do(action.ChangePortrait(unit, values[1]))
 
         elif command.nid == 'change_stats':
@@ -691,7 +691,7 @@ class Event():
             unit = self.get_unit(values[0])
             if not unit:
                 logging.error("Couldn't find unit %s" % values[0])
-                return 
+                return
             if values[1] in DB.tags.keys():
                 action.do(action.AddTag(unit, values[1]))
 
@@ -700,7 +700,7 @@ class Event():
             unit = self.get_unit(values[0])
             if not unit:
                 logging.error("Couldn't find unit %s" % values[0])
-                return 
+                return
             if values[1] in DB.tags.keys():
                 action.do(action.RemoveTag(unit, values[1]))
 
@@ -709,7 +709,7 @@ class Event():
             unit = self.get_unit(values[0])
             if not unit:
                 logging.error("Couldn't find unit %s" % values[0])
-                return 
+                return
             hp = int(values[1])
             action.do(action.SetHP(unit, hp))
 
@@ -846,7 +846,7 @@ class Event():
                 transition = values[1]
             else:
                 transition = 'fade'
-            
+
             action.do(action.ShowLayer(nid, transition))
 
         elif command.nid == 'hide_layer':
@@ -940,7 +940,7 @@ class Event():
             item_list = values[1].split(',')
             shop_items = item_funcs.create_items(unit, item_list)
             game.memory['shop_items'] = shop_items
-            
+
             if len(values) > 2 and values[2]:
                 game.memory['shop_flavor'] = values[2].lower()
             else:
@@ -1018,7 +1018,7 @@ class Event():
 
             self.wait_time = engine.get_time() + new_credits.wait_time()
             self.state = 'waiting'
-        
+
         elif command.nid == 'ending':
             values, flags = event_commands.parse(command)
             name = values[0]
@@ -1056,6 +1056,12 @@ class Event():
 
         elif command.nid == 'trigger_script':
             self.trigger_script(command)
+
+        elif command.nid == 'change_roaming':
+            self.change_roaming(command)
+
+        elif command.nid == 'change_roaming_unit':
+            self.change_roaming_unit(command)
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
@@ -1255,7 +1261,7 @@ class Event():
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
-            return 
+            return
         if unit.position:
             logging.error("Unit already on map!")
             return
@@ -1277,7 +1283,7 @@ class Event():
             placement = values[3]
         else:
             placement = 'giveup'
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             return None
 
@@ -1288,7 +1294,7 @@ class Event():
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
-            return 
+            return
         if not unit.position:
             logging.error("Unit not on map!")
             return
@@ -1311,7 +1317,7 @@ class Event():
             placement = 'giveup'
         follow = 'no_follow' not in flags
 
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             logging.error("Couldn't get a good position %s %s %s" % (position, movement_type, placement))
             return None
@@ -1339,7 +1345,7 @@ class Event():
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
-            return 
+            return
         if not unit.position:
             logging.error("Unit not on map!")
             return
@@ -1384,10 +1390,10 @@ class Event():
         unit2 = self.get_unit(values[1])
         if not unit1 or not unit1.position:
             logging.error("Couldn't find %s" % unit1)
-            return 
+            return
         if not unit2 or not unit2.position:
             logging.error("Couldn't find %s" % unit2)
-            return 
+            return
 
         if len(values) > 2 and values[2]:
             script = values[2].split(',')
@@ -1441,7 +1447,7 @@ class Event():
             if not position:
                 continue
             position = tuple(position)
-            position = self.check_placement(position, placement)
+            position = self.check_placement(unit, position, placement)
             if not position:
                 logging.warning("Couldn't determine valid position for %s?", unit.nid)
                 continue
@@ -1449,7 +1455,7 @@ class Event():
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
         position = tuple(position)
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             logging.warning("Couldn't determine valid position for %s?", unit.nid)
             return
@@ -1500,7 +1506,7 @@ class Event():
                 else:
                     test_pos = (position[1] + x, game.tilemap.height - 1)
         if final_pos:
-            final_pos = self.check_placement(final_pos, placement)
+            final_pos = self.check_placement(unit, final_pos, placement)
         if final_pos:
             action.do(action.ArriveOnMap(unit, final_pos))
             return True
@@ -1515,7 +1521,7 @@ class Event():
             position = self.parse_pos(next_pos)
         else:
             other_group = game.level.unit_groups.get(next_pos)
-            position = other_group.positions.get(unit.nid)                
+            position = other_group.positions.get(unit.nid)
         return position
 
     def spawn_group(self, command):
@@ -1550,7 +1556,7 @@ class Event():
             position = self._get_position(next_pos, unit, group)
             if not position:
                 continue
-            
+
             if self._add_unit_from_direction(unit, position, cardinal_direction, placement):
                 self._move_unit(movement_type, placement, follow, unit, position)
             else:
@@ -1616,7 +1622,7 @@ class Event():
                 else:  # immediate
                     action.do(action.LeaveMap(unit))
 
-    def check_placement(self, position, placement):
+    def check_placement(self, unit, position, placement):
         current_occupant = game.board.get_unit(position)
         if current_occupant:
             if placement == 'giveup':
@@ -1625,7 +1631,7 @@ class Event():
             elif placement == 'stack':
                 return position
             elif placement == 'closest':
-                position = target_system.get_nearest_open_tile(current_occupant, position)
+                position = target_system.get_nearest_open_tile(unit, position)
                 if not position:
                     logging.warning("Somehow wasn't able to find a nearby open tile")
                     return None
@@ -1647,7 +1653,16 @@ class Event():
         if not tilemap_prefab:
             logging.error("Couldn't find tilemap %s" % tilemap_nid)
             return
+
         reload_map = 'reload' in flags
+        if len(values) > 1 and values[1]:
+            position_offset = tuple(str_utils.intify(values[1]))
+        else:
+            position_offset = (0, 0)
+        if len(values) > 2 and values[2]:
+            reload_map_nid = values[2]
+        else:
+            reload_map_nid = tilemap_nid
         
         # Remove all units from the map
         # But remember their original positions for later
@@ -1659,17 +1674,20 @@ class Event():
                 act.execute()
         current_tilemap_nid = game.level.tilemap.nid
         game.level_vars['_prev_pos_%s' % current_tilemap_nid] = previous_unit_pos
-        
+
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         game.level.tilemap = tilemap
         game.set_up_game_board(game.level.tilemap)
 
         # If we're reloading the map
-        if reload_map and game.level_vars.get('_prev_pos_%s' % tilemap_nid):
-            for unit_nid, pos in game.level_vars['_prev_pos_%s' % tilemap_nid].items():
-                unit = game.get_unit(unit_nid)
-                act = action.ArriveOnMap(unit, pos)
-                act.execute()
+        if reload_map and game.level_vars.get('_prev_pos_%s' % reload_map_nid):
+            for unit_nid, pos in game.level_vars['_prev_pos_%s' % reload_map_nid].items():
+                # Reload unit's position with position offset
+                final_pos = pos[0] + position_offset[0], pos[1] + position_offset[1]
+                if game.tilemap.check_bounds(final_pos):
+                    unit = game.get_unit(unit_nid)
+                    act = action.ArriveOnMap(unit, final_pos)
+                    act.execute()
 
         # Can't use turnwheel to go any further back
         game.action_log.set_first_free_action()
@@ -1746,7 +1764,7 @@ class Event():
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
-            return 
+            return
         # Get input
         assign_unit = False
         unit_nid = values[1]
@@ -1776,13 +1794,13 @@ class Event():
             placement = values[5]
         else:
             placement = 'giveup'
-        position = self.check_placement(position, placement)
-        if not position:
-            return None
 
         level_unit_prefab = GenericUnit(
             unit_nid, unit.variant, level, unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
+        position = self.check_placement(new_unit, position, placement)
+        if not position:
+            return None
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
@@ -1831,7 +1849,7 @@ class Event():
                         game.state.change('alert')
             else:
                 action.do(action.GiveItem(unit, item))
-                if banner_flag: 
+                if banner_flag:
                     game.alerts.append(banner.AcquiredItem(unit, item))
                     game.state.change('alert')
                     self.state = 'paused'
@@ -1854,14 +1872,14 @@ class Event():
             return
         banner_flag = 'no_banner' not in flags
         item = [item for item in unit.items if item.nid == item_nid][0]
-        
+
         action.do(action.RemoveItem(unit, item))
         if banner_flag:
             item = DB.items.get(item_nid)
             b = banner.TakeItem(unit, item)
             game.alerts.append(b)
             game.state.change('alert')
-            self.state = 'paused' 
+            self.state = 'paused'
 
     def give_money(self, command):
         values, flags = event_commands.parse(command)
@@ -1971,14 +1989,14 @@ class Event():
             logging.error("Couldn't find skill with nid %s" % values[1])
             return
         banner_flag = 'no_banner' not in flags
-        
+
         action.do(action.RemoveSkill(unit, skill_nid))
         if banner_flag:
             skill = DB.skills.get(skill_nid)
             b = banner.TakeSkill(unit, skill)
             game.alerts.append(b)
             game.state.change('alert')
-            self.state = 'paused' 
+            self.state = 'paused'
 
     def _apply_stat_changes(self, unit, stat_changes, flags):
         klass = DB.classes.get(unit.klass)
@@ -2075,7 +2093,7 @@ class Event():
                 new_klass = None
 
         game.memory['current_unit'] = unit
-        if new_klass:    
+        if new_klass:
             game.memory['next_class'] = new_klass
             game.state.change('promotion')
             game.state.change('transition_out')
@@ -2107,9 +2125,9 @@ class Event():
         if new_klass == unit.klass:
             logging.error("No need to change classes")
             return
-            
+
         game.memory['current_unit'] = unit
-        if new_klass:    
+        if new_klass:
             game.memory['next_class'] = new_klass
             game.state.change('class_change')
             game.state.change('transition_out')
@@ -2172,7 +2190,7 @@ class Event():
             return
         if not self.region:
             logging.error("Can only find_unlock within a region's event script")
-            return 
+            return
         if skill_system.can_unlock(unit, self.region):
             game.memory['unlock_item'] = None
             return  # We're done here
@@ -2182,7 +2200,7 @@ class Event():
             if item_funcs.available(unit, item) and \
                     item_system.can_unlock(unit, item, self.region):
                 all_items.append(item)
-        
+
         if len(all_items) > 1:
             game.memory['current_unit'] = unit
             game.memory['all_unlock_items'] = all_items
@@ -2237,17 +2255,35 @@ class Event():
             unit2 = self.get_unit(values[2])
         else:
             unit2 = self.unit2
-        
+
         valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or (game.level and event_prefab.level_nid == game.level.nid))]
         for event_prefab in valid_events:
             game.events.add_event(event_prefab.nid, event_prefab.commands, unit, unit2, position=self.position, region=self.region)
             self.state = 'paused'
             if event_prefab.only_once:
                 action.do(action.OnlyOnceEvent(event_prefab.nid))
-            
+
         if not valid_events:
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
             return
+
+    def change_roaming(self, command):
+        values, flags = event_commands.parse(command)
+        val = values[0].lower()
+        if game.level:
+            if val in self.true_vals:
+                game.level.roam = True
+            else:
+                game.level.roam = False
+
+    def change_roaming_unit(self, command):
+        values, flags = event_commands.parse(command)
+        if game.level:
+            unit = self.get_unit(values[0])
+            if unit:
+                game.level.roam_unit = values[0]
+            else:
+                game.level.roam_unit = None
 
     def parse_pos(self, text):
         position = None
@@ -2259,8 +2295,8 @@ class Event():
             position = self.get_unit(text).position
         else:
             valid_regions = \
-                [tuple(region.position) for region in game.level.regions 
-                 if text == region.sub_nid and region.position and 
+                [tuple(region.position) for region in game.level.regions
+                 if text == region.sub_nid and region.position and
                  not game.board.get_unit(region.position)]
             if valid_regions:
                 position = static_random.shuffle(valid_regions)[0]

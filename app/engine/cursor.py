@@ -4,7 +4,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, target_system, skill_system
+from app.engine import engine, target_system
 from app.engine import config as cf
 from app.engine.game_state import game
 from app.engine.input_manager import INPUT
@@ -79,7 +79,7 @@ class Cursor():
                 self.path.insert(0, self._last_valid_position)
                 if target_system.check_path(self.cur_unit, self.path):
                     return self.path
-        
+
         self.path = target_system.get_path(self.cur_unit, self._last_valid_position)
         return self.path
 

@@ -18,6 +18,8 @@ class LevelPrefab(Prefab):
         self.objective = {'simple': '',
                           'win': '',
                           'loss': ''}
+        self.roam: bool = False
+        self.roam_unit: str = None
 
         self.units = Data()
         self.regions = Data()
@@ -36,7 +38,7 @@ class LevelPrefab(Prefab):
 
     def restore_attr(self, name, value):
         if name == 'units':
-            value = Data([GenericUnit.restore(unit_data) if unit_data['generic'] 
+            value = Data([GenericUnit.restore(unit_data) if unit_data['generic']
                           else UniqueUnit.restore(unit_data) for unit_data in value])
         elif name == 'unit_groups':
             value = Data([UnitGroup.restore(val) for val in value])

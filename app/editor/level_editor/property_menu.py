@@ -1,14 +1,15 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, \
-    QWidget, QPushButton, QMessageBox, QLabel
+    QWidget, QPushButton, QMessageBox, QLabel, QCheckBox
 from PyQt5.QtCore import Qt
 
 from app.data.database import DB
 
-from app.extensions.custom_gui import SimpleDialog, PropertyBox, QHLine
-from app.editor.custom_widgets import PartyBox
+from app.extensions.custom_gui import SimpleDialog, PropertyBox, QHLine, PropertyCheckBox
+from app.editor.custom_widgets import UnitBox, PartyBox
 from app.utilities import str_utils
+from app.editor.unit_editor import unit_tab
 from app.editor.sound_editor import sound_tab
 from app.editor.tile_editor import tile_tab
 
@@ -109,6 +110,16 @@ class PropertiesMenu(QWidget):
         self.map_box.clicked.connect(self.select_tilemap)
         form.addWidget(self.map_box)
 
+        # Free roam stuff
+        self.free_roam_box = PropertyCheckBox("Free Roam?", QCheckBox, self)
+        self.free_roam_box.edit.stateChanged.connect(self.free_roam_changed)
+        form.addWidget(self.free_roam_box)
+
+        self.unit_box = UnitBox(self, button=True, title="Roaming Unit")
+        self.unit_box.edit.currentIndexChanged.connect(self.unit_changed)
+        self.unit_box.button.clicked.connect(self.access_units)
+        form.addWidget(self.unit_box)
+
         self.set_current(self.state_manager.state.selected_level)
         self.state_manager.subscribe_to_key(
             PropertiesMenu.__name__, 'selected_level', self.set_current)
@@ -134,6 +145,20 @@ class PropertiesMenu(QWidget):
             self.party_box.edit.setCurrentIndex(0)
             self.party_changed()
 
+        # Handle roaming
+        if DB.units:
+            self.unit_box.model._data = DB.units
+            self.unit_box.model.layoutChanged.emit()
+        self.free_roam_box.edit.setChecked(bool(current.roam))
+        if current.roam_unit:
+            self.unit_box.edit.setValue(current.roam_unit)
+        elif DB.units:
+            self.unit_box.edit.setValue(DB.units[0].nid)
+        if bool(current.roam):
+            self.unit_box.show()
+        else:
+            self.unit_box.hide()
+        
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
         self.loss_condition.edit.setText(current.objective['loss'])
@@ -188,3 +213,20 @@ class PropertiesMenu(QWidget):
             nid = res.nid
             self.current.tilemap = nid
             self.state_manager.change_and_broadcast('ui_refresh_signal', None)
+
+    def access_units(self):
+        unit, ok = unit_tab.get(self.current.roam_unit)
+        if unit and ok:
+            self.current.roam_unit = unit.nid
+            self.unit_box.edit.setValue(self.current.roam_unit)
+
+    def free_roam_changed(self, state):
+        self.current.roam = bool(state)
+        if self.current.roam:
+            self.unit_box.show()
+        else:
+            self.unit_box.hide()
+
+    def unit_changed(self, idx):
+        self.current.roam_unit = DB.units[idx].nid
+        self.unit_box.edit.setValue(self.current.roam_unit)

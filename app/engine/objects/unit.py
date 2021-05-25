@@ -62,7 +62,7 @@ class UnitObject(Prefab):
             method = DB.constants.value('enemy_leveling')
             if method == 'Match':
                 method = DB.constants.value('player_leveling')
-            
+
         if method == 'Fixed':
             self.growth_points = {k: 50 for k in self.stats.keys()}
         else:
@@ -202,7 +202,7 @@ class UnitObject(Prefab):
             from app.engine import unit_sound
             self._sound = unit_sound.UnitSound(self)
         return self._sound
-    
+
     @property
     def tags(self):
         unit_tags = self._tags
@@ -238,9 +238,9 @@ class UnitObject(Prefab):
                 equippable = item_system.equippable(self, item)
                 if weapon and available and equippable:
                     # Don't think I need to wrap this in an action thing
-                    # Since it's more of an attribute that will be 
+                    # Since it's more of an attribute that will be
                     # rediscovered each time if necessary
-                    self.equip(item)  
+                    self.equip(item)
                     return item
         return None
 
@@ -376,7 +376,7 @@ class UnitObject(Prefab):
         self._has_moved = val
 
     def get_action_state(self):
-        return (self._finished, self._has_attacked, self._has_traded, self._has_moved, 
+        return (self._finished, self._has_attacked, self._has_traded, self._has_moved,
                 self.has_rescued, self.has_dropped, self.has_taken, self.has_given)
 
     def set_action_state(self, state):

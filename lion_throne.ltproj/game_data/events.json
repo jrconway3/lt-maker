@@ -15692,10 +15692,9 @@
         "condition": "game.turncount == 2",
         "commands": [
             [
-                "add_unit",
+                "change_roaming",
                 [
-                    "Prim",
-                    "8,8"
+                    "T"
                 ]
             ]
         ],
@@ -34366,6 +34365,85 @@
                 "remove_portrait",
                 [
                     "Ophie"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Visit",
+        "trigger": "Visit",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Coyote",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "My turn now"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Coyote"
+                ]
+            ],
+            [
+                "change_roaming_unit",
+                [
+                    "Coyote"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Coyote",
+                    "Sam"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Talk",
+        "trigger": "on_talk",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No more roaming"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "change_roaming",
+                [
+                    "F"
                 ]
             ]
         ],

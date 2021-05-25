@@ -40,7 +40,7 @@ class TurnChangeState(MapState):
             action.do(action.IncrementTurn())
             action.do(action.UpdateRecords('turn', None))
             game.state.change('free')
-            game.state.change('status_upkeep') 
+            game.state.change('status_upkeep')
             game.state.change('phase_change')
             # EVENTS TRIGGER HERE
             game.events.trigger('turn_change')
@@ -109,6 +109,10 @@ class FreeState(MapState):
     name = 'free'
 
     def begin(self):
+        if game.level.roam and game.level.roam_unit:
+            game.state.change('free_roam')
+            return 'repeat'
+            
         game.cursor.show()
         game.boundary.show()
         # The turnwheel will not be able to go before this moment
@@ -119,7 +123,7 @@ class FreeState(MapState):
     def take_input(self, event):
         game.cursor.set_speed_state(INPUT.is_pressed('BACK'))
         game.cursor.take_input()
-        
+
         if event == 'INFO':
             info_menu.handle_info()
 
@@ -142,7 +146,6 @@ class FreeState(MapState):
                     else:
                         SOUNDTHREAD.play_sfx('Error')
             else:
-                SOUNDTHREAD.play_sfx('Select 2')
                 game.state.change('option_menu')
 
         elif event == 'BACK':
@@ -206,15 +209,16 @@ class OptionMenuState(MapState):
             options.append('Save')
             info_desc.append('Save_desc')
             ignore.append(False)
-        options.append('End')
-        info_desc.append('End_desc')
+        if not game.level or not game.level.roam:
+            options.append('End')
+            info_desc.append('End_desc')
         ignore.append(False)
         unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore and lore.category == 'Guide']
         if unlocked_lore:
             options.insert(2, 'Guide')
             info_desc.insert(2, 'Guide_desc')
             ignore.insert(2, False)
-        if DB.constants.get('turnwheel').value:
+        if DB.constants.get('turnwheel').value and (not game.level or not game.level.roam):
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
             ignore.insert(1, False)
@@ -538,7 +542,7 @@ class MenuState(MapState):
             game.state.clear()
             game.state.change('free')
             return 'repeat'
-        
+
         skill_system.deactivate_all_combat_arts(self.cur_unit)
 
         if not self.cur_unit.has_attacked:
@@ -982,7 +986,7 @@ class WeaponChoiceState(MapState):
                 equip_action = action.EquipItem(self.cur_unit, selection)
                 # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
-                
+
             # If the item is in our inventory, bring it to the top
             if selection in self.cur_unit.items:
                 action.do(action.BringToTopItem(self.cur_unit, selection))
@@ -1028,7 +1032,7 @@ class TargetingState(MapState):
         # Should always come with associated ability
         self.ability = game.memory.get('ability')
         good_pos = self.ability.targets(self.cur_unit)
-        
+
         self.selection = SelectionHelper(good_pos)
         closest_pos = self.selection.get_closest(self.cur_unit.position)
         game.cursor.set_pos(closest_pos)
@@ -1306,7 +1310,7 @@ class CombatTargetingState(MapState):
             self.current_target_idx += 1
 
             self.prev_targets.append(game.cursor.position)
-            
+
             if item_system.targets_items(self.cur_unit, self.item):
                 target = game.board.get_unit(game.cursor.position)
                 if target:
@@ -1337,7 +1341,7 @@ class CombatTargetingState(MapState):
                 game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, target_unit)
             else:
                 game.ui_view.draw_spell_info(surf, self.cur_unit, self.item, target_unit)
-                
+
         return surf
 
     def end(self):
@@ -1521,9 +1525,9 @@ class AIState(MapState):
     def get_next_unit(self):
         valid_units = [
             unit for unit in game.units if
-            unit.position and 
-            not unit.finished and 
-            not unit.has_run_ai and 
+            unit.position and
+            not unit.finished and
+            not unit.has_run_ai and
             unit.team == game.phase.get_current()]
         if not valid_units:
             return None
@@ -1569,7 +1573,7 @@ class AIState(MapState):
             game.ai.load_unit(self.cur_unit)
 
         logging.info("Current AI: %s", self.cur_unit.nid if self.cur_unit else None)
-        
+
         if self.cur_unit:
             has_already_moved = game.ai.move_ai_complete
             did_something, change = game.ai.act()
@@ -1816,7 +1820,7 @@ class ShopState(State):
         if self.state == 'choice' and self.current_msg.is_done_or_wait():
             self.choice_menu.draw(surf)
         surf.blit(self.portrait, (3, 0))
-        
+
         money_bg = SPRITES.get('money_bg')
         money_bg = image_mods.make_translucent(money_bg, .1)
         surf.blit(money_bg, (172, 48))

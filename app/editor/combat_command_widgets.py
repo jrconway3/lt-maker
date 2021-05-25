@@ -339,6 +339,7 @@ class ColorTimeCommand(CombatCommand):
 
         self.color = ColorIcon(QColor(248, 248, 248), self)
         if len(self._data.value) > 1:
+            print(self._data.value[1])
             new_color = QColor(*self._data.value[1])
             self.color.change_color(new_color)
         self.color.set_size(32)
@@ -348,6 +349,7 @@ class ColorTimeCommand(CombatCommand):
     def on_value_changed(self, val):
         num_frames = int(self.num_frames.value())
         color = self.color.color().getRgb()
+        print(color)
         self._data.value = (num_frames, color)
 
 def get_command_widget(command, parent):

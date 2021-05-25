@@ -83,7 +83,6 @@ class FreeRoamState(MapState):
                 SOUNDTHREAD.play_sfx('Select 2')
                 did_trigger = game.events.trigger('on_talk', self.roam_unit, other_unit)
                 if did_trigger:
-                    print("")
                     action.do(action.RemoveTalk(self.roam_unit.nid, other_unit.nid))
                     self.rationalize()
             elif region:

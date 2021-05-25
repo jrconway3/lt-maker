@@ -125,7 +125,7 @@ class MovementManager():
             unit.sprite.change_state('normal')
             unit.sprite.reset()
             unit.wait()
-        
+
     def update(self):
         current_time = engine.get_time()
         for unit_nid in list(self.moving_units.keys()):

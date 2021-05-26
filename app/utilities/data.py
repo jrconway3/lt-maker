@@ -154,7 +154,8 @@ class Prefab(object):
         self = cls.default()
         for attr_name, attr_value in self.__dict__.items():
             value = self.restore_attr(attr_name, s_dict.get(attr_name))
-            setattr(self, attr_name, value)
+            if value is not None:
+                setattr(self, attr_name, value)
         return self
 
     def restore_attr(self, name, value):

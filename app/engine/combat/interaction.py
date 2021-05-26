@@ -1,15 +1,33 @@
-from app.engine import item_system
+from app.engine import item_system, skill_system, battle_animation
 from app.engine.game_state import game
+from app.engine.input_manager import INPUT
 
 from app.engine.combat.simple_combat import SimpleCombat
 from app.engine.combat.map_combat import MapCombat
 from app.engine.combat.base_combat import BaseCombat
 from app.engine.combat.animation_combat import AnimationCombat
+from app.engine import config as cf
 
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 
-def has_animation(attacker, item, main_target, splash):
+def has_animation(attacker: UnitObject, item: ItemObject, main_target: tuple) -> bool:
+    defender: UnitObject = game.board.get_unit(main_target)
+    if not defender:
+        return False
+
+    def animation_wanted(attacker: UnitObject, defender: UnitObject) -> bool:
+        return cf.SETTINGS['animation'] == 'Always' or \
+            (cf.SETTINGS['animation'] == 'Your Turn' and attacker.team == 'player') or \
+            (cf.SETTINGS['animation'] == 'Combat Only' and skill_system.check_enemy(attacker, defender))
+
+    toggle_anim = INPUT.is_pressed('AUX')
+    if attacker is not defender and animation_wanted(attacker, defender) != toggle_anim:
+        attacker_anim = battle_animation.get_battle_anim(attacker, item)
+        def_item = defender.get_weapon()
+        defender_anim = battle_animation.get_battle_anim(defender, def_item)
+        return bool(attacker_anim and defender_anim)
+
     return False
 
 def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: bool = False, script: list = None):
@@ -50,12 +68,14 @@ def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: b
     elif skip:
         # If we are skipping
         combat = SimpleCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
+    # If more than one target position or more than one item being used, cannot use animation combat
     elif len(positions) > 1 or len(items) > 1:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
+    # If affecting more than one target, cannot use animation combat
     elif not main_targets[0] or splashes[0]:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
-    elif has_animation(attacker, item, main_target, splash):
-        combat = AnimationCombat(attacker, item, main_target, splash, script)
+    elif has_animation(attacker, item, main_target):
+        combat = AnimationCombat(attacker, item, main_target, script)
     else:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
     return combat

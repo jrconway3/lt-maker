@@ -220,6 +220,14 @@ for hook in status_event_hooks:
         % (hook, hook, hook, hook, hook)
     exec(func)
 
+
+def battle_music(unit, item, target, mode):
+    for component in item.components:
+        if component.defines('battle_music'):
+            return component.battle_music(unit, item, target, mode)
+    return None
+
+
 def available(unit, item) -> bool:
     """
     If any hook reports false, then it is false

@@ -1,6 +1,7 @@
 from app.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 from app.engine import engine, image_mods
+from app.engine.sprites import SPRITES
 from app.utilities import utils
 
 class SpriteBackground():
@@ -150,6 +151,40 @@ class TransitionBackground():
                 surf.blit(image, (xindex, yindex))
                 yindex += self.height
             xindex += self.width
+
+class Foreground():
+    def __init__(self):
+        self.foreground = None
+        self.foreground_frames = 0
+        self.fade_out: bool = False
+        self.fade_out_frames = 0
+
+    def flash(self, num_frames, fade_out, color=(248, 248, 248)):
+        self.foreground_frames = num_frames
+        self.foreground = SPRITES.get('black_bg').copy()
+        engine.fill(self.foreground, color)
+        self.fade_out_frames = fade_out
+
+    def draw(self, surf, blend=False):
+        # Screen Flash
+        if self.foreground or self.fade_out_frames:
+            foreground = self.foreground
+            if self.fade_out:
+                alpha = 1 - self.foreground_frames / self.fade_out_frames
+                foreground = image_mods.make_translucent(self.foreground, alpha)
+            # Always additive blend
+            engine.blit(surf, foreground, (0, 0), blend=engine.BLEND_RGB_ADD)
+            self.foreground_frames -= 1
+            # If done
+            if self.foreground_frames <= 0:
+                if self.fade_out_frames and not self.fade_out:
+                    self.foreground_frames = self.fade_out_frames
+                    self.fade_out = True
+                else:
+                    self.fade_out_frames = 0
+                    self.foreground_frames = 0
+                    self.foreground = None
+                    self.fade_out = False
 
 def create_background(bg_name):
     panorama = RESOURCES.panoramas.get(bg_name)

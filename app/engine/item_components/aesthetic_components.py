@@ -61,6 +61,17 @@ class MapCastAnim(ItemComponent):
     def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
         playback.append(('cast_anim', self.value))
 
+class BattleAnimationMusic(ItemComponent):
+    nid = 'battle_animation_music'
+    desc = "Uses custom battle music"
+    tag = 'aesthetic'
+
+    expose = Type.Music
+    value = None
+
+    def battle_music(self, unit, item, target, mode):
+        return self.value
+
 class Warning(ItemComponent):
     nid = 'warning'
     desc = "Yellow warning sign appears above wielder's head"

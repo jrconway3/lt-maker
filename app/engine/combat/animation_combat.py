@@ -484,14 +484,16 @@ class AnimationCombat(BaseCombat):
             self.focus_right = False
         self.move_camera()
 
-    def _handle_playback(self):
+    def _handle_playback(self, sound=True):
         for brush in self.playback:
             if brush[0] in ('damage_hit', 'damage_crit', 'heal_hit'):
                 self.last_update = engine.get_time()
                 self.state = 'hp_change'
                 self.damage_numbers(brush)
-            elif brush[0] == 'hit_sound':
+            elif brush[0] == 'hit_sound' and sound:
                 sound = brush[1]
+                if sound == 'Attack Miss 2':
+                    sound = 'Miss'  # Replace with miss sound
                 SOUNDTHREAD.play_sfx(sound)
 
     def damage_numbers(self, brush):
@@ -544,7 +546,22 @@ class AnimationCombat(BaseCombat):
         if self.battle_music:
             SOUNDTHREAD.fade_back()
 
-    def shake(self, num):
+    def shake(self):
+        for brush in self.playback:
+            if brush[0] == 'damage_hit':
+                damage = brush[4]
+                if damage > 0:
+                    self._shake(1)
+                else:
+                    self._shake(2)  # No damage
+            elif brush[0] == 'damage_crit':
+                damage = brush[4]
+                if damage > 0:
+                    self._shake(4)  # Critical
+                else:
+                    self._shake(2)  # No damage
+
+    def _shake(self, num):
         self.current_shake = 1
         if num == 1: # Normal Hit
             self.shake_set = [(3, 3), (0, 0), (0, 0), (-3, -3), (0, 0), (0, 0), (3, 3), (0, 0), (-3, -3), (0, 0), 

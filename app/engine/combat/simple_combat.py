@@ -96,16 +96,7 @@ class SimpleCombat():
         # attacker has attacked
         action.do(action.HasAttacked(self.attacker))
 
-        # Messages
-        if self.defender:
-            if skill_system.check_enemy(self.attacker, self.defender):
-                action.do(action.Message("%s attacked %s" % (self.attacker.name, self.defender.name)))
-            elif self.attacker is not self.defender:
-                action.do(action.Message("%s helped %s" % (self.attacker.name, self.defender.name)))
-            else:
-                action.do(action.Message("%s used %s" % (self.attacker.name, self.main_item.name)))
-        else:
-            action.do(action.Message("%s attacked" % self.attacker.name))
+        self.handle_messages()
 
         all_units = self._all_units()
 
@@ -217,6 +208,18 @@ class SimpleCombat():
             if unit is not self.attacker:
                 all_units.append(unit)
         return all_units
+
+    def handle_message(self):
+        # Messages
+        if self.defender:
+            if skill_system.check_enemy(self.attacker, self.defender):
+                action.do(action.Message("%s attacked %s" % (self.attacker.name, self.defender.name)))
+            elif self.attacker is not self.defender:
+                action.do(action.Message("%s helped %s" % (self.attacker.name, self.defender.name)))
+            else:
+                action.do(action.Message("%s used %s" % (self.attacker.name, self.main_item.name)))
+        else:
+            action.do(action.Message("%s attacked" % self.attacker.name))
 
     def turnwheel_death_messages(self, units):
         messages = []

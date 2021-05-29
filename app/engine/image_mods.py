@@ -145,6 +145,21 @@ def blend_colors(color1, color2, t):
 
     return new_color
 
+def screen_dodge(image, color):
+    image = engine.copy_surface(image)
+    # Invert image
+    inv = engine.copy_surface(image)
+    engine.fill(inv, (255, 255, 255))
+    inv.blit(image, (0, 0), None, engine.BLEND_RGBA_SUB)
+    # Multiply with new color
+    inv_color = tuple([256 - c for c in color])
+    engine.fill(inv, inv_color, None, engine.BLEND_RGBA_MULT)
+    # Invert image again
+    new_inv = engine.copy_surface(inv)
+    engine.fill(new_inv, (255, 255, 255))
+    new_inv.blit(inv, (0, 0), None, engine.BLEND_RGBA_SUB)
+    return new_inv
+
 def resize(image, scale):
     x_scale, y_scale = scale
     new_scale = int(image.get_width() * x_scale), int(image.get_height() * y_scale)

@@ -105,13 +105,14 @@ anim_commands = Data([
     CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame', 'Displays the animation image with a custom (x, y) offset for # of frames'),
     
     CombatAnimationCommand('sound', 'Play Sound', ('sound',), (None,), 'sound'),
+    CombatAnimationCommand('random_sound', 'Play Random Sound', ('sound', 'sound', 'sound'), (None, None, None), 'sound'),
     CombatAnimationCommand('stop_sound', 'Stop Sound', ('sound',), (None,), 'sound'),
 
     CombatAnimationCommand('start_hit', 'Start Normal Hit Routine', None, None, 'process'),
     CombatAnimationCommand('wait_for_hit', 'Wait for End of Normal Hit Routine', ('frame', 'frame'), (None, None), 'process'),
     CombatAnimationCommand('miss', 'Miss', None, None, 'process'),
     CombatAnimationCommand('spell', 'Cast Spell', ('effect',), (None,), 'process'),
-    CombatAnimationCommand('spell_hit', 'Spell Hit Routine', None, None, 'process'),
+    CombatAnimationCommand('spell_hit', 'Spell Hit with Shake/Sound', (bool,), (True,), 'process'),
 
     CombatAnimationCommand('self_tint', 'Tint Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
     CombatAnimationCommand('enemy_tint', 'Tint Enemy', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),

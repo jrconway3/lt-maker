@@ -594,7 +594,7 @@ class CombatAnimProperties(QWidget):
             self.processing = False
             self.frame_nid = image
         elif command.nid == 'wait':
-            self.num_frames = command.value
+            self.num_frames = command.value[0]
             self.last_update = self.next_update
             self.processing = False
             self.frame_nid = None
@@ -661,7 +661,7 @@ class CombatAnimProperties(QWidget):
         self.anim_view.set_image(QPixmap.fromImage(base_image))
         self.anim_view.show_image()
 
-class CombatEffectProperties(QWidget):
+class CombatEffectProperties(CombatAnimProperties):
     def __init__(self, parent, current=None):
         QWidget.__init__(self, parent)
         self.window = parent
@@ -700,6 +700,22 @@ class CombatEffectProperties(QWidget):
     def on_nid_changed(self, old_nid, new_nid):
         pass
 
+    def build_frames(self):
+        self.frame_group_box = QGroupBox()
+        self.frame_group_box.setTitle("Image Frames")
+        frame_layout = QVBoxLayout()
+        self.frame_group_box.setLayout(frame_layout)
+        self.import_from_lt_button = QPushButton("Import Lion Throne Effect...")
+        self.import_from_lt_button.clicked.connect(self.import_lion_throne)
+        self.import_from_gba_button = QPushButton("Import GBA Effect...")
+        self.import_from_gba_button.clicked.connect(self.import_gba)
+        self.import_from_gba_button.setEnabled(False)
+        self.import_png_button = QPushButton("View Frames...")
+        self.import_png_button.clicked.connect(self.select_frame)
+        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 2, 0, 1, 2)
+        frame_layout.addWidget(self.import_from_gba_button)
+        frame_layout.addWidget(self.import_png_button)
+
     def has_weapon(self, b: bool):
         self.duplicate_weapon_button.setEnabled(b)
         self.delete_weapon_button.setEnabled(b)
@@ -714,8 +730,12 @@ class CombatEffectProperties(QWidget):
         current_pose_nid = self.pose_box.currentText()
         poses = self.current.poses
         current_pose = poses.get(current_pose_nid)
-        self.has_pose(True)
-        self.timeline_menu.set_current_pose(current_pose)
+        if current_pose:
+            self.has_pose(True)
+            self.timeline_menu.set_current_pose(current_pose)
+        else:
+            self.has_pose(False)
+            self.timeline_menu.clear_pose()
 
     def get_available_pose_types(self) -> float:
         items = [_ for _ in combat_anims.required_poses] + ['Critical']
@@ -784,21 +804,17 @@ class CombatEffectProperties(QWidget):
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Effect Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
         if ok and fns:
             for fn in fns:
-                new_effect_anim = None
                 if fn.endswith('-Script.txt'):
-                    new_effect_anim = combat_animation_imports.import_effect_from_lion_throne(fn)
-            # Reset
-            if new_effect_anim:
-                self.current = new_effect_anim
-            self.set_current(self.current)
+                    combat_animation_imports.import_effect_from_lion_throne(fn)
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
+        self.window.update_list()
 
     def import_gba(self):
         pass
 
     def select_frame(self):
-        dlg = FrameSelector(self.current, self.current)
+        dlg = FrameSelector(self.current, self.current, self)
         dlg.exec_()
 
     def set_current(self, current):
@@ -813,7 +829,10 @@ class CombatEffectProperties(QWidget):
         self.palette_menu.set_current(self.current)
         current_pose_nid = self.pose_box.currentText()
         current_pose = poses.get(current_pose_nid)
-        self.timeline_menu.set_current_pose(current_pose)
+        if current_pose:
+            self.timeline_menu.set_current_pose(current_pose)
+        else:
+            self.timeline_menu.clear_pose()
 
     def draw_frame(self):
         self.update()

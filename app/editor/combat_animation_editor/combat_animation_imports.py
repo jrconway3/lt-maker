@@ -138,8 +138,15 @@ def import_effect_from_lion_throne(fn):
     nid = os.path.split(fn)[-1].replace('-Script.txt', '')
     index_fn = fn.replace('-Script.txt', '-Index.txt')
     if not os.path.exists(index_fn):
-        QMessageBox.critical(None, "Error", "Could not find associated index file: %s" % index_fn)
-        return
+        # This is a simple control script that owns many other effects
+        current = combat_anims.EffectAnimation(nid)
+        add_poses(fn, current)
+        # Actually add effect animation to RESOURCES
+        if current.nid in RESOURCES.combat_effects.keys():
+            RESOURCES.combat_effects.remove_key(current.nid)
+        RESOURCES.combat_effects.append(current)
+        return current
+        
     images = glob.glob(fn.replace('-Script.txt', '-*.png'))
     if not images:
         QMessageBox.critical(None, "Error", "Could not find any associated palettes")
@@ -162,7 +169,6 @@ def import_effect_from_lion_throne(fn):
         RESOURCES.combat_effects.remove_key(current.nid)
     RESOURCES.combat_effects.append(current)
     return current
-    print("Done!!! %s" % fn)
 
 # === IMPORT FROM GBA ========================================================
 def update_weapon_anim_pixmap(weapon_anim):

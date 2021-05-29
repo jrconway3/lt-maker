@@ -115,8 +115,9 @@ class TimelineMenu(QWidget):
         self._finished = False
 
         self.view.clear()
-        for idx, command in enumerate(self.current_pose.timeline):
-            self.add_command_widget(command)
+        if self.current_pose:
+            for idx, command in enumerate(self.current_pose.timeline):
+                self.add_command_widget(command)
 
         self.select(self.current_idx)
 

@@ -41,7 +41,7 @@ class CombatCommand(QWidget):
         hbox.addWidget(icon_label)
 
         name_label = QLabel(self._data.name)
-        hbox.addWidget(name_label)
+        hbox.addWidget(name_label, Qt.AlignLeft)
 
         self.create_editor(hbox)
 
@@ -85,7 +85,7 @@ class IntCommand(CombatCommand):
         self.editor = QSpinBox(self)
         self.editor.setMaximumWidth(40)
         self.editor.setRange(1, 1024)
-        self.editor.setValue(self._data.value)
+        self.editor.setValue(self._data.value[0])
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 

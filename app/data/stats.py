@@ -19,7 +19,7 @@ class StatPrefab(Prefab):
             return 'left'
         return value
 
-class StatCatalog(Data):
+class StatCatalog(Data[StatPrefab]):
     datatype = StatPrefab
 
     def add_new_default(self, db):

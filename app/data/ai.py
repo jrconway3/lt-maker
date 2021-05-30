@@ -92,5 +92,5 @@ class AIBehaviour(Prefab):
     def guard_ai(self):
         return self.view_range == -1
 
-class AICatalog(Data):
+class AICatalog(Data[AIPrefab]):
     datatype = AIPrefab

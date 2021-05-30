@@ -26,5 +26,5 @@ class OverworldNodePrefab(Prefab):
     def default(cls):
         return cls('0', 'Frelia Castle', (0, 0))
 
-class OverworldNodeCatalog(Data):
+class OverworldNodeCatalog(Data[OverworldNodePrefab]):
     datatype = OverworldNodePrefab

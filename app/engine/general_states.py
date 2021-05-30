@@ -201,7 +201,7 @@ class OptionMenuState(MapState):
         options = ['Unit', 'Objective', 'Options']
         info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
         ignore = [True, False, False]
-        if DB.constants.get('permadeath').value:
+        if game.current_mode.permadeath:
             options.append('Suspend')
             info_desc.append('Suspend_desc')
             ignore.append(False)

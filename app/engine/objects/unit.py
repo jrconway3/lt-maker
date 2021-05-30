@@ -55,13 +55,7 @@ class UnitObject(Prefab):
             self.affinity = prefab.affinity
         self.starting_position = self.position
 
-        # Get how to level
-        if self.team == 'player':
-            method = DB.constants.value('player_leveling')
-        else:
-            method = DB.constants.value('enemy_leveling')
-            if method == 'Match':
-                method = DB.constants.value('player_leveling')
+        method = unit_funcs.get_leveling_method(self)
 
         if method == 'Fixed':
             self.growth_points = {k: 50 for k in self.stats.keys()}
@@ -128,13 +122,38 @@ class UnitObject(Prefab):
         self.current_move = None  # Holds the move action the unit last used
         # Maybe move to movement manager?
 
-        if self.generic:
-            klass = DB.classes.get(self.klass)
-            if klass.tier == 0:
-                num_levels = self.level - 1
-            else:
-                num_levels = self.get_internal_level() - 1
+        klass = DB.classes.get(self.klass)
+        if klass.tier == 0:
+            num_levels = self.level - 1
+        else:
+            num_levels = self.get_internal_level() - 1
+
+        # Difficulty mode stat bonuses
+        stat_bonus = game.mode.get_base_bonus(self)
+        bonus = {nid: 0 for nid in DB.stats.keys()}
+        for nid in DB.stats.keys():
+            bonus[nid] = utils.clamp(stat_bonus[nid], -self.stats[nid], klass.max_stats.get(nid, 30) - self.stats[nid])
+        if any(v != 0 for v in bonus.values()):
+            unit_funcs.apply_stat_changes(self, bonus)
+
+        if self.generic:            
             unit_funcs.auto_level(self, num_levels)
+        # Existing units would have leveled up different with bonus growths 
+        elif DB.constants.value('backpropagate_difficulty_growths'):  
+            difficulty_growth_bonus = game.mode.get_growth_bonus(self)
+            if difficulty_growth_bonus:
+                unit_funcs.auto_level(self, num_levels, difficulty_growths=True)
+
+        difficulty_autolevels = game.mode.get_difficulty_autolevels(self)
+        if self.team.startswith('enemy'):
+            # Handle the ones that you can change in events
+            difficulty_autolevels += game.current_mode.enemy_autolevels
+            difficulty_autolevels += game.current_mode.enemy_truelevels
+        if difficulty_autolevels > 0:
+            unit_funcs.auto_level(self, difficulty_autolevels, num_levels + 1)
+        if self.team.startswith('enemy'):
+            difficulty_truelevels = game.current_mode.enemy_truelevels
+            self.level += difficulty_truelevels
 
         for skill in self.skills:
             skill_system.on_add(self, skill)

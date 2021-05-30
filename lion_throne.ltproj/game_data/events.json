@@ -12902,6 +12902,28 @@
         "condition": "True",
         "commands": [
             [
+                "comment",
+                [
+                    "# From this point on, all enemies are at +1 level"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.mode.nid == 'Lunatic'"
+                ]
+            ],
+            [
+                "set_mode_autolevels",
+                [
+                    "1"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
                 "victory_screen",
                 []
             ],
@@ -30822,6 +30844,28 @@
         "level_nid": "9",
         "condition": "True",
         "commands": [
+            [
+                "comment",
+                [
+                    "# From this point on, all enemies are at +2 level"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.mode.nid == 'Lunatic'"
+                ]
+            ],
+            [
+                "set_mode_autolevels",
+                [
+                    "2"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
             [
                 "victory_screen",
                 []

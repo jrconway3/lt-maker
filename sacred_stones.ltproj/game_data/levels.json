@@ -20,7 +20,7 @@
             "win": "Defeat boss",
             "loss": "Eirika dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": "Eirika",
         "units": [
             {
@@ -143,7 +143,7 @@
             "win": "Seize Boss",
             "loss": "Eirika dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -599,7 +599,7 @@
             "win": "Defeat all enemies",
             "loss": "Eirika dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -1061,7 +1061,7 @@
             "win": "Seize throne",
             "loss": "Eirika dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -1636,7 +1636,7 @@
             "win": "Defeat enemy,Left {eval:len(game.get_enemy_units())}",
             "loss": "Eirika dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -2580,7 +2580,7 @@
             "win": "Defeat the Boss",
             "loss": "Eirika dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -3464,7 +3464,7 @@
             "win": "Don't Crash",
             "loss": "Crash"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {

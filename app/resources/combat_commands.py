@@ -105,7 +105,6 @@ anim_commands = Data([
     CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame', 'Displays the animation image with a custom (x, y) offset for # of frames'),
     
     CombatAnimationCommand('sound', 'Play Sound', ('sound',), (None,), 'sound'),
-    CombatAnimationCommand('random_sound', 'Play Random Sound', ('sound', 'sound', 'sound'), (None, None, None), 'sound'),
     CombatAnimationCommand('stop_sound', 'Stop Sound', ('sound',), (None,), 'sound'),
 
     CombatAnimationCommand('start_hit', 'Start Normal Hit Routine', None, None, 'process'),

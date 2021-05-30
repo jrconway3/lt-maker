@@ -20,7 +20,7 @@
             "win": "Escape the monastery",
             "loss": "Ophie dies,Prim dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": "Ophie",
         "units": [
             {
@@ -401,7 +401,7 @@
             "win": "Defeat Sidney",
             "loss": "Ophies dies,Any two of your units are defeated"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -754,7 +754,7 @@
             "win": "Defeat Brigham",
             "loss": "Ophie dies,Althea dies,Party size falls below three"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -1240,7 +1240,7 @@
             "win": "Escape the fort with the money",
             "loss": "Renae OR Ophie die,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -2388,7 +2388,7 @@
             "win": "Destroy at least 7 wagons. {eval:game.game_vars.get('dead_wagons', 0)}/10 destroyed",
             "loss": "Ophie dies,Four or more wagons escape,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}."
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -3446,7 +3446,7 @@
             "win": "Seize Temple Gate",
             "loss": "Ophie dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -4545,7 +4545,7 @@
             "win": "Defeat the Warden",
             "loss": "Ophie dies,Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -6479,7 +6479,7 @@
             "win": "Seize the fort",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -8173,7 +8173,7 @@
             "win": "Defeat Vagnius",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -9978,7 +9978,7 @@
             "win": "Escape the sewers",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {
@@ -11544,7 +11544,7 @@
             "win": "Defeat Duke Ulver",
             "loss": "Ophie dies,Sam dies"
         },
-        "roam": null,
+        "roam": false,
         "roam_unit": null,
         "units": [
             {

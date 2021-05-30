@@ -103,33 +103,6 @@ class SoundCommand(CombatCommand):
     def on_value_changed(self, idx):
         self._data.value = (RESOURCES.sfx[idx].nid, )
 
-class TripleSoundCommand(CombatCommand):
-    def create_editor(self, hbox):
-        vbox = QVBoxLayout()
-
-        self.editor1 = ComboBox(self)
-        self.editor1.addItems([d.nid for d in RESOURCES.sfx])
-        self.editor1.setValue(self._data.value[0])
-        self.editor1.currentIndexChanged.connect(self.on_value_changed)
-
-        self.editor2 = ComboBox(self)
-        self.editor2.addItems([d.nid for d in RESOURCES.sfx])
-        self.editor2.setValue(self._data.value[1])
-        self.editor2.currentIndexChanged.connect(self.on_value_changed)
-
-        self.editor3 = ComboBox(self)
-        self.editor3.addItems([d.nid for d in RESOURCES.sfx])
-        self.editor3.setValue(self._data.value[2])
-        self.editor3.currentIndexChanged.connect(self.on_value_changed)
-
-        vbox.addWidget(self.editor)
-        vbox.addWidget(self.editor)
-        vbox.addWidget(self.editor)
-        hbox.addLayout(vbox)
-
-    def on_value_changed(self, idx):
-        self._data.value = (self.editor1.text(), self.editor2.text(), self.editor3.text())
-
 class EffectCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
@@ -388,8 +361,6 @@ def get_command_widget(command, parent):
         c = IntCommand(command, parent)
     elif command.attr == ('sound',):
         c = SoundCommand(command, parent)
-    elif command.nid == 'random_sound':
-        c = TripleSoundCommand(command, parent)
     elif command.attr == ('effect',):
         c = EffectCommand(command, parent)
     elif command.nid == 'wait_for_hit':

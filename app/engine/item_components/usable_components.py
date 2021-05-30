@@ -203,23 +203,7 @@ class PrfTag(ItemComponent):
 class Locked(ItemComponent):
     nid = 'locked'
     desc = 'Item cannot be discarded, traded, or stolen'
-    tag = 'extra'
+    tag = 'uses'
 
     def locked(self, unit, item) -> bool:
         return True
-
-class CanUnlock(ItemComponent):
-    nid = 'can_unlock'
-    desc = "Item can be used to unlock events. String will be evaluated to determine kind of event"
-    tag = 'extra'
-
-    expose = Type.String
-    value = 'True'
-
-    def can_unlock(self, unit, item, region) -> bool:
-        from app.engine import evaluate
-        try:
-            return bool(evaluate.evaluate(self.value, unit, item, region=region))
-        except:
-            print("Could not evaluate %s" % self.value)
-        return False

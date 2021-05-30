@@ -36,6 +36,7 @@ class StateMachine():
              'title_main': title_screen.TitleMainState,
              'title_load': title_screen.TitleLoadState,
              'title_restart': title_screen.TitleRestartState,
+             'title_mode': title_screen.TitleModeState,
              'title_new': title_screen.TitleNewState,
              'title_new_child': title_screen.TitleNewChildState,
              'title_extras': title_screen.TitleExtrasState,

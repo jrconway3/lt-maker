@@ -680,6 +680,9 @@ class Event():
         elif command.nid == 'autolevel_to':
             self.autolevel_to(command)
 
+        elif command.nid == 'set_mode_autolevels':
+            self.set_mode_autolevels(command)
+
         elif command.nid == 'promote':
             self.promote(command)
 
@@ -2072,6 +2075,14 @@ class Event():
         class_skills = unit_funcs.get_starting_skills(unit)
         for class_skill in class_skills:
             action.do(action.AddSkill(unit, class_skill))
+
+    def set_mode_autolevels(self, command):
+        values, flags = event_commands.parse(command)
+        autolevel = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
+        if 'hidden' in flags:
+            game.current_mode.enemy_autolevels = autolevel
+        else:
+            game.current_mode.enemy_truelevels = autolevel
 
     def promote(self, command):
         values, flags = event_commands.parse(command)

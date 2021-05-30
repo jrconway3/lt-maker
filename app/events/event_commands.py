@@ -610,6 +610,13 @@ class AutolevelTo(EventCommand):
     # Whether to actually change the unit's level
     flags = ["hidden"]
 
+class SetModeAutolevels(EventCommand):
+    nid = 'set_mode_autolevels'
+    tag = "Modify Unit Properties"
+    keywords = ["String"]
+    # Whether to actually change the unit's level
+    flags = ["hidden"]
+
 class Promote(EventCommand):
     nid = 'promote'
     tag = "Modify Unit Properties"

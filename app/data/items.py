@@ -48,5 +48,5 @@ class ItemPrefab(Prefab):
                 item_components)
         return i
 
-class ItemCatalog(Data):
+class ItemCatalog(Data[ItemPrefab]):
     datatype = ItemPrefab

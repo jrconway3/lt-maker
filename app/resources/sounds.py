@@ -37,7 +37,7 @@ class Song():
         #     self.length = s_tuple[3]
         return self
 
-class MusicCatalog(ManifestCatalog):
+class MusicCatalog(ManifestCatalog[Song]):
     filetype = '.ogg'
     manifest = 'music.json'
     title = 'music'
@@ -99,7 +99,7 @@ class SFX():
         #     self.length = s_tuple[2]
         return self
 
-class SFXCatalog(ManifestCatalog):
+class SFXCatalog(ManifestCatalog[SFX]):
     manifest = 'sfx.json'
     title = 'sfx'
     filetype = '.ogg'

@@ -72,7 +72,7 @@ class EventPrefab(Prefab):
     def default(cls):
         return cls('None')
 
-class EventCatalog(Data):
+class EventCatalog(Data[EventPrefab]):
     datatype = EventPrefab
 
     def get(self, trigger, level_nid):

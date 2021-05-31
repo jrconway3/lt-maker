@@ -5,18 +5,20 @@ from app.engine import engine
 from app.engine import config as cf
 from app.engine import driver
 from app.engine import game_state
+import sys
+import os
 
-def main():
-    RESOURCES.load('./lion_throne.ltproj')
-    DB.load('./lion_throne.ltproj')
+def main(name):
+    RESOURCES.load(name + '.ltproj')
+    DB.load(name + '.ltproj')
     title = DB.constants.value('title')
     driver.start(title)
     game = game_state.start_game()
     driver.run(game)
 
 def test_play():
-    RESOURCES.load('./lion_throne.ltproj')
-    DB.load('./lion_throne.ltproj')
+    RESOURCES.load('./default.ltproj')
+    DB.load('./default.ltproj')
     title = DB.constants.value('title')
     driver.start(title, from_editor=True)
     game = game_state.start_level('DEBUG')
@@ -37,7 +39,12 @@ if __name__ == '__main__':
     if not success:
         engine.terminate()
     try:
-        main()
+        proj = '.ltproj'
+        for name in os.listdir('./'):
+            if name.endswith(proj):
+                name = name.replace(proj, '')
+                if name != 'autosave':
+                    main(name)
         # test_play()
     except Exception as e:
         logging.exception(e)

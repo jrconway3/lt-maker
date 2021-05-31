@@ -15,7 +15,7 @@ class Data(Generic[T]):
 
     datatype = T
 
-    def __init__(self, vals: List[T]=None):
+    def __init__(self, vals: List[T] = None):
         if vals:
             self._list: List[T] = vals
             self._dict: Dict[NID, T] = {val.nid: val for val in vals}
@@ -76,7 +76,7 @@ class Data(Generic[T]):
         self._list.remove(val)
         del self._dict[key]
 
-    def pop(self, idx: int=None):
+    def pop(self, idx: int = None):
         if idx is None:
             idx = len(self._list) - 1
         r = self._list[idx]
@@ -100,7 +100,7 @@ class Data(Generic[T]):
                 return idx
         raise ValueError
 
-    def move_index(self, old_index: int, new_index:int):
+    def move_index(self, old_index: int, new_index: int):
         if old_index == new_index:
             return
         obj = self._list.pop(old_index)
@@ -140,7 +140,7 @@ class Data(Generic[T]):
     def __iter__(self):
         return iter(self._list)
 
-class Prefab(object):
+class Prefab():
     def save(self):
         s_dict = {}
         for attr in self.__dict__.items():

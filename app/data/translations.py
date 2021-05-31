@@ -8,7 +8,7 @@ class Translation(Prefab):
     nid: str = None
     text: str = ""
 
-class TranslationCatalog(Data):
+class TranslationCatalog(Data[Translation]):
     datatype = Translation
 
     def add_new_default(self, db):

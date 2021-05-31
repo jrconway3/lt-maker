@@ -25,7 +25,7 @@ class MapIcon():
         self = cls(nid)
         return self
 
-class MapIconCatalog(ManifestCatalog):
+class MapIconCatalog(ManifestCatalog[MapIcon]):
     manifest = 'map_icons.json'
     title = 'map icons'
     datatype = MapIcon

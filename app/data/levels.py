@@ -52,5 +52,5 @@ class LevelPrefab(Prefab):
     def default(cls):
         return cls('0', 'Prologue')
 
-class LevelCatalog(Data):
+class LevelCatalog(Data[LevelPrefab]):
     datatype = LevelPrefab

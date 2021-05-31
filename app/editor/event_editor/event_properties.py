@@ -811,11 +811,14 @@ class ShowCommandsDialog(QDialog):
         self.window = parent
 
         self.commands = event_commands.get_commands()
-        self.categories = event_commands.tags
+        self.categories = [category.value for category in event_commands.Tags]
         self._data = []
-        for category in self.categories[:-1]:  # Ignore hidden categoy
+        for category in self.categories:  
+            # Ignore hidden category
+            if category == event_commands.Tags.HIDDEN.value:
+                continue
             self._data.append(category)
-            commands = [command for command in self.commands if command.tag == category]
+            commands = [command for command in self.commands if command.tag.value == category]
             self._data += commands
 
         self.model = EventCommandModel(self._data, self.categories, self)

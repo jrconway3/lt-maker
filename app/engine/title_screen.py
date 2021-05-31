@@ -173,8 +173,15 @@ class TitleMainState(State):
                 elif self.selection == 'Extras':
                     game.state.change('title_extras')
                 elif self.selection == 'New Game':
-                    game.memory['next_state'] = 'title_mode'
-                    game.state.change('transition_to')
+                    # Check if more than one mode or the only mode requires a choice
+                    if len(DB.difficulty_modes) > 1 or \
+                            (DB.difficulty_modes and 
+                             (DB.difficulty_modes[0].permadeath_choice == 'Player Choice' or 
+                              DB.difficulty_modes[0].growths_choice == 'Player Choice')):
+                        game.memory['next_state'] = 'title_mode'
+                        game.state.change('transition_to')
+                    else:  # Wow, no need for choice
+                        game.state.change('title_new')
                 self.state = 'transition_in'
                 return 'repeat'
 

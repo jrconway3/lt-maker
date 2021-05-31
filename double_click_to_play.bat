@@ -1,2 +1,7 @@
-cd .\lt_engine
-.\lt_engine.exe
+for /d %%d in (*.*) do (
+    set test=%%d
+)
+
+set name=%test%
+cd ./%name%
+.\%name%.exe

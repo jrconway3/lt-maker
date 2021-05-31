@@ -7,7 +7,7 @@ fi
 name=$1
 rm -rf "../$name"
 mkdir "../$name"
-pyinstaller -y main.spec "$name"
+pyinstaller -y engine.spec "$name"
 mv "dist/$name" "../$name/$name"
 cp utilities/audio_dlls/* "../$name/$name"
 cp -r favicon.ico "../$name/$name"

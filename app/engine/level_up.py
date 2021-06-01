@@ -18,6 +18,8 @@ class ExpState(State):
     transparent = True
     state = None
 
+    dark_fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.66)
+
     def start(self):
         if game.exp_instance:
             self.unit, self.exp_gain, self.combat_object, self.starting_state = \
@@ -284,6 +286,7 @@ class ExpState(State):
                 self.exp_bar.draw(surf)
 
         elif self.state.get_state() == 'level_up':
+            surf.blit(self.dark_fuzz_background, (0, 0))
             if self.level_up_animation:
                 self.level_up_animation.update()
                 self.level_up_animation.draw(surf)

@@ -1426,8 +1426,7 @@ class ItemTargetingState(MapState):
 
 class CombatState(MapState):
     name = 'combat'
-    fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.25)
-    dark_fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.5)
+    fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.75)
 
     def start(self):
         game.cursor.hide()
@@ -1440,9 +1439,13 @@ class CombatState(MapState):
         self.is_animation_combat = isinstance(self.combat, interaction.AnimationCombat)
 
     def take_input(self, event):
-        if event == 'START' and not self.skip:
-            self.skip = True
-            self.combat.skip()
+        if event == 'START':
+            if self.skip:
+                self.skip = False
+                self.combat.end_skip()
+            else:
+                self.skip = True
+                self.combat.skip()
         elif event == 'BACK':
             # Arena
             pass
@@ -1458,10 +1461,20 @@ class CombatState(MapState):
 
     def draw(self, surf):
         if self.is_animation_combat:
-            pass
+            if self.combat.viewbox:
+                viewbox = self.combat.viewbox
+            else:
+                viewbox = (0, 0, WINWIDTH, WINHEIGHT)
+            if viewbox[2] > 0:  # Check that it has width
+                viewbox_bg = self.fuzz_background.copy()
+                viewbox_bg.fill((0, 0, 0, 0), viewbox)
+                surf = super().draw(surf, culled_rect=viewbox)
+                surf.blit(viewbox_bg, (0, 0))
+            else:
+                surf = super().draw(surf)
         else:
             surf = super().draw(surf)
-            self.combat.draw(surf)
+        self.combat.draw(surf)
         return surf
 
 class DyingState(MapState):

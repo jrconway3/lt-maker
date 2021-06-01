@@ -1,8 +1,9 @@
 import random
-
+from app.constants import WINWIDTH
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
+from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, image_mods
 
@@ -35,6 +36,9 @@ class BattleAnimation():
         self.frame_count = 0
         self.num_frames = 0
 
+        self.loop = None
+        self.skip_next_loop = 0  # A counter that keeps track of how many loops in the future to skip
+
         # Pairing stuff
         self.owner = None
         self.partner_anim = None
@@ -51,7 +55,6 @@ class BattleAnimation():
         self.loop = False
 
         # For drawing
-        self.animations = []
         self.blend = 0
         # Flash Frames
         self.foreground = None
@@ -144,9 +147,6 @@ class BattleAnimation():
         else:
             self.start_anim('Dodge')
 
-    def add_effect(self, effect):
-        pass
-
     def get_frames(self, num) -> int:
         return max(1, int(int(num) * battle_anim_speed))
 
@@ -166,6 +166,26 @@ class BattleAnimation():
         if self.in_basic_state:
             self.num_frames = int(42 * battle_anim_speed)
 
+    def flash(self, num_frames, color):
+        self.flash_counter = num_frames
+        self.flash_color = color
+
+    def screen_dodge(self, num_frames, color):
+        self.screen_dodge_counter = num_frames
+        self.screen_dodge_color = color
+
+    def add_effect(self, effect, pose=None):
+        if pose and pose in effect.poses:
+            effect.change_pose(pose)
+        self.child_effects.append(effect)
+
+    def remmove_effects(self, effects: list):
+        for effect in effects:
+            if effect in self.child_effects:
+                self.child_effects.remove(effect)
+            if effect in self.under_child_effects:
+                self.under_child_effects.remove(effect)
+
     def clear_all_effects(self):
         for child in self.child_effects:
             child.clear_all_effects()
@@ -173,6 +193,17 @@ class BattleAnimation():
             child.clear_all_effects()
         self.child_effects.clear()
         self.under_child_effects.clear()
+
+    def effect_playing(self):
+        return bool(self.child_effects) or bool(self.under_child_effects)
+
+    def end_loop(self):
+        if self.loop:
+            if self.loop[1] >= 0:
+                self.script_idx = self.loop[1]  # Move to end of loop
+            self.loop = None
+        else:
+            self.skip_next_loop += 1
 
     def update(self):
         if self.state == 'run':
@@ -200,7 +231,7 @@ class BattleAnimation():
                 if opacity == -1:
                     opacity = 255
                     self.flash_color = (248, 248, 248)
-                    self.flash_frames = 100
+                    self.flash_counter = 100
                     SOUNDTHREAD.play_sfx('CombatDeath')
                 self.opacity = opacity
             else:
@@ -298,17 +329,6 @@ class BattleAnimation():
                 self.state = 'wait'
                 self.in_basic_state = True
         elif command.nid == 'miss':
-            if self.right:
-                position = (72, 21)
-            else:
-                position = (128, 21)  # Enemy's position
-            team = self.owner.right.team if self.right else self.owner.left.team
-            color = utils.get_team_color(team)
-            anim_nid = 'Miss%s' % color.capitalize()
-            animation = RESOURCES.animations.get(anim_nid)
-            if animation:
-                anim = Animation(animation, position)
-                self.animations.append(anim)
             self.owner.start_hit(miss=True)
             if self.partner_anim:
                 self.partner_anim.dodge()
@@ -363,6 +383,78 @@ class BattleAnimation():
         elif command.nid == 'parent_opacity':
             self.parent.opacity = int(values[0])
 
+        elif command.nid == 'pan':
+            self.pan_away = not self.pan_away
+            if self.pan_away:
+                self.owner.pan_away()
+            else:
+                self.owner.pan_back()
+
+        elif command.nid == 'self_tint':
+            num_frames = self.get_frames(values[0])
+            color = values[1]
+            self.flash(num_frames, color)
+        elif command.nid == 'enemy_tint':
+            num_frames = self.get_frames(values[0])
+            color = values[1]
+            if self.partner:
+                self.partner_anim.flash(num_frames, color)
+        elif command.nid == 'self_screen_dodge':
+            num_frames = self.get_frames(values[0])
+            color = values[1]
+            self.screen_dodge(num_frames, color)
+        elif command.nid == 'enemy_screen_dodge':
+            num_frames = self.get_frames(values[0])
+            color = values[1]
+            if self.partner:
+                self.partner_anim.screen_dodge(num_frames, color)
+        elif command.nid == 'background_blend':
+            num_frames = self.get_frames(values[0])
+            color = values[1]
+            self.background_counter = num_frames
+            self.background = SPRITES.get('bg_black').copy()
+            self.background.fill(color)
+        elif command.nid == 'foreground_blend':
+            num_frames = self.get_frames(values[0])
+            color = values[1]
+            self.foreground_counter = num_frames
+            self.foreground = SPRITES.get('bg_black').copy()
+            self.foreground.fill(color)
+        elif command.nid == 'screen_blend':
+            num_frames = self.get_frames(values[0])
+            color = values[1]
+            self.owner.screen_flash(num_frames, color)
+
+        elif command.nid == 'platform_shake':
+            self.owner.platform_shake()
+        elif command.nid == 'screen_shake':
+            self.owner._shake(1)
+        elif command.nid == 'darken':
+            self.owner.darken()
+        elif command.nid == 'lighten':
+            self.owner.lighten()
+        elif command.nid == 'hit_spark':
+            self.owner.hit_spark()
+        elif command.nid == 'crit_spark':
+            self.owner.crit_spark()
+
+        elif command.nid == 'start_loop':
+            if self.skip_next_loop:
+                self.skip_next_loop -= 1
+            else:
+                self.loop = (self.script_idx, -1)
+        elif command.nid == 'end_loop':
+            if self.loop:
+                self.loop = (self.loop[0], self.script_idx)
+                self.script_idx = self.loop[0]  # Re-loop
+        elif command.nid == 'end_parent_loop':
+            self.parent.end_loop()
+        elif command.nid == 'end_child_loop':
+            for child in self.child_effects:
+                child.end_loop()
+            for child in self.under_children:
+                child.end_loop()
+
     def draw(self, surf, shake=(0, 0), range_offset=0, pan_offset=0):
         if self.state == 'inert':
             return
@@ -411,11 +503,6 @@ class BattleAnimation():
         # Handle children
         for child in self.child_effects:
             child.draw(surf, (0, 0), range_offset, pan_offset)
-
-        # Update and draw animations
-        self.animations = [anim for anim in self.animations if not anim.update()]
-        for anim in self.animations:
-            anim.draw(surf)
 
         # Screen flash
         if self.foreground:
@@ -497,7 +584,7 @@ class BattleAnimation():
             # done
             if self.screen_dodge_color <= 0:
                 self.screen_dodge_color = None
-                self.screen_dodge_frames = 0
+                self.screen_dodge_counter = 0
                 self.screen_dodge_image = None
         return image
 

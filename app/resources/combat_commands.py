@@ -115,10 +115,13 @@ anim_commands = Data([
 
     CombatAnimationCommand('self_tint', 'Tint Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
     CombatAnimationCommand('enemy_tint', 'Tint Enemy', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
+    CombatAnimationCommand('self_screen_dodge', 'Screen Dodge Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
+    CombatAnimationCommand('enemy_screen_dodge', 'Screen Dodge Enemy', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
     CombatAnimationCommand('background_blend', 'Tint Background', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('foreground_blend', 'Tint Foreground', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('screen_blend', 'Tint Entire Screen', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('opacity', 'Set Opacity', (int,), (0,), 'aesthetic1'),
+    CombatAnimationCommand('parent_opacity', 'Set Parent Opacity', (int,), (0,), 'aesthetic1'),
 
     CombatAnimationCommand('platform_shake', 'Shake Platform', None, None, 'aesthetic2'),
     CombatAnimationCommand('screen_shake', 'Shake Screen', None, None, 'aesthetic2'),

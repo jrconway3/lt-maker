@@ -49,11 +49,11 @@ class MapState(State):
     def update(self):
         pass
 
-    def draw(self, surf):
+    def draw(self, surf, culled_rect=None):
         game.cursor.update()
         game.camera.update()
         game.highlight.update()
         game.map_view.update()
         
-        surf = game.map_view.draw()
+        surf = game.map_view.draw(culled_rect)
         return surf

@@ -24,6 +24,7 @@ class FreeRoamState(MapState):
                 self.rationalize()  # Rationalize original unit
                 # Now get the new one
                 self.roam_unit = game.get_unit(roam_unit_nid)
+                game.cursor.cur_unit = self.roam_unit
                 # Roam unit is no longer consider to be on the board
                 game.leave(self.roam_unit)
             elif self.roam_unit:
@@ -31,6 +32,7 @@ class FreeRoamState(MapState):
                 pass
             else:
                 self.roam_unit = game.get_unit(roam_unit_nid)
+                game.cursor.cur_unit = self.roam_unit
                 # Roam unit is no longer consider to be on the board
                 game.leave(self.roam_unit)
 

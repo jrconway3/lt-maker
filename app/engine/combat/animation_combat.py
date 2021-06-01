@@ -1,4 +1,5 @@
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX, TILEY
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
@@ -11,6 +12,7 @@ from app.engine.combat.solver import CombatPhaseSolver
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, combat_calcs, gui, action, battle_animation, \
     item_system, skill_system, icons, background, image_mods
+from app.engine.animations import Animation
 from app.engine.health_bar import CombatHealthBar
 from app.engine.game_state import game
 
@@ -87,6 +89,7 @@ class AnimationCombat(BaseCombat):
         self.name_offset = 0
         self.damage_numbers = []
         self.proc_icons = []
+        self.animations = []
 
         self.left_stats = None
         self.right_stats = None
@@ -396,7 +399,37 @@ class AnimationCombat(BaseCombat):
 
     def start_hit(self, sound=True, miss=False):
         self._apply_actions()
-        self._handle_playback()
+        self._handle_playback(sound)
+
+        if miss:
+            self.miss_anim()
+
+    def _handle_playback(self, sound=True):
+        for brush in self.playback:
+            if brush[0] in ('damage_hit', 'damage_crit', 'heal_hit'):
+                self.last_update = engine.get_time()
+                self.state = 'hp_change'
+                self.damage_numbers(brush)
+            elif brush[0] == 'hit_sound' and sound:
+                sound = brush[1]
+                if sound == 'Attack Miss 2':
+                    sound = 'Miss'  # Replace with miss sound
+                SOUNDTHREAD.play_sfx(sound)
+
+    def _apply_actions(self):
+        """
+        Actually commit the actions that we had stored!
+        """
+        for act in self.actions:
+            action.do(act)
+
+    def _end_phase(self):
+        pass
+
+    def finish(self):
+        # Fade back music if and only if it was faded in
+        if self.battle_music:
+            SOUNDTHREAD.fade_back()
 
     def build_viewbox(self, current_time):
         vb_multiplier = current_time / self.viewbox_time
@@ -484,18 +517,6 @@ class AnimationCombat(BaseCombat):
             self.focus_right = False
         self.move_camera()
 
-    def _handle_playback(self, sound=True):
-        for brush in self.playback:
-            if brush[0] in ('damage_hit', 'damage_crit', 'heal_hit'):
-                self.last_update = engine.get_time()
-                self.state = 'hp_change'
-                self.damage_numbers(brush)
-            elif brush[0] == 'hit_sound' and sound:
-                sound = brush[1]
-                if sound == 'Attack Miss 2':
-                    sound = 'Miss'  # Replace with miss sound
-                SOUNDTHREAD.play_sfx(sound)
-
     def damage_numbers(self, brush):
         if brush[0] == 'damage_hit':
             damage = brush[4]
@@ -531,20 +552,64 @@ class AnimationCombat(BaseCombat):
         new_icon = gui.SkillIcon(skill, unit is self.right)
         self.proc_icons.append(new_icon)
 
-    def _apply_actions(self):
-        """
-        Actually commit the actions that we had stored!
-        """
-        for act in self.actions:
-            action.do(act)
+    def hit_spark(self):
+        if self.get_from_playback('damage_hit') or self.get_from_playback('damage_crit'):
+            if self.current_battle_anim is self.right_battle_anim:
+                position = (-110, -30)
+            else:
+                position = (-40, -30)
+            anim_nid = 'HitSpark'
+            animation = RESOURCES.animations.get(anim_nid)
+            if animation:
+                anim = Animation(animation, position)
+                self.animations.append(anim)
+        else:
+            self.no_damage()
 
-    def _end_phase(self):
-        pass
+    def crit_spark(self):
+        if self.get_from_playback('damage_hit') or self.get_from_playback('damage_crit'):
+            anim_nid = 'HitSpark'
+            animation = RESOURCES.animations.get(anim_nid)
+            if animation:
+                if self.current_battle_anim is self.right_battle_anim:
+                    pass
+                else:
+                    animation.image = engine.flip_horiz(animation.image)
+                position = (-40, -30)
+                anim = Animation(animation, position)
+                self.animations.append(anim)
+        else:
+            self.no_damage()
 
-    def finish(self):
-        # Fade back music if and only if it was faded in
-        if self.battle_music:
-            SOUNDTHREAD.fade_back()
+    def no_damage(self):
+        if self.current_battle_anim is self.right_battle_anim:
+            position = (52, 21)
+            team = self.right.team
+        else:
+            position = (110, 21)
+            team = self.left.team
+        color = utils.get_team_color(team)
+        anim_nid = 'NoDamage%s' % color.capitalize()
+        animation = RESOURCES.animations.get(anim_nid)
+        if animation:
+            anim = Animation(animation, position)
+            self.animations.append(anim)
+        # Also offset battle animation by lr_offset
+        self.current_battle_anim.lr_offset = [-1, -2, -3, -2, -1]
+
+    def miss_anim(self):
+        if self.current_battle_anim is self.right_battle_anim:
+            position = (72, 21)
+            team = self.right.team
+        else:
+            position = (128, 21)  # Enemy's position
+            team = self.left.team
+        color = utils.get_team_color(team)
+        anim_nid = 'Miss%s' % color.capitalize()
+        animation = RESOURCES.animations.get(anim_nid)
+        if animation:
+            anim = Animation(animation, position)
+            self.animations.append(anim)
 
     def shake(self):
         for brush in self.playback:
@@ -581,6 +646,9 @@ class AnimationCombat(BaseCombat):
     def platform_shake(self):
         self.platform_current_shake = 1
         self.platform_shake_set = [(0, 1), (0, 0), (0, -1), (0, 0), (0, 1), (0, 0), (-1, -1), (0, 1), (0, 0)]
+
+    def screen_flash(self, num_frames, color, fade_out=0):
+        self.foreground.flash(num_frames, fade_out, color)
 
     def darken(self):
         self.target_dark += 0.5
@@ -671,6 +739,11 @@ class AnimationCombat(BaseCombat):
         else:
             self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
             self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+
+        # Animations
+        self.animations = [anim for anim in self.animations if not anim.update()]
+        for anim in self.animations:
+            anim.draw(surf)
 
         # Proc Icons
         for proc_icon in self.proc_icons:

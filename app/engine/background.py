@@ -161,7 +161,7 @@ class Foreground():
 
     def flash(self, num_frames, fade_out, color=(248, 248, 248)):
         self.foreground_frames = num_frames
-        self.foreground = SPRITES.get('black_bg').copy()
+        self.foreground = SPRITES.get('bg_black').copy()
         engine.fill(self.foreground, color)
         self.fade_out_frames = fade_out
 

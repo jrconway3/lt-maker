@@ -76,6 +76,12 @@ class SimpleCombat():
     def get_from_full_playback(self, s):
         return [brush for brush in self.full_playback if brush[0] == s]
 
+    def skip(self):
+        pass
+
+    def end_skip(self):
+        pass
+
     def update(self) -> bool:
         self.clean_up()
         return True

@@ -61,7 +61,7 @@ class MapView():
                 surf = cur_unit.sprite.draw_hp(surf, cull_rect)
                 surf = cur_unit.sprite.draw_markers(surf, cull_rect)
 
-    def draw(self):
+    def draw(self, culled_rect=None):
         # start = time.time_ns()
         game.tilemap.update()
         # Camera Cull
@@ -77,9 +77,15 @@ class MapView():
         surf = game.boundary.draw_fog_of_war(surf, full_size, cull_rect)
         surf = game.highlight.draw(surf, cull_rect)
 
-        self.draw_units(surf, cull_rect)
+        if culled_rect:  # Forced smaller cull rect from animation combat black background
+            # Make the cull rect even smaller
+            new_cull_rect = cull_rect + culled_rect[0], cull_rect + culled_rect[1], culled_rect[2], culled_rect[3]
+            self.draw_units(surf, new_cull_rect)
+            surf = game.cursor.draw(surf, new_cull_rect)
+        else:
+            self.draw_units(surf, cull_rect)
+            surf = game.cursor.draw(surf, cull_rect)
 
-        surf = game.cursor.draw(surf, cull_rect)
         for weather in game.tilemap.weather:
             weather.update()
             weather.draw(surf, cull_rect[0], cull_rect[1])

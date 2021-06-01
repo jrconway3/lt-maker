@@ -181,6 +181,8 @@ class TitleMainState(State):
                         game.memory['next_state'] = 'title_mode'
                         game.state.change('transition_to')
                     else:  # Wow, no need for choice
+                        mode = DB.difficulty_modes[0]
+                        game.current_mode = DifficultyModeObject(mode.nid)
                         game.state.change('title_new')
                 self.state = 'transition_in'
                 return 'repeat'

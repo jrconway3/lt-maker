@@ -85,8 +85,8 @@ class TitleMainState(State):
         if os.path.exists(save.SUSPEND_LOC):
             options.insert(0, 'Continue')
         # Only check for updates in frozen version
-        if hasattr(sys, 'frozen') and autoupdate.check_for_update():
-            options.append('Update')
+        # if hasattr(sys, 'frozen') and autoupdate.check_for_update():
+        #    options.append('Update')
 
         self.fluid = FluidScroll(128)
         self.bg = game.memory['title_bg']

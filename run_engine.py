@@ -32,7 +32,7 @@ def inform_error():
     print("Thank you!")
     print("=== === === === === ===")
 
-def run_main():
+def find_and_run_project():
     proj = '.ltproj'
     for name in os.listdir('./'):
         if name.endswith(proj):
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     if not success:
         engine.terminate()
     try:
-        run_main()
+        find_and_run_project()
         # main('lion_throne')        
         # test_play('lion_throne')
     except Exception as e:

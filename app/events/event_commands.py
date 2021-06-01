@@ -624,7 +624,7 @@ class AutolevelTo(EventCommand):
 
 class SetModeAutolevels(EventCommand):
     nid = 'set_mode_autolevels'
-    tag = "Modify Unit Properties"
+    tag = Tags.GAME_VARS
     keywords = ["String"]
     # Whether to actually change the unit's level
     flags = ["hidden"]

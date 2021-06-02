@@ -891,7 +891,7 @@
             0
         ],
         "map_sprite_nid": "Myrmidon",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Myrmidon"
     },
     {
         "nid": "Swordmaster",

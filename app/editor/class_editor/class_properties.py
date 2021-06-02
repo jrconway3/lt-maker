@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QLabel, QTextEdit
+    QVBoxLayout, QLabel, QTextEdit, QSizePolicy
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtCore import Qt
 
@@ -19,7 +19,7 @@ from app.editor.icons import ItemIcon80
 
 from app.editor.class_editor import class_model
 from app.editor.map_sprite_editor import map_sprite_tab
-# from app.editor.combat_anim_editor import combat_anim_tab
+from app.editor.combat_animation_editor import combat_animation_tab
 
 from app.editor import timer
 
@@ -45,11 +45,6 @@ class ClassProperties(QWidget):
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         main_section.addWidget(self.nid_box, 0, 2)
-
-        # self.short_name_box = PropertyBox("Short Display Name", QLineEdit, self)
-        # self.short_name_box.edit.setMaxLength(10)
-        # self.short_name_box.edit.textChanged.connect(self.short_name_changed)
-        # name_section.addWidget(self.short_name_box)
 
         self.name_box = PropertyBox("Display Name", QLineEdit, self)
         self.name_box.edit.setMaxLength(13)
@@ -131,10 +126,11 @@ class ClassProperties(QWidget):
         self.map_sprite_box.clicked.connect(self.select_map_sprite)
 
         self.combat_anim_label = QLabel()
-        self.combat_anim_label.setMaximumWidth(64)
+        # self.combat_anim_label.setMaximumWidth(64)
+        self.combat_anim_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self.combat_anim_box = QPushButton("Choose Combat Animation...")
         self.combat_anim_box.clicked.connect(self.select_combat_anim)
-        self.combat_anim_box.setEnabled(False)
+        self.combat_anim_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)
@@ -271,13 +267,17 @@ class ClassProperties(QWidget):
             self.window.update_list()
 
     def select_combat_anim(self):
-        res, ok = combat_anim_tab.get()
-        if ok:
+        res, ok = combat_animation_tab.get_animations()
+        if res and ok:
             nid = res.nid
             self.current.combat_anim_nid = nid
             pix = class_model.get_combat_anim_icon(self.current)
-            self.combat_anim_label.setPixmap(pix)
+            if pix:
+                self.combat_anim_label.setPixmap(pix)
             self.window.update_list()
+        else:  # Use to clear the combat animation -- since this can be reasonable
+            self.current.combat_anim_nid = None
+            self.combat_anim_label.clear()
 
     def set_current(self, current):
         self.current = current

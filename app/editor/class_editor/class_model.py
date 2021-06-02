@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, qRgb
 from PyQt5.QtCore import Qt
 
 from app.resources.resources import RESOURCES
@@ -14,16 +14,17 @@ from app.editor.custom_widgets import ClassBox
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.map_sprite_editor import map_sprite_model
 
-from app.data import weapons, stats, klass
+from app.data import klass
 
 from app.utilities import str_utils
+import app.editor.utilities as editor_utilities
 
-def get_map_sprite_icon(klass, num=0, current=False, team='player', variant=None):
+def get_map_sprite_icon(klass_obj, num=0, current=False, team='player', variant=None):
     res = None
     if variant:
-        res = RESOURCES.map_sprites.get(klass.map_sprite_nid + variant)
+        res = RESOURCES.map_sprites.get(klass_obj.map_sprite_nid + variant)
     if not variant or not res:
-        res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+        res = RESOURCES.map_sprites.get(klass_obj.map_sprite_nid)
     if not res:
         return None
     if not res.standing_pixmap:
@@ -32,23 +33,42 @@ def get_map_sprite_icon(klass, num=0, current=False, team='player', variant=None
     pixmap = map_sprite_model.get_basic_icon(pixmap, num, current, team)
     return pixmap
 
-def get_combat_anim_icon(klass):
-    res = RESOURCES.combat_anims.get(klass.combat_anim_nid)
-    if not res:
+def get_combat_anim_icon(klass_obj):
+    if not klass_obj.combat_anim_nid:
         return None
-    res = res.weapon_anims.get('Unarmed', res.weapon_anims[0])
-    if 'Stand' not in res.poses:
+    combat_anim = RESOURCES.combat_anims.get(klass_obj.combat_anim_nid)
+    if not combat_anim or not combat_anim.weapon_anims:
         return None
-    pose = res.poses.get('Stand')
+    weapon_anim = combat_anim.weapon_anims.get('Unarmed', combat_anim.weapon_anims[0])
+    pose = weapon_anim.poses.get('Stand')
+    if not pose:
+        return None
+
+    # Get palette and apply palette
+    if not combat_anim.palettes:
+        return None
+    palette_name, palette_nid = combat_anim.palettes[0]
+    palette = RESOURCES.combat_palettes.get(palette_nid)
+    if not palette:
+        return None
+    colors = palette.colors
+    convert_dict = {qRgb(0, coord[0], coord[1]): qRgb(*color) for coord, color in colors.items()}
+
+    # Get first command that displays a frame
     for command in pose.timeline:
-        if command.nid == 'frame':
+        if command.nid in ('frame', 'over_frame', 'under_frame'):
             frame_nid = command.value[1]
-            if frame_nid in res.frames:
-                frame = res.frames.get(frame_nid)
-                if not frame.pixmap:
-                    frame.pixmap = QPixmap(frame.full_path)
-                pixmap = frame.pixmap
-                return pixmap
+            frame = weapon_anim.frames.get(frame_nid)
+            if not frame:
+                continue
+            if not frame.pixmap:
+                frame.pixmap = QPixmap(frame.full_path)
+            pixmap = frame.pixmap
+            im = pixmap.toImage()
+            im = editor_utilities.color_convert(im, convert_dict)
+            im = editor_utilities.convert_colorkey(im)
+            pixmap = QPixmap.fromImage(im)
+            return pixmap
     return None
 
 class ClassModel(DragDropCollectionModel):

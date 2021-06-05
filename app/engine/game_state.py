@@ -221,7 +221,7 @@ class GameState():
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import turnwheel, records, save, supports
+        from app.engine import turnwheel, records, save, supports, action
         from app.events import event_manager
 
         from app.engine.objects.item import ItemObject
@@ -298,6 +298,7 @@ class GameState():
                 if unit.position:
                     self.board.set_unit(unit.position, unit)
                     self.boundary.arrive(unit)
+                    action.UpdateFogOfWar(unit).execute()
 
             self.cursor.autocursor(True)
 

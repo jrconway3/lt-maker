@@ -34493,5 +34493,85 @@
         ],
         "only_once": false,
         "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "_fog_of_war",
+                    "1"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "_fog_of_war_radius",
+                    "5"
+                ]
+            ],
+            [
+                "base",
+                [
+                    "Ruins"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Wow!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turnwheel",
+        "trigger": "on_turnwheel",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Turnwheel Activated!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
     }
 ]

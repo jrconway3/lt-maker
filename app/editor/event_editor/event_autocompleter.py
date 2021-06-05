@@ -19,7 +19,7 @@ class Completer(QCompleter):
         self.popup().hide()
 
 
-@lru_cache
+@lru_cache()
 def generate_wordlist_from_validator_type(validator: event_validators.Validator, level: NID = None) -> List[str]:
     valid_entries = validator().valid_entries(level)
     autofill_dict = []

@@ -4,8 +4,6 @@
         "name": "Prologue",
         "tilemap": "Starting Cave",
         "party": "Eirika",
-        "roam": true,
-        "roam_unit": "Ross",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -22,6 +20,8 @@
             "win": "Defeat boss",
             "loss": "Eirika dies"
         },
+        "roam": true,
+        "roam_unit": "Ross",
         "units": [
             {
                 "nid": "Ross",
@@ -151,8 +151,6 @@
         "name": "Ch. 1: Escape!",
         "tilemap": "Chapter 1",
         "party": "Eirika",
-        "roam": false,
-        "roam_unit": "1",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -167,6 +165,8 @@
             "win": "Seize Boss",
             "loss": "Eirika dies"
         },
+        "roam": false,
+        "roam_unit": "1",
         "units": [
             {
                 "nid": "Eirika",
@@ -607,8 +607,6 @@
         "name": "Ch. 2: The Protected",
         "tilemap": "Chapter 2",
         "party": "Eirika",
-        "roam": false,
-        "roam_unit": "2",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -623,6 +621,8 @@
             "win": "Defeat all enemies",
             "loss": "Eirika dies"
         },
+        "roam": false,
+        "roam_unit": "2",
         "units": [
             {
                 "nid": "Eirika",
@@ -918,7 +918,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": null
+                "only_once": false
             },
             {
                 "nid": "VIllage3",
@@ -933,7 +933,7 @@
                 ],
                 "sub_nid": "Visit",
                 "condition": "True",
-                "only_once": null
+                "only_once": false
             },
             {
                 "nid": "Armory",
@@ -948,7 +948,7 @@
                 ],
                 "sub_nid": "Armory",
                 "condition": "True",
-                "only_once": null
+                "only_once": false
             }
         ],
         "unit_groups": [
@@ -1022,8 +1022,6 @@
         "name": "DEBUG",
         "tilemap": "Chapter 2",
         "party": "Eirika",
-        "roam": true,
-        "roam_unit": null,
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -1038,6 +1036,8 @@
             "win": "Don't Crash",
             "loss": "Crash"
         },
+        "roam": true,
+        "roam_unit": null,
         "units": [
             {
                 "nid": "Joshua",

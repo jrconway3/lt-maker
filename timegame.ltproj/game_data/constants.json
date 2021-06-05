@@ -44,15 +44,15 @@
         true
     ],
     [
-        "permadeath",
-        false
-    ],
-    [
         "trade",
         true
     ],
     [
         "growth_info",
+        true
+    ],
+    [
+        "backpropagate_difficulty_growths",
         true
     ],
     [
@@ -76,10 +76,6 @@
         true
     ],
     [
-        "player_leveling",
-        "Random"
-    ],
-    [
         "enemy_leveling",
         "Match"
     ],
@@ -90,10 +86,6 @@
     [
         "generic_feats",
         false
-    ],
-    [
-        "rng",
-        "Classic"
     ],
     [
         "min_damage",

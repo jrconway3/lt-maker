@@ -16,18 +16,6 @@
         false
     ],
     [
-        "lead",
-        false
-    ],
-    [
-        "bexp",
-        false
-    ],
-    [
-        "rd_bexp_lvl",
-        false
-    ],
-    [
         "support",
         false
     ],
@@ -40,15 +28,15 @@
         true
     ],
     [
+        "permadeath",
+        true
+    ],
+    [
         "trade",
         true
     ],
     [
         "growth_info",
-        true
-    ],
-    [
-        "backpropagate_difficulty_growths",
         true
     ],
     [
@@ -72,6 +60,10 @@
         true
     ],
     [
+        "player_leveling",
+        "Random"
+    ],
+    [
         "enemy_leveling",
         "Dynamic"
     ],
@@ -82,6 +74,10 @@
     [
         "generic_feats",
         false
+    ],
+    [
+        "rng",
+        "True Hit"
     ],
     [
         "min_damage",

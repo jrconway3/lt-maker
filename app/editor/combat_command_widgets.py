@@ -337,7 +337,7 @@ class ColorTimeCommand(CombatCommand):
         self.num_frames.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.num_frames)
 
-        self.color = ColorIcon(QColor(248, 248, 248), self)
+        self.color = ColorIcon(QColor(248, 248, 248).name(), self)
         self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)

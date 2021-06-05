@@ -29,14 +29,10 @@ class UnitModel(DragDropCollectionModel):
             return None
         if role == Qt.DisplayRole:
             unit = self._data[index.row()]
-            if not unit:
-                return "None"
             text = unit.nid
             return text
         elif role == Qt.DecorationRole:
             unit = self._data[index.row()]
-            if not unit:
-                return None
             # Get chibi image
             pixmap = get_chibi(unit)
             if pixmap:

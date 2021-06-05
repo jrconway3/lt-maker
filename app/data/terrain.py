@@ -23,5 +23,5 @@ class Terrain(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-class TerrainCatalog(Data[Terrain]):
+class TerrainCatalog(Data):
     datatype = Terrain

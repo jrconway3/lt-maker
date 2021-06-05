@@ -1,3 +1,5 @@
+from PyQt5.QtGui import QPixmap
+
 from app.resources.base_catalog import ManifestCatalog
 
 class MapIcon():
@@ -11,7 +13,6 @@ class MapIcon():
         self.full_path = full_path
 
     def get_pixmap(self):
-        from PyQt5.QtGui import QPixmap
         if not self.pixmap:
             self.pixmap = QPixmap(self.full_path)
         return self.pixmap
@@ -24,7 +25,7 @@ class MapIcon():
         self = cls(nid)
         return self
 
-class MapIconCatalog(ManifestCatalog[MapIcon]):
+class MapIconCatalog(ManifestCatalog):
     manifest = 'map_icons.json'
     title = 'map icons'
     datatype = MapIcon

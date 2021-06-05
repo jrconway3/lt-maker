@@ -30,6 +30,16 @@ class UnitBox(ObjBox):
         self.edit.setIconSize(QSize(32, 32))
         self.edit.view().setUniformItemSizes(True)
 
+class RoamerBox(ObjBox):
+    def __init__(self, parent=None, button=False, exclude=None, title="Roaming Unit"):
+        from app.editor.unit_editor.unit_model import UnitModel
+        database = DB.units
+        if exclude:
+            database = Data([d for d in DB.units if d is not exclude])
+        super().__init__(title, UnitModel, database, parent, button)
+        self.edit.setIconSize(QSize(32, 32))
+        self.edit.view().setUniformItemSizes(True)
+
 class ClassBox(ObjBox):
     def __init__(self, parent=None, button=False, exclude=None):
         from app.editor.class_editor.class_model import ClassModel

@@ -20,8 +20,6 @@
             "win": "Escape the monastery",
             "loss": "Ophie dies,Prim dies"
         },
-        "roam": false,
-        "roam_unit": "Ophie",
         "units": [
             {
                 "nid": "Ophie",
@@ -401,8 +399,6 @@
             "win": "Defeat Sidney",
             "loss": "Ophies dies,Any two of your units are defeated"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Ophie",
@@ -754,8 +750,6 @@
             "win": "Defeat Brigham",
             "loss": "Ophie dies,Althea dies,Party size falls below three"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Althea",
@@ -1240,8 +1234,6 @@
             "win": "Escape the fort with the money",
             "loss": "Renae OR Ophie die,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Renae",
@@ -2388,8 +2380,6 @@
             "win": "Destroy at least 7 wagons. {eval:game.game_vars.get('dead_wagons', 0)}/10 destroyed",
             "loss": "Ophie dies,Four or more wagons escape,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}."
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Eliza",
@@ -3446,8 +3436,6 @@
             "win": "Seize Temple Gate",
             "loss": "Ophie dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Sam",
@@ -4545,8 +4533,6 @@
             "win": "Defeat the Warden",
             "loss": "Ophie dies,Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Coyote",
@@ -6479,8 +6465,6 @@
             "win": "Seize the fort",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Marduk",
@@ -8173,8 +8157,6 @@
             "win": "Defeat Vagnius",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Vagnius",
@@ -9978,8 +9960,6 @@
             "win": "Escape the sewers",
             "loss": "Ophie dies OR Sam dies,Party size falls below 5. Currently {eval:len(game.get_units_in_party())}"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Jakin",
@@ -11544,8 +11524,6 @@
             "win": "Defeat Duke Ulver",
             "loss": "Ophie dies,Sam dies"
         },
-        "roam": false,
-        "roam_unit": null,
         "units": [
             {
                 "nid": "Ulver",
@@ -12684,8 +12662,6 @@
             "win": "--",
             "loss": "--"
         },
-        "roam": false,
-        "roam_unit": "Ophie",
         "units": [],
         "regions": [],
         "unit_groups": []
@@ -12709,8 +12685,6 @@
             "win": "Don't Crash",
             "loss": "Crash"
         },
-        "roam": false,
-        "roam_unit": "Ophie",
         "units": [
             {
                 "nid": "Ophie",
@@ -12751,7 +12725,7 @@
                 "ai_group": null,
                 "starting_position": [
                     14,
-                    20
+                    21
                 ],
                 "name": null,
                 "desc": null,
@@ -12917,29 +12891,6 @@
                 "name": null,
                 "desc": null,
                 "generic": true
-            },
-            {
-                "nid": "103",
-                "variant": null,
-                "level": 5,
-                "klass": "Fighter",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Steel Axe",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    12,
-                    20
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
             }
         ],
         "regions": [
@@ -12985,21 +12936,6 @@
                     1
                 ],
                 "sub_nid": "Switch",
-                "condition": "True",
-                "only_once": true
-            },
-            {
-                "nid": "Visit",
-                "region_type": "event",
-                "position": [
-                    28,
-                    25
-                ],
-                "size": [
-                    1,
-                    1
-                ],
-                "sub_nid": "Visit",
                 "condition": "True",
                 "only_once": true
             }

@@ -1667,38 +1667,3 @@ class ChapterSelect(Main):
             rects.append(rect)
             idxs.append(self.scroll + idx)
         return idxs, rects
-
-class ModeSelect(Main):
-    def __init__(self, options):
-        super().__init__(options, None)
-        self.center = 68, WINHEIGHT//2
-
-    @property
-    def cursor(self):
-        return self.cursor1
-
-    def create_options(self, options):
-        self.options.clear()
-        for idx, option in enumerate(options):
-            option = menu_options.ModeOption(idx, option)
-            self.options.append(option)
-        return self.options
-
-    def update(self):
-        self.cursor1.update()
-        self.cursor2.update()
-
-    def draw(self, surf, show_cursor=True):
-        center = self.center
-        num_options = len(self.options)
-        for idx, option in enumerate(self.options):
-            top = center[1] - (num_options/2.0 - idx) * (option.height() + 1)
-            if self.current_index == idx:
-                option.draw_highlight(surf, center[0], top)
-            else:
-                option.draw(surf, center[0], top)
-                
-        if show_cursor:
-            height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
-            self.cursor1.draw_vert(surf, center[0] - option.width()//2 - 8 - 8, height)
-            self.cursor2.draw_vert(surf, center[0] + option.width()//2 - 8 + 8, height)

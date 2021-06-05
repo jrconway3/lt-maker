@@ -74,5 +74,5 @@ class UnitPrefab(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-class UnitCatalog(Data[UnitPrefab]):
+class UnitCatalog(Data):
     datatype = UnitPrefab

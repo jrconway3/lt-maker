@@ -7,7 +7,6 @@ from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, skill_system, image_mods
-from app.engine.game_state import game
 
 def get_icon(item):
     if not item:
@@ -176,9 +175,6 @@ def draw_growth(surf, stat_nid, unit, topright, compact=False):
     bonus = unit.growth_bonus(stat_nid)
     klass_bonus = class_obj.growth_bonus.get(stat_nid, 0)
     bonus += klass_bonus
-    difficulty_bonus = game.mode.get_growth_bonus(unit)
-    d_bonus = difficulty_bonus.get(stat_nid, 0)
-    bonus += d_bonus
     if compact:
         pass
     else:

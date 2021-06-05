@@ -167,13 +167,13 @@ class Color3ItemComponent(BoolItemComponent):
         if not self._data.value:
             self._data.value = (0, 0, 0)
         color = self._data.value
-        self.color = ColorIcon(QColor(*color), self)
+        self.color = ColorIcon(QColor(*color).name(), self)
         self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 
     def on_value_changed(self, val):
-        color = self.color.color()
+        color = QColor(self.color.color())
         r, g, b = color.red(), color.green(), color.blue()
         self._data.value = (r, g, b)
 
@@ -182,13 +182,13 @@ class Color4ItemComponent(BoolItemComponent):
         if not self._data.value:
             self._data.value = (0, 0, 0, 0)
         color = self._data.value
-        self.color = AlphaColorIcon(QColor(*color), self)
+        self.color = AlphaColorIcon(QColor(*color).name(QColor.HexArgb), self)
         self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 
     def on_value_changed(self, val):
-        color = self.color.color()
+        color = QColor(self.color.color())
         r, g, b, a = color.red(), color.green(), color.blue(), color.alpha()
         self._data.value = (r, g, b, a)
 

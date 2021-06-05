@@ -154,31 +154,6 @@ class ChapterSelectOption(TitleOption):
 
         self.draw_text(surf, left + self.width()//2, y + self.height()//2 + 1)
 
-class ModeOption(TitleOption):
-    def __init__(self, idx, text):
-        self.idx = idx
-        self.text = text
-        self.display_text = text_funcs.translate(text)
-
-        self.color = 'chapter-grey'
-        self.ignore = False
-        self.option_bg_name = 'mode_bg'
-
-    def draw_text(self, surf, x, y):
-        if self.ignore:
-            color = 'chapter-black'
-        else:
-            color = 'chapter-grey'
-
-        font = FONT[color]
-
-        text = self.display_text
-        text_size = font.size(text)
-        position = (x - text_size[0]//2, y - text_size[1]//2)
-
-        # Handle outline
-        font.blit(text, surf, position)
-
 class ItemOption(BasicOption):
     def __init__(self, idx, item):
         self.idx = idx

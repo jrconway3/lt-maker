@@ -20,7 +20,7 @@ class Palette(Prefab):
         self.colors = {tuple(k): tuple(v) for k, v in s[1].copy()}
         return self
 
-class PaletteCatalog(ManifestCatalog[Palette]):
+class PaletteCatalog(ManifestCatalog):
     datatype = Palette
     manifest = 'palettes.json'
     title = 'palettes'

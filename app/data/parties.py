@@ -8,5 +8,5 @@ class PartyPrefab(Prefab):
     name: str = None
     leader: str = None
 
-class PartyCatalog(Data[PartyPrefab]):
+class PartyCatalog(Data):
     datatype = PartyPrefab

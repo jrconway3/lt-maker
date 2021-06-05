@@ -32,7 +32,7 @@ class Data(Generic[T]):
     def items(self) -> List[Tuple[NID, T]]:
         return [(val.nid, val) for val in self._list]
 
-    def get(self, key: NID, fallback: T = None) -> Union[T, None]:
+    def get(self, key: NID, fallback: T = None) -> T:
         return self._dict.get(key, fallback)
 
     def update_nid(self, val: T, nid: NID, set_nid=True):

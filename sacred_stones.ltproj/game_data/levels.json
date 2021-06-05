@@ -20,7 +20,7 @@
             "win": "Defeat boss",
             "loss": "Eirika dies"
         },
-        "roam": false,
+        "roam": true,
         "roam_unit": "Eirika",
         "units": [
             {

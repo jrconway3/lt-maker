@@ -10,8 +10,6 @@ class LevelPrefab(Prefab):
         self.name = name
         self.tilemap = None  # Tilemap Nid
         self.party = None  # Party Prefab Nid
-        self.roam = False
-        self.roam_unit = None
         self.music = OrderedDict()
         music_keys = ['player_phase', 'enemy_phase', 'other_phase', 'enemy2_phase',
                       'player_battle', 'enemy_battle', 'other_battle', 'enemy2_battle']
@@ -20,6 +18,8 @@ class LevelPrefab(Prefab):
         self.objective = {'simple': '',
                           'win': '',
                           'loss': ''}
+        self.roam: bool = False
+        self.roam_unit: str = None
 
         self.units = Data()
         self.regions = Data()
@@ -32,8 +32,6 @@ class LevelPrefab(Prefab):
             value = [unit_group.save() for unit_group in value]
         elif name == 'regions':
             value = [region.save() for region in value]
-        elif name == 'roam':
-            pass
         else:
             value = super().save_attr(name, value)
         return value
@@ -54,5 +52,5 @@ class LevelPrefab(Prefab):
     def default(cls):
         return cls('0', 'Prologue')
 
-class LevelCatalog(Data):
+class LevelCatalog(Data[LevelPrefab]):
     datatype = LevelPrefab

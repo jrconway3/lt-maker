@@ -1,5 +1,5 @@
 # Build Script for lt_engine
-pyinstaller main.spec
+pyinstaller -y engine.spec "lion_throne"
 rm -rf ../lt_engine
 mkdir ../lt_engine
 mkdir ../lt_engine/lt_engine

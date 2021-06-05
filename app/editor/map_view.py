@@ -57,7 +57,8 @@ class SimpleMapView(QGraphicsView):
 
     def set_current_level(self, level):
         self.current_level = level
-        self.current_map = RESOURCES.tilemaps.get(level.tilemap)
+        if level:
+            self.current_map = RESOURCES.tilemaps.get(level.tilemap)
         self.update_view()
 
     def clear_scene(self):

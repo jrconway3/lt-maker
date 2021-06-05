@@ -6,7 +6,7 @@ class ColorIcon(QPushButton):
     colorChanged = pyqtSignal(QColor)
     size = 64
 
-    def __init__(self, color, parent):
+    def __init__(self, color: QColor, parent):
         super().__init__(parent)
         self._color: QColor = None
         self.change_color(color)

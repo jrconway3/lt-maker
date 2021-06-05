@@ -26,6 +26,7 @@ all_triggers = Data([
     Trigger('on_talk', True, True, False, True),
     Trigger('on_support', True, True, True, True),  # Item is support rank nid
     Trigger('on_base_convo', True, True, False, False),
+    Trigger('on_turnwheel'),
     Trigger('on_title_screen'),
 ])
 
@@ -72,7 +73,7 @@ class EventPrefab(Prefab):
     def default(cls):
         return cls('None')
 
-class EventCatalog(Data):
+class EventCatalog(Data[EventPrefab]):
     datatype = EventPrefab
 
     def get(self, trigger, level_nid):

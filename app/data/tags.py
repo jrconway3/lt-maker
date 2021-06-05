@@ -14,7 +14,7 @@ class Tag(Prefab):
     def restore(cls, dat):
         return cls(dat)
 
-class TagCatalog(Data):
+class TagCatalog(Data[Tag]):
     datatype = Tag
 
     def __init__(self, strs):

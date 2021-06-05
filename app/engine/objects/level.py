@@ -12,8 +12,8 @@ class LevelObject():
         self.name: str = None
         self.tilemap: TileMapObject = None  # Actually the tilemap, not a nid
         self.party: str = None  # Party Nid
-        self.roam = False
-        self.roam_unit = None
+        self.roam: bool = False
+        self.roam_unit: str = None  # Unit Nid
 
         self.music = {}
         self.objective = {}
@@ -77,8 +77,8 @@ class LevelObject():
         level.name = s_dict['name']
         level.tilemap = TileMapObject.restore(s_dict['tilemap'])
         level.party = s_dict['party']
-        level.roam = s_dict['roam']
-        level.roam_unit = s_dict['roam_unit']
+        level.roam = s_dict.get('roam', False)
+        level.roam_unit = s_dict.get('roam_unit')
 
         level.music = s_dict['music']
         level.objective = s_dict['objective']

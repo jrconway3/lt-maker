@@ -25,7 +25,7 @@ class TerrainProperties(QWidget):
 
         top_section = QHBoxLayout()
 
-        self.icon_edit = ColorIcon(QColor(0, 0, 0).name(), self)
+        self.icon_edit = ColorIcon(QColor(0, 0, 0), self)
         self.icon_edit.colorChanged.connect(self.on_color_change)
         top_section.addWidget(self.icon_edit)
 
@@ -141,7 +141,7 @@ class TerrainProperties(QWidget):
             pass
 
     def on_color_change(self, color):
-        self.current.color = color.getRgb()
+        self.current.color = tuple(color.getRgb()[:3])
         self.window.update_list()
 
     def set_current(self, current):
@@ -159,4 +159,4 @@ class TerrainProperties(QWidget):
 
         # Icon
         color = current.color
-        self.icon_edit.change_color(QColor(color[0], color[1], color[2]).name())
+        self.icon_edit.change_color(QColor(color[0], color[1], color[2]))

@@ -1,3 +1,5 @@
+import os
+
 from app.constants import VERSION
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -6,17 +8,17 @@ from app.engine import config as cf
 from app.engine import driver
 from app.engine import game_state
 
-def main():
-    RESOURCES.load('./lion_throne.ltproj')
-    DB.load('./lion_throne.ltproj')
+def main(name: str):
+    RESOURCES.load(name + '.ltproj')
+    DB.load(name + '.ltproj')
     title = DB.constants.value('title')
     driver.start(title)
     game = game_state.start_game()
     driver.run(game)
 
-def test_play():
-    RESOURCES.load('./lion_throne.ltproj')
-    DB.load('./lion_throne.ltproj')
+def test_play(name: str):
+    RESOURCES.load(name + '.ltproj')
+    DB.load(name + '.ltproj')
     title = DB.constants.value('title')
     driver.start(title, from_editor=True)
     game = game_state.start_level('DEBUG')
@@ -30,6 +32,14 @@ def inform_error():
     print("Thank you!")
     print("=== === === === === ===")
 
+def find_and_run_project():
+    proj = '.ltproj'
+    for name in os.listdir('./'):
+        if name.endswith(proj):
+            name = name.replace(proj, '')
+            if name != 'autosave':
+                main(name)
+
 if __name__ == '__main__':
     import logging, traceback
     from app import lt_log
@@ -37,8 +47,9 @@ if __name__ == '__main__':
     if not success:
         engine.terminate()
     try:
-        main()
-        # test_play()
+        find_and_run_project()
+        # main('lion_throne')        
+        # test_play('lion_throne')
     except Exception as e:
         logging.exception(e)
         inform_error()

@@ -21,7 +21,7 @@ class Icon():
         self = cls(nid)
         return self
 
-class IconCatalog(ManifestCatalog):
+class IconCatalog(ManifestCatalog[Icon]):
     manifest = 'icons.json'
     title = 'icons'
     filetype = '.png'

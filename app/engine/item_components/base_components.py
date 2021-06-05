@@ -1,10 +1,5 @@
-from app.utilities import utils
-
 from app.data.item_components import ItemComponent
 from app.data.components import Type
-
-from app.engine import skill_system, target_system, item_system, item_funcs
-from app.engine.game_state import game 
 
 class Spell(ItemComponent):
     nid = 'spell'
@@ -84,93 +79,6 @@ class SiegeWeapon(ItemComponent):
     def wexp(self, playback, unit, item, target):
         return 1
 
-class TargetsAnything(ItemComponent):
-    nid = 'target_tile'
-    desc = "Item targets any tile"
-    tag = 'target'
-
-    def ai_targets(self, unit, item) -> set:
-        return {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
-
-    def valid_targets(self, unit, item) -> set:
-        rng = item_funcs.get_range(unit, item)
-        positions = target_system.find_manhattan_spheres(rng, *unit.position)
-        return {pos for pos in positions if game.tilemap.check_bounds(pos)}
-
-class TargetsUnits(ItemComponent):
-    nid = 'target_unit'
-    desc = "Item targets any unit"
-    tag = 'target'
-
-    def ai_targets(self, unit, item):
-        return {other.position for other in game.units if other.position}
-
-    def valid_targets(self, unit, item) -> set:
-        targets = {other.position for other in game.units if other.position}
-        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
-
-class TargetsEnemies(ItemComponent):
-    nid = 'target_enemy'
-    desc = "Item targets any enemy"
-    tag = 'target'
-
-    def ai_targets(self, unit, item):
-        return {other.position for other in game.units if other.position and 
-                skill_system.check_enemy(unit, other)}
-
-    def valid_targets(self, unit, item) -> set:
-        targets = {other.position for other in game.units if other.position and 
-                   skill_system.check_enemy(unit, other)}        
-        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
-
-class TargetsAllies(ItemComponent):
-    nid = 'target_ally'
-    desc = "Item targets any ally"
-    tag = 'target'
-
-    def ai_targets(self, unit, item):
-        return {other.position for other in game.units if other.position and 
-                skill_system.check_ally(unit, other)}
-
-    def valid_targets(self, unit, item) -> set:
-        targets = {other.position for other in game.units if other.position and 
-                   skill_system.check_ally(unit, other)}        
-        return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
-
-class MinimumRange(ItemComponent):
-    nid = 'min_range'
-    desc = "Set the minimum_range of the item to an integer"
-    tag = 'target'
-
-    expose = Type.Int
-    value = 0
-
-    def minimum_range(self, unit, item) -> int:
-        return self.value
-
-class MaximumRange(ItemComponent):
-    nid = 'max_range'
-    desc = "Set the maximum_range of the item to an integer"
-    tag = 'target'
-
-    expose = Type.Int
-    value = 0
-
-    def maximum_range(self, unit, item) -> int:
-        return self.value
-
-class MaximumEquationRange(ItemComponent):
-    nid = 'max_equation_range'
-    desc = "Set the maximum_range of the item to an equation"
-    tag = 'target'
-
-    expose = Type.Equation
-
-    def maximum_range(self, unit, item) -> int:
-        from app.engine import equations
-        value = equations.parser.get(self.value, unit)
-        return int(value)
-
 class Usable(ItemComponent):
     nid = 'usable'
     desc = "Item is usable"
@@ -193,14 +101,6 @@ class Unrepairable(ItemComponent):
     tag = 'base'
 
     def unrepairable(self, unit, item):
-        return True
-
-class MenuAfterCombat(ItemComponent):
-    nid = 'menu_after_combat'
-    desc = "Can access menu after combat"
-    tag = 'extra'
-
-    def menu_after_combat(self, unit, item):
         return True
 
 class Value(ItemComponent):

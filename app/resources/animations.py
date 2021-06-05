@@ -38,7 +38,7 @@ class Animation():
             self.speed = [int(_) for _ in s_dict['speed'].split(',')]
         return self
 
-class AnimationCatalog(ManifestCatalog):
+class AnimationCatalog(ManifestCatalog[Animation]):
     manifest = 'animations.json'
     title = 'animations'
     datatype = Animation

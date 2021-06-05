@@ -272,7 +272,7 @@ class UIView():
             else:
                 FONT['text-blue'].blit_right(str(num), surf, (x_pos, y_pos))
 
-        grandmaster = DB.constants.value('rng') == 'Grandmaster'
+        grandmaster = game.mode.rng_choice == 'Grandmaster'
         crit_flag = DB.constants.value('crit')
 
         # Choose attack info background
@@ -361,7 +361,7 @@ class UIView():
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, weapon, defender)
 
-        grandmaster = DB.constants.get('rng').value == 'Grandmaster'
+        grandmaster = game.mode.rng_choice == 'Grandmaster'
         crit = DB.constants.get('crit').value
 
         if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
@@ -719,15 +719,18 @@ class ItemDescriptionPanel():
         if not self.surf:
             self.surf = self.create_surf()
 
+        cursor_left = False
+        if game.cursor.position[0] > TILEX // 2 + game.camera.get_x():
+            topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
+        else:
+            cursor_left = True
+            topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
+
         portrait = icons.get_portrait(self.unit)
         if portrait:
-            if game.cursor.position[0] > TILEX // 2 + game.camera.get_x():
-                topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
-                surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
-            else:
-                topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
+            if cursor_left:
                 portrait = engine.flip_horiz(portrait)
-                surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
-
+            surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
+                
         surf.blit(self.surf, topleft)
         return surf

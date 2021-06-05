@@ -146,8 +146,8 @@ class TileMapObject(Prefab):
                 bottom_bound = (max(coord[1] for coord in coords) + 1) * TILEHEIGHT
                 new_layer.pixel_bounds = [left_bound, top_bound, right_bound, bottom_bound]
 
-            for coord, tile_sprite in layer.sprite_grid.items():
-                has_autotiles = False
+            has_autotiles = False
+            for coord, tile_sprite in layer.sprite_grid.items():    
                 tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
                 if not tileset.image:
                     tileset.image = engine.image_load(tileset.full_path)

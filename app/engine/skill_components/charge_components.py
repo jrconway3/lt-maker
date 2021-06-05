@@ -1,13 +1,12 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action
-from app.engine.game_state import game
+from app.engine import action
 
 class BuildCharge(SkillComponent):
     nid = 'build_charge'
     desc = "Skill gains charges until full"
-    tag = "advanced"
+    tag = "charge"
 
     expose = Type.Int
     value = 10
@@ -36,7 +35,7 @@ class BuildCharge(SkillComponent):
 class DrainCharge(SkillComponent):
     nid = 'drain_charge'
     desc = "Skill will have a number of charges that are drained by 1 when activated"
-    tag = "advanced"
+    tag = "charge"
 
     expose = Type.Int
     value = 1
@@ -75,7 +74,7 @@ def get_marks(playback, unit, item):
 class CombatChargeIncrease(SkillComponent):
     nid = 'combat_charge_increase'
     desc = "Increases charge of skill each combat"
-    tag = "advanced"
+    tag = "charge"
 
     expose = Type.Int
     value = 5
@@ -92,7 +91,7 @@ class CombatChargeIncrease(SkillComponent):
 class CombatChargeIncreaseByStat(SkillComponent):
     nid = 'combat_charge_increase_by_stat'
     desc = "Increases charge of skill each combat"
-    tag = "advanced"
+    tag = "charge"
 
     expose = Type.Stat
     value = 'SKL'

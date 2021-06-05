@@ -441,6 +441,7 @@ class TurnwheelState(MapState):
         self.display = TurnwheelDisplay(turnwheel_desc, game.turncount)
 
         self.transition_out = 0
+        self.turnwheel_activated = False
 
         # For darken background and drawing
         self.darken_background = 0
@@ -497,6 +498,7 @@ class TurnwheelState(MapState):
                 self.display.fade_out()
                 self.turnwheel_effect()
                 self.bg.fade_out()
+                self.turnwheel_activated = True
                 if game.game_vars['_current_turnwheel_uses'] > 0:
                     game.game_vars['_current_turnwheel_uses'] -= 1
             elif not self.force and not game.action_log.locked:
@@ -552,6 +554,8 @@ class TurnwheelState(MapState):
                     game.state.change('free')
                     game.phase.set_player()
                 # Call turnwheel script whenever the turnwheel is used
+                if self.turnwheel_activated:
+                    game.events.trigger('on_turnwheel')
 
         # Update animations
         # if self.end_effect:

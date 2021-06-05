@@ -680,6 +680,9 @@ class Event():
         elif command.nid == 'autolevel_to':
             self.autolevel_to(command)
 
+        elif command.nid == 'set_mode_autolevels':
+            self.set_mode_autolevels(command)
+
         elif command.nid == 'promote':
             self.promote(command)
 
@@ -1283,7 +1286,7 @@ class Event():
             placement = values[3]
         else:
             placement = 'giveup'
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             return None
 
@@ -1320,7 +1323,7 @@ class Event():
             placement = 'giveup'
         follow = 'no_follow' not in flags
 
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             logging.error("Couldn't get a good position %s %s %s" % (position, movement_type, placement))
             return None
@@ -1456,7 +1459,7 @@ class Event():
             if not position:
                 continue
             position = tuple(position)
-            position = self.check_placement(position, placement)
+            position = self.check_placement(unit, position, placement)
             if not position:
                 logging.warning("Couldn't determine valid position for %s?", unit.nid)
                 continue
@@ -1466,7 +1469,7 @@ class Event():
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
         position = tuple(position)
-        position = self.check_placement(position, placement)
+        position = self.check_placement(unit, position, placement)
         if not position:
             logging.warning("Couldn't determine valid position for %s?", unit.nid)
             return
@@ -1517,7 +1520,7 @@ class Event():
                 else:
                     test_pos = (position[1] + x, game.tilemap.height - 1)
         if final_pos:
-            final_pos = self.check_placement(final_pos, placement)
+            final_pos = self.check_placement(unit, final_pos, placement)
         if final_pos:
             action.do(action.ArriveOnMap(unit, final_pos))
             return True
@@ -1637,7 +1640,7 @@ class Event():
                 else:  # immediate
                     action.do(action.LeaveMap(unit))
 
-    def check_placement(self, position, placement):
+    def check_placement(self, unit, position, placement):
         current_occupant = game.board.get_unit(position)
         if current_occupant:
             if placement == 'giveup':
@@ -1646,7 +1649,7 @@ class Event():
             elif placement == 'stack':
                 return position
             elif placement == 'closest':
-                position = target_system.get_nearest_open_tile(current_occupant, position)
+                position = target_system.get_nearest_open_tile(unit, position)
                 if not position:
                     logging.warning("Somehow wasn't able to find a nearby open tile")
                     return None
@@ -1668,8 +1671,17 @@ class Event():
         if not tilemap_prefab:
             logging.error("Couldn't find tilemap %s" % tilemap_nid)
             return
-        reload_map = 'reload' in flags
 
+        reload_map = 'reload' in flags
+        if len(values) > 1 and values[1]:
+            position_offset = tuple(str_utils.intify(values[1]))
+        else:
+            position_offset = (0, 0)
+        if len(values) > 2 and values[2]:
+            reload_map_nid = values[2]
+        else:
+            reload_map_nid = tilemap_nid
+        
         # Remove all units from the map
         # But remember their original positions for later
         previous_unit_pos = {}
@@ -1686,11 +1698,14 @@ class Event():
         game.set_up_game_board(game.level.tilemap)
 
         # If we're reloading the map
-        if reload_map and game.level_vars.get('_prev_pos_%s' % tilemap_nid):
-            for unit_nid, pos in game.level_vars['_prev_pos_%s' % tilemap_nid].items():
-                unit = game.get_unit(unit_nid)
-                act = action.ArriveOnMap(unit, pos)
-                act.execute()
+        if reload_map and game.level_vars.get('_prev_pos_%s' % reload_map_nid):
+            for unit_nid, pos in game.level_vars['_prev_pos_%s' % reload_map_nid].items():
+                # Reload unit's position with position offset
+                final_pos = pos[0] + position_offset[0], pos[1] + position_offset[1]
+                if game.tilemap.check_bounds(final_pos):
+                    unit = game.get_unit(unit_nid)
+                    act = action.ArriveOnMap(unit, final_pos)
+                    act.execute()
 
         # Can't use turnwheel to go any further back
         game.action_log.set_first_free_action()
@@ -1797,13 +1812,13 @@ class Event():
             placement = values[5]
         else:
             placement = 'giveup'
-        position = self.check_placement(position, placement)
-        if not position:
-            return None
 
         level_unit_prefab = GenericUnit(
             unit_nid, unit.variant, level, unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
+        position = self.check_placement(new_unit, position, placement)
+        if not position:
+            return None
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
@@ -2079,6 +2094,14 @@ class Event():
         for class_skill in class_skills:
             action.do(action.AddSkill(unit, class_skill))
 
+    def set_mode_autolevels(self, command):
+        values, flags = event_commands.parse(command)
+        autolevel = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
+        if 'hidden' in flags:
+            game.current_mode.enemy_autolevels = autolevel
+        else:
+            game.current_mode.enemy_truelevels = autolevel
+
     def promote(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
@@ -2275,21 +2298,21 @@ class Event():
 
     def change_roaming(self, command):
         values, flags = event_commands.parse(command)
-        change = command.values[0]
-        if game.current_level:
-            if change.lower() in self.true_vals:
-                game.current_level.roam = True
+        val = values[0].lower()
+        if game.level:
+            if val in self.true_vals:
+                game.level.roam = True
             else:
-                game.cursor.rationalize()
-                game.current_level.roam = False
+                game.level.roam = False
 
     def change_roaming_unit(self, command):
         values, flags = event_commands.parse(command)
-        unit = self.get_unit(values[0])
-        if game.current_level and unit in game.units:
-            game.cursor.roaming_unit.sprite.change_state('normal')
-            game.current_level.roam_unit = unit.nid
-            game.cursor.roaming_unit = unit
+        if game.level:
+            unit = self.get_unit(values[0])
+            if unit:
+                game.level.roam_unit = values[0]
+            else:
+                game.level.roam_unit = None
 
     def parse_pos(self, text):
         position = None

@@ -31,11 +31,13 @@ class Uses(ItemComponent):
 
     def on_broken(self, unit, item):
         from app.engine.game_state import game
-        if item in unit.items:
-            action.do(action.RemoveItem(unit, item))
-        elif item in game.party.convoy:
-            action.do(action.RemoveItemFromConvoy(item))
-        return True
+        if self.is_broken(unit, item):
+            if item in unit.items:
+                action.do(action.RemoveItem(unit, item))
+            elif item in game.party.convoy:
+                action.do(action.RemoveItemFromConvoy(item))
+            return True
+        return False
 
     def reverse_use(self, unit, item):
         if self.is_broken(unit, item):
@@ -73,9 +75,11 @@ class ChapterUses(ItemComponent):
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
     def on_broken(self, unit, item):
-        if unit.equipped_weapon is item:
-            action.do(action.UnequipItem(unit, item))
-        return True
+        if self.is_broken(unit, item):
+            if unit.equipped_weapon is item:
+                action.do(action.UnequipItem(unit, item))
+            return True
+        return False
 
     def on_end_chapter(self, unit, item):
         # Don't need to use action here because it will be end of chapter
@@ -203,23 +207,7 @@ class PrfTag(ItemComponent):
 class Locked(ItemComponent):
     nid = 'locked'
     desc = 'Item cannot be discarded, traded, or stolen'
-    tag = 'extra'
+    tag = 'uses'
 
     def locked(self, unit, item) -> bool:
         return True
-
-class CanUnlock(ItemComponent):
-    nid = 'can_unlock'
-    desc = "Item can be used to unlock events. String will be evaluated to determine kind of event"
-    tag = 'extra'
-
-    expose = Type.String
-    value = 'True'
-
-    def can_unlock(self, unit, item, region) -> bool:
-        from app.engine import evaluate
-        try:
-            return bool(evaluate.evaluate(self.value, unit, item, region=region))
-        except:
-            print("Could not evaluate %s" % self.value)
-        return False

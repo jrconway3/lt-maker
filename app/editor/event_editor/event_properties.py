@@ -1,28 +1,31 @@
+import logging
 import math
 from dataclasses import dataclass
 
-from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QHBoxLayout, QVBoxLayout, \
-    QPlainTextEdit, QDialog, QPushButton, QListView, QStyledItemDelegate, QCheckBox, QAbstractItemView, \
-    QGridLayout, QSizePolicy, QAction, QToolBar, QSpinBox, QStyle, QApplication, QTextEdit, \
-    QSplitter, QFrame
-from PyQt5.QtGui import QSyntaxHighlighter, QFont, QTextCharFormat, QColor, QTextCursor, QPainter, QPalette, QFontMetrics, QIcon, QPen
-from PyQt5.QtCore import QRegularExpression, Qt, QSize, QRect, QSortFilterProxyModel
-
-from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, QHLine, ComboBox
-from app.editor import timer
-from app.editor.settings import MainSettingsController
-
-from app.resources.resources import RESOURCES
 from app.data.database import DB
-from app.utilities import str_utils
+from app.editor import table_model, timer
 from app.editor.base_database_gui import CollectionModel
-from app.events import event_prefab, event_commands, event_validators
-from app.editor.event_editor import find_and_replace
-from app.editor import table_model
+from app.editor.event_editor import event_autocompleter, find_and_replace
 from app.editor.map_view import SimpleMapView
-from app.extensions.custom_gui import TableView
+from app.editor.settings import MainSettingsController
+from app.events import event_commands, event_prefab, event_validators
+from app.extensions.custom_gui import (ComboBox, PropertyBox, PropertyCheckBox,
+                                       QHLine, TableView)
+from app.resources.resources import RESOURCES
+from app.utilities import str_utils
+from PyQt5.QtCore import (QRect, QRegularExpression, QSize,
+                          QSortFilterProxyModel, QStringListModel, Qt)
+from PyQt5.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter,
+                         QPalette, QSyntaxHighlighter, QTextCharFormat,
+                         QTextCursor)
+from PyQt5.QtWidgets import (QAbstractItemView, QAction, QApplication,
+                             QCheckBox, QCompleter, QDialog, QFrame,
+                             QGridLayout, QHBoxLayout, QLineEdit, QListView,
+                             QMessageBox, QPlainTextEdit, QPushButton,
+                             QSizePolicy, QSpinBox, QSplitter, QStyle,
+                             QStyledItemDelegate, QTextEdit, QToolBar,
+                             QVBoxLayout, QWidget)
 
-import logging
 
 @dataclass
 class Rule():
@@ -197,6 +200,60 @@ class CodeEditor(QPlainTextEdit):
         # Set tab to four spaces
         fm = QFontMetrics(self.font())
         self.setTabStopWidth(4 * fm.width(' '))
+                
+        # completer
+        self.completer: event_autocompleter.Completer = None
+        self.setCompleter(event_autocompleter.Completer(parent=self))
+        self.textChanged.connect(self.complete)
+        self.prev_keyboard_press = None
+        
+    def setCompleter(self, completer):
+        if not completer:
+            return
+        completer.setWidget(self)
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer = completer
+        self.completer.insertText.connect(self.insertCompletion)
+
+    def insertCompletion(self, completion):
+        tc = self.textCursor()
+        tc.movePosition(QTextCursor.StartOfWord)
+        tc.movePosition(QTextCursor.EndOfWord)
+        tc.select(QTextCursor.WordUnderCursor)
+        tc.removeSelectedText()
+        tc.insertText(completion)
+        self.setTextCursor(tc)
+
+    def textUnderCursor(self):
+        tc = self.textCursor()
+        tc.select(QTextCursor.WordUnderCursor)
+        return tc.selectedText()
+
+    def complete(self):
+        if self.prev_keyboard_press == Qt.Key_Backspace or self.prev_keyboard_press == Qt.Key_Return:
+            return
+        
+        tc = self.textCursor()
+        # determine what dictionary to use for completion
+        line = tc.block().text()
+        cursor_pos = tc.positionInBlock()
+        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
+        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.nid)
+        if flags:
+            autofill_dict = autofill_dict + event_autocompleter.generate_flags_wordlist(flags)
+        self.completer.setModel(QStringListModel(autofill_dict, self.completer))
+        
+        # filter the dictionary and display the popup
+        completionPrefix = self.textUnderCursor()
+        self.completer.setCompletionPrefix(completionPrefix)
+        popup = self.completer.popup()
+        popup.setCurrentIndex(
+            self.completer.completionModel().index(0, 0))
+        cr = self.cursorRect()
+        cr.setWidth(
+            self.completer.popup().sizeHintForColumn(0) + self.completer.popup().verticalScrollBar().sizeHint().width())
+        self.completer.complete(cr)
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.line_number_area)
@@ -247,11 +304,30 @@ class CodeEditor(QPlainTextEdit):
             self.updateLineNumberAreaWidth(0)
 
     def keyPressEvent(self, event):
+        self.prev_keyboard_press = event.key()
         # Shift + Tab is not the same as catching a shift modifier + tab key
         # Shift + Tab is a Backtab
         if event.key() == Qt.Key_Tab:
-            cur = self.textCursor()
-            cur.insertText("    ")
+            if self.completer.popup().isVisible():
+                # If completer is up, Tab can auto-complete
+                completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
+                self.completer.changeCompletion(completion)
+            else:  # Otherwise just normal tab (insert 4 spaces)
+                cur = self.textCursor()
+                cur.insertText("    ")
+        elif event.key() == Qt.Key_Backspace:
+            # completer functionality, hides the completer
+            if self.completer.popup().isVisible():
+                self.completer.popup().hide()
+            else:
+                return super().keyPressEvent(event)
+        elif event.key() == Qt.Key_Return:
+            # completer functionality, enters the selected suggestion
+            if self.completer.popup().isVisible():
+                completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
+                self.completer.changeCompletion(completion)
+            else:
+                return super().keyPressEvent(event)
         elif event.key() == Qt.Key_Backtab:
             cur = self.textCursor()
             # Copy the current selection
@@ -811,11 +887,14 @@ class ShowCommandsDialog(QDialog):
         self.window = parent
 
         self.commands = event_commands.get_commands()
-        self.categories = event_commands.tags
+        self.categories = [category.value for category in event_commands.Tags]
         self._data = []
-        for category in self.categories[:-1]:  # Ignore hidden categoy
+        for category in self.categories:  
+            # Ignore hidden category
+            if category == event_commands.Tags.HIDDEN.value:
+                continue
             self._data.append(category)
-            commands = [command for command in self.commands if command.tag == category]
+            commands = [command for command in self.commands if command.tag.value == category]
             self._data += commands
 
         self.model = EventCommandModel(self._data, self.categories, self)

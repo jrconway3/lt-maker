@@ -29,15 +29,20 @@ class EventCommand(Prefab):
     flags: list = []
 
     values: list = []
+    display_values: list = []
 
-    def __init__(self, values=None):
+    def __init__(self, values=None, disp_values=None):
         self.values = values or []
+        self.display_values = disp_values or values or []
 
     def save(self):
-        return self.nid, self.values
+        return self.nid, self.values, self.display_values
 
     def to_plain_text(self):
-        return ';'.join([self.nid] + self.values)
+        if self.display_values:
+            return ';'.join([self.nid] + self.display_values)
+        else:
+            return ';'.join([self.nid] + self.values)
 
     def __repr__(self):
         return self.to_plain_text()
@@ -923,33 +928,45 @@ def get_commands():
     return EventCommand.__subclasses__()
 
 def restore_command(dat):
-    nid, values = dat
+    if len(dat) == 2:
+        nid, values = dat
+        display_values = None
+    elif len(dat) == 3:
+        nid, values, display_values = dat
     subclasses = EventCommand.__subclasses__()
     for command in subclasses:
         if command.nid == nid:
-            copy = command(values)
+            copy = command(values, display_values)
             return copy
     print("Couldn't restore event command!")
-    print(nid, values)
+    print(nid, values, display_values)
     return None
 
 def parse_text(text):
     if text.startswith('#'):
         return Comment([text])
-    unprocessed_arguments = text.split(';')
-    arguments = []
-    for arg in unprocessed_arguments:
-        # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-        if '(' in arg and ')' in arg:
-            true_arg = arg[arg.find("(")+1:arg.find(")")]
-            arguments.append(true_arg)
-        else:
-            arguments.append(arg)
+    arguments = text.split(';')
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()
     for command in subclasses:
         if command.nid == command_nid or command.nickname == command_nid:
-            copy = command(arguments[1:])
+            cmd_args = arguments[1:]
+            true_cmd_args = []
+            command_info = command()
+            for idx, arg in enumerate(cmd_args):
+                if idx < len(command_info.keywords):
+                    cmd_keyword = command_info.keywords[idx]
+                elif idx - len(command_info.keywords) < len(command_info.optional_keywords):
+                    cmd_keyword = command_info.optional_keywords[idx - len(command_info.keywords)]
+                else:
+                    cmd_keyword = "N/A"
+                # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
+                if '(' in arg and ')' in arg and not cmd_keyword == 'Condition':
+                    true_arg = arg[arg.find("(")+1:arg.find(")")]
+                    true_cmd_args.append(true_arg)
+                else:
+                    true_cmd_args.append(arg)
+            copy = command(true_cmd_args, cmd_args)
             return copy
     return None
 

@@ -936,20 +936,28 @@ def restore_command(dat):
 def parse_text(text):
     if text.startswith('#'):
         return Comment([text])
-    unprocessed_arguments = text.split(';')
-    arguments = []
-    for arg in unprocessed_arguments:
-        # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-        if '(' in arg and ')' in arg:
-            true_arg = arg[arg.find("(")+1:arg.find(")")]
-            arguments.append(true_arg)
-        else:
-            arguments.append(arg)
+    arguments = text.split(';')
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()
     for command in subclasses:
         if command.nid == command_nid or command.nickname == command_nid:
-            copy = command(arguments[1:])
+            cmd_args = arguments[1:]
+            true_cmd_args = []
+            command_info = command()
+            for idx, arg in enumerate(cmd_args):
+                if idx < len(command_info.keywords):
+                    cmd_keyword = command_info.keywords[idx]
+                elif idx - len(command_info.keywords) < len(command_info.optional_keywords):
+                    cmd_keyword = command_info.optional_keywords[idx - len(command_info.keywords)]
+                else:
+                    cmd_keyword = "N/A"
+                # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
+                if '(' in arg and ')' in arg and not cmd_keyword == 'Condition':
+                    true_arg = arg[arg.find("(")+1:arg.find(")")]
+                    true_cmd_args.append(true_arg)
+                else:
+                    true_cmd_args.append(arg)
+            copy = command(true_cmd_args)
             return copy
     return None
 

@@ -40,10 +40,18 @@ class PhaseController():
         self.current = 3 if game.turncount == 0 else 0
         self.previous = 0
 
+        if DB.constants.get('timeline').value:
+            self.current = 0
+            self.previous = 0
+
     def get_current(self):
+        if DB.constants.get('timeline').value:
+            return game.timeline[game.timeline_position].team
         return DB.teams[self.current]
 
     def get_previous(self):
+        if DB.constants.get('timeline').value and game.timeline_position > 0:
+            return game.timeline[game.timeline_position - 1].team
         return DB.teams[self.previous]
 
     def set_player(self):
@@ -51,7 +59,15 @@ class PhaseController():
         self.previous = (self.current - 1) % len(DB.teams)
 
     def _next(self):
-        self.current = (self.current + 1) % len(DB.teams)
+        if DB.constants.get('timeline').value:
+            self.current = self._team_int(game.timeline[game.timeline_position].team)
+        else:
+            self.current = (self.current + 1) % len(DB.teams)
+
+    def _team_int(self, team: str) -> int:
+        if team in DB.teams:
+            return DB.teams.index(team)
+        return 1 # 1 is used instead of zero so that it will default to an AI turn
 
     def next(self):
         self.previous = self.current
@@ -60,9 +76,10 @@ class PhaseController():
             self._next()
             # Skip over any phases that no one is part of
             # but never skip player phase
-            while self.current != 0 and not any(self.get_current() == unit.team for unit in game.units if unit.position and 'Tile' not in unit.tags):
+            while self.current != 0 and not any(self.get_current() == unit.team for unit in game.units if unit.position and 'Tile' not in unit.tags) \
+                    and not DB.constants.get('timeline').value:
                 self._next()
-        else:   
+        else:
             self.current = 0
 
     def slide_in(self):
@@ -109,7 +126,7 @@ class PhaseIn():
             return surf
         current_time = engine.get_time()
         time_passed = min(current_time - self.starting_time, self.t_display)
-        
+
         max_opacity = 118
 
         # Blit the banner

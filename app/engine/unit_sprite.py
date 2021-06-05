@@ -274,6 +274,9 @@ class UnitSprite():
         if self.state == 'normal':
             if self.unit.finished and not self.unit.is_dying:
                 self.image_state = 'gray'
+            if DB.constants.get('timeline').value and game.timeline[game.timeline_position] != self.unit \
+                    and not game.current_level.roam and self.unit.team == 'player':
+                self.image_state = 'gray'
             elif game.cursor.draw_state and game.cursor.position == self.unit.position and self.unit.team == 'player' \
                     and not game.current_level.roam:
                 self.image_state = 'active'

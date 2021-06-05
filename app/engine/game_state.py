@@ -171,7 +171,7 @@ class GameState():
             stop = False
             while i < len(timeline) and not stop:
                 if u.timeline_speed > timeline[i].timeline_speed:
-                    timeline.insert(u, i)
+                    timeline.insert(i, u)
                     stop = True
                 i += 1
             if i == len(timeline) and not stop:
@@ -186,7 +186,7 @@ class GameState():
         stop = False
         while i < len(t) and not stop:
             if u.timeline_speed > t[i].timeline_speed:
-                t.insert(u, i)
+                t.insert(i, u)
                 stop = True
             i += 1
         if i == len(t) and not stop:
@@ -194,7 +194,7 @@ class GameState():
 
     def insert_in_timeline(self, u, t: list, pos) -> None:
         # A more controlled version of add_to_timeline. Always inserts at the specified index
-        t.insert(u, pos)
+        t.insert(pos, u)
 
     def remove_from_timeline(self, u, t: list) -> None:
         # Probably only do this when a unit dies or is removed

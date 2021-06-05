@@ -61,6 +61,37 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Seth",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    10,
+                    5
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 2,
+                "klass": "Returned",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Pursue",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [
@@ -99,11 +130,16 @@
             {
                 "nid": "Monsters",
                 "units": [
-                    "103"
+                    "103",
+                    "101"
                 ],
                 "positions": {
                     "103": [
                         14,
+                        8
+                    ],
+                    "101": [
+                        13,
                         8
                     ]
                 }

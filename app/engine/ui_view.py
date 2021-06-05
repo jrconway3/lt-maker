@@ -20,11 +20,13 @@ class UIView():
         self.obj_info_disp = None
         self.attack_info_disp = None
         self.spell_info_disp = None
+        self.timeline_info_disp = None
 
         self.unit_info_offset = 0
         self.tile_info_offset = 0
         self.obj_info_offset = 0
         self.attack_info_offset = 0
+        self.timeline_info_offset = 0
 
         self.remove_unit_info = True
         self.expected_coord = None
@@ -74,6 +76,16 @@ class UIView():
             if self.obj_info_offset >= 200:
                 self.obj_info_disp = None
 
+        if game.state.current() in self.legal_states and DB.constants.get('timeline').value \
+                and not game.current_level.roam:
+            self.timeline_info_disp = self.create_timeline_info()
+            self.timeline_info_offset -= 20
+            self.timeline_info_offset = max(0, self.timeline_info_offset)
+        elif self.timeline_info_disp:
+            self.timeline_info_offset += 20
+            if self.timeline_info_offset >= 200:
+                self.timeline_info_disp = None
+
         # === Final drawing
         # Should be in topleft, unless cursor is in topleft, in which case it should be in bottomleft
         if self.unit_info_disp:
@@ -99,7 +111,7 @@ class UIView():
                 ypos = WINHEIGHT - self.tile_info_disp.get_height() - 3
                 surf.blit(self.tile_info_disp, (xpos, ypos)) # Bottomright
 
-        if self.obj_info_disp:
+        if self.obj_info_disp and not self.timeline_info_disp:
             # Should be in topright, unless the cursor is in the topright
             # TopRight - I believe this has RIGHT precedence
             if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
@@ -108,7 +120,7 @@ class UIView():
                 if self.obj_top:
                     self.obj_top = False
                     self.obj_info_offset = self.obj_info_disp.get_width()
-                pos = (WINWIDTH - 4 + self.obj_info_offset - self.obj_info_disp.get_width(), 
+                pos = (WINWIDTH - 4 + self.obj_info_offset - self.obj_info_disp.get_width(),
                        WINHEIGHT - 4 - self.obj_info_disp.get_height())
                 surf.blit(self.obj_info_disp, pos) # Should be bottom right
             else:
@@ -117,7 +129,23 @@ class UIView():
                     self.obj_top = True
                     self.obj_info_offset = self.obj_info_disp.get_width()
                 surf.blit(self.obj_info_disp, (WINWIDTH - 4 + self.obj_info_offset - self.obj_info_disp.get_width(), 1))
-        
+
+        if self.timeline_info_disp:
+            surf.blit(self.timeline_info_disp, (0, 0))
+
+        return surf
+
+    def create_timeline_info(self):
+        i = game.timeline_position
+        most = max(0, WINWIDTH//32)
+        surf = engine.create_surface((WINWIDTH, 40), transparent=True)
+        x, y = 4, 6
+        while i < len(game.timeline) and i <= game.timeline_position + most:
+            surf.blit(SPRITES.get('status_platform').copy(), (x, y + 18))
+            char_sprite = game.timeline[i].sprite.create_image('passive')
+            surf.blit(char_sprite, (x - 16, y - 14))
+            i += 1
+            x += 32
         return surf
 
     def create_unit_info(self, unit):
@@ -368,7 +396,7 @@ class UIView():
         if skill_system.check_enemy(attacker, defender):
             adv = combat_calcs.compute_advantage(attacker, defender, weapon, defender.get_weapon())
             disadv = combat_calcs.compute_advantage(attacker, defender, weapon, defender.get_weapon(), False)
-            
+
             up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
             down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
 
@@ -391,7 +419,7 @@ class UIView():
 
             up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
             down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
-            
+
             if adv and adv.modification > 0:
                 surf.blit(up_arrow, (topleft[0] + 61, y_pos))
             elif adv and adv.modification < 0:
@@ -418,7 +446,7 @@ class UIView():
             surf.blit(SPRITES.get('x4'), x2_pos_player)
 
         # Enemy doubling
-        eweapon = defender.get_weapon()        
+        eweapon = defender.get_weapon()
         if eweapon and combat_calcs.can_counterattack(attacker, weapon, defender, eweapon):
             if DB.constants.value('def_double') or skill_system.def_double(defender):
                 e_num = combat_calcs.outspeed(defender, attacker, eweapon, weapon, 'defense')

@@ -29,7 +29,7 @@ class TurnChangeState(MapState):
             supports.increment_end_turn_supports('player')
             game.memory['previous_cursor_position'] = game.cursor.position
         # Clear all previous states in state machine except me
-        if DB.constants.get('timeline').value:
+        if DB.constants.get('timeline').value and game.turncount > 0:
             game.timeline.append(game.timeline[game.timeline_position])
             game.timeline_position += 1
         game.state.refresh()
@@ -39,7 +39,8 @@ class TurnChangeState(MapState):
     def end(self):
         game.phase.next()  # Go to next phase
         # If entering player phase
-        if game.phase.get_current() == 'player':
+        if game.phase.get_current() == 'player' or (DB.constants.get('timeline').value \
+                and game.timeline[game.timeline_position].team == 'player'):
             action.do(action.IncrementTurn())
             action.do(action.UpdateRecords('turn', None))
             game.state.change('free')
@@ -136,7 +137,11 @@ class FreeState(MapState):
             cur_unit = game.board.get_unit(cur_pos)
             if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position) \
                     and not roaming:
-                if skill_system.can_select(cur_unit):
+                timeline_turn = True
+                if DB.constants.get('timeline').value:
+                    if game.timeline[game.timeline_position] != cur_unit:
+                        timeline_turn = False
+                if skill_system.can_select(cur_unit) and timeline_turn:
                     game.cursor.cur_unit = cur_unit
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
@@ -172,7 +177,8 @@ class FreeState(MapState):
         # Auto-end turn
         # Check to see if all ally units have completed their turns and no unit is active and the game is in the free state.
         if cf.SETTINGS['autoend_turn'] and any(unit.position for unit in game.units) and \
-                all(unit.finished for unit in game.units if unit.position and unit.team == 'player'):
+                (all(unit.finished for unit in game.units if unit.position and unit.team == 'player') \
+                    or (DB.constants.get('timeline').value and game.timeline[game.timeline_position].finished)):
             # End the turn
             logging.info('Autoending turn.')
             game.state.change('turn_change')
@@ -1539,6 +1545,10 @@ class AIState(MapState):
             not unit.finished and
             not unit.has_run_ai and
             unit.team == game.phase.get_current()]
+        if DB.constants.get('timeline').value:
+            for unit in valid_units:
+                if game.timeline[game.timeline_position] != unit:
+                    valid_units.remove(unit)
         if not valid_units:
             return None
         # Check if any members of group

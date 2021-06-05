@@ -381,7 +381,7 @@ class Cursor():
         """Returns whether there is a unit close enough to talk. Returns the first unit it finds
         or False if there are no good targets
         """
-        if u1:
+        if u1 and self.roaming:
             u1_pos = u1.position
             for u in game.units:
                 if u.position and u1_pos and u1 != u and \

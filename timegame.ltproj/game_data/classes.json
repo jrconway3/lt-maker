@@ -7618,15 +7618,15 @@
         "learned_skills": [],
         "wexp_gain": {
             "Sword": [
-                false,
+                2,
                 0
             ],
             "Lance": [
-                false,
+                2,
                 0
             ],
             "Axe": [
-                false,
+                2,
                 0
             ],
             "Bow": [
@@ -7650,7 +7650,7 @@
                 0
             ],
             "Default": [
-                2,
+                0,
                 0
             ]
         },

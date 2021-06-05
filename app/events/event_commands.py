@@ -29,15 +29,20 @@ class EventCommand(Prefab):
     flags: list = []
 
     values: list = []
+    display_values: list = []
 
-    def __init__(self, values=None):
+    def __init__(self, values=None, disp_values=None):
         self.values = values or []
+        self.display_values = disp_values or values or []
 
     def save(self):
-        return self.nid, self.values
+        return self.nid, self.values, self.display_values
 
     def to_plain_text(self):
-        return ';'.join([self.nid] + self.values)
+        if self.display_values:
+            return ';'.join([self.nid] + self.display_values)
+        else:
+            return ';'.join([self.nid] + self.values)
 
     def __repr__(self):
         return self.to_plain_text()
@@ -923,14 +928,18 @@ def get_commands():
     return EventCommand.__subclasses__()
 
 def restore_command(dat):
-    nid, values = dat
+    if len(dat) == 2:
+        nid, values = dat
+        display_values = None
+    elif len(dat) == 3:
+        nid, values, display_values = dat
     subclasses = EventCommand.__subclasses__()
     for command in subclasses:
         if command.nid == nid:
-            copy = command(values)
+            copy = command(values, display_values)
             return copy
     print("Couldn't restore event command!")
-    print(nid, values)
+    print(nid, values, display_values)
     return None
 
 def parse_text(text):
@@ -957,7 +966,7 @@ def parse_text(text):
                     true_cmd_args.append(true_arg)
                 else:
                     true_cmd_args.append(arg)
-            copy = command(true_cmd_args)
+            copy = command(true_cmd_args, cmd_args)
             return copy
     return None
 

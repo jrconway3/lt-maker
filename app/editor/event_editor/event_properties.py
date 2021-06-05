@@ -238,6 +238,8 @@ class CodeEditor(QPlainTextEdit):
         # determine what dictionary to use for completion
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
+        if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
+            return
         validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
         autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.nid)
         if flags:
@@ -319,8 +321,8 @@ class CodeEditor(QPlainTextEdit):
             # completer functionality, hides the completer
             if self.completer.popup().isVisible():
                 self.completer.popup().hide()
-            else:
-                return super().keyPressEvent(event)
+            # Always does Backspace as well
+            return super().keyPressEvent(event)
         elif event.key() == Qt.Key_Return:
             # completer functionality, enters the selected suggestion
             if self.completer.popup().isVisible():

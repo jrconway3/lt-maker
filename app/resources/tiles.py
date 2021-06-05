@@ -265,7 +265,7 @@ class TileSetCatalog(ManifestCatalog[TileSet]):
         valid_filenames |= {datum.nid + '_autotiles.png' for datum in self}
         return valid_filenames
 
-class TileMapCatalog(ManifestCatalog):
+class TileMapCatalog(ManifestCatalog[TileMapPrefab]):
     manifest = 'tilemap.json'
     title = 'tilemaps'
 

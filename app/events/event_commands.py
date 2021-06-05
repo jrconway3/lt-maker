@@ -936,7 +936,15 @@ def restore_command(dat):
 def parse_text(text):
     if text.startswith('#'):
         return Comment([text])
-    arguments = text.split(';')
+    unprocessed_arguments = text.split(';')
+    arguments = []
+    for arg in unprocessed_arguments:
+        # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
+        if '(' in arg and ')' in arg:
+            true_arg = arg[arg.find("(")+1:arg.find(")")]
+            arguments.append(true_arg)
+        else:
+            arguments.append(arg)
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()
     for command in subclasses:

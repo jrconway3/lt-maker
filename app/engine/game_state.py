@@ -48,8 +48,6 @@ class GameState():
         self.terrain_status_registry = {}
         self.region_registry = {}
 
-        self.current_mode = self.default_mode()
-
         self.parties = {}
         self.current_party = None
         self.current_level = None
@@ -229,7 +227,6 @@ class GameState():
                   'playtime': self.playtime,
                   'game_vars': self.game_vars,
                   'level_vars': self.level_vars,
-                  'current_mode': self.current_mode.save(),
                   'parties': [party.save() for party in self.parties.values()],
                   'current_party': self.current_party,
                   'state': self.state.save(),
@@ -243,12 +240,12 @@ class GameState():
                   'talk_options': self.talk_options,
                   'base_convos': self.base_convos,
                   'current_random_state': static_random.get_combat_random_state(),
+                  'cursor_pos': self.cursor.position
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
                      'version': VERSION,
                      'title': DB.constants.value('title'),
-                     'mode': self.current_mode.nid,
                      }
         if self.current_level:
             meta_dict['level_title'] = self.current_level.name
@@ -265,7 +262,7 @@ class GameState():
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import turnwheel, records, save, supports, action
+        from app.engine import turnwheel, records, save, supports
         from app.events import event_manager
 
         from app.engine.objects.item import ItemObject
@@ -273,18 +270,12 @@ class GameState():
         from app.engine.objects.unit import UnitObject
         from app.engine.objects.level import LevelObject
         from app.engine.objects.party import PartyObject
-        from app.engine.objects.difficulty_mode import DifficultyModeObject
         from app.events.regions import Region
 
         logger.info("Loading Game...")
         self.game_vars = Counter(s_dict.get('game_vars', {}))
         static_random.set_seed(self.game_vars.get('_random_seed', 0))
         self.level_vars = Counter(s_dict.get('level_vars', {}))
-        mode_dict = s_dict.get('current_mode')
-        if mode_dict:
-            self.current_mode = DifficultyModeObject.restore(mode_dict)
-        else:
-            self.current_mode = self.default_mode()
         self.playtime = float(s_dict['playtime'])
         self.current_party = s_dict['current_party']
         self.turncount = int(s_dict['turncount'])
@@ -339,14 +330,17 @@ class GameState():
 
             # Now have units actually arrive on map
             for unit in self.units:
-                if unit.position:
+                if unit.position and (not self.current_level.roam or unit.nid != self.current_level.roam_unit):
                     self.board.set_unit(unit.position, unit)
                     self.boundary.arrive(unit)
-                    action.UpdateFogOfWar(unit).execute()
 
-            self.cursor.autocursor(True)
+            if s_dict['cursor_pos']:
+                self.cursor.position = s_dict['cursor_pos']
+            else:
+                self.cursor.autocursor(True)
 
         self.events = event_manager.EventManager.restore(s_dict.get('events'))
+
 
     def clean_up(self):
         from app.engine import item_system, skill_system, item_funcs, action, supports
@@ -419,7 +413,7 @@ class GameState():
         # Handle player death
         for unit in self.unit_registry.values():
             if unit.dead and unit.team == 'player':
-                if not game.current_mode.permadeath:
+                if not DB.constants.value('permadeath'):
                     unit.dead = False  # Resurrect unit
                 elif DB.constants.value('convoy_on_death'):
                     for item in item_funcs.get_all_tradeable_items(unit):
@@ -439,23 +433,6 @@ class GameState():
     def tilemap(self):
         if self.current_level:
             return self.current_level.tilemap
-
-    @property
-    def mode(self):
-        return DB.difficulty_modes.get(self.current_mode.nid)
-
-    def default_mode(self):
-        from app.engine.objects.difficulty_mode import DifficultyModeObject
-        first_mode = DB.difficulty_modes[0]
-        if first_mode.permadeath_choice == 'Player Choice':
-            permadeath = False
-        else:
-            permadeath = first_mode.permadeath_choice == 'Classic'
-        if first_mode.growths_choice == 'Player Choice':
-            growths = 'Fixed'
-        else:
-            growths = first_mode.growths_choice
-        return DifficultyModeObject(first_mode.nid, permadeath, growths)
 
     @property
     def party(self):

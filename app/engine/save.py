@@ -29,7 +29,6 @@ class SaveSlot():
         self.playtime = 0
         self.realtime = 0
         self.kind = None  # Prep, Base, Suspend, Battle, Start
-        self.mode = None
         self.idx = idx
 
         self.meta_loc = metadata_fn
@@ -45,7 +44,6 @@ class SaveSlot():
             self.playtime = save_metadata['playtime']
             self.realtime = save_metadata['realtime']
             self.kind = save_metadata['kind']
-            self.mode = save_metadata.get('mode')
 
     def get_name(self):
         if self.kind == 'turn_change':
@@ -136,7 +134,6 @@ def suspend_game(game_state, kind, slot=None, name=None):
     else:
         force_loc = None
 
-    global SAVE_THREAD
     SAVE_THREAD = threading.Thread(target=save_io, args=(s_dict, meta_dict, current_save_slot, slot, force_loc, name))
     SAVE_THREAD.start()
 
@@ -200,7 +197,7 @@ def remove_suspend():
 
 def get_save_title(save_slots):
     options = [save_slot.get_name() for save_slot in save_slots]
-    colors = [DB.difficulty_modes.get(save_slot.mode).color if save_slot.mode else 'green' for save_slot in save_slots]
+    colors = ['green' for save_slot in save_slots]
     return options, colors
 
 def check_save_slots():

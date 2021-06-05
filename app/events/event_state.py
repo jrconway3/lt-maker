@@ -60,12 +60,8 @@ class EventState(State):
         if current_level_index < len(DB.levels) - 1:
             # Assumes no overworld
             if game.game_vars.get('_goto_level'):
-                if game.game_vars['_goto_level'] == '_force_quit':
-                    game.state.clear()
-                    game.state.change('title_start')
-                else:
-                    game.game_vars['_next_level_nid'] = game.game_vars['_goto_level']
-                    game.game_vars['_goto_level'] = None
+                game.game_vars['_next_level_nid'] = game.game_vars['_goto_level']
+                game.game_vars['_goto_level'] = None
             else:
                 next_level = DB.levels[current_level_index + 1]
                 if 'debug' in next_level.nid.lower():

@@ -16,7 +16,7 @@ class SupportRank(Prefab):
     def restore(cls, dat):
         return cls(dat)
 
-class SupportRankCatalog(Data[SupportRank]):
+class SupportRankCatalog(Data):
     datatype = SupportRank
 
     def __init__(self, strs):
@@ -107,7 +107,7 @@ class Affinity(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-class AffinityCatalog(Data[Affinity]):
+class AffinityCatalog(Data):
     datatype = Affinity
 
 constants = ConstantCatalog([
@@ -200,7 +200,7 @@ class SupportPair(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-class SupportPairCatalog(Data[SupportPair]):
+class SupportPairCatalog(Data):
     datatype = SupportPair
 
     def get_pairs(self, unit1_nid: str, unit2_nid: str) -> list:

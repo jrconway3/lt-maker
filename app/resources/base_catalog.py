@@ -2,14 +2,12 @@ import os
 import shutil
 import filecmp
 import json
-from typing import TypeVar
 
 from app.utilities.data import Data
 
 import logging
 
-B = TypeVar('B')
-class BaseResourceCatalog(Data[B]):
+class BaseResourceCatalog(Data):
     def load(self, loc):
         for root, dirs, files in os.walk(loc):
             for name in files:
@@ -19,8 +17,7 @@ class BaseResourceCatalog(Data[B]):
                     new_resource = self.datatype(nid, full_path)
                     self.append(new_resource)
 
-M = TypeVar('M')
-class ManifestCatalog(Data[M]):
+class ManifestCatalog(Data):
     filetype = '.png'
     manifest = None  # To be implemented
     title = ''  # To be implemented

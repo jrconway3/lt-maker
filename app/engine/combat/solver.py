@@ -1,7 +1,6 @@
 from app.data.database import DB
 
 from app.engine import combat_calcs, item_system, skill_system, static_random, action, item_funcs
-from app.engine.game_state import game
 
 import logging
 
@@ -181,7 +180,7 @@ class CombatPhaseSolver():
         return self.current_command
 
     def generate_roll(self):
-        rng_mode = game.mode.rng_choice
+        rng_mode = DB.constants.get('rng').value
         if rng_mode == 'Classic':
             roll = static_random.get_combat()
         elif rng_mode == 'True Hit':

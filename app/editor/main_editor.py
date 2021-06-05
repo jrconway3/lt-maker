@@ -48,7 +48,6 @@ from app.editor.skill_editor.skill_tab import SkillDatabase
 from app.editor.terrain_editor.terrain_tab import TerrainDatabase
 from app.editor.stat_editor.stat_tab import StatTypeDatabase
 from app.editor.ai_editor.ai_tab import AIDatabase
-from app.editor.difficulty_mode_editor.difficulty_mode_tab import DifficultyModeDatabase
 from app.editor.constant_tab import ConstantDatabase
 from app.editor.tag_widget import TagDialog
 from app.editor.mcost_dialog import McostDialog
@@ -233,7 +232,6 @@ class MainEditor(QMainWindow):
                             "Stats": StatTypeDatabase.edit,
                             "Equations": self.edit_equations,
                             "Constants": ConstantDatabase.edit,
-                            "Difficulty Modes": DifficultyModeDatabase.edit,
                             "Supports": self.edit_supports,
                             "Lore": LoreDatabase.edit,
                             "Translations": self.edit_translations

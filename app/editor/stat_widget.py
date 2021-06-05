@@ -89,7 +89,7 @@ class MultiEditTableView(QTableView):
             model.setData(index, value, Qt.EditRole)
 
 class StatListWidget(QWidget):
-    def __init__(self, obj, title, reset_button=False, average_button=True, parent=None):
+    def __init__(self, obj, title, reset_button=False, parent=None):
         super().__init__(parent)
         self.window = parent
         self._obj = obj
@@ -105,7 +105,6 @@ class StatListWidget(QWidget):
             row_values = [{}]
 
         self.reset_button_flag = reset_button
-        self.average_button_flag = average_button
 
         self.setup(column_titles, row_titles, row_values, title)
 
@@ -136,19 +135,15 @@ class StatListWidget(QWidget):
             self.reset_button.setMaximumWidth(150)
             hbox.addWidget(self.reset_button, alignment=Qt.AlignRight)
 
-        if self.average_button_flag:
-            self.button = QPushButton("Display Averages")
-            self.button.setMaximumWidth(130)
-            hbox.addWidget(self.button, alignment=Qt.AlignRight)
-            layout.addLayout(hbox, 0, 1, alignment=Qt.AlignRight)
-
-    def get_stat_lists(self, obj):
-        return obj.get_stat_lists()
+        self.button = QPushButton("Display Averages")
+        self.button.setMaximumWidth(130)
+        hbox.addWidget(self.button, alignment=Qt.AlignRight)
+        layout.addLayout(hbox, 0, 1, alignment=Qt.AlignRight)
 
     def set_new_obj(self, obj):
         self._obj = obj
         row_titles = obj.get_stat_titles()
-        row_values = self.get_stat_lists(obj)
+        row_values = obj.get_stat_lists()
         self.model.set_new_data(row_titles, row_values)
         for col in range(len(row_values[0])):
             self.view.resizeColumnToContents(col)

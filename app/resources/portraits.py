@@ -27,7 +27,7 @@ class Portrait():
         self.smiling_offset = [int(_) for _ in s_dict['smiling_offset']]
         return self
 
-class PortraitCatalog(ManifestCatalog[Portrait]):
+class PortraitCatalog(ManifestCatalog):
     manifest = 'portraits.json'
     title = 'portraits'
     datatype = Portrait

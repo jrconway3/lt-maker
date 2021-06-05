@@ -6,20 +6,18 @@ from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
-from app.engine.fonts import FONT
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
-from app.engine import engine, save, image_mods, banner, \
-    menus, particles, base_surf, dialog, text_funcs
+from app.engine import engine, save, image_mods, banner, menus, particles
 from app.engine import config as cf
 from app import autoupdate
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
-from app.engine.objects.difficulty_mode import DifficultyModeObject
 
 from app.events.event import Event
 
 import logging
+logger = logging.getLogger(__name__)
 
 class TitleStartState(State):
     name = "title_start"
@@ -85,8 +83,8 @@ class TitleMainState(State):
         if os.path.exists(save.SUSPEND_LOC):
             options.insert(0, 'Continue')
         # Only check for updates in frozen version
-        # if hasattr(sys, 'frozen') and autoupdate.check_for_update():
-        #    options.append('Update')
+        if hasattr(sys, 'frozen') and autoupdate.check_for_update():
+            options.append('Update')
 
         self.fluid = FluidScroll(128)
         self.bg = game.memory['title_bg']
@@ -173,17 +171,8 @@ class TitleMainState(State):
                 elif self.selection == 'Extras':
                     game.state.change('title_extras')
                 elif self.selection == 'New Game':
-                    # Check if more than one mode or the only mode requires a choice
-                    if len(DB.difficulty_modes) > 1 or \
-                            (DB.difficulty_modes and 
-                             (DB.difficulty_modes[0].permadeath_choice == 'Player Choice' or 
-                              DB.difficulty_modes[0].growths_choice == 'Player Choice')):
-                        game.memory['next_state'] = 'title_mode'
-                        game.state.change('transition_to')
-                    else:  # Wow, no need for choice
-                        mode = DB.difficulty_modes[0]
-                        game.current_mode = DifficultyModeObject(mode.nid)
-                        game.state.change('title_new')
+                    # game.state.change('title_mode')
+                    game.state.change('title_new')
                 self.state = 'transition_in'
                 return 'repeat'
 
@@ -196,7 +185,7 @@ class TitleMainState(State):
     def continue_suspend(self):
         self.menu = None
         suspend = save.SaveSlot(save.SUSPEND_LOC, None)
-        logging.info("Loading suspend...")
+        logger.info("Loading suspend...")
         save.load_game(game, suspend)
 
     def draw(self, surf):
@@ -211,177 +200,6 @@ class TitleMainState(State):
         bb = image_mods.make_translucent(self.background, self.transition/100.)
         surf.blit(bb, (0, 0))
 
-        return surf
-
-class ModeDialog(dialog.Dialog):
-    num_lines = 4
-    draw_cursor_flag = False
-
-class TitleModeState(State):
-    name = 'title_mode'
-    in_level = False
-    show_map = False
-
-    menu = None
-    bg = None
-    dialog = None
-    label = None
-
-    def difficulty_choice(self):
-        return len(DB.difficulty_modes) > 1
-
-    def start(self):
-        self.fluid = FluidScroll(128)
-        self.bg = game.memory['title_bg']
-        self.particles = game.memory['title_particles']
-
-        self.state = 'difficulty_setup'
-        self.permadeath_choice: bool = True
-        self.growths_choice: bool = True
-
-        self.label = base_surf.create_base_surf(96, 88)
-        shimmer = SPRITES.get('menu_shimmer2')
-        self.label.blit(shimmer, (95 - shimmer.get_width(), 83 - shimmer.get_height()))
-        self.label = image_mods.make_translucent(self.label, .1)
-
-    def begin(self):
-        if self.state == 'difficulty_setup':
-            if self.difficulty_choice():
-                options = [mode.name for mode in DB.difficulty_modes]
-                self.menu = menus.ModeSelect(options)
-                self.state = 'difficulty_wait'
-                game.state.change('transition_in')
-            else:
-                mode = DB.difficulty_modes[0]
-                game.current_mode = DifficultyModeObject(mode.nid)
-                self.permadeath_choice = mode.permadeath_choice == 'Player Choice'
-                self.growths_choice = mode.growths_choice == 'Player Choice'
-                self.state = 'death_setup'
-                return self.begin()  # Call again to continue setting it up
-        
-        elif self.state == 'death_setup':
-            if self.permadeath_choice:
-                options = ['Casual', 'Classic']
-                self.menu = menus.ModeSelect(options)
-                self.menu.current_index = 1
-                self.state = 'death_wait'
-                game.state.change('transition_in')
-            else:
-                self.state = 'growth_setup'
-                return self.begin()
-
-        elif self.state == 'growth_setup':
-            if self.growths_choice:
-                options = ['Random', 'Fixed', 'Dynamic']
-                self.menu = menus.ModeSelect(options)
-                self.state = 'growth_wait'
-                game.state.change('transition_in')
-            else:
-                game.memory['next_state'] = 'title_new'
-                game.state.change('transition_to')
-
-        self.update_dialog()
-
-        return 'repeat'
-
-    def update_dialog(self):
-        if self.menu:
-            text = self.menu.get_current() + '_desc'
-            text = text_funcs.translate(text)
-            self.dialog = ModeDialog(text)
-            self.dialog.position = (140, 34)
-            self.dialog.text_width = WINWIDTH - 142 - 12
-            self.dialog.font = FONT['text-white']
-            self.dialog.font_type = 'text'
-            self.dialog.font_color = 'white'
-
-    def take_input(self, event):
-        first_push = self.fluid.update()
-        directions = self.fluid.get_directions()
-
-        old_current_index = self.menu.get_current_index()
-        self.menu.handle_mouse()
-        if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down(first_push)
-        elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up(first_push)
-
-        if self.menu.get_current_index() != old_current_index:
-            self.update_dialog()
-
-        if event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
-            if self.state == 'difficulty_wait':
-                game.state.change('transition_pop')
-            elif self.state == 'death_wait':
-                if self.difficulty_choice():
-                    self.state = 'difficulty_setup'
-                    game.state.change('transition_out')
-                else:
-                    game.state.change('transition_pop')
-            elif self.state == 'growth_wait':
-                if self.permadeath_choice:
-                    self.state = 'death_setup'
-                    game.state.change('transition_out')
-                elif self.difficulty_choice():
-                    self.state = 'difficulty_setup'
-                    game.state.change('transition_out')
-                else:
-                    game.state.change('transition_pop')
-            else:
-                game.state.change('transition_pop')
-            return 'repeat'
-
-        elif event == 'SELECT':
-            SOUNDTHREAD.play_sfx('Select 1')
-            if self.state == 'growth_wait':
-                game.current_mode.growths = self.menu.get_current()
-                game.memory['next_state'] = 'title_new'
-                game.state.change('transition_to')
-            elif self.state == 'death_wait':
-                game.current_mode.permadeath = self.menu.get_current() == 'Classic'
-                if self.growths_choice:
-                    self.state = 'growth_setup'
-                    game.state.change('transition_out')
-                else:
-                    game.memory['next_state'] = 'title_new'
-                    game.state.change('transition_to')
-            elif self.state == 'difficulty_wait':
-                mode = DB.difficulty_modes[self.menu.get_current_index()]
-                game.current_mode = DifficultyModeObject(mode.nid)
-                self.permadeath_choice = mode.permadeath_choice == 'Player Choice'
-                self.growths_choice = mode.growths_choice == 'Player Choice'
-                if self.permadeath_choice:
-                    self.state = 'death_setup'
-                    game.state.change('transition_out')
-                elif self.growths_choice:
-                    self.state = 'growth_setup'
-                    game.state.change('transition_out')
-                else:
-                    game.memory['next_state'] = 'title_new'
-                    game.state.change('transition_to')
-            return 'repeat'
-            
-    def update(self):
-        if self.menu:
-            self.menu.update()
-        if self.dialog:
-            self.dialog.update()
-
-    def draw(self, surf):
-        if self.bg:
-            self.bg.draw(surf)
-        if self.particles:
-            self.particles.update()
-            self.particles.draw(surf)
-        if self.label:
-            surf.blit(self.label, (142, 36))
-        if self.dialog:
-            self.dialog.draw(surf)
-        if self.menu:
-            self.menu.draw(surf)
         return surf
 
 class TitleLoadState(State):
@@ -432,7 +250,7 @@ class TitleLoadState(State):
             save_slot = self.save_slots[selection]
             if save_slot.kind:
                 SOUNDTHREAD.play_sfx('Save')
-                logging.info("Loading save of kind %s...", save_slot.kind)
+                logger.info("Loading save of kind %s...", save_slot.kind)
                 game.state.clear()
                 game.state.process_temp_state()
                 game.build_new()
@@ -450,9 +268,6 @@ class TitleLoadState(State):
             else:
                 SOUNDTHREAD.play_sfx('Error')
 
-    def back(self):
-        game.state.back()
-
     def update(self):
         if self.menu:
             self.menu.update()
@@ -467,7 +282,7 @@ class TitleLoadState(State):
             self.position_x += 20
             if self.position_x >= int(WINWIDTH * 1.5):
                 self.position_x = int(WINWIDTH * 1.5)
-                self.back()
+                game.state.back()
                 self.state = 'transition_in'
                 return 'repeat'
 
@@ -509,7 +324,7 @@ class TitleRestartState(TitleLoadState):
             save_slot = save.RESTART_SLOTS[selection]
             if save_slot.kind:
                 SOUNDTHREAD.play_sfx('Save')
-                logging.info("Loading game...")
+                logger.info("Loading game...")
                 game.build_new()
                 save.load_game(game, save_slot)
                 # Restart level
@@ -524,10 +339,7 @@ class TitleRestartState(TitleLoadState):
                 SOUNDTHREAD.play_sfx('Error')
 
 def build_new_game(slot):
-    # Make sure to keep the current mode
-    old_mode = game.current_mode
     game.build_new()
-    game.current_mode = old_mode
 
     game.state.clear()
     game.state.change('turn_change')
@@ -579,18 +391,12 @@ class TitleNewState(TitleLoadState):
             else:
                 SOUNDTHREAD.play_sfx('Save')
                 build_new_game(selection)
-                save.SAVE_THREAD.join()
-                save.check_save_slots()
-                options, color = save.get_save_title(save.SAVE_SLOTS)
+                options, color = save.get_save_title(self.save_slots)
                 self.menu.set_colors(color)
                 self.menu.update_options(options)
                 game.memory['transition_from'] = 'New Game'
                 game.memory['title_menu'] = self.menu
                 game.state.change('title_wait')
-
-    def back(self):
-        game.state.back()
-        game.state.back()
 
 class TitleNewChildState(State):
     name = 'title_new_child'
@@ -622,11 +428,6 @@ class TitleNewChildState(State):
             if selection == 'Overwrite':
                 SOUNDTHREAD.play_sfx('Save')
                 build_new_game(self.menu.owner)  # game.memory['option_owner']
-                save.SAVE_THREAD.join()
-                save.check_save_slots()
-                options, color = save.get_save_title(save.SAVE_SLOTS)
-                game.memory['title_menu'].set_colors(color)
-                game.memory['title_menu'].update_options(options)
                 game.state.change('title_wait')
                 game.state.process_temp_state()
             elif selection == 'Back':
@@ -842,7 +643,7 @@ class TitleSaveState(State):
                 next_level_nid = game.game_vars['_next_level_nid']
                 name = DB.levels.get(next_level_nid).name
                 self.menu.set_text(self.menu.current_index, name)
-            self.menu.set_color(self.menu.current_index, game.mode.color)
+            self.menu.set_color(self.menu.current_index, 'green')
             
     def update(self):
         if self.menu:

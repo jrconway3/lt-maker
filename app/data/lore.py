@@ -10,5 +10,5 @@ class Lore(Prefab):
     category: str = "Character"
     text: str = ""
 
-class LoreCatalog(Data[Lore]):
+class LoreCatalog(Data):
     datatype = Lore

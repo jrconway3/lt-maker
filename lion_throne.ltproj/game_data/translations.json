@@ -310,37 +310,5 @@
     {
         "nid": "mvp_record_header",
         "text": "Chapter Name        Kills    Damage    Healing"
-    },
-    {
-        "nid": "Hard_desc",
-        "text": "For Fire Emblem veterans. Start here."
-    },
-    {
-        "nid": "Lunatic_desc",
-        "text": "Extremely difficult. Prepare to lose."
-    },
-    {
-        "nid": "Grandmaster_desc",
-        "text": "No RNG at all. Instead damage dealt is lowered by hit percentage."
-    },
-    {
-        "nid": "Classic_desc",
-        "text": "Units killed are lost forever."
-    },
-    {
-        "nid": "Casual_desc",
-        "text": "Your units will live to fight another day."
-    },
-    {
-        "nid": "Random_desc",
-        "text": "Each level-up is random. Classic Fire Emblem."
-    },
-    {
-        "nid": "Fixed_desc",
-        "text": "Each level-up is fixed. Units will turn out the same each time."
-    },
-    {
-        "nid": "Dynamic_desc",
-        "text": "Level-ups are random, but you can't be stat-screwed."
     }
 ]

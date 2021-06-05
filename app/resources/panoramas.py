@@ -37,7 +37,7 @@ class Panorama():
         self = cls(s_tuple[0], num_frames=s_tuple[1])
         return self
 
-class PanoramaCatalog(ManifestCatalog[Panorama]):
+class PanoramaCatalog(ManifestCatalog):
     manifest = 'panoramas.json'
     title = 'panoramas'
     datatype = Panorama

@@ -11,7 +11,7 @@ from app.editor.table_model import TableModel
 from app.editor.sound_editor.sound_dialog import ModifySFXDialog, ModifyMusicDialog
 
 class SoundModel(TableModel):
-    rows = ['nid', 'tag']
+    rows = ['nid', 'length', 'tag']
 
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
@@ -22,6 +22,8 @@ class SoundModel(TableModel):
             val = self.rows[idx]
             if val == 'nid':
                 return 'Name'
+            elif val == 'length':
+                return 'Time'
             elif val == 'extra':
                 return "Variant"
             else:
@@ -42,15 +44,15 @@ class SoundModel(TableModel):
                 else:
                     return None
             attr = getattr(d, str_attr)
-            # if str_attr == 'length' and attr is not None:
-            #     minutes = int(attr / 60)
-            #     seconds = math.ceil(attr % 60)
-            #     return "%02d:%02d" % (minutes, seconds)
+            if str_attr == 'length' and attr is not None:
+                minutes = int(attr / 60)
+                seconds = math.ceil(attr % 60)
+                return "%02d:%02d" % (minutes, seconds)
             return attr
-        # elif role == Qt.TextAlignmentRole:
-        #     str_attr = self.rows[index.column()]
-        #     if str_attr == 'length':
-        #         return Qt.AlignRight + Qt.AlignVCenter
+        elif role == Qt.TextAlignmentRole:
+            str_attr = self.rows[index.column()]
+            if str_attr == 'length':
+                return Qt.AlignRight + Qt.AlignVCenter
         return None
 
     def flags(self, index):
@@ -103,7 +105,7 @@ class SFXModel(SoundModel):
         return main_flags
 
 class MusicModel(SoundModel):
-    rows = ['nid', 'extra']
+    rows = ['nid', 'length', 'extra']
 
     def create_new(self) -> bool:
         settings = MainSettingsController()

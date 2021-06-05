@@ -48,7 +48,7 @@ class SkillPrefab(Prefab):
                 skill_components)
         return i
 
-class SkillCatalog(Data[SkillPrefab]):
+class SkillCatalog(Data):
     datatype = SkillPrefab
 
     def get_feats(self) -> list:

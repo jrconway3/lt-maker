@@ -3,33 +3,26 @@ from app.data.database import DB
 
 from app.engine import static_random, item_funcs
 
-from app.engine.game_state import game
-
 import logging
 
-def get_leveling_method(unit, custom_method=None) -> str:
+def get_next_level_up(unit, custom_method=None) -> dict:
     if custom_method:
         method = custom_method
-    if unit.team == 'player':
-        method = game.current_mode.growths
+    elif unit.team == 'player':
+        method = DB.constants.value('player_leveling')
     else:
         method = DB.constants.value('enemy_leveling')
         if method == 'Match':
-            method = game.current_mode.growths
-    return method
-
-def get_next_level_up(unit, custom_method=None) -> dict:
-    method = get_leveling_method(unit, custom_method)
+            method = DB.constants.value('player_leveling')
 
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
     klass = DB.classes.get(unit.klass)
-    difficulty_growth_bonus = game.mode.get_growth_bonus(unit)
 
     if method == 'BEXP':
         _rd_bexp_levelup(unit, unit.get_internal_level(), klass, stat_changes)
     else:
         for nid in DB.stats.keys():
-            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid)
+            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0)
 
             if method == 'Fixed':
                 if growth > 0:
@@ -99,10 +92,8 @@ def _rd_bexp_levelup(unit, level, klass, stat_changes):
     growths: list = []
     for idx, stat in enumerate(DB.stats):
         nid = stat.nid
-        difficulty_growth_bonus = game.mode.get_growth_bonus(unit)
-        growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid, 0)
         if unit.stats[nid] < klass.max_stats.get(nid, 30) and unit.growths[nid] != 0:
-            growths.append(max(growth, 0))
+            growths.append(max(unit.growths[nid], 0))
         else:  # Cannot increase this one at all
             growths.append(0)
     r = static_random.get_levelup(unit.nid, level)
@@ -120,19 +111,22 @@ def _rd_bexp_levelup(unit, level, klass, stat_changes):
 
     return stat_changes
 
-def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
+def auto_level(unit, num_levels, starting_level=1):
     """
-    Primarily for generics
+    Only for generics
     """
-    method = get_leveling_method(unit)
-    difficulty_growth_bonus = game.mode.get_growth_bonus(unit)
+
+    # Get how to level
+    if unit.team == 'player':
+        method = DB.constants.value('player_leveling')
+    else:
+        method = DB.constants.value('enemy_leveling')
+        if method == 'Match':
+            method = DB.constants.value('player_leveling')
 
     if method == 'Fixed':
         for growth_nid, growth_value in unit.growths.items():
-            if difficulty_growths:
-                growth_sum = difficulty_growth_bonus.get(growth_nid, 0) * num_levels
-            else:
-                growth_sum = (growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)) * num_levels
+            growth_sum = (growth_value + unit.growth_bonus(growth_nid)) * num_levels
             if growth_value < 0:
                 unit.stats[growth_nid] += (growth_sum - unit.growth_points[growth_nid]) // 100
                 unit.growth_points[growth_nid] = -(growth_sum - unit.growth_points[growth_nid]) % 100
@@ -142,19 +136,13 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
 
     elif method == 'Random':
         for growth_nid, growth_value in unit.growths.items():
-            if difficulty_growths:
-                growth_rate = difficulty_growth_bonus.get(growth_nid, 0)
-            else:
-                growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
+            growth_rate = growth_value + unit.growth_bonus(growth_nid)
             for n in range(num_levels):    
                 unit.stats[growth_nid] += _random_levelup(unit, starting_level + n, growth_rate)
 
     elif method == 'Dynamic':
         for growth_nid, growth_value in unit.growths.items():
-            if difficulty_growths:
-                growth_rate = difficulty_growth_bonus.get(growth_nid, 0)
-            else:
-                growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
+            growth_rate = growth_value + unit.growth_bonus(growth_nid)
             for n in range(num_levels):
                 _dynamic_levelup(unit, starting_level + n, unit.stats, unit.growth_points, growth_nid, growth_rate)
                 
@@ -167,6 +155,8 @@ def apply_stat_changes(unit, stat_changes: dict):
     """
     Assumes stat changes are valid!
     """
+    logging.info("Applying stat changes %s to %s", stat_changes, unit.nid)
+
     old_max_hp = unit.get_max_hp()
     old_max_mana = unit.get_max_mana()
     

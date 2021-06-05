@@ -60,5 +60,5 @@ class OverworldPrefab(Prefab):
         spl = tstring.split('-')
         return [make_tuple(spl[0]), make_tuple(spl[1])]
 
-class OverworldCatalog(Data[OverworldPrefab]):
+class OverworldCatalog(Data):
     datatype = OverworldPrefab

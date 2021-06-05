@@ -1,41 +1,34 @@
-from __future__ import annotations
-
 import logging
-from ctypes import Union
-from typing import Dict, Generic, List, Tuple, TypeVar
 
-from app.utilities.typing import NID
-
-T = TypeVar('T')
-class Data(Generic[T]):
+class Data(object):
     """
     Only accepts data points that have nid attribute
     Generally behaves as a list first and a dictionary second
     """
 
-    datatype = T
+    datatype = None
 
-    def __init__(self, vals: List[T] = None):
+    def __init__(self, vals=None):
         if vals:
-            self._list: List[T] = vals
-            self._dict: Dict[NID, T] = {val.nid: val for val in vals}
+            self._list = vals
+            self._dict = {val.nid: val for val in vals}
         else:
             self._list = []
             self._dict = {}
 
-    def values(self) -> List[T]:
+    def values(self):
         return self._list
 
-    def keys(self) -> List[NID]:
+    def keys(self):
         return [val.nid for val in self._list]
 
-    def items(self) -> List[Tuple[NID, T]]:
+    def items(self):
         return [(val.nid, val) for val in self._list]
 
-    def get(self, key: NID, fallback: T = None) -> T:
+    def get(self, key, fallback=None):
         return self._dict.get(key, fallback)
 
-    def update_nid(self, val: T, nid: NID, set_nid=True):
+    def update_nid(self, val, nid, set_nid=True):
         for k, v in self._dict.items():
             if v == val:
                 del self._dict[k]
@@ -44,12 +37,12 @@ class Data(Generic[T]):
                 self._dict[nid] = val
                 break
 
-    def find_key(self, val: T) -> NID:
+    def find_key(self, val):
         for k, v in self._dict.items():
             if v == val:
                 return k
 
-    def change_key(self, old_key: NID, new_key: NID):
+    def change_key(self, old_key, new_key):
         if old_key in self._dict:
             old_value = self._dict[old_key]
             del self._dict[old_key]
@@ -58,25 +51,25 @@ class Data(Generic[T]):
         else:
             logging.error('%s not found in self._dict' % old_key)
 
-    def append(self, val: T):
+    def append(self, val):
         if val.nid not in self._dict:
             self._list.append(val)
             self._dict[val.nid] = val
         else:
             logging.warning("%s already present in data" % val.nid)
 
-    def delete(self, val: T):
+    def delete(self, val):
         # Fails silently
         if val.nid in self._dict:
             self._list.remove(val)
             del self._dict[val.nid]
 
-    def remove_key(self, key: NID):
+    def remove_key(self, key):
         val = self._dict[key]
         self._list.remove(val)
         del self._dict[key]
 
-    def pop(self, idx: int = None):
+    def pop(self, idx=None):
         if idx is None:
             idx = len(self._list) - 1
         r = self._list[idx]
@@ -86,7 +79,7 @@ class Data(Generic[T]):
         else:
             logging.error("Tried to delete %s which wasn't present in data" % r.nid)
 
-    def insert(self, idx: int, val: T):
+    def insert(self, idx, val):
         self._list.insert(idx, val)
         self._dict[val.nid] = val
 
@@ -94,13 +87,13 @@ class Data(Generic[T]):
         self._list = []
         self._dict = {}
 
-    def index(self, nid: NID) -> int:
+    def index(self, nid):
         for idx, val in enumerate(self._list):
             if val.nid == nid:
                 return idx
         raise ValueError
 
-    def move_index(self, old_index: int, new_index: int):
+    def move_index(self, old_index, new_index):
         if old_index == new_index:
             return
         obj = self._list.pop(old_index)
@@ -116,7 +109,7 @@ class Data(Generic[T]):
         else:
             return self._list[:]
 
-    def restore(self, vals: T):
+    def restore(self, vals):
         self.clear()
         if self.datatype and issubclass(self.datatype, Prefab):
             for s_dict in vals:
@@ -140,7 +133,7 @@ class Data(Generic[T]):
     def __iter__(self):
         return iter(self._list)
 
-class Prefab():
+class Prefab(object):
     def save(self):
         s_dict = {}
         for attr in self.__dict__.items():
@@ -161,8 +154,7 @@ class Prefab():
         self = cls.default()
         for attr_name, attr_value in self.__dict__.items():
             value = self.restore_attr(attr_name, s_dict.get(attr_name))
-            if value is not None:
-                setattr(self, attr_name, value)
+            setattr(self, attr_name, value)
         return self
 
     def restore_attr(self, name, value):

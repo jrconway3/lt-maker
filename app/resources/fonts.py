@@ -7,7 +7,7 @@ class Font():
         self.nid = nid
         self.full_path = full_path  # IDX Path
 
-class FontCatalog(BaseResourceCatalog[Font]):
+class FontCatalog(BaseResourceCatalog):
     datatype = Font
     filetype = '.png'
 

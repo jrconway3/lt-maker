@@ -4,36 +4,10 @@ from app.data.components import Type
 from app.engine import equations, action, static_random
 from app.engine.game_state import game
 
-class Aura(SkillComponent):
-    nid = 'aura'
-    desc = "Skill has an aura that gives off child skill"
-    tag = 'status'
-    paired_with = ('aura_range', 'aura_target')
-
-    expose = Type.Skill
-
-class AuraRange(SkillComponent):
-    nid = 'aura_range'
-    desc = "Set range of skill's aura"
-    tag = 'status'
-    paired_with = ('aura', 'aura_target')
-
-    expose = Type.Int
-    value = 3
-
-class AuraTarget(SkillComponent):
-    nid = 'aura_target'
-    desc = "Set target of skill's aura (set to 'ally', 'enemy', or 'unit')"
-    tag = 'status'
-    paired_with = ('aura', 'aura_range')
-
-    expose = Type.String
-    value = 'unit'
-
 class Regeneration(SkillComponent):
     nid = 'regeneration'
     desc = "Unit restores %% of HP at beginning of turn"
-    tag = "status"
+    tag = "time"
 
     expose = Type.Float
     value = 0.2
@@ -56,7 +30,7 @@ class Regeneration(SkillComponent):
 class UpkeepDamage(SkillComponent):
     nid = 'upkeep_damage'
     desc = "Unit takes damage at upkeep"
-    tag = "status"
+    tag = "time"
 
     expose = Type.Int
     value = 5
@@ -68,7 +42,7 @@ class UpkeepDamage(SkillComponent):
 class GBAPoison(SkillComponent):
     nid = 'gba_poison'
     desc = "Unit takes random amount of damage up to num"
-    tag = "status"
+    tag = "time"
 
     expose = Type.Int
     value = 5
@@ -80,10 +54,20 @@ class GBAPoison(SkillComponent):
         actions.append(action.RecordRandomState(old_random_state, new_random_state))
         actions.append(action.ChangeHP(unit, hp_loss))
 
+class UpkeepAnimation(SkillComponent):
+    nid = 'upkeep_animation'
+    desc = "Displays map animation at beginning of turn"
+    tag = "time"
+
+    expose = Type.MapAnimation
+
+    def on_upkeep(self, actions, playback, unit):
+        playback.append(('cast_anim', self.value, unit))
+
 class ResistStatus(SkillComponent):
     nid = 'resist_status'
     desc = "Unit is only affected by statuses for a turn"
-    tag = "status"
+    tag = "base"
 
     def on_add(self, unit, skill):
         for skill in unit.skills:
@@ -97,7 +81,7 @@ class ResistStatus(SkillComponent):
 class ImmuneStatus(SkillComponent):
     nid = 'immune_status'
     desc = "Unit is not affected by negative statuses"
-    tag = 'status'
+    tag = 'base'
 
     def on_add(self, unit, skill):
         for skill in unit.skills:
@@ -108,10 +92,18 @@ class ImmuneStatus(SkillComponent):
         if other_skill.negative:
             action.do(action.RemoveSkill(unit, other_skill))
 
+class Grounded(SkillComponent):
+    nid = 'grounded'
+    desc = "Unit cannot be forcibly moved"
+    tag = 'base'
+
+    def ignore_forced_movement(self, unit):
+        return True
+
 class ReflectStatus(SkillComponent):
     nid = 'reflect_status'
     desc = "Unit reflects statuses back to initiator"
-    tag = 'status'
+    tag = 'base'
 
     def on_gain_skill(self, unit, other_skill):
         if other_skill.initiator_nid:
@@ -119,3 +111,11 @@ class ReflectStatus(SkillComponent):
             if other_unit:
                 # Create a copy of other skill
                 action.do(action.AddSkill(other_unit, other_skill.nid))
+
+class DistantCounter(SkillComponent):
+    nid = 'distant_counter'
+    desc = "Unit has infinite range when defending"
+    tag = 'base'
+
+    def distant_counter(self, unit):
+        return True

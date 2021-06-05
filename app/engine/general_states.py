@@ -113,10 +113,6 @@ class FreeState(MapState):
     name = 'free'
 
     def begin(self):
-        if game.level.roam and game.level.roam_unit:
-            game.state.change('free_roam')
-            return 'repeat'
-
         game.cursor.show()
         game.boundary.show()
         # The turnwheel will not be able to go before this moment
@@ -135,9 +131,12 @@ class FreeState(MapState):
             info_menu.handle_aux()
 
         elif event == 'SELECT':
+            roaming = game.cursor.roaming
+            roaming_unit = game.cursor.roaming_unit
             cur_pos = game.cursor.position
             cur_unit = game.board.get_unit(cur_pos)
-            if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position):
+            if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position) \
+                    and not roaming:
                 timeline_turn = True
                 if DB.constants.get('timeline').value:
                     if game.timeline[game.timeline_position] != cur_unit:
@@ -154,7 +153,15 @@ class FreeState(MapState):
                     else:
                         SOUNDTHREAD.play_sfx('Error')
             else:
-                game.state.change('option_menu')
+                SOUNDTHREAD.play_sfx('Select 2')
+                u2 = game.cursor.roamer_can_talk(roaming_unit)
+                reg = game.cursor.roamer_can_visit()
+                if u2 and roaming_unit and roaming:
+                    game.events.trigger('on_talk', roaming_unit, u2)
+                elif reg and roaming_unit and roaming:
+                    game.events.trigger(reg.sub_nid, roaming_unit, position=roaming_unit.position, region=reg)
+                else:
+                    game.state.change('option_menu')
 
         elif event == 'BACK':
             pass
@@ -210,7 +217,7 @@ class OptionMenuState(MapState):
         options = ['Unit', 'Objective', 'Options']
         info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
         ignore = [True, False, False]
-        if game.current_mode.permadeath:
+        if DB.constants.get('permadeath').value:
             options.append('Suspend')
             info_desc.append('Suspend_desc')
             ignore.append(False)
@@ -218,7 +225,7 @@ class OptionMenuState(MapState):
             options.append('Save')
             info_desc.append('Save_desc')
             ignore.append(False)
-        if not game.level or not game.level.roam:
+        if not game.current_level.roam:
             options.append('End')
             info_desc.append('End_desc')
         ignore.append(False)
@@ -227,7 +234,7 @@ class OptionMenuState(MapState):
             options.insert(2, 'Guide')
             info_desc.insert(2, 'Guide_desc')
             ignore.insert(2, False)
-        if DB.constants.get('turnwheel').value and (not game.level or not game.level.roam):
+        if DB.constants.get('turnwheel').value:
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
             ignore.insert(1, False)

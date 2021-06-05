@@ -7,7 +7,7 @@ class Song():
     def __init__(self, nid, full_path=None):
         self.nid = nid
         self.full_path = full_path
-        # self.length = None
+        self.length = None
 
         # Mutually exclusive. Can't have both start and battle versions
         self.intro_full_path = None
@@ -26,18 +26,18 @@ class Song():
         return (self.nid, self.intro_full_path, self.battle_full_path)
 
     def save(self):
-        return (self.nid, True if self.intro_full_path else False, True if self.battle_full_path else False)
+        return (self.nid, True if self.intro_full_path else False, True if self.battle_full_path else False, self.length)
 
     @classmethod
     def restore(cls, s_tuple):
         self = cls(s_tuple[0])
         self.intro_full_path = s_tuple[1]
         self.battle_full_path = s_tuple[2]
-        # if len(s_tuple) > 3:
-        #     self.length = s_tuple[3]
+        if len(s_tuple) > 3:
+            self.length = s_tuple[3]
         return self
 
-class MusicCatalog(ManifestCatalog[Song]):
+class MusicCatalog(ManifestCatalog):
     filetype = '.ogg'
     manifest = 'music.json'
     title = 'music'
@@ -83,23 +83,23 @@ class SFX():
     def __init__(self, nid, full_path=None, tag=None):
         self.nid = nid
         self.tag = tag
-        # self.length = None
+        self.length = None
         self.full_path = full_path
 
     def set_full_path(self, full_path):
         self.full_path = full_path
 
     def save(self):
-        return (self.nid, self.tag)
+        return (self.nid, self.tag, self.length)
 
     @classmethod
     def restore(cls, s_tuple):
         self = cls(s_tuple[0], tag=s_tuple[1])
-        # if len(s_tuple) > 2:
-        #     self.length = s_tuple[2]
+        if len(s_tuple) > 2:
+            self.length = s_tuple[2]
         return self
 
-class SFXCatalog(ManifestCatalog[SFX]):
+class SFXCatalog(ManifestCatalog):
     manifest = 'sfx.json'
     title = 'sfx'
     filetype = '.ogg'

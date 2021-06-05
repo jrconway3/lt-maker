@@ -27,7 +27,7 @@ class MapSprite():
         self = cls(s)
         return self
 
-class MapSpriteCatalog(ManifestCatalog[MapSprite]):
+class MapSpriteCatalog(ManifestCatalog):
     manifest = 'map_sprites.json'
     title = 'map sprites'
     datatype = MapSprite

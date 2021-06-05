@@ -19,7 +19,7 @@ class CombatCondition(SkillComponent):
             self._condition = x
             return x
         except Exception as e:
-            print("%s: Could not evaluate combat condition %s" % (e, self.value))
+            print("%s: Could not evaluate %s" % (e, self.value))
 
     def post_combat(self, playback, unit, item, target, mode):
         self._condition = False
@@ -48,4 +48,4 @@ class Condition(SkillComponent):
         try:
             return bool(evaluate.evaluate(self.value, unit))
         except Exception as e:
-            print("%s: Could not evaluate condition %s" % (e, self.value))
+            print("%s: Could not evaluate %s" % (e, self.value))

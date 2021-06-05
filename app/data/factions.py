@@ -11,5 +11,5 @@ class Faction(Prefab):
     icon_nid: str = None
     icon_index: tuple = (0, 0)
 
-class FactionCatalog(Data):
+class FactionCatalog(Data[Faction]):
     datatype = Faction

@@ -12902,6 +12902,28 @@
         "condition": "True",
         "commands": [
             [
+                "comment",
+                [
+                    "# From this point on, all enemies are at +1 level"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.mode.nid == 'Lunatic'"
+                ]
+            ],
+            [
+                "set_mode_autolevels",
+                [
+                    "1"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
                 "victory_screen",
                 []
             ],
@@ -15692,10 +15714,9 @@
         "condition": "game.turncount == 2",
         "commands": [
             [
-                "add_unit",
+                "change_roaming",
                 [
-                    "Prim",
-                    "8,8"
+                    "T"
                 ]
             ]
         ],
@@ -30824,6 +30845,28 @@
         "condition": "True",
         "commands": [
             [
+                "comment",
+                [
+                    "# From this point on, all enemies are at +2 level"
+                ]
+            ],
+            [
+                "if",
+                [
+                    "game.mode.nid == 'Lunatic'"
+                ]
+            ],
+            [
+                "set_mode_autolevels",
+                [
+                    "2"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
                 "victory_screen",
                 []
             ],
@@ -34360,6 +34403,165 @@
                 [
                     "Ophie",
                     "Wow"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Visit",
+        "trigger": "Visit",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Coyote",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Coyote",
+                    "My turn now"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Coyote"
+                ]
+            ],
+            [
+                "change_roaming_unit",
+                [
+                    "Coyote"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Coyote",
+                    "Sam"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Talk",
+        "trigger": "on_talk",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Sam",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Sam",
+                    "No more roaming"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Sam"
+                ]
+            ],
+            [
+                "change_roaming",
+                [
+                    "F"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "_fog_of_war",
+                    "1"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "_fog_of_war_radius",
+                    "5"
+                ]
+            ],
+            [
+                "base",
+                [
+                    "Ruins"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Wow!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turnwheel",
+        "trigger": "on_turnwheel",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Turnwheel Activated!"
                 ]
             ],
             [

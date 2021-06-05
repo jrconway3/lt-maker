@@ -7,5 +7,5 @@ class Equation(Prefab):
     nid: str = None
     expression: str = None
 
-class EquationCatalog(Data):
+class EquationCatalog(Data[Equation]):
     datatype = Equation

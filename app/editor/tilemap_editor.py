@@ -183,7 +183,7 @@ class MapEditorView(QGraphicsView):
 
     def draw_right_cursor(self, painter):
         mouse_pos = self.current_mouse_position
-        for coord, tile_sprite in self.right_selection.items():
+        for coord, (true_coord, tile_sprite) in self.right_selection.items():
             if not tile_sprite:
                 continue
             tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
@@ -201,8 +201,7 @@ class MapEditorView(QGraphicsView):
         starting_pos = self.right_selecting
         if not starting_pos:
             return
-        for coord, tile_sprite in self.right_selection.items():
-            true_coord = starting_pos[0] + coord[0], starting_pos[1] + coord[1]
+        for coord, (true_coord, tile_sprite) in self.right_selection.items():
             color = QColor(0, 255, 255, 128)
             rect = QRect(true_coord[0] * TILEWIDTH, true_coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
             painter.fillRect(rect, color)
@@ -229,7 +228,7 @@ class MapEditorView(QGraphicsView):
         for x in range(width):
             for y in range(height):
                 i, j = x + left, y + top
-                self.right_selection[(x, y)] = self.get_tile_sprite((i, j))
+                self.right_selection[(x, y)] = ((i, j), self.get_tile_sprite((i, j)))
 
     def paint_terrain(self, tile_pos):
         current_layer = self.get_current_layer()
@@ -241,7 +240,7 @@ class MapEditorView(QGraphicsView):
         current_layer = self.get_current_layer()
 
         if self.right_selection:
-            for coord, tile_sprite in self.right_selection.items():
+            for coord, (true_coord, tile_sprite) in self.right_selection.items():
                 true_pos = tile_pos[0] + coord[0], tile_pos[1] + coord[1]
                 if self.tilemap.check_bounds(true_pos):
                     if tile_sprite:
@@ -339,16 +338,25 @@ class MapEditorView(QGraphicsView):
             find_similar(x, y - 1, sprite)
 
         current_layer = self.get_current_layer()
-        tileset, coords = self.window.get_tileset_coords()
-
-        if not coords:
-            return
 
         # Get coords like current coord in current_layer
         current_tile = current_layer.get_sprite(tile_pos)
         # Determine which coords should be flood-filled
         find_similar(tile_pos[0], tile_pos[1], current_tile)
 
+        if self.right_selection:
+            # Only handles the topleft tile
+            coords = list(self.right_selection.keys())
+            topleft = min(coords)
+            true_coord, tile_sprite = self.right_selection[topleft]
+            coords = [true_coord]
+            tileset_nid = tile_sprite.tileset_nid
+        else:
+            tileset, coords = self.window.get_tileset_coords()
+            tileset_nid = tileset.nid
+
+        if not coords:
+            return
         topleft = min(coords)
         w = max(coord[0] for coord in coords) - topleft[0] + 1
         h = max(coord[1] for coord in coords) - topleft[1] + 1
@@ -361,7 +369,7 @@ class MapEditorView(QGraphicsView):
                     new_coord_y = y%h + topleft[1]
                     if (new_coord_x, new_coord_y) in coords:
                         current_layer.set_sprite(
-                            (x, y), tileset.nid, (new_coord_x, new_coord_y))
+                            (x, y), tileset_nid, (new_coord_x, new_coord_y))
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())

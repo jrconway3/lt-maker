@@ -71,5 +71,5 @@ class Klass(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-class ClassCatalog(Data):
+class ClassCatalog(Data[Klass]):
     datatype = Klass

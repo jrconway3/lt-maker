@@ -36,6 +36,16 @@ class UnitFlickeringTint(SkillComponent):
     def on_remove(self, unit, skill):
         unit.sprite.remove_flicker_tint(self.value, 900, 300)
 
+class UpkeepAnimation(SkillComponent):
+    nid = 'upkeep_animation'
+    desc = "Displays map animation at beginning of turn"
+    tag = "aesthetic"
+
+    expose = Type.MapAnimation
+
+    def on_upkeep(self, actions, playback, unit):
+        playback.append(('cast_anim', self.value, unit))
+
 # Get proc skills working before bothering with this one
 class DisplaySkillIconInCombat(SkillComponent):
     nid = 'display_skill_icon_in_combat'

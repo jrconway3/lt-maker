@@ -88,7 +88,7 @@ class WeaponRank(Prefab):
         return "WeaponRank %s: %d" % \
             (self.rank, self.requirement)
 
-class RankCatalog(Data):
+class RankCatalog(Data[WeaponRank]):
     datatype = WeaponRank
 
     def get_rank_from_wexp(self, wexp) -> WeaponRank:
@@ -140,7 +140,7 @@ class WeaponType(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-class WeaponCatalog(Data):
+class WeaponCatalog(Data[WeaponType]):
     datatype = WeaponType
 
     def default(self):

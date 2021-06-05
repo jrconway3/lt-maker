@@ -231,7 +231,7 @@ class TileSprite(Prefab):
         new_tile_sprite = cls(tileset_nid, tuple(tileset_position), parent)
         return new_tile_sprite
 
-class TileSetCatalog(ManifestCatalog):
+class TileSetCatalog(ManifestCatalog[TileSet]):
     manifest = 'tileset.json'
     title = 'tilesets'
     datatype = TileSet
@@ -265,7 +265,7 @@ class TileSetCatalog(ManifestCatalog):
         valid_filenames |= {datum.nid + '_autotiles.png' for datum in self}
         return valid_filenames
 
-class TileMapCatalog(ManifestCatalog):
+class TileMapCatalog(ManifestCatalog[TileMapPrefab]):
     manifest = 'tilemap.json'
     title = 'tilemaps'
 

@@ -1,6 +1,6 @@
 from app.counters import generic3counter
 from app.utilities import utils
-from app.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
+from app.constants import TILEWIDTH, TILEHEIGHT
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
@@ -14,7 +14,8 @@ import logging
 
 class Cursor():
     def __init__(self):
-        self.cursor_counter = generic3counter(20*FRAMERATE, 2*FRAMERATE, 8*FRAMERATE)
+        # 20 frames, 2 frames, 8 frames
+        self.cursor_counter = generic3counter(333, 33, 133)
         self.position = (0, 0)
         self.cur_unit = None
         self.path = []
@@ -25,7 +26,9 @@ class Cursor():
         self.format_sprite(self.sprite)
         self.offset_x, self.offset_y = 0, 0
 
-        self.fluid = FluidScroll(cf.SETTINGS['cursor_speed'])
+        # self.fluid = FluidScroll(cf.SETTINGS['cursor_speed'])
+        # slow at 13 frames -- 216, fast at 4 frames -- 66
+        self.fluid = FluidScroll(66, 3.3)
 
         self._display_arrows: bool = False
         self.arrows = []
@@ -116,13 +119,13 @@ class Cursor():
             self.offset_x = min(self.offset_x, 8)
             self.offset_y = min(self.offset_y, 8)
         # If we are slow
-        elif cf.SETTINGS['cursor_speed'] >= 40:
-            if self.speed_state:
-                self.offset_x += 8*dx
-                self.offset_y += 8*dy
-            else:
-                self.offset_x += 12*dx
-                self.offset_y += 12*dy
+        # elif cf.SETTINGS['cursor_speed'] >= 40:
+        if self.speed_state:
+            self.offset_x += 8*dx
+            self.offset_y += 8*dy
+        else:
+            self.offset_x += 12*dx
+            self.offset_y += 12*dy
 
         self.offset_x = min(self.offset_x, 12)
         self.offset_y = min(self.offset_y, 12)

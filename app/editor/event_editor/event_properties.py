@@ -238,6 +238,8 @@ class CodeEditor(QPlainTextEdit):
         # determine what dictionary to use for completion
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
+        if len(line) != cursor_pos:
+            return  # Only do autocomplete on end of line
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
             return
         validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)

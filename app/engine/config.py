@@ -13,7 +13,7 @@ def read_config_file():
                          ('animation', 'Always'),
                          ('unit_speed', 120),
                          ('text_speed', 10),
-                         ('cursor_speed', 80),
+                         ('cursor_speed', 66),
                          ('mouse', 1),
                          ('show_terrain', 1),
                          ('show_objective', 1),

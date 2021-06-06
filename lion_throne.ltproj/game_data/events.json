@@ -34515,29 +34515,27 @@
                 ]
             ],
             [
-                "base",
+                "comment",
                 [
-                    "Ruins"
+                    "#base;"
                 ]
             ],
             [
-                "add_portrait",
+                "comment",
                 [
-                    "Ophie",
-                    "Left"
+                    "#add_portrait;Ophie;Left"
                 ]
             ],
             [
-                "speak",
+                "comment",
                 [
-                    "Ophie",
-                    "Wow!"
+                    "#speak;Ophie;Wow!"
                 ]
             ],
             [
-                "remove_portrait",
+                "comment",
                 [
-                    "Ophie"
+                    "#remove_portrait;Ophie"
                 ]
             ]
         ],

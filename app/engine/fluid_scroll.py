@@ -10,7 +10,7 @@ class FluidScroll():
         self.up_update = 0
         self.down_update = 0
         self.fast_speed = speed
-        self.slow_speed = speed*slow_speed
+        self.slow_speed = int(speed*slow_speed)
         self.move_counter = 0
 
     def reset(self):
@@ -21,7 +21,7 @@ class FluidScroll():
 
     def update_speed(self, speed=64, slow_speed=3):
         self.fast_speed = speed
-        self.slow_speed = speed*slow_speed
+        self.slow_speed = int(speed*slow_speed)
 
     def update(self, hold=True):
         if (hold and INPUT.is_pressed('LEFT')) or \
@@ -60,6 +60,11 @@ class FluidScroll():
             self.up_update = 0
         if INPUT.just_pressed('DOWN'):
             self.down_update = 0
+
+        # If we changed a direction, reset the move counter
+        if INPUT.just_pressed('LEFT') or INPUT.just_pressed('RIGHT') or \
+                INPUT.just_pressed('UP') or INPUT.just_pressed('DOWN'):
+            self.move_counter = 0
 
         # If we didn't make any moves, reset the move counter
         if not any((self.move_left, self.move_right, self.move_down, self.move_up)):

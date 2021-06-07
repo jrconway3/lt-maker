@@ -44,6 +44,14 @@ def generate_flags_wordlist(flags: List[str] = []) -> List[str]:
 
 
 def detect_type_under_cursor(line: str, cursor_pos: int) -> Tuple[event_validators.Validator, List[str]]:
+    try:
+        # turn off typechecking for comments
+        comment_index = line.index("#")
+        if cursor_pos > comment_index:
+            return (event_validators.Validator, [])
+    except ValueError:
+        # no pound sign
+        pass 
     arg_idx = line.count(';', 0, cursor_pos) - 1
     flags = []
     # -1 is the command itself, and 0, 1, 2, etc. are the args

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, List, TYPE_CHECKING, Tuple, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Tuple, Union
+
 if TYPE_CHECKING:
     from .ui_framework import UIComponent
+
 from enum import Enum
+
 
 class HAlignment(Enum):
     LEFT = 0
@@ -65,7 +68,7 @@ class UILayoutHandler():
         """Generates a list positions, order corresponding to the list of children provided.
     
         Returns:
-            List[Vector2]: List of child positions.
+            List[Tuple[int, int]]: List of child positions.
         """
         layout = self.parent_component.props.layout
         if layout == UILayoutType.LIST:
@@ -81,7 +84,7 @@ class UILayoutHandler():
         """Layout Strategy for the naive UILayoutType.NONE layout.
 
         Returns:
-            List[Vector2]: positions of children
+            List[Tuple[int, int]]: positions of children
         """
         positions = []
         width = self.parent_component.width

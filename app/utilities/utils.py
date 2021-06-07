@@ -1,7 +1,7 @@
 import math
 from collections import Counter
 import colorsys, hashlib
-
+from operator import add, sub
 class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0
@@ -69,8 +69,23 @@ def process_terms(terms):
         return 0
     return sum(float(val * weight) for weight, val in terms) / weight_sum
 
+"""Vector Tuple Math
+"""
 def dot_product(a: tuple, b: tuple) -> float:
     return sum(a[i] * b[i] for i in range(len(b)))
+
+def tuple_sub(a: tuple, b: tuple) -> tuple:
+    return tuple(map(sub, a, b))
+
+def tuple_add(a: tuple, b: tuple) -> tuple:
+    return tuple(map(add, a, b))
+
+def normalize(a: tuple) -> tuple:
+    mag = math.sqrt(a[0] * a[0] + a[1] * a[1])
+    return (a[0] / mag, a[1] / mag)
+
+def tmult(a: tuple, b: float) -> tuple:
+    return (a[0] * b, a[1] * b)
 
 def strhash(s: str) -> int:
     """

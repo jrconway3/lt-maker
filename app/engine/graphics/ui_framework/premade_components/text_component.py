@@ -1,28 +1,14 @@
 from __future__ import annotations
-from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
-from app.engine.bmpfont import BmpFont
-from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
 
-from pygame.constants import WINDOWCLOSE
+from typing import List, Tuple
+
+from app.engine.bmpfont import BmpFont
+from app.engine.fonts import FONT
+from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
+from pygame import SRCALPHA, Surface
+
 from ..ui_framework import ComponentProperties, ResizeMode, UIComponent
 
-from enum import Enum
-import app.engine.graphics.ui_framework as uif
-
-from app.data import minimap
-
-from typing import Dict, List, Tuple, Union
-from pygame import Color, SRCALPHA, Surface, Vector2
-from app.utilities import utils
-from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
-from app.data.database import DB
-
-from app.engine.sprites import SPRITES
-from app.engine.fonts import FONT
-from app.engine import engine, base_surf, image_mods, text_funcs, icons, evaluate, \
-    combat_calcs, skill_system, equations, item_system, item_funcs, menu_options
-import app.engine.config as cf
-from app.engine.game_state import game   
 
 class TextProperties(ComponentProperties):
     """Properties that are particular to text-based components.
@@ -96,17 +82,17 @@ class TextComponent(UIComponent):
             num_lines = len(self.final_formatted_text)
             if num_lines == 1:
                 # all text is on one line anyway, just go by text
-                text_size = Vector2(self.props.font.size(self.text))
+                text_size = self.props.font.size(self.text)
             else:
                 # if not, we can just do math with max width
                 max_width = UIMetric.parse(self.props.max_width).to_pixels(self.parent.width)
                 # and the number of lines plus number of breaks
-                font_size = Vector2(self.props.font.size(self.text))
+                font_size = self.props.font.size(self.text)
                 line_break_size = UIMetric.parse(self.props.line_break_size).to_pixels(self.parent.height)
                 height = num_lines * font_size.y + (num_lines - 1) * line_break_size
-                text_size = Vector2(max_width, height)
-            self.size = Vector2(text_size.x + 2 + self.padding[0] + self.padding[1],
-                                text_size.y + self.padding[2] + self.padding[3])
+                text_size = max_width, height
+            self.size = (text_size[0] + 2 + self.padding[0] + self.padding[1],
+                         text_size[1] + self.padding[2] + self.padding[3])
 
     def set_text(self, text: str):
         """Sets the text of this text component and recalculates the component size.
@@ -138,7 +124,7 @@ class TextComponent(UIComponent):
             Surface: a correctly-sized transparent surf.
         """
         # if we don't have cached, or our size has changed since last background generation, regenerate
-        if not self.cached_background or Vector2(self.cached_background.get_size()) != self.size:
+        if not self.cached_background or self.cached_background.get_size() != self.size:
             self.cached_background = Surface(self.size, SRCALPHA)
         return self.cached_background
 
@@ -179,7 +165,7 @@ class TextComponent(UIComponent):
         if not self.enabled:
             return Surface((self.width, self.height), SRCALPHA)
         # draw the background.
-        base_surf = engine.copy_surface(self._create_bg_surf())
+        base_surf = self._create_bg_surf().copy()
         
         # draw the text
         remaining_chars = self.num_visible_chars

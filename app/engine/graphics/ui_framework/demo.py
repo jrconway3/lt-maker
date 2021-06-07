@@ -1,18 +1,15 @@
+import os
+
+import pygame
+import pygame.draw
+import pygame.event
+
+from .demo_code.demo_cursor import Cursor, Scene
+from .premade_components.text_component import *
 from .ui_framework import *
 from .ui_framework_animation import *
 from .ui_framework_layout import *
 from .ui_framework_styling import *
-from .premade_components.text_component import *
-from .demo_code.demo_cursor import Cursor, Scene
-from typing import List
-import pygame
-import pygame.event
-import pygame.draw
-import random
-import os
-from itertools import cycle
-
-from pygame.math import Vector2
 
 TILEWIDTH, TILEHEIGHT = 16, 16
 TILEX, TILEY = 15, 10
@@ -26,7 +23,7 @@ class DemoUI():
         # initialize components
         self.location_title: UIComponent = UIComponent(name="location title")
         self.location_title.props.bg = pygame.image.load(os.path.join(DIR_PATH, 'demo_code', 'world_map_location_box.png'))
-        self.location_title.size = Vector2(self.location_title.props.bg.get_size())
+        self.location_title.size = self.location_title.props.bg.get_size()
         self.location_title.props.v_alignment = VAlignment.TOP
         self.location_title.margin = (5, 5, 5, 5)
         self._init_location_title_animations()
@@ -77,8 +74,8 @@ class DemoUI():
         self.base_component.add_child(self.minimap)
         
     def _init_minimap_animations(self):
-        translate_down = UIAnimation.translate_anim(Vector2(0, 0), Vector2(0, WINHEIGHT))
-        translate_up = UIAnimation.translate_anim(Vector2(0, WINHEIGHT), Vector2(0, 0))
+        translate_down = UIAnimation.translate_anim((0, 0), (0, WINHEIGHT))
+        translate_up = UIAnimation.translate_anim((0, WINHEIGHT), (0, 0))
         
         def change_align(c: UIComponent):
             if c.props.h_alignment == HAlignment.LEFT:
@@ -92,10 +89,10 @@ class DemoUI():
         self.minimap.save_animation(change_alignment, 'change_alignment')
     
     def _init_location_title_animations(self):
-        exit_left = UIAnimation.translate_anim(Vector2(0, 0), Vector2(-WINWIDTH, 0), disable_after=True)
-        exit_right = UIAnimation.translate_anim(Vector2(0, 0), Vector2(WINWIDTH, 0), disable_after=True)
-        enter_left = UIAnimation.translate_anim(Vector2(-WINWIDTH, 0), Vector2(0, 0))
-        enter_right = UIAnimation.translate_anim(Vector2(WINWIDTH, 0), Vector2(0, 0))
+        exit_left = UIAnimation.translate_anim((0, 0), (-WINWIDTH, 0), disable_after=True)
+        exit_right = UIAnimation.translate_anim((0, 0), (WINWIDTH, 0), disable_after=True)
+        enter_left = UIAnimation.translate_anim((-WINWIDTH, 0), (0, 0))
+        enter_right = UIAnimation.translate_anim((WINWIDTH, 0), (0, 0))
         
         def which_transition(c: UIComponent) -> str:
             if c.props.h_alignment == HAlignment.LEFT:

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Dict, Tuple
+
+from app.utilities.utils import (dot_product, normalize, tmult, tuple_add,
+                                 tuple_sub)
+
 if TYPE_CHECKING:
     from .ui_framework import UIComponent
-
-from pygame import Vector2
 
 def animated(name: str):
     """Decorator that binds an animation to a function call. For example,
@@ -92,12 +94,12 @@ class UIAnimation():
         self.begun = False
 
     @classmethod
-    def translate_anim(cls, start_offset: Vector2, end_offset: Vector2, speed=40, disable_after=False) -> UIAnimation:
+    def translate_anim(cls, start_offset: Tuple[int, int], end_offset: Tuple[int, int], speed=40, disable_after=False) -> UIAnimation:
         """A shorthand way of creating a translation animation.
 
         Args:
-            start_offset (Vector2): Starting offset
-            end_offset (Vector2): Ending offset
+            start_offset (Tuple[int, int]): Starting offset
+            end_offset (Tuple[int, int]): Ending offset
             speed (int, optional): Speed of animation, measured in pixels per frame. Defaults to 40.
             disable_after (bool, optional): whether or not to disable the component after the animation halts.
                 Useful for transition outs.
@@ -105,13 +107,13 @@ class UIAnimation():
         Returns:
             UIAnimation: A UIAnimation that translates the UIComponent from one point to another.
         """
-        direction = (end_offset - start_offset).normalize()
+        direction = normalize(tuple_sub(end_offset, start_offset))
         def before_translation(c: UIComponent):
             c.offset = start_offset
         def translate(c: UIComponent):
-            c.offset = c.offset + direction * speed
+            c.offset = tuple_add(c.offset, tmult(direction, speed))
         def should_stop(c: UIComponent) -> bool:
-            return (c.offset - end_offset).dot(c.offset - start_offset) >= 0 and not c.offset == start_offset
+            return dot_product(tuple_sub(c.offset, end_offset), tuple_sub(c.offset, start_offset)) >= 0 and not c.offset == start_offset
 
         def disable(c: UIComponent) -> None:
             c.disable()

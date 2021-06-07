@@ -1,6 +1,10 @@
 from __future__ import annotations
+
 from enum import Enum
+
 from app.utilities import str_utils
+
+
 class MetricType(Enum):
   PIXEL = 0
   PERCENTAGE = 1

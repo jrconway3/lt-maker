@@ -1,18 +1,19 @@
 from __future__ import annotations
-from app.constants import WINHEIGHT, WINWIDTH
 
 from enum import Enum
 from typing import Dict, List, Tuple
 
 import pygame.image
+from app.constants import WINHEIGHT, WINWIDTH
 from PIL import Image
 from PIL.Image import LANCZOS
-from pygame import SRCALPHA, Color, Surface, Vector2
+from pygame import SRCALPHA, Color, Surface
 
 from .ui_framework_animation import UIAnimation, animated
 from .ui_framework_layout import (HAlignment, ListLayoutStyle, UILayoutHandler,
                                   UILayoutType, VAlignment)
 from .ui_framework_styling import UIMetric
+
 
 class ResizeMode(Enum):
     MANUAL = 0
@@ -24,8 +25,8 @@ class ComponentProperties():
         self.h_alignment: HAlignment = HAlignment.LEFT  # Horizontal Alignment of Component
         self.v_alignment: VAlignment = VAlignment.TOP   # Vertical Alignment of Component
 
-        self.grid_occupancy: Vector2 = Vector2(1, 1)    # width/height that the component takes up in a grid
-        self.grid_coordinate: Vector2 = Vector2(0, 0)   # which grid coordinate the component occupies
+        self.grid_occupancy: Tuple[int, int] = (1, 1)    # width/height that the component takes up in a grid
+        self.grid_coordinate: Tuple[int, int] = (0, 0)   # which grid coordinate the component occupies
         
         # used by the component to configure itself
         self.bg: Surface = None                         # bg image for the component
@@ -76,7 +77,7 @@ class UIComponent():
         self.name = name
         
         self.children: List[UIComponent] = []
-        self.manual_surfaces: List[Tuple[Vector2, Surface]] = []
+        self.manual_surfaces: List[Tuple[Tuple[int, int], Surface]] = []
         
         self.props: ComponentProperties = ComponentProperties()
         
@@ -153,14 +154,14 @@ class UIComponent():
         self.cached_background = None
     
     @property
-    def offset(self) -> Vector2:
+    def offset(self) -> Tuple[int, int]:
         """returns offset in pixels
 
         Returns:
-            Vector2: pixel offset value
+            Tuple[int, int]: pixel offset value
         """
-        return Vector2(self.ioffset[0].to_pixels(self.parent.width),
-                       self.ioffset[1].to_pixels(self.parent.height))
+        return (self.ioffset[0].to_pixels(self.parent.width),
+                self.ioffset[1].to_pixels(self.parent.height))
 
     @offset.setter
     def offset(self, new_offset: Tuple[str, str]):
@@ -173,13 +174,13 @@ class UIComponent():
         self.ioffset = (UIMetric.parse(new_offset[0]), UIMetric.parse(new_offset[1]))
     
     @property
-    def size(self) -> Vector2:
+    def size(self) -> Tuple[int, int]:
         """Returns the pixel width and height of the component
 
         Returns:
-            Vector2: (pixel width, pixel height)
+            Tuple[int, int]: (pixel width, pixel height)
         """
-        return Vector2(self.width, self.height)
+        return (self.width, self.height)
     
     @size.setter
     def size(self, size_input: Tuple[str, str]):
@@ -331,12 +332,12 @@ class UIComponent():
         """
         self.enabled = False
 
-    def add_surf(self, surf: Surface, pos: Vector2):
+    def add_surf(self, surf: Surface, pos: Tuple[int, int]):
         """Add a hard-coded surface to this component.
 
         Args:
             surf (Surface): A Surface
-            pos (Vector2): the coordinate position of the top left of surface
+            pos (Tuple[int, int]): the coordinate position of the top left of surface
         """
         self.manual_surfaces.append((pos, surf))
         
@@ -424,5 +425,5 @@ class UIComponent():
         for hard_code_child in self.manual_surfaces:
             pos = hard_code_child[0]
             img = hard_code_child[1]
-            base_surf.blit(img, (pos.x, pos.y))
+            base_surf.blit(img, (pos[0], pos[0]))
         return base_surf

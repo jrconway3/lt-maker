@@ -29,7 +29,7 @@ class UIMetric():
     if self.is_pixel():
       return self.val
     else:
-      return self.val * parent_metric / 100
+      return int(self.val * parent_metric / 100)
   
   @classmethod
   def pixels(cls, val):

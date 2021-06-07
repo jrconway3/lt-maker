@@ -30,7 +30,19 @@ class TextComponent(UIComponent):
         self.text = text
         self.num_visible_chars = len(text)
         self.final_formatted_text = []
+        
+    @property
+    def font_height(self) -> int:
+        return self.props.font.height
 
+    @property
+    def max_text_width(self) -> int:
+        return UIMetric.parse(self.props.max_width).to_pixels(self.parent.width) - self.padding[0] - self.padding[1]
+    
+    @property
+    def line_break_size(self) -> int:
+        return UIMetric.parse(self.props.line_break_size).to_pixels(self.parent.height)
+        
     def set_font(self, font: BmpFont):
         """Sets the font of this component and recalculates the component size.
 
@@ -85,12 +97,10 @@ class TextComponent(UIComponent):
                 text_size = self.props.font.size(self.text)
             else:
                 # if not, we can just do math with max width
-                max_width = UIMetric.parse(self.props.max_width).to_pixels(self.parent.width)
                 # and the number of lines plus number of breaks
                 font_size = self.props.font.size(self.text)
-                line_break_size = UIMetric.parse(self.props.line_break_size).to_pixels(self.parent.height)
-                height = num_lines * font_size.y + (num_lines - 1) * line_break_size
-                text_size = max_width, height
+                height = num_lines * font_size.y + (num_lines - 1) * self.line_break_size
+                text_size = self.max_text_width, height
             self.size = (text_size[0] + 2 + self.padding[0] + self.padding[1],
                          text_size[1] + self.padding[2] + self.padding[3])
 
@@ -135,7 +145,6 @@ class TextComponent(UIComponent):
         # determine the max length of the string we can fit on the first line
         # we will only split on spaces so as to preserve words on the same line
         if self.props.max_width:
-            max_width = UIMetric.parse(self.props.max_width).to_pixels(self.parent.width)
             words = self.text.split(' ')
             lines: List[str] = []
             lines.append('')
@@ -149,7 +158,7 @@ class TextComponent(UIComponent):
                     added_line = lines[-1] + ' ' + word
 
                 # check if a) this exceeds the maximum width and b) we can add more lines
-                if self.props.font.size(added_line) > max_width and len(lines) <= self.props.max_lines:
+                if self.props.font.size(added_line) > self.max_text_width and len(lines) <= self.props.max_lines:
                     # if so, start a new line with the word
                     lines.append('')
                     lines[-1] = lines[-1] + word
@@ -169,10 +178,10 @@ class TextComponent(UIComponent):
         
         # draw the text
         remaining_chars = self.num_visible_chars
-        for line in self.final_formatted_text:
+        for line_num, line in enumerate(self.final_formatted_text):
             if remaining_chars <= 0:
                 break
             visible_line = line[:remaining_chars]
             remaining_chars -= len(visible_line)
-            self.props.font.blit(visible_line, base_surf, pos=(self.padding[0], self.padding[2]))
+            self.props.font.blit(visible_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
         return base_surf

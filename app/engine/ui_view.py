@@ -109,19 +109,20 @@ class UIView():
 
         if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain'] and \
                 (game.level_vars['_fog_of_war'] != 2 or game.board.in_vision(game.cursor.position)):
-            right = self.cursor_right
-            # Handle transition
-            if self.tile_transition_state == 'out':
-                right = not right  # Mirror on the way out
-                offset = self.tile_info_disp.get_width() * self.tile_progress
-            elif self.tile_transition_state == 'in':
-                offset = self.tile_info_disp.get_width() * (1 - self.tile_progress)
-            else:
-                offset = 0
-
             self.tile_info_disp = self.create_tile_info(self.current_tile_pos)
-            # Should be in bottom, no matter what. Can be in bottomleft or bottomright, depending on where cursor is
             if self.tile_info_disp:
+                right = self.cursor_right
+
+                # Handle transition offset
+                if self.tile_transition_state == 'out':
+                    right = not right  # Mirror on the way out
+                    offset = self.tile_info_disp.get_width() * self.tile_progress
+                elif self.tile_transition_state == 'in':
+                    offset = self.tile_info_disp.get_width() * (1 - self.tile_progress)
+                else:
+                    offset = 0
+
+                # Should be in bottom, no matter what. Can be in bottomleft or bottomright, depending on where cursor is
                 if right:
                     surf.blit(self.tile_info_disp, (5 - offset, WINHEIGHT - self.tile_info_disp.get_height() - 3)) # Bottomleft
                 else:

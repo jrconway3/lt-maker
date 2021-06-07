@@ -1,7 +1,7 @@
 import random
 
 from app.utilities import utils
-from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY, FRAMERATE
+from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, combat_calcs, icons, equations, skill_system, item_system
@@ -9,7 +9,7 @@ from app.engine.game_state import game
 
 class HealthBar():
     time_for_change_min = 200
-    speed = 16   # 1 frame for each hp point
+    speed = utils.frames2ms(1)   # 1 frame for each hp point
 
     def __init__(self, unit):
         self.unit = unit
@@ -48,7 +48,7 @@ class HealthBar():
 
 class MapHealthBar(HealthBar):
     time_for_change_min = 200
-    speed = FRAMERATE
+    speed = utils.frames2ms(1)
     health_outline = SPRITES.get('map_health_outline')
     health_bar = SPRITES.get('map_health_bar')
 

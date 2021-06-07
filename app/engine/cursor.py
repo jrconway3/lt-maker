@@ -2,6 +2,7 @@ from app.counters import generic3counter
 from app.utilities import utils
 from app.constants import TILEWIDTH, TILEHEIGHT
 
+from app.utilities.utils import frames2ms
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, target_system
@@ -14,8 +15,7 @@ import logging
 
 class Cursor():
     def __init__(self):
-        # 20 frames, 2 frames, 8 frames
-        self.cursor_counter = generic3counter(333, 33, 133)
+        self.cursor_counter = generic3counter(frames2ms(20), frames2ms(2), frames2ms(8))
         self.position = (0, 0)
         self.cur_unit = None
         self.path = []
@@ -28,7 +28,7 @@ class Cursor():
 
         # self.fluid = FluidScroll(cf.SETTINGS['cursor_speed'])
         # slow at 13 frames -- 216, fast at 4 frames -- 66
-        self.fluid = FluidScroll(66, 3.3)
+        self.fluid = FluidScroll(frames2ms(4), 3.25)
 
         self._display_arrows: bool = False
         self.arrows = []

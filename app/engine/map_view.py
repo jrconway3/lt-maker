@@ -1,7 +1,8 @@
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
 from app.counters import generic3counter, simplecounter, movement_counter
 
+from app.utilities.utils import frames2ms
 from app.engine import engine
 from app.engine.game_state import game
 
@@ -9,13 +10,13 @@ import time
 
 class MapView():
     def __init__(self):
-        self.passive_sprite_counter = generic3counter(32 * FRAMERATE, 4 * FRAMERATE)
-        self.active_sprite_counter = generic3counter(13 * FRAMERATE, 6 * FRAMERATE)
-        self.move_sprite_counter = simplecounter((10 * FRAMERATE, 5 * FRAMERATE, 10 * FRAMERATE, 5 * FRAMERATE))
-        self.fast_move_sprite_counter = simplecounter((6 * FRAMERATE, 3 * FRAMERATE, 6 * FRAMERATE, 3 * FRAMERATE))
+        self.passive_sprite_counter = generic3counter(frames2ms(32), frames2ms(4))
+        self.active_sprite_counter = generic3counter(frames2ms(13), frames2ms(6))
+        self.move_sprite_counter = simplecounter((frames2ms(10), frames2ms(5), frames2ms(10), frames2ms(5)))
+        self.fast_move_sprite_counter = simplecounter((frames2ms(6), frames2ms(3), frames2ms(6), frames2ms(3)))
         self.attack_movement_counter = movement_counter()
-        self.arrow_counter = simplecounter((16 * FRAMERATE, 16 * FRAMERATE, 16 * FRAMERATE))
-        self.x2_counter = simplecounter([3 * FRAMERATE] * 18)
+        self.arrow_counter = simplecounter((frames2ms(16), frames2ms(16), frames2ms(16)))
+        self.x2_counter = simplecounter([frames2ms(3)] * 18)
 
     def update(self):
         current_time = engine.get_time()

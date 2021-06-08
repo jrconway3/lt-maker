@@ -15,15 +15,15 @@ class UIMetric():
   
   Effectively a barebones substitution of the way CSS handles length measurements.
   """
-  def __init__(self, val: int, type: MetricType):
+  def __init__(self, val: int, mtype: MetricType):
     self.val = int(val)
-    self.type = type
+    self.mtype = mtype
     
   def is_pixel(self):
-    return self.type == MetricType.PIXEL
+    return self.mtype == MetricType.PIXEL
   
   def is_percent(self):
-    return self.type == MetricType.PERCENTAGE
+    return self.mtype == MetricType.PERCENTAGE
   
   def to_pixels(self, parent_metric: int = 100):
     if self.is_pixel():
@@ -41,7 +41,7 @@ class UIMetric():
   
   @classmethod
   def parse(cls, metric_string):
-    """Parses a metric type from some arbitrary given input.
+    """Parses a metric mtype from some arbitrary given input.
     Basically, "50%" becomes a 50% UIMetric, while all other
     formatting: 50, "50px", "50.0", become 50 pixel UIMetric.
 

@@ -1,3 +1,4 @@
+from typing import List
 from app.data.database import DB
 
 def translate(string):
@@ -41,7 +42,7 @@ def line_chunk(string: str) -> list:
     chunks = [x for x in chunks if x]  # Remove empty chunks
     return chunks
 
-def line_wrap(font, string: str, width: int) -> list:
+def line_wrap(font, string: str, width: int) -> List[str]:
     """
     Adapted from text wrap module
     """

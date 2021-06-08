@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Tuple
+from typing import TYPE_CHECKING, Dict, List, Tuple, Union
 
-import pygame.image
 from app.constants import WINHEIGHT, WINWIDTH
+from app.engine import engine
+from app.utilities.typing import Color4
 from PIL import Image
 from PIL.Image import LANCZOS
-from pygame import SRCALPHA, Color, Surface
+
+if TYPE_CHECKING:
+    from pygame import Surface
 
 from .ui_framework_animation import UIAnimation, animated
 from .ui_framework_layout import (HAlignment, ListLayoutStyle, UILayoutHandler,
@@ -30,7 +33,9 @@ class ComponentProperties():
         
         # used by the component to configure itself
         self.bg: Surface = None                         # bg image for the component
-        self.bg_color: Color = Color(0, 0, 0, 0)        # (if no bg) - bg fill color for the component
+        self.bg_color: Color4 = (0, 0, 0, 0)            # (if no bg) - bg fill color for the component
+        self.bg_resize_mode: ResizeMode = (             # whether or not the bg will stretch to fit component
+            ResizeMode.MANUAL )
 
         self.layout: UILayoutType = UILayoutType.NONE   # layout type for the component (see ui_framework_layout.py)
         self.list_style: ListLayoutStyle = (            # list layout style for the component, if using UILayoutType.LIST
@@ -140,14 +145,29 @@ class UIComponent():
         component.set_background(surf)
         return component
     
-    def set_background(self, bg_surf: Surface):
+    def set_background(self, bg: Union[Surface, Color4]):
         """Set the background of this component to bg_surf.
         If the size doesn't match, it will be rescaled on draw.
 
         Args:
             bg_surf (Surface): Any surface.
         """
-        self.props.bg = bg_surf
+        if isinstance(bg, Surface):
+            self.props.bg = bg
+        elif isinstance(bg, Color4):
+            self.props.bg_color = bg
+        # set this to none; the next time we render,
+        # the component will regenerate the background.
+        # See _create_bg_surf() and to_surf()
+        self.cached_background = None
+        
+    def set_bg_resize(self, mode: ResizeMode):
+        """Changes the resizing policy of the bg for this component.
+
+        Args:
+            mode (ResizeMode): a resize policy
+        """
+        self.props.resize_mode = mode
         # set this to none; the next time we render,
         # the component will regenerate the background.
         # See _create_bg_surf() and to_surf()
@@ -391,28 +411,33 @@ class UIComponent():
     def _create_bg_surf(self) -> Surface:
         """Generates the background surf for this component of identical dimension
         as the component itself. If the background image isn't the same size as the component,
-        we will use PIL to rescale. Because rescaling is expensive, 
+        and we want to rescale, then we will use PIL to rescale. Because rescaling is expensive, 
         we'll be making use of limited caching here.
 
         Returns:
             Surface: A surface of size self.width x self.height, containing a scaled background image.
         """
         if self.props.bg is None:
-            surf = Surface((self.width, self.height), SRCALPHA)
+            surf = engine.create_surface(self.size, True)
             surf.fill(self.props.bg_color)
             return surf
         else:
-            if not self.cached_background or not self.cached_background.get_size() == (self.width, self.height):
-                bg_raw = pygame.image.tostring(self.props.bg, 'RGBA')
-                pil_bg = Image.frombytes('RGBA', self.props.bg.get_size(), bg_raw, 'raw')
-                pil_bg = pil_bg.resize((self.width, self.height), resample=LANCZOS)
-                bg_scaled = pygame.image.fromstring(pil_bg.tobytes('raw', 'RGBA'), (self.width, self.height), 'RGBA')
-                self.cached_background = bg_scaled
+            if not self.cached_background or not self.cached_background.get_size() == self.size:
+                if self.props.bg_resize_mode == ResizeMode.AUTO:
+                    bg_raw = engine.surf_to_raw(self.props.bg, 'RGBA')
+                    pil_bg = Image.frombytes('RGBA', self.props.bg.get_size(), bg_raw, 'raw')
+                    pil_bg = pil_bg.resize(self.size, resample=LANCZOS)
+                    bg_scaled = engine.raw_to_surf(pil_bg.tobytes('raw', 'RGBA'), self.size, 'RGBA')
+                    self.cached_background = bg_scaled
+                else:
+                    base = engine.create_surface(self.size, True)
+                    base.blit(self.props.bg, (0, 0))
+                    self.cached_background = base
             return self.cached_background
 
     def to_surf(self) -> Surface:
         if not self.enabled:
-            return Surface((self.width, self.height), SRCALPHA)
+            return engine.create_surface(self.size, True)
         # draw the background.
         base_surf = self._create_bg_surf().copy()
         # position and then draw all children recursively according to our layout

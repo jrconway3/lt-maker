@@ -1,6 +1,8 @@
 import sys
+from typing import Tuple
 
 import pygame
+import pygame.image
 
 from app.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
@@ -87,7 +89,7 @@ def blit_center(dest, source, pos=(WINWIDTH//2, WINHEIGHT//2), mask=None, blend=
     y = pos[1] - source.get_height()//2
     dest.blit(source, (x, y), mask, blend)
 
-def create_surface(size, transparent=False):
+def create_surface(size, transparent=False) -> pygame.Surface:
     if transparent:
         surf = pygame.Surface(size, pygame.SRCALPHA, 32)
         surf = surf.convert_alpha()
@@ -116,6 +118,32 @@ def image_load(fn, convert=False, convert_alpha=False):
     elif convert_alpha:
         image = image.convert_alpha()
     return image
+
+def surf_to_raw(surf: pygame.Surface, format: str) -> str:
+    """Converts a given surface into a raw byte representation.
+
+    Args:
+        surf (pygame.Surface): surf to convert
+        format (str): any valid format string (https://www.pygame.org/docs/ref/image.html#pygame.image.tostring)
+
+    Returns:
+        str: raw byte buffer version of surf
+    """
+    return pygame.image.tostring(surf, format)
+
+def raw_to_surf(raw_bytes: str, size: Tuple[int, int], format: str) -> pygame.Surface:
+    """converts a raw image string into a surface.
+
+    Args:
+        raw_bytes (str): raw data
+        size (Tuple[int, int]): size of surface to be created
+        format (str): the format string that was used to encode the raw data
+            (https://www.pygame.org/docs/ref/image.html#pygame.image.tostring)
+
+    Returns:
+        pygame.Surface: the surface consisting of the raw image
+    """
+    return pygame.image.fromstring(raw_bytes, size, format)
 
 def fill(surf, color, mask=None, blend=0):
     surf.fill(color, mask, blend)

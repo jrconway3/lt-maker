@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import List, TYPE_CHECKING, Tuple
 
 from app.engine.bmpfont import BmpFont
+from app.engine import engine
 from app.engine.fonts import FONT
 from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
-from pygame import SRCALPHA, Surface
+from app.engine import text_funcs
+if TYPE_CHECKING:
+    from pygame import Surface
 
 from ..ui_framework import ComponentProperties, ResizeMode, UIComponent
 
@@ -16,7 +19,7 @@ class TextProperties(ComponentProperties):
     def __init__(self):
         super().__init__()
         self.font: BmpFont = FONT['text-white']         # self-explanatory: the font
-        self.line_break_size: str = None                # if the text component is multiline, how much space
+        self.line_break_size: str = '0px'               # if the text component is multiline, how much space
                                                         # is between the two lines. Can be percentage or pixel value.
         
         self.max_lines: int = 2                         # maximum number of lines to split the text over, if max_width is set.
@@ -99,7 +102,7 @@ class TextComponent(UIComponent):
                 # if not, we can just do math with max width
                 # and the number of lines plus number of breaks
                 font_size = self.props.font.size(self.text)
-                height = num_lines * font_size.y + (num_lines - 1) * self.line_break_size
+                height = num_lines * font_size[1] + (num_lines - 1) * self.line_break_size
                 text_size = self.max_text_width, height
             self.size = (text_size[0] + 2 + self.padding[0] + self.padding[1],
                          text_size[1] + self.padding[2] + self.padding[3])
@@ -135,7 +138,7 @@ class TextComponent(UIComponent):
         """
         # if we don't have cached, or our size has changed since last background generation, regenerate
         if not self.cached_background or self.cached_background.get_size() != self.size:
-            self.cached_background = Surface(self.size, SRCALPHA)
+            self.cached_background = engine.create_surface(self.size, True)
         return self.cached_background
 
     def _add_line_breaks_to_text(self):
@@ -145,26 +148,7 @@ class TextComponent(UIComponent):
         # determine the max length of the string we can fit on the first line
         # we will only split on spaces so as to preserve words on the same line
         if self.props.max_width:
-            words = self.text.split(' ')
-            lines: List[str] = []
-            lines.append('')
-            first_word = True
-            for word in words:
-                # add word to latest line, no space for first_word
-                if first_word:
-                    added_line = lines[-1] + word
-                    first_word = False
-                else:
-                    added_line = lines[-1] + ' ' + word
-
-                # check if a) this exceeds the maximum width and b) we can add more lines
-                if self.props.font.size(added_line) > self.max_text_width and len(lines) <= self.props.max_lines:
-                    # if so, start a new line with the word
-                    lines.append('')
-                    lines[-1] = lines[-1] + word
-                else:
-                    # otherwise, keep going on this line
-                    lines[-1] = added_line
+            lines = text_funcs.line_wrap(self.props.font, self.text, self.max_text_width)
             self.final_formatted_text = lines
         else:
             self.final_formatted_text = [self.text]
@@ -172,10 +156,9 @@ class TextComponent(UIComponent):
     # @overrides UIComponent.to_surf
     def to_surf(self) -> Surface:
         if not self.enabled:
-            return Surface((self.width, self.height), SRCALPHA)
+            return engine.create_surface(self.size, True)
         # draw the background.
         base_surf = self._create_bg_surf().copy()
-        
         # draw the text
         remaining_chars = self.num_visible_chars
         for line_num, line in enumerate(self.final_formatted_text):

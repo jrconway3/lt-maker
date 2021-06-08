@@ -3,6 +3,8 @@ import os
 import pygame
 import pygame.draw
 import pygame.event
+from pygame import Surface
+from pygame import Color
 
 from .demo_code.demo_cursor import Cursor, Scene
 from .premade_components.text_component import *

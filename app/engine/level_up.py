@@ -1,9 +1,10 @@
 import math
 
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, FRAMERATE
+from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
+from app.utilities import utils
 from app.engine import engine, image_mods, icons, unit_funcs, action, banner
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
@@ -50,7 +51,7 @@ class ExpState(State):
             max_exp = 100 * (self.unit_klass.max_level - self.old_level) - self.old_exp
             self.exp_gain = min(self.exp_gain, max_exp)
 
-        self.total_time_for_exp = self.exp_gain * FRAMERATE  # 1 frame per exp
+        self.total_time_for_exp = utils.frames2ms(self.exp_gain)  # 1 frame per exp
 
         self.stat_changes = None
         self.new_wexp = None

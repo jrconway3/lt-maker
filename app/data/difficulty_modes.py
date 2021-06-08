@@ -70,5 +70,5 @@ class DifficultyModePrefab(Prefab):
         else:
             return self.enemy_autolevels
 
-class DifficultyModeCatalog(Data):
+class DifficultyModeCatalog(Data[DifficultyModePrefab]):
     datatype = DifficultyModePrefab

@@ -193,11 +193,14 @@ class UnitObject(Prefab):
     def set_exp(self, val):
         self.exp = int(utils.clamp(val, 0, 100))
 
-    def stat_bonus(self, stat):
-        return skill_system.stat_change(self, stat)
+    def stat_bonus(self, stat_nid):
+        return skill_system.stat_change(self, stat_nid)
 
-    def growth_bonus(self, stat):
-        return skill_system.growth_change(self, stat)
+    def growth_bonus(self, stat_nid):
+        return skill_system.growth_change(self, stat_nid)
+
+    def get_stat(self, stat_nid):
+        return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
 
     @property
     def sprite(self):

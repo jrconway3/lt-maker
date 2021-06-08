@@ -1,5 +1,4 @@
-from app.constants import FRAMERATE
-import random, math
+import random
 
 from app import counters
 from app.utilities import utils
@@ -21,9 +20,9 @@ class EventPortrait():
     halfsmile = (32, 80, 32, 16)
     closesmile = (64, 80, 32, 16)
 
-    transition_speed = 233  # 14 frames
-    # movement_speed = 10  # milliseconds per pixel
-    travel_time = 250
+    transition_speed = utils.frames2ms(14)
+    travel_time = utils.frames2ms(15)
+    bop_time = utils.frames2ms(8)
 
     def __init__(self, portrait, position, priority, transition=False, slide=None, mirror=False, expressions=None):
         self.portrait = portrait
@@ -48,9 +47,6 @@ class EventPortrait():
         self.moving = False
         self.orig_position = None
         self.next_position = None
-        # self.start_movement_time = 0
-        # self.travel = (0, 0)
-        # self.travel_mag = 0
 
         # For talking
         self.talk_state = 0
@@ -61,7 +57,7 @@ class EventPortrait():
         # Blinking set up
         self.offset_blinking = [x for x in range(-2000, 2000, 125)]
         # 3 frames for each
-        self.blink_counter = counters.generic3counter(7000 + random.choice(self.offset_blinking), 40, 40)
+        self.blink_counter = counters.generic3counter(7000 + random.choice(self.offset_blinking), utils.frames2ms(3), utils.frames2ms(3))
 
         # For bop
         self.bops_remaining = 0
@@ -87,11 +83,6 @@ class EventPortrait():
         self.moving = True
 
         self.travel_time = self.determine_travel_time(abs(self.next_position[0] - self.orig_position[0]))
-    
-        # self.start_movement_time = engine.get_time()
-        # self.travel = (self.next_position[0] - self.orig_position[0],
-        #                self.next_position[1] - self.orig_position[1])
-        # self.travel_mag = math.sqrt(self.travel[0] ** 2 + self.travel[1]**2
 
     def quick_move(self, position):
         self.position = position
@@ -103,7 +94,7 @@ class EventPortrait():
             change = int(round(diff_x / 8))
             change = utils.clamp(change, 1, 8)
             diff_x -= change
-        return int(counter * FRAMERATE)
+        return utils.frames2ms(counter)
 
     def talk(self):
         self.talk_on = True
@@ -233,8 +224,8 @@ class EventPortrait():
                 self.position = updated_position                
 
         if self.bops_remaining:
-            if current_time - self.last_bop > 135:
-                self.last_bop += 135
+            if current_time - self.last_bop > self.bop_time:
+                self.last_bop += self.bop_time
                 if self.bop_state:
                     self.bops_remaining -= 1
                 self.bop_state = not self.bop_state

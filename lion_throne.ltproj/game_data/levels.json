@@ -12709,7 +12709,7 @@
             "win": "Don't Crash",
             "loss": "Crash"
         },
-        "roam": true,
+        "roam": false,
         "roam_unit": "Ophie",
         "units": [
             {
@@ -12751,7 +12751,7 @@
                 "ai_group": null,
                 "starting_position": [
                     14,
-                    21
+                    20
                 ],
                 "name": null,
                 "desc": null,
@@ -12913,6 +12913,29 @@
                 "starting_position": [
                     24,
                     26
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 5,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Steel Axe",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    12,
+                    20
                 ],
                 "name": null,
                 "desc": null,

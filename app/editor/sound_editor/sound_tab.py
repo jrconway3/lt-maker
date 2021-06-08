@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, \
 from app.resources.resources import RESOURCES
 from app.extensions.custom_gui import ResourceTableView, MultiselectTableView
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
-# from app.editor.sound_editor.audio_widget import AudioWidget
 from app.editor.sound_editor.sound_model import SFXModel, MusicModel
 from app.editor import table_model
 
@@ -30,19 +29,10 @@ class SoundTab(QWidget):
         self.view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.view.setModel(self.proxy_model)
         self.view.setSortingEnabled(True)
-        # self.view.clicked.connect(self.on_single_click)
-        # self.view.doubleClicked.connect(self.on_double_click)
         # Remove edit on double click
         self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.display = self.view
 
-        # self.audio_widget = AudioWidget(self)
-
-        # for sfx in self._data:
-        #     if not sfx.length:
-        #         sfx.length = self.audio_widget.find_length(sfx)
-
-        # self.layout.addWidget(self.audio_widget)
         self.layout.addWidget(self.view)
 
         hbox = QHBoxLayout()
@@ -73,33 +63,11 @@ class SoundTab(QWidget):
         indices = select.selectedRows()
         return [self._data[self.proxy_model.mapToSource(index).row()] for index in indices]
 
-    # def on_single_click(self, index):
-    #     selections = self.get_selected()
-    #     if selections:
-    #         sfx = selections[-1]
-    #         # self.audio_widget.set_current(sfx)
-
-    # def on_double_click(self, index):
-    #     selections = self.get_selected()
-    #     if selections:
-    #         sfx = selections[-1]
-    #         # self.audio_widget.set_current(sfx)
-    #         # self.audio_widget.play()
-
     def modify(self, index):
         proxy_indices = self.display.selectionModel().selectedRows()
         if proxy_indices:
             real_indices = [self.proxy_model.mapToSource(index) for index in proxy_indices]
             self.model.modify(real_indices)
-
-    # def closeEvent(self, event):
-    #     self.audio_widget.stop()
-    #     self.audio_widget.music_player.quit()
-    #     super().closeEvent(event)
-
-    # def hideEvent(self, event):
-    #     self.audio_widget.stop()
-    #     super().hideEvent(event)
 
 class SFXDatabase(SoundTab):
     @classmethod

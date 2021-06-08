@@ -15869,7 +15869,7 @@
         "name": "Secret",
         "trigger": "Secret",
         "level_nid": "8",
-        "condition": "",
+        "condition": "True",
         "commands": [
             [
                 "transition",
@@ -34488,6 +34488,84 @@
                 "change_roaming",
                 [
                     "F"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "_fog_of_war",
+                    "1"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "_fog_of_war_radius",
+                    "5"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#base;"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#add_portrait;Ophie;Left"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#speak;Ophie;Wow!"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#remove_portrait;Ophie"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Turnwheel",
+        "trigger": "on_turnwheel",
+        "level_nid": "DEBUG",
+        "condition": "True",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "Ophie",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ophie",
+                    "Turnwheel Activated!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ophie"
                 ]
             ]
         ],

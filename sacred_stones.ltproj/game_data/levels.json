@@ -20,7 +20,7 @@
             "win": "Defeat boss",
             "loss": "Eirika dies"
         },
-        "roam": false,
+        "roam": true,
         "roam_unit": "Eirika",
         "units": [
             {
@@ -3513,8 +3513,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    4,
-                    9
+                    12,
+                    7
                 ],
                 "name": null,
                 "desc": null,
@@ -3526,8 +3526,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    5,
-                    4
+                    13,
+                    5
                 ],
                 "generic": false
             },

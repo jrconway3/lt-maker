@@ -72,7 +72,6 @@ class SFXModel(SoundModel):
                     nid = os.path.split(fn)[-1][:-4]
                     nid = str_utils.get_next_name(nid, [d.nid for d in RESOURCES.sfx])
                     new_sfx = SFX(nid, fn)
-                    # new_sfx.length = self.window.audio_widget.find_length(new_sfx)
                     RESOURCES.sfx.append(new_sfx)
                     created = True
                 elif not ogg_msg:
@@ -117,7 +116,6 @@ class MusicModel(SoundModel):
                     nid = os.path.split(fn)[-1][:-4]
                     nid = str_utils.get_next_name(nid, [d.nid for d in RESOURCES.music])
                     new_music = Song(nid, fn)
-                    # new_music.length = self.window.audio_widget.find_length(new_music)
                     RESOURCES.music.append(new_music)
                     created = True
                 elif not ogg_msg:

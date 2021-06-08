@@ -85,8 +85,8 @@ class TitleMainState(State):
         if os.path.exists(save.SUSPEND_LOC):
             options.insert(0, 'Continue')
         # Only check for updates in frozen version
-        if hasattr(sys, 'frozen') and autoupdate.check_for_update():
-            options.append('Update')
+        # if hasattr(sys, 'frozen') and autoupdate.check_for_update():
+        #    options.append('Update')
 
         self.fluid = FluidScroll(128)
         self.bg = game.memory['title_bg']
@@ -173,8 +173,17 @@ class TitleMainState(State):
                 elif self.selection == 'Extras':
                     game.state.change('title_extras')
                 elif self.selection == 'New Game':
-                    game.memory['next_state'] = 'title_mode'
-                    game.state.change('transition_to')
+                    # Check if more than one mode or the only mode requires a choice
+                    if len(DB.difficulty_modes) > 1 or \
+                            (DB.difficulty_modes and 
+                             (DB.difficulty_modes[0].permadeath_choice == 'Player Choice' or 
+                              DB.difficulty_modes[0].growths_choice == 'Player Choice')):
+                        game.memory['next_state'] = 'title_mode'
+                        game.state.change('transition_to')
+                    else:  # Wow, no need for choice
+                        mode = DB.difficulty_modes[0]
+                        game.current_mode = DifficultyModeObject(mode.nid)
+                        game.state.change('title_new')
                 self.state = 'transition_in'
                 return 'repeat'
 

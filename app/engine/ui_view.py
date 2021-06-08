@@ -21,20 +21,57 @@ class UIView():
         self.attack_info_disp = None
         self.spell_info_disp = None
 
+        self.cursor_right: bool = False
+
         self.unit_info_offset = 0
-        self.tile_info_offset = 0
         self.obj_info_offset = 0
         self.attack_info_offset = 0
 
+        # Tile Info Offset
+        self.tile_transition_state = 'normal'
+        self.tile_progress: float = 0
+        self.tile_last_update: int = 0
+        self.current_tile_pos = None
+
         self.remove_unit_info = True
-        self.expected_coord = None
-        self.tile_left = False
         self.obj_top = False
 
     def remove_unit_display(self):
         self.remove_unit_info = True
 
+    def get_cursor_right(self):
+        return game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1
+
+    def update(self):
+        current_time = engine.get_time()
+
+        # Tile info handling
+        if self.cursor_right == self.get_cursor_right():
+            pass  # No need to transition
+        else:
+            self.cursor_right = self.get_cursor_right()
+            self.tile_transition_state = 'out'
+            self.tile_progress = 0
+            self.tile_last_update = engine.get_time()
+
+        # Handle tile info slide in
+        if self.tile_transition_state != 'normal':
+            diff = current_time - self.tile_last_update
+            # 4 frames => 66 ms
+            self.tile_progress = utils.clamp(diff / 66, 0, 1)
+            if self.tile_progress >= 1:
+                self.tile_progress = 0
+                self.tile_last_update = current_time
+                if self.tile_transition_state == 'out':
+                    self.tile_transition_state = 'in'
+                    self.current_tile_pos = game.cursor.position
+                else:
+                    self.tile_transition_state = 'normal'
+        else:
+            self.current_tile_pos = game.cursor.position
+
     def draw(self, surf):
+        self.update()
         # Unit info handling
         if self.remove_unit_info:
             hover = game.cursor.get_hover()
@@ -49,20 +86,6 @@ class UIView():
         else:
             self.unit_info_offset -= 20
             self.unit_info_offset = max(0, self.unit_info_offset)
-
-        # Tile info handling
-        if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain'] and \
-                (not game.level_vars['_fog_of_war'] == 2 or game.board.in_vision(game.cursor.position)):
-            # if game.cursor.position != self.expected_coord:
-            self.tile_info_disp = self.create_tile_info(game.cursor.position)
-            if self.tile_info_disp:
-                self.tile_info_offset = min(self.tile_info_disp.get_width(), self.tile_info_offset)
-            self.tile_info_offset -= 20
-            self.tile_info_offset = max(0, self.tile_info_offset)
-        elif self.tile_info_disp:
-            self.tile_info_offset += 20
-            if self.tile_info_offset >= 200:
-                self.tile_info_disp = None
 
         # Objective info handling
         if game.state.current() in self.legal_states and cf.SETTINGS['show_objective']:
@@ -84,20 +107,28 @@ class UIView():
             else:
                 surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
 
-        if self.tile_info_disp:
-            # Should be in bottom, no matter what. Can be in bottomleft or bottomright, depending on where cursor is
-            if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1: # If cursor is right
-                if self.tile_left:
-                    self.tile_left = False
-                    self.tile_info_offset = self.tile_info_disp.get_width()
-                surf.blit(self.tile_info_disp, (5 - self.tile_info_offset, WINHEIGHT - self.tile_info_disp.get_height() - 3)) # Bottomleft
-            else:
-                if not self.tile_left:
-                    self.tile_left = True
-                    self.tile_info_offset = self.tile_info_disp.get_width()
-                xpos = WINWIDTH - self.tile_info_disp.get_width() - 5 + self.tile_info_offset
-                ypos = WINHEIGHT - self.tile_info_disp.get_height() - 3
-                surf.blit(self.tile_info_disp, (xpos, ypos)) # Bottomright
+        if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain'] and \
+                (game.level_vars['_fog_of_war'] != 2 or game.board.in_vision(game.cursor.position)):
+            self.tile_info_disp = self.create_tile_info(self.current_tile_pos)
+            if self.tile_info_disp:
+                right = self.cursor_right
+
+                # Handle transition offset
+                if self.tile_transition_state == 'out':
+                    right = not right  # Mirror on the way out
+                    offset = self.tile_info_disp.get_width() * self.tile_progress
+                elif self.tile_transition_state == 'in':
+                    offset = self.tile_info_disp.get_width() * (1 - self.tile_progress)
+                else:
+                    offset = 0
+
+                # Should be in bottom, no matter what. Can be in bottomleft or bottomright, depending on where cursor is
+                if right:
+                    surf.blit(self.tile_info_disp, (5 - offset, WINHEIGHT - self.tile_info_disp.get_height() - 3)) # Bottomleft
+                else:
+                    xpos = WINWIDTH - self.tile_info_disp.get_width() - 5 + offset
+                    ypos = WINHEIGHT - self.tile_info_disp.get_height() - 3
+                    surf.blit(self.tile_info_disp, (xpos, ypos)) # Bottomright
 
         if self.obj_info_disp:
             # Should be in topright, unless the cursor is in the topright
@@ -174,7 +205,6 @@ class UIView():
         current_unit = game.board.get_unit(coord)
         if current_unit and 'Tile' in current_unit.tags:
             current_hp = current_unit.get_hp()
-            self.expected_coord = None
             bg_surf = SPRITES.get('tile_info_destructible_opaque').copy()
             bg_surf = image_mods.make_translucent(bg_surf, .1)
             at_icon = SPRITES.get('icon_attackable_terrain')
@@ -182,7 +212,6 @@ class UIView():
             cur = str(current_hp)
             FONT['small-white'].blit_right(cur, bg_surf, (bg_surf.get_width() - 9, 24))
         else:
-            self.expected_coord = coord
             bg_surf = SPRITES.get('tile_info_quick_opaque').copy()
             bg_surf = image_mods.make_translucent(bg_surf, .1)
             tile_def, tile_avoid = 0, 0
@@ -680,15 +709,18 @@ class ItemDescriptionPanel():
         if not self.surf:
             self.surf = self.create_surf()
 
+        cursor_left = False
+        if game.cursor.position[0] > TILEX // 2 + game.camera.get_x():
+            topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
+        else:
+            cursor_left = True
+            topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
+
         portrait = icons.get_portrait(self.unit)
         if portrait:
-            if game.cursor.position[0] > TILEX // 2 + game.camera.get_x():
-                topleft = (WINWIDTH - 8 - self.surf.get_width(), WINHEIGHT - 8 - self.surf.get_height())
-                surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
-            else:
-                topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
+            if cursor_left:
                 portrait = engine.flip_horiz(portrait)
-                surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
-
+            surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
+                
         surf.blit(self.surf, topleft)
         return surf

@@ -26,9 +26,9 @@ class Camera():
             self.target_x += 1
 
     def cursor_y(self, y):
-        if y <= self.target_y + 2:
+        if y <= self.target_y + 1:
             self.target_y -= 1
-        elif y >= (TILEY + self.target_y - 3):
+        elif y >= (TILEY + self.target_y - 2):
             self.target_y += 1
 
     def mouse_xy(self, x, y):

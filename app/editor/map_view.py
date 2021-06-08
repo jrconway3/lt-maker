@@ -57,7 +57,8 @@ class SimpleMapView(QGraphicsView):
 
     def set_current_level(self, level):
         self.current_level = level
-        self.current_map = RESOURCES.tilemaps.get(level.tilemap)
+        if level:
+            self.current_map = RESOURCES.tilemaps.get(level.tilemap)
         self.update_view()
 
     def clear_scene(self):
@@ -306,7 +307,8 @@ class NewMapView(SimpleMapView):
                     if not position:
                         continue
                     unit = self.main_editor.current_level.units.get(unit_nid)
-                    self.draw_unit(painter, unit, position, opacity=True)
+                    if unit:
+                        self.draw_unit(painter, unit, position, opacity=True)
             # Draw current group
             current_group = self.main_editor.group_painter_menu.get_current()
             if current_group:

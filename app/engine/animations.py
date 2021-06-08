@@ -1,5 +1,5 @@
-from app.utilities import str_utils
-from app.constants import TILEWIDTH, TILEHEIGHT, FRAMERATE
+from app.utilities import utils, str_utils
+from app.constants import TILEWIDTH, TILEHEIGHT
 
 from app.engine import engine, image_mods
 
@@ -55,7 +55,7 @@ class Animation():
         if str_utils.is_int(self.speed):
             return self.num_frames * self.speed
         else:
-            return sum(self.speed) * FRAMERATE
+            return utils.frames2ms(sum(self.speed))
 
     def update(self):
         current_time = engine.get_time()

@@ -93,7 +93,7 @@ class BattleAnimation():
         self.current_frame = None
         self.under_frame = None
         self.over_frame = None
-        self.reset()
+        self.reset_frames()
 
     def get_stand(self):
         if self.at_range:

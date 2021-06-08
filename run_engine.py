@@ -22,6 +22,14 @@ def test_play():
     game = game_state.start_level('DEBUG')
     driver.run(game)
 
+def test_play_ss():
+    RESOURCES.load('./sacred_stones.ltproj')
+    DB.load('./sacred_stones.ltproj')
+    title = DB.constants.value('title')
+    driver.start(title, from_editor=True)
+    game = game_state.start_level('DEBUG')
+    driver.run(game)
+
 def inform_error():
     print("=== === === === === ===")
     print("A bug has been encountered.")
@@ -37,8 +45,9 @@ if __name__ == '__main__':
     if not success:
         engine.terminate()
     try:
-        main()
+        # main()
         # test_play()
+        test_play_ss()
     except Exception as e:
         logging.exception(e)
         inform_error()

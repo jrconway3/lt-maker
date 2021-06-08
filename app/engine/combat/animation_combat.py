@@ -19,8 +19,8 @@ from app.engine.game_state import game
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 
-from app.engine.map_combat import MapCombat
-from app.engine.combat.simple_combat import BaseCombat
+from app.engine.combat.map_combat import MapCombat
+from app.engine.combat.base_combat import BaseCombat
 
 class AnimationCombat(BaseCombat):
     alerts: bool = True
@@ -163,6 +163,7 @@ class AnimationCombat(BaseCombat):
             if current_time <= self.viewbox_time:
                 self.build_viewbox(current_time)
             else:
+                self.viewbox = (self.viewbox[0], self.viewbox[1], 0, 0)
                 self.state = 'entrance'
                 left_pos = (self.left.position[0] - game.camera.get_x()) * TILEWIDTH, \
                     (self.left.position[1] - game.camera.get_y()) * TILEHEIGHT
@@ -171,7 +172,7 @@ class AnimationCombat(BaseCombat):
                 self.left_battle_anim.pair(self, self.right_battle_anim, False, self.at_range, 8, left_pos)
                 self.right_battle_anim.pair(self, self.left_battle_anim, True, self.at_range, 8, right_pos)
                 # Unit should be facing down
-                self.attacker.change_state('selected')
+                self.attacker.sprite.change_state('selected')
 
         elif self.state == 'entrance':
             entrance_time = 400
@@ -394,8 +395,10 @@ class AnimationCombat(BaseCombat):
         else:
             suffix = '-Melee'
 
-        self.left_platform = SPRITES.get(left_platform_type + suffix).copy()
-        self.right_platform = engine.flip_horiz(SPRITES.get(right_platform_type + suffix).copy())
+        left_platform_full_loc = RESOURCES.platforms.get(left_platform_type + suffix)
+        self.left_platform = engine.image_load(left_platform_full_loc)
+        right_platform_full_loc = RESOURCES.platforms.get(right_platform_type + suffix)
+        self.right_platform = engine.flip_horiz(engine.image_load(right_platform_full_loc))
 
     def start_hit(self, sound=True, miss=False):
         self._apply_actions()
@@ -432,12 +435,12 @@ class AnimationCombat(BaseCombat):
             SOUNDTHREAD.fade_back()
 
     def build_viewbox(self, current_time):
-        vb_multiplier = current_time / self.viewbox_time
+        vb_multiplier = utils.clamp(current_time / self.viewbox_time, 0, 1)
         true_x, true_y = self.view_pos[0] - game.camera.get_x(), self.view_pos[1] - game.camera.get_y()
-        vb_x = vb_multiplier * true_x * TILEWIDTH
-        vb_y = vb_multiplier * true_y * TILEHEIGHT
-        vb_width = WINWIDTH - vb_x - (vb_multiplier * (TILEX - true_x)) * TILEWIDTH
-        vb_height = WINHEIGHT - vb_y - (vb_multiplier * (TILEY - true_y)) * TILEHEIGHT
+        vb_x = int(vb_multiplier * true_x * TILEWIDTH)
+        vb_y = int(vb_multiplier * true_y * TILEHEIGHT)
+        vb_width = int(WINWIDTH - vb_x - (vb_multiplier * (TILEX - true_x)) * TILEWIDTH)
+        vb_height = int(WINHEIGHT - vb_y - (vb_multiplier * (TILEY - true_y)) * TILEHEIGHT)
         self.viewbox = (vb_x, vb_y, vb_width, vb_height)
 
     def start_battle_music(self):
@@ -802,7 +805,7 @@ class AnimationCombat(BaseCombat):
         self.foreground.draw(surf)
 
     def draw_item(self, surf, item, other_item, unit, other, topleft):
-        icon = icons.get_item(item)
+        icon = icons.get_icon(item)
         if icon:
             icon = item_system.item_icon_mod(unit, item, other, icon)
             surf.blit(icon, (topleft[0] + 2, topleft[1] + 3))
@@ -823,10 +826,10 @@ class AnimationCombat(BaseCombat):
                 damage = str(stats[1])
             if DB.constants.value('crit') and stats[2] is not None:
                 crit = str(stats[2])
-        FONT['number_small2'].blit_right(hit, surf, (right, top))
-        FONT['number_small2'].blit_right(damage, surf, (right, top + 8))
+        FONT['number-small2'].blit_right(hit, surf, (right, top))
+        FONT['number-small2'].blit_right(damage, surf, (right, top + 8))
         if DB.constants.value('crit'):
-            FONT['number_small2'].blit_right(crit, surf, (right, top + 16))
+            FONT['number-small2'].blit_right(crit, surf, (right, top + 16))
 
     def clean_up1(self):
         """

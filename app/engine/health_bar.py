@@ -56,7 +56,8 @@ class CombatHealthBar(HealthBar):
     time_for_change_min = 2665
 
     def __init__(self, unit):
-        super().__init__(unit)    
+        super().__init__(unit) 
+        self.color_tick = 0   
 
     def update(self, skip=False):
         if self.displayed_hp < self.unit.get_hp():
@@ -64,7 +65,7 @@ class CombatHealthBar(HealthBar):
         else:
             self.speed = 33
         super().update()
-        self.color_tick = int(engine.get_time() / 16) % len(self.colors)
+        self.color_tick = int(engine.get_time() / 16.67) % len(self.colors)
 
     def set_hp(self, val):
         if self.displayed_hp < self.unit.get_hp():

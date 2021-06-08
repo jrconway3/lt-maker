@@ -1463,11 +1463,9 @@ class CombatState(MapState):
         if self.is_animation_combat:
             if self.combat.viewbox:
                 viewbox = self.combat.viewbox
-            else:
-                viewbox = (0, 0, WINWIDTH, WINHEIGHT)
-            if viewbox[2] > 0:  # Check that it has width
                 viewbox_bg = self.fuzz_background.copy()
-                viewbox_bg.fill((0, 0, 0, 0), viewbox)
+                if viewbox[2] > 0:  # Width
+                    viewbox_bg.fill((0, 0, 0, 0), viewbox)
                 surf = super().draw(surf, culled_rect=viewbox)
                 surf.blit(viewbox_bg, (0, 0))
             else:

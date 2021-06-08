@@ -132,19 +132,19 @@ class Camera():
         # Move camera around
         diff_x = self.target_x - self.current_x
         if diff_x > 0:
-            self.current_x += self.pan_speed if self.pan_mode else min(2, diff_x/self.speed)
+            self.current_x += self.pan_speed if self.pan_mode else utils.clamp(diff_x/self.speed, min(0.25, diff_x), 2)
         elif diff_x < 0:
-            self.current_x += -self.pan_speed if self.pan_mode else min(2, diff_x/self.speed)
+            self.current_x -= self.pan_speed if self.pan_mode else utils.clamp(abs(diff_x/self.speed), min(0.25, abs(diff_x)), 2)
         diff_y = self.target_y - self.current_y
         if diff_y > 0:
-            self.current_y += self.pan_speed if self.pan_mode else min(2, diff_y/self.speed)
+            self.current_y += self.pan_speed if self.pan_mode else utils.clamp(diff_y/self.speed, min(0.25, diff_y), 2)
         elif diff_y < 0:
-            self.current_y += -self.pan_speed if self.pan_mode else min(2, diff_y/self.speed)
+            self.current_y -= self.pan_speed if self.pan_mode else utils.clamp(abs(diff_y/self.speed), min(0.25, abs(diff_y)), 2)
 
         # If close enough to target, just make it so
-        if abs(diff_x) <= 0.25:
+        if abs(diff_x) <= 0.125:
             self.current_x = self.target_x
-        if abs(diff_y) <= 0.25:
+        if abs(diff_y) <= 0.125:
             self.current_y = self.target_y
 
         if self.pan_targets and self.at_rest():

@@ -13,7 +13,7 @@ if __name__ == '__main__':
         myappid = u'rainlash.lextalionis.ltmaker.current' # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except:
-        print("Maybe not Windows?")
+        print("Maybe not Windows? But that's OK")
 
     from app import lt_log
     success = lt_log.create_logger()

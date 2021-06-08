@@ -15869,7 +15869,7 @@
         "name": "Secret",
         "trigger": "Secret",
         "level_nid": "8",
-        "condition": "",
+        "condition": "True",
         "commands": [
             [
                 "transition",

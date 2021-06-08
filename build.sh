@@ -11,7 +11,7 @@ pyinstaller -y engine.spec "$name"
 mv "dist/$name" "../$name/$name"
 cp utilities/audio_dlls/* "../$name/$name"
 cp -r favicon.ico "../$name/$name"
-cp double_click_to_play.bat "../$name"
+cp utilities/install/double_click_to_play.bat "../$name"
 rm -rf build
 rm -rf dist
 echo Done

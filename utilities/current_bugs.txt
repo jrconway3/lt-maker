@@ -1,7 +1,0 @@
-Sometimes the frame display loses the ability to correctly display frames (after close combat animation editor, save game, then open combat animation editor?)
-Cursor control mirror the GBA exactly!
-     - Camera scroll, Camera jump, Menu cursor, cursor over units
-UI framework
-    - Tile Info
-    - Unit Info
-    - Obj Info

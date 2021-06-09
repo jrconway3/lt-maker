@@ -232,6 +232,9 @@ class MapCombatInfo():
             if self.current_shake_idx > len(self.shake_set):
                 self.current_shake_idx = 0
 
+    def add_skill_icon(self, skill_icon):
+        self.skill_icons.append(skill_icon)
+
     def build_stat_surf(self):
         stat_surf = self.c_surf.copy()
         # Blit hit

@@ -2,11 +2,12 @@ import math
 from app import counters
 
 from app.constants import WINWIDTH, WINHEIGHT
+from app.utilities import utils
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
 
-from app.engine import engine, image_mods
+from app.engine import engine, image_mods, icons
 
 class DamageNumber():
     time_bounce = 400
@@ -74,6 +75,74 @@ class DamageNumber():
             else:
                 true_pos = pos[0] - 7*self.length + 14*self.idx, pos[1] - self.top_pos
             surf.blit(self.image, true_pos)
+
+class SkillIcon():
+    def __init__(self, skill, right, small=False):
+        # small doesn't seem to be ever used
+        self.skill = skill
+        self.right = right
+        self.small = small
+        self.font = FONT['text-white']
+        self.text = self.skill.name
+        self.text_width = self.font.width(self.text)
+        icon = icons.get_icon(self.skill)
+        if self.small:
+            self.surf = icon
+        else:
+            self.surf = engine.create_surface((self.text_width + 22, 16), transparent=True)
+            if self.right:
+                self.font.blit(self.text, self.surf, (20, 0))
+                self.surf.blit(icon, (0, 0))
+            else:
+                self.font.blit(self.text, self.surf, (0, 0))
+                self.surf.blit(icon, (self.text_width + 4, 0))
+        self.image = self.surf
+
+        self.start_time = engine.get_time()
+        self.done: bool = False
+        self.state = 'in'
+
+        self.fade_time = 300 if self.small else 400
+        self.hold_time = 700 if self.small else 1100
+
+        self.left_pos = 0
+
+    def update(self):
+        current_time = engine.get_time() - self.start_time
+
+        if self.state == 'in':
+            self.left_pos = 10 * math.exp(-current_time/250) * math.sin(current_time/25)
+            transparency = 1 - utils.clamp(current_time/200, 0, 1)
+            self.image = image_mods.make_translucent(self.surf, transparency)
+            if current_time > self.fade_time:
+                self.state = 'hold'
+                self.left_pos = 0
+
+        elif self.state == 'hold':
+            self.image = self.surf
+            if current_time > self.hold_time:
+                self.state = 'out'
+
+        elif self.state == 'out':
+            state_time = current_time - self.hold_time
+            transparency = utils.clamp(state_time/300, 0, 1)
+            self.image = image_mods.make_translucent(self.surf, transparency)
+            if state_time > self.fade_time:
+                self.done = True
+
+    def draw(self, surf, pos=None):
+        if self.small and pos:
+            pos = pos[0] + self.left_pos, pos[1]
+            surf.blit(self.image, pos)
+        elif pos:
+            pos = pos[0] + self.left_pos - self.text_width//2 - 8, pos[1]
+            surf.blit(self.image, pos)
+        else:
+            if self.right:
+                x_pos = WINWIDTH - 26 - self.text_width + self.left_pos
+            else:
+                x_pos = self.left_pos + 4
+            surf.blit(self.image, (x_pos, 32))
 
 class ScrollArrow():
     images = {'up': SPRITES.get('scroll_arrows'),

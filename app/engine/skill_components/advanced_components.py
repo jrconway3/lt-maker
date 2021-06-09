@@ -123,39 +123,89 @@ def get_proc_rate(unit, skill) -> int:
             
 class AttackProc(SkillComponent):
     nid = 'attack_proc'
-    desc = "Allows skill to proc when about to attack"
+    desc = "Allows skill to proc on a single attacking strike"
     tag = 'advanced'
 
     expose = Type.Skill
     _did_action = False
 
-    def start_sub_combat(self, unit, item, target, mode):
-        proc_rate = get_proc_rate(unit, self.skill)
-        if static_random.get_combat() < proc_rate:
-            action.do(action.AddSkill(unit, self.value))
-            self._did_action = True
+    def start_sub_combat(self, actions, playback, unit, item, target, mode):
+        if mode == 'attack':
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('attack_proc', unit, act.skill_obj))
+                self._did_action = True
         
-    def end_sub_combat(self, unit, item, target, mode):
+    def end_sub_combat(self, actions, playback, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))
 
 class DefenseProc(SkillComponent):
     nid = 'defense_proc'
-    desc = "Allows skill to proc when defending"
+    desc = "Allows skill to proc when defending a single strike"
     tag = 'advanced'
 
     expose = Type.Skill
     _did_action = False
 
-    def start_sub_combat(self, unit, item, target, mode):
-        proc_rate = get_proc_rate(unit, self.skill)
-        if static_random.get_combat() < proc_rate:
-            action.do(action.AddSkill(unit, self.value))
-            self._did_action = True
+    def start_sub_combat(self, actions, playback, unit, item, target, mode):
+        if mode == 'defense':
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('defense_proc', unit, act.skill_obj))
+                self._did_action = True
         
-    def end_sub_combat(self, unit, item, target, mode):
+    def end_sub_combat(self, actions, playback, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))
+
+class AttackPreProc(SkillComponent):
+    nid = 'attack_pre_proc'
+    desc = "Allows skill to proc when initiating combat. Lasts entire combat."
+    tag = 'advanced'
+
+    expose = Type.Skill
+    _did_action = False
+
+    def start_combat(self, playback, unit, item, target, mode):
+        if mode == 'attack':
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('attack_pre_proc', unit, act.skill_obj))
+                self._did_action = True
+        
+    def end_combat(self, playback, unit, item, target, mode):
+        if self._did_action:
+            action.do(action.RemoveSkill(unit, self.value))
+            self._did_action = False
+
+class DefensePreProc(SkillComponent):
+    nid = 'defense_pre_proc'
+    desc = "Allows skill to proc when defending in combat. Lasts entire combat."
+    tag = 'advanced'
+
+    expose = Type.Skill
+    _did_action = False
+
+    def start_combat(self, playback, unit, item, target, mode):
+        if mode == 'defense':
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('defense_pre_proc', unit, act.skill_obj))
+                self._did_action = True
+        
+    def end_combat(self, playback, unit, item, target, mode):
+        if self._did_action:
+            action.do(action.RemoveSkill(unit, self.value))
+            self._did_action = False
 
 class ProcRate(SkillComponent):
     nid = 'proc_rate'

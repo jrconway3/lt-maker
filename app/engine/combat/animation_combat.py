@@ -186,19 +186,16 @@ class AnimationCombat(BaseCombat):
 
         elif self.state == 'init_pause':
             if self._skip or current_time > 410:  # 25 frames
-                # Determine which pre proc effects happen
-                self.actions, self.playback = self.state_machine.do_pre_proc()
-                self.full_playback += self.playback
                 self.state = 'pre_proc'
 
         elif self.state == 'pre_proc':
             if self.left_battle_anim.done() and self.right_battle_anim.done():
+                # These would have happened from pre_combat and start_combat
                 if self.get_from_playback('attack_pre_proc'):
                     self.set_up_proc_animation('attack_pre_proc')
                 elif self.get_from_playback('defense_pre_proc'):
                     self.set_up_proc_animation('defense_pre_proc')
                 else:
-                    self._apply_actions()
                     self.state = 'init_effects'
 
         elif self.state == 'init_effects':

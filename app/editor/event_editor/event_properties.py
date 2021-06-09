@@ -1,5 +1,6 @@
 import logging
 import math
+import os
 from dataclasses import dataclass
 
 from app.data.database import DB
@@ -20,7 +21,7 @@ from PyQt5.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter,
                          QTextCursor)
 from PyQt5.QtWidgets import (QAbstractItemView, QAction, QApplication,
                              QCheckBox, QCompleter, QDialog, QFrame,
-                             QGridLayout, QHBoxLayout, QLineEdit, QListView,
+                             QGridLayout, QHBoxLayout, QLabel, QLineEdit, QListView,
                              QMessageBox, QPlainTextEdit, QPushButton,
                              QSizePolicy, QSpinBox, QSplitter, QStyle,
                              QStyledItemDelegate, QTextEdit, QToolBar,
@@ -205,7 +206,15 @@ class CodeEditor(QPlainTextEdit):
         self.completer: event_autocompleter.Completer = None
         self.setCompleter(event_autocompleter.Completer(parent=self))
         self.textChanged.connect(self.complete)
+        self.textChanged.connect(self.display_function_hint)
         self.prev_keyboard_press = None
+        
+        # function helper
+        self.function_annotator: QLabel = QLabel(self)
+        self.function_annotator.setTextFormat(Qt.RichText)
+        self.function_annotator.setWordWrap(True)
+        with open(os.path.join(os.path.dirname(__file__),'event_styles.css'), 'r') as stylecss:
+            self.function_annotator.setStyleSheet(stylecss.read())
         
     def setCompleter(self, completer):
         if not completer:
@@ -230,18 +239,89 @@ class CodeEditor(QPlainTextEdit):
         tc.select(QTextCursor.WordUnderCursor)
         return tc.selectedText()
 
-    def complete(self):
-        if self.prev_keyboard_press == Qt.Key_Backspace or self.prev_keyboard_press == Qt.Key_Return:
-            return
-        
+    def display_function_hint(self):
         tc = self.textCursor()
-        # determine what dictionary to use for completion
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
+        if len(line) != cursor_pos:
+            self.function_annotator.hide()
+            return  # Only do function hint on end of line
+        if tc.blockNumber() <= 0 and cursor_pos <= 0:  # don't do hint if cursor is at the very top left of event
+            self.function_annotator.hide()
+            return
+        if self.prev_keyboard_press == Qt.Key_Return: # don't do hint on newline
+            self.function_annotator.hide()
+            return
+        
+        if len(line) > 0 and line[cursor_pos - 1] == ';':
+            self.function_annotator.show()
+                
+        # determine which command and validator is under the cursor
+        command = event_autocompleter.detect_command_under_cursor(line)
+        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
+        
+        if not command or command == event_commands.Comment:
+            return
+        
+        hint_words = []
+        hint_words.append(command.nid)
+        hint_words = hint_words + command.keywords
+        hint_words = hint_words + command.optional_keywords
+        if command.flags:
+            hint_words.append('FLAGS')
+        hint_cmd = ""
+        hint_desc = ""
+        
+        if validator == event_validators.EventFunction:
+            self.function_annotator.hide()
+            return
+        else:
+            try:
+                arg_idx = hint_words.index(validator.__name__)
+                hint_words[arg_idx] = '<b>' + hint_words[arg_idx] + '</b>'
+                hint_desc = hint_words[arg_idx] + ' ' + validator().desc
+            except:
+                if cursor_pos > 0 and command.flags:
+                    hint_words[-1] = '<b>' + hint_words[-1] + '</b>'
+                    hint_desc = 'Must be one of (`' + str.join('`,`', flags) + '`)'
+        
+        hint_cmd = str.join(';', hint_words)
+        # style both components
+        hint_cmd = '<div class="command_text">' + hint_cmd + '</div>'
+        hint_desc = '<div class="desc_text">' + hint_desc + '</div>'
+        
+        style = """
+            <style>
+                .command_text {font-family: 'Courier New', Courier, monospace;}
+                .desc_text {font-family: Arial, Helvetica, sans-serif;}
+            </style>
+        """
+        
+        hint_text = style + hint_cmd + '<hr>' + hint_desc
+        self.function_annotator.setText(hint_text)
+        self.function_annotator.adjustSize()
+        
+        # offset the position and display
+        tc_top_right = self.mapTo(self.parent(), self.cursorRect(tc).topRight())
+        height = self.function_annotator.height()
+        tc_top_right.setY(tc_top_right.y() - height - 5)
+        tc_top_right.setX(min(tc_top_right.x() + 15, self.width() - self.function_annotator.width()))
+        self.function_annotator.move(tc_top_right)
+
+    def complete(self):        
+        tc = self.textCursor()
+        
+        line = tc.block().text()
+        cursor_pos = tc.positionInBlock()
+        
         if len(line) != cursor_pos:
             return  # Only do autocomplete on end of line
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
             return
+        if self.prev_keyboard_press == Qt.Key_Backspace or self.prev_keyboard_press == Qt.Key_Return: # don't do autocomplete on backspace
+            return
+        
+        # determine what dictionary to use for completion
         validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
         autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.nid)
         if flags:

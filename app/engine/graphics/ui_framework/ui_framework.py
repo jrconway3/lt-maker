@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Dict, List, Tuple, Union
+from typing import Callable, Dict, List, Tuple, Union
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import engine
@@ -15,7 +15,6 @@ from .ui_framework_animation import UIAnimation, animated
 from .ui_framework_layout import (HAlignment, ListLayoutStyle, UILayoutHandler,
                                   UILayoutType, VAlignment)
 from .ui_framework_styling import UIMetric
-
 
 class ResizeMode(Enum):
     MANUAL = 0
@@ -108,8 +107,16 @@ class UIComponent():
         self.queued_animations: List[UIAnimation] = []
         # saved animations
         self.saved_animations: Dict[str, List[UIAnimation]] = {}
+        
+        # secret internal timekeeper, basically never touch this
+        self._chronometer: Callable[[], int] = engine.get_time
 
         self.enabled: bool = True
+        
+    def set_chronometer(self, chronometer: Callable[[], int]):
+        self._chronometer = chronometer
+        for child in self.children:
+            child.set_chronometer(chronometer)
     
     @classmethod
     def create_base_component(cls, win_width=WINWIDTH, win_height=WINHEIGHT) -> UIComponent:
@@ -402,8 +409,9 @@ class UIComponent():
     def update(self):
         """update. used at the moment to advance animations.
         """
+        update_time = self._chronometer()
         if len(self.queued_animations) > 0:
-            if self.queued_animations[0].update():
+            if self.queued_animations[0].update(update_time):
                 # the above function call returns True if the animation is finished
                 self.queued_animations.pop(0)
 

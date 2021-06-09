@@ -6,7 +6,9 @@ class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0
 
-def clamp(i, min_, max_):
+def clamp(i, bound_a, bound_b):
+    max_ = max(bound_a, bound_b)
+    min_ = min(bound_a, bound_b)
     return min(max_, max(min_, i))
 
 def sign(n):
@@ -86,6 +88,12 @@ def normalize(a: tuple) -> tuple:
 
 def tmult(a: tuple, b: float) -> tuple:
     return (a[0] * b, a[1] * b)
+
+def tmax(a: tuple, b: tuple) -> tuple:
+    return tuple(map(max, a, b))
+
+def tclamp(a: tuple, lower: tuple, upper: tuple) -> tuple:
+    return tuple(map(clamp, a, lower, upper))
 
 def strhash(s: str) -> int:
     """

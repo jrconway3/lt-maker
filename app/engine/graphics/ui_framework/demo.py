@@ -1,4 +1,5 @@
 import os
+import time
 
 import pygame
 import pygame.draw
@@ -17,6 +18,11 @@ TILEWIDTH, TILEHEIGHT = 16, 16
 TILEX, TILEY = 15, 10
 WINWIDTH, WINHEIGHT = TILEX * TILEWIDTH, TILEY * TILEHEIGHT
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+
+
+def current_milli_time():
+    return round(time.time() * 1000)
+
 class DemoUI():    
     def __init__(self, cursor: Cursor):
         # this is just demo code, in real engine this would have a reference to game already
@@ -74,12 +80,13 @@ class DemoUI():
         self.base_component = UIComponent.create_base_component(WINWIDTH, WINHEIGHT)
         self.base_component.add_child(self.location_title)
         self.base_component.add_child(self.minimap)
+        self.base_component.set_chronometer(current_milli_time)
         
     def _init_minimap_animations(self):
         translate_down = UIAnimation.translate_anim((0, 0), (0, WINHEIGHT))
         translate_up = UIAnimation.translate_anim((0, WINHEIGHT), (0, 0))
         
-        def change_align(c: UIComponent):
+        def change_align(c: UIComponent, *args):
             if c.props.h_alignment == HAlignment.LEFT:
                 c.props.h_alignment = HAlignment.RIGHT
             else:
@@ -96,7 +103,7 @@ class DemoUI():
         enter_left = UIAnimation.translate_anim((-WINWIDTH, 0), (0, 0))
         enter_right = UIAnimation.translate_anim((WINWIDTH, 0), (0, 0))
         
-        def which_transition(c: UIComponent) -> str:
+        def which_transition(c: UIComponent, *args) -> str:
             if c.props.h_alignment == HAlignment.LEFT:
                 return "left"
             else:

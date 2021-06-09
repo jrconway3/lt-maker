@@ -9,8 +9,7 @@ from app.utilities.typing import Color4
 from PIL import Image
 from PIL.Image import LANCZOS
 
-if TYPE_CHECKING:
-    from pygame import Surface
+from pygame import Surface
 
 from .ui_framework_animation import UIAnimation, animated
 from .ui_framework_layout import (HAlignment, ListLayoutStyle, UILayoutHandler,
@@ -86,8 +85,8 @@ class UIComponent():
         
         self.props: ComponentProperties = ComponentProperties()
         
-        self.isize: List[UIMetric] = [UIMetric.pixels(0),
-                                      UIMetric.pixels(0)]
+        self.isize: List[UIMetric] = [UIMetric.percent(100),
+                                      UIMetric.percent(100)]
         
         self.imargin: List[UIMetric] = [UIMetric.pixels(0),
                                         UIMetric.pixels(0),

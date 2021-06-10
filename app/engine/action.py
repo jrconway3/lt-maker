@@ -110,7 +110,7 @@ class Move(Action):
 
     def do(self):
         if self.path is None:
-            self.path = game.cursor.path
+            self.path = game.cursor.path[:]
         game.movement.begin_move(self.unit, self.path, self.event, self.follow)
 
     def execute(self):

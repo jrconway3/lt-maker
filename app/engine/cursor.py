@@ -92,11 +92,15 @@ class Cursor():
 
         # Cursor Sound
         if mouse:
+            pass  # No cursor sound in mouse mode, cause it's annoying
+            """
             if dx == 0 and dy == 0:
                 pass
             else:
                 SOUNDTHREAD.stop_sfx('Select 5')
-                SOUNDTHREAD.play_sfx('Select 5')
+                if sound:
+                    SOUNDTHREAD.play_sfx('Select 5')
+            """
         else:
             SOUNDTHREAD.stop_sfx('Select 5')
             if sound:
@@ -120,15 +124,16 @@ class Cursor():
             self.offset_y = min(self.offset_y, 8)
         # If we are slow
         # elif cf.SETTINGS['cursor_speed'] >= 40:
-        if self.speed_state:
-            self.offset_x += 8*dx
-            self.offset_y += 8*dy
         else:
-            self.offset_x += 12*dx
-            self.offset_y += 12*dy
+            if self.speed_state:
+                self.offset_x += 8*dx
+                self.offset_y += 8*dy
+            else:
+                self.offset_x += 12*dx
+                self.offset_y += 12*dy
 
-        self.offset_x = min(self.offset_x, 12)
-        self.offset_y = min(self.offset_y, 12)
+            self.offset_x = min(self.offset_x, 12)
+            self.offset_y = min(self.offset_y, 12)
 
     def autocursor(self, immediate=False):
         player_units = [unit for unit in game.units if unit.team == 'player' and unit.position]
@@ -145,6 +150,9 @@ class Cursor():
                 game.camera.force_center(*self.position)
             else:
                 game.camera.set_center(*self.position)
+
+    def show_arrows(self):
+        self._display_arrows = True
 
     def place_arrows(self):
         self.path.clear()
@@ -262,8 +270,8 @@ class Cursor():
                 new_pos = int(new_pos[0] + game.camera.get_x()), int(new_pos[1] + game.camera.get_y())
                 dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
                 self.move(dpos[0], dpos[1], mouse=True, sound=bool(mouse_position))
-                game.camera.cursor_x(self.position[0])
-                game.camera.cursor_y(self.position[1])
+                game.camera.mouse_x(self.position[0])
+                game.camera.mouse_y(self.position[1])
 
     def update(self):
         self.cursor_counter.update(engine.get_time())

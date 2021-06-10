@@ -29,8 +29,6 @@ UI framework
     * For Player-Controlled Units, movement sounds correctly play shorter or longer based on the Unit Speed setting, but if the Unit Speed is set very high, no footstep sound is played at all if the Unit moves leses than 4 spaces.  Some logic should be put in place to at least play the "half sound" for any amount of movement even if it doesn't reach the threshold to play or loop the "full" footstep sound.
 * 2 or 3 frame fade-in / fade-out for showing / hiding enemy ranges
 
-If you click a unit, move them, then B back, you should be in the move state with the cursor over your chosen position, and pressing B again returns you to the Free State with the cursor over the character
-
 Get rid of on_add and on_remove in skill_system
 
 AI Skip Phase button

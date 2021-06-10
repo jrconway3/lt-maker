@@ -15,7 +15,12 @@ def clamp(i, min_, max_):
     return min(max_, max(min_, i))
 
 def sign(n):
-    return 1 if n >= 0 else -1
+    if n > 0:
+        return 1
+    elif n == 0:
+        return 0
+    else:
+        return -1
 
 def lerp(a, b, t):
     t = clamp(t, 0, 1)
